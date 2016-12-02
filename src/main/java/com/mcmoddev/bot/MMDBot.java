@@ -1,5 +1,7 @@
 package com.mcmoddev.bot;
 
+import java.util.logging.Logger;
+
 import com.mcmoddev.bot.command.CommandHandler;
 
 import sx.blah.discord.api.ClientBuilder;
@@ -12,6 +14,7 @@ import sx.blah.discord.util.RateLimitException;
 public class MMDBot {
     
     public static IDiscordClient instance;
+    public static Logger LOG = Logger.getLogger("MMDBot");
     
     public static void main (String... args) throws RateLimitException {
         
