@@ -19,7 +19,7 @@ public class CommandHelp implements Command {
                 final Command cmd = CommandHandler.getCommand(args[index]);
                 
                 if (cmd != null && cmd.isValidUsage(message))
-                    descriptions += CommandHandler.COMMAND_KEY + args[index] + " - " + cmd.getDescription()+ Utilities.SEPERATOR + Utilities.SEPERATOR;
+                    descriptions += CommandHandler.COMMAND_KEY + args[index] + " - " + cmd.getDescription() + Utilities.SEPERATOR + Utilities.SEPERATOR;
             }
         else
             for (final Entry<String, Command> command : CommandHandler.getCommands().entrySet())

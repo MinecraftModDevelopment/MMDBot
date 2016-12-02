@@ -5,14 +5,12 @@ import java.util.Map;
 
 import com.mcmoddev.bot.util.Utilities;
 
-import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 public class CommandHandler {
     
-	public static final String COMMAND_KEY = "!mmd";
-	
+    public static final String COMMAND_KEY = "!mmd";
+    
     /**
      * A Map containing all registered commands and their keys.
      */
@@ -23,11 +21,11 @@ public class CommandHandler {
      */
     public static void initCommands () {
         
-    	commands.put("help", new CommandHelp());
-    	commands.put("members", new CommandMemberCount());
-    	commands.put("server", new CommandServerInfo());
-    	commands.put("reload", new CommandReload());
-    	commands.put("rename", new CommandRename());
+        commands.put("help", new CommandHelp());
+        commands.put("members", new CommandMemberCount());
+        commands.put("server", new CommandServerInfo());
+        commands.put("reload", new CommandReload());
+        commands.put("rename", new CommandRename());
     }
     
     /**
