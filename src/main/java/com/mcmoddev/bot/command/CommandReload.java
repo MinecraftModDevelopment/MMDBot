@@ -5,7 +5,7 @@ import com.mcmoddev.bot.util.Utilities;
 
 import sx.blah.discord.handle.obj.IMessage;
 
-public class CommandReload implements Command {
+public class CommandReload extends CommandAdmin {
     
     @Override
     public void proccessCommand (IMessage message, String[] params) {
