@@ -24,13 +24,6 @@ public interface Command {
     public String getDescription ();
     
     /**
-     * Checks if a command is valid. If not, it will not be executed.
-     * 
-     * @param message The message which contains all the command information.
-     * @return boolean Whether or not the command should execute.
-     */
-    
-    /**
      * Checks if the message is valid for the command. This is intended for use with player
      * permissions, but can also be used to allow other misc checks.
      * 

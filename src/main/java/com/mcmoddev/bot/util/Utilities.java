@@ -16,8 +16,19 @@ import sx.blah.discord.util.RateLimitException;
 
 public class Utilities {
     
+    /**
+     * Static reference to the line seperator on the current operating system.
+     */
     public static final String SEPERATOR = System.lineSeparator();
     
+    /**
+     * A wrapper for {@link FileUtils#copyURLToFile(URL, File)}. Allows for quick download of
+     * files based on input from users.
+     * 
+     * @param site The site/url to download the file from.
+     * @param fileName The location to save the file to.
+     * @return The file that was downloaded.
+     */
     public static File downloadFile (String site, String fileName) {
         
         final File file = new File(fileName);
@@ -26,6 +37,7 @@ public class Utilities {
             
             FileUtils.copyURLToFile(new URL(site), file);
         }
+        
         catch (final IOException e) {
             
             e.printStackTrace();

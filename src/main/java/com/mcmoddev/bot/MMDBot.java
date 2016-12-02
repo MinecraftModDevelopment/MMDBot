@@ -14,7 +14,9 @@ import sx.blah.discord.util.RateLimitException;
 public class MMDBot {
     
     public static IDiscordClient instance;
-    public static Logger LOG = Logger.getLogger("MMDBot");
+    
+    public static final Logger LOG = Logger.getLogger("MMDBot");
+    public static final String MMDG_GUILD_ID = "176780432371744769";
     
     public static void main (String... args) throws RateLimitException {
         
