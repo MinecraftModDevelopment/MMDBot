@@ -8,7 +8,7 @@ import sx.blah.discord.handle.obj.IMessage;
 public class CommandServerInfo implements Command {
     
     @Override
-    public void proccessCommand (IMessage message, String[] params) {
+    public void processCommand (IMessage message, String[] params) {
         
         final IGuild guild = message.getGuild();
         

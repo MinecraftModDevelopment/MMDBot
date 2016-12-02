@@ -8,7 +8,7 @@ import sx.blah.discord.handle.obj.IMessage;
 public class CommandReload extends CommandAdmin {
     
     @Override
-    public void proccessCommand (IMessage message, String[] params) {
+    public void processCommand (IMessage message, String[] params) {
         
         Utilities.sendMessage(message.getChannel(), "Reloading handlers and resource!");
         MMDBot.initHandlers();

@@ -11,7 +11,7 @@ import sx.blah.discord.util.RateLimitException;
 public class CommandAvatar extends CommandAdmin {
     
     @Override
-    public void proccessCommand (IMessage message, String[] params) {
+    public void processCommand (IMessage message, String[] params) {
         
         try {
             

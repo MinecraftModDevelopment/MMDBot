@@ -73,7 +73,7 @@ public class CommandHandler {
             return;
         }
         
-        command.proccessCommand(message, getParameters(message.getContent()));
+        command.processCommand(message, getParameters(message.getContent()));
     }
     
     /**

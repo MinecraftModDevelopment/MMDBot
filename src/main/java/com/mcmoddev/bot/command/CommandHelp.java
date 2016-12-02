@@ -9,7 +9,7 @@ import sx.blah.discord.handle.obj.IMessage;
 public class CommandHelp implements Command {
     
     @Override
-    public void proccessCommand (IMessage message, String[] args) {
+    public void processCommand (IMessage message, String[] args) {
         
         String descriptions = "";
         
