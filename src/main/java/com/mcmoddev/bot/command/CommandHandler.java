@@ -86,7 +86,7 @@ public class CommandHandler {
      */
     public static String getCommandKeyFromMessage (String message) {
         
-        return message.substring(COMMAND_KEY.length() + 1).split(" ")[0].toLowerCase();
+        return getParameters(message)[0].toLowerCase();
     }
     
     /**
@@ -99,7 +99,7 @@ public class CommandHandler {
      */
     public static String[] getParameters (String message) {
         
-        return message.substring(1).split(" ");
+        return message.substring(COMMAND_KEY.length() + 1).split(" ");
     }
     
     /**
@@ -111,11 +111,5 @@ public class CommandHandler {
     public static Command getCommand (String keyName) {
         
         return commands.get(keyName.toLowerCase());
-    }
-    
-    public static boolean isAdmin (IUser user, IGuild guild) {
-    	
-    	
-    	return false;
     }
 }
