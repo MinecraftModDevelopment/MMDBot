@@ -26,6 +26,7 @@ public class CommandHandler {
         commands.put("server", new CommandServerInfo());
         commands.put("reload", new CommandReload());
         commands.put("rename", new CommandRename());
+        commands.put("avatar", new CommandAvatar());
     }
     
     /**
