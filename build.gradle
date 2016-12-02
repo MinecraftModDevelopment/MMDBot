@@ -1,0 +1,36 @@
+buildscript {
+
+    repositories {
+
+        jcenter()
+    }
+
+    dependencies {
+
+        classpath 'com.github.rodionmoiseev.gradle.plugins:idea-utils:0.2'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea-utils'
+apply plugin: 'maven'
+
+group 'MMDBot'
+
+repositories {
+
+    jcenter()
+    
+    maven {
+    
+        url 'https://jitpack.io'
+    }
+}
+
+dependencies {
+
+    compile 'com.github.austinv11:Discord4j:42fb214'
+    compile 'com.google.guava:guava:19.0'
+    compile 'com.google.code.gson:gson:2.2.4'
+}

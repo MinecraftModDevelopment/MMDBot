@@ -1,0 +1,28 @@
+#Directories
+/build/
+/bin/
+
+#Hidden Directories
+.gradle/
+.settings/
+.mtj.tmp/
+
+#File Extensions
+*.iml
+*.ipr
+*.iws
+*.war
+*.ear
+*.class
+*.classpath
+*.project
+
+#File Types
+hs_err_pid*
+NBTExample.nbt
+Thumbs.db
+
+#Generated Files
+OCR.png
+qr.png
+diction.txt
