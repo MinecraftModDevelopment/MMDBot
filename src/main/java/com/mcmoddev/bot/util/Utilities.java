@@ -170,6 +170,12 @@ public class Utilities {
      */
     public static void sendMessage (IChannel channel, String message) {
         
+        if (message.contains("@everyone") || message.contains("@here")) {
+            
+            Utilities.sendMessage(channel, "I refuse to ping everyone!");
+            return;
+        }
+        
         try {
             
             channel.sendMessage(message);
