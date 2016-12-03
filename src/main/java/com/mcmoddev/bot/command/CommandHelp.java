@@ -19,12 +19,12 @@ public class CommandHelp implements Command {
                 final Command cmd = CommandHandler.getCommand(args[index]);
                 
                 if (cmd != null && cmd.isValidUsage(message))
-                    descriptions += CommandHandler.COMMAND_KEY + args[index] + " - " + cmd.getDescription() + Utilities.SEPERATOR + Utilities.SEPERATOR;
+                    descriptions += CommandHandler.COMMAND_KEY + " " + args[index] + " - " + cmd.getDescription() + Utilities.SEPERATOR + Utilities.SEPERATOR;
             }
         else
             for (final Entry<String, Command> command : CommandHandler.getCommands().entrySet())
                 if (command.getValue().isValidUsage(message))
-                    descriptions += CommandHandler.COMMAND_KEY + command.getKey() + " - " + command.getValue().getDescription() + Utilities.SEPERATOR + Utilities.SEPERATOR;
+                    descriptions += CommandHandler.COMMAND_KEY + " " + command.getKey() + " - " + command.getValue().getDescription() + Utilities.SEPERATOR + Utilities.SEPERATOR;
                 
         Utilities.sendPrivateMessage(message.getAuthor(), Utilities.makeMultiCodeBlock(descriptions));
     }
