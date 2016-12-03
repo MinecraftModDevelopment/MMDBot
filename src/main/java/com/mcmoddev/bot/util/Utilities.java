@@ -180,7 +180,6 @@ public class Utilities {
             
             channel.sendMessage(message);
             Thread.sleep(1000);
-            System.out.println("Sleep");
         }
         
         catch (MissingPermissionsException | DiscordException | RateLimitException | InterruptedException e) {
