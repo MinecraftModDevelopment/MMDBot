@@ -13,9 +13,9 @@ import java.util.Map;
 // Based on code by Jared
 public class CurseData {
     
-    //TODO clean this all up it's gross lol
-    //TODO add a time stamp to regenerate
-    //TODO implemnt caching
+    // TODO clean this all up it's gross lol
+    // TODO add a time stamp to regenerate
+    // TODO implemnt caching
     public static final String PROFILE_URL = "https://minecraft.curseforge.com/members/";
     public static final String PROJECTS_PAGE_URL = "https://minecraft.curseforge.com/members/%s/projects?page=";
     public static final String PROJECT_URL = "https://minecraft.curseforge.com/";
@@ -28,13 +28,13 @@ public class CurseData {
     private long totalDownloads;
     private boolean foundUser = true;
     private boolean foundProject = false;
-
+    
     public CurseData(String username) {
         
         this.username = username;
         this.profile = PROFILE_URL + username;
         this.projectURLs = new ArrayList<>();
-        this.downloads = new HashMap<String, Long>();
+        this.downloads = new HashMap<>();
         
         final String baseURL = String.format(PROJECTS_PAGE_URL, username);
         
@@ -48,8 +48,7 @@ public class CurseData {
                 
                 final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
                 
-                for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                    
+                for (String line = reader.readLine(); line != null; line = reader.readLine())
                     // Find avatar
                     if (!foundAvatar && line.contains("<div class=\"avatar avatar-100 user user-role-curse-premium\">")) {
                         
@@ -80,7 +79,6 @@ public class CurseData {
                             break;
                         }
                     }
-                }
                 
                 if (page == 1 && !this.foundProject)
                     return;
@@ -93,7 +91,7 @@ public class CurseData {
                     this.foundUser = false;
                     break;
                 }
-                    
+                
                 else
                     e.printStackTrace();
             }
@@ -116,7 +114,7 @@ public class CurseData {
                         
                         final long projectDownloads = Long.parseLong(line.split(">")[1].split("<")[0].replaceAll(",", ""));
                         this.totalDownloads += projectDownloads;
-                        downloads.put(projectUrl.replace("https://minecraft.curseforge.com//projects/", "").replaceAll("-", " "), projectDownloads);
+                        this.downloads.put(projectUrl.replace("https://minecraft.curseforge.com//projects/", "").replaceAll("-", " "), projectDownloads);
                         break;
                     }
                     
@@ -129,54 +127,54 @@ public class CurseData {
                 e.printStackTrace();
             }
     }
-
-    public boolean exists() {
+    
+    public boolean exists () {
         
         return this.foundUser;
     }
     
     public String getUsername () {
         
-        return username;
+        return this.username;
     }
-
+    
     public String getAvatar () {
         
-        return avatar;
+        return this.avatar;
     }
     
     public boolean hasAvatar () {
         
         return this.avatar != null && !this.avatar.isEmpty();
     }
-
+    
     public String getProfile () {
         
-        return profile;
-    }
-
-    public List<String> getProjectURLs () {
-        
-        return projectURLs;
-    }
-
-    public Map<String, Long> getDownloads () {
-        
-        return downloads;
+        return this.profile;
     }
     
-    public boolean hasProjects() {
+    public List<String> getProjectURLs () {
+        
+        return this.projectURLs;
+    }
+    
+    public Map<String, Long> getDownloads () {
+        
+        return this.downloads;
+    }
+    
+    public boolean hasProjects () {
         
         return this.foundProject && !this.projectURLs.isEmpty() && !this.downloads.isEmpty();
     }
     
-    public int getProjectCount() {
+    public int getProjectCount () {
         
         return this.projectURLs.size();
     }
-
+    
     public long getTotalDownloads () {
         
-        return totalDownloads;
+        return this.totalDownloads;
     }
 }

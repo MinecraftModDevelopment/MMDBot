@@ -17,33 +17,23 @@ public class CommandCurse implements Command {
     private static final Map<String, CurseData> CACHE = new HashMap<>();
     
     @Override
-    public void processCommand (IMessage message, String[] params) {
+    public String processCommand (IMessage message, String[] params) {
         
         if (params.length >= 2) {
             
             Utilities.sendMessage(message.getChannel(), "Getting stats for " + params[1] + ", this will take a bit.");
             
             final CurseData data = new CurseData(params[1]);
-            final StringBuilder builder = new StringBuilder();       
+            final StringBuilder builder = new StringBuilder();
             final EmbedBuilder embed = new EmbedBuilder();
             
-            if (!data.exists()) {
-                
-                Utilities.sendMessage(message.getChannel(), "No user could be found by the name " + params[1]);
-                return;
-            }
+            if (!data.exists())
+                return "No user could be found by the name " + params[1];
+            else if (!data.hasProjects())
+                return "No projects found for " + params[1];
             
-            else if (!data.hasProjects()) {
-                
-                Utilities.sendMessage(message.getChannel(), "No projects found for " + params[1]);
-                return;
-            }
-            
-            
-            for (Entry<String, Long> set : data.getDownloads().entrySet()) {
-                
+            for (final Entry<String, Long> set : data.getDownloads().entrySet())
                 builder.append(set.getKey().replaceAll("-", " ") + " - " + NumberFormat.getInstance().format(set.getValue()) + Utilities.SEPERATOR);
-            }
             
             builder.append("Total Projects: " + data.getProjectCount() + Utilities.SEPERATOR);
             
@@ -53,14 +43,14 @@ public class CommandCurse implements Command {
             embed.withFooterText("Powered by Jared");
             embed.withTitle("Total Downloads: " + NumberFormat.getInstance().format(data.getTotalDownloads()));
             
-             if (data.hasAvatar()) 
+            if (data.hasAvatar())
                 embed.withThumbnail(data.getAvatar());
             
             Utilities.sendMessage(message.getChannel(), "Stats for " + params[1], embed.build());
         }
         
         else
-            Utilities.sendMessage(message.getChannel(), "You must specify the name of a user as well!");
+            return "You must specify the name of a user as well!";
     }
     
     @Override

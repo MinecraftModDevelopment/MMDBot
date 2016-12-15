@@ -18,8 +18,7 @@ public class CommandPruneChannels extends CommandAdmin {
         final int minDaysOfInactivity = params.length == 2 ? Integer.parseInt(params[1]) : 7;
         final StringBuilder builder = new StringBuilder();
         
-        for (final IChannel channel : message.getGuild().getChannels()) {
-            
+        for (final IChannel channel : message.getGuild().getChannels())
             try {
                 
                 final IMessage latest = channel.getMessages().getLatestMessage();
@@ -33,11 +32,10 @@ public class CommandPruneChannels extends CommandAdmin {
                 }
             }
             
-            catch (ArrayIndexOutOfBoundsException e) {
+            catch (final ArrayIndexOutOfBoundsException e) {
                 
                 builder.append("#" + channel.getName() + " - unknown" + Utilities.SEPERATOR);
             }
-        }
         
         final EmbedBuilder embed = new EmbedBuilder();
         embed.ignoreNullEmptyFields();

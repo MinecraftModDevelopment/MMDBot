@@ -12,8 +12,7 @@ public class CommandHTML extends CommandAdmin {
     @Override
     public void processCommand (IMessage message, String[] params) {
         
-        if (params.length == 2) {
-            
+        if (params.length == 2)
             try (InputStream stream = new URL(String.format("https://minecraft.curseforge.com/members/%s/projects?page=1", params[1])).openStream()) {
                 
                 final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
@@ -23,11 +22,10 @@ public class CommandHTML extends CommandAdmin {
                 
             }
             
-            catch (Exception e) {
+            catch (final Exception e) {
                 
                 e.printStackTrace();
             }
-        }
     }
     
     @Override
