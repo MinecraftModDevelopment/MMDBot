@@ -28,6 +28,8 @@ public class CommandHandler {
         commands.put("rename", new CommandRename());
         commands.put("avatar", new CommandAvatar());
         commands.put("prune", new CommandPruneChannels());
+        commands.put("curse", new CommandCurse());
+        commands.put("html", new CommandHTML());
     }
     
     /**
