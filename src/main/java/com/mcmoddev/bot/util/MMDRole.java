@@ -61,7 +61,7 @@ public enum MMDRole {
         this.roleId = roleId;
         this.guildId = guildId;
         this.guild = MMDBot.instance.getGuildByID(guildId);
-        this.role = this.guild.getRoleByID(roleId);
+        this.role = (guild != null) ? this.guild.getRoleByID(roleId) : null;
     }
     
     /**
@@ -112,10 +112,11 @@ public enum MMDRole {
      */
     public boolean hasRole (IUser user) {
         
-        for (final IRole role : user.getRolesForGuild(this.guild))
-            if (role.getID().equals(this.roleId))
-                return true;
-            
+        if (this.guild != null)
+            for (final IRole role : user.getRolesForGuild(this.guild))
+                if (role.getID().equals(this.roleId))
+                    return true;
+                
         return false;
     }
 }
