@@ -3,11 +3,19 @@ package com.mcmoddev.bot.util;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
+import com.google.common.collect.Lists;
 import com.mcmoddev.bot.MMDBot;
 
+import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
@@ -152,10 +160,24 @@ public class Utilities {
         
         try {
             
-            sendMessage(MMDBot.instance.getOrCreatePMChannel(user), message);
+            sendMessage(MMDBot.instance.getOrCreatePMChannel(user), message, false);
         }
         
         catch (final Exception e) {
+            
+            e.printStackTrace();
+        }
+    }
+    
+    public static void sendMessage (IChannel channel, String message, EmbedObject object) {
+        
+        try {
+            
+            channel.sendMessage(message, object, false);
+            Thread.sleep(1000);
+        }
+        
+        catch (RateLimitException | DiscordException | MissingPermissionsException | InterruptedException e) {
             
             e.printStackTrace();
         }
@@ -170,25 +192,56 @@ public class Utilities {
      */
     public static void sendMessage (IChannel channel, String message) {
         
+        sendMessage(channel, message, true);
+    }
+    
+    public static void sendMessage (IChannel channel, String message, boolean timeout) {
+        
         if (message.contains("@everyone") || message.contains("@here")) {
             
-            Utilities.sendMessage(channel, "I refuse to ping everyone!");
+            Utilities.sendMessage(channel, "I refuse to ping everyone!", timeout);
             return;
         }
         
         try {
             
             channel.sendMessage(message);
-            Thread.sleep(1000);
+            
+            if (timeout)
+                Thread.sleep(1000);
         }
         
         catch (MissingPermissionsException | DiscordException | RateLimitException | InterruptedException e) {
             
             if (e instanceof DiscordException && e.toString().contains("String value is too long"))
-                sendMessage(channel, "I tried to send a message, but it was too long.");
+                sendMessage(channel, "I tried to send a message, but it was too long.", timeout);
+            
+            if (e instanceof NullPointerException)
+                MMDBot.LOG.info("Attempted to send message to null channel.");
             
             else
                 e.printStackTrace();
         }
+    }
+    
+    public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue (Map<K, V> map, boolean invert) {
+        
+        List<Map.Entry<K, V>> list = new LinkedList<>(map.entrySet());
+        Collections.sort(list, new Comparator<Map.Entry<K, V>>() {
+            @Override
+            public int compare (Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
+                
+                return (o1.getValue()).compareTo(o2.getValue());
+            }
+        });
+        
+        if (invert)
+            list = Lists.reverse(list);
+        
+        Map<K, V> result = new LinkedHashMap<>();
+        for (Map.Entry<K, V> entry : list) {
+            result.put(entry.getKey(), entry.getValue());
+        }
+        return result;
     }
 }
