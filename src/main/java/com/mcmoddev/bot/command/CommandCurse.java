@@ -17,9 +17,15 @@ public class CommandCurse implements Command {
     private static final Map<String, CurseData> CACHE = new HashMap<>();
     
     @Override
-    public String processCommand (IMessage message, String[] params) {
+    public void processCommand (IMessage message, String[] params) {
         
         if (params.length >= 2) {
+            
+            if (params[1].contains("@")) {
+                
+                Utilities.sendMessage(message.getChannel(), "This command uses Curse names, not Discord ones!");
+                return;
+            }
             
             Utilities.sendMessage(message.getChannel(), "Getting stats for " + params[1] + ", this will take a bit.");
             
@@ -27,13 +33,35 @@ public class CommandCurse implements Command {
             final StringBuilder builder = new StringBuilder();
             final EmbedBuilder embed = new EmbedBuilder();
             
-            if (!data.exists())
-                return "No user could be found by the name " + params[1];
-            else if (!data.hasProjects())
-                return "No projects found for " + params[1];
+            if (!data.exists()) {
+                
+                Utilities.sendMessage(message.getChannel(), "No user could be found by the name " + params[1]);
+                return;
+            }
             
-            for (final Entry<String, Long> set : data.getDownloads().entrySet())
-                builder.append(set.getKey().replaceAll("-", " ") + " - " + NumberFormat.getInstance().format(set.getValue()) + Utilities.SEPERATOR);
+            else if (!data.hasProjects()) {
+                
+                Utilities.sendMessage(message.getChannel(), "No projects found for " + params[1]);
+                return;
+            }
+            
+            int addedProjects = 0;
+            long otherDLs = 0;
+            
+            for (final Entry<String, Long> set : data.getDownloads().entrySet()) {
+                
+                if (addedProjects >= 10) {
+                    
+                    otherDLs += set.getValue();
+                    continue;
+                }
+                
+                builder.append(set.getKey() + " - " + NumberFormat.getInstance().format(set.getValue()) + Utilities.SEPERATOR);
+                addedProjects++;
+            }
+            
+            if (addedProjects < data.getProjectCount())
+                builder.append("Other Projects (" + (data.getProjectCount() - addedProjects) + ") - " + NumberFormat.getInstance().format(otherDLs) + Utilities.SEPERATOR);
             
             builder.append("Total Projects: " + data.getProjectCount() + Utilities.SEPERATOR);
             
@@ -46,11 +74,13 @@ public class CommandCurse implements Command {
             if (data.hasAvatar())
                 embed.withThumbnail(data.getAvatar());
             
+            System.out.println(embed.build().description.length());
+            
             Utilities.sendMessage(message.getChannel(), "Stats for " + params[1], embed.build());
         }
         
         else
-            return "You must specify the name of a user as well!";
+            Utilities.sendMessage(message.getChannel(), "You must specify the name of a user as well!");
     }
     
     @Override

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,7 +66,7 @@ public class CurseData {
                     // Find projects
                     else if (line.contains("a href=\"/projects/")) {
                         
-                        final String projectURL = "https://minecraft.curseforge.com/" + line.split("\"")[1].split("\"")[0];
+                        final String projectURL = "https://minecraft.curseforge.com" + line.split("\"")[1].split("\"")[0];
                         
                         if (!this.projectURLs.contains(projectURL)) {
                             
@@ -86,7 +87,7 @@ public class CurseData {
             
             catch (final Exception e) {
                 
-                if (e instanceof FileNotFoundException && e.getMessage().contains("https://minecraft.curseforge.com/members/")) {
+                if (e instanceof java.io.IOException && e.getMessage().contains("HTTP response code: 400") || e instanceof MalformedURLException || e instanceof FileNotFoundException && (e.getMessage().contains("https://minecraft.curseforge.com/not-found?404") || e.getMessage().contains("https://minecraft.curseforge.com/members/"))) {
                     
                     this.foundUser = false;
                     break;
@@ -114,7 +115,9 @@ public class CurseData {
                         
                         final long projectDownloads = Long.parseLong(line.split(">")[1].split("<")[0].replaceAll(",", ""));
                         this.totalDownloads += projectDownloads;
-                        this.downloads.put(projectUrl.replace("https://minecraft.curseforge.com//projects/", "").replaceAll("-", " "), projectDownloads);
+                        final String name = projectUrl.replace("https://minecraft.curseforge.com/projects/", "").replaceAll("-", " ");
+                        
+                        this.downloads.put("[" + name + "](" + projectUrl.replaceAll(" ", "-").replace("https://", "") + ")", projectDownloads);
                         break;
                     }
                     
@@ -126,6 +129,8 @@ public class CurseData {
                 
                 e.printStackTrace();
             }
+        
+        this.downloads = Utilities.sortByValue(this.downloads, true);
     }
     
     public boolean exists () {
