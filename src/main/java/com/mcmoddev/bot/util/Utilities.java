@@ -170,6 +170,22 @@ public class Utilities {
     
     public static void sendMessage (IChannel channel, String message, EmbedObject object) {
         
+        if (message.contains("@") || object.description.contains("@")) {
+            
+            Utilities.sendMessage(channel, "I tried to send a message, but it contained an @. I can not ping people!", false);
+            System.out.println(message);
+            System.out.println(object.description);
+            return;
+        }
+        
+        if (message.length() > 2000 || object.description.length() > 2000) {
+            
+            Utilities.sendMessage(channel, "I tried to send a message, but it was too long. " + message.length() + "/2000 chars! Embedded: " + object.description.length() + "/2000!");
+            System.out.println(message);
+            System.out.println(object.description);
+            return;
+        }
+        
         try {
             
             channel.sendMessage(message, object, false);
@@ -196,9 +212,17 @@ public class Utilities {
     
     public static void sendMessage (IChannel channel, String message, boolean timeout) {
         
-        if (message.contains("@everyone") || message.contains("@here")) {
+        if (message.contains("@")) {
             
-            Utilities.sendMessage(channel, "I refuse to ping everyone!", timeout);
+            Utilities.sendMessage(channel, "I tried to send a message, but it contained an @. I can not ping people!", timeout);
+            System.out.println(message);
+            return;
+        }
+        
+        if (message.length() > 2000) {
+            
+            Utilities.sendMessage(channel, "I tried to send a message, but it was too long. " + message.length() + "/2000 chars!");
+            System.out.println(message);
             return;
         }
         
@@ -212,14 +236,7 @@ public class Utilities {
         
         catch (MissingPermissionsException | DiscordException | RateLimitException | InterruptedException e) {
             
-            if (e instanceof DiscordException && e.toString().contains("String value is too long"))
-                sendMessage(channel, "I tried to send a message, but it was too long.", timeout);
-            
-            if (e instanceof NullPointerException)
-                MMDBot.LOG.info("Attempted to send message to null channel.");
-            
-            else
-                e.printStackTrace();
+            e.printStackTrace();
         }
     }
     
