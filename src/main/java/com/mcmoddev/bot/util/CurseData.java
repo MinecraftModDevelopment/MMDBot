@@ -117,7 +117,7 @@ public class CurseData {
                         this.totalDownloads += projectDownloads;
                         final String name = projectUrl.replace("https://minecraft.curseforge.com/projects/", "").replaceAll("-", " ");
                         
-                        this.downloads.put("[" + name + "](" + projectUrl.replaceAll(" ", "-").replace("https://", "") + ")", projectDownloads);
+                        this.downloads.put("[" + name + "](" + projectUrl.replaceAll(" ", "-") + ")", projectDownloads);
                         break;
                     }
                     
