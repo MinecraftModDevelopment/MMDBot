@@ -19,6 +19,8 @@ public class CommandCurse implements Command {
     @Override
     public void processCommand (IMessage message, String[] params) {
         
+    	long time = System.currentTimeMillis();
+    	
         if (params.length >= 2) {
             
             if (params[1].contains("@")) {
@@ -81,6 +83,8 @@ public class CommandCurse implements Command {
         
         else
             Utilities.sendMessage(message.getChannel(), "You must specify the name of a user as well!");
+        
+        System.out.println("Time: " + (System.currentTimeMillis() - time));
     }
     
     @Override
