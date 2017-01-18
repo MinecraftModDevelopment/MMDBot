@@ -34,3 +34,12 @@ dependencies {
     compile 'com.google.guava:guava:19.0'
     compile 'com.google.code.gson:gson:2.2.4'
 }
+
+task fatJar(type: Jar) {
+	manifest {
+        attributes 'Implementation-Title': 'MMDBot', 'Implementation-Version': '1.0.0', 'Main-Class': 'com.mcmoddev.bot.MMDBot'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
