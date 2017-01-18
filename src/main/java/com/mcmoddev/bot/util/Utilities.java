@@ -16,6 +16,7 @@ import com.mcmoddev.bot.MMDBot;
 
 import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
@@ -159,7 +160,7 @@ public class Utilities {
         
         try {
             
-            sendMessage(MMDBot.instance.getOrCreatePMChannel(user), message, false);
+            sendMessage(MMDBot.instance.getOrCreatePMChannel(user), message, true);
         }
         
         catch (final Exception e) {
@@ -252,5 +253,10 @@ public class Utilities {
         for (final Map.Entry<K, V> entry : list)
             result.put(entry.getKey(), entry.getValue());
         return result;
+    }
+    
+    public static boolean isPrivateMessage(IMessage message) {
+        
+        return message.getGuild() == null;
     }
 }
