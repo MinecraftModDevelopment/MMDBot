@@ -1,6 +1,8 @@
 package com.mcmoddev.bot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -10,11 +12,14 @@ import com.mcmoddev.bot.command.CommandCurse;
 import com.mcmoddev.bot.command.CommandHTML;
 import com.mcmoddev.bot.command.CommandHelp;
 import com.mcmoddev.bot.command.CommandMemberCount;
+import com.mcmoddev.bot.command.CommandProbe;
 import com.mcmoddev.bot.command.CommandPruneChannels;
 import com.mcmoddev.bot.command.CommandReload;
 import com.mcmoddev.bot.command.CommandRename;
 import com.mcmoddev.bot.command.CommandServerInfo;
 import com.mcmoddev.bot.command.CommandZalgo;
+import com.mcmoddev.bot.listener.Listener;
+import com.mcmoddev.bot.listener.ListenerZalgo;
 import com.mcmoddev.bot.util.Utilities;
 
 import sx.blah.discord.api.ClientBuilder;
@@ -31,8 +36,10 @@ public class MMDBot {
     
     public static final Logger LOG = Logger.getLogger("MMDBot");
     public static final String MMDG_GUILD_ID = "176780432371744769";
+    public static final String BOTZONE_CHANNEL_ID = "179302857143615489";
     public static final String COMMAND_KEY = "!mmd";
     private static final Map<String, Command> commands = new HashMap<>();
+    private static final List<Listener> listeners = new ArrayList<Listener>();
     
     public static void main (String... args) throws RateLimitException {
         
@@ -59,6 +66,9 @@ public class MMDBot {
         registerCommand("avatar", new CommandAvatar());
         registerCommand("prune", new CommandPruneChannels());
         registerCommand("curse", new CommandCurse());
+        registerCommand("probe", new CommandProbe());
+        
+        listeners.add(new ListenerZalgo());
     }
     
     @EventSubscriber
@@ -66,6 +76,11 @@ public class MMDBot {
         
         if (event.getMessage().getContent().startsWith(COMMAND_KEY))
             attemptCommandTriggers(event.getMessage());
+        
+        if (!Utilities.isPrivateMessage(event.getMessage()))
+            for (Listener listener : listeners)
+                listener.listen(event.getMessage());
+                
     }    
     
     /**
