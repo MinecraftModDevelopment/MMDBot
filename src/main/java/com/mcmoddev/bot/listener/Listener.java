@@ -4,5 +4,5 @@ import sx.blah.discord.handle.obj.IMessage;
 
 public interface Listener {
 
-	public void listen(IMessage message);
+    public void listen (IMessage message);
 }
