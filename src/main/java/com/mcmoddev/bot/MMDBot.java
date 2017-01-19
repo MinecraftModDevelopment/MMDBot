@@ -16,10 +16,15 @@ public class MMDBot {
     public static IDiscordClient INSTANCE;
 
     public static final Logger LOG = Logger.getLogger("MMDBot");
+
     public static final String MMD_GUILD_ID = "176780432371744769";
+
     public static final String MMDS_GUILD_ID = "229851088319283202";
+
     public static final String BOTZONE_CHANNEL_ID = "179302857143615489";
+
     public static final String EVENTS_CHANNEL_ID = "271498021286576128";
+
     public static final String COMMAND_KEY = "!mmd";
 
     public static void main (String... args) throws RateLimitException {

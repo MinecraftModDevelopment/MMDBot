@@ -18,16 +18,25 @@ public class CurseData {
     // TODO add a time stamp to regenerate
     // TODO implemnt caching
     public static final String PROFILE_URL = "https://minecraft.curseforge.com/members/";
+
     public static final String PROJECTS_PAGE_URL = "https://minecraft.curseforge.com/members/%s/projects?page=";
+
     public static final String PROJECT_URL = "https://minecraft.curseforge.com/";
 
     private String username;
+
     private String avatar;
+
     private String profile;
+
     private List<String> projectURLs;
+
     private Map<String, Long> downloads;
+
     private long totalDownloads;
+
     private boolean foundUser = true;
+
     private boolean foundProject = false;
 
     public CurseData (String username) {

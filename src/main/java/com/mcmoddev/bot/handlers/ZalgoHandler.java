@@ -28,7 +28,7 @@ public class ZalgoHandler {
     public void onMessageRecieved (MessageReceivedEvent event) {
 
         final IMessage message = event.getMessage();
-        
+
         if (hasZalgo(message.getContent())) {
 
             if (botzone == null)
@@ -45,7 +45,7 @@ public class ZalgoHandler {
             }
         }
     }
-    
+
     public static boolean hasZalgo (String string) {
 
         for (final char character : string.toCharArray())

@@ -4,7 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.mcmoddev.bot.MMDBot;
-import com.mcmoddev.bot.command.*;
+import com.mcmoddev.bot.command.Command;
+import com.mcmoddev.bot.command.CommandAvatar;
+import com.mcmoddev.bot.command.CommandCurse;
+import com.mcmoddev.bot.command.CommandHelp;
+import com.mcmoddev.bot.command.CommandMemberCount;
+import com.mcmoddev.bot.command.CommandProbe;
+import com.mcmoddev.bot.command.CommandPruneChannels;
+import com.mcmoddev.bot.command.CommandRename;
+import com.mcmoddev.bot.command.CommandServerInfo;
 import com.mcmoddev.bot.util.Utilities;
 
 import sx.blah.discord.api.events.EventSubscriber;
@@ -14,19 +22,21 @@ import sx.blah.discord.handle.obj.IMessage;
 public class CommandHandler {
 
     private static final Map<String, Command> commands = new HashMap<>();
+
     private static boolean enabled = false;
-    public CommandHandler() {
-        
+
+    public CommandHandler () {
+
         if (!enabled) {
-        registerCommand("help", new CommandHelp());
-        registerCommand("members", new CommandMemberCount());
-        registerCommand("server", new CommandServerInfo());
-        registerCommand("rename", new CommandRename());
-        registerCommand("avatar", new CommandAvatar());
-        registerCommand("prune", new CommandPruneChannels());
-        registerCommand("curse", new CommandCurse());
-        registerCommand("probe", new CommandProbe());
-        enabled = true;
+            registerCommand("help", new CommandHelp());
+            registerCommand("members", new CommandMemberCount());
+            registerCommand("server", new CommandServerInfo());
+            registerCommand("rename", new CommandRename());
+            registerCommand("avatar", new CommandAvatar());
+            registerCommand("prune", new CommandPruneChannels());
+            registerCommand("curse", new CommandCurse());
+            registerCommand("probe", new CommandProbe());
+            enabled = true;
         }
     }
 
@@ -62,9 +72,8 @@ public class CommandHandler {
         final String key = getCommandKeyFromMessage(message.getContent());
         final Command command = commands.get(key);
 
-        if (command == null) {
+        if (command == null)
             return;
-        }
 
         if (!command.isValidUsage(message)) {
 
@@ -113,7 +122,7 @@ public class CommandHandler {
 
         return commands.get(keyName.toLowerCase());
     }
-    
+
     @EventSubscriber
     public void onMessageRecieved (MessageReceivedEvent event) {
 

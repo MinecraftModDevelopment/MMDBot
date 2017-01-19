@@ -10,16 +10,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
+
 import com.google.common.collect.Lists;
 import com.mcmoddev.bot.MMDBot;
-import org.apache.commons.io.FileUtils;
+
 import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.RateLimitException;
 import sx.blah.discord.util.RequestBuffer;
 
 public class Utilities {
@@ -61,7 +62,7 @@ public class Utilities {
      * @param userID The user ID of the user to generate a ping message for.
      *
      * @return String A short string which will ping the specified user when sent into the
-     * chat.
+     *         chat.
      */
     public static String getPingMessage (String userID) {
 
@@ -179,7 +180,7 @@ public class Utilities {
 
     public static void sendMessage (IChannel channel, EmbedObject object) {
 
-        RequestBuffer.request(() -> {
+        RequestBuffer.request( () -> {
             try {
                 channel.sendMessage(object);
             }
@@ -208,7 +209,7 @@ public class Utilities {
             return;
         }
 
-        RequestBuffer.request(() -> {
+        RequestBuffer.request( () -> {
             try {
                 channel.sendMessage(message, object, false);
             }
@@ -242,8 +243,7 @@ public class Utilities {
             return;
         }
 
-
-        RequestBuffer.request(() -> {
+        RequestBuffer.request( () -> {
             try {
                 channel.sendMessage(message);
             }
