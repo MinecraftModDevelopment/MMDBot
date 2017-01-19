@@ -30,7 +30,7 @@ repositories {
 
 dependencies {
 
-    compile 'com.github.austinv11:Discord4j:42fb214'
+    compile 'com.github.austinv11:Discord4j:dev-SNAPSHOT'
     compile 'com.google.guava:guava:19.0'
     compile 'com.google.code.gson:gson:2.2.4'
 }
