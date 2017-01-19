@@ -1,4 +1,4 @@
-package com.mcmoddev.bot.listener;
+package com.mcmoddev.bot.handlers;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,23 +6,28 @@ import java.util.Map;
 import com.mcmoddev.bot.MMDBot;
 import com.mcmoddev.bot.command.*;
 import com.mcmoddev.bot.util.Utilities;
+
+import sx.blah.discord.api.events.EventSubscriber;
+import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IMessage;
 
 public class CommandHandler {
 
     private static final Map<String, Command> commands = new HashMap<>();
-
-    public static void initHandlers () {
-
+    private static boolean enabled = false;
+    public CommandHandler() {
+        
+        if (!enabled) {
         registerCommand("help", new CommandHelp());
         registerCommand("members", new CommandMemberCount());
         registerCommand("server", new CommandServerInfo());
-        registerCommand("reload", new CommandReload());
         registerCommand("rename", new CommandRename());
         registerCommand("avatar", new CommandAvatar());
         registerCommand("prune", new CommandPruneChannels());
         registerCommand("curse", new CommandCurse());
         registerCommand("probe", new CommandProbe());
+        enabled = true;
+        }
     }
 
     /**
@@ -107,5 +112,12 @@ public class CommandHandler {
     public static Command getCommand (String keyName) {
 
         return commands.get(keyName.toLowerCase());
+    }
+    
+    @EventSubscriber
+    public void onMessageRecieved (MessageReceivedEvent event) {
+
+        if (event.getMessage().getContent().startsWith(MMDBot.COMMAND_KEY))
+            CommandHandler.attemptCommandTriggers(event.getMessage());
     }
 }

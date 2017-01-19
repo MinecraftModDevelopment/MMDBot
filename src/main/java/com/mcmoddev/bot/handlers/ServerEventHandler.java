@@ -1,4 +1,4 @@
-package com.mcmoddev.bot.listener;
+package com.mcmoddev.bot.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,31 +19,12 @@ import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.EmbedBuilder;
 
-public class EventHandler {
-
-    public static final List<Listener> listeners = new ArrayList<>();
-
-    public static void initHandlers () {
-
-        listeners.add(new ListenerZalgo());
-    }
+public class ServerEventHandler {
 
     @EventSubscriber
     public void onReady (ReadyEvent event) {
 
         Utilities.sendMessage(MMDBot.INSTANCE.getChannelByID(MMDBot.EVENTS_CHANNEL_ID), "MMDBot is up and ready!");
-    }
-
-    @EventSubscriber
-    public void onMessageRecieved (MessageReceivedEvent event) {
-
-        if (event.getMessage().getContent().startsWith(MMDBot.COMMAND_KEY))
-            CommandHandler.attemptCommandTriggers(event.getMessage());
-
-        if (!Utilities.isPrivateMessage(event.getMessage()))
-            for (final Listener listener : listeners)
-                listener.listen(event.getMessage());
-
     }
 
     @EventSubscriber

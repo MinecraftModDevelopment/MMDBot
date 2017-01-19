@@ -3,7 +3,7 @@ package com.mcmoddev.bot.command;
 import java.util.Map.Entry;
 
 import com.mcmoddev.bot.MMDBot;
-import com.mcmoddev.bot.listener.CommandHandler;
+import com.mcmoddev.bot.handlers.CommandHandler;
 import com.mcmoddev.bot.util.Utilities;
 
 import sx.blah.discord.handle.obj.IMessage;

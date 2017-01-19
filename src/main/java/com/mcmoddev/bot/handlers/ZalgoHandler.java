@@ -1,8 +1,10 @@
-package com.mcmoddev.bot.listener;
+package com.mcmoddev.bot.handlers;
 
 import com.mcmoddev.bot.MMDBot;
 import com.mcmoddev.bot.util.Utilities;
 
+import sx.blah.discord.api.events.EventSubscriber;
+import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
@@ -12,7 +14,7 @@ import sx.blah.discord.util.RateLimitException;
 /**
  * Thanks to MihaiC for providing the zalgo char codes. http://stackoverflow.com/a/26927946
  */
-public class ListenerZalgo implements Listener {
+public class ZalgoHandler {
 
     private static IChannel botzone;
 
@@ -22,9 +24,11 @@ public class ListenerZalgo implements Listener {
 
     private static final char[] CHARS_CENTER = { '\u0315', '\u031b', '\u0340', '\u0341', '\u0358', '\u0321', '\u0322', '\u0327', '\u0328', '\u0334', '\u0335', '\u0336', '\u034f', '\u035c', '\u035d', '\u035e', '\u035f', '\u0360', '\u0362', '\u0338', '\u0337', '\u0361', '\u0489' };
 
-    @Override
-    public void listen (IMessage message) {
+    @EventSubscriber
+    public void onMessageRecieved (MessageReceivedEvent event) {
 
+        final IMessage message = event.getMessage();
+        
         if (hasZalgo(message.getContent())) {
 
             if (botzone == null)
@@ -41,7 +45,7 @@ public class ListenerZalgo implements Listener {
             }
         }
     }
-
+    
     public static boolean hasZalgo (String string) {
 
         for (final char character : string.toCharArray())

@@ -2,8 +2,10 @@ package com.mcmoddev.bot;
 
 import java.util.logging.Logger;
 
-import com.mcmoddev.bot.listener.CommandHandler;
-import com.mcmoddev.bot.listener.EventHandler;
+import com.mcmoddev.bot.handlers.CommandHandler;
+import com.mcmoddev.bot.handlers.ServerEventHandler;
+import com.mcmoddev.bot.handlers.ZalgoHandler;
+
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.util.DiscordException;
@@ -25,19 +27,14 @@ public class MMDBot {
         try {
 
             INSTANCE = new ClientBuilder().withToken(args[0]).login();
-            INSTANCE.getDispatcher().registerListener(new EventHandler());
-            initHandlers();
+            INSTANCE.getDispatcher().registerListener(new CommandHandler());
+            INSTANCE.getDispatcher().registerListener(new ServerEventHandler());
+            INSTANCE.getDispatcher().registerListener(new ZalgoHandler());
         }
 
         catch (final DiscordException e) {
 
             e.printStackTrace();
         }
-    }
-
-    public static void initHandlers () {
-
-        CommandHandler.initHandlers();
-        EventHandler.initHandlers();
     }
 }
