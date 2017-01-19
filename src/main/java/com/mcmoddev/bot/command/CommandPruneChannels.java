@@ -2,6 +2,8 @@ package com.mcmoddev.bot.command;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.mcmoddev.bot.util.Utilities;
 
@@ -16,9 +18,14 @@ public class CommandPruneChannels extends CommandAdmin {
 
         final LocalDateTime current = LocalDateTime.now();
         final int minDaysOfInactivity = params.length == 2 ? Integer.parseInt(params[1]) : 7;
-        final StringBuilder builder = new StringBuilder();
+        final EmbedBuilder embed = new EmbedBuilder();
+        final Map<String, Integer> channels = new HashMap<String, Integer>();
 
-        for (final IChannel channel : message.getGuild().getChannels())
+        for (final IChannel channel : message.getGuild().getChannels()) {
+            
+            if (channel.getName().equalsIgnoreCase("getting-started"))
+                continue;
+        
             try {
 
                 final IMessage latest = channel.getMessages().getLatestMessage();
@@ -28,21 +35,18 @@ public class CommandPruneChannels extends CommandAdmin {
                     final int daysSinceUsed = Math.toIntExact(ChronoUnit.DAYS.between(latest.getCreationDate(), current));
 
                     if (daysSinceUsed >= minDaysOfInactivity)
-                        builder.append("#" + channel.getName() + " - " + daysSinceUsed + Utilities.SEPERATOR);
+                        channels.put("#" + channel.getName(), daysSinceUsed);
                 }
             }
 
             catch (final ArrayIndexOutOfBoundsException e) {
 
-                builder.append("#" + channel.getName() + " - unknown" + Utilities.SEPERATOR);
+                channels.put("#" + channel.getName(), -1);
             }
-
-        final EmbedBuilder embed = new EmbedBuilder();
+        }
         embed.ignoreNullEmptyFields();
-        embed.withDesc(builder.toString());
         embed.withColor((int) (Math.random() * 0x1000000));
-        embed.withFooterText("How do you work");
-
+        embed.withDesc(Utilities.mapToString(Utilities.sortByValue(channels, true)));
         Utilities.sendMessage(message.getChannel(), "The following channels have not been used in " + minDaysOfInactivity + " days.", embed.build());
     }
 

@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
 
@@ -273,5 +274,15 @@ public class Utilities {
     public static boolean isPrivateMessage (IMessage message) {
 
         return message.getGuild() == null;
+    }
+    
+    public static <K, V> String mapToString(Map<K, V> map) {
+        
+        String output = "";
+        
+        for (Entry<K, V> entry : map.entrySet())
+            output += entry.getKey().toString() + " - " + entry.getValue().toString() + SEPERATOR;
+        
+        return output;
     }
 }
