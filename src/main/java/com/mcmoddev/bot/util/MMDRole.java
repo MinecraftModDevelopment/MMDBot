@@ -47,7 +47,7 @@ public enum MMDRole {
      */
     MMDRole (String roleId) {
 
-        this(roleId, MMDBot.MMDG_GUILD_ID);
+        this(roleId, MMDBot.MMD_GUILD_ID);
     }
 
     /**
@@ -60,7 +60,7 @@ public enum MMDRole {
 
         this.roleId = roleId;
         this.guildId = guildId;
-        this.guild = MMDBot.instance.getGuildByID(guildId);
+        this.guild = MMDBot.INSTANCE.getGuildByID(guildId);
         this.role = this.guild != null ? this.guild.getRoleByID(roleId) : null;
     }
 

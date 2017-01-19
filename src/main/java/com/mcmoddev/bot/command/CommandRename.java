@@ -18,7 +18,7 @@ public class CommandRename extends CommandAdmin {
             if (params.length == 2)
                 try {
 
-                    message.getGuild().setUserNickname(MMDBot.instance.getOurUser(), params[1]);
+                    message.getGuild().setUserNickname(MMDBot.INSTANCE.getOurUser(), params[1]);
                     Utilities.sendMessage(message.getChannel(), "You can call me " + params[1] + ".");
                 }
 

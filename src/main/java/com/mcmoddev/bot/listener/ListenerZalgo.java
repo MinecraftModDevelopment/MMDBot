@@ -33,7 +33,6 @@ public class ListenerZalgo implements Listener {
             try {
 
                 message.delete();
-                Utilities.sendPrivateMessage(message.getAuthor(), "Messages containing Zalgo text are not allowed on MMD! Please stop, or you will be banned");
                 Utilities.sendMessage(botzone, String.format("%s sent a text containing Zalgo in %s at %s.", message.getAuthor().getName(), message.getChannel().getName(), message.getCreationDate().toLocalDate().toString()));
             }
 

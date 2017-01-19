@@ -4,16 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
-
 import com.google.common.collect.Lists;
 import com.mcmoddev.bot.MMDBot;
-
+import org.apache.commons.io.FileUtils;
 import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
@@ -21,6 +20,7 @@ import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
+import sx.blah.discord.util.RequestBuffer;
 
 public class Utilities {
 
@@ -35,6 +35,7 @@ public class Utilities {
      *
      * @param site The site/url to download the file from.
      * @param fileName The location to save the file to.
+     *
      * @return The file that was downloaded.
      */
     public static File downloadFile (String site, String fileName) {
@@ -58,8 +59,9 @@ public class Utilities {
      * Creates a ping message for a user based upon their user ID.
      *
      * @param userID The user ID of the user to generate a ping message for.
+     *
      * @return String A short string which will ping the specified user when sent into the
-     *         chat.
+     * chat.
      */
     public static String getPingMessage (String userID) {
 
@@ -70,6 +72,7 @@ public class Utilities {
      * Makes a String message italicized. This only applies to chat.
      *
      * @param message The message to format.
+     *
      * @return String The message with the formatting codes applied.
      */
     public static String makeItalic (String message) {
@@ -81,6 +84,7 @@ public class Utilities {
      * Makes a String message bold. This only applies to chat.
      *
      * @param message The message to format.
+     *
      * @return String The message with the bold formatting codes applied.
      */
     public static String makeBold (String message) {
@@ -92,6 +96,7 @@ public class Utilities {
      * Makes a String message scratched out. This only applies to chat.
      *
      * @param message The message to format.
+     *
      * @return String The message with the scratched out formatting codes applied.
      */
     public static String makeScratched (String message) {
@@ -103,6 +108,7 @@ public class Utilities {
      * Makes a String message underlined. This only applies to chat.
      *
      * @param message The message to format.
+     *
      * @return String The message with the underlined formatting codes applied.
      */
     public static String makeUnderlined (String message) {
@@ -114,6 +120,7 @@ public class Utilities {
      * Makes a String message appear in a code block. This only applies to chat.
      *
      * @param message The message to format.
+     *
      * @return String The message with the code block format codes applied.
      */
     public static String makeCodeBlock (String message) {
@@ -125,6 +132,7 @@ public class Utilities {
      * Makes a string which represents multiple lines of text.
      *
      * @param lines The lines of text to display. Each entry is a new line.
+     *
      * @return A string which has been split up.
      */
     public static String makeMultilineMessage (String... lines) {
@@ -141,6 +149,7 @@ public class Utilities {
      * Makes a String message appear in a multi-lined code block. This only applies to chat.
      *
      * @param message The message to format.
+     *
      * @return String The message with the multi-lined code block format codes applied.
      */
     public static String makeMultiCodeBlock (String message) {
@@ -152,7 +161,6 @@ public class Utilities {
      * Attempts to send a private message to a user. If a private message channel does not
      * already exist, it will be created.
      *
-     * @param instance An instance of your IDiscordClient.
      * @param user The user to send the private message to.
      * @param message The message to send to the user.
      */
@@ -160,7 +168,7 @@ public class Utilities {
 
         try {
 
-            sendMessage(MMDBot.instance.getOrCreatePMChannel(user), message, true);
+            sendMessage(MMDBot.INSTANCE.getOrCreatePMChannel(user), message);
         }
 
         catch (final Exception e) {
@@ -169,11 +177,24 @@ public class Utilities {
         }
     }
 
+    public static void sendMessage (IChannel channel, EmbedObject object) {
+
+        RequestBuffer.request(() -> {
+            try {
+                channel.sendMessage(object);
+            }
+            catch (DiscordException | MissingPermissionsException e) {
+
+                e.printStackTrace();
+            }
+        });
+    }
+
     public static void sendMessage (IChannel channel, String message, EmbedObject object) {
 
         if (message.contains("@") || object.description.contains("@")) {
 
-            Utilities.sendMessage(channel, "I tried to send a message, but it contained an @. I can not ping people!", false);
+            Utilities.sendMessage(channel, "I tried to send a message, but it contained an @. I can not ping people!");
             System.out.println(message);
             System.out.println(object.description);
             return;
@@ -187,16 +208,15 @@ public class Utilities {
             return;
         }
 
-        try {
+        RequestBuffer.request(() -> {
+            try {
+                channel.sendMessage(message, object, false);
+            }
+            catch (DiscordException | MissingPermissionsException e) {
 
-            channel.sendMessage(message, object, false);
-            Thread.sleep(1000);
-        }
-
-        catch (RateLimitException | DiscordException | MissingPermissionsException | InterruptedException e) {
-
-            e.printStackTrace();
-        }
+                e.printStackTrace();
+            }
+        });
     }
 
     /**
@@ -208,14 +228,9 @@ public class Utilities {
      */
     public static void sendMessage (IChannel channel, String message) {
 
-        sendMessage(channel, message, true);
-    }
-
-    public static void sendMessage (IChannel channel, String message, boolean timeout) {
-
         if (message.contains("@")) {
 
-            Utilities.sendMessage(channel, "I tried to send a message, but it contained an @. I can not ping people!", timeout);
+            Utilities.sendMessage(channel, "I tried to send a message, but it contained an @. I can not ping people!");
             System.out.println(message);
             return;
         }
@@ -227,24 +242,24 @@ public class Utilities {
             return;
         }
 
-        try {
 
-            channel.sendMessage(message);
+        RequestBuffer.request(() -> {
+            try {
+                channel.sendMessage(message);
+            }
 
-            if (timeout)
-                Thread.sleep(1000);
-        }
+            catch (MissingPermissionsException | DiscordException e) {
 
-        catch (MissingPermissionsException | DiscordException | RateLimitException | InterruptedException e) {
+                e.printStackTrace();
+            }
 
-            e.printStackTrace();
-        }
+        });
     }
 
     public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue (Map<K, V> map, boolean invert) {
 
         List<Map.Entry<K, V>> list = new LinkedList<>(map.entrySet());
-        Collections.sort(list, (o1, o2) -> o1.getValue().compareTo(o2.getValue()));
+        Collections.sort(list, Comparator.comparing(Map.Entry::getValue));
 
         if (invert)
             list = Lists.reverse(list);
