@@ -19,13 +19,13 @@ public class CommandPruneChannels extends CommandAdmin {
         final LocalDateTime current = LocalDateTime.now();
         final int minDaysOfInactivity = params.length == 2 ? Integer.parseInt(params[1]) : 7;
         final EmbedBuilder embed = new EmbedBuilder();
-        final Map<String, Integer> channels = new HashMap<String, Integer>();
+        final Map<String, Integer> channels = new HashMap<>();
 
         for (final IChannel channel : message.getGuild().getChannels()) {
-            
+
             if (channel.getName().equalsIgnoreCase("getting-started"))
                 continue;
-        
+
             try {
 
                 final IMessage latest = channel.getMessages().getLatestMessage();

@@ -1,5 +1,6 @@
 package com.mcmoddev.bot.handlers;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,155 +22,145 @@ import sx.blah.discord.util.EmbedBuilder;
 
 public class ServerEventHandler {
 
+    private static final int POSITIVE = Color.GREEN.getRGB();
+
+    private static final int NEUTRAL = Color.YELLOW.getRGB();
+
+    private static final int NEGATIVE = Color.RED.getRGB();
+
     @EventSubscriber
     public void onReady (ReadyEvent event) {
 
-        Utilities.sendMessage(MMDBot.INSTANCE.getChannelByID(MMDBot.EVENTS_CHANNEL_ID), "MMDBot is up and ready!");
+        MMDBot.mmdGuild = MMDBot.instance.getGuildByID("176780432371744769");
+        MMDBot.botZone = MMDBot.instance.getChannelByID("179302857143615489");
+        MMDBot.events = MMDBot.instance.getChannelByID("271498021286576128");
+        Utilities.sendMessage(MMDBot.events, "MMDBot is up and ready!");
     }
 
     @EventSubscriber
     public void onUserJoin (UserJoinEvent event) {
 
-        if (event.getGuild().getID().equals(MMDBot.MMD_GUILD_ID)) {
+        if (event.getGuild().equals(MMDBot.mmdGuild)) {
+
             final IUser user = event.getUser();
             final EmbedBuilder embed = new EmbedBuilder();
-            embed.withDescription("**USER JOIN**");
-            embed.appendField("**User**", user.getName() + "#" + user.getDiscriminator() + System.lineSeparator() + user.getID(), true);
-            embed.appendField("**User Account Creation**", String.valueOf(user.getCreationDate()), true);
-            embed.appendField("**Server Member Count**", String.valueOf(event.getGuild().getTotalMemberCount()), false);
-            embed.ignoreNullEmptyFields();
-            embed.withColor((int) (Math.random() * 0x1000000));
 
-            Utilities.sendMessage(MMDBot.INSTANCE.getChannelByID(MMDBot.EVENTS_CHANNEL_ID), embed.build());
+            embed.withDescription("**USER JOIN**");
+            embed.appendField("**User**", Utilities.userString(user), false);
+            embed.appendField("**Creation Date**", Utilities.formatTime(user.getCreationDate()), false);
+
+            Utilities.sendMessage(MMDBot.events, embed, POSITIVE);
+        }
+    }
+
+    @EventSubscriber
+    public void onUserLeave (UserLeaveEvent event) {
+
+        if (event.getGuild().equals(MMDBot.mmdGuild)) {
+            final IUser user = event.getUser();
+            final EmbedBuilder embed = new EmbedBuilder();
+            embed.withDescription("**USER LEAVE**");
+            embed.appendField("**User**", Utilities.userString(user), true);
+            embed.appendField("**Creation Date**", Utilities.formatTime(user.getCreationDate()), false);
+            Utilities.sendMessage(MMDBot.events, embed, NEGATIVE);
         }
     }
 
     @EventSubscriber
     public void onUserRoles (UserRoleUpdateEvent event) {
 
-        if (event.getGuild().getID().equals(MMDBot.MMD_GUILD_ID)) {
+        if (event.getGuild().equals(MMDBot.mmdGuild)) {
+
             final IUser user = event.getUser();
             final EmbedBuilder embed = new EmbedBuilder();
 
             final List<IRole> newRoles = event.getNewRoles();
             final List<IRole> oldRoles = event.getOldRoles();
 
-            embed.appendField("**User**", user.getName() + "#" + user.getDiscriminator() + System.lineSeparator() + user.getID(), false);
-            embed.appendField("**Current Roles**", arrayToString(newRoles, 0, ", "), true);
+            embed.withDescription("**USER ROLES CHANGED**");
+            embed.appendField("**User**", Utilities.userString(user), false);
+            embed.appendField("**Editor**", "API does not provide yet!", false);
+            embed.appendField("**Current Roles**", Utilities.toString(newRoles, ", "), false);
 
-            embed.ignoreNullEmptyFields();
-            embed.withColor((int) (Math.random() * 0x1000000));
+            final List<IRole> addedRoles = new ArrayList<>(newRoles);
+            addedRoles.removeAll(oldRoles);
 
-            if (newRoles.size() < oldRoles.size()) {
-                embed.withDescription("**USER ROLES REMOVE**");
+            if (!addedRoles.isEmpty())
+                embed.appendField("**Added Roles**", Utilities.toString(addedRoles, ", "), false);
 
-                final List<IRole> diff = new ArrayList<>(oldRoles);
-                diff.removeAll(newRoles);
+            final List<IRole> removedRoles = new ArrayList<>(oldRoles);
+            removedRoles.removeAll(newRoles);
 
-                embed.appendField("**Roles Removed**", arrayToString(diff, 0, ", "), true);
+            if (!removedRoles.isEmpty())
+                embed.appendField("**Removed Roles**", Utilities.toString(removedRoles, ", "), false);
 
-                Utilities.sendMessage(MMDBot.INSTANCE.getChannelByID(MMDBot.EVENTS_CHANNEL_ID), embed.build());
-            }
-            else if (newRoles.size() > oldRoles.size()) {
-                embed.withDescription("**USER ROLES ADD**");
-
-                final List<IRole> diff = new ArrayList<>(newRoles);
-                diff.removeAll(oldRoles);
-
-                embed.appendField("**Roles Added**", arrayToString(diff, 0, ", "), true);
-
-                Utilities.sendMessage(MMDBot.INSTANCE.getChannelByID(MMDBot.EVENTS_CHANNEL_ID), embed.build());
-            }
-
-        }
-    }
-
-    public static String arrayToString (List<IRole> array, int start, String delimiter) {
-
-        String ret = "";
-        for (int i = start; i < array.size(); i++) {
-            ret += array.get(i).getName();
-            if (i < array.size() - 1)
-                ret += delimiter;
-        }
-        return ret;
-    }
-
-    @EventSubscriber
-    public void onUserLeave (UserLeaveEvent event) {
-
-        if (event.getGuild().getID().equals(MMDBot.MMD_GUILD_ID)) {
-            final IUser user = event.getUser();
-            final EmbedBuilder embed = new EmbedBuilder();
-            embed.withDescription("**USER LEAVE**");
-            embed.appendField("**User**", user.getName() + "#" + user.getDiscriminator() + System.lineSeparator() + user.getID(), true);
-            embed.appendField("**Server Member Count**", String.valueOf(event.getGuild().getTotalMemberCount()), false);
-            embed.withColor((int) (Math.random() * 0x1000000));
-
-            Utilities.sendMessage(MMDBot.INSTANCE.getChannelByID(MMDBot.EVENTS_CHANNEL_ID), embed.build());
+            Utilities.sendMessage(MMDBot.events, embed, NEUTRAL);
         }
     }
 
     @EventSubscriber
     public void onUserBan (UserBanEvent event) {
 
-        if (event.getGuild().getID().equals(MMDBot.MMD_GUILD_ID)) {
+        if (event.getGuild().equals(MMDBot.mmdGuild)) {
+
             final IUser user = event.getUser();
             final EmbedBuilder embed = new EmbedBuilder();
             embed.withDescription("**USER BANNED**");
-            embed.appendField("**User**", user.getName() + "#" + user.getDiscriminator() + System.lineSeparator() + user.getID(), true);
-            embed.withColor((int) (Math.random() * 0x1000000));
+            embed.appendField("**User**", Utilities.userString(user), false);
+            embed.appendField("**Banner**", "API does not provide yet!", false);
 
-            Utilities.sendMessage(MMDBot.INSTANCE.getChannelByID(MMDBot.EVENTS_CHANNEL_ID), embed.build());
+            Utilities.sendMessage(MMDBot.events, embed, NEGATIVE);
         }
     }
 
     @EventSubscriber
     public void onUserPardon (UserPardonEvent event) {
 
-        if (event.getGuild().getID().equals(MMDBot.MMD_GUILD_ID)) {
+        if (event.getGuild().equals(MMDBot.mmdGuild)) {
+
             final IUser user = event.getUser();
             final EmbedBuilder embed = new EmbedBuilder();
             embed.withDescription("**USER PARDON**");
-            embed.appendField("**User**", user.getName() + "#" + user.getDiscriminator() + System.lineSeparator() + user.getID(), true);
-            embed.withColor((int) (Math.random() * 0x1000000));
+            embed.appendField("**User**", Utilities.userString(user), true);
+            embed.appendField("**Pardoner**", "API does not provide yet!", false);
 
-            Utilities.sendMessage(MMDBot.INSTANCE.getChannelByID(MMDBot.EVENTS_CHANNEL_ID), embed.build());
+            Utilities.sendMessage(MMDBot.events, embed, POSITIVE);
         }
     }
 
     @EventSubscriber
     public void onUserNickNameChange (NickNameChangeEvent event) {
 
-        if (event.getGuild().getID().equals(MMDBot.MMD_GUILD_ID)) {
+        if (event.getGuild().equals(MMDBot.mmdGuild)) {
+
             final IUser user = event.getUser();
             final EmbedBuilder embed = new EmbedBuilder();
             embed.withDescription("**USER NICKNAME CHANGE**");
-            embed.appendField("**User**", user.getName() + "#" + user.getDiscriminator() + System.lineSeparator() + user.getID(), false);
+            embed.appendField("**User**", Utilities.userString(user), false);
+
             if (event.getOldNickname().isPresent())
                 embed.appendField("**Old Nickname**", event.getOldNickname().get(), true);
+
             if (event.getNewNickname().isPresent())
                 embed.appendField("**New Nickname**", event.getNewNickname().get(), true);
 
-            embed.withColor((int) (Math.random() * 0x1000000));
-
-            Utilities.sendMessage(MMDBot.INSTANCE.getChannelByID(MMDBot.EVENTS_CHANNEL_ID), embed.build());
+            Utilities.sendMessage(MMDBot.events, embed, NEUTRAL);
         }
     }
 
     @EventSubscriber
     public void onMessageDelete (MessageDeleteEvent event) {
 
-        if (event.getGuild().getID().equals(MMDBot.MMD_GUILD_ID)) {
+        if (event.getGuild().equals(MMDBot.mmdGuild)) {
+
             final IUser user = event.getAuthor();
             final EmbedBuilder embed = new EmbedBuilder();
             embed.withDescription("**USER DELETE MESSAGE**");
-            embed.appendField(Utilities.makeBold("User"), user.getName() + "#" + user.getDiscriminator() + System.lineSeparator() + user.getID(), false);
+            embed.appendField("**User**", Utilities.userString(user), false);
+            embed.appendField("**Chanel**", event.getChannel().getName(), false);
+            embed.appendField("**Content**", Utilities.formatMessage(event.getMessage()), false);
 
-            embed.appendField("Content", event.getMessage().getContent(), false);
-            embed.withColor((int) (Math.random() * 0x1000000));
-
-            Utilities.sendMessage(MMDBot.INSTANCE.getChannelByID(MMDBot.EVENTS_CHANNEL_ID), embed.build());
+            Utilities.sendMessage(MMDBot.events, embed, NEGATIVE);
         }
     }
 }

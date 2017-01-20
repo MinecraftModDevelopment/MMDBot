@@ -72,8 +72,11 @@ public class CommandHandler {
         final String key = getCommandKeyFromMessage(message.getContent());
         final Command command = commands.get(key);
 
-        if (command == null)
+        if (command == null) {
+
+            Utilities.sendMessage(message.getChannel(), "No command found for " + key);
             return;
+        }
 
         if (!command.isValidUsage(message)) {
 

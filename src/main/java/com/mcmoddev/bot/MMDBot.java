@@ -8,33 +8,33 @@ import com.mcmoddev.bot.handlers.ZalgoHandler;
 
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.RateLimitException;
 
 public class MMDBot {
 
-    public static IDiscordClient INSTANCE;
-
     public static final Logger LOG = Logger.getLogger("MMDBot");
 
-    public static final String MMD_GUILD_ID = "176780432371744769";
-
-    public static final String MMDS_GUILD_ID = "229851088319283202";
-
-    public static final String BOTZONE_CHANNEL_ID = "179302857143615489";
-
-    public static final String EVENTS_CHANNEL_ID = "271498021286576128";
-
     public static final String COMMAND_KEY = "!mmd";
+
+    public static IDiscordClient instance;
+
+    public static IGuild mmdGuild;
+
+    public static IChannel botZone;
+
+    public static IChannel events;
 
     public static void main (String... args) throws RateLimitException {
 
         try {
 
-            INSTANCE = new ClientBuilder().withToken(args[0]).login();
-            INSTANCE.getDispatcher().registerListener(new CommandHandler());
-            INSTANCE.getDispatcher().registerListener(new ServerEventHandler());
-            INSTANCE.getDispatcher().registerListener(new ZalgoHandler());
+            instance = new ClientBuilder().withToken(args[0]).login();
+            instance.getDispatcher().registerListener(new CommandHandler());
+            instance.getDispatcher().registerListener(new ServerEventHandler());
+            instance.getDispatcher().registerListener(new ZalgoHandler());
         }
 
         catch (final DiscordException e) {

@@ -17,7 +17,7 @@ public class CommandAvatar extends CommandAdmin {
 
             if (params.length == 3) {
 
-                MMDBot.INSTANCE.changeAvatar(Image.forUrl(params[1], params[2]));
+                MMDBot.instance.changeAvatar(Image.forUrl(params[1], params[2]));
                 Utilities.sendMessage(message.getChannel(), "How do I look?");
             }
 

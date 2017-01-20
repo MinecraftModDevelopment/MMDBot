@@ -3,6 +3,8 @@ package com.mcmoddev.bot.util;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -18,9 +20,12 @@ import com.mcmoddev.bot.MMDBot;
 
 import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IEmbed;
 import sx.blah.discord.handle.obj.IMessage;
+import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
 
@@ -30,6 +35,8 @@ public class Utilities {
      * Static reference to the line seperator on the current operating system.
      */
     public static final String SEPERATOR = System.lineSeparator();
+
+    public static final DateTimeFormatter FORMAT_TIME_STANDARD = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     /**
      * A wrapper for {@link FileUtils#copyURLToFile(URL, File)}. Allows for quick download of
@@ -170,13 +177,20 @@ public class Utilities {
 
         try {
 
-            sendMessage(MMDBot.INSTANCE.getOrCreatePMChannel(user), message);
+            sendMessage(MMDBot.instance.getOrCreatePMChannel(user), message);
         }
 
         catch (final Exception e) {
 
             e.printStackTrace();
         }
+    }
+
+    public static void sendMessage (IChannel channel, EmbedBuilder embed, int color) {
+
+        embed.ignoreNullEmptyFields();
+        embed.withColor(color);
+        sendMessage(channel, embed.build());
     }
 
     public static void sendMessage (IChannel channel, EmbedObject object) {
@@ -271,18 +285,90 @@ public class Utilities {
         return result;
     }
 
+    public static String formatMessage (IMessage message) {
+
+        String ret = "";
+        if (message.getAttachments() == null || message.getAttachments().isEmpty())
+            ret = String.format("[%s|%s] %s: %s", message.getTimestamp().toLocalDate(), message.getTimestamp().toLocalTime(), message.getAuthor().getName(), message.getFormattedContent());
+        else
+            ret = String.format("[%s|%s] %s: %s [%s]", message.getTimestamp().toLocalDate(), message.getTimestamp().toLocalTime(), message.getAuthor().getName(), message.getFormattedContent(), formatAttachments(message.getAttachments()));
+        final List<IEmbed> embeds = message.getEmbedded();
+        if (embeds != null && !embeds.isEmpty()) {
+            ret += " {";
+            for (final IEmbed embed : embeds) {
+                String emb = "[" + embed.getDescription();
+                final List<IEmbed.IEmbedField> embedFields = embed.getEmbedFields();
+                if (embedFields != null && !embedFields.isEmpty())
+                    for (final IEmbed.IEmbedField field : embedFields)
+                        emb += "|" + field.getValue();
+                emb += "]";
+                ret += emb;
+            }
+            ret += "}";
+        }
+        return ret;
+    }
+
+    public static String formatAttachments (List<IMessage.Attachment> attachments) {
+
+        String s = "";
+        for (int i = 0, attachmentsSize = attachments.size(); i < attachmentsSize; i++) {
+            final IMessage.Attachment attachment = attachments.get(i);
+            s += attachment.getFilename();
+            s += "|" + humanReadableByteCount(attachment.getFilesize(), true);
+            s += "(" + attachment.getUrl() + ")";
+            if (i != attachmentsSize - 1)
+                s += ", ";
+        }
+        return s;
+
+    }
+
+    public static String humanReadableByteCount (long bytes, boolean si) {
+
+        final int unit = si ? 1000 : 1024;
+        if (bytes < unit)
+            return bytes + " B";
+        final int exp = (int) (Math.log(bytes) / Math.log(unit));
+        final String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+    }
+
     public static boolean isPrivateMessage (IMessage message) {
 
         return message.getGuild() == null;
     }
-    
-    public static <K, V> String mapToString(Map<K, V> map) {
-        
+
+    public static <K, V> String mapToString (Map<K, V> map) {
+
         String output = "";
-        
-        for (Entry<K, V> entry : map.entrySet())
+
+        for (final Entry<K, V> entry : map.entrySet())
             output += entry.getKey().toString() + " - " + entry.getValue().toString() + SEPERATOR;
-        
+
         return output;
+    }
+
+    public static String formatTime (LocalDateTime time) {
+
+        return time.format(FORMAT_TIME_STANDARD).toString();
+    }
+
+    public static String toString (List<IRole> roles, String delimiter) {
+
+        if (roles.isEmpty() || roles.size() == 1 && roles.get(0).isEveryoneRole())
+            return "None";
+
+        String ret = "";
+
+        for (final IRole role : roles)
+            if (!role.isEveryoneRole())
+                ret += role.getName() + delimiter;
+        return ret.substring(0, ret.length() - delimiter.length());
+    }
+
+    public static String userString (IUser user) {
+
+        return user.getName() + "#" + user.getDiscriminator() + " - " + user.getID();
     }
 }
