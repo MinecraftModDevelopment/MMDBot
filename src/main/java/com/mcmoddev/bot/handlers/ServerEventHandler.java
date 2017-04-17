@@ -10,7 +10,7 @@ import com.mcmoddev.bot.util.Utilities;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageDeleteEvent;
-import sx.blah.discord.handle.impl.events.guild.member.NickNameChangeEvent;
+import sx.blah.discord.handle.impl.events.guild.member.NicknameChangedEvent;
 import sx.blah.discord.handle.impl.events.guild.member.UserBanEvent;
 import sx.blah.discord.handle.impl.events.guild.member.UserJoinEvent;
 import sx.blah.discord.handle.impl.events.guild.member.UserLeaveEvent;
@@ -34,7 +34,7 @@ public class ServerEventHandler {
         MMDBot.mmdGuild = MMDBot.instance.getGuildByID("176780432371744769");
         MMDBot.botZone = MMDBot.instance.getChannelByID("179302857143615489");
         MMDBot.events = MMDBot.instance.getChannelByID("271498021286576128");
-        Utilities.sendMessage(MMDBot.events, "MMDBot is up and ready!");
+        // Utilities.sendMessage(MMDBot.events, "MMDBot is up and ready!");
     }
 
     @EventSubscriber
@@ -129,7 +129,7 @@ public class ServerEventHandler {
     }
 
     @EventSubscriber
-    public void onUserNickNameChange (NickNameChangeEvent event) {
+    public void onUserNickNameChange (NicknameChangedEvent event) {
 
         if (event.getGuild().equals(MMDBot.mmdGuild)) {
 
