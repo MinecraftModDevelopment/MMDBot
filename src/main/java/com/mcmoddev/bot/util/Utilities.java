@@ -235,6 +235,11 @@ public class Utilities {
         });
     }
 
+    public static void sendMessage (IChannel channel, String message, Object... args) {
+
+        sendMessage(channel, String.format(message, args));
+    }
+
     /**
      * Sends a message into the chat. This version of the method will handle exceptions for
      * you.
@@ -274,7 +279,7 @@ public class Utilities {
     public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue (Map<K, V> map, boolean invert) {
 
         List<Map.Entry<K, V>> list = new LinkedList<>(map.entrySet());
-        Collections.sort(list, Comparator.comparing(Map.Entry::getValue));
+        Collections.sort(list, Comparator.comparing(Entry<K,V>::getValue));
 
         if (invert)
             list = Lists.reverse(list);
