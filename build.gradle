@@ -22,6 +22,11 @@ repositories {
 
     jcenter()
     
+    maven { 
+    
+        url 'http://maven.epoxide.xyz' 
+    }
+    
     maven {
     
         url 'https://jitpack.io'
@@ -30,9 +35,12 @@ repositories {
 
 dependencies {
 
+    compile 'org.kohsuke:github-api:1.85'
     compile 'com.github.austinv11:Discord4j:dev-SNAPSHOT'
     compile 'com.google.guava:guava:19.0'
     compile 'com.google.code.gson:gson:2.2.4'
+    compile group: 'org.jsoup', name: 'jsoup', version: '1.8.3'
+    compile "net.darkhax.ess:ExtremelySimpleStorage:1.0.13"
 }
 
 task fatJar(type: Jar) {
