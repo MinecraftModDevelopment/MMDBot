@@ -1,10 +1,8 @@
 package com.mcmoddev.bot.util;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +48,7 @@ public class CurseData {
 
         int page = 1;
         boolean foundDuplicatePage = false;
-        boolean foundAvatar = false;
+        final boolean foundAvatar = false;
 
         while (!foundDuplicatePage) {
 
@@ -59,21 +57,9 @@ public class CurseData {
                 final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 
                 for (String line = reader.readLine(); line != null; line = reader.readLine())
-                    // Find avatar
-                    if (!foundAvatar && line.contains("<div class=\"avatar avatar-100 user user-role-curse-premium\">")) {
-
-                        reader.readLine();
-                        final String imageLine = reader.readLine();
-
-                        if (imageLine.contains("<img src=")) {
-
-                            this.avatar = imageLine.split("\"")[1];
-                            foundAvatar = true;
-                        }
-                    }
 
                     // Find projects
-                    else if (line.contains("a href=\"/projects/")) {
+                    if (line.contains("a href=\"/projects/")) {
 
                         final String projectURL = "https://minecraft.curseforge.com" + line.split("\"")[1].split("\"")[0];
 
@@ -96,14 +82,8 @@ public class CurseData {
 
             catch (final Exception e) {
 
-                if (e instanceof java.io.IOException && e.getMessage().contains("HTTP response code: 400") || e instanceof MalformedURLException || e instanceof FileNotFoundException && (e.getMessage().contains("https://minecraft.curseforge.com/not-found?404") || e.getMessage().contains("https://minecraft.curseforge.com/members/"))) {
-
-                    this.foundUser = false;
-                    break;
-                }
-
-                else
-                    e.printStackTrace();
+                this.foundUser = false;
+                break;
             }
 
             page++;
