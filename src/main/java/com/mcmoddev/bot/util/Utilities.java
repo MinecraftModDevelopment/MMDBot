@@ -3,6 +3,7 @@ package com.mcmoddev.bot.util;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -39,8 +40,8 @@ public class Utilities {
     public static final DateTimeFormatter FORMAT_TIME_STANDARD = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     /**
-     * A wrapper for {@link FileUtils#copyURLToFile(URL, File)}. Allows for quick download of
-     * files based on input from users.
+     * A wrapper for {@link FileUtils#copyURLToFile(URL, File)}. Allows for quick download of files
+     * based on input from users.
      *
      * @param site The site/url to download the file from.
      * @param fileName The location to save the file to.
@@ -69,8 +70,7 @@ public class Utilities {
      *
      * @param userID The user ID of the user to generate a ping message for.
      *
-     * @return String A short string which will ping the specified user when sent into the
-     *         chat.
+     * @return String A short string which will ping the specified user when sent into the chat.
      */
     public static String getPingMessage (String userID) {
 
@@ -166,9 +166,19 @@ public class Utilities {
         return "```" + message + "```";
     }
 
+    public static String makeHyperlink (String text, String url) {
+
+        return String.format("[%s](%s)", text, url);
+    }
+
+    public static String sanatizeMarkdown (String text) {
+
+        return text.replace("_", "\\_").replace("*", "\\*");
+    }
+
     /**
-     * Attempts to send a private message to a user. If a private message channel does not
-     * already exist, it will be created.
+     * Attempts to send a private message to a user. If a private message channel does not already
+     * exist, it will be created.
      *
      * @param user The user to send the private message to.
      * @param message The message to send to the user.
@@ -241,31 +251,30 @@ public class Utilities {
     }
 
     /**
-     * Sends a message into the chat. This version of the method will handle exceptions for
-     * you.
+     * Sends a message into the chat. This version of the method will handle exceptions for you.
      *
      * @param channel The channel to send to message to.
      * @param message The message to send to the channel.
      */
-    public static void sendMessage (IChannel channel, String message) {
+    public static IMessage sendMessage (IChannel channel, String message) {
 
-        if (message.contains("@")) {
+        if (message.contains("@") && !message.startsWith("I tried to send a message,")) {
 
             Utilities.sendMessage(channel, "I tried to send a message, but it contained an @. I can not ping people!");
             System.out.println(message);
-            return;
+            return null;
         }
 
         if (message.length() > 2000) {
 
             Utilities.sendMessage(channel, "I tried to send a message, but it was too long. " + message.length() + "/2000 chars!");
             System.out.println(message);
-            return;
+            return null;
         }
 
         RequestBuffer.request( () -> {
             try {
-                channel.sendMessage(message);
+                return channel.sendMessage(message);
             }
 
             catch (MissingPermissionsException | DiscordException e) {
@@ -273,13 +282,16 @@ public class Utilities {
                 e.printStackTrace();
             }
 
+            return null;
         });
+
+        return null;
     }
 
     public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue (Map<K, V> map, boolean invert) {
 
         List<Map.Entry<K, V>> list = new LinkedList<>(map.entrySet());
-        Collections.sort(list, Comparator.comparing(Entry<K,V>::getValue));
+        Collections.sort(list, Comparator.comparing(Entry<K, V>::getValue));
 
         if (invert)
             list = Lists.reverse(list);
@@ -375,5 +387,16 @@ public class Utilities {
     public static String userString (IUser user) {
 
         return user.getName() + "#" + user.getDiscriminator() + " - " + user.getID();
+    }
+
+    public static String getPercent (long l1, long l2) {
+
+        final double ratio = l1 / (double) l2;
+
+        if (ratio < 0.001d)
+            return "<0.1%";
+
+        final DecimalFormat percentFormat = new DecimalFormat("#.#%");
+        return percentFormat.format(ratio);
     }
 }
