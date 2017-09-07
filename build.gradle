@@ -35,12 +35,10 @@ repositories {
 
 dependencies {
 
-    compile 'org.kohsuke:github-api:1.85'
-    compile 'com.github.austinv11:Discord4j:dev-SNAPSHOT'
+    compile 'com.github.austinv11:Discord4j:2.8.4'
     compile 'com.google.guava:guava:19.0'
     compile 'com.google.code.gson:gson:2.2.4'
     compile group: 'org.jsoup', name: 'jsoup', version: '1.8.3'
-    compile "net.darkhax.ess:ExtremelySimpleStorage:1.0.13"
 }
 
 task fatJar(type: Jar) {
@@ -50,4 +48,13 @@ task fatJar(type: Jar) {
     baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
+}
+
+jar {
+  manifest {
+    attributes(
+      'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+      'Main-Class': 'com.mcmoddev.bot.MMDBot'
+    )
+  }
 }
