@@ -8,7 +8,9 @@ import com.mcmoddev.bot.command.Command;
 import com.mcmoddev.bot.command.CommandAvatar;
 import com.mcmoddev.bot.command.CommandCurse;
 import com.mcmoddev.bot.command.CommandHelp;
+import com.mcmoddev.bot.command.CommandKill;
 import com.mcmoddev.bot.command.CommandMemberCount;
+import com.mcmoddev.bot.command.CommandMute;
 import com.mcmoddev.bot.command.CommandProbe;
 import com.mcmoddev.bot.command.CommandPruneChannels;
 import com.mcmoddev.bot.command.CommandRename;
@@ -36,6 +38,8 @@ public class CommandHandler {
             registerCommand("prune", new CommandPruneChannels());
             registerCommand("curse", new CommandCurse());
             registerCommand("probe", new CommandProbe());
+            registerCommand("kill", new CommandKill());
+            registerCommand("mute", new CommandMute());
             enabled = true;
         }
     }
@@ -72,6 +76,12 @@ public class CommandHandler {
         final String key = getCommandKeyFromMessage(message.getContent());
         final Command command = commands.get(key);
 
+        if (key.isEmpty()) {
+
+            Utilities.sendMessage(message.getChannel(), "Please enter a command name!");
+            return;
+        }
+
         if (command == null) {
 
             Utilities.sendMessage(message.getChannel(), "No command found for " + key);
@@ -88,8 +98,8 @@ public class CommandHandler {
     }
 
     /**
-     * Retrieves a command key from an IMessage. This method assumes that the message passed
-     * starts with a command character.
+     * Retrieves a command key from an IMessage. This method assumes that the message passed starts
+     * with a command character.
      *
      * @param message The contents of the message to retrieve the key from.
      *
@@ -97,13 +107,14 @@ public class CommandHandler {
      */
     public static String getCommandKeyFromMessage (String message) {
 
-        return getParameters(message)[0].toLowerCase();
+        final String[] params = getParameters(message);
+        return params.length < 1 ? "" : params[0].toLowerCase();
     }
 
     /**
-     * Generates a list of String parameters used for a command, based on a String message.
-     * This method assumes that the message passed starts with a command character. This method
-     * will also use the command key as the first parameter.
+     * Generates a list of String parameters used for a command, based on a String message. This
+     * method assumes that the message passed starts with a command character. This method will
+     * also use the command key as the first parameter.
      *
      * @param message The message to sort through.
      *
@@ -111,7 +122,7 @@ public class CommandHandler {
      */
     public static String[] getParameters (String message) {
 
-        return message.substring(MMDBot.COMMAND_KEY.length() + 1).split(" ");
+        return MMDBot.COMMAND_KEY.length() + 1 > message.length() ? new String[0] : message.substring(MMDBot.COMMAND_KEY.length() + 1).split(" ");
     }
 
     /**
