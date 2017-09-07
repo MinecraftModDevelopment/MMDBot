@@ -10,14 +10,14 @@ public interface Command {
      *
      * @param message The context of the message received. Includes the guild, sender, message
      *        contents, and more.
-     * @param params The individual parameter messages. The first parameter is the string/name
-     *        of the command being used.
+     * @param params The individual parameter messages. The first parameter is the string/name of
+     *        the command being used.
      */
     public void processCommand (IMessage message, String[] params);
 
     /**
-     * Provides a description for the command. This is used by the help command to tell people
-     * what the command does, and explains how to use it.
+     * Provides a description for the command. This is used by the help command to tell people what
+     * the command does, and explains how to use it.
      *
      * @return The description for the command.
      */

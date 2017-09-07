@@ -40,8 +40,8 @@ public enum MMDRole {
     private final IGuild guild;
 
     /**
-     * Creates a representation of a role from Discord in code. This constructor will assume
-     * that the role exists on the public MMD server.
+     * Creates a representation of a role from Discord in code. This constructor will assume that
+     * the role exists on the public MMD server.
      *
      * @param roleId The Id of the role to represent.
      */
