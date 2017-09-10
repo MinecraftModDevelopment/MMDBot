@@ -1,10 +1,12 @@
 package com.mcmoddev.bot;
 
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.mcmoddev.bot.handlers.CommandHandler;
 import com.mcmoddev.bot.handlers.ServerEventHandler;
 import com.mcmoddev.bot.handlers.ZalgoHandler;
+import com.mcmoddev.bot.logging.PrintStreamTraced;
 
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
@@ -15,9 +17,9 @@ import sx.blah.discord.util.RateLimitException;
 
 public class MMDBot {
 
-    public static final Logger LOG = Logger.getLogger("MMDBot");
+    public static final Logger LOG = LogManager.getLogger("MMDBot");
 
-    public static final String COMMAND_KEY = "!mmd";
+    public static final String COMMAND_KEY = "!dev";
 
     public static IDiscordClient instance;
 
@@ -29,6 +31,9 @@ public class MMDBot {
 
     public static void main (String... args) throws RateLimitException {
 
+        System.setOut(new PrintStreamTraced(System.out));
+        System.setErr(new PrintStreamTraced(System.err));
+        
         try {
 
             instance = new ClientBuilder().withToken(args[0]).login();

@@ -38,7 +38,10 @@ dependencies {
     compile 'com.github.austinv11:Discord4j:2.8.4'
     compile 'com.google.guava:guava:19.0'
     compile 'com.google.code.gson:gson:2.2.4'
-    compile group: 'org.jsoup', name: 'jsoup', version: '1.8.3'
+    compile 'org.jsoup:jsoup:1.8.3'
+    compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.9.0'
+
+
 }
 
 task fatJar(type: Jar) {

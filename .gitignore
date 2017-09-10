@@ -2,6 +2,7 @@
 /build/
 /bin/
 /cursefiles/
+/logs/
 
 #Hidden Directories
 .gradle/
