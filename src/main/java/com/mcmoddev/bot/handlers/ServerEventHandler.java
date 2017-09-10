@@ -29,21 +29,9 @@ public class ServerEventHandler {
     private static final int NEGATIVE = Color.RED.getRGB();
 
     @EventSubscriber
-    public void onReady (ReadyEvent event) {
-
-        MMDBot.mmdGuild = MMDBot.instance.getGuildByID(176780432371744769L);
-        MMDBot.botZone = MMDBot.instance.getChannelByID(179302857143615489L);
-        MMDBot.events = MMDBot.instance.getChannelByID(271498021286576128L);
-        MMDBot.console = MMDBot.instance.getChannelByID(356312255270486027L);
-        MMDBot.isReady = true;
-        
-        MMDBot.LOG.info("Logged in as " + Utilities.userString(MMDBot.instance.getOurUser()));
-    }
-
-    @EventSubscriber
     public void onUserJoin (UserJoinEvent event) {
 
-        if (event.getGuild().equals(MMDBot.mmdGuild)) {
+        if (MMDBot.state.isPublicGuild(event.getGuild())) {
 
             final IUser user = event.getUser();
             final EmbedBuilder embed = new EmbedBuilder();
@@ -52,27 +40,28 @@ public class ServerEventHandler {
             embed.appendField("**User**", Utilities.userString(user), false);
             embed.appendField("**Creation Date**", Utilities.formatTime(user.getCreationDate()), false);
 
-            Utilities.sendMessage(MMDBot.events, embed, POSITIVE);
+            Utilities.sendMessage(MMDBot.state.getAuditChannel(), embed, POSITIVE);
         }
     }
 
     @EventSubscriber
     public void onUserLeave (UserLeaveEvent event) {
 
-        if (event.getGuild().equals(MMDBot.mmdGuild)) {
+        if (MMDBot.state.isPublicGuild(event.getGuild())) {
+            
             final IUser user = event.getUser();
             final EmbedBuilder embed = new EmbedBuilder();
             embed.withDescription("**USER LEAVE**");
             embed.appendField("**User**", Utilities.userString(user), true);
             embed.appendField("**Creation Date**", Utilities.formatTime(user.getCreationDate()), false);
-            Utilities.sendMessage(MMDBot.events, embed, NEGATIVE);
+            Utilities.sendMessage(MMDBot.state.getAuditChannel(), embed, NEGATIVE);
         }
     }
 
     @EventSubscriber
     public void onUserRoles (UserRoleUpdateEvent event) {
 
-        if (event.getGuild().equals(MMDBot.mmdGuild)) {
+        if (MMDBot.state.isPublicGuild(event.getGuild())) {
 
             final IUser user = event.getUser();
             final EmbedBuilder embed = new EmbedBuilder();
@@ -97,14 +86,14 @@ public class ServerEventHandler {
             if (!removedRoles.isEmpty())
                 embed.appendField("**Removed Roles**", Utilities.toString(removedRoles, ", "), false);
 
-            Utilities.sendMessage(MMDBot.events, embed, NEUTRAL);
+            Utilities.sendMessage(MMDBot.state.getAuditChannel(), embed, NEUTRAL);
         }
     }
 
     @EventSubscriber
     public void onUserBan (UserBanEvent event) {
 
-        if (event.getGuild().equals(MMDBot.mmdGuild)) {
+        if (MMDBot.state.isPublicGuild(event.getGuild())) {
 
             final IUser user = event.getUser();
             final EmbedBuilder embed = new EmbedBuilder();
@@ -112,14 +101,14 @@ public class ServerEventHandler {
             embed.appendField("**User**", Utilities.userString(user), false);
             embed.appendField("**Banner**", "API does not provide yet!", false);
 
-            Utilities.sendMessage(MMDBot.events, embed, NEGATIVE);
+            Utilities.sendMessage(MMDBot.state.getAuditChannel(), embed, NEGATIVE);
         }
     }
 
     @EventSubscriber
     public void onUserPardon (UserPardonEvent event) {
 
-        if (event.getGuild().equals(MMDBot.mmdGuild)) {
+        if (MMDBot.state.isPublicGuild(event.getGuild())) {
 
             final IUser user = event.getUser();
             final EmbedBuilder embed = new EmbedBuilder();
@@ -127,14 +116,14 @@ public class ServerEventHandler {
             embed.appendField("**User**", Utilities.userString(user), true);
             embed.appendField("**Pardoner**", "API does not provide yet!", false);
 
-            Utilities.sendMessage(MMDBot.events, embed, POSITIVE);
+            Utilities.sendMessage(MMDBot.state.getAuditChannel(), embed, POSITIVE);
         }
     }
 
     @EventSubscriber
     public void onUserNickNameChange (NicknameChangedEvent event) {
 
-        if (event.getGuild().equals(MMDBot.mmdGuild)) {
+        if (MMDBot.state.isPublicGuild(event.getGuild())) {
 
             final IUser user = event.getUser();
             final EmbedBuilder embed = new EmbedBuilder();
@@ -147,14 +136,14 @@ public class ServerEventHandler {
             if (event.getNewNickname().isPresent())
                 embed.appendField("**New Nickname**", event.getNewNickname().get(), true);
 
-            Utilities.sendMessage(MMDBot.events, embed, NEUTRAL);
+            Utilities.sendMessage(MMDBot.state.getAuditChannel(), embed, NEUTRAL);
         }
     }
 
     @EventSubscriber
     public void onMessageDelete (MessageDeleteEvent event) {
 
-        if (event.getGuild().equals(MMDBot.mmdGuild)) {
+        if (MMDBot.state.isPublicGuild(event.getGuild())) {
 
             final IUser user = event.getAuthor();
             final EmbedBuilder embed = new EmbedBuilder();
@@ -164,7 +153,7 @@ public class ServerEventHandler {
             embed.appendField("**Content**", Utilities.formatMessage(event.getMessage()), false);
             embed.appendField("**MESSAGE ID**", Long.toString(event.getMessage().getLongID()), false);
 
-            Utilities.sendMessage(MMDBot.events, embed, NEGATIVE);
+            Utilities.sendMessage(MMDBot.state.getAuditChannel(), embed, NEGATIVE);
         }
     }
 }
