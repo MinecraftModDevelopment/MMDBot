@@ -12,8 +12,6 @@ import com.mcmoddev.bot.util.Utilities;
 
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.RateLimitException;
 
@@ -22,7 +20,7 @@ public class MMDBot {
     // Handlers
 
     private static final LoggingHandler logging = new LoggingHandler();
-    
+
     public static final StateHandler state = new StateHandler();
 
     private static final CommandHandler commands = new CommandHandler();
@@ -30,7 +28,7 @@ public class MMDBot {
     private static final ServerEventHandler auditor = new ServerEventHandler();
 
     // Other
-    
+
     public static final Logger LOG = LoggerFactory.getLogger("MMDBot");
 
     public static final String COMMAND_KEY = "!mmd";
@@ -48,7 +46,7 @@ public class MMDBot {
         if (args.length >= 1) {
 
             LOG.info("Starting bot with token " + Utilities.partiallyReplace(args[0], 4));
-            
+
             try {
 
                 instance = new ClientBuilder().withToken(args[0]).login();

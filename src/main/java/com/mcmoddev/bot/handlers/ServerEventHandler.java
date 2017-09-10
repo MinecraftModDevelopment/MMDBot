@@ -8,7 +8,6 @@ import com.mcmoddev.bot.MMDBot;
 import com.mcmoddev.bot.util.Utilities;
 
 import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.handle.impl.events.ReadyEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageDeleteEvent;
 import sx.blah.discord.handle.impl.events.guild.member.NicknameChangedEvent;
 import sx.blah.discord.handle.impl.events.guild.member.UserBanEvent;
@@ -48,7 +47,7 @@ public class ServerEventHandler {
     public void onUserLeave (UserLeaveEvent event) {
 
         if (MMDBot.state.isPublicGuild(event.getGuild())) {
-            
+
             final IUser user = event.getUser();
             final EmbedBuilder embed = new EmbedBuilder();
             embed.withDescription("**USER LEAVE**");

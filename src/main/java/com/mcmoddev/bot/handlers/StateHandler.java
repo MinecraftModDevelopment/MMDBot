@@ -11,34 +11,34 @@ import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 
 public class StateHandler {
-    
+
     private boolean isReady = false;
-    
+
     // Public
     private IGuild guildPublic;
-    
+
     private IChannel chanelDebug;
 
     private IChannel chanelAudit;
 
     private IChannel chanelConsole;
-    
+
     private IRole roleAdmin;
-    
+
     private IRole roleBotManager;
-    
+
     private IRole roleModerator;
-    
+
     private IRole roleMuted;
-    
+
     // Staff
     private IGuild guildStaff;
 
     @EventSubscriber
     public void onReady (ReadyEvent event) {
 
-        //Public
-        this.guildPublic = MMDBot.instance.getGuildByID(176780432371744769L);       
+        // Public
+        this.guildPublic = MMDBot.instance.getGuildByID(176780432371744769L);
         this.chanelDebug = MMDBot.instance.getChannelByID(179302857143615489L);
         this.chanelAudit = MMDBot.instance.getChannelByID(271498021286576128L);
         this.chanelConsole = MMDBot.instance.getChannelByID(356312255270486027L);
@@ -46,72 +46,70 @@ public class StateHandler {
         this.roleBotManager = this.guildPublic.getRoleByID(226067502977777664L);
         this.roleModerator = this.guildPublic.getRoleByID(178772974990655489L);
         this.roleMuted = this.guildPublic.getRoleByID(305875306529554432L);
-        
-        //Staff
+
+        // Staff
         this.guildStaff = MMDBot.instance.getGuildByID(229851088319283202L);
-        
+
         this.isReady = true;
-        
+
         MMDBot.LOG.info("Logged in as " + Utilities.userString(MMDBot.instance.getOurUser()));
-        
-        for (IRole role : this.guildPublic.getRoles()) {
-            
+
+        for (final IRole role : this.guildPublic.getRoles())
             System.out.println(role.getName() + " - " + role.getLongID() + "L");
-        }
     }
-    
-    public boolean isReady() {
-        
+
+    public boolean isReady () {
+
         return this.isReady;
     }
-    
-    public IGuild getPublicGuild() {
-        
+
+    public IGuild getPublicGuild () {
+
         return this.guildPublic;
     }
-    
-    public IChannel getDebugChannel() {
-        
+
+    public IChannel getDebugChannel () {
+
         return this.chanelDebug;
     }
-    
-    public IChannel getAuditChannel() {
-        
+
+    public IChannel getAuditChannel () {
+
         return this.chanelAudit;
     }
-    
-    public IChannel getConsoleChannel() {
-        
+
+    public IChannel getConsoleChannel () {
+
         return this.chanelConsole;
     }
-    
-    public IGuild getStaffGuild() {
-        
+
+    public IGuild getStaffGuild () {
+
         return this.guildStaff;
     }
-    
-    public boolean isAdmin(IUser user) {
-        
+
+    public boolean isAdmin (IUser user) {
+
         return Utilities.hasRole(user, this.roleAdmin);
     }
-    
-    public boolean isModerator(IUser user) {
-        
+
+    public boolean isModerator (IUser user) {
+
         return Utilities.hasRole(user, this.roleModerator);
     }
-    
-    public boolean isBotManager(IUser user) {
-        
+
+    public boolean isBotManager (IUser user) {
+
         return Utilities.hasRole(user, this.roleBotManager);
     }
-    
-    public boolean isMuted(IUser user) {
-        
+
+    public boolean isMuted (IUser user) {
+
         return Utilities.hasRole(user, this.roleMuted);
     }
-    
-    public boolean isPublicGuild(IGuild guild) {
-        
+
+    public boolean isPublicGuild (IGuild guild) {
+
         return this.guildPublic.getLongID() == guild.getLongID();
     }
 }
