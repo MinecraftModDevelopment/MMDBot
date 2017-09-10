@@ -160,6 +160,7 @@ public class ServerEventHandler {
             embed.appendField("**User**", Utilities.userString(user), false);
             embed.appendField("**Chanel**", event.getChannel().getName(), false);
             embed.appendField("**Content**", Utilities.formatMessage(event.getMessage()), false);
+            embed.appendField("**MESSAGE ID**", Long.toString(event.getMessage().getLongID()), false);
 
             Utilities.sendMessage(MMDBot.events, embed, NEGATIVE);
         }
