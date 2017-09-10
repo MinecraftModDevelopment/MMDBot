@@ -33,7 +33,7 @@ public class CommandKill extends CommandAdmin {
         }
 
         Utilities.sendMessage(message.getChannel(), "Oh, I am slain. Killed by %s#%s Death in %d seconds.", message.getAuthor().getName(), message.getAuthor().getDiscriminator(), time);
-        Utilities.sendMessage(MMDBot.events, "Oh, I am slain. Killed by %s#%s Death in %d seconds.", message.getAuthor().getName(), message.getAuthor().getDiscriminator(), time);
+        Utilities.sendMessage(MMDBot.state.getAuditChannel(), "Oh, I am slain. Killed by %s#%s Death in %d seconds.", message.getAuthor().getName(), message.getAuthor().getDiscriminator(), time);
 
         try {
 

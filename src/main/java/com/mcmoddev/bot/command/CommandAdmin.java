@@ -1,6 +1,6 @@
 package com.mcmoddev.bot.command;
 
-import com.mcmoddev.bot.util.MMDRole;
+import com.mcmoddev.bot.MMDBot;
 
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
@@ -12,6 +12,6 @@ public abstract class CommandAdmin implements Command {
 
         final IUser user = message.getAuthor();
 
-        return MMDRole.ADMIN.hasRole(user) || MMDRole.BOT_HOST.hasRole(user);
+        return MMDBot.state.isAdmin(user) || MMDBot.state.isBotManager(user);
     }
 }
