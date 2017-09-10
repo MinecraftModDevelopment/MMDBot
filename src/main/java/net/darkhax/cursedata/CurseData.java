@@ -30,8 +30,9 @@ public class CurseData {
     public static Project getProjectFromWidget (String widgetUrl) {
 
         try {
-
-            return getProjectFromJson(getDocument(widgetUrl).body().text());
+    
+            Project proj = getProjectFromJson(getDocument(widgetUrl).body().text());
+            return proj != null && proj.getDownloads() == null ? null : proj;
         }
 
         catch (final IOException e) {
