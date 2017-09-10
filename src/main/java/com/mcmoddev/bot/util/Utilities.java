@@ -205,16 +205,19 @@ public class Utilities {
 
     public static void sendMessage (IChannel channel, EmbedObject object) {
 
-        RequestBuffer.request( () -> {
-            try {
-                channel.sendMessage(object);
-            }
-            
-            catch (MissingPermissionsException e) {
+        if (MMDBot.isReady) {
+           
+            RequestBuffer.request( () -> {
+                try {
+                    channel.sendMessage(object);
+                }
                 
-                System.out.println("Could not send a message to " + channel.getName() + " Missing perms! Message: " + object.description);
-            }
-        });
+                catch (MissingPermissionsException e) {
+                    
+                    System.out.println("Could not send a message to " + channel.getName() + " Missing perms! Message: " + object.description);
+                }
+            });
+        }
     }
 
     public static void sendMessage (IChannel channel, String message, EmbedObject object) {
@@ -259,6 +262,12 @@ public class Utilities {
      */
     public static IMessage sendMessage (IChannel channel, String message) {
 
+        if (!MMDBot.isReady) {
+            
+            System.out.println("Attempted to send message before the bot had started.");
+            return null;
+        }
+        
         if (message.contains("@") && !message.startsWith("I tried to send a message,")) {
 
             Utilities.sendMessage(channel, "I tried to send a message, but it contained an @. I can not ping people!");
@@ -270,6 +279,12 @@ public class Utilities {
 
             Utilities.sendMessage(channel, "I tried to send a message, but it was too long. " + message.length() + "/2000 chars!");
             System.out.println(message);
+            return null;
+        }
+        
+        if (channel == null) {
+            
+            System.out.println("Null channel for message");
             return null;
         }
 

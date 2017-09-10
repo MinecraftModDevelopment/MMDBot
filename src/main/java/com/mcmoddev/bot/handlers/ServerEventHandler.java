@@ -31,10 +31,11 @@ public class ServerEventHandler {
     @EventSubscriber
     public void onReady (ReadyEvent event) {
 
-        MMDBot.mmdGuild = MMDBot.instance.getGuildByID("176780432371744769");
-        MMDBot.botZone = MMDBot.instance.getChannelByID("179302857143615489");
-        MMDBot.events = MMDBot.instance.getChannelByID("271498021286576128");
-        // Utilities.sendMessage(MMDBot.events, "MMDBot is up and ready!");
+        MMDBot.mmdGuild = MMDBot.instance.getGuildByID(176780432371744769L);
+        MMDBot.botZone = MMDBot.instance.getChannelByID(179302857143615489L);
+        MMDBot.events = MMDBot.instance.getChannelByID(271498021286576128L);
+        MMDBot.console = MMDBot.instance.getChannelByID(356312255270486027L);
+        MMDBot.isReady = true;
     }
 
     @EventSubscriber
