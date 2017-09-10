@@ -39,9 +39,7 @@ dependencies {
     compile 'com.google.guava:guava:19.0'
     compile 'com.google.code.gson:gson:2.2.4'
     compile 'org.jsoup:jsoup:1.8.3'
-    compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.9.0'
-
-
+    compile 'ch.qos.logback:logback-classic:1.2.3'
 }
 
 task fatJar(type: Jar) {
@@ -49,7 +47,14 @@ task fatJar(type: Jar) {
         attributes 'Implementation-Title': 'MMDBot', 'Implementation-Version': '1.0.0', 'Main-Class': 'com.mcmoddev.bot.MMDBot'
     }
     baseName = project.name + '-all'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+
+        from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it).matching {
+                exclude 'META-INF/**.RSA'
+                exclude 'META-INF/MANIFEST.MF'
+                exclude 'META-INF/log4j-provider.properties'
+            } } }
     with jar
 }
 

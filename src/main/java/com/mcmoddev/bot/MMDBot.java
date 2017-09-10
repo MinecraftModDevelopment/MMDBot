@@ -1,13 +1,14 @@
 package com.mcmoddev.bot;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.mcmoddev.bot.handlers.CommandHandler;
-import com.mcmoddev.bot.handlers.ConsoleHandler;
+import com.mcmoddev.bot.handlers.LoggingHandler;
 import com.mcmoddev.bot.handlers.ServerEventHandler;
 import com.mcmoddev.bot.handlers.ZalgoHandler;
 import com.mcmoddev.bot.logging.PrintStreamTraced;
+import com.mcmoddev.bot.util.Utilities;
 
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
@@ -18,7 +19,17 @@ import sx.blah.discord.util.RateLimitException;
 
 public class MMDBot {
 
-    public static final Logger LOG = LogManager.getLogger("MMDBot");
+    // HANDLERS
+
+    private static final LoggingHandler logging = new LoggingHandler();
+
+    private static final CommandHandler commands = new CommandHandler();
+
+    private static final ServerEventHandler auditor = new ServerEventHandler();
+
+    private static final ZalgoHandler zalgo = new ZalgoHandler();
+
+    public static final Logger LOG = LoggerFactory.getLogger("MMDBot");
 
     public static final String COMMAND_KEY = "!mmd";
 
@@ -36,22 +47,30 @@ public class MMDBot {
 
     public static void main (String... args) throws RateLimitException {
 
-        // Redirects the system out logger to append context on where it was called.
+        LOG.info("The bot has started.");
+
+        LOG.info("Wrapping standard output and error streams with tracer!");
         System.setOut(new PrintStreamTraced(System.out));
         System.setErr(new PrintStreamTraced(System.err));
 
-        try {
+        if (args.length >= 1) {
 
-            instance = new ClientBuilder().withToken(args[0]).login();
-            instance.getDispatcher().registerListener(new CommandHandler());
-            instance.getDispatcher().registerListener(new ServerEventHandler());
-            instance.getDispatcher().registerListener(new ZalgoHandler());
-            instance.getDispatcher().registerListener(new ConsoleHandler());
+            LOG.info("Starting bot with token " + Utilities.partiallyReplace(args[0], 4));
+            
+            try {
+
+                instance = new ClientBuilder().withToken(args[0]).login();
+                instance.getDispatcher().registerListener(commands);
+                instance.getDispatcher().registerListener(auditor);
+                instance.getDispatcher().registerListener(zalgo);
+            }
+
+            catch (final DiscordException e) {
+
+                LOG.trace("Error during startup", e);
+            }
         }
-
-        catch (final DiscordException e) {
-
-            e.printStackTrace();
-        }
+        else
+            LOG.error("Attempted to launch the bot without a discord token!");
     }
 }

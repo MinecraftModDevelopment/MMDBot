@@ -36,6 +36,8 @@ public class ServerEventHandler {
         MMDBot.events = MMDBot.instance.getChannelByID(271498021286576128L);
         MMDBot.console = MMDBot.instance.getChannelByID(356312255270486027L);
         MMDBot.isReady = true;
+        
+        MMDBot.LOG.info("Logged in as " + Utilities.userString(MMDBot.instance.getOurUser()));
     }
 
     @EventSubscriber

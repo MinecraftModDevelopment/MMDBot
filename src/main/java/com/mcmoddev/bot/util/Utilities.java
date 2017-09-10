@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Lists;
 import com.mcmoddev.bot.MMDBot;
@@ -412,5 +413,11 @@ public class Utilities {
 
         final DecimalFormat percentFormat = new DecimalFormat("#.#%");
         return percentFormat.format(ratio);
+    }
+
+    public static String partiallyReplace (String string, int charsToKeep) {
+
+        final int index = string.length() - charsToKeep;
+        return StringUtils.repeat("*", index) + string.substring(index);
     }
 }
