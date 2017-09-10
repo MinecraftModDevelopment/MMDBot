@@ -209,9 +209,10 @@ public class Utilities {
             try {
                 channel.sendMessage(object);
             }
-            catch (DiscordException | MissingPermissionsException e) {
-
-                e.printStackTrace();
+            
+            catch (MissingPermissionsException e) {
+                
+                System.out.println("Could not send a message to " + channel.getName() + " Missing perms! Message: " + object.description);
             }
         });
     }
