@@ -19,6 +19,8 @@ public class CurseData {
     public static final String PROJECTS_PAGE_URL = "https://mods.curse.com/members/%s/projects?page=%d";
 
     public static final String WIDGET_URL = "https://widget.mcf.li%s.json";
+    
+    public static final String PROJECTS_URL = "https://minecraft.curseforge.com/projects";
 
     public static final Gson gson = new Gson();
 
@@ -109,5 +111,24 @@ public class CurseData {
     private static Document getDocument (String url) throws IOException {
 
         return Jsoup.connect(url).ignoreContentType(true).userAgent("Opera/9.80 (Macintosh; Intel Mac OS X 10.6.8; U; fr) Presto/2.9.168 Version/11.52").referrer("https://mods.curse.com").timeout(12000).ignoreHttpErrors(true).followRedirects(true).get();
+    }
+    
+    public static long getTotalCurseDownloads(){
+    
+        try {
+            final Document doc = getDocument(PROJECTS_URL);
+            for(Element el : doc.getElementsByClass("project-category")) {
+                for(Element ele : el.getElementsByClass("category-info")) {
+                    if(ele.getElementsByTag("h2").first().text().contains("Mods")) {
+                        String downloads = ele.getElementsByTag("p").first().text().split(".<")[0].split("more than")[1].trim().split(" ")[0].trim().replaceAll(",", "");
+                        return Long.parseLong(downloads);
+                    }
+                }
+            }
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+        //fallback number if the actual number isn't available
+        return 1622770000L;
     }
 }
