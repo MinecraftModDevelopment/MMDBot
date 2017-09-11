@@ -93,12 +93,13 @@ public class CurseData {
                 }
             }
 
-            catch (final IOException exception) {
+            catch (final IOException | NullPointerException exception) {
 
                 if (exception instanceof HttpStatusException && ((HttpStatusException) exception).getStatusCode() == 404)
                     LOG.info(String.format("The cursename %s was invalid", curseForgeName));
                 else
                     exception.printStackTrace();
+                return new Member(username, avatar, joined, projects);
             }
 
             if (page == totalPages)
