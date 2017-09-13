@@ -13,16 +13,20 @@ import sx.blah.discord.util.EmbedBuilder;
 public class CommandCurse implements Command {
 
     private static NumberFormat nFormat = NumberFormat.getInstance();
-
+    private long totalCurseDownloads;
+    private long lastCheckTime;
     @Override
     public void processCommand (IMessage message, String[] params) {
-
+        
         Utilities.sendMessage(message.getChannel(), "Getting curse data for " + params[1]);
-
+        if(System.currentTimeMillis()-lastCheckTime >=1000*3600 || lastCheckTime == 0 || totalCurseDownloads==0){
+            lastCheckTime = System.currentTimeMillis();
+            totalCurseDownloads = CurseData.getTotalCurseDownloads();
+        }
         final StringBuilder builder = new StringBuilder();
         final EmbedBuilder embed = new EmbedBuilder();
         final Member member = CurseData.getMember(params[1]);
-
+        
         if (member.getUsername().equals("%INVALID%")) {
 
             Utilities.sendMessage(message.getChannel(), "No user could be found by the name " + params[1]);
@@ -42,7 +46,7 @@ public class CommandCurse implements Command {
 
         for (final Project project : member.getProjects()) {
 
-            if (addedProjects <= 10)
+            if (addedProjects < 10)
                 builder.append(Utilities.makeHyperlink(Utilities.sanatizeMarkdown(project.getTitle()), project.getProjectUrl()) + " - " + nFormat.format(project.getTotalDownloads()) + Utilities.SEPERATOR);
             else
                 otherDLs += project.getTotalDownloads();
@@ -52,7 +56,7 @@ public class CommandCurse implements Command {
             addedProjects++;
         }
 
-        if (addedProjects > 10)
+        if (addedProjects >= 10)
             builder.append("Other Projects (" + (member.getProjects().size() - 10) + ") - " + nFormat.format(otherDLs) + Utilities.SEPERATOR);
 
         builder.append("Total Projects: " + member.getProjects().size() + Utilities.SEPERATOR);
@@ -61,7 +65,7 @@ public class CommandCurse implements Command {
         embed.ignoreNullEmptyFields();
         embed.withDesc(builder.toString());
         embed.withColor((int) (Math.random() * 0x1000000));
-        embed.withTitle("Total Downloads: " + nFormat.format(total) + " " + Utilities.getPercent(total, 1622770000L));
+        embed.withTitle("Total Downloads: " + nFormat.format(total) + " " + Utilities.getPercent(total, totalCurseDownloads));
         embed.withThumbnail(member.getAvatar());
         Utilities.sendMessage(message.getChannel(), embed.build());
     }
