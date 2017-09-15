@@ -122,7 +122,7 @@ public class CommandHandler {
      */
     public static String[] getParameters (String message) {
 
-        return MMDBot.COMMAND_KEY.length() + 1 > message.length() ? new String[0] : message.substring(MMDBot.COMMAND_KEY.length() + 1).split(" ");
+        return MMDBot.config.key.length() + 1 > message.length() ? new String[0] : message.substring(MMDBot.config.key.length() + 1).split(" ");
     }
 
     /**
@@ -140,7 +140,7 @@ public class CommandHandler {
     @EventSubscriber
     public void onMessageRecieved (MessageReceivedEvent event) {
 
-        if (event.getMessage().getContent().startsWith(MMDBot.COMMAND_KEY))
+        if (event.getMessage().getContent().startsWith(MMDBot.config.key))
             CommandHandler.attemptCommandTriggers(event.getMessage());
     }
 }

@@ -20,10 +20,12 @@ import sx.blah.discord.util.RateLimitException;
 
 public class MMDBot {
 
-    // Handlers
-
-    private static final LoggingHandler logging = new LoggingHandler();
-
+    private static final LoggingHandler LOGGING = new LoggingHandler();
+    
+    public static final Logger LOG = LoggerFactory.getLogger("MMDBot");
+    
+    public static final LaunchConfig config = LaunchConfig.updateConfig();
+    
     public static final StateHandler state = new StateHandler();
 
     private static final CommandHandler commands = new CommandHandler();
@@ -32,17 +34,9 @@ public class MMDBot {
 
     private static final ScheduleHandler schedule = new ScheduleHandler();
 
-    // Other
-
-    public static final Logger LOG = LoggerFactory.getLogger("MMDBot");
-
-    public static final String COMMAND_KEY = "!mmd";
-
     public static IDiscordClient instance;
 
     public static void main (String... args) throws RateLimitException {
-
-        LOG.info("The bot has started.");
 
         LOG.info("Wrapping standard output and error streams with tracer!");
         System.setOut(new PrintStreamTraced(System.out));
@@ -51,24 +45,19 @@ public class MMDBot {
         LOG.info("Shutting Discord4J's Yap");
         LoggingHandler.setLoggerLevel((ch.qos.logback.classic.Logger) Discord4J.LOGGER, Level.OFF);
 
-        if (args.length >= 1) {
+        LOG.info("Starting bot with token " + Utilities.partiallyReplace(config.authToken, 4));
 
-            LOG.info("Starting bot with token " + Utilities.partiallyReplace(args[0], 4));
+        try {
 
-            try {
-
-                instance = new ClientBuilder().withToken(args[0]).login();
-                instance.getDispatcher().registerListener(state);
-                instance.getDispatcher().registerListener(commands);
-                instance.getDispatcher().registerListener(auditor);
-            }
-
-            catch (final DiscordException e) {
-
-                LOG.trace("Error during startup", e);
-            }
+            instance = new ClientBuilder().withToken(config.authToken).login();
+            instance.getDispatcher().registerListener(state);
+            instance.getDispatcher().registerListener(commands);
+            instance.getDispatcher().registerListener(auditor);
         }
-        else
-            LOG.error("Attempted to launch the bot without a discord token!");
+
+        catch (final DiscordException e) {
+
+            LOG.trace("Error during startup", e);
+        }
     }
 }
