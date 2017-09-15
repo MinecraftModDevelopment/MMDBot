@@ -70,9 +70,9 @@ public class Utilities {
 
         return file;
     }
-    
-    public static File saveFileMMD(String fileUrl, String fileName) {
-        
+
+    public static File saveFileMMD (String fileUrl, String fileName) {
+
         return saveFile(fileUrl, fileName, "MMDBot", "mcmoddev.com");
     }
 

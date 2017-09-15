@@ -29,7 +29,7 @@ public class MMDBot {
     private static final CommandHandler commands = new CommandHandler();
 
     private static final ServerEventHandler auditor = new ServerEventHandler();
-    
+
     private static final ScheduleHandler schedule = new ScheduleHandler();
 
     // Other
@@ -50,7 +50,7 @@ public class MMDBot {
 
         LOG.info("Shutting Discord4J's Yap");
         LoggingHandler.setLoggerLevel((ch.qos.logback.classic.Logger) Discord4J.LOGGER, Level.OFF);
-        
+
         if (args.length >= 1) {
 
             LOG.info("Starting bot with token " + Utilities.partiallyReplace(args[0], 4));

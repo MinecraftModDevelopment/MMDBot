@@ -16,27 +16,33 @@ public class Category {
     @Expose
     private String uRL;
 
-    public Long getId() {
-        return id;
+    public Long getId () {
+
+        return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId (Long id) {
+
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getName () {
+
+        return this.name;
     }
 
-    public void setName(String name) {
+    public void setName (String name) {
+
         this.name = name;
     }
 
-    public String getURL() {
-        return uRL;
+    public String getURL () {
+
+        return this.uRL;
     }
 
-    public void setURL(String uRL) {
+    public void setURL (String uRL) {
+
         this.uRL = uRL;
     }
 

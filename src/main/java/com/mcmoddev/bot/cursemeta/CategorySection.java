@@ -25,51 +25,63 @@ public class CategorySection {
     @Expose
     private String path;
 
-    public Long getGameID() {
-        return gameID;
+    public Long getGameID () {
+
+        return this.gameID;
     }
 
-    public void setGameID(Long gameID) {
+    public void setGameID (Long gameID) {
+
         this.gameID = gameID;
     }
 
-    public Long getID() {
-        return iD;
+    public Long getID () {
+
+        return this.iD;
     }
 
-    public void setID(Long iD) {
+    public void setID (Long iD) {
+
         this.iD = iD;
     }
 
-    public String getInitialInclusionPattern() {
-        return initialInclusionPattern;
+    public String getInitialInclusionPattern () {
+
+        return this.initialInclusionPattern;
     }
 
-    public void setInitialInclusionPattern(String initialInclusionPattern) {
+    public void setInitialInclusionPattern (String initialInclusionPattern) {
+
         this.initialInclusionPattern = initialInclusionPattern;
     }
 
-    public String getName() {
-        return name;
+    public String getName () {
+
+        return this.name;
     }
 
-    public void setName(String name) {
+    public void setName (String name) {
+
         this.name = name;
     }
 
-    public String getPackageType() {
-        return packageType;
+    public String getPackageType () {
+
+        return this.packageType;
     }
 
-    public void setPackageType(String packageType) {
+    public void setPackageType (String packageType) {
+
         this.packageType = packageType;
     }
 
-    public String getPath() {
-        return path;
+    public String getPath () {
+
+        return this.path;
     }
 
-    public void setPath(String path) {
+    public void setPath (String path) {
+
         this.path = path;
     }
 

@@ -22,43 +22,53 @@ public class Attachment {
     @Expose
     private String url;
 
-    public String getDescription() {
-        return description;
+    public String getDescription () {
+
+        return this.description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription (String description) {
+
         this.description = description;
     }
 
-    public Boolean getIsDefault() {
-        return isDefault;
+    public Boolean getIsDefault () {
+
+        return this.isDefault;
     }
 
-    public void setIsDefault(Boolean isDefault) {
+    public void setIsDefault (Boolean isDefault) {
+
         this.isDefault = isDefault;
     }
 
-    public String getThumbnailUrl() {
-        return thumbnailUrl;
+    public String getThumbnailUrl () {
+
+        return this.thumbnailUrl;
     }
 
-    public void setThumbnailUrl(String thumbnailUrl) {
+    public void setThumbnailUrl (String thumbnailUrl) {
+
         this.thumbnailUrl = thumbnailUrl;
     }
 
-    public String getTitle() {
-        return title;
+    public String getTitle () {
+
+        return this.title;
     }
 
-    public void setTitle(String title) {
+    public void setTitle (String title) {
+
         this.title = title;
     }
 
-    public String getUrl() {
-        return url;
+    public String getUrl () {
+
+        return this.url;
     }
 
-    public void setUrl(String url) {
+    public void setUrl (String url) {
+
         this.url = url;
     }
 

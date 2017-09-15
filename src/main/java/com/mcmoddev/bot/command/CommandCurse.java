@@ -15,19 +15,20 @@ public class CommandCurse implements Command {
     private static NumberFormat nFormat = NumberFormat.getInstance();
     private long totalCurseDownloads;
     private long lastCheckTime;
+
     @Override
     public void processCommand (IMessage message, String[] params) {
-        
+
         Utilities.sendMessage(message.getChannel(), "Getting curse data for " + params[1]);
-        if(System.currentTimeMillis()-lastCheckTime >=1000*3600 || lastCheckTime == 0 || totalCurseDownloads==0){
-            lastCheckTime = System.currentTimeMillis();
-            totalCurseDownloads = CurseData.getTotalCurseDownloads();
+        if (System.currentTimeMillis() - this.lastCheckTime >= 1000 * 3600 || this.lastCheckTime == 0 || this.totalCurseDownloads == 0) {
+            this.lastCheckTime = System.currentTimeMillis();
+            this.totalCurseDownloads = CurseData.getTotalCurseDownloads();
         }
         final StringBuilder builder = new StringBuilder();
         final EmbedBuilder embed = new EmbedBuilder();
         final Member member = CurseData.getMember(params[1]);
-        
-        if (member.getUsername().equals("%INVALID%")) {
+
+        if (member.getUsername().equals("%INVALID%") || member.getUsername().isEmpty()) {
 
             Utilities.sendMessage(message.getChannel(), "No user could be found by the name " + params[1]);
             return;
@@ -65,7 +66,7 @@ public class CommandCurse implements Command {
         embed.ignoreNullEmptyFields();
         embed.withDesc(builder.toString());
         embed.withColor((int) (Math.random() * 0x1000000));
-        embed.withTitle("Total Downloads: " + nFormat.format(total) + " " + Utilities.getPercent(total, totalCurseDownloads));
+        embed.withTitle("Total Downloads: " + nFormat.format(total) + " " + Utilities.getPercent(total, this.totalCurseDownloads));
         embed.withThumbnail(member.getAvatar());
         Utilities.sendMessage(message.getChannel(), embed.build());
     }

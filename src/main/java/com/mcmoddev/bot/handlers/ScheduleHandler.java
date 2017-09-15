@@ -19,37 +19,35 @@ import com.mcmoddev.bot.cursemeta.discord.ProjectMessage;
 import com.mcmoddev.bot.util.Utilities;
 
 public class ScheduleHandler {
-    
+
     private static final ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
     private static final Gson gson = new GsonBuilder().create();
-    
-    public ScheduleHandler() {
-        
+
+    public ScheduleHandler () {
+
         ses.scheduleAtFixedRate(ScheduleHandler::updateNewMods, 1, 1, TimeUnit.HOURS);
     }
-    
-    public static void updateNewMods() {
-        
+
+    public static void updateNewMods () {
+
         try {
-            
-            Index oldIndex = gson.fromJson(new JsonReader(new FileReader(new File("downloads/index.json"))), Index.class);
-            Index newIndex = gson.fromJson(new JsonReader(new FileReader(Utilities.saveFileMMD("https://cursemeta.dries007.net/index.json", "index.json"))), Index.class);
+
+            final Index oldIndex = gson.fromJson(new JsonReader(new FileReader(new File("downloads/index.json"))), Index.class);
+            final Index newIndex = gson.fromJson(new JsonReader(new FileReader(Utilities.saveFileMMD("https://cursemeta.dries007.net/index.json", "index.json"))), Index.class);
 
             newIndex.getMods().removeAll(oldIndex.getMods());
-            
-            for (Long integer : newIndex.getMods()) {
-                
-                Project project = gson.fromJson(new JsonReader(new FileReader(Utilities.saveFileMMD("https://cursemeta.dries007.net/" + integer + ".json", integer + ".json"))), Project.class);
-                
-                Utilities.sendMessage(MMDBot.state.getTestingChannel(), new ProjectMessage(project).build());
+
+            for (final Long integer : newIndex.getMods()) {
+
+                final Project project = gson.fromJson(new JsonReader(new FileReader(Utilities.saveFileMMD("https://cursemeta.dries007.net/" + integer + ".json", integer + ".json"))), Project.class);
+
+                Utilities.sendMessage(MMDBot.state.getCurseChannel(), new ProjectMessage(project).build());
             }
-            
-            if (newIndex.getMods().size() < 1) {
-                
-                Utilities.sendMessage(MMDBot.state.getTestingChannel(), "There were no new mods since the last check.");
-            }
+
+            if (newIndex.getMods().size() < 1)
+                Utilities.sendMessage(MMDBot.state.getCurseChannel(), "There were no new mods since the last check.");
         }
-        
+
         catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

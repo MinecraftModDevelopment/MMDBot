@@ -14,24 +14,28 @@ public class Author {
     @Expose
     private String url;
 
-    public String getName() {
-        return name;
+    public String getName () {
+
+        return this.name;
     }
 
-    public void setName(String name) {
+    public void setName (String name) {
+
         this.name = name;
     }
 
-    public String getUrl() {
-        return url;
+    public String getUrl () {
+
+        return this.url;
     }
 
-    public void setUrl(String url) {
+    public void setUrl (String url) {
+
         this.url = url;
     }
-    
-    public String getHyperlink() {
-        
+
+    public String getHyperlink () {
+
         return Utilities.makeHyperlink(this.name, this.url.replace(".aspx", ""));
     }
 }

@@ -19,35 +19,43 @@ public class GameVersionLatestFile {
     @Expose
     private String projectFileName;
 
-    public String getFileType() {
-        return fileType;
+    public String getFileType () {
+
+        return this.fileType;
     }
 
-    public void setFileType(String fileType) {
+    public void setFileType (String fileType) {
+
         this.fileType = fileType;
     }
 
-    public String getGameVesion() {
-        return gameVesion;
+    public String getGameVesion () {
+
+        return this.gameVesion;
     }
 
-    public void setGameVesion(String gameVesion) {
+    public void setGameVesion (String gameVesion) {
+
         this.gameVesion = gameVesion;
     }
 
-    public Long getProjectFileID() {
-        return projectFileID;
+    public Long getProjectFileID () {
+
+        return this.projectFileID;
     }
 
-    public void setProjectFileID(Long projectFileID) {
+    public void setProjectFileID (Long projectFileID) {
+
         this.projectFileID = projectFileID;
     }
 
-    public String getProjectFileName() {
-        return projectFileName;
+    public String getProjectFileName () {
+
+        return this.projectFileName;
     }
 
-    public void setProjectFileName(String projectFileName) {
+    public void setProjectFileName (String projectFileName) {
+
         this.projectFileName = projectFileName;
     }
 

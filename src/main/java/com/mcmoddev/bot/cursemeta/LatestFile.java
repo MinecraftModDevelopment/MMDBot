@@ -2,6 +2,7 @@
 package com.mcmoddev.bot.cursemeta;
 
 import java.util.List;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -47,107 +48,133 @@ public class LatestFile {
     @Expose
     private String releaseType;
 
-    public Long getAlternateFileId() {
-        return alternateFileId;
+    public Long getAlternateFileId () {
+
+        return this.alternateFileId;
     }
 
-    public void setAlternateFileId(Long alternateFileId) {
+    public void setAlternateFileId (Long alternateFileId) {
+
         this.alternateFileId = alternateFileId;
     }
 
-    public List<Object> getDependencies() {
-        return dependencies;
+    public List<Object> getDependencies () {
+
+        return this.dependencies;
     }
 
-    public void setDependencies(List<Object> dependencies) {
+    public void setDependencies (List<Object> dependencies) {
+
         this.dependencies = dependencies;
     }
 
-    public String getDownloadURL() {
-        return downloadURL;
+    public String getDownloadURL () {
+
+        return this.downloadURL;
     }
 
-    public void setDownloadURL(String downloadURL) {
+    public void setDownloadURL (String downloadURL) {
+
         this.downloadURL = downloadURL;
     }
 
-    public String getFileDate() {
-        return fileDate;
+    public String getFileDate () {
+
+        return this.fileDate;
     }
 
-    public void setFileDate(String fileDate) {
+    public void setFileDate (String fileDate) {
+
         this.fileDate = fileDate;
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getFileName () {
+
+        return this.fileName;
     }
 
-    public void setFileName(String fileName) {
+    public void setFileName (String fileName) {
+
         this.fileName = fileName;
     }
 
-    public String getFileNameOnDisk() {
-        return fileNameOnDisk;
+    public String getFileNameOnDisk () {
+
+        return this.fileNameOnDisk;
     }
 
-    public void setFileNameOnDisk(String fileNameOnDisk) {
+    public void setFileNameOnDisk (String fileNameOnDisk) {
+
         this.fileNameOnDisk = fileNameOnDisk;
     }
 
-    public String getFileStatus() {
-        return fileStatus;
+    public String getFileStatus () {
+
+        return this.fileStatus;
     }
 
-    public void setFileStatus(String fileStatus) {
+    public void setFileStatus (String fileStatus) {
+
         this.fileStatus = fileStatus;
     }
 
-    public List<String> getGameVersion() {
-        return gameVersion;
+    public List<String> getGameVersion () {
+
+        return this.gameVersion;
     }
 
-    public void setGameVersion(List<String> gameVersion) {
+    public void setGameVersion (List<String> gameVersion) {
+
         this.gameVersion = gameVersion;
     }
 
-    public Long getId() {
-        return id;
+    public Long getId () {
+
+        return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId (Long id) {
+
         this.id = id;
     }
 
-    public Boolean getIsAlternate() {
-        return isAlternate;
+    public Boolean getIsAlternate () {
+
+        return this.isAlternate;
     }
 
-    public void setIsAlternate(Boolean isAlternate) {
+    public void setIsAlternate (Boolean isAlternate) {
+
         this.isAlternate = isAlternate;
     }
 
-    public Boolean getIsAvailable() {
-        return isAvailable;
+    public Boolean getIsAvailable () {
+
+        return this.isAvailable;
     }
 
-    public void setIsAvailable(Boolean isAvailable) {
+    public void setIsAvailable (Boolean isAvailable) {
+
         this.isAvailable = isAvailable;
     }
 
-    public Long getPackageFingerprint() {
-        return packageFingerprint;
+    public Long getPackageFingerprint () {
+
+        return this.packageFingerprint;
     }
 
-    public void setPackageFingerprint(Long packageFingerprint) {
+    public void setPackageFingerprint (Long packageFingerprint) {
+
         this.packageFingerprint = packageFingerprint;
     }
 
-    public String getReleaseType() {
-        return releaseType;
+    public String getReleaseType () {
+
+        return this.releaseType;
     }
 
-    public void setReleaseType(String releaseType) {
+    public void setReleaseType (String releaseType) {
+
         this.releaseType = releaseType;
     }
 

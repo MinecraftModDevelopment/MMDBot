@@ -2,6 +2,7 @@
 package com.mcmoddev.bot.cursemeta;
 
 import java.util.List;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -86,211 +87,263 @@ public class Project {
     @Expose
     private String webSiteURL;
 
-    public List<Attachment> getAttachments() {
-        return attachments;
+    public List<Attachment> getAttachments () {
+
+        return this.attachments;
     }
 
-    public void setAttachments(List<Attachment> attachments) {
+    public void setAttachments (List<Attachment> attachments) {
+
         this.attachments = attachments;
     }
 
-    public List<Author> getAuthors() {
-        return authors;
+    public List<Author> getAuthors () {
+
+        return this.authors;
     }
 
-    public void setAuthors(List<Author> authors) {
+    public void setAuthors (List<Author> authors) {
+
         this.authors = authors;
     }
 
-    public List<Category> getCategories() {
-        return categories;
+    public List<Category> getCategories () {
+
+        return this.categories;
     }
 
-    public void setCategories(List<Category> categories) {
+    public void setCategories (List<Category> categories) {
+
         this.categories = categories;
     }
 
-    public CategorySection getCategorySection() {
-        return categorySection;
+    public CategorySection getCategorySection () {
+
+        return this.categorySection;
     }
 
-    public void setCategorySection(CategorySection categorySection) {
+    public void setCategorySection (CategorySection categorySection) {
+
         this.categorySection = categorySection;
     }
 
-    public Long getCommentCount() {
-        return commentCount;
+    public Long getCommentCount () {
+
+        return this.commentCount;
     }
 
-    public void setCommentCount(Long commentCount) {
+    public void setCommentCount (Long commentCount) {
+
         this.commentCount = commentCount;
     }
 
-    public Long getDefaultFileId() {
-        return defaultFileId;
+    public Long getDefaultFileId () {
+
+        return this.defaultFileId;
     }
 
-    public void setDefaultFileId(Long defaultFileId) {
+    public void setDefaultFileId (Long defaultFileId) {
+
         this.defaultFileId = defaultFileId;
     }
 
-    public Double getDownloadCount() {
-        return downloadCount;
+    public Double getDownloadCount () {
+
+        return this.downloadCount;
     }
 
-    public void setDownloadCount(Double downloadCount) {
+    public void setDownloadCount (Double downloadCount) {
+
         this.downloadCount = downloadCount;
     }
 
-    public Long getGameId() {
-        return gameId;
+    public Long getGameId () {
+
+        return this.gameId;
     }
 
-    public void setGameId(Long gameId) {
+    public void setGameId (Long gameId) {
+
         this.gameId = gameId;
     }
 
-    public Long getGamePopularityRank() {
-        return gamePopularityRank;
+    public Long getGamePopularityRank () {
+
+        return this.gamePopularityRank;
     }
 
-    public void setGamePopularityRank(Long gamePopularityRank) {
+    public void setGamePopularityRank (Long gamePopularityRank) {
+
         this.gamePopularityRank = gamePopularityRank;
     }
 
-    public List<GameVersionLatestFile> getGameVersionLatestFiles() {
-        return gameVersionLatestFiles;
+    public List<GameVersionLatestFile> getGameVersionLatestFiles () {
+
+        return this.gameVersionLatestFiles;
     }
 
-    public void setGameVersionLatestFiles(List<GameVersionLatestFile> gameVersionLatestFiles) {
+    public void setGameVersionLatestFiles (List<GameVersionLatestFile> gameVersionLatestFiles) {
+
         this.gameVersionLatestFiles = gameVersionLatestFiles;
     }
 
-    public Long getIconId() {
-        return iconId;
+    public Long getIconId () {
+
+        return this.iconId;
     }
 
-    public void setIconId(Long iconId) {
+    public void setIconId (Long iconId) {
+
         this.iconId = iconId;
     }
 
-    public Long getId() {
-        return id;
+    public Long getId () {
+
+        return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId (Long id) {
+
         this.id = id;
     }
 
-    public Long getInstallCount() {
-        return installCount;
+    public Long getInstallCount () {
+
+        return this.installCount;
     }
 
-    public void setInstallCount(Long installCount) {
+    public void setInstallCount (Long installCount) {
+
         this.installCount = installCount;
     }
 
-    public Long getIsFeatured() {
-        return isFeatured;
+    public Long getIsFeatured () {
+
+        return this.isFeatured;
     }
 
-    public void setIsFeatured(Long isFeatured) {
+    public void setIsFeatured (Long isFeatured) {
+
         this.isFeatured = isFeatured;
     }
 
-    public List<LatestFile> getLatestFiles() {
-        return latestFiles;
+    public List<LatestFile> getLatestFiles () {
+
+        return this.latestFiles;
     }
 
-    public void setLatestFiles(List<LatestFile> latestFiles) {
+    public void setLatestFiles (List<LatestFile> latestFiles) {
+
         this.latestFiles = latestFiles;
     }
 
-    public Long getLikes() {
-        return likes;
+    public Long getLikes () {
+
+        return this.likes;
     }
 
-    public void setLikes(Long likes) {
+    public void setLikes (Long likes) {
+
         this.likes = likes;
     }
 
-    public String getName() {
-        return name;
+    public String getName () {
+
+        return this.name;
     }
 
-    public void setName(String name) {
+    public void setName (String name) {
+
         this.name = name;
     }
 
-    public String getPackageType() {
-        return packageType;
+    public String getPackageType () {
+
+        return this.packageType;
     }
 
-    public void setPackageType(String packageType) {
+    public void setPackageType (String packageType) {
+
         this.packageType = packageType;
     }
 
-    public Double getPopularityScore() {
-        return popularityScore;
+    public Double getPopularityScore () {
+
+        return this.popularityScore;
     }
 
-    public void setPopularityScore(Double popularityScore) {
+    public void setPopularityScore (Double popularityScore) {
+
         this.popularityScore = popularityScore;
     }
 
-    public String getPrimaryAuthorName() {
-        return primaryAuthorName;
+    public String getPrimaryAuthorName () {
+
+        return this.primaryAuthorName;
     }
 
-    public void setPrimaryAuthorName(String primaryAuthorName) {
+    public void setPrimaryAuthorName (String primaryAuthorName) {
+
         this.primaryAuthorName = primaryAuthorName;
     }
 
-    public Long getPrimaryCategoryId() {
-        return primaryCategoryId;
+    public Long getPrimaryCategoryId () {
+
+        return this.primaryCategoryId;
     }
 
-    public void setPrimaryCategoryId(Long primaryCategoryId) {
+    public void setPrimaryCategoryId (Long primaryCategoryId) {
+
         this.primaryCategoryId = primaryCategoryId;
     }
 
-    public Long getRating() {
-        return rating;
+    public Long getRating () {
+
+        return this.rating;
     }
 
-    public void setRating(Long rating) {
+    public void setRating (Long rating) {
+
         this.rating = rating;
     }
 
-    public String getStage() {
-        return stage;
+    public String getStage () {
+
+        return this.stage;
     }
 
-    public void setStage(String stage) {
+    public void setStage (String stage) {
+
         this.stage = stage;
     }
 
-    public String getStatus() {
-        return status;
+    public String getStatus () {
+
+        return this.status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus (String status) {
+
         this.status = status;
     }
 
-    public String getSummary() {
-        return summary;
+    public String getSummary () {
+
+        return this.summary;
     }
 
-    public void setSummary(String summary) {
+    public void setSummary (String summary) {
+
         this.summary = summary;
     }
 
-    public String getWebSiteURL() {
-        return webSiteURL;
+    public String getWebSiteURL () {
+
+        return this.webSiteURL;
     }
 
-    public void setWebSiteURL(String webSiteURL) {
+    public void setWebSiteURL (String webSiteURL) {
+
         this.webSiteURL = webSiteURL;
     }
 
