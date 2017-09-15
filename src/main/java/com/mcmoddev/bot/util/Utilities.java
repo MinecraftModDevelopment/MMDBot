@@ -16,6 +16,11 @@ import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 import com.google.common.collect.Lists;
 import com.mcmoddev.bot.MMDBot;
@@ -64,6 +69,42 @@ public class Utilities {
         }
 
         return file;
+    }
+    
+    public static File saveFileMMD(String fileUrl, String fileName) {
+        
+        return saveFile(fileUrl, fileName, "MMDBot", "mcmoddev.com");
+    }
+
+    public static File saveFile (String fileUrl, String fileName, String userAgent, String referer) {
+
+        final CloseableHttpClient httpClient = HttpClients.createDefault();
+
+        final HttpGet httpGet = new HttpGet(fileUrl);
+        httpGet.addHeader("User-Agent", userAgent);
+        httpGet.addHeader("Referer", referer);
+
+        try {
+
+            final CloseableHttpResponse httpResponse = httpClient.execute(httpGet);
+            final HttpEntity imageEntity = httpResponse.getEntity();
+
+            if (imageEntity != null) {
+
+                final File file = new File("downloads/" + fileName);
+                FileUtils.copyInputStreamToFile(imageEntity.getContent(), file);
+                return file;
+            }
+
+        }
+
+        catch (final IOException e) {
+
+            MMDBot.LOG.trace("Error Downloading", e);
+        }
+
+        httpGet.releaseConnection();
+        return null;
     }
 
     /**
