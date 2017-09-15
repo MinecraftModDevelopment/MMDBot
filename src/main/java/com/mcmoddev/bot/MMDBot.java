@@ -5,11 +5,14 @@ import org.slf4j.LoggerFactory;
 
 import com.mcmoddev.bot.handlers.CommandHandler;
 import com.mcmoddev.bot.handlers.LoggingHandler;
+import com.mcmoddev.bot.handlers.ScheduleHandler;
 import com.mcmoddev.bot.handlers.ServerEventHandler;
 import com.mcmoddev.bot.handlers.StateHandler;
 import com.mcmoddev.bot.logging.PrintStreamTraced;
 import com.mcmoddev.bot.util.Utilities;
 
+import ch.qos.logback.classic.Level;
+import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.util.DiscordException;
@@ -26,6 +29,8 @@ public class MMDBot {
     private static final CommandHandler commands = new CommandHandler();
 
     private static final ServerEventHandler auditor = new ServerEventHandler();
+    
+    private static final ScheduleHandler schedule = new ScheduleHandler();
 
     // Other
 
@@ -43,6 +48,9 @@ public class MMDBot {
         System.setOut(new PrintStreamTraced(System.out));
         System.setErr(new PrintStreamTraced(System.err));
 
+        LOG.info("Shutting Discord4J's Yap");
+        LoggingHandler.setLoggerLevel((ch.qos.logback.classic.Logger) Discord4J.LOGGER, Level.OFF);
+        
         if (args.length >= 1) {
 
             LOG.info("Starting bot with token " + Utilities.partiallyReplace(args[0], 4));
