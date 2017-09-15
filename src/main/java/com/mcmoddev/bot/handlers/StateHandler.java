@@ -14,6 +14,8 @@ public class StateHandler {
 
     private boolean isReady = false;
 
+    private boolean isProduction = false;
+
     // Public
     private IGuild guildPublic;
 
@@ -22,6 +24,8 @@ public class StateHandler {
     private IChannel chanelAudit;
 
     private IChannel chanelConsole;
+
+    private IChannel channelNewCurse;
 
     private IRole roleAdmin;
 
@@ -37,10 +41,12 @@ public class StateHandler {
     @EventSubscriber
     public void onReady (ReadyEvent event) {
 
+        this.isProduction = MMDBot.instance.getOurUser().getLongID() == 271222230438903812L;
         // Public
         this.guildPublic = MMDBot.instance.getGuildByID(176780432371744769L);
         this.chanelDebug = MMDBot.instance.getChannelByID(179302857143615489L);
         this.chanelAudit = MMDBot.instance.getChannelByID(271498021286576128L);
+        this.channelNewCurse = MMDBot.instance.getChannelByID(358089884692643852L);
         this.chanelConsole = MMDBot.instance.getChannelByID(356312255270486027L);
         this.roleAdmin = this.guildPublic.getRoleByID(176781877682634752L);
         this.roleBotManager = this.guildPublic.getRoleByID(226067502977777664L);
@@ -54,13 +60,21 @@ public class StateHandler {
 
         MMDBot.LOG.info("Logged in as " + Utilities.userString(MMDBot.instance.getOurUser()));
 
-        for (final IRole role : this.guildPublic.getRoles())
-            System.out.println(role.getName() + " - " + role.getLongID() + "L");
+        MMDBot.LOG.debug("This is a debug message");
+        MMDBot.LOG.info("This is an info message");
+        MMDBot.LOG.warn("This is a warning");
+        MMDBot.LOG.trace("This is a trace!", new Throwable());
+        MMDBot.LOG.error("This is an error");
     }
 
     public boolean isReady () {
 
         return this.isReady;
+    }
+
+    public boolean isProductionBot () {
+
+        return this.isProduction;
     }
 
     public IGuild getPublicGuild () {
@@ -81,6 +95,11 @@ public class StateHandler {
     public IChannel getConsoleChannel () {
 
         return this.chanelConsole;
+    }
+
+    public IChannel getCurseChannel () {
+
+        return this.channelNewCurse;
     }
 
     public IGuild getStaffGuild () {
