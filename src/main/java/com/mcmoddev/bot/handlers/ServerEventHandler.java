@@ -30,7 +30,7 @@ public class ServerEventHandler {
     @EventSubscriber
     public void onUserJoin (UserJoinEvent event) {
 
-        if (MMDBot.state.isPublicGuild(event.getGuild())) {
+        if (MMDBot.state.isPublicGuild(event.getGuild()) && MMDBot.state.isProductionBot()) {
 
             final IUser user = event.getUser();
             final EmbedBuilder embed = new EmbedBuilder();
@@ -46,7 +46,7 @@ public class ServerEventHandler {
     @EventSubscriber
     public void onUserLeave (UserLeaveEvent event) {
 
-        if (MMDBot.state.isPublicGuild(event.getGuild())) {
+        if (MMDBot.state.isPublicGuild(event.getGuild()) && MMDBot.state.isProductionBot()) {
 
             final IUser user = event.getUser();
             final EmbedBuilder embed = new EmbedBuilder();
@@ -60,7 +60,7 @@ public class ServerEventHandler {
     @EventSubscriber
     public void onUserRoles (UserRoleUpdateEvent event) {
 
-        if (MMDBot.state.isPublicGuild(event.getGuild())) {
+        if (MMDBot.state.isPublicGuild(event.getGuild()) && MMDBot.state.isProductionBot()) {
 
             final IUser user = event.getUser();
             final EmbedBuilder embed = new EmbedBuilder();
@@ -92,7 +92,7 @@ public class ServerEventHandler {
     @EventSubscriber
     public void onUserBan (UserBanEvent event) {
 
-        if (MMDBot.state.isPublicGuild(event.getGuild())) {
+        if (MMDBot.state.isPublicGuild(event.getGuild()) && MMDBot.state.isProductionBot()) {
 
             final IUser user = event.getUser();
             final EmbedBuilder embed = new EmbedBuilder();
@@ -107,7 +107,7 @@ public class ServerEventHandler {
     @EventSubscriber
     public void onUserPardon (UserPardonEvent event) {
 
-        if (MMDBot.state.isPublicGuild(event.getGuild())) {
+        if (MMDBot.state.isPublicGuild(event.getGuild()) && MMDBot.state.isProductionBot()) {
 
             final IUser user = event.getUser();
             final EmbedBuilder embed = new EmbedBuilder();
@@ -122,7 +122,7 @@ public class ServerEventHandler {
     @EventSubscriber
     public void onUserNickNameChange (NicknameChangedEvent event) {
 
-        if (MMDBot.state.isPublicGuild(event.getGuild())) {
+        if (MMDBot.state.isPublicGuild(event.getGuild()) && MMDBot.state.isProductionBot()) {
 
             final IUser user = event.getUser();
             final EmbedBuilder embed = new EmbedBuilder();
@@ -142,7 +142,7 @@ public class ServerEventHandler {
     @EventSubscriber
     public void onMessageDelete (MessageDeleteEvent event) {
 
-        if (MMDBot.state.isPublicGuild(event.getGuild())) {
+        if (MMDBot.state.isPublicGuild(event.getGuild()) && MMDBot.state.isProductionBot()) {
 
             final IUser user = event.getAuthor();
             final EmbedBuilder embed = new EmbedBuilder();
