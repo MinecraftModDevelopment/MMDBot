@@ -18,7 +18,6 @@ public class CommandMute extends CommandAdmin {
             RequestBuffer.request( () -> {
                 try {
                     channel.overrideRolePermissions(message.getGuild().getRoleByID("305875306529554432"), null, EnumSet.of(Permissions.SEND_MESSAGES, Permissions.SEND_TTS_MESSAGES));
-                    System.out.println(channel.getName());
                 }
                 catch (DiscordException | MissingPermissionsException e) {
 
@@ -31,6 +30,6 @@ public class CommandMute extends CommandAdmin {
     @Override
     public String getDescription () {
 
-        return "";
+        return "Used to mute apply the mute role to all channels.";
     }
 }

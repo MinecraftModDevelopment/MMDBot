@@ -66,7 +66,7 @@ public class CommandCurse implements Command {
         builder.append("Total Projects: " + member.getProjects().size() + Utilities.SEPERATOR);
         builder.append("Monthly Downloads: " + nFormat.format(monthly) + Utilities.SEPERATOR);
 
-        embed.ignoreNullEmptyFields();
+        embed.setLenient(true);
         embed.withDesc(builder.toString());
         embed.withColor((int) (Math.random() * 0x1000000));
         embed.withTitle("Total Downloads: " + nFormat.format(total) + " " + Utilities.getPercent(total, this.totalCurseDownloads));
@@ -77,7 +77,7 @@ public class CommandCurse implements Command {
     @Override
     public String getDescription () {
 
-        return null;
+        return "Generates stats for a creator on Curse.";
     }
 
 }
