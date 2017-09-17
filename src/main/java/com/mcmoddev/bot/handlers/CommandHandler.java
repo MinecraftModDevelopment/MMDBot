@@ -15,6 +15,7 @@ import com.mcmoddev.bot.command.CommandProbe;
 import com.mcmoddev.bot.command.CommandPruneChannels;
 import com.mcmoddev.bot.command.CommandRename;
 import com.mcmoddev.bot.command.CommandServerInfo;
+import com.mcmoddev.bot.command.CommandUser;
 import com.mcmoddev.bot.util.Utilities;
 
 import sx.blah.discord.api.events.EventSubscriber;
@@ -30,16 +31,22 @@ public class CommandHandler {
     public CommandHandler () {
 
         if (!enabled) {
+
+            // Staff
+            registerCommand("avatar", new CommandAvatar());
+            registerCommand("kill", new CommandKill());
+            registerCommand("mute", new CommandMute());
+            registerCommand("probe", new CommandProbe());
+            registerCommand("prune", new CommandPruneChannels());
+            registerCommand("rename", new CommandRename());
+            registerCommand("user", new CommandUser());
+
+            // Public
             registerCommand("help", new CommandHelp());
             registerCommand("members", new CommandMemberCount());
             registerCommand("server", new CommandServerInfo());
-            registerCommand("rename", new CommandRename());
-            registerCommand("avatar", new CommandAvatar());
-            registerCommand("prune", new CommandPruneChannels());
             registerCommand("curse", new CommandCurse());
-            registerCommand("probe", new CommandProbe());
-            registerCommand("kill", new CommandKill());
-            registerCommand("mute", new CommandMute());
+
             enabled = true;
         }
     }
