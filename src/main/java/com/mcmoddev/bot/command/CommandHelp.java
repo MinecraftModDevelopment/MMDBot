@@ -32,7 +32,7 @@ public class CommandHelp implements Command {
                 }
             }
         }
-        
+
         Utilities.sendPrivateMessage(message.getAuthor(), Utilities.makeMultiCodeBlock(descriptions));
     }
 
