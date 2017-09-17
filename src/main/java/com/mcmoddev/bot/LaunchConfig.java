@@ -1,6 +1,10 @@
 package com.mcmoddev.bot;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -13,11 +17,11 @@ public class LaunchConfig {
     public String authToken = "Enter your auth token!";
     public String key = "!mmd";
 
-    public static LaunchConfig updateConfig() {
+    public static LaunchConfig updateConfig () {
 
         if (config == null) {
 
-            File file = new File("config.json");
+            final File file = new File("config.json");
 
             // Read the config if it exists
             if (file.exists()) {
@@ -28,7 +32,7 @@ public class LaunchConfig {
                     config = GSON.fromJson(reader, LaunchConfig.class);
                 }
 
-                catch (IOException e) {
+                catch (final IOException e) {
 
                     MMDBot.LOG.trace("Failed to read launch config.", e);
                 }
@@ -45,7 +49,7 @@ public class LaunchConfig {
                     GSON.toJson(config, writer);
                 }
 
-                catch (IOException e) {
+                catch (final IOException e) {
 
                     MMDBot.LOG.trace("Could not create config!", e);
                 }

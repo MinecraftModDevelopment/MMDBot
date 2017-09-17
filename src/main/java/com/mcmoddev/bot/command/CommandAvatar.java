@@ -20,9 +20,9 @@ public class CommandAvatar extends CommandAdmin {
                 MMDBot.instance.changeAvatar(Image.forUrl(params[1], params[2]));
                 Utilities.sendMessage(message.getChannel(), "How do I look?");
             }
-
-            else
+            else {
                 Utilities.sendMessage(message.getChannel(), "You must enter an extension and a valid url for this to work.");
+            }
         }
 
         catch (DiscordException | RateLimitException e) {

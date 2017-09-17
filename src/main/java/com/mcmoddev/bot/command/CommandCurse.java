@@ -47,18 +47,21 @@ public class CommandCurse implements Command {
 
         for (final Project project : member.getProjects()) {
 
-            if (addedProjects < 10)
+            if (addedProjects < 10) {
                 builder.append(Utilities.makeHyperlink(Utilities.sanatizeMarkdown(project.getTitle()), project.getProjectUrl()) + " - " + nFormat.format(project.getTotalDownloads()) + Utilities.SEPERATOR);
-            else
+            }
+            else {
                 otherDLs += project.getTotalDownloads();
+            }
 
             total += project.getTotalDownloads();
             monthly += project.getMonthlyDownloads();
             addedProjects++;
         }
 
-        if (addedProjects >= 10)
+        if (addedProjects >= 10) {
             builder.append("Other Projects (" + (member.getProjects().size() - 10) + ") - " + nFormat.format(otherDLs) + Utilities.SEPERATOR);
+        }
 
         builder.append("Total Projects: " + member.getProjects().size() + Utilities.SEPERATOR);
         builder.append("Monthly Downloads: " + nFormat.format(monthly) + Utilities.SEPERATOR);

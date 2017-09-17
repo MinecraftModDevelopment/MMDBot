@@ -25,6 +25,12 @@ public class ScheduleHandler {
 
     public ScheduleHandler () {
 
+        // Downloads file if it doesn't exist.
+        if (!new File("downloads/index.json").exists()) {
+
+            Utilities.saveFileMMD("https://cursemeta.dries007.net/index.json", "index.json");
+        }
+
         ses.scheduleAtFixedRate(ScheduleHandler::updateNewMods, 1, 1, TimeUnit.HOURS);
     }
 
@@ -44,8 +50,9 @@ public class ScheduleHandler {
                 Utilities.sendMessage(MMDBot.state.getCurseChannel(), new ProjectMessage(project).build());
             }
 
-            if (newIndex.getMods().size() < 1)
+            if (newIndex.getMods().size() < 1) {
                 Utilities.sendMessage(MMDBot.state.getCurseChannel(), "There were no new mods since the last check.");
+            }
         }
 
         catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {

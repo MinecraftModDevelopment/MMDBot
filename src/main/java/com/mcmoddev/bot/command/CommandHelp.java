@@ -15,19 +15,24 @@ public class CommandHelp implements Command {
 
         String descriptions = "";
 
-        if (args.length > 1)
+        if (args.length > 1) {
             for (int index = 1; index < args.length; index++) {
 
                 final Command cmd = CommandHandler.getCommand(args[index]);
 
-                if (cmd != null && cmd.isValidUsage(message))
+                if (cmd != null && cmd.isValidUsage(message)) {
                     descriptions += MMDBot.config.key + " " + args[index] + " - " + cmd.getDescription() + Utilities.SEPERATOR + Utilities.SEPERATOR;
+                }
             }
-        else
-            for (final Entry<String, Command> command : CommandHandler.getCommands().entrySet())
-                if (command.getValue().isValidUsage(message))
+        }
+        else {
+            for (final Entry<String, Command> command : CommandHandler.getCommands().entrySet()) {
+                if (command.getValue().isValidUsage(message)) {
                     descriptions += MMDBot.config.key + " " + command.getKey() + " - " + command.getValue().getDescription() + Utilities.SEPERATOR + Utilities.SEPERATOR;
-
+                }
+            }
+        }
+        
         Utilities.sendPrivateMessage(message.getAuthor(), Utilities.makeMultiCodeBlock(descriptions));
     }
 

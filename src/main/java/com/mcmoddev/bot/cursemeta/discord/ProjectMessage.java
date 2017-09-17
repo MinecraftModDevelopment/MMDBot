@@ -22,8 +22,9 @@ public class ProjectMessage extends EmbedBuilder {
         // Adds the authors as hyper links
         final StringJoiner authorList = new StringJoiner(", ");
 
-        for (final Author author : project.getAuthors())
+        for (final Author author : project.getAuthors()) {
             authorList.add(author.getHyperlink());
+        }
 
         this.appendField("Authors", authorList.toString(), false);
 
@@ -32,11 +33,12 @@ public class ProjectMessage extends EmbedBuilder {
         this.withDesc(Utilities.makeHyperlink("Check out the mod!", "https://minecraft.curseforge.com/projects/" + project.getId()));
 
         // Use the first default attachment image as icon
-        for (final Attachment attachment : project.getAttachments())
+        for (final Attachment attachment : project.getAttachments()) {
             if (attachment.getIsDefault()) {
 
                 this.withThumbnail(attachment.getUrl());
                 break;
             }
+        }
     }
 }

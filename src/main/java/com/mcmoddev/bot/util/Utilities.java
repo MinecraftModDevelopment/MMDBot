@@ -190,8 +190,9 @@ public class Utilities {
 
         String text = "";
 
-        for (final String line : lines)
+        for (final String line : lines) {
             text += line + SEPERATOR;
+        }
 
         return text;
     }
@@ -247,7 +248,7 @@ public class Utilities {
 
     public static void sendMessage (IChannel channel, EmbedObject object) {
 
-        if (MMDBot.state.isReady())
+        if (MMDBot.state.isReady()) {
             RequestBuffer.request( () -> {
                 try {
                     channel.sendMessage(object);
@@ -258,6 +259,7 @@ public class Utilities {
                     System.out.println("Could not send a message to " + channel.getName() + " Missing perms! Message: " + object.description);
                 }
             });
+        }
     }
 
     public static void sendMessage (IChannel channel, String message, EmbedObject object) {
@@ -349,31 +351,37 @@ public class Utilities {
         List<Map.Entry<K, V>> list = new LinkedList<>(map.entrySet());
         Collections.sort(list, Comparator.comparing(Entry<K, V>::getValue));
 
-        if (invert)
+        if (invert) {
             list = Lists.reverse(list);
+        }
 
         final Map<K, V> result = new LinkedHashMap<>();
-        for (final Map.Entry<K, V> entry : list)
+        for (final Map.Entry<K, V> entry : list) {
             result.put(entry.getKey(), entry.getValue());
+        }
         return result;
     }
 
     public static String formatMessage (IMessage message) {
 
         String ret = "";
-        if (message.getAttachments() == null || message.getAttachments().isEmpty())
+        if (message.getAttachments() == null || message.getAttachments().isEmpty()) {
             ret = String.format("[%s|%s] %s: %s", message.getTimestamp().toLocalDate(), message.getTimestamp().toLocalTime(), message.getAuthor().getName(), message.getFormattedContent());
-        else
+        }
+        else {
             ret = String.format("[%s|%s] %s: %s [%s]", message.getTimestamp().toLocalDate(), message.getTimestamp().toLocalTime(), message.getAuthor().getName(), message.getFormattedContent(), formatAttachments(message.getAttachments()));
+        }
         final List<IEmbed> embeds = message.getEmbedded();
         if (embeds != null && !embeds.isEmpty()) {
             ret += " {";
             for (final IEmbed embed : embeds) {
                 String emb = "[" + embed.getDescription();
                 final List<IEmbed.IEmbedField> embedFields = embed.getEmbedFields();
-                if (embedFields != null && !embedFields.isEmpty())
-                    for (final IEmbed.IEmbedField field : embedFields)
+                if (embedFields != null && !embedFields.isEmpty()) {
+                    for (final IEmbed.IEmbedField field : embedFields) {
                         emb += "|" + field.getValue();
+                    }
+                }
                 emb += "]";
                 ret += emb;
             }
@@ -390,8 +398,9 @@ public class Utilities {
             s += attachment.getFilename();
             s += "|" + humanReadableByteCount(attachment.getFilesize(), true);
             s += "(" + attachment.getUrl() + ")";
-            if (i != attachmentsSize - 1)
+            if (i != attachmentsSize - 1) {
                 s += ", ";
+            }
         }
         return s;
 
@@ -400,8 +409,9 @@ public class Utilities {
     public static String humanReadableByteCount (long bytes, boolean si) {
 
         final int unit = si ? 1000 : 1024;
-        if (bytes < unit)
+        if (bytes < unit) {
             return bytes + " B";
+        }
         final int exp = (int) (Math.log(bytes) / Math.log(unit));
         final String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
         return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
@@ -416,8 +426,9 @@ public class Utilities {
 
         String output = "";
 
-        for (final Entry<K, V> entry : map.entrySet())
+        for (final Entry<K, V> entry : map.entrySet()) {
             output += entry.getKey().toString() + " - " + entry.getValue().toString() + SEPERATOR;
+        }
 
         return output;
     }
@@ -429,14 +440,17 @@ public class Utilities {
 
     public static String toString (List<IRole> roles, String delimiter) {
 
-        if (roles.isEmpty() || roles.size() == 1 && roles.get(0).isEveryoneRole())
+        if (roles.isEmpty() || roles.size() == 1 && roles.get(0).isEveryoneRole()) {
             return "None";
+        }
 
         String ret = "";
 
-        for (final IRole role : roles)
-            if (!role.isEveryoneRole())
+        for (final IRole role : roles) {
+            if (!role.isEveryoneRole()) {
                 ret += role.getName() + delimiter;
+            }
+        }
         return ret.substring(0, ret.length() - delimiter.length());
     }
 
@@ -449,8 +463,9 @@ public class Utilities {
 
         final double ratio = l1 / (double) l2;
 
-        if (ratio < 0.001d)
+        if (ratio < 0.001d) {
             return "<0.1%";
+        }
 
         final DecimalFormat percentFormat = new DecimalFormat("#.#%");
         return percentFormat.format(ratio);
@@ -464,10 +479,12 @@ public class Utilities {
 
     public static boolean hasRole (IUser user, IRole role) {
 
-        for (final IRole curRole : user.getRolesForGuild(role.getGuild()))
-            if (curRole.getLongID() == role.getLongID())
+        for (final IRole curRole : user.getRolesForGuild(role.getGuild())) {
+            if (curRole.getLongID() == role.getLongID()) {
                 return true;
-
+            }
+        }
+        
         return false;
     }
 }

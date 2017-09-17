@@ -52,8 +52,9 @@ public class CommandHandler {
      */
     public static void registerCommand (String key, Command command) {
 
-        if (!commands.containsKey(key))
+        if (!commands.containsKey(key)) {
             commands.put(key, command);
+        }
     }
 
     /**
@@ -140,7 +141,8 @@ public class CommandHandler {
     @EventSubscriber
     public void onMessageRecieved (MessageReceivedEvent event) {
 
-        if (event.getMessage().getContent().startsWith(MMDBot.config.key))
+        if (event.getMessage().getContent().startsWith(MMDBot.config.key)) {
             CommandHandler.attemptCommandTriggers(event.getMessage());
+        }
     }
 }

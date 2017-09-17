@@ -15,7 +15,7 @@ public class CommandRename extends CommandAdmin {
 
         try {
 
-            if (params.length == 2)
+            if (params.length == 2) {
                 try {
 
                     message.getGuild().setUserNickname(MMDBot.instance.getOurUser(), params[1]);
@@ -26,14 +26,17 @@ public class CommandRename extends CommandAdmin {
 
                     Utilities.sendMessage(message.getChannel(), "I am not allowed to change my identity. #Triggered");
                 }
-            else
+            }
+            else {
                 Utilities.sendMessage(message.getChannel(), "You must enter a valid name for this command to work.");
+            }
         }
 
         catch (DiscordException | RateLimitException e) {
 
-            if (e.getMessage().contains("You are changing your username too fast"))
+            if (e.getMessage().contains("You are changing your username too fast")) {
                 Utilities.sendMessage(message.getChannel(), "You can only change the username twice per hour!");
+            }
             e.printStackTrace();
         }
     }

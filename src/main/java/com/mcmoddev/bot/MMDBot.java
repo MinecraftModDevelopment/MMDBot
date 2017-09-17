@@ -21,11 +21,11 @@ import sx.blah.discord.util.RateLimitException;
 public class MMDBot {
 
     private static final LoggingHandler LOGGING = new LoggingHandler();
-    
+
     public static final Logger LOG = LoggerFactory.getLogger("MMDBot");
-    
+
     public static final LaunchConfig config = LaunchConfig.updateConfig();
-    
+
     public static final StateHandler state = new StateHandler();
 
     private static final CommandHandler commands = new CommandHandler();

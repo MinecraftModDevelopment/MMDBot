@@ -22,8 +22,9 @@ public class CommandMemberCount implements Command {
 
                 final StringBuilder builder = new StringBuilder();
 
-                for (final IRole role : guild.getRoles())
+                for (final IRole role : guild.getRoles()) {
                     builder.append(String.format("%s: %d", role.getName().replaceAll("@", ""), guild.getUsersByRole(role).size()) + Utilities.SEPERATOR);
+                }
 
                 final EmbedBuilder embed = new EmbedBuilder();
                 embed.ignoreNullEmptyFields();
@@ -32,9 +33,9 @@ public class CommandMemberCount implements Command {
 
                 Utilities.sendMessage(message.getChannel(), base, embed.build());
             }
-
-            else
+            else {
                 Utilities.sendMessage(message.getChannel(), base);
+            }
         }
     }
 

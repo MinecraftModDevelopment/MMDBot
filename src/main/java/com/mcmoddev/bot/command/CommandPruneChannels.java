@@ -23,8 +23,9 @@ public class CommandPruneChannels extends CommandAdmin {
 
         for (final IChannel channel : message.getGuild().getChannels()) {
 
-            if (channel.getName().equalsIgnoreCase("getting-started"))
+            if (channel.getName().equalsIgnoreCase("getting-started")) {
                 continue;
+            }
 
             try {
 
@@ -34,8 +35,9 @@ public class CommandPruneChannels extends CommandAdmin {
 
                     final int daysSinceUsed = Math.toIntExact(ChronoUnit.DAYS.between(latest.getCreationDate(), current));
 
-                    if (daysSinceUsed >= minDaysOfInactivity)
+                    if (daysSinceUsed >= minDaysOfInactivity) {
                         channels.put("#" + channel.getName(), daysSinceUsed);
+                    }
                 }
             }
 

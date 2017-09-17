@@ -68,9 +68,11 @@ public class CurseData {
                 if (page == 1) {
                     for (final Element pageElement : doc.getElementsByClass("b-pagination-item")) {
                         final String text = pageElement.getElementsByClass("b-pagination-item").first().text();
-                        if (Character.isDigit(text.charAt(0)))
-                            if (text.length() <= String.valueOf(Integer.MAX_VALUE).length() && Integer.parseInt(text) > totalPages)
+                        if (Character.isDigit(text.charAt(0))) {
+                            if (text.length() <= String.valueOf(Integer.MAX_VALUE).length() && Integer.parseInt(text) > totalPages) {
                                 totalPages = Integer.parseInt(text);
+                            }
+                        }
                     }
 
                     final Element nameElement = doc.getElementsByClass("username").first();
@@ -81,8 +83,9 @@ public class CurseData {
                         joined = doc.getElementsByClass("joined").first().text();
                         avatar = doc.getElementsByClass("avatar-100").first().getElementsByTag("img").first().attr("src");
                     }
-                    else
+                    else {
                         break;
+                    }
                 }
 
                 final Element e = doc.getElementsByClass("project-listing").first();
@@ -91,26 +94,31 @@ public class CurseData {
 
                     final String projectId = s.getElementsByTag("a").first().attr("href");
 
-                    if (!projectId.startsWith("/mc-mods/minecraft/"))
+                    if (!projectId.startsWith("/mc-mods/minecraft/")) {
                         continue;
+                    }
                     final Project p = getProjectFromCurse(projectId);
 
-                    if (p != null)
+                    if (p != null) {
                         projects.add(p);
+                    }
                 }
             }
 
             catch (final IOException | NullPointerException exception) {
 
-                if (exception instanceof HttpStatusException && ((HttpStatusException) exception).getStatusCode() == 404)
+                if (exception instanceof HttpStatusException && ((HttpStatusException) exception).getStatusCode() == 404) {
                     LOG.info(String.format("The cursename %s was invalid", curseForgeName));
-                else
+                }
+                else {
                     exception.printStackTrace();
+                }
                 return new Member(username, avatar, joined, projects);
             }
 
-            if (page == totalPages)
+            if (page == totalPages) {
                 break;
+            }
         }
 
         return new Member(username, avatar, joined, projects);
@@ -125,12 +133,14 @@ public class CurseData {
 
         try {
             final Document doc = getDocument(PROJECTS_URL);
-            for (final Element el : doc.getElementsByClass("project-category"))
-                for (final Element ele : el.getElementsByClass("category-info"))
+            for (final Element el : doc.getElementsByClass("project-category")) {
+                for (final Element ele : el.getElementsByClass("category-info")) {
                     if (ele.getElementsByTag("h2").first().text().contains("Mods")) {
                         final String downloads = ele.getElementsByTag("p").first().text().split(".<")[0].split("more than")[1].trim().split(" ")[0].trim().replaceAll(",", "");
                         return Long.parseLong(downloads);
                     }
+                }
+            }
         }
         catch (final IOException e) {
             e.printStackTrace();

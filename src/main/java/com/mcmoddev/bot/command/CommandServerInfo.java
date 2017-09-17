@@ -12,8 +12,9 @@ public class CommandServerInfo implements Command {
 
         final IGuild guild = message.getGuild();
 
-        if (guild != null)
+        if (guild != null) {
             Utilities.sendMessage(message.getChannel(), Utilities.makeMultilineMessage("People: " + guild.getUsers().size(), "Channels: " + guild.getChannels().size(), "Creation Date: " + guild.getCreationDate().toString()));
+        }
     }
 
     @Override

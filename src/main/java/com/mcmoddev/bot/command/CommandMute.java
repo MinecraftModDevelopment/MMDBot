@@ -14,7 +14,7 @@ public class CommandMute extends CommandAdmin {
     @Override
     public void processCommand (IMessage message, String[] params) {
 
-        for (final IChannel channel : message.getGuild().getChannels())
+        for (final IChannel channel : message.getGuild().getChannels()) {
             RequestBuffer.request( () -> {
                 try {
                     channel.overrideRolePermissions(message.getGuild().getRoleByID("305875306529554432"), null, EnumSet.of(Permissions.SEND_MESSAGES, Permissions.SEND_TTS_MESSAGES));
@@ -25,6 +25,7 @@ public class CommandMute extends CommandAdmin {
                     e.printStackTrace();
                 }
             });
+        }
     }
 
     @Override

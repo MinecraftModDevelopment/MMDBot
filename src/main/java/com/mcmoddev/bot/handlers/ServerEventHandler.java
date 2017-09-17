@@ -76,14 +76,16 @@ public class ServerEventHandler {
             final List<IRole> addedRoles = new ArrayList<>(newRoles);
             addedRoles.removeAll(oldRoles);
 
-            if (!addedRoles.isEmpty())
+            if (!addedRoles.isEmpty()) {
                 embed.appendField("**Added Roles**", Utilities.toString(addedRoles, ", "), false);
+            }
 
             final List<IRole> removedRoles = new ArrayList<>(oldRoles);
             removedRoles.removeAll(newRoles);
 
-            if (!removedRoles.isEmpty())
+            if (!removedRoles.isEmpty()) {
                 embed.appendField("**Removed Roles**", Utilities.toString(removedRoles, ", "), false);
+            }
 
             Utilities.sendMessage(MMDBot.state.getAuditChannel(), embed, NEUTRAL);
         }
@@ -129,11 +131,13 @@ public class ServerEventHandler {
             embed.withDescription("**USER NICKNAME CHANGE**");
             embed.appendField("**User**", Utilities.userString(user), false);
 
-            if (event.getOldNickname().isPresent())
+            if (event.getOldNickname().isPresent()) {
                 embed.appendField("**Old Nickname**", event.getOldNickname().get(), true);
+            }
 
-            if (event.getNewNickname().isPresent())
+            if (event.getNewNickname().isPresent()) {
                 embed.appendField("**New Nickname**", event.getNewNickname().get(), true);
+            }
 
             Utilities.sendMessage(MMDBot.state.getAuditChannel(), embed, NEUTRAL);
         }
