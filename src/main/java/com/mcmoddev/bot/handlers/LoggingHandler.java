@@ -11,6 +11,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.spi.ThrowableProxyUtil;
 import ch.qos.logback.core.AppenderBase;
 import sx.blah.discord.util.EmbedBuilder;
 
@@ -48,11 +49,13 @@ public class LoggingHandler {
                 final Level level = event.getLevel();
                 final EmbedBuilder embed = new EmbedBuilder();
 
-                if (level == Level.DEBUG && !event.getLoggerName().equalsIgnoreCase("MMDBot"))
+                if (level == Level.DEBUG && !event.getLoggerName().equalsIgnoreCase("MMDBot")) {
                     return;
+                }
 
-                if (level == Level.TRACE && event.getLoggerName().equalsIgnoreCase("sx.blah.discord.Discord4J"))
+                if (level == Level.TRACE && event.getLoggerName().equalsIgnoreCase("sx.blah.discord.Discord4J")) {
                     return;
+                }
 
                 embed.withTitle(level.levelStr);
 
@@ -60,10 +63,11 @@ public class LoggingHandler {
 
                 embed.withDesc(event.getFormattedMessage() + " - Logger: " + event.getLoggerName());
 
-                if (event.getThrowableProxy() != null)
-                    embed.appendDesc(Utilities.SEPERATOR + event.getThrowableProxy().getMessage());
+                if (event.getThrowableProxy() != null) {
+                    embed.appendDesc(Utilities.SEPERATOR + ThrowableProxyUtil.asString(event.getThrowableProxy()));
+                }
 
-                Utilities.sendMessage(MMDBot.state.getDebugChannel(), embed.build());
+                Utilities.sendMessage(MMDBot.state.getConsoleChannel(), embed.build());
             }
         }
     }
