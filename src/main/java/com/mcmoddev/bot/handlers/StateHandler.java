@@ -42,6 +42,7 @@ public class StateHandler {
     public void onReady (ReadyEvent event) {
 
         this.isProduction = MMDBot.instance.getOurUser().getLongID() == 271222230438903812L;
+
         // Public
         this.guildPublic = MMDBot.instance.getGuildByID(176780432371744769L);
         this.chanelDebug = MMDBot.instance.getChannelByID(179302857143615489L);
@@ -59,12 +60,6 @@ public class StateHandler {
         this.isReady = true;
 
         MMDBot.LOG.info("Logged in as " + Utilities.userString(MMDBot.instance.getOurUser()));
-
-        MMDBot.LOG.debug("This is a debug message");
-        MMDBot.LOG.info("This is an info message");
-        MMDBot.LOG.warn("This is a warning");
-        MMDBot.LOG.trace("This is a trace!", new Throwable());
-        MMDBot.LOG.error("This is an error");
     }
 
     public boolean isReady () {
