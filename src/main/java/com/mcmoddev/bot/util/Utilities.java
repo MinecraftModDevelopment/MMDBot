@@ -454,9 +454,14 @@ public class Utilities {
         return ret.substring(0, ret.length() - delimiter.length());
     }
 
+    public static String getUserTag (IUser user) {
+
+        return user.getName() + "#" + user.getDiscriminator();
+    }
+
     public static String userString (IUser user) {
 
-        return user.getName() + "#" + user.getDiscriminator() + " - " + user.getID();
+        return getUserTag(user) + " - " + user.getID();
     }
 
     public static String getPercent (long l1, long l2) {
@@ -484,7 +489,7 @@ public class Utilities {
                 return true;
             }
         }
-        
+
         return false;
     }
 }
