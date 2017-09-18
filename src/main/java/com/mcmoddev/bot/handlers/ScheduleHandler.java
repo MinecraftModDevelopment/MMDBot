@@ -49,10 +49,6 @@ public class ScheduleHandler {
 
                 Utilities.sendMessage(MMDBot.state.getCurseChannel(), new ProjectMessage(project).build());
             }
-
-            if (newIndex.getMods().size() < 1) {
-                Utilities.sendMessage(MMDBot.state.getCurseChannel(), "There were no new mods since the last check.");
-            }
         }
 
         catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
