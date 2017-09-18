@@ -11,6 +11,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import com.google.gson.Gson;
+import com.mcmoddev.bot.MMDBot;
 
 public class CurseData {
 
@@ -111,7 +112,7 @@ public class CurseData {
                     LOG.info(String.format("The cursename %s was invalid", curseForgeName));
                 }
                 else {
-                    exception.printStackTrace();
+                    MMDBot.LOG.trace("Error getting curse data for " + curseForgeName, exception);
                 }
                 return new Member(username, avatar, joined, projects);
             }
@@ -143,7 +144,8 @@ public class CurseData {
             }
         }
         catch (final IOException e) {
-            e.printStackTrace();
+
+            MMDBot.LOG.trace("Error getting total downloads", e);
         }
         // fallback number if the actual number isn't available
         return 1622770000L;

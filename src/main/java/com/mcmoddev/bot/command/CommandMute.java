@@ -2,6 +2,8 @@ package com.mcmoddev.bot.command;
 
 import java.util.EnumSet;
 
+import com.mcmoddev.bot.MMDBot;
+
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.Permissions;
@@ -17,11 +19,11 @@ public class CommandMute extends CommandAdmin {
         for (final IChannel channel : message.getGuild().getChannels()) {
             RequestBuffer.request( () -> {
                 try {
-                    channel.overrideRolePermissions(message.getGuild().getRoleByID("305875306529554432"), null, EnumSet.of(Permissions.SEND_MESSAGES, Permissions.SEND_TTS_MESSAGES));
+                    channel.overrideRolePermissions(message.getGuild().getRoleByID(305875306529554432L), null, EnumSet.of(Permissions.SEND_MESSAGES, Permissions.SEND_TTS_MESSAGES));
                 }
                 catch (DiscordException | MissingPermissionsException e) {
 
-                    e.printStackTrace();
+                    MMDBot.LOG.trace("Error muting " + channel.getName(), e);
                 }
             });
         }

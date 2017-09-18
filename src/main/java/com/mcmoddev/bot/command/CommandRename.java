@@ -35,9 +35,9 @@ public class CommandRename extends CommandAdmin {
         catch (DiscordException | RateLimitException e) {
 
             if (e.getMessage().contains("You are changing your username too fast")) {
+                
                 Utilities.sendMessage(message.getChannel(), "You can only change the username twice per hour!");
             }
-            e.printStackTrace();
         }
     }
 

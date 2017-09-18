@@ -65,7 +65,7 @@ public class Utilities {
 
         catch (final IOException e) {
 
-            e.printStackTrace();
+            MMDBot.LOG.trace("Error downloading file", e);
         }
 
         return file;
@@ -235,7 +235,7 @@ public class Utilities {
 
         catch (final Exception e) {
 
-            e.printStackTrace();
+            MMDBot.LOG.trace("Error sending private message to " + Utilities.getUserTag(user), e);
         }
     }
 
@@ -286,7 +286,7 @@ public class Utilities {
             }
             catch (DiscordException | MissingPermissionsException e) {
 
-                e.printStackTrace();
+                MMDBot.LOG.trace("Error sending message to " + channel.getName(), e);
             }
         });
     }
@@ -337,7 +337,7 @@ public class Utilities {
 
             catch (MissingPermissionsException | DiscordException e) {
 
-                e.printStackTrace();
+                MMDBot.LOG.trace("Error sending message to " + channel.getName(), e);
             }
 
             return null;

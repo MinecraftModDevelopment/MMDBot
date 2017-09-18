@@ -52,8 +52,8 @@ public class ScheduleHandler {
         }
 
         catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            
+            MMDBot.LOG.trace("Error while reading new mods!", e);
         }
     }
 }

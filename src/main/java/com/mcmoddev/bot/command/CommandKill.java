@@ -42,7 +42,7 @@ public class CommandKill extends CommandAdmin {
 
         catch (final InterruptedException e) {
 
-            e.printStackTrace();
+            MMDBot.LOG.trace("Imortal Bot Exception", e);
         }
 
         System.exit(0);

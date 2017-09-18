@@ -27,7 +27,7 @@ public class CommandAvatar extends CommandAdmin {
 
         catch (DiscordException | RateLimitException e) {
 
-            e.printStackTrace();
+            MMDBot.LOG.trace("Could not change avatar", e);
         }
     }
 
