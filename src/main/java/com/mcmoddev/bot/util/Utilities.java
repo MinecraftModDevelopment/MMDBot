@@ -91,7 +91,7 @@ public class Utilities {
 
             if (imageEntity != null) {
 
-                final File file = new File("downloads/" + fileName);
+                final File file = new File("./downloads/" + fileName);
                 FileUtils.copyInputStreamToFile(imageEntity.getContent(), file);
                 return file;
             }

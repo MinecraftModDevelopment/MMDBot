@@ -21,7 +21,7 @@ public class LaunchConfig {
 
         if (config == null) {
 
-            final File file = new File("config.json");
+            final File file = new File("./config.json");
 
             // Read the config if it exists
             if (file.exists()) {
