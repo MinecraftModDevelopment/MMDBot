@@ -58,6 +58,8 @@ public class MMDBot {
         catch (final DiscordException e) {
 
             LOG.trace("Error during startup", e);
+            instance.logout();
+            System.exit(0);
         }
     }
 }
