@@ -8,7 +8,7 @@ import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 
-public class CommandUser extends CommandAdmin {
+public class CommandUser extends CommandModerator {
 
     @Override
     public void processCommand (IMessage message, String[] params) {
