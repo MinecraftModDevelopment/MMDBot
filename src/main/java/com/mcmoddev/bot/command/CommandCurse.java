@@ -59,7 +59,7 @@ public class CommandCurse implements Command {
             addedProjects++;
         }
 
-        if (addedProjects >= 10) {
+        if (addedProjects > 10) {
             builder.append("Other Projects (" + (member.getProjects().size() - 10) + ") - " + nFormat.format(otherDLs) + Utilities.SEPERATOR);
         }
 
