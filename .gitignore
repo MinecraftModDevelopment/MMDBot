@@ -9,6 +9,7 @@
 .gradle/
 .settings/
 .mtj.tmp/
+.idea/
 
 #File Extensions
 *.iml
