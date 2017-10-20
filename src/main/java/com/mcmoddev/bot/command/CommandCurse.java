@@ -63,13 +63,15 @@ public class CommandCurse implements Command {
             builder.append("Other Projects (" + (member.getProjects().size() - 10) + ") - " + nFormat.format(otherDLs) + Utilities.SEPERATOR);
         }
 
+        builder.append(Utilities.SEPERATOR + Utilities.makeBold("Total Downloads: " + nFormat.format(total)) + Utilities.SEPERATOR);
+        builder.append("Total Curse Download Ratio: " + Utilities.getPercent(total, this.totalCurseDownloads) + Utilities.SEPERATOR);
         builder.append("Total Projects: " + member.getProjects().size() + Utilities.SEPERATOR);
         builder.append("Monthly Downloads: " + nFormat.format(monthly) + Utilities.SEPERATOR);
 
         embed.setLenient(true);
         embed.withDesc(builder.toString());
         embed.withColor((int) (Math.random() * 0x1000000));
-        embed.withTitle("Total Downloads: " + nFormat.format(total) + " " + Utilities.getPercent(total, this.totalCurseDownloads));
+        embed.withTitle(params[1]);
         embed.withThumbnail(member.getAvatar());
         Utilities.sendMessage(message.getChannel(), embed.build());
     }
