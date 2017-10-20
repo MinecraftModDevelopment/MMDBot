@@ -4,18 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.mcmoddev.bot.MMDBot;
-import com.mcmoddev.bot.command.Command;
-import com.mcmoddev.bot.command.CommandAvatar;
-import com.mcmoddev.bot.command.CommandCurse;
-import com.mcmoddev.bot.command.CommandHelp;
-import com.mcmoddev.bot.command.CommandKill;
-import com.mcmoddev.bot.command.CommandMemberCount;
-import com.mcmoddev.bot.command.CommandMute;
-import com.mcmoddev.bot.command.CommandProbe;
-import com.mcmoddev.bot.command.CommandPruneChannels;
-import com.mcmoddev.bot.command.CommandRename;
-import com.mcmoddev.bot.command.CommandServerInfo;
-import com.mcmoddev.bot.command.CommandUser;
+import com.mcmoddev.bot.command.*;
 import com.mcmoddev.bot.util.Utilities;
 
 import sx.blah.discord.api.events.EventSubscriber;
@@ -46,6 +35,7 @@ public class CommandHandler {
             registerCommand("members", new CommandMemberCount());
             registerCommand("server", new CommandServerInfo());
             registerCommand("curse", new CommandCurse());
+            registerCommand("xy", new CommandXY());
 
             enabled = true;
         }

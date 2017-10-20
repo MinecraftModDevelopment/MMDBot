@@ -214,6 +214,18 @@ public class Utilities {
         return String.format("[%s](%s)", text, url);
     }
 
+    /**
+     * Puts a String text in quotes.
+     *
+     * @param text The message to format.
+     *
+     * @return String The text with the quotes around it.
+     */
+    public static String quote(String text) {
+
+        return "\"" + text + "\"";
+    }
+
     public static String sanatizeMarkdown (String text) {
 
         return text.replace("_", "\\_").replace("*", "\\*");
