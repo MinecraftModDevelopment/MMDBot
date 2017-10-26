@@ -253,7 +253,7 @@ public class Utilities {
 
     public static void sendMessage (IChannel channel, EmbedBuilder embed, int color) {
 
-        embed.ignoreNullEmptyFields();
+        embed.setLenient(true);
         embed.withColor(color);
         sendMessage(channel, embed.build());
     }
@@ -383,7 +383,7 @@ public class Utilities {
         else {
             ret = String.format("[%s|%s] %s: %s [%s]", message.getTimestamp().toLocalDate(), message.getTimestamp().toLocalTime(), message.getAuthor().getName(), message.getFormattedContent(), formatAttachments(message.getAttachments()));
         }
-        final List<IEmbed> embeds = message.getEmbedded();
+        final List<IEmbed> embeds = message.getEmbeds();
         if (embeds != null && !embeds.isEmpty()) {
             ret += " {";
             for (final IEmbed embed : embeds) {
@@ -473,7 +473,7 @@ public class Utilities {
 
     public static String userString (IUser user) {
 
-        return getUserTag(user) + " - " + user.getID();
+        return getUserTag(user) + " - " + user.getStringID();
     }
 
     public static String getPercent (long l1, long l2) {

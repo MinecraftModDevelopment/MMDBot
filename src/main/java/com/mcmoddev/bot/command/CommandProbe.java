@@ -11,7 +11,7 @@ public class CommandProbe extends CommandAdmin {
     public void processCommand (IMessage message, String[] params) {
 
         final IChannel channel = message.getChannel();
-        Utilities.sendMessage(channel, Utilities.makeMultilineMessage("Channel: " + channel.getName(), "Topic: " + channel.getTopic(), "Position: " + channel.getPosition(), "Date: " + channel.getCreationDate().toLocalDate().toString(), "Users: " + channel.getUsersHere().size(), "ID: " + channel.getID()));
+        Utilities.sendMessage(channel, Utilities.makeMultilineMessage("Channel: " + channel.getName(), "Topic: " + channel.getTopic(), "Position: " + channel.getPosition(), "Date: " + channel.getCreationDate().toLocalDate().toString(), "Users: " + channel.getUsersHere().size(), "ID: " + channel.getStringID()));
     }
 
     @Override
