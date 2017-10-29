@@ -29,7 +29,7 @@ public class CommandPruneChannels extends CommandAdmin {
 
             try {
 
-                final IMessage latest = channel.getMessages().getLatestMessage();
+                final IMessage latest = channel.getMessageHistory().getLatestMessage();
 
                 if (latest != null) {
 
@@ -46,7 +46,7 @@ public class CommandPruneChannels extends CommandAdmin {
                 channels.put("#" + channel.getName(), -1);
             }
         }
-        embed.ignoreNullEmptyFields();
+        embed.setLenient(true);
         embed.withColor((int) (Math.random() * 0x1000000));
         embed.withDesc(Utilities.mapToString(Utilities.sortByValue(channels, true)));
         Utilities.sendMessage(message.getChannel(), "The following channels have not been used in " + minDaysOfInactivity + " days.", embed.build());

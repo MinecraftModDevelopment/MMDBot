@@ -27,7 +27,7 @@ public class CommandMemberCount implements Command {
                 }
 
                 final EmbedBuilder embed = new EmbedBuilder();
-                embed.ignoreNullEmptyFields();
+                embed.setLenient(true);
                 embed.withDesc(builder.toString());
                 embed.withColor((int) (Math.random() * 0x1000000));
 

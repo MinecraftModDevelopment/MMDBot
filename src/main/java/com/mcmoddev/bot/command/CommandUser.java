@@ -20,17 +20,17 @@ public class CommandUser extends CommandModerator {
         if (params.length == 2) {
 
             guild = message.getGuild();
-            user = guild.getUserByID(params[1]);
+            user = guild.getUserByID(Long.parseUnsignedLong(params[1]));
         }
 
         // Guild and user
         else if (params.length == 3) {
 
-            guild = MMDBot.instance.getGuildByID(params[1]);
+            guild = MMDBot.instance.getGuildByID(Long.parseUnsignedLong(params[1]));
 
             if (guild != null) {
 
-                user = guild.getUserByID(params[2]);
+                user = guild.getUserByID(Long.parseUnsignedLong(params[2]));
             }
         }
 
