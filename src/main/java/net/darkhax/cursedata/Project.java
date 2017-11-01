@@ -238,7 +238,7 @@ public class Project {
 
     public String getProjectUrl () {
 
-        return this.projectUrl;
+        return "https:" + this.projectUrl;
     }
 
     public void setProjectUrl (String projectUrl) {
