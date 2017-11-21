@@ -27,7 +27,6 @@ public class ScheduleHandler {
 
         // Downloads file if it doesn't exist.
         if (!new File("downloads/index.json").exists()) {
-
             Utilities.saveFileMMD("https://cursemeta.dries007.net/index.json", "index.json");
         }
 
@@ -52,7 +51,7 @@ public class ScheduleHandler {
         }
 
         catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
-            
+
             MMDBot.LOG.trace("Error while reading new mods!", e);
         }
     }

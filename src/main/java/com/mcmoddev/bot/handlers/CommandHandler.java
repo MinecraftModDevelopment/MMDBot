@@ -4,7 +4,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.mcmoddev.bot.MMDBot;
-import com.mcmoddev.bot.command.*;
+import com.mcmoddev.bot.command.Command;
+import com.mcmoddev.bot.command.CommandAvatar;
+import com.mcmoddev.bot.command.CommandCurse;
+import com.mcmoddev.bot.command.CommandHelp;
+import com.mcmoddev.bot.command.CommandKill;
+import com.mcmoddev.bot.command.CommandMemberCount;
+import com.mcmoddev.bot.command.CommandMute;
+import com.mcmoddev.bot.command.CommandProbe;
+import com.mcmoddev.bot.command.CommandPruneChannels;
+import com.mcmoddev.bot.command.CommandRename;
+import com.mcmoddev.bot.command.CommandServerInfo;
+import com.mcmoddev.bot.command.CommandUser;
+import com.mcmoddev.bot.command.CommandXY;
 import com.mcmoddev.bot.util.Utilities;
 
 import sx.blah.discord.api.events.EventSubscriber;
@@ -96,8 +108,8 @@ public class CommandHandler {
     }
 
     /**
-     * Retrieves a command key from an IMessage. This method assumes that the message passed starts
-     * with a command character.
+     * Retrieves a command key from an IMessage. This method assumes that the message passed
+     * starts with a command character.
      *
      * @param message The contents of the message to retrieve the key from.
      *
@@ -110,9 +122,9 @@ public class CommandHandler {
     }
 
     /**
-     * Generates a list of String parameters used for a command, based on a String message. This
-     * method assumes that the message passed starts with a command character. This method will
-     * also use the command key as the first parameter.
+     * Generates a list of String parameters used for a command, based on a String message.
+     * This method assumes that the message passed starts with a command character. This method
+     * will also use the command key as the first parameter.
      *
      * @param message The message to sort through.
      *

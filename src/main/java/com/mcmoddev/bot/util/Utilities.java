@@ -46,8 +46,8 @@ public class Utilities {
     public static final DateTimeFormatter FORMAT_TIME_STANDARD = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     /**
-     * A wrapper for {@link FileUtils#copyURLToFile(URL, File)}. Allows for quick download of files
-     * based on input from users.
+     * A wrapper for {@link FileUtils#copyURLToFile(URL, File)}. Allows for quick download of
+     * files based on input from users.
      *
      * @param site The site/url to download the file from.
      * @param fileName The location to save the file to.
@@ -112,7 +112,8 @@ public class Utilities {
      *
      * @param userID The user ID of the user to generate a ping message for.
      *
-     * @return String A short string which will ping the specified user when sent into the chat.
+     * @return String A short string which will ping the specified user when sent into the
+     *         chat.
      */
     public static String getPingMessage (String userID) {
 
@@ -221,7 +222,7 @@ public class Utilities {
      *
      * @return String The text with the quotes around it.
      */
-    public static String quote(String text) {
+    public static String quote (String text) {
 
         return "\"" + text + "\"";
     }
@@ -232,8 +233,8 @@ public class Utilities {
     }
 
     /**
-     * Attempts to send a private message to a user. If a private message channel does not already
-     * exist, it will be created.
+     * Attempts to send a private message to a user. If a private message channel does not
+     * already exist, it will be created.
      *
      * @param user The user to send the private message to.
      * @param message The message to send to the user.
@@ -309,7 +310,8 @@ public class Utilities {
     }
 
     /**
-     * Sends a message into the chat. This version of the method will handle exceptions for you.
+     * Sends a message into the chat. This version of the method will handle exceptions for
+     * you.
      *
      * @param channel The channel to send to message to.
      * @param message The message to send to the channel.

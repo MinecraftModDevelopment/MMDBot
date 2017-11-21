@@ -9,7 +9,7 @@ public class CommandCurse implements Command {
     @Override
     public void processCommand (IMessage message, String[] params) {
 
-    	Utilities.sendMessage(message.getChannel(), "This command is currently disabled. Stay tuned for updates.");
+        Utilities.sendMessage(message.getChannel(), "This command is currently disabled. Stay tuned for updates.");
     }
 
     @Override

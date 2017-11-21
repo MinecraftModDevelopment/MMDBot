@@ -29,18 +29,14 @@ public class CommandUser extends CommandModerator {
             guild = MMDBot.instance.getGuildByID(Long.parseUnsignedLong(params[1]));
 
             if (guild != null) {
-
                 user = guild.getUserByID(Long.parseUnsignedLong(params[2]));
             }
         }
 
         if (user != null) {
-
             Utilities.sendMessage(message.getChannel(), new MessageUser(user, guild).build());
         }
-
         else {
-
             Utilities.sendMessage(message.getChannel(), this.getDescription());
         }
 
