@@ -4,6 +4,7 @@
 /cursefiles/
 /logs/
 /downloads/
+/config/
 
 #Hidden Directories
 .gradle/
