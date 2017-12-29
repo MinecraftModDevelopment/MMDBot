@@ -1,12 +1,14 @@
-package com.mcmoddev.bot.command;
+package com.mcmoddev.bot.command.moderative;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.mcmoddev.bot.util.Utilities;
-
+import net.darkhax.botbase.IDiscordBot;
+import net.darkhax.botbase.commands.CommandAdmin;
+import net.darkhax.botbase.utils.DataUtilities;
+import net.darkhax.botbase.utils.MessageUtils;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.EmbedBuilder;
@@ -14,7 +16,7 @@ import sx.blah.discord.util.EmbedBuilder;
 public class CommandPruneChannels extends CommandAdmin {
 
     @Override
-    public void processCommand (IMessage message, String[] params) {
+    public void processCommand (IDiscordBot bot, IChannel channelin, IMessage message, String[] params) {
 
         final LocalDateTime current = LocalDateTime.now();
         final int minDaysOfInactivity = params.length == 2 ? Integer.parseInt(params[1]) : 7;
@@ -48,8 +50,8 @@ public class CommandPruneChannels extends CommandAdmin {
         }
         embed.setLenient(true);
         embed.withColor((int) (Math.random() * 0x1000000));
-        embed.withDesc(Utilities.mapToString(Utilities.sortByValue(channels, true)));
-        Utilities.sendMessage(message.getChannel(), "The following channels have not been used in " + minDaysOfInactivity + " days.", embed.build());
+        embed.withDesc(DataUtilities.mapToString(DataUtilities.sortByValue(channels, true)));
+        MessageUtils.sendMessage(message.getChannel(), "The following channels have not been used in " + minDaysOfInactivity + " days.", embed.build());
     }
 
     @Override

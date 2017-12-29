@@ -1,9 +1,12 @@
-package com.mcmoddev.bot.command;
+package com.mcmoddev.bot.command.moderative;
 
 import com.mcmoddev.bot.MMDBot;
-import com.mcmoddev.bot.util.Utilities;
-import com.mcmoddev.bot.util.message.MessageUser;
 
+import net.darkhax.botbase.IDiscordBot;
+import net.darkhax.botbase.commands.CommandModerator;
+import net.darkhax.botbase.embed.MessageUser;
+import net.darkhax.botbase.utils.MessageUtils;
+import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
@@ -11,7 +14,7 @@ import sx.blah.discord.handle.obj.IUser;
 public class CommandUser extends CommandModerator {
 
     @Override
-    public void processCommand (IMessage message, String[] params) {
+    public void processCommand (IDiscordBot bot, IChannel channel, IMessage message, String[] params) {
 
         IUser user = null;
         IGuild guild = null;
@@ -26,7 +29,7 @@ public class CommandUser extends CommandModerator {
         // Guild and user
         else if (params.length == 3) {
 
-            guild = MMDBot.instance.getGuildByID(Long.parseUnsignedLong(params[1]));
+            guild = MMDBot.instance.getClient().getGuildByID(Long.parseUnsignedLong(params[1]));
 
             if (guild != null) {
                 user = guild.getUserByID(Long.parseUnsignedLong(params[2]));
@@ -34,10 +37,13 @@ public class CommandUser extends CommandModerator {
         }
 
         if (user != null) {
-            Utilities.sendMessage(message.getChannel(), new MessageUser(user, guild).build());
+
+            MessageUtils.sendMessage(message.getChannel(), new MessageUser(user, guild).build());
         }
+
         else {
-            Utilities.sendMessage(message.getChannel(), this.getDescription());
+
+            MessageUtils.sendMessage(message.getChannel(), this.getDescription());
         }
 
         System.out.println(params.length + " - " + user != null);
