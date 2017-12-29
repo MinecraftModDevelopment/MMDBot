@@ -3,63 +3,65 @@ package com.mcmoddev.bot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mcmoddev.bot.handlers.CommandHandler;
-import com.mcmoddev.bot.handlers.LoggingHandler;
-import com.mcmoddev.bot.handlers.ScheduleHandler;
-import com.mcmoddev.bot.handlers.ServerEventHandler;
-import com.mcmoddev.bot.handlers.StateHandler;
-import com.mcmoddev.bot.logging.PrintStreamTraced;
-import com.mcmoddev.bot.util.Utilities;
+import com.mcmoddev.bot.command.CommandGuild;
+import com.mcmoddev.bot.command.moderative.CommandReload;
 
 import ch.qos.logback.classic.Level;
+import net.darkhax.botbase.BotBase;
+import net.darkhax.botbase.commands.ManagerCommands;
+import net.darkhax.botbase.commands.mcp.CommandMCP;
+import net.darkhax.botbase.commands.mcp.MCPData;
 import sx.blah.discord.Discord4J;
-import sx.blah.discord.api.ClientBuilder;
-import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.RateLimitException;
+import sx.blah.discord.handle.obj.IUser;
 
-public class MMDBot {
-
-    private static final LoggingHandler LOGGING = new LoggingHandler();
+public class MMDBot extends BotBase {
 
     public static final Logger LOG = LoggerFactory.getLogger("MMDBot");
+    public static MMDBot instance;
 
-    public static final LaunchConfig config = LaunchConfig.updateConfig();
+    public static void main (String... args) {
 
-    public static final StateHandler state = new StateHandler();
+        final Configuration config = Configuration.getConfig();
 
-    private static final CommandHandler commands = new CommandHandler();
+        LOG.info("Turning off Discord4J logger.");
+        ((ch.qos.logback.classic.Logger) Discord4J.LOGGER).setLevel(Level.OFF);;
+        
+        MCPData.load();
+        instance = new MMDBot("MMDBot", config.getDiscordToken(), config.getCommandKey());
+        instance.login();
+    }
 
-    private static final ServerEventHandler auditor = new ServerEventHandler();
+    public MMDBot (String botName, String auth, String commandKey) {
 
-    private static final ScheduleHandler schedule = new ScheduleHandler();
+        super(botName, auth, commandKey, LOG);
+        instance = this;
+    }
+    
+    @Override
+    public boolean isModerator (IUser user) {
 
-    public static IDiscordClient instance;
+        return false;
+    }
 
-    public static void main (String... args) throws RateLimitException {
+    @Override
+    public boolean isAdminUser (IUser user) {
 
-        LOG.info("Wrapping standard output and error streams with tracer!");
-        System.setOut(new PrintStreamTraced(System.out));
-        System.setErr(new PrintStreamTraced(System.err));
+        final long id = user.getLongID();
+        return id == 137952759914823681L || id == 79179147875721216L;
+    }
 
-        LOG.info("Shutting Discord4J's Yap");
-        LoggingHandler.setLoggerLevel((ch.qos.logback.classic.Logger) Discord4J.LOGGER, Level.OFF);
+    @Override
+    public void registerCommands (ManagerCommands handler) {
 
-        LOG.info("Starting bot with token " + Utilities.partiallyReplace(config.authToken, 4));
+        handler.registerCommand("reload", new CommandReload());
+        handler.registerCommand("guild", new CommandGuild());
+        handler.registerCommand("mcp", new CommandMCP());
+    }
 
-        try {
+    @Override
+    public void reload () {
 
-            instance = new ClientBuilder().withToken(config.authToken).login();
-            instance.getDispatcher().registerListener(state);
-            instance.getDispatcher().registerListener(commands);
-            instance.getDispatcher().registerListener(auditor);
-        }
-
-        catch (final DiscordException e) {
-
-            LOG.trace("Error during startup", e);
-            instance.logout();
-            System.exit(0);
-        }
+        super.reload();
+        MCPData.load();
     }
 }
