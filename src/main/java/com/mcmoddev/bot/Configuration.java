@@ -11,32 +11,43 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 
 public class Configuration {
-    
+
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    
+
     @Expose
     private String discordToken = "Enter your token!";
-    
+
     @Expose
     private String commandKey = "!key";
-    
+
     public String getDiscordToken () {
-        
-        return discordToken;
+
+        return this.discordToken;
     }
 
     public String getCommandKey () {
-        
-        return commandKey;
+
+        return this.commandKey;
     }
 
-    public static Configuration getConfig() {
+    public void setDiscordToken (String discordToken) {
         
+        this.discordToken = discordToken;
+    }
+
+    public void setCommandKey (String commandKey) {
+        
+        this.commandKey = commandKey;
+    }
+
+    public static Configuration getConfig () {
+
         final File file = new File("config/config.json");
 
         // Read the config if it exists
         if (file.exists()) {
 
+            MMDBot.LOG.info("Reading existing configuration file!");
             try (Reader reader = new FileReader(file)) {
 
                 return GSON.fromJson(reader, Configuration.class);
@@ -44,7 +55,7 @@ public class Configuration {
 
             catch (final IOException e) {
 
-                // TODO error
+                MMDBot.LOG.trace("Failed to read config file.", e);
             }
         }
 
@@ -58,12 +69,14 @@ public class Configuration {
 
             catch (final IOException e) {
 
-                // TODO error
+                MMDBot.LOG.trace("Failed to write config file.", e);
             }
 
+            MMDBot.LOG.error("New Configuration file generated!");
+            MMDBot.LOG.error("Please modify the config and launch again.");
             System.exit(0);
         }
-        
+
         // dead code
         return null;
     }
