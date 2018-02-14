@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -33,6 +34,9 @@ public class MessageMods extends EmbedBuilder {
 
         this.setLenient(true);
         this.setDownloadInfo();
+        
+        Random rand = new Random();
+        this.withColor(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255));
     }
 
     private void setDownloadInfo () {
@@ -72,7 +76,7 @@ public class MessageMods extends EmbedBuilder {
 
         for (final String author : authors) {
 
-            mods.addAll(CurseMetaTracker.instance.authors.get(author));
+            mods.addAll(CurseMetaTracker.instance.authors.get(author.toLowerCase()));
         }
 
         final List<ModInfo> sorted = new ArrayList<>(mods);
