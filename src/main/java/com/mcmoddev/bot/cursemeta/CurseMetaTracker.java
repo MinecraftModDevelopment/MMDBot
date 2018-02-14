@@ -1,0 +1,145 @@
+package com.mcmoddev.bot.cursemeta;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.internal.LinkedTreeMap;
+import com.mcmoddev.bot.MMDBot;
+import com.mcmoddev.bot.cursemeta.stats.Authors;
+import com.mcmoddev.bot.cursemeta.stats.Indexes;
+import com.mcmoddev.bot.cursemeta.stats.Projects;
+import com.mcmoddev.bot.cursemeta.stats.StatData;
+
+public class CurseMetaTracker {
+
+    private static final Gson GSON = new GsonBuilder().create();
+
+    public static final String DAILY = "https://cursemeta.dries007.net/daily.json";
+    public static final String WEEKLY = "https://cursemeta.dries007.net/weekly.json";
+    public static final String MONTHLY = "https://cursemeta.dries007.net/monthly.json";
+    public static final String STATS = "https://cursemeta.dries007.net/stats.json";
+    public static final String INDEX = "https://cursemeta.dries007.net/index.json";
+
+    public static CurseMetaTracker instance;
+    private final MMDBot bot;
+    private List<Long> knownModIds;
+    private List<Long> newModIds;
+    private Map<Long, ModInfo> mods;
+    public ArrayListMultimap<String, ModInfo> authors;
+
+    public CurseMetaTracker (MMDBot bot) {
+
+        this.bot = bot;
+        this.bot.timer.scheduleAndRunHourly(1, () -> this.updateCurseData());
+        instance = this;
+    }
+
+    public void updateCurseData () {
+
+        this.bot.getClient().dnd("Updating Database");
+
+        // Donload all of the needed files
+        this.bot.downloadFile(DAILY, "data/daily.json");
+        this.bot.downloadFile(WEEKLY, "data/weekly.json");
+        this.bot.downloadFile(MONTHLY, "data/monthly.json");
+        this.bot.downloadFile(STATS, "data/stats.json");
+        this.bot.downloadFile(INDEX, "data/index.json");
+
+        try {
+
+            // Load all of the data into ram
+            final StatData statData = GSON.fromJson(new FileReader("data/stats.json"), StatData.class);
+            final Indexes indexes = GSON.fromJson(new FileReader("data/index.json"), Indexes.class);
+            final LinkedTreeMap<String, Double> daily = (LinkedTreeMap) GSON.fromJson(new FileReader("data/daily.json"), HashMap.class).get("delta");
+            final LinkedTreeMap<String, Double> weekly = (LinkedTreeMap) GSON.fromJson(new FileReader("data/weekly.json"), HashMap.class).get("delta");
+            final LinkedTreeMap<String, Double> monthly = (LinkedTreeMap) GSON.fromJson(new FileReader("data/monthly.json"), HashMap.class).get("delta");
+
+            // Process the data into a useful format
+
+            // If this is the first run, data is preInitialized.
+            if (this.knownModIds == null) {
+
+                this.knownModIds = indexes.getMods();
+                this.newModIds = new ArrayList<>();
+            }
+
+            // If this isn't the first run, look for new mod ids before setting the known id
+            // list.
+            else {
+
+                this.newModIds = new ArrayList<>(indexes.getMods());
+                this.newModIds.removeAll(this.knownModIds);
+                this.knownModIds = indexes.getMods();
+            }
+
+            // Mod list is overwritten to completely reset it.
+            this.mods = new HashMap<>();
+
+            // Loop through all known mod ids and aggregate the data.
+            for (final long id : this.knownModIds) {
+
+                final ModInfo modInf = new ModInfo(id);
+                final String projectId = Long.toString(id);
+
+                // Sets the periodic downloads
+                modInf.setDownloadsDaily(daily.getOrDefault(projectId, 0d));
+                modInf.setDownloadsWeekly(weekly.getOrDefault(projectId, 0d));
+                modInf.setDownloadsMonthly(monthly.getOrDefault(projectId, 0d));
+
+                // Attempt to set stat data for the project.
+                final Projects project = statData.getStats().getProjects().get(id);
+
+                if (project != null) {
+
+                    modInf.setDownloads(project.downloads);
+                    modInf.setName(project.name);
+                }
+
+                // Place the aggregate data into the map.
+                this.mods.put(id, modInf);
+            }
+
+            // Author list is overwritten to completely reset it.
+            this.authors = ArrayListMultimap.create();
+
+            // Go through all the authors
+            for (final Entry<String, Authors> author : statData.getStats().getAuthors().entrySet()) {
+
+                if (author.getValue().member == null || !author.getValue().member.containsKey("Mods")) {
+
+                    continue;
+                }
+
+                // Find out what mods they're listed for
+                for (final long projectId : author.getValue().member.get("Mods")) {
+
+                    final ModInfo modInfo = this.mods.get(projectId);
+
+                    if (modInfo != null) {
+
+                        // Track the author and the projects they own.
+                        modInfo.addAuthor(author.getKey());
+                        this.authors.put(author.getKey(), modInfo);
+                    }
+                }
+            }
+        }
+
+        catch (JsonSyntaxException | JsonIOException | FileNotFoundException e) {
+
+            e.printStackTrace();
+        }
+
+        this.bot.getClient().online("");
+    }
+}
