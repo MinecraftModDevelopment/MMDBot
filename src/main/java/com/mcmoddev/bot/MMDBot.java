@@ -3,6 +3,7 @@ package com.mcmoddev.bot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mcmoddev.bot.command.CommandCurse;
 import com.mcmoddev.bot.command.CommandGuild;
 import com.mcmoddev.bot.command.CommandHelp;
 import com.mcmoddev.bot.command.CommandMe;
@@ -11,6 +12,8 @@ import com.mcmoddev.bot.command.moderative.CommandKill;
 import com.mcmoddev.bot.command.moderative.CommandOldChannels;
 import com.mcmoddev.bot.command.moderative.CommandReload;
 import com.mcmoddev.bot.command.moderative.CommandUser;
+import com.mcmoddev.bot.cursemeta.CurseMetaTracker;
+import com.mcmoddev.bot.lib.ScheduledTimer;
 
 import ch.qos.logback.classic.Level;
 import net.darkhax.botbase.BotBase;
@@ -29,6 +32,9 @@ public class MMDBot extends BotBase {
     private IRole admin;
     private IRole moderator;
     private IRole botAdmin;
+
+    public final ScheduledTimer timer;
+    public CurseMetaTracker curseMeta;
 
     public static void main (String... args) {
 
@@ -56,6 +62,7 @@ public class MMDBot extends BotBase {
 
         super(botName, auth, commandKey, LOG);
         instance = this;
+        this.timer = new ScheduledTimer();
     }
 
     @Override
@@ -84,17 +91,13 @@ public class MMDBot extends BotBase {
         handler.registerCommand("xy", new CommandXY());
         handler.registerCommand("help", new CommandHelp());
         handler.registerCommand("me", new CommandMe());
-    }
-
-    @Override
-    public void reload () {
-
-        super.reload();
+        handler.registerCommand("curse", new CommandCurse());
     }
 
     @Override
     public void onFailedLogin (IDiscordClient instance) {
 
+        // No use
     }
 
     @Override
@@ -103,5 +106,7 @@ public class MMDBot extends BotBase {
         this.admin = instance.getRoleByID(176781877682634752L);
         this.moderator = instance.getRoleByID(178772974990655489L);
         this.botAdmin = instance.getRoleByID(226067502977777664L);
+
+        this.curseMeta = new CurseMetaTracker(this);
     }
 }
