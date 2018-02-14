@@ -4,14 +4,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mcmoddev.bot.command.CommandGuild;
+import com.mcmoddev.bot.command.CommandHelp;
+import com.mcmoddev.bot.command.CommandMe;
+import com.mcmoddev.bot.command.CommandXY;
+import com.mcmoddev.bot.command.moderative.CommandKill;
+import com.mcmoddev.bot.command.moderative.CommandOldChannels;
 import com.mcmoddev.bot.command.moderative.CommandReload;
+import com.mcmoddev.bot.command.moderative.CommandUser;
 
 import ch.qos.logback.classic.Level;
 import net.darkhax.botbase.BotBase;
 import net.darkhax.botbase.commands.ManagerCommands;
-import net.darkhax.botbase.commands.mcp.CommandMCP;
-import net.darkhax.botbase.commands.mcp.MCPData;
 import sx.blah.discord.Discord4J;
+import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.handle.obj.IGuild;
+import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 
 public class MMDBot extends BotBase {
@@ -19,16 +26,30 @@ public class MMDBot extends BotBase {
     public static final Logger LOG = LoggerFactory.getLogger("MMDBot");
     public static MMDBot instance;
 
+    private IRole admin;
+    private IRole moderator;
+    private IRole botAdmin;
+
     public static void main (String... args) {
 
-        final Configuration config = Configuration.getConfig();
+        try {
 
-        LOG.info("Turning off Discord4J logger.");
-        ((ch.qos.logback.classic.Logger) Discord4J.LOGGER).setLevel(Level.OFF);;
-        
-        MCPData.load();
-        instance = new MMDBot("MMDBot", config.getDiscordToken(), config.getCommandKey());
-        instance.login();
+            final Configuration config = Configuration.getConfig();
+
+            if (Discord4J.LOGGER instanceof ch.qos.logback.classic.Logger) {
+
+                LOG.info("Restricting Discord4J's logger to errors!");
+                ((ch.qos.logback.classic.Logger) Discord4J.LOGGER).setLevel(Level.ERROR);
+            }
+
+            instance = new MMDBot("MMDBot", config.getDiscordToken(), config.getCommandKey());
+            instance.login();
+        }
+
+        catch (final Exception e) {
+
+            LOG.trace("Unable to launch bot!", e);
+        }
     }
 
     public MMDBot (String botName, String auth, String commandKey) {
@@ -36,32 +57,51 @@ public class MMDBot extends BotBase {
         super(botName, auth, commandKey, LOG);
         instance = this;
     }
-    
-    @Override
-    public boolean isModerator (IUser user) {
 
-        return false;
+    @Override
+    public boolean isModerator (IGuild guild, IUser user) {
+
+        return user.hasRole(this.moderator);
     }
 
     @Override
-    public boolean isAdminUser (IUser user) {
+    public boolean isAdminUser (IGuild guild, IUser user) {
 
-        final long id = user.getLongID();
-        return id == 137952759914823681L || id == 79179147875721216L;
+        return user.hasRole(this.admin) || user.hasRole(this.botAdmin);
     }
 
     @Override
     public void registerCommands (ManagerCommands handler) {
 
+        // Moderative
         handler.registerCommand("reload", new CommandReload());
+        handler.registerCommand("kill", new CommandKill());
+        handler.registerCommand("oldchans", new CommandOldChannels());
+        handler.registerCommand("user", new CommandUser());
+
+        // Misc
         handler.registerCommand("guild", new CommandGuild());
-        handler.registerCommand("mcp", new CommandMCP());
+        handler.registerCommand("xy", new CommandXY());
+        handler.registerCommand("help", new CommandHelp());
+        handler.registerCommand("me", new CommandMe());
     }
 
     @Override
     public void reload () {
 
         super.reload();
-        MCPData.load();
+    }
+
+    @Override
+    public void onFailedLogin (IDiscordClient instance) {
+
+    }
+
+    @Override
+    public void onSucessfulLogin (IDiscordClient instance) {
+
+        this.admin = instance.getRoleByID(176781877682634752L);
+        this.moderator = instance.getRoleByID(178772974990655489L);
+        this.botAdmin = instance.getRoleByID(226067502977777664L);
     }
 }
