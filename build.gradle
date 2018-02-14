@@ -20,8 +20,7 @@ repositories {
 
 dependencies {
 
-    compile 'net.darkhax.discordbotbase:DiscordBotBase:1.0.3'
-    compile group: 'net.sf.opencsv', name: 'opencsv', version: '2.3'
+    compile 'net.darkhax.discordbotbase:DiscordBotBase:1.0.5'
 }
 
 task fatJar(type: Jar) {
