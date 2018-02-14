@@ -109,4 +109,10 @@ public class MMDBot extends BotBase {
 
         this.curseMeta = new CurseMetaTracker(this);
     }
+    
+    public void reload () {
+        
+        super.reload();
+        this.curseMeta.updateCurseData();
+    }
 }
