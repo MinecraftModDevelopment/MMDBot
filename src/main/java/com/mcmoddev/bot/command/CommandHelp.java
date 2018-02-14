@@ -1,6 +1,6 @@
 package com.mcmoddev.bot.command;
 
-import net.darkhax.botbase.IDiscordBot;
+import net.darkhax.botbase.BotBase;
 import net.darkhax.botbase.commands.Command;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
@@ -8,9 +8,8 @@ import sx.blah.discord.handle.obj.IMessage;
 public class CommandHelp implements Command {
 
     @Override
-    public void processCommand (IDiscordBot bot, IChannel channel, IMessage message, String[] args) {
+    public void processCommand (BotBase bot, IChannel channel, IMessage message, String[] args) {
 
-        // TODO
     }
 
     @Override

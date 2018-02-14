@@ -4,7 +4,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import com.mcmoddev.bot.MMDBot;
 
-import net.darkhax.botbase.IDiscordBot;
+import net.darkhax.botbase.BotBase;
 import net.darkhax.botbase.commands.CommandAdmin;
 import net.darkhax.botbase.utils.MessageUtils;
 import sx.blah.discord.handle.obj.IChannel;
@@ -13,7 +13,7 @@ import sx.blah.discord.handle.obj.IMessage;
 public class CommandKill extends CommandAdmin {
 
     @Override
-    public void processCommand (IDiscordBot bot, IChannel channel, IMessage message, String[] params) {
+    public void processCommand (BotBase bot, IChannel channel, IMessage message, String[] params) {
 
         final int time = params.length == 2 && NumberUtils.isCreatable(params[1]) ? new Integer(params[1]) : 10;
 

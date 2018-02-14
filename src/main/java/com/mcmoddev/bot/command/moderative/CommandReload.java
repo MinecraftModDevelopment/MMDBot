@@ -1,6 +1,6 @@
 package com.mcmoddev.bot.command.moderative;
 
-import net.darkhax.botbase.IDiscordBot;
+import net.darkhax.botbase.BotBase;
 import net.darkhax.botbase.commands.CommandModerator;
 import net.darkhax.botbase.utils.MessageUtils;
 import sx.blah.discord.handle.obj.IChannel;
@@ -9,7 +9,7 @@ import sx.blah.discord.handle.obj.IMessage;
 public class CommandReload extends CommandModerator {
 
     @Override
-    public void processCommand (IDiscordBot bot, IChannel channel, IMessage message, String[] params) {
+    public void processCommand (BotBase bot, IChannel channel, IMessage message, String[] params) {
 
         final long start = System.currentTimeMillis();
         bot.reload();

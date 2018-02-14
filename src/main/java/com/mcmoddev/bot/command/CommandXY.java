@@ -1,6 +1,6 @@
 package com.mcmoddev.bot.command;
 
-import net.darkhax.botbase.IDiscordBot;
+import net.darkhax.botbase.BotBase;
 import net.darkhax.botbase.commands.Command;
 import net.darkhax.botbase.utils.MessageUtils;
 import sx.blah.discord.handle.obj.IChannel;
@@ -12,7 +12,7 @@ public class CommandXY implements Command {
     public static String body = "The XY problem is asking about your attempted solution rather than your actual problem. This leads to enormous amounts of wasted time and energy, both on the part of people asking for help, and on the part of those providing help." + MessageUtils.SEPERATOR + MessageUtils.makeHyperlink("More Info", "http://xyproblem.info/");
 
     @Override
-    public void processCommand (IDiscordBot bot, IChannel channel, IMessage message, String[] params) {
+    public void processCommand (BotBase bot, IChannel channel, IMessage message, String[] params) {
 
         final EmbedBuilder embed = new EmbedBuilder();
 
