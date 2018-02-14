@@ -31,12 +31,12 @@ public class Configuration {
     }
 
     public void setDiscordToken (String discordToken) {
-        
+
         this.discordToken = discordToken;
     }
 
     public void setCommandKey (String commandKey) {
-        
+
         this.commandKey = commandKey;
     }
 
