@@ -5,7 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.darkhax.botbase.IDiscordBot;
+import net.darkhax.botbase.BotBase;
 import net.darkhax.botbase.commands.CommandAdmin;
 import net.darkhax.botbase.utils.DataUtilities;
 import net.darkhax.botbase.utils.MessageUtils;
@@ -13,10 +13,10 @@ import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.EmbedBuilder;
 
-public class CommandPruneChannels extends CommandAdmin {
+public class CommandOldChannels extends CommandAdmin {
 
     @Override
-    public void processCommand (IDiscordBot bot, IChannel channelin, IMessage message, String[] params) {
+    public void processCommand (BotBase bot, IChannel channelin, IMessage message, String[] params) {
 
         final LocalDateTime current = LocalDateTime.now();
         final int minDaysOfInactivity = params.length == 2 ? Integer.parseInt(params[1]) : 7;
