@@ -128,8 +128,9 @@ public class CurseMetaTracker {
                     if (modInfo != null) {
 
                         // Track the author and the projects they own.
-                        modInfo.addAuthor(author.getKey());
-                        this.authors.put(author.getKey(), modInfo);
+                        final String authorName = author.getKey().toLowerCase();
+                        modInfo.addAuthor(authorName);
+                        this.authors.put(authorName, modInfo);
                     }
                 }
             }
