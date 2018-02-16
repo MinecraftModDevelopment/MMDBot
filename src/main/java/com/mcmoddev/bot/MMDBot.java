@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mcmoddev.bot.command.CommandCurse;
+import com.mcmoddev.bot.command.CommandGreatMoves;
 import com.mcmoddev.bot.command.CommandGuild;
 import com.mcmoddev.bot.command.CommandHelp;
 import com.mcmoddev.bot.command.CommandMe;
@@ -92,6 +93,7 @@ public class MMDBot extends BotBase {
         handler.registerCommand("help", new CommandHelp());
         handler.registerCommand("me", new CommandMe());
         handler.registerCommand("curse", new CommandCurse());
+        handler.registerCommand("greatmoves", new CommandGreatMoves());
     }
 
     @Override
@@ -109,9 +111,10 @@ public class MMDBot extends BotBase {
 
         this.curseMeta = new CurseMetaTracker(this);
     }
-    
+
+    @Override
     public void reload () {
-        
+
         super.reload();
         this.curseMeta.updateCurseData();
     }
