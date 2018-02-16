@@ -38,6 +38,6 @@ public class CommandUser extends CommandModerator {
     @Override
     public String getDescription () {
 
-        return "Retrieves info about a user. Requires the user's long id as a parameter.";
+        return "Displays info about the targeted user. Required the long user id.";
     }
 }

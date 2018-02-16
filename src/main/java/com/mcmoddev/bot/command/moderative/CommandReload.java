@@ -19,6 +19,6 @@ public class CommandReload extends CommandModerator {
     @Override
     public String getDescription () {
 
-        return "Causes the bot to reload.";
+        return "Reloades the bot. Commands and local data.";
     }
 }

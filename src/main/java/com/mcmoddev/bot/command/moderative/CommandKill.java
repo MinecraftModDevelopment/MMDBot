@@ -36,7 +36,6 @@ public class CommandKill extends CommandAdmin {
         }
 
         MessageUtils.sendMessage(message.getChannel(), "Oh, I am slain. Killed by %s#%s Death in %d seconds.", message.getAuthor().getName(), message.getAuthor().getDiscriminator(), time);
-        // TODO audit
 
         try {
 

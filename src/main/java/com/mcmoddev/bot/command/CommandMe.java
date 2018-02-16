@@ -17,12 +17,12 @@ public class CommandMe implements Command {
         final IUser user = message.getAuthor();
         final IGuild guild = message.getGuild();
 
-        MessageUtils.sendMessage(message.getChannel(), new MessageUser(user, guild).withColor(user.getColorForGuild(guild)).build());
+        MessageUtils.sendMessage(message.getChannel(), new MessageUser(user, guild).build());
     }
 
     @Override
     public String getDescription () {
 
-        return "Posts info about the user in chat, including when they joined.";
+        return "Posts info about the current user in chat, including when they joined discord and the server.";
     }
 }

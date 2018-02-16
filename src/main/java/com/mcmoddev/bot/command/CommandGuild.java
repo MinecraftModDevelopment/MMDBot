@@ -21,6 +21,6 @@ public class CommandGuild implements Command {
     @Override
     public String getDescription () {
 
-        return "Displays information about a guild.";
+        return "Displays information about the current guild.";
     }
 }
