@@ -14,6 +14,7 @@ public class ModInfo implements Comparable<ModInfo> {
     private double downloadsWeekly;
     private double downloadsMonthly;
     private final List<String> authors;
+    private double popularity;
 
     public ModInfo (long id) {
 
@@ -111,5 +112,15 @@ public class ModInfo implements Comparable<ModInfo> {
 
         // This mod has less downloads.
         return -1;
+    }
+
+    public double getPopularity () {
+
+        return this.popularity;
+    }
+
+    public void setPopularity (double popularity) {
+
+        this.popularity = popularity;
     }
 }

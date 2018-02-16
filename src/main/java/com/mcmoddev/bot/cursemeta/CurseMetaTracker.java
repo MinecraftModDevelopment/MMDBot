@@ -33,9 +33,10 @@ public class CurseMetaTracker {
     public static CurseMetaTracker instance;
     private final MMDBot bot;
     private List<Long> knownModIds;
+    private long allDownloads;
     private List<Long> newModIds;
     private Map<Long, ModInfo> mods;
-    public ArrayListMultimap<String, ModInfo> authors;
+    private ArrayListMultimap<String, ModInfo> authors;
 
     public CurseMetaTracker (MMDBot bot) {
 
@@ -84,6 +85,7 @@ public class CurseMetaTracker {
 
             // Mod list is overwritten to completely reset it.
             this.mods = new HashMap<>();
+            this.allDownloads = 0;
 
             // Loop through all known mod ids and aggregate the data.
             for (final long id : this.knownModIds) {
@@ -102,7 +104,9 @@ public class CurseMetaTracker {
                 if (project != null) {
 
                     modInf.setDownloads(project.downloads);
+                    this.allDownloads += project.downloads;
                     modInf.setName(project.name);
+                    modInf.setPopularity(project.score);
                 }
 
                 // Place the aggregate data into the map.
@@ -142,5 +146,30 @@ public class CurseMetaTracker {
         }
 
         this.bot.getClient().online("");
+    }
+
+    public List<Long> getKnownModIds () {
+
+        return this.knownModIds;
+    }
+
+    public long getAllDownloads () {
+
+        return this.allDownloads;
+    }
+
+    public List<Long> getNewModIds () {
+
+        return this.newModIds;
+    }
+
+    public Map<Long, ModInfo> getMods () {
+
+        return this.mods;
+    }
+
+    public ArrayListMultimap<String, ModInfo> getAuthors () {
+
+        return this.authors;
     }
 }
