@@ -16,13 +16,13 @@ public class Configuration {
     private static final File CONF_FILE = new File("data/config.json");
 
     @Expose
-    private String discordToken = "Enter your token!";
+    private final String discordToken = "Enter your token!";
 
     @Expose
-    private String commandKey = "!key";
-    
+    private final String commandKey = "!key";
+
     @Expose
-    private String encryptionKey = "Change This!";
+    private final String encryptionKey = "Change This!";
 
     public String getDiscordToken () {
 
@@ -35,12 +35,12 @@ public class Configuration {
     }
 
     public String getEncryptionKey () {
-        
+
         return this.encryptionKey;
     }
 
-    public static void saveConfig(Configuration config) {
-        
+    public static void saveConfig (Configuration config) {
+
         try (FileWriter writer = new FileWriter(CONF_FILE)) {
 
             GSON.toJson(config, writer);
@@ -51,7 +51,7 @@ public class Configuration {
             MMDBot.LOG.trace("Failed to write config file.", e);
         }
     }
-    
+
     public static Configuration getConfig () {
 
         // Read the config if it exists

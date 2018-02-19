@@ -9,6 +9,7 @@ import com.mcmoddev.bot.command.CommandGuild;
 import com.mcmoddev.bot.command.CommandHelp;
 import com.mcmoddev.bot.command.CommandMe;
 import com.mcmoddev.bot.command.CommandXY;
+import com.mcmoddev.bot.command.moderative.CommandBackup;
 import com.mcmoddev.bot.command.moderative.CommandKill;
 import com.mcmoddev.bot.command.moderative.CommandOldChannels;
 import com.mcmoddev.bot.command.moderative.CommandReload;
@@ -86,6 +87,7 @@ public class MMDBot extends BotBase {
         handler.registerCommand("kill", new CommandKill());
         handler.registerCommand("oldchans", new CommandOldChannels());
         handler.registerCommand("user", new CommandUser());
+        handler.registerCommand("backup", new CommandBackup());
 
         // Misc
         handler.registerCommand("guild", new CommandGuild());
