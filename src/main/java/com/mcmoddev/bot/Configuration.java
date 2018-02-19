@@ -10,19 +10,23 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 
+/**
+ * THIS IS A NOTE FOR DARKHAX. DO NOT MAKE THESE FIELDS FINAL. I KNOW YOU WANT TO, BUT IT WILL
+ * BREAK EVERYTHING!
+ */
 public class Configuration {
 
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final File CONF_FILE = new File("data/config.json");
 
     @Expose
-    private final String discordToken = "Enter your token!";
+    private String discordToken = "Enter your token!";
 
     @Expose
-    private final String commandKey = "!key";
+    private String commandKey = "!key";
 
     @Expose
-    private final String encryptionKey = "Change This!";
+    private String encryptionKey = "Change This!";
 
     public String getDiscordToken () {
 
@@ -50,6 +54,12 @@ public class Configuration {
 
             MMDBot.LOG.trace("Failed to write config file.", e);
         }
+    }
+
+    @Override
+    public String toString () {
+
+        return "Configuration [discordToken=" + this.discordToken + ", commandKey=" + this.commandKey + ", encryptionKey=" + this.encryptionKey + "]";
     }
 
     public static Configuration getConfig () {
@@ -82,5 +92,20 @@ public class Configuration {
 
         // dead code
         return null;
+    }
+
+    public void setDiscordToken (String discordToken) {
+
+        this.discordToken = discordToken;
+    }
+
+    public void setCommandKey (String commandKey) {
+
+        this.commandKey = commandKey;
+    }
+
+    public void setEncryptionKey (String encryptionKey) {
+
+        this.encryptionKey = encryptionKey;
     }
 }
