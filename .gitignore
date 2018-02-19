@@ -5,6 +5,7 @@
 /logs/
 /downloads/
 /config/
+/data/
 
 #Hidden Directories
 .gradle/
