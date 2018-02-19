@@ -1,5 +1,6 @@
 package com.mcmoddev.bot.cursemeta;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -30,6 +31,9 @@ public class CurseMetaTracker {
     public static final String STATS = "https://cursemeta.dries007.net/stats.json";
     public static final String INDEX = "https://cursemeta.dries007.net/index.json";
 
+    // TODO replace with a getter method that auto makes folder if it doesn't exist.
+    public static final File CURSE_DIR = new File(MMDBot.DATA_DIR, "curse");
+
     public static CurseMetaTracker instance;
     private final MMDBot bot;
     private List<Long> knownModIds;
@@ -47,14 +51,21 @@ public class CurseMetaTracker {
 
     public void updateCurseData () {
 
+        // Make the curse dir if it doesn't exist.
+        if (!CURSE_DIR.exists()) {
+
+            CURSE_DIR.mkdirs();
+        }
+
         this.bot.getClient().dnd("Updating Database");
 
-        // Donload all of the needed files
-        this.bot.downloadFile(DAILY, "data/daily.json");
-        this.bot.downloadFile(WEEKLY, "data/weekly.json");
-        this.bot.downloadFile(MONTHLY, "data/monthly.json");
-        this.bot.downloadFile(STATS, "data/stats.json");
-        this.bot.downloadFile(INDEX, "data/index.json");
+        // Download all of the needed files
+        // TODO make this a bit more cleaner.
+        this.bot.downloadFile(DAILY, "data/curse/daily.json");
+        this.bot.downloadFile(WEEKLY, "data/curse/weekly.json");
+        this.bot.downloadFile(MONTHLY, "data/curse/monthly.json");
+        this.bot.downloadFile(STATS, "data/curse/stats.json");
+        this.bot.downloadFile(INDEX, "data/curse/index.json");
 
         try {
 
