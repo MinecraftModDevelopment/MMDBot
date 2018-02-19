@@ -10,6 +10,7 @@ import com.mcmoddev.bot.command.CommandGreatMoves;
 import com.mcmoddev.bot.command.CommandGuild;
 import com.mcmoddev.bot.command.CommandHelp;
 import com.mcmoddev.bot.command.CommandMe;
+import com.mcmoddev.bot.command.CommandMod;
 import com.mcmoddev.bot.command.CommandXY;
 import com.mcmoddev.bot.command.moderative.CommandBackup;
 import com.mcmoddev.bot.command.moderative.CommandKill;
