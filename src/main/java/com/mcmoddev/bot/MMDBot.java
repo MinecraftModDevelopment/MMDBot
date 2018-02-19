@@ -1,5 +1,7 @@
 package com.mcmoddev.bot;
 
+import java.io.File;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,7 @@ import sx.blah.discord.handle.obj.IUser;
 public class MMDBot extends BotBase {
 
     public static final Logger LOG = LoggerFactory.getLogger("MMDBot");
+    public static final File DATA_DIR = new File("data/");
     public static MMDBot instance;
 
     private IRole admin;
@@ -42,14 +45,23 @@ public class MMDBot extends BotBase {
 
         try {
 
+            // Creates the data directory if it doesn't exist already.
+            if (!DATA_DIR.exists()) {
+
+                DATA_DIR.mkdirs();
+            }
+
+            // Initialize config
             final Configuration config = Configuration.getConfig();
 
+            // Restrict the discord4j logger to errors only
             if (Discord4J.LOGGER instanceof ch.qos.logback.classic.Logger) {
 
                 LOG.info("Restricting Discord4J's logger to errors!");
                 ((ch.qos.logback.classic.Logger) Discord4J.LOGGER).setLevel(Level.ERROR);
             }
 
+            // Create bot and login
             instance = new MMDBot("MMDBot", config.getDiscordToken(), config.getCommandKey());
             instance.login();
         }
