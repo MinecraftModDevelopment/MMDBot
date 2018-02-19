@@ -108,6 +108,8 @@ public class MMDBot extends BotBase {
         handler.registerCommand("me", new CommandMe());
         handler.registerCommand("curse", new CommandCurse());
         handler.registerCommand("greatmoves", new CommandGreatMoves());
+        handler.registerCommand("mod", new CommandMod());
+    
     }
 
     @Override
