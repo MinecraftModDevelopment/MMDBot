@@ -70,11 +70,11 @@ public class CurseMetaTracker {
         try {
 
             // Load all of the data into ram
-            final StatData statData = GSON.fromJson(new FileReader("data/stats.json"), StatData.class);
-            final Indexes indexes = GSON.fromJson(new FileReader("data/index.json"), Indexes.class);
-            final LinkedTreeMap<String, Double> daily = (LinkedTreeMap) GSON.fromJson(new FileReader("data/daily.json"), HashMap.class).get("delta");
-            final LinkedTreeMap<String, Double> weekly = (LinkedTreeMap) GSON.fromJson(new FileReader("data/weekly.json"), HashMap.class).get("delta");
-            final LinkedTreeMap<String, Double> monthly = (LinkedTreeMap) GSON.fromJson(new FileReader("data/monthly.json"), HashMap.class).get("delta");
+            final StatData statData = GSON.fromJson(new FileReader("data/curse/stats.json"), StatData.class);
+            final Indexes indexes = GSON.fromJson(new FileReader("data/curse/index.json"), Indexes.class);
+            final LinkedTreeMap<String, Double> daily = (LinkedTreeMap) GSON.fromJson(new FileReader("data/curse/daily.json"), HashMap.class).get("delta");
+            final LinkedTreeMap<String, Double> weekly = (LinkedTreeMap) GSON.fromJson(new FileReader("data/curse/weekly.json"), HashMap.class).get("delta");
+            final LinkedTreeMap<String, Double> monthly = (LinkedTreeMap) GSON.fromJson(new FileReader("data/curse/monthly.json"), HashMap.class).get("delta");
 
             // Process the data into a useful format
 
