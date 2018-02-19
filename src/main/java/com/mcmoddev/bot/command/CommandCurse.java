@@ -22,6 +22,11 @@ public class CommandCurse implements Command {
 
         for (final String param : params) {
 
+            if (param.isEmpty()) {
+
+                continue;
+            }
+
             // The name "me" is treated as the discord name of the sender.
             if (param.equalsIgnoreCase("me")) {
 

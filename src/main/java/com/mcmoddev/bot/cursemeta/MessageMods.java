@@ -59,7 +59,7 @@ public class MessageMods extends EmbedBuilder {
 
             this.totalDownloads += mod.getDownloads();
             this.totalMonthlyDownloads += mod.getDownloadsMonthly();
-            
+
             if (modCount < this.modsToShow) {
 
                 modCount++;
