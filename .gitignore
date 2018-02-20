@@ -6,6 +6,7 @@
 /downloads/
 /config/
 /data/
+/backups/
 
 #Hidden Directories
 .gradle/
