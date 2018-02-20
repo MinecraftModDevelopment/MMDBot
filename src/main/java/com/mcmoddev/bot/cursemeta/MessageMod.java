@@ -1,10 +1,19 @@
 package com.mcmoddev.bot.cursemeta;
 
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.StringJoiner;
+
 import net.darkhax.botbase.utils.MessageUtils;
 import sx.blah.discord.util.EmbedBuilder;
-
-import java.text.NumberFormat;
-import java.util.*;
 
 public class MessageMod extends EmbedBuilder {
 
@@ -18,7 +27,7 @@ public class MessageMod extends EmbedBuilder {
     private long totalMonthlyDownloads;
     private long hiddenDownloads;
 
-    public MessageMod(int modsToShow, String... mods) {
+    public MessageMod (int modsToShow, String... mods) {
 
         super();
 
@@ -51,7 +60,7 @@ public class MessageMod extends EmbedBuilder {
 
             this.totalDownloads += mod.getDownloads();
             this.totalMonthlyDownloads += mod.getDownloadsMonthly();
-            
+
             if (modCount < this.modsToShow) {
 
                 modCount++;
@@ -84,14 +93,15 @@ public class MessageMod extends EmbedBuilder {
         this.withDesc(projectText.toString());
     }
 
-    private List<ModInfo> getMods(String... modNames) {
+    private List<ModInfo> getMods (String... modNames) {
 
         final Set<ModInfo> mods = new HashSet<>();
-        List<String> modList = Arrays.asList(modNames);
-        for(Map.Entry<Long, ModInfo> entry : CurseMetaTracker.instance.getMods().entrySet()) {
-            if(modList.contains(entry.getValue().getName().toLowerCase().replaceAll(" ", "-"))){
+        final List<String> modList = Arrays.asList(modNames);
+        for (final Map.Entry<Long, ModInfo> entry : CurseMetaTracker.instance.getMods().entrySet()) {
+            if (modList.contains(entry.getValue().getName().toLowerCase().replaceAll(" ", "-"))) {
                 mods.add(entry.getValue());
-            }else if(modList.contains(entry.getKey().toString())){
+            }
+            else if (modList.contains(entry.getKey().toString())) {
                 mods.add(entry.getValue());
             }
         }
