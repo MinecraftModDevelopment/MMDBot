@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.time.format.DateTimeFormatter;
 
+import com.mcmoddev.bot.MMDBot;
+
 import net.darkhax.botbase.BotBase;
 import net.darkhax.botbase.commands.CommandAdmin;
+import net.darkhax.botbase.utils.MessageUtils;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
@@ -19,6 +22,12 @@ public class CommandBackup extends CommandAdmin {
 
     @Override
     public void processCommand (BotBase bot, IChannel channel, IMessage message, String[] params) {
+
+        if (!channel.isPrivate()) {
+
+            MessageUtils.sendMessage(channel, "https://media0.giphy.com/media/3ohzdQ1IynzclJldUQ/giphy.gif");
+            return;
+        }
 
         try {
 
@@ -35,7 +44,7 @@ public class CommandBackup extends CommandAdmin {
             zipParams.setEncryptFiles(true);
             zipParams.setEncryptionMethod(Zip4jConstants.ENC_METHOD_AES);
             zipParams.setAesKeyStrength(Zip4jConstants.AES_STRENGTH_256);
-            zipParams.setPassword(new char[] { 'p', 'a', 's', 's', 'w', 'o', 'r', 'd' });
+            zipParams.setPassword(MMDBot.instance.getConfiguration().getEncryptionKey());
             zipFile.createZipFileFromFolder("data", zipParams, false, 0);
             zipFile.addFile(new File("data"), zipParams);
 
@@ -43,8 +52,8 @@ public class CommandBackup extends CommandAdmin {
         }
 
         catch (ZipException | FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+
+            MMDBot.LOG.trace("Could not create backup!", e);
         }
     }
 
