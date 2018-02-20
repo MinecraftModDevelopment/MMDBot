@@ -35,6 +35,7 @@ public class MMDBot extends BotBase {
     public static final File DATA_DIR = new File("data/");
     public static MMDBot instance;
 
+    private final Configuration config;
     private IRole admin;
     private IRole moderator;
     private IRole botAdmin;
@@ -52,9 +53,6 @@ public class MMDBot extends BotBase {
                 DATA_DIR.mkdirs();
             }
 
-            // Initialize config
-            final Configuration config = Configuration.getConfig();
-
             // Restrict the discord4j logger to errors only
             if (Discord4J.LOGGER instanceof ch.qos.logback.classic.Logger) {
 
@@ -62,8 +60,8 @@ public class MMDBot extends BotBase {
                 ((ch.qos.logback.classic.Logger) Discord4J.LOGGER).setLevel(Level.ERROR);
             }
 
-            // Create bot and login
-            instance = new MMDBot("MMDBot", config.getDiscordToken(), config.getCommandKey());
+            // Create bot, config, and login
+            instance = new MMDBot("MMDBot", Configuration.getConfig());
             instance.login();
         }
 
@@ -73,11 +71,12 @@ public class MMDBot extends BotBase {
         }
     }
 
-    public MMDBot (String botName, String auth, String commandKey) {
+    public MMDBot (String botName, Configuration config) {
 
-        super(botName, auth, commandKey, LOG);
+        super(botName, config.getDiscordToken(), config.getCommandKey(), LOG);
         instance = this;
         this.timer = new ScheduledTimer();
+        this.config = config;
     }
 
     @Override
@@ -110,7 +109,7 @@ public class MMDBot extends BotBase {
         handler.registerCommand("curse", new CommandCurse());
         handler.registerCommand("greatmoves", new CommandGreatMoves());
         handler.registerCommand("mod", new CommandMod());
-    
+
     }
 
     @Override
@@ -134,5 +133,10 @@ public class MMDBot extends BotBase {
 
         super.reload();
         this.curseMeta.updateCurseData();
+    }
+
+    public Configuration getConfiguration () {
+
+        return this.config;
     }
 }
