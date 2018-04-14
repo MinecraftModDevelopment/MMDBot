@@ -39,7 +39,7 @@ public class CurseTracker {
         }
         
         this.bot.getClient().changePresence(StatusType.DND, ActivityType.WATCHING, "The Database Update");
-        File indexFile = new File(CURSE_DIR, "index.json");//bot.downloadFile(URL_INDEX, CURSE_DIR, "index.json");
+        File indexFile = bot.downloadFile(URL_INDEX, CURSE_DIR, "index.json");
         File monthlyFile = bot.downloadFile(URL_MONTHLY, CURSE_DIR, "monthly.json");
         
         try(FileReader reader = new FileReader(indexFile)) {
