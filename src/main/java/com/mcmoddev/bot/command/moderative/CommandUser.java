@@ -25,13 +25,13 @@ public class CommandUser extends CommandModerator {
         }
 
         if (user != null) {
-
-            MessageUtils.sendMessage(message.getChannel(), new MessageUser(user, guild).withColor(user.getColorForGuild(channel.getGuild())).build());
+    
+            bot.sendMessage(message.getChannel(), new MessageUser(user, guild, true).withColor(user.getColorForGuild(channel.getGuild())).build());
         }
 
         else {
-
-            MessageUtils.sendMessage(message.getChannel(), this.getDescription());
+    
+            bot.sendMessage(message.getChannel(), this.getDescription());
         }
     }
 

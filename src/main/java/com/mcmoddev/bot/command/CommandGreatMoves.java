@@ -10,8 +10,8 @@ public class CommandGreatMoves implements Command {
 
     @Override
     public void processCommand (BotBase bot, IChannel channel, IMessage message, String[] params) {
-
-        MessageUtils.sendMessage(channel, "Great Moves! Keep it Up! Proud of ya! Papa bless!" + MessageUtils.SEPERATOR + "https://soundcloud.com/aldenchambers/great-moves-keep-it-up");
+    
+        bot.sendMessage(channel, "Great Moves! Keep it Up! Proud of ya! Papa bless!" + MessageUtils.SEPERATOR + "https://soundcloud.com/aldenchambers/great-moves-keep-it-up");
     }
 
     @Override

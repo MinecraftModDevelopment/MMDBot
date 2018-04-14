@@ -16,8 +16,8 @@ public class CommandMe implements Command {
 
         final IUser user = message.getAuthor();
         final IGuild guild = message.getGuild();
-
-        MessageUtils.sendMessage(message.getChannel(), new MessageUser(user, guild).build());
+    
+        bot.sendMessage(message.getChannel(), new MessageUser(user, guild, true).build());
     }
 
     @Override

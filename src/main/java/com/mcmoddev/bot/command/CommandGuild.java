@@ -13,8 +13,8 @@ public class CommandGuild implements Command {
     public void processCommand (BotBase bot, IChannel channel, IMessage message, String[] params) {
 
         if (channel.getGuild() != null) {
-
-            MessageUtils.sendMessage(channel, new MessageGuild(channel.getGuild()).build());
+    
+            bot.sendMessage(channel, new MessageGuild(channel.getGuild()).build());
         }
     }
 

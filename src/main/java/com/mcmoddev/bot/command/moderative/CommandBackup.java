@@ -25,7 +25,7 @@ public class CommandBackup extends CommandAdmin {
 
         if (!channel.isPrivate()) {
 
-            MessageUtils.sendMessage(channel, "https://media0.giphy.com/media/3ohzdQ1IynzclJldUQ/giphy.gif");
+            bot.sendMessage(channel, "https://media0.giphy.com/media/3ohzdQ1IynzclJldUQ/giphy.gif");
             return;
         }
 

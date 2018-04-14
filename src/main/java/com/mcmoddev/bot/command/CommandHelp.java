@@ -23,8 +23,8 @@ public class CommandHelp implements Command {
                 joiner.add(bot.getCommandKey() + " " + s.getKey() + " - " + s.getValue().getDescription());
             }
         }
-
-        MessageUtils.sendPrivateMessage(bot.instance, message.getAuthor(), MessageUtils.makeMultiCodeBlock(joiner.toString()));
+    
+        bot.sendPrivateMessage(message.getAuthor(), MessageUtils.makeMultiCodeBlock(joiner.toString()));
     }
 
     @Override

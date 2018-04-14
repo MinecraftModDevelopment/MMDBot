@@ -18,24 +18,24 @@ public class CommandKill extends CommandAdmin {
         final int time = params.length == 2 && NumberUtils.isCreatable(params[1]) ? new Integer(params[1]) : 10;
 
         if (time > 500) {
-
-            MessageUtils.sendMessage(message.getChannel(), "The max time is 300 seconds! (5 mins)");
+    
+            bot.sendMessage(message.getChannel(), "The max time is 300 seconds! (5 mins)");
             return;
         }
 
         if (time < 0) {
-
-            MessageUtils.sendMessage(message.getChannel(), "Negative times not accepted!");
+    
+            bot.sendMessage(message.getChannel(), "Negative times not accepted!");
             return;
         }
 
         if (time < 1) {
-
-            MessageUtils.sendMessage(message.getChannel(), "At least one second of delay is required!");
+    
+            bot.sendMessage(message.getChannel(), "At least one second of delay is required!");
             return;
         }
-
-        MessageUtils.sendMessage(message.getChannel(), "Oh, I am slain. Killed by %s#%s Death in %d seconds.", message.getAuthor().getName(), message.getAuthor().getDiscriminator(), time);
+    
+        bot.sendFormattedMessage(message.getChannel(), "Oh, I am slain. Killed by %s#%s Death in %d seconds.", message.getAuthor().getName(), message.getAuthor().getDiscriminator(), time);
 
         try {
 

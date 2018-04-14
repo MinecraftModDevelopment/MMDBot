@@ -4,12 +4,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.mcmoddev.bot.cursemeta.CurseMetaTracker;
 import com.mcmoddev.bot.cursemeta.MessageMods;
 
 import net.darkhax.botbase.BotBase;
 import net.darkhax.botbase.commands.Command;
-import net.darkhax.botbase.utils.MessageUtils;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 
@@ -57,12 +55,19 @@ public class CommandCurse implements Command {
 
                 authors.add("lemonszz");
             }
+            else if(param.equalsIgnoreCase("vazkey") || param.equalsIgnoreCase("vazkee") || param.equalsIgnoreCase("vazkoo")){
+                authors.add("vazkii");
+            }
 
             // The name * is treated as all mod devs.
             else if (param.equalsIgnoreCase("*")) {
 
-                authors.addAll(CurseMetaTracker.instance.getAuthors().keySet());
+//                authors.addAll(CurseMetaTracker.instance.getAuthors().keySet());
             }
+//            else if(param.equalsIgnoreCase("jaredlll08")){
+//                MessageUtils.sendMessage(channel, "I think you spelt mcjty wrong");
+//                authors.add("mcjty");
+//            }
 
             // The name has no overrides.
             else {
@@ -70,8 +75,8 @@ public class CommandCurse implements Command {
                 authors.add(param.toLowerCase());
             }
         }
-
-        MessageUtils.sendMessage(channel, new MessageMods(10, authors.toArray(new String[0])).build());
+    
+        bot.sendMessage(channel, new MessageMods(10, authors.toArray(new String[0])).build());
     }
 
     @Override

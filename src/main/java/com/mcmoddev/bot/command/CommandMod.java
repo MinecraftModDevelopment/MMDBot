@@ -1,13 +1,15 @@
 package com.mcmoddev.bot.command;
 
-import com.mcmoddev.bot.cursemeta.CurseMetaTracker;
+import com.mcmoddev.bot.curse.CurseTracker;
+import com.mcmoddev.bot.curse.json.Mod;
 import com.mcmoddev.bot.cursemeta.MessageMod;
 
 import net.darkhax.botbase.BotBase;
 import net.darkhax.botbase.commands.Command;
-import net.darkhax.botbase.utils.MessageUtils;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
+
+import java.util.stream.Collectors;
 
 public class CommandMod implements Command {
 
@@ -24,13 +26,13 @@ public class CommandMod implements Command {
             }
         }
         if (wildcard) {
-            mods = new String[CurseMetaTracker.instance.getMods().keySet().size()];
+            mods = new String[CurseTracker.instance.getMods().stream().filter(mod -> mod.getPackageType().equalsIgnoreCase("mod")).collect(Collectors.toList()).size()];
             int counter = 0;
-            for (final Long aLong : CurseMetaTracker.instance.getMods().keySet()) {
-                mods[counter++] = aLong.toString();
+            for (final Mod mod: CurseTracker.instance.getMods().stream().filter(mod -> mod.getPackageType().equalsIgnoreCase("mod")).collect(Collectors.toList())) {
+                mods[counter++] = mod.getName();
             }
         }
-        MessageUtils.sendMessage(channel, new MessageMod(10, mods).build());
+        bot.sendMessage(channel, new MessageMod(10, mods).build());
     }
 
     @Override

@@ -51,7 +51,8 @@ public class CommandOldChannels extends CommandAdmin {
         embed.setLenient(true);
         embed.withColor((int) (Math.random() * 0x1000000));
         embed.withDesc(DataUtilities.mapToString(DataUtilities.sortByValue(channels, true)));
-        MessageUtils.sendMessage(message.getChannel(), "The following channels have not been used in " + minDaysOfInactivity + " days.", embed.build());
+        bot.sendMessage(message.getChannel(), "The following channels have not been used in " + minDaysOfInactivity + " days.");
+        bot.sendMessage(message.getChannel(), embed.build());
     }
 
     @Override

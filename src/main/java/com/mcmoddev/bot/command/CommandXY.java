@@ -20,7 +20,7 @@ public class CommandXY implements Command {
         embed.withDesc(body);
         embed.withColor((int) (Math.random() * 0x1000000));
         embed.withTitle("The XY Problem, what is it?");
-        MessageUtils.sendMessage(message.getChannel(), embed.build());
+        bot.sendMessage(message.getChannel(), embed.build());
     }
 
     @Override

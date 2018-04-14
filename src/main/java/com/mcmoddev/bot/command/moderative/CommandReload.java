@@ -13,7 +13,7 @@ public class CommandReload extends CommandModerator {
 
         final long start = System.currentTimeMillis();
         bot.reload();
-        MessageUtils.sendMessage(channel, "I am reloaded! Took " + (System.currentTimeMillis() - start) + "ms.");
+        bot.sendMessage(channel, "I am reloaded! Took " + (System.currentTimeMillis() - start) + "ms.");
     }
 
     @Override
