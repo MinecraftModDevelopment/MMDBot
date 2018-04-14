@@ -2,7 +2,7 @@ package com.mcmoddev.bot.command;
 
 import com.mcmoddev.bot.curse.CurseTracker;
 import com.mcmoddev.bot.curse.json.Mod;
-import com.mcmoddev.bot.cursemeta.MessageMod;
+import com.mcmoddev.bot.curse.MessageMod;
 
 import net.darkhax.botbase.BotBase;
 import net.darkhax.botbase.commands.Command;

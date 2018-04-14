@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.mcmoddev.bot.cursemeta.MessageMods;
+import com.mcmoddev.bot.curse.MessageMods;
 
 import net.darkhax.botbase.BotBase;
 import net.darkhax.botbase.commands.Command;
