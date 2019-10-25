@@ -4,6 +4,9 @@
 /cursefiles/
 /logs/
 /downloads/
+/config/
+/data/
+/backups/
 
 #Hidden Directories
 .gradle/
@@ -30,4 +33,10 @@ Thumbs.db
 OCR.png
 qr.png
 diction.txt
-config.json
+data/
+
+#BotStuff
+mmdbot_config.json
+#Just in case anyone else has this still.
+config.json 
+bot_logs/*

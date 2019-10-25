@@ -1,65 +1,74 @@
 package com.mcmoddev.bot;
 
+import com.jagrosh.jdautilities.command.CommandClient;
+import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import com.mcmoddev.bot.commands.locked.info.CmdGuild;
+import com.mcmoddev.bot.commands.locked.info.CmdRoles;
+import com.mcmoddev.bot.commands.locked.info.CmdUser;
+import com.mcmoddev.bot.commands.unlocked.CmdJustAsk;
+import com.mcmoddev.bot.commands.unlocked.CmdPaste;
+import com.mcmoddev.bot.commands.unlocked.CmdXy;
+import com.mcmoddev.bot.commands.unlocked.search.CmdBing;
+import com.mcmoddev.bot.commands.unlocked.search.CmdDuckDuckGo;
+import com.mcmoddev.bot.commands.unlocked.search.CmdGoogle;
+import com.mcmoddev.bot.commands.unlocked.search.CmdLmgtfy;
+import com.mcmoddev.bot.events.MiscEvents;
+import com.mcmoddev.bot.events.users.EventNicknameChanged;
+import com.mcmoddev.bot.events.users.EventRoleAdded;
+import com.mcmoddev.bot.events.users.EventRoleRemoved;
+import com.mcmoddev.bot.events.users.EventUserJoined;
+import com.mcmoddev.bot.events.users.EventUserLeft;
+import com.mcmoddev.bot.misc.BotConfig;
+import net.dv8tion.jda.api.AccountType;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mcmoddev.bot.handlers.CommandHandler;
-import com.mcmoddev.bot.handlers.LoggingHandler;
-import com.mcmoddev.bot.handlers.ScheduleHandler;
-import com.mcmoddev.bot.handlers.ServerEventHandler;
-import com.mcmoddev.bot.handlers.StateHandler;
-import com.mcmoddev.bot.logging.PrintStreamTraced;
-import com.mcmoddev.bot.util.Utilities;
-
-import ch.qos.logback.classic.Level;
-import sx.blah.discord.Discord4J;
-import sx.blah.discord.api.ClientBuilder;
-import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.RateLimitException;
+import javax.security.auth.login.LoginException;
 
 public class MMDBot {
 
-    private static final LoggingHandler LOGGING = new LoggingHandler();
+    private static final String NAME = "MMDBot";
+    private static final String VERSION = "3.0";
+    private static final String ISSUE_TRACKER = "https://github.com/minecraftmoddevelopment/MMDBot/issues/";
+    public static final Logger LOGGER = LoggerFactory.getLogger(NAME);
 
-    public static final Logger LOG = LoggerFactory.getLogger("MMDBot");
-
-    public static final LaunchConfig config = LaunchConfig.updateConfig();
-
-    public static final StateHandler state = new StateHandler();
-
-    private static final CommandHandler commands = new CommandHandler();
-
-    private static final ServerEventHandler auditor = new ServerEventHandler();
-
-    private static final ScheduleHandler schedule = new ScheduleHandler();
-
-    public static IDiscordClient instance;
-
-    public static void main (String... args) throws RateLimitException {
-
-        LOG.info("Wrapping standard output and error streams with tracer!");
-        System.setOut(new PrintStreamTraced(System.out));
-        System.setErr(new PrintStreamTraced(System.err));
-
-        LOG.info("Shutting Discord4J's Yap");
-        LoggingHandler.setLoggerLevel((ch.qos.logback.classic.Logger) Discord4J.LOGGER, Level.OFF);
-
-        LOG.info("Starting bot with token " + Utilities.partiallyReplace(config.authToken, 4));
-
+    public static void main(String[] args) {
         try {
+            JDABuilder botBuilder = new JDABuilder(AccountType.BOT).setToken(BotConfig.getConfig().getBotToken());
 
-            instance = new ClientBuilder().withToken(config.authToken).login();
-            instance.getDispatcher().registerListener(state);
-            instance.getDispatcher().registerListener(commands);
-            instance.getDispatcher().registerListener(auditor);
-        }
+            botBuilder.addEventListeners(new EventUserJoined());
+            botBuilder.addEventListeners(new EventUserLeft());
+            botBuilder.addEventListeners(new EventNicknameChanged());
+            botBuilder.addEventListeners(new EventRoleAdded());
+            botBuilder.addEventListeners(new EventRoleRemoved());
+            botBuilder.addEventListeners(new MiscEvents());
+            botBuilder.setActivity(Activity.watching(BotConfig.getConfig().getBotTextStatus()));
 
-        catch (final DiscordException e) {
+            CommandClientBuilder commandBuilder = new CommandClientBuilder();
 
-            LOG.trace("Error during startup", e);
-            instance.logout();
-            System.exit(0);
+            commandBuilder.setOwnerId("141990014346199040");
+            commandBuilder.setPrefix(BotConfig.getConfig().getPrefix());
+            commandBuilder.addCommand(new CmdGuild());
+            commandBuilder.addCommand(new CmdUser());
+            commandBuilder.addCommand(new CmdRoles());
+            commandBuilder.addCommand(new CmdJustAsk());
+            commandBuilder.addCommand(new CmdPaste());
+            commandBuilder.addCommand(new CmdXy());
+            commandBuilder.addCommand(new CmdBing());
+            commandBuilder.addCommand(new CmdDuckDuckGo());
+            commandBuilder.addCommand(new CmdGoogle());
+            commandBuilder.addCommand(new CmdLmgtfy());
+            commandBuilder.setHelpWord("help");
+
+            CommandClient commandListener = commandBuilder.build();
+            botBuilder.addEventListeners(commandListener);
+            botBuilder.build();
+
+        } catch (LoginException exception) {
+            LOGGER.error("Error logging in the bot! Please give the bot a token in the config file.", exception);
+            System.exit(1);
         }
     }
 }

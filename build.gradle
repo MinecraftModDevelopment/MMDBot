@@ -1,68 +1,26 @@
-buildscript {
-
-    repositories {
-
-        jcenter()
-    }
-
-    dependencies {
-
-        classpath 'com.github.rodionmoiseev.gradle.plugins:idea-utils:0.2'
-    }
+plugins {
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '4.0.4'
 }
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'idea-utils'
-apply plugin: 'maven'
+mainClassName = 'com.mcmoddev.bot.MMDBot'
+group 'com.mcmoddev'
+version '3.0'
 
-group 'MMDBot'
+sourceCompatibility = targetCompatibility = 1.8
 
 repositories {
-
     jcenter()
-    
-    maven { 
-    
-        url 'http://maven.epoxide.xyz' 
-    }
-    
     maven {
-    
-        url 'https://jitpack.io'
+        url "https://jitpack.io"
     }
 }
 
 dependencies {
-
-    compile 'com.github.austinv11:Discord4j:2.9.2'
-    compile 'com.google.guava:guava:19.0'
+    compile 'com.jagrosh:jda-utilities:3.0.1'
+    compile 'net.dv8tion:JDA:4.BETA.0_29'
     compile 'com.google.code.gson:gson:2.2.4'
-    compile 'org.jsoup:jsoup:1.8.3'
     compile 'ch.qos.logback:logback-classic:1.2.3'
 }
 
-task fatJar(type: Jar) {
-	manifest {
-        attributes 'Implementation-Title': 'MMDBot', 'Implementation-Version': '1.0.0', 'Main-Class': 'com.mcmoddev.bot.MMDBot'
-    }
-    baseName = project.name + '-all'
-
-        from {
-        configurations.compile.collect {
-            it.isDirectory() ? it : zipTree(it).matching {
-                exclude 'META-INF/**.RSA'
-                exclude 'META-INF/MANIFEST.MF'
-                exclude 'META-INF/log4j-provider.properties'
-            } } }
-    with jar
-}
-
-jar {
-  manifest {
-    attributes(
-      'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-      'Main-Class': 'com.mcmoddev.bot.MMDBot'
-    )
-  }
-}
+compileJava.options.encoding = 'UTF-8'
