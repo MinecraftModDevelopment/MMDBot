@@ -12,13 +12,13 @@ sourceCompatibility = targetCompatibility = 1.8
 repositories {
     jcenter()
     maven {
-        url "https://jitpack.io"
+        url 'https://jitpack.io'
     }
 }
 
 dependencies {
-    compile 'com.jagrosh:jda-utilities:3.0.1'
-    compile 'net.dv8tion:JDA:4.BETA.0_29'
+    compile 'com.jagrosh:jda-utilities:3.0.2'
+    compile 'net.dv8tion:JDA:4.0.0_59'
     compile 'com.google.code.gson:gson:2.2.4'
     compile 'ch.qos.logback:logback-classic:1.2.3'
 }
