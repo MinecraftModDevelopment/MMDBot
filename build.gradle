@@ -1,13 +1,18 @@
 plugins {
     id 'application'
     id 'com.github.johnrengelman.shadow' version '4.0.4'
+    id 'eclipse'
+    id 'idea'
+    id 'com.github.spotbugs' version '1.6.9' // 4.0 or later
+    id 'checkstyle' // 2.7 or later
+    id 'pmd'
 }
 
 mainClassName = 'com.mcmoddev.bot.MMDBot'
 group 'com.mcmoddev'
 version '3.0'
 
-sourceCompatibility = targetCompatibility = 1.8
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     jcenter()
@@ -24,3 +29,79 @@ dependencies {
 }
 
 compileJava.options.encoding = 'UTF-8'
+
+eclipse.project {
+  buildCommand 'org.eclipse.buildship.core.gradleprojectbuilder'
+  natures 'org.eclipse.buildship.core.gradleprojectnature'
+}
+
+idea.module {
+  downloadJavadoc = true
+  //inheritOutputDirs = true
+}
+
+javadoc {
+  failOnError = false
+}
+
+spotbugs {
+  ignoreFailures = true
+  toolVersion = '3.1.6'
+  effort = 'max'
+  reportLevel = 'low'
+  //includeFilter = file("$rootProject.projectDir/config/spotbugs-filter.xml")
+}
+
+tasks.withType(com.github.spotbugs.SpotBugsTask) {
+  reports {
+    xml.enabled = false
+    html.enabled = true
+  }
+}
+
+checkstyle {
+  ignoreFailures = true
+  toolVersion = '8.20' // 5.7 is default
+  showViolations = false
+}
+
+pmd {
+  consoleOutput = false
+  ignoreFailures = true
+  sourceSets = [sourceSets.main]
+  reportsDir = file("$project.buildDir/reports/pmd")
+  rulePriority = 5
+  ruleSets = [
+    'java-android',
+    'java-basic',
+    'java-braces',
+    'java-clone',
+    'java-codesize',
+    'java-comments',
+    'java-controversial',
+    'java-coupling',
+    'java-design',
+    'java-empty',
+    'java-finalizers',
+    'java-imports',
+    'java-j2ee',
+    'java-javabeans',
+    'java-junit',
+    'java-logging-jakarta-commons',
+    'java-logging-java',
+//    'java-metrics', // Upsets 5.8.1
+    'java-migrating',
+    'java-migrating_to_junit4',
+    'java-naming',
+    'java-optimizations',
+//    'java-quickstart', // 6.x
+    'java-strictexception',
+    'java-strings',
+    'java-sunsecure',
+    'java-typeresolution',
+    'java-unnecessary',
+    'java-unusedcode'
+  ]
+  toolVersion = '5.8.1'; // 6.19.0
+//  incrementalAnalysis = true // Requires PMD 6.0.0 or newer
+}

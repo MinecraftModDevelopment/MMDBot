@@ -1,42 +1,53 @@
 package com.mcmoddev.bot.events.users;
 
-import com.mcmoddev.bot.misc.BotConfig;
+import com.mcmoddev.bot.MMDBot;
 import com.mcmoddev.bot.misc.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import java.awt.*;
+import java.awt.Color;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventRoleRemoved extends ListenerAdapter {
+/**
+ *
+ */
+public final class EventRoleRemoved extends ListenerAdapter {
 
+	/**
+	 *
+	 */
     @Override
-    public void onGuildMemberRoleRemove(GuildMemberRoleRemoveEvent event) {
-        EmbedBuilder embed = new EmbedBuilder();
-        Long guildId = event.getGuild().getIdLong();
-        TextChannel channel = event.getGuild().getTextChannelById(BotConfig.getConfig().getChannelIDImportantEvents());
+    public void onGuildMemberRoleRemove(final GuildMemberRoleRemoveEvent event) {
+    	final User user = event.getUser();
+    	final EmbedBuilder embed = new EmbedBuilder();
+        final Guild guild = event.getGuild();
+        final Long guildId = guild.getIdLong();
+        final TextChannel channel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDImportantEvents());
 
         Utils.sleepTimer();
 
         //TODO Somehow get the info from the audit log about who edited the role so we can ger the name and ID.
-        //AuditLogEntry entry = event.getGuild().getAuditLogs(ActionType.MEMBER_ROLE_UPDATE).getEntriesByTarget(event.getUser().getIdLong()).stream().sorted(Comparator.comparing(AuditLogEntry::getIdLong).reversed()).findFirst().orElse(null);
+        //AuditLogEntry entry = event.getGuild().getAuditLogs(ActionType.MEMBER_ROLE_UPDATE).getEntriesByTarget(user.getIdLong()).stream().sorted(Comparator.comparing(AuditLogEntry::getIdLong).reversed()).findFirst().orElse(null);
         //String rolesEditedBy = entry.getResponsibleUser().getName() + "#" + entry.getResponsibleUser().getDiscriminator();
         //String editorID = entry.getResponsibleUser().getStringID();
 
-        List<Role> previousRoles = new ArrayList<>(event.getMember().getRoles());
-        List<Role> removedRoles = new ArrayList<>(event.getRoles());
+        // TODO Reenable when done.
+        //final List<Role> previousRoles = new ArrayList<>(event.getMember().getRoles());
+        final List<Role> removedRoles = new ArrayList<>(event.getRoles());
 
-        if (BotConfig.getConfig().getGuildID().equals(guildId)) {
+        if (MMDBot.getConfig().getGuildID().equals(guildId)) {
             embed.setColor(Color.YELLOW);
             embed.setTitle("User Role Removed");
-            embed.setThumbnail(event.getUser().getEffectiveAvatarUrl());
-            embed.addField("User:", event.getUser().getAsTag(), true);
-            embed.addField("User ID:", event.getUser().getId(), true);
+            embed.setThumbnail(user.getEffectiveAvatarUrl());
+            embed.addField("User:", user.getAsTag(), true);
+            embed.addField("User ID:", user.getId(), true);
 
             embed.addField("Edited By:", "Not Yet Provided/Setup", true);
             embed.addField("Editor ID:", "Not Yet Provided/Setup", true);
