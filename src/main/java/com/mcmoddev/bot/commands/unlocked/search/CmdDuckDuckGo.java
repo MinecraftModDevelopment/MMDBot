@@ -18,7 +18,7 @@ public final class CmdDuckDuckGo extends Command {
     public CmdDuckDuckGo() {
         super();
         name = "duckduckgo";
-        aliases = new String[]{"ddg"};
+        aliases = new String[]{"ddg", "duck"};
         help = "Search for something with a bit more privacy using Duck Duck Go";
     }
 
