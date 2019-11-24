@@ -30,7 +30,7 @@ public final class CmdLmgtfy extends Command {
         final TextChannel channel = event.getTextChannel();
         final String searchTerm = event.getMessage().getContentRaw().toLowerCase(Locale.ENGLISH)
         		.replace(MMDBot.getConfig().getPrefix() + "lmgtfy", "");
-        final String searchQuery = "<http://lmgtfy.com/?q=" + searchTerm.replace(" ", "+") + ">";
+        final String searchQuery = "<https://lmgtfy.com/?q=" + searchTerm.replace(" ", "+") + ">";
 
         channel.sendMessage(searchQuery).queue();
     }
