@@ -1,6 +1,5 @@
 package com.mcmoddev.bot.misc;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -8,33 +7,63 @@ import java.time.temporal.ChronoUnit;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 
-public class Utils {
+import com.mcmoddev.bot.MMDBot;
 
-    public static final SimpleDateFormat DATE = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+/**
+*
+*/
+public final class Utils {
 
+	/**
+	 *
+	 */
+	private Utils() {
+		// Shut up Sonarqube warns
+	}
+
+	/**
+	 *
+	 */
     public static void sleepTimer() {
         //Sleep for a moment to let Discord fill the audit log with the required information.
         //Helps avoid npe's with some events like getting the ban reason of a user from time to time.
         try {
             TimeUnit.SECONDS.sleep(2);
-        } catch (InterruptedException exception) {
+        } catch (final InterruptedException exception) {
+            MMDBot.LOGGER.trace("InterruptedException", exception);
         }
     }
 
     //Borrowed from Darkhax's BotBase, all credit for the below methods go to him (Should be replaced or used from the lib itself in future updates)
-    public static LocalDateTime getLocalTime(Instant instant) {
+    /**
+     *
+     */
+    public static LocalDateTime getLocalTime(final Instant instant) {
         return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
     }
 
-    public static String getTimeDifference(LocalDateTime from, LocalDateTime to) {
-        return getTimeDifference(from, to, ChronoUnit.YEARS, ChronoUnit.MONTHS, ChronoUnit.DAYS);
+    /**
+     *
+     * @param fromTime
+     * @param toTime
+     * @return
+     */
+    public static String getTimeDifference(final LocalDateTime fromTime, final LocalDateTime toTime) {
+        return getTimeDifference(fromTime, toTime, ChronoUnit.YEARS, ChronoUnit.MONTHS, ChronoUnit.DAYS);
     }
 
-    public static String getTimeDifference(LocalDateTime from, LocalDateTime to, ChronoUnit... units) {
+    /**
+     *
+     * @param from
+     * @param to
+     * @param units
+     * @return
+     */
+    public static String getTimeDifference(final LocalDateTime fromTime, final LocalDateTime toTime, final ChronoUnit... units) {
         final StringJoiner joiner = new StringJoiner(", ");
-        LocalDateTime temp = LocalDateTime.from(from);
+        LocalDateTime temp = LocalDateTime.from(fromTime);
         for (final ChronoUnit unit : units) {
-            final long time = temp.until(to, unit);
+            final long time = temp.until(toTime, unit);
             if (time > 0) {
                 temp = temp.plus(time, unit);
                 final String unitName = unit.toString();
@@ -45,7 +74,13 @@ public class Utils {
         return joiner.toString();
     }
 
-    public static String makeHyperlink(String text, String url) {
+    /**
+     *
+     * @param text
+     * @param url
+     * @return
+     */
+    public static String makeHyperlink(final String text, final String url) {
         return String.format("[%s](%s)", text, url);
     }
 }

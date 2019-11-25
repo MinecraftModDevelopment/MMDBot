@@ -1,23 +1,13 @@
 package com.mcmoddev.bot;
 
+import com.google.gson.Gson;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
-import com.mcmoddev.bot.commands.locked.info.CmdGuild;
-import com.mcmoddev.bot.commands.locked.info.CmdRoles;
-import com.mcmoddev.bot.commands.locked.info.CmdUser;
-import com.mcmoddev.bot.commands.unlocked.CmdJustAsk;
-import com.mcmoddev.bot.commands.unlocked.CmdPaste;
-import com.mcmoddev.bot.commands.unlocked.CmdXy;
-import com.mcmoddev.bot.commands.unlocked.search.CmdBing;
-import com.mcmoddev.bot.commands.unlocked.search.CmdDuckDuckGo;
-import com.mcmoddev.bot.commands.unlocked.search.CmdGoogle;
-import com.mcmoddev.bot.commands.unlocked.search.CmdLmgtfy;
+import com.mcmoddev.bot.commands.locked.info.*;
+import com.mcmoddev.bot.commands.unlocked.*;
+import com.mcmoddev.bot.commands.unlocked.search.*;
 import com.mcmoddev.bot.events.MiscEvents;
-import com.mcmoddev.bot.events.users.EventNicknameChanged;
-import com.mcmoddev.bot.events.users.EventRoleAdded;
-import com.mcmoddev.bot.events.users.EventRoleRemoved;
-import com.mcmoddev.bot.events.users.EventUserJoined;
-import com.mcmoddev.bot.events.users.EventUserLeft;
+import com.mcmoddev.bot.events.users.*;
 import com.mcmoddev.bot.misc.BotConfig;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDABuilder;
@@ -25,18 +15,89 @@ import net.dv8tion.jda.api.entities.Activity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+
 import javax.security.auth.login.LoginException;
 
-public class MMDBot {
+/**
+ *
+ */
+public final class MMDBot {
 
-    private static final String NAME = "MMDBot";
-    private static final String VERSION = "3.0";
-    private static final String ISSUE_TRACKER = "https://github.com/minecraftmoddevelopment/MMDBot/issues/";
+
+	/**
+	 *
+	 */
+    public static final String NAME = "MMDBot";
+
+    /**
+     *
+     */
+    public static final String VERSION = "3.0";
+
+    /**
+     *
+     */
+    public static final String ISSUE_TRACKER = "https://github.com/MinecraftModDevelopment/MMDBot/issues/";
+
+    /**
+     *
+     */
     public static final Logger LOGGER = LoggerFactory.getLogger(NAME);
 
-    public static void main(String[] args) {
+    /**
+     *
+     */
+    private static BotConfig config; // = new BotConfig("mmdbot_config.json");
+
+    /**
+     *
+     * @return The Bots configuration.
+     */
+    public static BotConfig getConfig() {
+    	return config;
+    }
+
+    /**
+	 *
+	 */
+	private MMDBot() {
+	}
+
+	/**
+     *
+     * @param args Arguments provided to the program.
+     */
+    public static void main(final String[] args) {
+	    final File configFile = new File("mmdbot_config.json");
+        if (configFile.exists()) {
+            try (InputStreamReader reader = new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8)) {
+                config = new Gson().fromJson(reader, BotConfig.class);
+            } catch (final IOException exception) {
+                MMDBot.LOGGER.trace("Failed to read config...", exception);
+            }
+        } else {
+        	try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(configFile), StandardCharsets.UTF_8)) {
+                new Gson().toJson(new BotConfig(), writer);
+            } catch (final FileNotFoundException exception) {
+                MMDBot.LOGGER.error("An FileNotFound occurred...", exception);
+            } catch (final IOException exception) {
+                MMDBot.LOGGER.error("An IOException occurred...", exception);
+            }
+            MMDBot.LOGGER.error("New Config generated please edit and add a bot token to the config and start the bot.");
+            System.exit(0);
+//          throw new RuntimeException(null, null);
+        }
+
         try {
-            JDABuilder botBuilder = new JDABuilder(AccountType.BOT).setToken(BotConfig.getConfig().getBotToken());
+            final JDABuilder botBuilder = new JDABuilder(AccountType.BOT).setToken(config.getBotToken());
 
             botBuilder.addEventListeners(new EventUserJoined());
             botBuilder.addEventListeners(new EventUserLeft());
@@ -44,12 +105,12 @@ public class MMDBot {
             botBuilder.addEventListeners(new EventRoleAdded());
             botBuilder.addEventListeners(new EventRoleRemoved());
             botBuilder.addEventListeners(new MiscEvents());
-            botBuilder.setActivity(Activity.watching(BotConfig.getConfig().getBotTextStatus()));
+            botBuilder.setActivity(Activity.watching(config.getBotTextStatus()));
 
-            CommandClientBuilder commandBuilder = new CommandClientBuilder();
+            final CommandClientBuilder commandBuilder = new CommandClientBuilder();
 
-            commandBuilder.setOwnerId("141990014346199040");
-            commandBuilder.setPrefix(BotConfig.getConfig().getPrefix());
+            commandBuilder.setOwnerId(MMDBot.getConfig().getOwnerID());
+            commandBuilder.setPrefix(MMDBot.getConfig().getPrefix());
             commandBuilder.addCommand(new CmdGuild());
             commandBuilder.addCommand(new CmdUser());
             commandBuilder.addCommand(new CmdRoles());
@@ -62,13 +123,14 @@ public class MMDBot {
             commandBuilder.addCommand(new CmdLmgtfy());
             commandBuilder.setHelpWord("help");
 
-            CommandClient commandListener = commandBuilder.build();
+            final CommandClient commandListener = commandBuilder.build();
             botBuilder.addEventListeners(commandListener);
             botBuilder.build();
 
-        } catch (LoginException exception) {
-            LOGGER.error("Error logging in the bot! Please give the bot a token in the config file.", exception);
+        } catch (final LoginException exception) {
+            LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.", exception);
             System.exit(1);
+            //throw new RuntimeException(null, null);
         }
     }
 }
