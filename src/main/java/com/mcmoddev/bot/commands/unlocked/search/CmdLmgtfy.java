@@ -18,7 +18,6 @@ public final class CmdLmgtfy extends Command {
     public CmdLmgtfy() {
         super();
         name = "lmgtfy";
-        aliases = new String[0];
         help = "Assist someone of the restful variety in searching for something.";
     }
 

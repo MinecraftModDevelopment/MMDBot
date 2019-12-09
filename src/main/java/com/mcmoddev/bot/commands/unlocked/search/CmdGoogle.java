@@ -18,7 +18,6 @@ public final class CmdGoogle extends Command {
     public CmdGoogle() {
         super();
         name = "google";
-        aliases = new String[0];
         help = "Google something rather than load a browser manually then Google it.";
     }
 

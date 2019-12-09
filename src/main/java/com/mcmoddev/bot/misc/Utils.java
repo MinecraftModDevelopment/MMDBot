@@ -34,7 +34,7 @@ public final class Utils {
         }
     }
 
-    //Borrowed from Darkhax's BotBase, all credit for the below methods go to him (Should be replaced or used from the lib itself in future updates)
+    //Borrowed from Darkhax's BotBase, all credit for the below methods go to him.
     /**
      *
      */
