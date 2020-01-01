@@ -121,6 +121,7 @@ public final class MMDBot {
             commandBuilder.addCommand(new CmdDuckDuckGo());
             commandBuilder.addCommand(new CmdGoogle());
             commandBuilder.addCommand(new CmdLmgtfy());
+            commandBuilder.addCommand(new CmdEventsHelp());
             commandBuilder.setHelpWord("help");
 
             final CommandClient commandListener = commandBuilder.build();
