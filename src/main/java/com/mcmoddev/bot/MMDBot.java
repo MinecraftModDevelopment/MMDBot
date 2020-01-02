@@ -3,9 +3,14 @@ package com.mcmoddev.bot;
 import com.google.gson.Gson;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
-import com.mcmoddev.bot.commands.locked.info.*;
+import com.mcmoddev.bot.commands.locked.info.CmdGuild;
+import com.mcmoddev.bot.commands.locked.info.CmdRoles;
+import com.mcmoddev.bot.commands.locked.info.CmdUser;
 import com.mcmoddev.bot.commands.unlocked.*;
-import com.mcmoddev.bot.commands.unlocked.search.*;
+import com.mcmoddev.bot.commands.unlocked.search.CmdBing;
+import com.mcmoddev.bot.commands.unlocked.search.CmdDuckDuckGo;
+import com.mcmoddev.bot.commands.unlocked.search.CmdGoogle;
+import com.mcmoddev.bot.commands.unlocked.search.CmdLmgtfy;
 import com.mcmoddev.bot.events.MiscEvents;
 import com.mcmoddev.bot.events.users.*;
 import com.mcmoddev.bot.misc.BotConfig;
@@ -15,16 +20,9 @@ import net.dv8tion.jda.api.entities.Activity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-
 import javax.security.auth.login.LoginException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 /**
  *
@@ -117,6 +115,7 @@ public final class MMDBot {
             commandBuilder.addCommand(new CmdJustAsk());
             commandBuilder.addCommand(new CmdPaste());
             commandBuilder.addCommand(new CmdXy());
+            commandBuilder.addCommand(new CmdReadme());
             commandBuilder.addCommand(new CmdBing());
             commandBuilder.addCommand(new CmdDuckDuckGo());
             commandBuilder.addCommand(new CmdGoogle());
