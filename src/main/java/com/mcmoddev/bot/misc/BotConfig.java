@@ -131,6 +131,11 @@ public final class BotConfig {
     private Long[] emoteIDsGood = new Long[] { 0L };
 
     /**
+     *
+     */
+    private double badReactionThreshold;
+
+    /**
 	 *
 	 */
 	public BotConfig() {
@@ -337,4 +342,11 @@ public final class BotConfig {
         return emoteIDsGood;
     }
 
+    /**
+     *
+     * @return
+     */
+    public double getBadReactionThreshold() {
+        return badReactionThreshold;
+    }
 }

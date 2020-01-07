@@ -44,7 +44,7 @@ public final class EventReactionAdded extends ListenerAdapter {
             final int goodReactions = Utils.getNumberOfMatchingReactions(message, Utils::isReactionGood);
             final int needsImprovementReactions = Utils.getNumberOfMatchingReactions(message, Utils::isReactionNeedsImprovement);
 
-            if ((badReactions + needsImprovementReactions * 0.5) - goodReactions > 10) {
+            if ((badReactions + needsImprovementReactions * 0.5) - goodReactions >= MMDBot.getConfig().getBadReactionThreshold()) {
                 channel.deleteMessageById(event.getMessageId()).reason(String.format(
                         "Bad request: %d bad reactions, %d needs improvement reactions, %d good reactions",
                         badReactions, needsImprovementReactions, goodReactions)
