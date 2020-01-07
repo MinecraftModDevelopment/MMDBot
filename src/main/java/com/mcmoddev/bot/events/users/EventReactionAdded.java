@@ -4,10 +4,7 @@ import com.mcmoddev.bot.MMDBot;
 import com.mcmoddev.bot.misc.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -15,6 +12,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
  *
  */
 public final class EventReactionAdded extends ListenerAdapter {
+
+    private MessageHistory history = null;
 
     /**
      *
@@ -27,7 +26,16 @@ public final class EventReactionAdded extends ListenerAdapter {
         final Long guildId = guild.getIdLong();
         final TextChannel channel = event.getTextChannel();
         final TextChannel discussionChannel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDRequestsDiscussion());
-        final Message message = channel.getHistory().getMessageById(event.getMessageId());
+
+        if (history == null) {
+            history = channel.getHistory();
+            history.retrievePast(50).complete();
+            Utils.sleepTimer();
+        }
+        // This may cause memory issues if the bot is left on too long :/
+        history.retrieveFuture(25).complete();
+
+        final Message message = history.getMessageById(event.getMessageId());
         if (message == null) return;
         final User messageAuthor = message.getAuthor();
 
@@ -46,12 +54,12 @@ public final class EventReactionAdded extends ListenerAdapter {
                 responseBuilder.append(messageAuthor.getAsMention());
                 responseBuilder.append(", ");
                 responseBuilder.append("your request has been found to be low quality by community review and has been removed.\n" +
-                        "Please see other requests for how to do it correctly.");
-                responseBuilder.appendFormat("It received %d 'bad' reactions, %d 'needs improvement' reactions, and %d 'good' reactions",
+                        "Please see other requests for how to do it correctly.\n");
+                responseBuilder.appendFormat("It received %d 'bad' reactions, %d 'needs improvement' reactions, and %d 'good' reactions.",
                         badReactions, needsImprovementReactions, goodReactions);
 
                 if (discussionChannel == null) return;
-                discussionChannel.sendMessage(responseBuilder.build());
+                discussionChannel.sendMessage(responseBuilder.build()).complete();
             }
         }
     }
