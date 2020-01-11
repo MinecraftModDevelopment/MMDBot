@@ -33,6 +33,10 @@ public final class EventReactionAdded extends ListenerAdapter {
             final int needsImprovementReactions = Utils.getNumberOfMatchingReactions(message, Utils::isReactionNeedsImprovement);
 
             if ((badReactions + needsImprovementReactions * 0.5) - goodReactions >= MMDBot.getConfig().getBadReactionThreshold()) {
+                final TextChannel logChannel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDDeletedMessages());
+                if (logChannel != null) {
+                    logChannel.sendMessage(String.format("Auto-deleted request from %s: %s", messageAuthor.getId(), message.getContentRaw())).queue();
+                }
                 channel.deleteMessageById(event.getMessageId()).reason(String.format(
                         "Bad request: %d bad reactions, %d needs improvement reactions, %d good reactions",
                         badReactions, needsImprovementReactions, goodReactions)
