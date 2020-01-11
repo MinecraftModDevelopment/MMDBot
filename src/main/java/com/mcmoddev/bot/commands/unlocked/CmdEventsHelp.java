@@ -17,7 +17,7 @@ public final class CmdEventsHelp extends Command {
 	 *
 	 */
     private static final String IMAGE_URL =
-            "https://media.discordapp.net/attachments/179315645005955072/540214876929261590/why-doesnt-my-event-handler-work.gif";
+            "https://cdn.discordapp.com/attachments/665281306426474506/665605979798372392/eventhandler.png";
 
     /**
      *
