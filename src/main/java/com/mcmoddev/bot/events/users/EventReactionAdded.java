@@ -2,7 +2,6 @@ package com.mcmoddev.bot.events.users;
 
 import com.mcmoddev.bot.MMDBot;
 import com.mcmoddev.bot.misc.Utils;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -13,28 +12,17 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
  */
 public final class EventReactionAdded extends ListenerAdapter {
 
-    private MessageHistory history = null;
-
     /**
      *
      */
     @Override
     public void onMessageReactionAdd(final MessageReactionAddEvent event) {
-        final User user = event.getUser();
-        final EmbedBuilder embed = new EmbedBuilder();
         final Guild guild = event.getGuild();
         final Long guildId = guild.getIdLong();
         final TextChannel channel = event.getTextChannel();
         final TextChannel discussionChannel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDRequestsDiscussion());
 
-        if (history == null) {
-            history = channel.getHistory();
-            history.retrievePast(50).complete();
-            Utils.sleepTimer();
-        }
-        // This may cause memory issues if the bot is left on too long :/
-        history.retrieveFuture(25).complete();
-
+        MessageHistory history = MessageHistory.getHistoryAround(channel, event.getMessageId()).limit(1).complete();
         final Message message = history.getMessageById(event.getMessageId());
         if (message == null) return;
         final User messageAuthor = message.getAuthor();
@@ -59,7 +47,7 @@ public final class EventReactionAdded extends ListenerAdapter {
                         badReactions, needsImprovementReactions, goodReactions);
 
                 if (discussionChannel == null) return;
-                discussionChannel.sendMessage(responseBuilder.build()).complete();
+                discussionChannel.sendMessage(responseBuilder.build()).queue();
             }
         }
     }

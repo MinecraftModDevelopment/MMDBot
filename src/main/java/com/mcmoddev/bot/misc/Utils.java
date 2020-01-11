@@ -92,6 +92,7 @@ public final class Utils {
         return message
                 .getReactions()
                 .stream()
+                .filter(messageReaction -> messageReaction.getReactionEmote().isEmote())
                 .filter(messageReaction -> predicate.test(messageReaction.getReactionEmote().getIdLong()))
                 .mapToInt(MessageReaction::getCount)
                 .sum();
