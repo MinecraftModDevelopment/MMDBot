@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
-import java.awt.Color;
+import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -18,16 +18,16 @@ import java.util.Locale;
 /**
  *
  */
-public final class CmdUser extends Command {
+public class CmdUser extends Command {
 
 	/**
 	 *
 	 */
     public CmdUser() {
         super();
-        name = "me";
-        aliases = new String[]{"whoami", "myinfo"};
-        help = "Get information about your own user. **Locked to <#" + MMDBot.getConfig().getBotStuffChannelId() + ">**";
+        name = "user";
+        aliases = new String[]{"whois", "userinfo"};
+        help = "Get information about another user with their user ID. **Locked to <#" + MMDBot.getConfig().getBotStuffChannelId() + ">**";
     }
 
     /**
@@ -35,10 +35,27 @@ public final class CmdUser extends Command {
      */
     @Override
     protected void execute(final CommandEvent event) {
-        final Member member = event.getMember();
+        final TextChannel channel = event.getTextChannel();
+        final Member member = Utils.getMemberFromString(event.getArgs(), event.getGuild());
+
+        if (member == null) {
+            channel.sendMessage(String.format("User %s not found.", event.getArgs())).queue();
+            return;
+        }
+
+        final EmbedBuilder embed = createMemberEmbed(member);
+
+        final long channelID = MMDBot.getConfig().getBotStuffChannelId();
+        if (channel.getIdLong() != channelID) {
+            channel.sendMessage("This command is channel locked to <#" + channelID + ">").queue();
+        } else {
+            channel.sendMessage(embed.build()).queue();
+        }
+    }
+
+    protected EmbedBuilder createMemberEmbed(final Member member) {
         final User user = member.getUser();
         final EmbedBuilder embed = new EmbedBuilder();
-        final TextChannel channel = event.getTextChannel();
         final Instant dateJoinedDiscord = member.getTimeCreated().toInstant();
         final Instant dateJoinedMMD = member.getTimeJoined().toInstant();
 
@@ -61,11 +78,6 @@ public final class CmdUser extends Command {
         embed.addField("Member for:", Utils.getTimeDifference(Utils.getLocalTime(dateJoinedMMD), LocalDateTime.now()), true);
         embed.setTimestamp(Instant.now());
 
-        final long channelID = MMDBot.getConfig().getBotStuffChannelId();
-        if (channel.getIdLong() != channelID) {
-            channel.sendMessage("This command is channel locked to <#" + channelID + ">").queue();
-        } else {
-            channel.sendMessage(embed.build()).queue();
-        }
+        return embed;
     }
 }

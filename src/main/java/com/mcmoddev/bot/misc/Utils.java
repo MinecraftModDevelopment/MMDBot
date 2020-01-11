@@ -1,13 +1,15 @@
 package com.mcmoddev.bot.misc;
 
+import com.mcmoddev.bot.MMDBot;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
-
-import com.mcmoddev.bot.MMDBot;
 
 /**
 *
@@ -82,5 +84,13 @@ public final class Utils {
      */
     public static String makeHyperlink(final String text, final String url) {
         return String.format("[%s](%s)", text, url);
+    }
+
+    public static Member getMemberFromString(final String memberString, final Guild guild) {
+        if (memberString.contains("#")) {
+            return guild.getMemberByTag(memberString);
+        } else {
+            return guild.getMemberById(memberString);
+        }
     }
 }

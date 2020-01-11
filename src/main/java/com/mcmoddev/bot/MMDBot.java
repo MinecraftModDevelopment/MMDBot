@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.bot.commands.locked.info.CmdGuild;
+import com.mcmoddev.bot.commands.locked.info.CmdMe;
 import com.mcmoddev.bot.commands.locked.info.CmdRoles;
-import com.mcmoddev.bot.commands.locked.info.CmdUser;
 import com.mcmoddev.bot.commands.unlocked.*;
 import com.mcmoddev.bot.commands.unlocked.search.CmdBing;
 import com.mcmoddev.bot.commands.unlocked.search.CmdDuckDuckGo;
@@ -110,7 +110,7 @@ public final class MMDBot {
             commandBuilder.setOwnerId(MMDBot.getConfig().getOwnerID());
             commandBuilder.setPrefix(MMDBot.getConfig().getPrefix());
             commandBuilder.addCommand(new CmdGuild());
-            commandBuilder.addCommand(new CmdUser());
+            commandBuilder.addCommand(new CmdMe());
             commandBuilder.addCommand(new CmdRoles());
             commandBuilder.addCommand(new CmdJustAsk());
             commandBuilder.addCommand(new CmdPaste());
