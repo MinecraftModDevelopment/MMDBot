@@ -3,17 +3,18 @@ package com.mcmoddev.bot.events.users;
 import com.mcmoddev.bot.MMDBot;
 import com.mcmoddev.bot.misc.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.audit.ActionType;
+import net.dv8tion.jda.api.audit.AuditLogEntry;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.restaction.pagination.AuditLogPaginationAction;
 
-import java.awt.Color;
+import java.awt.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -33,13 +34,20 @@ public final class EventRoleRemoved extends ListenerAdapter {
 
         Utils.sleepTimer();
 
-        //TODO Somehow get the info from the audit log about who edited the role so we can ger the name and ID.
-        //AuditLogEntry entry = event.getGuild().getAuditLogs(ActionType.MEMBER_ROLE_UPDATE).getEntriesByTarget(user.getIdLong()).stream().sorted(Comparator.comparing(AuditLogEntry::getIdLong).reversed()).findFirst().orElse(null);
-        //String rolesEditedBy = entry.getResponsibleUser().getName() + "#" + entry.getResponsibleUser().getDiscriminator();
-        //String editorID = entry.getResponsibleUser().getStringID();
+        final AuditLogPaginationAction paginationAction = event.getGuild().retrieveAuditLogs().type(ActionType.MEMBER_ROLE_UPDATE);
+        paginationAction.complete();
 
-        // TODO Reenable when done.
-        //final List<Role> previousRoles = new ArrayList<>(event.getMember().getRoles());
+        final AuditLogEntry entry = paginationAction.getLast();
+        final User editor = entry.getUser();
+
+        String editorID = "Unknown";
+        String editorTag = "Unknown";
+        if (editor != null) {
+            editorID = editor.getId();
+            editorTag = editor.getAsTag();
+        }
+
+        final List<Role> currentRoles = new ArrayList<>(event.getMember().getRoles());
         final List<Role> removedRoles = new ArrayList<>(event.getRoles());
 
         if (MMDBot.getConfig().getGuildID().equals(guildId)) {
@@ -49,13 +57,10 @@ public final class EventRoleRemoved extends ListenerAdapter {
             embed.addField("User:", user.getAsTag(), true);
             embed.addField("User ID:", user.getId(), true);
 
-            embed.addField("Edited By:", "Not Yet Provided/Setup", true);
-            embed.addField("Editor ID:", "Not Yet Provided/Setup", true);
-            //TODO Fix this, it only shows one role from both the previous roles and the removed roles, something to do with have to iterate through a list and getAsMention() them.
-            //embed.addField("Previous Roles:", previousRoles.get(0).getAsMention(), false);
-            embed.addField("Previous Roles:", "Not Yet Provided/Setup in new api.", false);
-
-            embed.addField("Removed Roles:", removedRoles.get(0).getAsMention(), false);
+            embed.addField("Edited By:", editorTag, true);
+            embed.addField("Editor ID:", editorID, true);
+            embed.addField("Current Roles:", currentRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), false);
+            embed.addField("Removed Roles:", removedRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), false);
             embed.setTimestamp(Instant.now());
             channel.sendMessage(embed.build()).queue();
         }
