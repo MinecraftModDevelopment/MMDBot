@@ -51,6 +51,11 @@ public final class BotConfig {
     private Long channelIDDeletedMessages = 0L;
 
     /**
+     * ID for Readme Channel
+     */
+    private Long channelIDReadme = 0L;
+
+    /**
      * ID for Debug Channel.
      */
     private Long channelIDDebug = 0L;
@@ -230,6 +235,14 @@ public final class BotConfig {
         return channelIDConsole;
     }
 
+    /**
+     *
+     * @return
+     */
+    public Long getChannelIDReadme() {
+        return channelIDReadme;
+    }
+  
     /**
      *
      * @return

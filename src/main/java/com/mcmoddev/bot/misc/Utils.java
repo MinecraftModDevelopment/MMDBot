@@ -1,6 +1,8 @@
 package com.mcmoddev.bot.misc;
 
 import com.mcmoddev.bot.MMDBot;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 
@@ -88,6 +90,14 @@ public final class Utils {
         return String.format("[%s](%s)", text, url);
     }
 
+    public static Member getMemberFromString(final String memberString, final Guild guild) {
+        if (memberString.contains("#")) {
+            return guild.getMemberByTag(memberString);
+        } else {
+            return guild.getMemberById(memberString);
+        }
+    }
+  
     public static int getNumberOfMatchingReactions(final Message message, final Predicate<Long> predicate) {
         return message
                 .getReactions()
