@@ -66,6 +66,16 @@ public final class BotConfig {
     private Long channelIDConsole = 0L;
 
     /**
+     * ID for Requests Channel
+     */
+    private Long channelIDRequests = 0L;
+
+    /**
+     * ID for Requests Channel
+     */
+    private Long channelIDRequestsDiscussion = 0L;
+
+    /**
      *
      */
     private String roleStaff = "218607518048452610";
@@ -110,7 +120,27 @@ public final class BotConfig {
      */
     private String roleBooster = "590166091234279465";
 
-	/**
+    /**
+     *
+     */
+    private Long[] emoteIDsBad = new Long[] { 0L };
+
+    /**
+     *
+     */
+    private Long[] emoteIDsNeedsImprovement = new Long[] { 0L };
+
+    /**
+     *
+     */
+    private Long[] emoteIDsGood = new Long[] { 0L };
+
+    /**
+     *
+     */
+    private double badReactionThreshold;
+
+    /**
 	 *
 	 */
 	public BotConfig() {
@@ -209,7 +239,26 @@ public final class BotConfig {
      *
      * @return
      */
-    public Long getChannelIDReadme() { return channelIDReadme; }
+    public Long getChannelIDReadme() {
+        return channelIDReadme;
+    }
+  
+    /**
+     *
+     * @return
+     */
+    public Long getChannelIDRequests() {
+        return channelIDRequests;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Long getChannelIDRequestsDiscussion() {
+        return channelIDRequestsDiscussion;
+    }
+
     /**
      *
      * @return
@@ -280,5 +329,37 @@ public final class BotConfig {
      */
     public String getRoleBooster() {
     	return roleBooster;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Long[] getEmoteIDsBad() {
+        return emoteIDsBad;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Long[] getEmoteIDsNeedsImprovement() {
+        return emoteIDsNeedsImprovement;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Long[] getEmoteIDsGood() {
+        return emoteIDsGood;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public double getBadReactionThreshold() {
+        return badReactionThreshold;
     }
 }

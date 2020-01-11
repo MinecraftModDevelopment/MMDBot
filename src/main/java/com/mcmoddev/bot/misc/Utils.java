@@ -3,13 +3,17 @@ package com.mcmoddev.bot.misc;
 import com.mcmoddev.bot.MMDBot;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageReaction;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 /**
 *
@@ -92,5 +96,27 @@ public final class Utils {
         } else {
             return guild.getMemberById(memberString);
         }
+    }
+  
+    public static int getNumberOfMatchingReactions(final Message message, final Predicate<Long> predicate) {
+        return message
+                .getReactions()
+                .stream()
+                .filter(messageReaction -> messageReaction.getReactionEmote().isEmote())
+                .filter(messageReaction -> predicate.test(messageReaction.getReactionEmote().getIdLong()))
+                .mapToInt(MessageReaction::getCount)
+                .sum();
+    }
+
+    public static boolean isReactionGood(final Long emoteID) {
+        return Arrays.asList(MMDBot.getConfig().getEmoteIDsGood()).contains(emoteID);
+    }
+
+    public static boolean isReactionBad(final Long emoteID) {
+        return Arrays.asList(MMDBot.getConfig().getEmoteIDsBad()).contains(emoteID);
+    }
+
+    public static boolean isReactionNeedsImprovement(final Long emoteID) {
+        return Arrays.asList(MMDBot.getConfig().getEmoteIDsNeedsImprovement()).contains(emoteID);
     }
 }

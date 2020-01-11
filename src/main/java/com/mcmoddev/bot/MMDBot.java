@@ -6,6 +6,7 @@ import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.bot.commands.locked.info.CmdGuild;
 import com.mcmoddev.bot.commands.locked.info.CmdMe;
 import com.mcmoddev.bot.commands.locked.info.CmdRoles;
+import com.mcmoddev.bot.commands.locked.info.CmdUser;
 import com.mcmoddev.bot.commands.unlocked.*;
 import com.mcmoddev.bot.commands.unlocked.search.CmdBing;
 import com.mcmoddev.bot.commands.unlocked.search.CmdDuckDuckGo;
@@ -102,6 +103,7 @@ public final class MMDBot {
             botBuilder.addEventListeners(new EventNicknameChanged());
             botBuilder.addEventListeners(new EventRoleAdded());
             botBuilder.addEventListeners(new EventRoleRemoved());
+            botBuilder.addEventListeners(new EventReactionAdded());
             botBuilder.addEventListeners(new MiscEvents());
             botBuilder.setActivity(Activity.watching(config.getBotTextStatus()));
 
