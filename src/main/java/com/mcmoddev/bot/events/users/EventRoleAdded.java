@@ -47,8 +47,9 @@ public final class EventRoleAdded extends ListenerAdapter {
             editorTag = editor.getAsTag();
         }
 
-        final List<Role> currentRoles = new ArrayList<>(event.getMember().getRoles());
+        final List<Role> previousRoles = new ArrayList<>(event.getMember().getRoles());
         final List<Role> addedRoles = new ArrayList<>(event.getRoles());
+        previousRoles.removeAll(addedRoles);
 
         if (MMDBot.getConfig().getGuildID().equals(guildId)) {
             embed.setColor(Color.YELLOW);
@@ -59,7 +60,7 @@ public final class EventRoleAdded extends ListenerAdapter {
 
             embed.addField("Edited By:", editorTag, true);
             embed.addField("Editor ID:", editorID, true);
-            embed.addField("Current Roles:", currentRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), false);
+            embed.addField("Previous Roles:", previousRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), false);
             embed.addField("Added Roles:", addedRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), false);
             embed.setTimestamp(Instant.now());
             channel.sendMessage(embed.build()).queue();
