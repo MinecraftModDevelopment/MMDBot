@@ -1,15 +1,16 @@
 package com.mcmoddev.bot.events.users;
 
 import com.mcmoddev.bot.MMDBot;
+import com.mcmoddev.bot.misc.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import java.awt.Color;
+import java.awt.*;
 import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -26,13 +27,17 @@ public final class EventUserJoined extends ListenerAdapter {
         final Guild guild = event.getGuild();
         final Long guildId = guild.getIdLong();
         final TextChannel channel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDBasicEvents().toString());
+        final Member member = guild.getMember(user);
 
         if (MMDBot.getConfig().getGuildID().equals(guildId)) {
+            final List<Role> roles = Utils.getOldUserRoles(guild, user.getIdLong());
+            roles.forEach(role -> guild.addRoleToMember(member, role).queue());
             embed.setColor(Color.GREEN);
             embed.setTitle("User Joined");
             embed.setThumbnail(user.getEffectiveAvatarUrl());
             embed.addField("User:", user.getName() + " #" + user.getDiscriminator(), true);
             embed.addField("User ID:", user.getId(), true);
+            embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), true);
             embed.setTimestamp(Instant.now());
 
             channel.sendMessage(embed.build()).queue();
