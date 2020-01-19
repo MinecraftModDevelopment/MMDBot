@@ -138,7 +138,12 @@ public final class BotConfig {
     /**
      *
      */
-    private double badReactionThreshold;
+    private double badReactionThreshold = 0.0;
+
+    /**
+     *
+     */
+    private double warningBadReactionThreshold = 0.0;
 
     /**
 	 *
@@ -361,5 +366,13 @@ public final class BotConfig {
      */
     public double getBadReactionThreshold() {
         return badReactionThreshold;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public double getWarningBadReactionThreshold() {
+        return warningBadReactionThreshold;
     }
 }
