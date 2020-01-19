@@ -11,6 +11,8 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import java.awt.*;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -24,7 +26,8 @@ public final class CmdOldChannels extends Command {
     public CmdOldChannels() {
         super();
         name = "old-channels";
-        help = "Gives channels which haven't been used in an amount of days given as an argument (default 7). **Locked to <#" + MMDBot.getConfig().getChannelIDConsole() + ">**";
+        help = "Gives channels which haven't been used in an amount of days given as an argument (default 7). **Locked to <#" + MMDBot.getConfig().getChannelIDConsole() + ">**" +
+                "Usage:"+MMDBot.getConfig().getPrefix()+"old-channels [oldness-threshold] [channel or category blacklist, seperated by spaces]";
     }
 
     /**
@@ -36,18 +39,35 @@ public final class CmdOldChannels extends Command {
         final EmbedBuilder embed = new EmbedBuilder();
         final TextChannel outputChannel = event.getTextChannel();
         final long channelID = MMDBot.getConfig().getChannelIDConsole();
+        final List<String> args = Arrays.asList(event.getArgs().split(" "));
         if (outputChannel.getIdLong() != channelID) {
             outputChannel.sendMessage("This command is channel locked to <#" + channelID + ">").queue();
             return;
         }
 
-        final int dayThreshold = event.getArgs().matches("-?\\d+") ? Integer.parseInt(event.getArgs()) : 7;
+        final int dayThreshold = args.size() > 0 && args.get(0).matches("-?\\d+") ? Integer.parseInt(args.get(0)) : 7;
+
+        List<String> channelBlacklist;
+
+        if (args.size() > 1) {
+            channelBlacklist = new ArrayList<>(args);
+            channelBlacklist.remove(0);
+        } else {
+            channelBlacklist = new ArrayList<>();
+        }
+
         final List<TextChannel> channelList = guild.getTextChannels();
 
         embed.setTitle("Old channels");
         embed.setColor(Color.YELLOW);
 
         for (TextChannel channel : channelList) {
+            if (channelBlacklist.contains(channel.getName())) {
+                continue;
+            }
+            if (channel.getParent() != null && channelBlacklist.contains(channel.getParent().getName().replace(' ', '-'))) {
+                continue;
+            }
             final List<Message> latestMessages = channel.getHistory().retrievePast(1).complete();
             final long daysSinceLastMessage = latestMessages.size() > 0 ?
                     ChronoUnit.DAYS.between(latestMessages.get(0).getTimeCreated(), OffsetDateTime.now()) :
