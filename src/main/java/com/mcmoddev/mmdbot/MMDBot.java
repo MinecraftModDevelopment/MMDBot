@@ -2,6 +2,7 @@ package com.mcmoddev.mmdbot;
 
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import com.mcmoddev.bot.commands.locked.moderation.CmdOldChannels;
 import com.mcmoddev.mmdbot.commands.info.CmdBuild;
 import com.mcmoddev.mmdbot.commands.info.CmdEventsHelp;
 import com.mcmoddev.mmdbot.commands.info.CmdFabricVersion;
@@ -183,6 +184,7 @@ public final class MMDBot {
                 .addCommand(new CmdMute())
                 .addCommand(new CmdUnmute())
                 .addCommand(new CmdCommunityChannel())
+                .addCommand(new CmdOldChannels())
                 .addCommand(new CmdGreatMoves())
                 .setHelpWord("help")
                 .build();
