@@ -6,6 +6,7 @@ import com.mcmoddev.bot.MMDBot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.*;
@@ -68,9 +69,15 @@ public final class CmdOldChannels extends Command {
             if (channel.getParent() != null && channelBlacklist.contains(channel.getParent().getName().replace(' ', '-'))) {
                 continue;
             }
-            final List<Message> latestMessages = channel.getHistory().retrievePast(1).complete();
+            final MessageHistory history = channel.getHistory();
+            List<Message> latestMessages = history.retrievePast(1).complete();
+            if (latestMessages.size() > 0) {
+                while (latestMessages.get(0).isWebhookMessage()) {
+                    latestMessages = history.retrievePast(1).complete();
+                }
+            }
             final long daysSinceLastMessage = latestMessages.size() > 0 ?
-                    ChronoUnit.DAYS.between(latestMessages.get(0).getTimeCreated(), OffsetDateTime.now()) :
+                    ChronoUnit.DAYS.between(latestMessages.get(latestMessages.size()-1).getTimeCreated(), OffsetDateTime.now()) :
                     -1;
             if (daysSinceLastMessage > dayThreshold) {
                 embed.addField("#" + channel.getName(), String.valueOf(daysSinceLastMessage), true);
