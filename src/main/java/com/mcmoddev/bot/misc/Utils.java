@@ -1,35 +1,39 @@
 package com.mcmoddev.bot.misc;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.mcmoddev.bot.MMDBot;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageReaction;
+import net.dv8tion.jda.api.entities.*;
 
+import java.io.*;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
-*
-*/
+ *
+ */
 public final class Utils {
 
-	/**
-	 *
-	 */
-	private Utils() {
-		// Shut up Sonarqube warns
-	}
+    public static final String STICKY_ROLES_FILE_PATH = "mmdbot_sticky_roles.json";
 
-	/**
-	 *
-	 */
+    /**
+     *
+     */
+    private Utils() {
+        // Shut up Sonarqube warns
+    }
+
+    /**
+     *
+     */
     public static void sleepTimer() {
         //Sleep for a moment to let Discord fill the audit log with the required information.
         //Helps avoid npe's with some events like getting the ban reason of a user from time to time.
@@ -97,7 +101,7 @@ public final class Utils {
             return guild.getMemberById(memberString);
         }
     }
-  
+
     public static int getNumberOfMatchingReactions(final Message message, final Predicate<Long> predicate) {
         return message
                 .getReactions()
@@ -118,5 +122,43 @@ public final class Utils {
 
     public static boolean isReactionNeedsImprovement(final Long emoteID) {
         return Arrays.asList(MMDBot.getConfig().getEmoteIDsNeedsImprovement()).contains(emoteID);
+    }
+
+    public static List<Role> getOldUserRoles(final Guild guild, final Long userID) {
+        Map<String, List<String>> roles = getUserToRoleMap();
+        if (roles == null)
+            return null;
+
+        return roles.get(userID.toString()).stream().map(guild::getRoleById).collect(Collectors.toList());
+    }
+
+    public static void writeUserRoles(final Long userID, final List<Role> roles) {
+        final File roleFile = new File(STICKY_ROLES_FILE_PATH);
+        Map<String, List<String>> userToRoleMap = getUserToRoleMap();
+        if (userToRoleMap == null) {
+            userToRoleMap = new HashMap<>();
+        }
+        userToRoleMap.put(userID.toString(), roles.stream().map(ISnowflake::getId).collect(Collectors.toList()));
+        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(roleFile), StandardCharsets.UTF_8)) {
+            new Gson().toJson(userToRoleMap, writer);
+        } catch (final FileNotFoundException exception) {
+            MMDBot.LOGGER.error("An FileNotFound occurred saving sticky roles...", exception);
+        } catch (final IOException exception) {
+            MMDBot.LOGGER.error("An IOException occurred saving sticky roles...", exception);
+        }
+    }
+
+    public static Map<String, List<String>> getUserToRoleMap() {
+        final File roleFile = new File(STICKY_ROLES_FILE_PATH);
+        if (!roleFile.exists())
+            return null;
+        Map<String, List<String>> roles = null;
+        try (InputStreamReader reader = new InputStreamReader(new FileInputStream(roleFile), StandardCharsets.UTF_8)) {
+            Type typeOfHashMap = new TypeToken<Map<String, List<String>>>() {}.getType();
+            roles = new Gson().fromJson(reader, typeOfHashMap);
+        } catch (final IOException exception) {
+            MMDBot.LOGGER.trace("Failed to read sticky roles file...", exception);
+        }
+        return roles;
     }
 }
