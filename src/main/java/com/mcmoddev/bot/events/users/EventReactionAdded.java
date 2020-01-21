@@ -52,6 +52,17 @@ public final class EventReactionAdded extends ListenerAdapter {
 
                 if (discussionChannel == null) return;
                 discussionChannel.sendMessage(responseBuilder.build()).queue();
+            } else if ((badReactions + needsImprovementReactions * 0.5) - goodReactions >= MMDBot.getConfig().getWarningBadReactionThreshold()) {
+                final MessageBuilder responseBuilder = new MessageBuilder();
+                responseBuilder.append(messageAuthor.getAsMention());
+                responseBuilder.append(", ");
+                responseBuilder.append("your request is close to being removed by community review.\n" +
+                        "Please edit your message to bring it to a higher standard.\n");
+                responseBuilder.appendFormat("It has so far received %d 'bad' reactions, %d 'needs improvement' reactions, and %d 'good' reactions.",
+                        badReactions, needsImprovementReactions, goodReactions);
+
+                if (discussionChannel == null) return;
+                discussionChannel.sendMessage(responseBuilder.build()).queue();
             }
         }
     }
