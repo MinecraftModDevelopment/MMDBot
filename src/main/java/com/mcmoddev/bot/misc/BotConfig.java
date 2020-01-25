@@ -123,6 +123,11 @@ public final class BotConfig {
     /**
      *
      */
+    private String rolePublicServerPlayer = "325780906579066881";
+
+    /**
+     *
+     */
     private Long[] emoteIDsBad = new Long[] { 0L };
 
     /**
@@ -167,7 +172,7 @@ public final class BotConfig {
     public String getOwnerID() {
         return ownerID;
     }
-    
+
     /**
      *
      * @return
@@ -247,7 +252,7 @@ public final class BotConfig {
     public Long getChannelIDReadme() {
         return channelIDReadme;
     }
-  
+
     /**
      *
      * @return
@@ -334,6 +339,14 @@ public final class BotConfig {
      */
     public String getRoleBooster() {
     	return roleBooster;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getRolePublicServerPlayer() {
+        return rolePublicServerPlayer;
     }
 
     /**

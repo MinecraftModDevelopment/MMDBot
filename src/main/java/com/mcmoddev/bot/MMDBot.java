@@ -3,10 +3,10 @@ package com.mcmoddev.bot;
 import com.google.gson.Gson;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import com.mcmoddev.bot.commands.locked.CmdToggleServerPings;
 import com.mcmoddev.bot.commands.locked.info.CmdGuild;
 import com.mcmoddev.bot.commands.locked.info.CmdMe;
 import com.mcmoddev.bot.commands.locked.info.CmdRoles;
-import com.mcmoddev.bot.commands.locked.info.CmdUser;
 import com.mcmoddev.bot.commands.unlocked.*;
 import com.mcmoddev.bot.commands.unlocked.search.CmdBing;
 import com.mcmoddev.bot.commands.unlocked.search.CmdDuckDuckGo;
@@ -123,6 +123,7 @@ public final class MMDBot {
             commandBuilder.addCommand(new CmdGoogle());
             commandBuilder.addCommand(new CmdLmgtfy());
             commandBuilder.addCommand(new CmdEventsHelp());
+            commandBuilder.addCommand(new CmdToggleServerPings());
             commandBuilder.setHelpWord("help");
 
             final CommandClient commandListener = commandBuilder.build();
