@@ -44,6 +44,17 @@ javadoc {
   failOnError = false
 }
 
+dependencies {
+    testImplementation('org.junit.jupiter:junit-jupiter:5.6.0')
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
 spotbugs {
   ignoreFailures = true
   toolVersion = '3.1.6'

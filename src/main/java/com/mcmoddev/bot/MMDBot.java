@@ -15,8 +15,10 @@ import com.mcmoddev.bot.commands.unlocked.search.CmdGoogle;
 import com.mcmoddev.bot.commands.unlocked.search.CmdLmgtfy;
 import com.mcmoddev.bot.events.MiscEvents;
 import com.mcmoddev.bot.events.users.*;
+import com.mcmoddev.bot.jobs.TaskScheduler;
 import com.mcmoddev.bot.misc.BotConfig;
 import net.dv8tion.jda.api.AccountType;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import org.slf4j.Logger;
@@ -66,10 +68,16 @@ public final class MMDBot {
     }
 
     /**
-	 *
-	 */
-	private MMDBot() {
-	}
+    *
+    */
+    private MMDBot() {
+    }
+
+    private static JDA INSTANCE;
+
+    public static JDA getInstance() {
+        return INSTANCE;
+    }
 
 	/**
      *
@@ -114,7 +122,7 @@ public final class MMDBot {
             commandBuilder.setPrefix(MMDBot.getConfig().getPrefix());
             commandBuilder.addCommand(new CmdGuild());
             commandBuilder.addCommand(new CmdMe());
-			commandBuilder.addCommand(new CmdUser());
+            commandBuilder.addCommand(new CmdUser());
             commandBuilder.addCommand(new CmdRoles());
             commandBuilder.addCommand(new CmdJustAsk());
             commandBuilder.addCommand(new CmdPaste());
@@ -126,12 +134,12 @@ public final class MMDBot {
             commandBuilder.addCommand(new CmdLmgtfy());
             commandBuilder.addCommand(new CmdEventsHelp());
             commandBuilder.addCommand(new CmdToggleMcServerPings());
+            commandBuilder.addCommand(new CmdForgeVersion());
             commandBuilder.setHelpWord("help");
 
             final CommandClient commandListener = commandBuilder.build();
             botBuilder.addEventListeners(commandListener);
-            botBuilder.build();
-
+            INSTANCE = botBuilder.build();
         } catch (final LoginException exception) {
             LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.", exception);
             System.exit(1);
