@@ -13,15 +13,15 @@ import java.util.List;
 /**
  *
  */
-public class CmdToggleServerPings extends Command {
+public class CmdToggleMcServerPings extends Command {
 
 	/**
 	 *
 	 */
-	public CmdToggleServerPings() {
+	public CmdToggleMcServerPings() {
 		super();
-		name = "toggle-server-pings";
-		aliases = new String[]{"server-pings", "toggle-server-announcements", "server-announcements"};
+		name = "toggle-mc-server-pings";
+		aliases = new String[]{"mc-server-pings", "toggle-mc-server-announcements", "mc-server-announcements"};
 		help = "Give/remove from yourself the public server players role. **Locked to <#" + MMDBot.getConfig().getBotStuffChannelId() + ">**";
 	}
 
