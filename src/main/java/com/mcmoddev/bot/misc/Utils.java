@@ -23,8 +23,9 @@ import java.util.stream.Collectors;
 public final class Utils {
 
     public static final String STICKY_ROLES_FILE_PATH = "mmdbot_sticky_roles.json";
+	public static final String USER_JOIN_TIMES_FILE_PATH = "mmdbot_user_join_times.json";
 
-    /**
+	/**
      *
      */
     private Utils() {
@@ -161,4 +162,43 @@ public final class Utils {
         }
         return roles;
     }
+
+	public static void writeUserJoinTimes(final String userID, final Instant joinTime) {
+		final File userJoinTimesFile = new File(USER_JOIN_TIMES_FILE_PATH);
+		Map<String, Instant> userJoinTimes = getUserJoinTimeMap();
+		if (userJoinTimes == null) {
+			userJoinTimes = new HashMap<>();
+		}
+		userJoinTimes.put(userID, joinTime);
+		try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(userJoinTimesFile), StandardCharsets.UTF_8)) {
+			new Gson().toJson(userJoinTimes, writer);
+		} catch (final FileNotFoundException exception) {
+			MMDBot.LOGGER.error("An FileNotFound occurred saving user join times...", exception);
+		} catch (final IOException exception) {
+			MMDBot.LOGGER.error("An IOException occurred saving user join times...", exception);
+		}
+	}
+
+	public static Map<String, Instant> getUserJoinTimeMap() {
+		final File joinTimesFile = new File(USER_JOIN_TIMES_FILE_PATH);
+		if (!joinTimesFile.exists())
+			return null;
+		Map<String, Instant> userJoinTimes = null;
+		try (InputStreamReader reader = new InputStreamReader(new FileInputStream(joinTimesFile), StandardCharsets.UTF_8)) {
+			Type typeOfHashMap = new TypeToken<Map<String, Instant>>() {}.getType();
+			userJoinTimes = new Gson().fromJson(reader, typeOfHashMap);
+		} catch (final IOException exception) {
+			MMDBot.LOGGER.trace("Failed to read user join times file...", exception);
+		}
+		return userJoinTimes;
+	}
+
+	public static Instant getMemberJoinTime(Member member) {
+    	final Map<String, Instant> userJoinTimes = getUserJoinTimeMap();
+    	final String memberID = member.getId();
+    	return userJoinTimes != null && userJoinTimes.containsKey(memberID) ?
+			userJoinTimes.get(memberID) :
+			member.getTimeJoined().toInstant();
+	}
+
 }

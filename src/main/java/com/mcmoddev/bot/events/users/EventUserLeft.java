@@ -33,6 +33,7 @@ public final class EventUserLeft extends ListenerAdapter {
 
         if (MMDBot.getConfig().getGuildID().equals(guildId)) {
             Utils.writeUserRoles(user.getIdLong(), roles);
+            Utils.writeUserJoinTimes(user.getId(), member.getTimeJoined().toInstant());
             embed.setColor(Color.RED);
             embed.setTitle("User Left");
             embed.setThumbnail(user.getEffectiveAvatarUrl());

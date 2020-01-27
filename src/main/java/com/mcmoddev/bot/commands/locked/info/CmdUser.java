@@ -57,7 +57,7 @@ public class CmdUser extends Command {
         final User user = member.getUser();
         final EmbedBuilder embed = new EmbedBuilder();
         final Instant dateJoinedDiscord = member.getTimeCreated().toInstant();
-        final Instant dateJoinedMMD = member.getTimeJoined().toInstant();
+        final Instant dateJoinedMMD = Utils.getMemberJoinTime(member);
 
         embed.setTitle("User info");
         embed.setColor(Color.WHITE);

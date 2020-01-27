@@ -37,6 +37,7 @@ data/
 #BotStuff
 mmdbot_config.json
 mmdbot_sticky_roles.json
+mmdbot_user_join_times.json
 #Just in case anyone else has this still.
 config.json 
 bot_logs/*
