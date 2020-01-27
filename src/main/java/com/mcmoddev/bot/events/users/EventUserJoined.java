@@ -38,7 +38,7 @@ public final class EventUserJoined extends ListenerAdapter {
 					try {
 						guild.addRoleToMember(member, role).queue();
 					} catch (final HierarchyException e) {
-						MMDBot.LOGGER.info("Unable to give member %s role %s: %s", member.getId(), role.getId(), e.getMessage());
+						MMDBot.LOGGER.info("Unable to give member {} role {}: {}", member.getId(), role.getId(), e.getMessage());
 						final Message consoleMessage = new MessageBuilder().appendFormat("Unable to give member %s role %s: %s", member.getAsMention(), role.getAsMention(), e.getMessage()).build();
 						final TextChannel consoleChannel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDConsole());
 						if (consoleChannel != null) consoleChannel.sendMessage(consoleMessage).queue();
