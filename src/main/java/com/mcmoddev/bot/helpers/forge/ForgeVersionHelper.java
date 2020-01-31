@@ -53,6 +53,10 @@ public class ForgeVersionHelper {
 
         ForgePromoData data = gson.fromJson(reader, ForgePromoData.class);
 
+        // Remove broken entries from the API
+        data.promos.remove("1.7.10-latest-1.7.10");
+        data.promos.remove("latest-1.7.10");
+
         // Collect version data
         Map<String, ForgeVersion> versions = new HashMap<>();
 
@@ -83,10 +87,6 @@ public class ForgeVersionHelper {
                 versions.put(meta.version, version);
             }
         }
-
-        // For some reason there's an entry named
-        // latest-1.7.10 from the API, remove it.
-        versions.remove("latest");
 
         return versions;
     }
