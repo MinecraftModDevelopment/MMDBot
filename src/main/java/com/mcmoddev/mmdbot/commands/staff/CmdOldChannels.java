@@ -1,17 +1,14 @@
-package com.mcmoddev.bot.commands.locked.moderation;
+package com.mcmoddev.mmdbot.commands.staff;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.mcmoddev.bot.MMDBot;
+import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.oldchannels.OldChannelsHelper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.*;
-import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,8 +24,8 @@ public final class CmdOldChannels extends Command {
     public CmdOldChannels() {
         super();
         name = "old-channels";
-        help = "Gives channels which haven't been used in an amount of days given as an argument (default 7). **Locked to <#" + MMDBot.getConfig().getChannelIDConsole() + ">**" +
-                "Usage:"+MMDBot.getConfig().getPrefix()+"old-channels [oldness-threshold] [channel or category blacklist, seperated by spaces]";
+        help = "Gives channels which haven't been used in an amount of days given as an argument (default 7). **Locked to <#" + MMDBot.getConfig().getChannel("console") + ">**" +
+                "Usage:"+MMDBot.getConfig().getMainPrefix()+"old-channels [oldness-threshold] [channel or category blacklist, seperated by spaces]";
     }
 
     /**
@@ -39,7 +36,7 @@ public final class CmdOldChannels extends Command {
         final Guild guild = event.getGuild();
         final EmbedBuilder embed = new EmbedBuilder();
         final TextChannel outputChannel = event.getTextChannel();
-        final long channelID = MMDBot.getConfig().getChannelIDConsole();
+        final long channelID = MMDBot.getConfig().getChannel("console");
         final List<String> args = Arrays.asList(event.getArgs().split(" "));
         if (outputChannel.getIdLong() != channelID) {
             outputChannel.sendMessage("This command is channel locked to <#" + channelID + ">").queue();
@@ -69,16 +66,8 @@ public final class CmdOldChannels extends Command {
             if (channel.getParent() != null && channelBlacklist.contains(channel.getParent().getName().replace(' ', '-'))) {
                 continue;
             }
-            final MessageHistory history = channel.getHistory();
-            List<Message> latestMessages = history.retrievePast(1).complete();
-            if (latestMessages.size() > 0) {
-                while (latestMessages.get(0).isWebhookMessage()) {
-                    latestMessages = history.retrievePast(1).complete();
-                }
-            }
-            final long daysSinceLastMessage = latestMessages.size() > 0 ?
-                    ChronoUnit.DAYS.between(latestMessages.get(latestMessages.size()-1).getTimeCreated(), OffsetDateTime.now()) :
-                    -1;
+            final long daysSinceLastMessage = OldChannelsHelper.getLastMessageTime(channel);
+
             if (daysSinceLastMessage > dayThreshold) {
                 embed.addField("#" + channel.getName(), String.valueOf(daysSinceLastMessage), true);
             } if (daysSinceLastMessage == -1) {
