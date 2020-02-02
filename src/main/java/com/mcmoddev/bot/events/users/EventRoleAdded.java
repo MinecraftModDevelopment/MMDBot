@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.requests.restaction.pagination.AuditLogPaginationActi
 
 import java.awt.*;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,10 +35,14 @@ public final class EventRoleAdded extends ListenerAdapter {
 
         Utils.sleepTimer();
 
-        final AuditLogPaginationAction paginationAction = event.getGuild().retrieveAuditLogs().type(ActionType.MEMBER_ROLE_UPDATE);
-        paginationAction.complete();
+		final AuditLogPaginationAction paginationAction = event.getGuild().retrieveAuditLogs()
+			.type(ActionType.MEMBER_ROLE_UPDATE)
+			.limit(1)
+			.cache(false);
 
-        final AuditLogEntry entry = paginationAction.getLast();
+		final List<AuditLogEntry> entries = paginationAction.complete();
+
+        final AuditLogEntry entry = entries.get(0);
         final User editor = entry.getUser();
 
         String editorID = "Unknown";
