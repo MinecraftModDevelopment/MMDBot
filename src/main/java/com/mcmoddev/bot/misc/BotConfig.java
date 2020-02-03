@@ -76,6 +76,11 @@ public final class BotConfig {
     private Long channelIDRequestsDiscussion = 0L;
 
     /**
+     * ID for the channel to put forge updates notifications
+      */
+    private Long channelIDForgeNotifier = 0L;
+
+    /**
      *
      */
     private String roleStaff = "218607518048452610";
@@ -267,6 +272,10 @@ public final class BotConfig {
      */
     public Long getChannelIDRequestsDiscussion() {
         return channelIDRequestsDiscussion;
+    }
+
+    public Long getChannelIDForgeNotifier() {
+        return channelIDForgeNotifier;
     }
 
     /**

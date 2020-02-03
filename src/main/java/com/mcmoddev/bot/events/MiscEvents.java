@@ -1,6 +1,7 @@
 package com.mcmoddev.bot.events;
 
 import com.mcmoddev.bot.MMDBot;
+import com.mcmoddev.bot.jobs.TaskScheduler;
 import net.dv8tion.jda.api.events.DisconnectEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ReconnectedEvent;
@@ -17,6 +18,7 @@ public final class MiscEvents extends ListenerAdapter {
     @Override
     public void onReady(final ReadyEvent event) {
         MMDBot.LOGGER.info("Bot is online and ready.");
+        TaskScheduler.init();
     }
 
     /**
