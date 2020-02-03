@@ -34,11 +34,15 @@ public final class EventRoleRemoved extends ListenerAdapter {
 
         Utils.sleepTimer();
 
-        final AuditLogPaginationAction paginationAction = event.getGuild().retrieveAuditLogs().type(ActionType.MEMBER_ROLE_UPDATE);
-        paginationAction.complete();
+		final AuditLogPaginationAction paginationAction = event.getGuild().retrieveAuditLogs()
+			.type(ActionType.MEMBER_ROLE_UPDATE)
+			.limit(1)
+			.cache(false);
 
-        final AuditLogEntry entry = paginationAction.getLast();
-        final User editor = entry.getUser();
+		final List<AuditLogEntry> entries = paginationAction.complete();
+
+		final AuditLogEntry entry = entries.get(0);
+		final User editor = entry.getUser();
 
         String editorID = "Unknown";
         String editorTag = "Unknown";
