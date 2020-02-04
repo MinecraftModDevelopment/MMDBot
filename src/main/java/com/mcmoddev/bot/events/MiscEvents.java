@@ -15,25 +15,25 @@ public final class MiscEvents extends ListenerAdapter {
 	/**
 	 *
 	 */
-    @Override
-    public void onReady(final ReadyEvent event) {
-        MMDBot.LOGGER.info("Bot is online and ready.");
-        TaskScheduler.init();
-    }
+	@Override
+	public void onReady(final ReadyEvent event) {
+		MMDBot.LOGGER.info("Bot is online and ready.");
+		TaskScheduler.init();
+	}
 
-    /**
-     *
-     */
-    @Override
-    public void onDisconnect(final DisconnectEvent event) {
-        MMDBot.LOGGER.warn("*** Connection terminated ***");
-    }
+	/**
+	 *
+	 */
+	@Override
+	public void onDisconnect(final DisconnectEvent event) {
+		MMDBot.LOGGER.warn("*** Connection terminated ***");
+	}
 
-    /**
-     *
-     */
-    @Override
-    public void onReconnect(final ReconnectedEvent event) {
-        MMDBot.LOGGER.warn("*** Bot reconnected to Discord successfully. ***");
-    }
+	/**
+	 *
+	 */
+	@Override
+	public void onReconnect(final ReconnectedEvent event) {
+		MMDBot.LOGGER.warn("*** Bot reconnected to Discord successfully. ***");
+	}
 }

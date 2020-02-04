@@ -22,18 +22,18 @@ public final class EventUserJoined extends ListenerAdapter {
 	/**
 	 *
 	 */
-    @Override
-    public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
-    	final User user = event.getUser();
-        final EmbedBuilder embed = new EmbedBuilder();
-        final Guild guild = event.getGuild();
-        final Long guildId = guild.getIdLong();
-        final TextChannel channel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDBasicEvents().toString());
-        final Member member = guild.getMember(user);
+	@Override
+	public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
+		final User user = event.getUser();
+		final EmbedBuilder embed = new EmbedBuilder();
+		final Guild guild = event.getGuild();
+		final Long guildId = guild.getIdLong();
+		final TextChannel channel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDBasicEvents().toString());
+		final Member member = guild.getMember(user);
 
-        if (MMDBot.getConfig().getGuildID().equals(guildId)) {
-            final List<Role> roles = Utils.getOldUserRoles(guild, user.getIdLong());
-            if (roles != null && member != null) {
+		if (MMDBot.getConfig().getGuildID().equals(guildId)) {
+			final List<Role> roles = Utils.getOldUserRoles(guild, user.getIdLong());
+			if (roles != null && member != null) {
 				for (Role role : roles) {
 					try {
 						guild.addRoleToMember(member, role).queue();
@@ -45,15 +45,15 @@ public final class EventUserJoined extends ListenerAdapter {
 					}
 				}
 			}
-            embed.setColor(Color.GREEN);
-            embed.setTitle("User Joined");
-            embed.setThumbnail(user.getEffectiveAvatarUrl());
-            embed.addField("User:", user.getName() + " #" + user.getDiscriminator(), true);
-            embed.addField("User ID:", user.getId(), true);
-            embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), true);
-            embed.setTimestamp(Instant.now());
+			embed.setColor(Color.GREEN);
+			embed.setTitle("User Joined");
+			embed.setThumbnail(user.getEffectiveAvatarUrl());
+			embed.addField("User:", user.getName() + " #" + user.getDiscriminator(), true);
+			embed.addField("User ID:", user.getId(), true);
+			embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), true);
+			embed.setTimestamp(Instant.now());
 
-            channel.sendMessage(embed.build()).queue();
-        }
-    }
+			channel.sendMessage(embed.build()).queue();
+		}
+	}
 }

@@ -24,15 +24,15 @@ public final class EventRoleRemoved extends ListenerAdapter {
 	/**
 	 *
 	 */
-    @Override
-    public void onGuildMemberRoleRemove(final GuildMemberRoleRemoveEvent event) {
-    	final User user = event.getUser();
-    	final EmbedBuilder embed = new EmbedBuilder();
-        final Guild guild = event.getGuild();
-        final Long guildId = guild.getIdLong();
-        final TextChannel channel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDImportantEvents());
+	@Override
+	public void onGuildMemberRoleRemove(final GuildMemberRoleRemoveEvent event) {
+		final User user = event.getUser();
+		final EmbedBuilder embed = new EmbedBuilder();
+		final Guild guild = event.getGuild();
+		final Long guildId = guild.getIdLong();
+		final TextChannel channel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDImportantEvents());
 
-        Utils.sleepTimer();
+		Utils.sleepTimer();
 
 		final AuditLogPaginationAction paginationAction = event.getGuild().retrieveAuditLogs()
 			.type(ActionType.MEMBER_ROLE_UPDATE)
@@ -44,30 +44,30 @@ public final class EventRoleRemoved extends ListenerAdapter {
 		final AuditLogEntry entry = entries.get(0);
 		final User editor = entry.getUser();
 
-        String editorID = "Unknown";
-        String editorTag = "Unknown";
-        if (editor != null) {
-            editorID = editor.getId();
-            editorTag = editor.getAsTag();
-        }
+		String editorID = "Unknown";
+		String editorTag = "Unknown";
+		if (editor != null) {
+			editorID = editor.getId();
+			editorTag = editor.getAsTag();
+		}
 
-        final List<Role> previousRoles = new ArrayList<>(event.getMember().getRoles());
-        final List<Role> removedRoles = new ArrayList<>(event.getRoles());
-        previousRoles.removeAll(removedRoles);
+		final List<Role> previousRoles = new ArrayList<>(event.getMember().getRoles());
+		final List<Role> removedRoles = new ArrayList<>(event.getRoles());
+		previousRoles.removeAll(removedRoles);
 
-        if (MMDBot.getConfig().getGuildID().equals(guildId)) {
-            embed.setColor(Color.YELLOW);
-            embed.setTitle("User Role Removed");
-            embed.setThumbnail(user.getEffectiveAvatarUrl());
-            embed.addField("User:", user.getAsTag(), true);
-            embed.addField("User ID:", user.getId(), true);
+		if (MMDBot.getConfig().getGuildID().equals(guildId)) {
+			embed.setColor(Color.YELLOW);
+			embed.setTitle("User Role Removed");
+			embed.setThumbnail(user.getEffectiveAvatarUrl());
+			embed.addField("User:", user.getAsTag(), true);
+			embed.addField("User ID:", user.getId(), true);
 
-            embed.addField("Edited By:", editorTag, true);
-            embed.addField("Editor ID:", editorID, true);
-            embed.addField("Previous Roles:", previousRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), false);
-            embed.addField("Removed Roles:", removedRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), false);
-            embed.setTimestamp(Instant.now());
-            channel.sendMessage(embed.build()).queue();
-        }
-    }
+			embed.addField("Edited By:", editorTag, true);
+			embed.addField("Editor ID:", editorID, true);
+			embed.addField("Previous Roles:", previousRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), false);
+			embed.addField("Removed Roles:", removedRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), false);
+			embed.setTimestamp(Instant.now());
+			channel.sendMessage(embed.build()).queue();
+		}
+	}
 }

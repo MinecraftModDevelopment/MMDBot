@@ -1,4 +1,4 @@
-package com.mcmoddev.bot.commands.locked;
+package com.mcmoddev.bot.commands;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
