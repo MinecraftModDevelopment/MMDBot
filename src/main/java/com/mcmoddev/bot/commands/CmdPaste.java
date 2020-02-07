@@ -22,7 +22,7 @@ public final class CmdPaste extends Command {
 			+ "risky for the other users who don't know what is in said file." + System.lineSeparator()
 			+ "Please use one of the great file sharing sites below that let us view the code/logs online without much effort." + System.lineSeparator() + System.lineSeparator()
 			+ Utils.makeHyperlink("hastebin", "https://hastebin.com") + " " + "Free: 400KB" + System.lineSeparator()
-			+ Utils.makeHyperlink("hatúebin", "https://hatebin.com") + " " + "Free: 50,000 character upload limit." + System.lineSeparator()
+			+ Utils.makeHyperlink("hatebin", "https://hatebin.com") + " " + "Free: 50,000 character upload limit." + System.lineSeparator()
 			+ Utils.makeHyperlink("gist", "https://gist.github.com") + " " + "Free: 100MB Membership required" + System.lineSeparator()
 			+ Utils.makeHyperlink("paste.ee", "https://paste.ee") + " " + "Free: 1MB - Members get: 6MB" + System.lineSeparator()
 			+ Utils.makeHyperlink("paste.gg", "https://paste.gg") + " " + "Free: 15MB" + System.lineSeparator()
