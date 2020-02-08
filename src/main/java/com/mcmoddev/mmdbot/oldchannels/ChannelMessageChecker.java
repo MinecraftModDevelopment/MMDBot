@@ -42,7 +42,6 @@ public class ChannelMessageChecker extends TimerTask {
 				ChronoUnit.DAYS.between(latestMessages.get(latestMessages.size()-1).getTimeCreated(), OffsetDateTime.now()) :
 				-1;
 			OldChannelsHelper.put(channel, daysSinceLastMessage);
-			MMDBot.LOGGER.info("{}: {}", channel.getName(), daysSinceLastMessage);
 		}
 	}
 }
