@@ -1,6 +1,7 @@
 package com.mcmoddev.mmdbot.core;
 
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.oldchannels.ChannelMessageChecker;
 import com.mcmoddev.mmdbot.updatenotifiers.fabric.FabricApiUpdateNotifier;
 import com.mcmoddev.mmdbot.updatenotifiers.forge.ForgeUpdateNotifier;
 import com.mcmoddev.mmdbot.updatenotifiers.minecraft.MinecraftUpdateNotifier;
@@ -40,5 +41,6 @@ public final class TaskScheduler {
         }
         TIMER.scheduleAtFixedRate(new MinecraftUpdateNotifier(), 0, 15 * 60 * 1000);
         TIMER.scheduleAtFixedRate(new FabricApiUpdateNotifier(), 0, 15 * 60 * 1000);
+        TIMER.scheduleAtFixedRate(new ChannelMessageChecker(), 0, 1000 * 60 * 60 * 12);
     }
 }

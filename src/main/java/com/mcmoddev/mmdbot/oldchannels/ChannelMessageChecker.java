@@ -14,14 +14,15 @@ import java.util.TimerTask;
 public class ChannelMessageChecker extends TimerTask {
 
 	private final long guildId;
+	private final Guild guild;
 
-	public ChannelMessageChecker(final long guildIdIn) {
-		this.guildId = guildIdIn;
+	public ChannelMessageChecker() {
+		this.guildId = MMDBot.getConfig().getGuildID();
+		this.guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
 	}
 
 	@Override
 	public void run() {
-		final Guild guild = MMDBot.getInstance().getGuildById(guildId);
 		if (guild == null) {
 			MMDBot.LOGGER.error("Error while checking for old channels: guild {} doesn't exist!", guildId);
 			return;
