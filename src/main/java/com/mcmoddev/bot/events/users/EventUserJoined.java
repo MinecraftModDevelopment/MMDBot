@@ -50,7 +50,9 @@ public final class EventUserJoined extends ListenerAdapter {
 			embed.setThumbnail(user.getEffectiveAvatarUrl());
 			embed.addField("User:", user.getName() + " #" + user.getDiscriminator(), true);
 			embed.addField("User ID:", user.getId(), true);
-			embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), true);
+			if (roles != null) {
+				embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), true);
+			}
 			embed.setTimestamp(Instant.now());
 
 			channel.sendMessage(embed.build()).queue();
