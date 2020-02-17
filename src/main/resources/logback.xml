@@ -14,8 +14,20 @@
             </pattern>
         </encoder>
     </appender>
-
+    <!--Log levels include ERROR, WARN, INFO, DEBUG, TRACE-->
     <root level="INFO">
         <appender-ref ref="FILE"/>
+    </root>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>
+                %d %green([%thread]) %highlight(%level) %logger{50} - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+    <!--Log levels include ERROR, WARN, INFO, DEBUG, TRACE-->
+    <root level="WARN">
+        <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>
