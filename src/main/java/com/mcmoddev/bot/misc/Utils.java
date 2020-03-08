@@ -103,7 +103,9 @@ public final class Utils {
 	 * @return
 	 */
 	public static Member getMemberFromString(final String memberString, final Guild guild) {
-		if (memberString.contains("#")) {
+		if (memberString.startsWith("<@")) {
+			return guild.getMemberById(memberString.substring(2, memberString.lastIndexOf(">")));
+		} else if (memberString.contains("#")) {
 			return guild.getMemberByTag(memberString);
 		} else {
 			return guild.getMemberById(memberString);
