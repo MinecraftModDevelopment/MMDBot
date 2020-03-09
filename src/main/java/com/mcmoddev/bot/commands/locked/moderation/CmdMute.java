@@ -56,7 +56,7 @@ public class CmdMute extends Command {
 		if (args.length > 2) {
 			TimeUnit unit1;
 			try {
-				unit1 = TimeUnit.valueOf(args[2]);
+				unit1 = TimeUnit.valueOf(args[2].toUpperCase());
 			} catch (IllegalArgumentException e) {
 				unit1 = TimeUnit.MINUTES;
 			}
