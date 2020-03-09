@@ -6,8 +6,8 @@ import com.mcmoddev.bot.MMDBot;
 import com.mcmoddev.bot.misc.Utils;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.concurrent.TimeUnit;
 
@@ -16,16 +16,18 @@ public class CmdMute extends Command {
 	@Override
 	protected void execute(CommandEvent event) {
 		final Guild guild = event.getGuild();
-		final TextChannel channel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDConsole());
+		final MessageChannel channel = event.getChannel();
 		final String[] args = event.getArgs().split(" ");
 		final Member member = Utils.getMemberFromString(args[0], event.getGuild());
 		final Role mutedRole = guild.getRoleById(MMDBot.getConfig().getRoleMuted());
+		final Long channelID = MMDBot.getConfig().getChannelIDConsole();
 
+		if (channel.getIdLong() != MMDBot.getConfig().getChannelIDConsole()) {
+			channel.sendMessage("This command is channel locked to <#" + channelID + ">").queue();
+			return;
+		}
 		if (member == null) {
-			if (channel != null)
-				channel.sendMessage(String.format("User %s not found.", event.getArgs())).queue();
-			else
-				MMDBot.LOGGER.error("Unable to find console channel!");
+			channel.sendMessage(String.format("User %s not found.", event.getArgs())).queue();
 			return;
 		}
 		if (mutedRole == null) {
@@ -64,10 +66,7 @@ public class CmdMute extends Command {
 			timeString = " " + time + " " + unit.toString();
 		} else timeString = "ever";
 
-		if (channel != null)
-			channel.sendMessageFormat("Muted user %s for%s.", member.getAsMention(), timeString).queue();
-		else
-			MMDBot.LOGGER.error("Unable to find console channel!");
+		channel.sendMessageFormat("Muted user %s for%s.", member.getAsMention(), timeString).queue();
 	}
 
 }
