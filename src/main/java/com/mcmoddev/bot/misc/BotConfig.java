@@ -127,6 +127,11 @@ public final class BotConfig {
 	private String rolePublicServerPlayer = "325780906579066881";
 
 	/**
+	 * The Muted role ID.
+	 */
+	private String roleMuted = "";
+
+	/**
 	 * The ID of the request is bad emoticon.
 	 */
 	private Long[] emoteIDsBad = new Long[]{0L};
@@ -324,6 +329,13 @@ public final class BotConfig {
 	 */
 	public String getRolePublicServerPlayer() {
 		return rolePublicServerPlayer;
+	}
+
+	/**
+	 * @return The ID of the muted role.
+	 */
+	public String getRoleMuted() {
+		return roleMuted;
 	}
 
 	/**
