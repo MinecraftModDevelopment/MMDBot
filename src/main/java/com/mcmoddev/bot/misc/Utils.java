@@ -15,6 +15,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 /**
@@ -103,8 +104,9 @@ public final class Utils {
 	 * @return
 	 */
 	public static Member getMemberFromString(final String memberString, final Guild guild) {
-		if (memberString.startsWith("<@")) {
-			return guild.getMemberById(memberString.substring(2, memberString.lastIndexOf(">")));
+		final Matcher matcher = Message.MentionType.USER.getPattern().matcher(memberString);
+		if (matcher.matches()) {
+			return guild.getMemberById(matcher.group(1));
 		} else if (memberString.contains("#")) {
 			return guild.getMemberByTag(memberString);
 		} else {
