@@ -11,6 +11,8 @@ import com.mcmoddev.bot.commands.search.CmdBing;
 import com.mcmoddev.bot.commands.search.CmdDuckDuckGo;
 import com.mcmoddev.bot.commands.search.CmdGoogle;
 import com.mcmoddev.bot.commands.search.CmdLmgtfy;
+import com.mcmoddev.bot.commands.staff.CmdMute;
+import com.mcmoddev.bot.commands.staff.CmdUnmute;
 import com.mcmoddev.bot.commands.staff.CmdUser;
 import com.mcmoddev.bot.events.MiscEvents;
 import com.mcmoddev.bot.events.users.*;
@@ -129,6 +131,8 @@ public final class MMDBot {
 			commandBuilder.addCommand(new CmdEventsHelp());
 			commandBuilder.addCommand(new CmdToggleMcServerPings());
 			commandBuilder.addCommand(new CmdForgeVersion());
+			commandBuilder.addCommand(new CmdMute());
+			commandBuilder.addCommand(new CmdUnmute());
 			commandBuilder.setHelpWord("help");
 
 			final CommandClient commandListener = commandBuilder.build();
