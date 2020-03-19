@@ -18,6 +18,7 @@ public class CmdMute extends Command {
 		name = "mute";
 		aliases = new String[]{};
 		help = "Mutes a user. Usage: !mmd-mute <userID/mention> [time, otherwise forever] [unit, otherwise minutes] **Locked to <#"+MMDBot.getConfig().getChannelIDConsole()+">**.";
+		hidden = true;
 	}
 
 	@Override

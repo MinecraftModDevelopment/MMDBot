@@ -16,6 +16,7 @@ public class CmdUnmute extends Command {
 		name = "unmute";
 		aliases = new String[]{};
 		help = "Unmutes a user. Usage: !mmd-unmute <userID/mention> **Locked to <#"+MMDBot.getConfig().getChannelIDConsole()+">**.";
+		hidden = true;
 	}
 
 	@Override
