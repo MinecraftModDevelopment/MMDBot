@@ -4,6 +4,7 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.bot.helpers.forge.ForgeVersionHelper;
 import com.mcmoddev.bot.helpers.forge.MinecraftForgeVersion;
+import com.mcmoddev.bot.misc.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -49,7 +50,8 @@ public final class CmdForgeVersion extends Command {
 		}
 
 		embed.setTitle(String.format("Forge Versions for MC %s", latest.getMcVersion()));
-		embed.setDescription(String.format("Latest: **%s**\nRecommended: **%s**", latestForge, recommendedForge));
+		final String changelogLink = Utils.makeHyperlink("Changelog", String.format("https://files.minecraftforge.net/maven/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt", latest.getMcVersion(), latest.getForgeVersion().getLatest()));
+		embed.setDescription(String.format("Latest: **%s**\nRecommended: **%s**\n%s", latestForge, recommendedForge, changelogLink));
 		embed.setColor(Color.ORANGE);
 		embed.setTimestamp(Instant.now());
 		channel.sendMessage(embed.build()).queue();
