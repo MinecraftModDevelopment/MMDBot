@@ -17,6 +17,8 @@ public class ForgeUpdateNotifier extends TimerTask {
 	String mcVersion;
 	ForgeVersion lastForgeVersions;
 
+	private static final String CHANGELOG_URL_TEMPLATE = "https://files.minecraftforge.net/maven/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt";
+
 	public ForgeUpdateNotifier() throws Exception {
 		MinecraftForgeVersion mcForgeVersions = ForgeVersionHelper.getLatestMcVersionForgeVersions();
 
@@ -36,9 +38,11 @@ public class ForgeUpdateNotifier extends TimerTask {
 			if (latest.getLatest() != null) {
 				if (lastForgeVersions.getLatest() == null) {
 					body.append(String.format("Latest: **none** -> **%s**\n", latest.getLatest()));
+					body.append(String.format("Changelog: "+CHANGELOG_URL_TEMPLATE+"\n", mcVersion, latest.getLatest()));
 					changed = true;
 				} else if (!latest.getLatest().equals(lastForgeVersions.getLatest())) {
 					body.append(String.format("Latest: **%s** -> **%s**\n", lastForgeVersions.getLatest(), latest.getLatest()));
+					body.append(String.format("Changelog: "+CHANGELOG_URL_TEMPLATE+"\n", mcVersion, latest.getLatest()));
 					changed = true;
 				}
 			}
@@ -46,9 +50,11 @@ public class ForgeUpdateNotifier extends TimerTask {
 			if (latest.getRecommended() != null) {
 				if (lastForgeVersions.getRecommended() == null) {
 					body.append(String.format("Recommended: **none** -> **%s**\n", latest.getRecommended()));
+					body.append(String.format("Changelog: "+CHANGELOG_URL_TEMPLATE+"\n", mcVersion, latest.getRecommended()));
 					changed = true;
 				} else if (!latest.getRecommended().equals(lastForgeVersions.getRecommended())) {
-					body.append(String.format("Latest: **%s** -> **%s**\n", lastForgeVersions.getRecommended(), latest.getRecommended()));
+					body.append(String.format("Recommended: **%s** -> **%s**\n", lastForgeVersions.getRecommended(), latest.getRecommended()));
+					body.append(String.format("Changelog: "+CHANGELOG_URL_TEMPLATE+"\n", mcVersion, latest.getRecommended()));
 					changed = true;
 				}
 			}
