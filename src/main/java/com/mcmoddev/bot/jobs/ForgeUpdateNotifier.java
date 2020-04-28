@@ -4,6 +4,7 @@ import com.mcmoddev.bot.MMDBot;
 import com.mcmoddev.bot.helpers.forge.ForgeVersion;
 import com.mcmoddev.bot.helpers.forge.ForgeVersionHelper;
 import com.mcmoddev.bot.helpers.forge.MinecraftForgeVersion;
+import com.mcmoddev.bot.misc.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -38,11 +39,11 @@ public class ForgeUpdateNotifier extends TimerTask {
 			if (latest.getLatest() != null) {
 				if (lastForgeVersions.getLatest() == null) {
 					body.append(String.format("Latest: **none** -> **%s**\n", latest.getLatest()));
-					body.append(String.format("Changelog: "+CHANGELOG_URL_TEMPLATE+"\n", mcVersion, latest.getLatest()));
+					body.append(Utils.makeHyperlink("Changelog", String.format(CHANGELOG_URL_TEMPLATE, mcVersion, latest.getLatest())));
 					changed = true;
 				} else if (!latest.getLatest().equals(lastForgeVersions.getLatest())) {
 					body.append(String.format("Latest: **%s** -> **%s**\n", lastForgeVersions.getLatest(), latest.getLatest()));
-					body.append(String.format("Changelog: "+CHANGELOG_URL_TEMPLATE+"\n", mcVersion, latest.getLatest()));
+					body.append(Utils.makeHyperlink("Changelog", String.format(CHANGELOG_URL_TEMPLATE, mcVersion, latest.getLatest())));
 					changed = true;
 				}
 			}
@@ -50,11 +51,11 @@ public class ForgeUpdateNotifier extends TimerTask {
 			if (latest.getRecommended() != null) {
 				if (lastForgeVersions.getRecommended() == null) {
 					body.append(String.format("Recommended: **none** -> **%s**\n", latest.getRecommended()));
-					body.append(String.format("Changelog: "+CHANGELOG_URL_TEMPLATE+"\n", mcVersion, latest.getRecommended()));
+					body.append(Utils.makeHyperlink("Changelog", String.format(CHANGELOG_URL_TEMPLATE, mcVersion, latest.getRecommended())));
 					changed = true;
 				} else if (!latest.getRecommended().equals(lastForgeVersions.getRecommended())) {
 					body.append(String.format("Recommended: **%s** -> **%s**\n", lastForgeVersions.getRecommended(), latest.getRecommended()));
-					body.append(String.format("Changelog: "+CHANGELOG_URL_TEMPLATE+"\n", mcVersion, latest.getRecommended()));
+					body.append(Utils.makeHyperlink("Changelog", String.format(CHANGELOG_URL_TEMPLATE, mcVersion, latest.getRecommended())));
 					changed = true;
 				}
 			}
