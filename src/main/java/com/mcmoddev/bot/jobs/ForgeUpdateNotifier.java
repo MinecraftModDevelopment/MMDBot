@@ -30,11 +30,12 @@ public class ForgeUpdateNotifier extends TimerTask {
 	@Override
 	public void run() {
 		try {
+			mcVersion = ForgeVersionHelper.getLatestMcVersionForgeVersions().getMcVersion();
+
 			ForgeVersion latest = ForgeVersionHelper.getForgeVersionsForMcVersion(mcVersion);
 
 			boolean changed = false;
 			StringBuilder body = new StringBuilder(String.format("Minecraft version: **%s**\n", mcVersion));
-
 
 			if (latest.getLatest() != null) {
 				if (lastForgeVersions.getLatest() == null) {
