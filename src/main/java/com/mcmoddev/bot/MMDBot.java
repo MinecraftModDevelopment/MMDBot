@@ -20,12 +20,15 @@ import com.mcmoddev.bot.misc.BotConfig;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  *
@@ -76,6 +79,17 @@ public final class MMDBot {
 	public static JDA getInstance() {
 		return INSTANCE;
 	}
+
+	private static Set<GatewayIntent> intents = new HashSet<>();
+	static {
+		intents.add(GatewayIntent.DIRECT_MESSAGES);
+		intents.add(GatewayIntent.GUILD_BANS);
+		intents.add(GatewayIntent.GUILD_EMOJIS);
+		intents.add(GatewayIntent.GUILD_MEMBERS);
+		intents.add(GatewayIntent.GUILD_MESSAGE_REACTIONS);
+		intents.add(GatewayIntent.GUILD_MESSAGES);
+		intents.add(GatewayIntent.GUILD_PRESENCES);
+	};
 
 	/**
 	 * @param args Arguments provided to the program.
@@ -137,6 +151,8 @@ public final class MMDBot {
 
 			final CommandClient commandListener = commandBuilder.build();
 			botBuilder.addEventListeners(commandListener);
+			botBuilder.enableIntents(intents);
+
 			INSTANCE = botBuilder.build();
 		} catch (final LoginException exception) {
 			LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.", exception);
