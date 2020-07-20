@@ -4,7 +4,7 @@ import com.mcmoddev.bot.MMDBot;
 import com.mcmoddev.bot.misc.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.awt.*;
@@ -21,7 +21,7 @@ public final class EventUserLeft extends ListenerAdapter {
 	 *
 	 */
 	@Override
-	public void onGuildMemberLeave(final GuildMemberLeaveEvent event) {
+	public void onGuildMemberRemove(final GuildMemberRemoveEvent event) {
 		final User user = event.getUser();
 		final EmbedBuilder embed = new EmbedBuilder();
 		final Guild guild = event.getGuild();
