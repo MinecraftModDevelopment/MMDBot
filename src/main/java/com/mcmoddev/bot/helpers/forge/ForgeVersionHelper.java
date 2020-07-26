@@ -20,9 +20,9 @@ public class ForgeVersionHelper {
 	public static String getLatestVersion(List<String> versions) {
 		SemVer latest = new SemVer(versions.get(0));
 
-		for (int i = 0; i < versions.size(); i++) {
-			SemVer ver = new SemVer(versions.get(i));
-			if (latest.compareTo(ver) == -1) {
+		for (String version : versions) {
+			SemVer ver = new SemVer(version);
+			if (latest.compareTo(ver) < 0) {
 				latest = ver;
 			}
 		}
@@ -37,19 +37,19 @@ public class ForgeVersionHelper {
 	public static MinecraftForgeVersion getLatestMcVersionForgeVersions() throws Exception {
 		Map<String, ForgeVersion> versions = getForgeVersions();
 
-		String latest = getLatestVersion(new ArrayList<String>(versions.keySet()));
+		String latest = getLatestVersion(new ArrayList<>(versions.keySet()));
 
 		return new MinecraftForgeVersion(latest, versions.get(latest));
 	}
 
-	private static InputStreamReader openUrl(String url) throws Exception {
+	private static InputStreamReader openUrl() throws Exception {
 		URL urlObj = new URL(VERSION_URL);
 
 		return new InputStreamReader(urlObj.openStream());
 	}
 
 	public static Map<String, ForgeVersion> getForgeVersions() throws Exception {
-		InputStreamReader reader = openUrl(VERSION_URL);
+		InputStreamReader reader = openUrl();
 
 		ForgePromoData data = gson.fromJson(reader, ForgePromoData.class);
 
@@ -59,10 +59,6 @@ public class ForgeVersionHelper {
 
 		// Collect version data
 		Map<String, ForgeVersion> versions = new HashMap<>();
-
-		String currentVersion = "";
-		String latest = "";
-		String recommended = "";
 
 		for (Map.Entry<String, String> entry : data.promos.entrySet()) {
 			String mc = entry.getKey();
