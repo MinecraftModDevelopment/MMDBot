@@ -57,8 +57,10 @@ public final class EventReactionAdded extends ListenerAdapter {
 
 				warnedMessages.remove(message);
 
-				if (discussionChannel == null) return;
-				discussionChannel.sendMessage(responseBuilder.build()).queue();
+				Message response = responseBuilder.build();
+				messageAuthor.openPrivateChannel().submit().thenCompose(c -> c.sendMessage(response).submit()).whenComplete((msg, throwable) -> {
+					if (throwable != null && discussionChannel != null) discussionChannel.sendMessage(response).queue();
+				});
 			} else if (!warnedMessages.contains(message) && (badReactions + needsImprovementReactions * 0.5) - goodReactions >= MMDBot.getConfig().getWarningBadReactionThreshold()) {
 				final MessageBuilder responseBuilder = new MessageBuilder();
 				responseBuilder.append(messageAuthor.getAsMention());
@@ -70,8 +72,10 @@ public final class EventReactionAdded extends ListenerAdapter {
 
 				warnedMessages.add(message);
 
-				if (discussionChannel == null) return;
-				discussionChannel.sendMessage(responseBuilder.build()).queue();
+				Message response = responseBuilder.build();
+				messageAuthor.openPrivateChannel().submit().thenCompose(c -> c.sendMessage(response).submit()).whenComplete((msg, throwable) -> {
+					if (throwable != null && discussionChannel != null) discussionChannel.sendMessage(response).queue();
+				});
 			}
 		}
 	}
