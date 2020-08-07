@@ -7,10 +7,15 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  *
  */
 public final class EventReactionAdded extends ListenerAdapter {
+
+	private Set<Message> warnedMessages = new HashSet<>();
 
 	/**
 	 *
@@ -50,9 +55,13 @@ public final class EventReactionAdded extends ListenerAdapter {
 				responseBuilder.appendFormat("It received %d 'bad' reactions, %d 'needs improvement' reactions, and %d 'good' reactions.",
 					badReactions, needsImprovementReactions, goodReactions);
 
-				if (discussionChannel == null) return;
-				discussionChannel.sendMessage(responseBuilder.build()).queue();
-			} else if ((badReactions + needsImprovementReactions * 0.5) - goodReactions >= MMDBot.getConfig().getWarningBadReactionThreshold()) {
+				warnedMessages.remove(message);
+
+				Message response = responseBuilder.build();
+				messageAuthor.openPrivateChannel().submit().thenCompose(c -> c.sendMessage(response).submit()).whenComplete((msg, throwable) -> {
+					if (throwable != null && discussionChannel != null) discussionChannel.sendMessage(response).queue();
+				});
+			} else if (!warnedMessages.contains(message) && (badReactions + needsImprovementReactions * 0.5) - goodReactions >= MMDBot.getConfig().getWarningBadReactionThreshold()) {
 				final MessageBuilder responseBuilder = new MessageBuilder();
 				responseBuilder.append(messageAuthor.getAsMention());
 				responseBuilder.append(", ");
@@ -61,8 +70,12 @@ public final class EventReactionAdded extends ListenerAdapter {
 				responseBuilder.appendFormat("It has so far received %d 'bad' reactions, %d 'needs improvement' reactions, and %d 'good' reactions.",
 					badReactions, needsImprovementReactions, goodReactions);
 
-				if (discussionChannel == null) return;
-				discussionChannel.sendMessage(responseBuilder.build()).queue();
+				warnedMessages.add(message);
+
+				Message response = responseBuilder.build();
+				messageAuthor.openPrivateChannel().submit().thenCompose(c -> c.sendMessage(response).submit()).whenComplete((msg, throwable) -> {
+					if (throwable != null && discussionChannel != null) discussionChannel.sendMessage(response).queue();
+				});
 			}
 		}
 	}
