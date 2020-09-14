@@ -152,6 +152,7 @@ public final class MMDBot {
 				.addCommand(new CmdEventsHelp())
 				.addCommand(new CmdToggleMcServerPings())
 				.addCommand(new CmdForgeVersion())
+				.addCommand(new CmdMinecraftVersion())
 				.addCommand(new CmdMute())
 				.addCommand(new CmdUnmute())
 				.setHelpWord("help")
