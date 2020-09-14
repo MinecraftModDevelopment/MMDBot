@@ -1,15 +1,12 @@
-package com.mcmoddev.mmdbot.jobs;
+package com.mcmoddev.mmdbot.updatenotifiers.forge;
 
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.helpers.forge.ForgeVersion;
-import com.mcmoddev.mmdbot.helpers.forge.ForgeVersionHelper;
-import com.mcmoddev.mmdbot.helpers.forge.MinecraftForgeVersion;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-import java.awt.*;
+import java.awt.Color;
 import java.time.Instant;
 import java.util.TimerTask;
 

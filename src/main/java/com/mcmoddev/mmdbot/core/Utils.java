@@ -1,5 +1,6 @@
 package com.mcmoddev.mmdbot.core;
 
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mcmoddev.mmdbot.MMDBot;
@@ -36,8 +37,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
-
-import com.google.common.collect.Lists;
 
 /**
  *
@@ -286,11 +285,11 @@ public final class Utils {
 	/**
 	 * Allows a map to be sorted.
 	 *
-	 * @param map The map to sort.
+	 * @param map    The map to sort.
 	 * @param invert Whether or not order should be inverted.
 	 * @return The sorted map.
 	 */
-	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue (Map<K, V> map, boolean invert) {
+	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map, boolean invert) {
 
 		List<Map.Entry<K, V>> list = new LinkedList<>(map.entrySet());
 		Collections.sort(list, Comparator.comparing(Map.Entry<K, V>::getValue));
@@ -314,7 +313,7 @@ public final class Utils {
 	 * @param map The map to print.
 	 * @return The string value of the map.
 	 */
-	public static <K, V> String mapToString (Map<K, V> map) {
+	public static <K, V> String mapToString(Map<K, V> map) {
 
 		String output = "";
 

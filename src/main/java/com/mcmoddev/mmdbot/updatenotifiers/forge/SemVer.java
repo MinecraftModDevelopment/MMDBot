@@ -1,11 +1,11 @@
-package com.mcmoddev.mmdbot.helpers.forge;
+package com.mcmoddev.mmdbot.updatenotifiers.forge;
 
 import org.jetbrains.annotations.NotNull;
 
 public class SemVer implements Comparable<SemVer> {
 
-	private Integer major;
-	private Integer minor;
+	private final Integer major;
+	private final Integer minor;
 	private Integer patch;
 
 	public SemVer(String versionString) {

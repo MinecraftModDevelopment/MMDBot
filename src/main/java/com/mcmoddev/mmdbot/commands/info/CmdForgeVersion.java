@@ -2,9 +2,9 @@ package com.mcmoddev.mmdbot.commands.info;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.mcmoddev.mmdbot.helpers.forge.ForgeVersionHelper;
-import com.mcmoddev.mmdbot.helpers.forge.MinecraftForgeVersion;
 import com.mcmoddev.mmdbot.core.Utils;
+import com.mcmoddev.mmdbot.updatenotifiers.forge.ForgeVersionHelper;
+import com.mcmoddev.mmdbot.updatenotifiers.forge.MinecraftForgeVersion;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 

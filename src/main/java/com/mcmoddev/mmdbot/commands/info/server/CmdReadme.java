@@ -6,7 +6,7 @@ import com.mcmoddev.mmdbot.MMDBot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-import java.awt.*;
+import java.awt.Color;
 import java.time.Instant;
 
 /**

@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameE
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.restaction.pagination.AuditLogPaginationAction;
 
-import java.awt.*;
+import java.awt.Color;
 import java.time.Instant;
 import java.util.List;
 
@@ -37,9 +37,9 @@ public final class EventNicknameChanged extends ListenerAdapter {
 		Utils.sleepTimer();
 
 		final AuditLogPaginationAction paginationAction = event.getGuild().retrieveAuditLogs()
-				.type(ActionType.MEMBER_UPDATE)
-				.limit(1)
-				.cache(false);
+			.type(ActionType.MEMBER_UPDATE)
+			.limit(1)
+			.cache(false);
 
 		final List<AuditLogEntry> entries = paginationAction.complete();
 

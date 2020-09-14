@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.commands.search;
+package com.mcmoddev.mmdbot.commands.info;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
@@ -12,31 +12,30 @@ import java.util.Locale;
 /**
  * The bulk of the Search commands functions live here to be shared between all other commands.
  */
-//TODO Fix up and finish this class before removing the old ones.
 public class CmdSearch extends Command {
 
 	/**
-     * The search provider we want to generate a url for.
-     */
-    private final String baseUrl;
+	 * The search provider we want to generate a url for.
+	 */
+	private final String baseUrl;
 
-    /**
-     * @param name The command's/search engine's name.
-     * @param baseUrl The base url of the search provider.
-     */
-    public CmdSearch(String name, String baseUrl, String... aliases) {
-        super();
-        this.name = name.toLowerCase(Locale.ROOT);
-        this.aliases = aliases;
+	/**
+	 * @param name    The command's/search engine's name.
+	 * @param baseUrl The base url of the search provider.
+	 */
+	public CmdSearch(String name, String baseUrl, String... aliases) {
+		super();
+		this.name = name.toLowerCase(Locale.ROOT);
+		this.aliases = aliases;
 		this.help = "Search for something using " + name + ".";
-        this.baseUrl = baseUrl;
-    }
+		this.baseUrl = baseUrl;
+	}
 
-    /**
-     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
-     */
-    protected void execute(final CommandEvent event) {
-    	if (event.getArgs().isEmpty()) {
+	/**
+	 * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
+	 */
+	protected void execute(final CommandEvent event) {
+		if (event.getArgs().isEmpty()) {
 			event.getChannel().sendMessage("No arguments given!").queue();
 			return;
 		}
