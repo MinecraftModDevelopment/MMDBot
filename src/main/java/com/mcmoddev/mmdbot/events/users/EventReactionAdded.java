@@ -3,7 +3,11 @@ package com.mcmoddev.mmdbot.events.users;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageHistory;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -15,7 +19,7 @@ import java.util.Set;
  */
 public final class EventReactionAdded extends ListenerAdapter {
 
-	private Set<Message> warnedMessages = new HashSet<>();
+	private final Set<Message> warnedMessages = new HashSet<>();
 
 	/**
 	 *

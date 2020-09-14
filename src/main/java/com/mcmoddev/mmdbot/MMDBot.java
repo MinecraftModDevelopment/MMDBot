@@ -97,6 +97,7 @@ public final class MMDBot {
 	}
 
 	private static final Set<GatewayIntent> intents = new HashSet<>();
+
 	static {
 		intents.add(GatewayIntent.DIRECT_MESSAGES);
 		intents.add(GatewayIntent.GUILD_BANS);
