@@ -1,8 +1,8 @@
 package com.mcmoddev.mmdbot.helpers.forge;
 
-import com.mcmoddev.mmdbot.helpers.forge.ForgeVersion;
-import com.mcmoddev.mmdbot.helpers.forge.ForgeVersionHelper;
-import com.mcmoddev.mmdbot.helpers.forge.VersionMeta;
+import com.mcmoddev.mmdbot.updatenotifiers.forge.ForgeVersion;
+import com.mcmoddev.mmdbot.updatenotifiers.forge.ForgeVersionHelper;
+import com.mcmoddev.mmdbot.updatenotifiers.forge.VersionMeta;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
