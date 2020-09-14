@@ -16,6 +16,7 @@ public class FabricApiUpdateNotifier extends TimerTask {
 
 	public FabricApiUpdateNotifier() {
 		FabricVersionHelper.update();
+		lastLatest = FabricVersionHelper.getLatestApi();
 	}
 
 	@Override
