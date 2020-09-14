@@ -20,6 +20,7 @@ import com.mcmoddev.mmdbot.events.users.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,10 +85,8 @@ public final class MMDBot {
 		intents.add(GatewayIntent.DIRECT_MESSAGES);
 		intents.add(GatewayIntent.GUILD_BANS);
 		intents.add(GatewayIntent.GUILD_EMOJIS);
-		intents.add(GatewayIntent.GUILD_MEMBERS);
 		intents.add(GatewayIntent.GUILD_MESSAGE_REACTIONS);
 		intents.add(GatewayIntent.GUILD_MESSAGES);
-		intents.add(GatewayIntent.GUILD_PRESENCES);
 	}
 
 	/**
@@ -142,6 +141,9 @@ public final class MMDBot {
 
 			INSTANCE = JDABuilder
 				.create(config.getBotToken(), intents)
+				.disableCache(CacheFlag.VOICE_STATE)
+				.disableCache(CacheFlag.ACTIVITY)
+				.disableCache(CacheFlag.CLIENT_STATUS)
 				.addEventListeners(new EventUserJoined())
 				.addEventListeners(new EventUserLeft())
 				.addEventListeners(new EventNicknameChanged())
