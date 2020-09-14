@@ -6,8 +6,10 @@ import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.commands.fun.CmdCatFacts;
 import com.mcmoddev.mmdbot.commands.fun.CmdToggleMcServerPings;
 import com.mcmoddev.mmdbot.commands.info.CmdEventsHelp;
+import com.mcmoddev.mmdbot.commands.info.CmdFabricVersion;
 import com.mcmoddev.mmdbot.commands.info.CmdForgeVersion;
 import com.mcmoddev.mmdbot.commands.info.CmdJustAsk;
+import com.mcmoddev.mmdbot.commands.info.CmdMinecraftVersion;
 import com.mcmoddev.mmdbot.commands.info.CmdPaste;
 import com.mcmoddev.mmdbot.commands.info.CmdSearch;
 import com.mcmoddev.mmdbot.commands.info.CmdXy;
@@ -153,6 +155,7 @@ public final class MMDBot {
 				.addCommand(new CmdToggleMcServerPings())
 				.addCommand(new CmdForgeVersion())
 				.addCommand(new CmdMinecraftVersion())
+				.addCommand(new CmdFabricVersion())
 				.addCommand(new CmdMute())
 				.addCommand(new CmdUnmute())
 				.setHelpWord("help")
