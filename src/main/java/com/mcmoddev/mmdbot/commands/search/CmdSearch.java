@@ -4,6 +4,9 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 /**
@@ -12,54 +15,39 @@ import java.util.Locale;
 //TODO Fix up and finish this class before removing the old ones.
 public class CmdSearch extends Command {
 
-    /**
-     * The search commands name used when triggering the command.
-     */
-    private String name;
-
-    /**
+	/**
      * The search provider we want to generate a url for.
      */
-    private String searchProvider;
+    private final String baseUrl;
 
     /**
-     * @param name The search commands name used when triggering the command.
-     * @param searchProvider The search provider we want to generate a url for.
+     * @param name The command's/search engine's name.
+     * @param baseUrl The base url of the search provider.
      */
-    public CmdSearch(String name, String searchProvider) {
+    public CmdSearch(String name, String baseUrl, String... aliases) {
         super();
-        this.name = name;
-        this.help = "Search for something using " + name;
-        this.searchProvider = searchProvider;
+        this.name = name.toLowerCase(Locale.ROOT);
+        this.aliases = aliases;
+		this.help = "Search for something using " + name + ".";
+        this.baseUrl = baseUrl;
     }
 
     /**
-     * @param event The {@link com.jagrosh.jdautilities.command.CommandEvent CommandEvent} that triggered this Command.
+     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     protected void execute(final CommandEvent event) {
-        //The raw command sent by the user.
-        final String command = event.getMessage().getContentRaw().toLowerCase(Locale.ROOT);
-        //The main command prefix for the bot.
-        final String prefix = MMDBot.getConfig().getPrefix();
-        //The alternative command prefix for the bot.
-        final String alternativePrefix = MMDBot.getConfig().getAlternativePrefix();
-        //The thing we are searching for. e.g. Minecraft Mod Development website.
+    	if (event.getArgs().isEmpty()) {
+			event.getChannel().sendMessage("No arguments given!").queue();
+			return;
+		}
 
-        String searchTerm;
+		try {
+			final String query = URLEncoder.encode(event.getArgs(), StandardCharsets.UTF_8.toString());
+			event.getChannel().sendMessage(baseUrl + query).queue();
+		} catch (UnsupportedEncodingException e) {
+			MMDBot.LOGGER.error("Error processing search query {}: {}", event.getArgs(), e);
+			event.getChannel().sendMessage("There was an error processing your command.").queue();
+		}
 
-        event.getChannel().sendMessage(command).queue();
-        if (command.startsWith(prefix + name)) {
-            searchTerm = command.substring(prefix.length() + name.length() + 1)
-            .replace(" ", "+");
-        } else if (command.startsWith(alternativePrefix + name)) {
-            searchTerm = command.substring(alternativePrefix.length() + name.length() + 1)
-                    .replace(" ", "+");
-        } else {
-            event.getChannel().sendMessage(prefix).queue();
-            event.getChannel().sendMessage(command).queue();
-            return;
-        }
-
-        event.getChannel().sendMessage(searchProvider + searchTerm).queue();
-    }
+	}
 }

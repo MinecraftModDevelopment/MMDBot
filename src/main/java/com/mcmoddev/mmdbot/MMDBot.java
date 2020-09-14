@@ -4,32 +4,16 @@ import com.google.gson.Gson;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.commands.fun.CmdCatFacts;
-import com.mcmoddev.mmdbot.commands.search.CmdBing;
-import com.mcmoddev.mmdbot.commands.search.CmdDuckDuckGo;
-import com.mcmoddev.mmdbot.commands.search.CmdGoogle;
-import com.mcmoddev.mmdbot.commands.search.CmdLmgtfy;
-import com.mcmoddev.mmdbot.events.MiscEvents;
-import com.mcmoddev.mmdbot.events.users.EventNicknameChanged;
-import com.mcmoddev.mmdbot.events.users.EventReactionAdded;
-import com.mcmoddev.mmdbot.events.users.EventRoleAdded;
-import com.mcmoddev.mmdbot.events.users.EventRoleRemoved;
-import com.mcmoddev.mmdbot.events.users.EventUserJoined;
-import com.mcmoddev.mmdbot.events.users.EventUserLeft;
-import com.mcmoddev.mmdbot.core.BotConfig;
-import com.mcmoddev.mmdbot.commands.info.CmdEventsHelp;
-import com.mcmoddev.mmdbot.commands.info.CmdForgeVersion;
-import com.mcmoddev.mmdbot.commands.info.server.CmdGuild;
-import com.mcmoddev.mmdbot.commands.info.CmdJustAsk;
-import com.mcmoddev.mmdbot.commands.info.server.CmdMe;
-import com.mcmoddev.mmdbot.commands.info.server.CmdReadme;
-import com.mcmoddev.mmdbot.commands.info.server.CmdRoles;
-import com.mcmoddev.mmdbot.commands.info.server.CmdRules;
-import com.mcmoddev.mmdbot.commands.info.CmdPaste;
 import com.mcmoddev.mmdbot.commands.fun.CmdToggleMcServerPings;
-import com.mcmoddev.mmdbot.commands.info.CmdXy;
+import com.mcmoddev.mmdbot.commands.info.*;
+import com.mcmoddev.mmdbot.commands.info.server.*;
+import com.mcmoddev.mmdbot.commands.search.CmdSearch;
 import com.mcmoddev.mmdbot.commands.staff.CmdMute;
 import com.mcmoddev.mmdbot.commands.staff.CmdUnmute;
 import com.mcmoddev.mmdbot.commands.staff.CmdUser;
+import com.mcmoddev.mmdbot.core.BotConfig;
+import com.mcmoddev.mmdbot.events.MiscEvents;
+import com.mcmoddev.mmdbot.events.users.*;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -38,13 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
@@ -108,7 +86,7 @@ public final class MMDBot {
 		intents.add(GatewayIntent.GUILD_MESSAGE_REACTIONS);
 		intents.add(GatewayIntent.GUILD_MESSAGES);
 		intents.add(GatewayIntent.GUILD_PRESENCES);
-	};
+	}
 
 	/**
 	 * @param args Arguments provided to the program.
@@ -160,10 +138,10 @@ public final class MMDBot {
 			commandBuilder.addCommand(new CmdReadme());
 			commandBuilder.addCommand(new CmdRules());
 			commandBuilder.addCommand(new CmdCatFacts());
-			commandBuilder.addCommand(new CmdGoogle());
-			commandBuilder.addCommand(new CmdBing());
-			commandBuilder.addCommand(new CmdDuckDuckGo());
-			commandBuilder.addCommand(new CmdLmgtfy());
+			commandBuilder.addCommand(new CmdSearch("Google", "https://www.google.com/search?q=", "goog"));
+			commandBuilder.addCommand(new CmdSearch("Bing", "https://www.bing.com/search?q="));
+			commandBuilder.addCommand(new CmdSearch("DuckDuckGo", "https://duckduckgo.com/?q=", "ddg"));
+			commandBuilder.addCommand(new CmdSearch("LMGTFY", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"));
 			commandBuilder.addCommand(new CmdEventsHelp());
 			commandBuilder.addCommand(new CmdToggleMcServerPings());
 			commandBuilder.addCommand(new CmdForgeVersion());
