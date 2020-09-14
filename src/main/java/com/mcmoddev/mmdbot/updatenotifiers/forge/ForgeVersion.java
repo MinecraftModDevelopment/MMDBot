@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.helpers.forge;
+package com.mcmoddev.mmdbot.updatenotifiers.forge;
 
 public class ForgeVersion {
 	private String recommended;

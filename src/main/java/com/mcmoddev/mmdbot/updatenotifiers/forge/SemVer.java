@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.helpers.forge;
+package com.mcmoddev.mmdbot.updatenotifiers.forge;
 
 import org.jetbrains.annotations.NotNull;
 

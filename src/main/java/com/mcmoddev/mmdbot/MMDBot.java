@@ -27,10 +27,10 @@ import com.mcmoddev.mmdbot.events.users.EventRoleAdded;
 import com.mcmoddev.mmdbot.events.users.EventRoleRemoved;
 import com.mcmoddev.mmdbot.events.users.EventUserJoined;
 import com.mcmoddev.mmdbot.events.users.EventUserLeft;
-import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,15 +96,13 @@ public final class MMDBot {
 		return INSTANCE;
 	}
 
-	private static Set<GatewayIntent> intents = new HashSet<>();
+	private static final Set<GatewayIntent> intents = new HashSet<>();
 	static {
 		intents.add(GatewayIntent.DIRECT_MESSAGES);
 		intents.add(GatewayIntent.GUILD_BANS);
 		intents.add(GatewayIntent.GUILD_EMOJIS);
-		intents.add(GatewayIntent.GUILD_MEMBERS);
 		intents.add(GatewayIntent.GUILD_MESSAGE_REACTIONS);
 		intents.add(GatewayIntent.GUILD_MESSAGES);
-		intents.add(GatewayIntent.GUILD_PRESENCES);
 	}
 
 	/**
@@ -126,57 +124,55 @@ public final class MMDBot {
 			} catch (final IOException exception) {
 				MMDBot.LOGGER.error("An IOException occurred...", exception);
 			}
-			MMDBot.LOGGER.error("New Config generated please edit and add a bot token to the config and start the bot.");
+			MMDBot.LOGGER.error("New config generated. Please configurate the bot.");
 			System.exit(0);
-			//throw new RuntimeException(null, null);
 		}
 
 		try {
-			final JDABuilder botBuilder = new JDABuilder(AccountType.BOT).setToken(config.getBotToken());
 
-			botBuilder.addEventListeners(new EventUserJoined());
-			botBuilder.addEventListeners(new EventUserLeft());
-			botBuilder.addEventListeners(new EventNicknameChanged());
-			botBuilder.addEventListeners(new EventRoleAdded());
-			botBuilder.addEventListeners(new EventRoleRemoved());
-			botBuilder.addEventListeners(new EventReactionAdded());
-			botBuilder.addEventListeners(new MiscEvents());
+			final CommandClient commandListener = new CommandClientBuilder()
+				.setOwnerId(config.getOwnerID())
+				.setPrefix(config.getPrefix())
+				.setAlternativePrefix(getConfig().getAlternativePrefix())
+				.addCommand(new CmdGuild())
+				.addCommand(new CmdMe())
+				.addCommand(new CmdUser())
+				.addCommand(new CmdRoles())
+				.addCommand(new CmdJustAsk())
+				.addCommand(new CmdPaste())
+				.addCommand(new CmdXy())
+				.addCommand(new CmdReadme())
+				.addCommand(new CmdRules())
+				.addCommand(new CmdCatFacts())
+				.addCommand(new CmdSearch("Google", "https://www.google.com/search?q=", "goog"))
+				.addCommand(new CmdSearch("Bing", "https://www.bing.com/search?q="))
+				.addCommand(new CmdSearch("DuckDuckGo", "https://duckduckgo.com/?q=", "ddg"))
+				.addCommand(new CmdSearch("LMGTFY", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"))
+				.addCommand(new CmdEventsHelp())
+				.addCommand(new CmdToggleMcServerPings())
+				.addCommand(new CmdForgeVersion())
+				.addCommand(new CmdMute())
+				.addCommand(new CmdUnmute())
+				.setHelpWord("help")
+				.build();
 
-			final CommandClientBuilder commandBuilder = new CommandClientBuilder();
-
-			commandBuilder.setOwnerId(config.getOwnerID());
-			commandBuilder.setPrefix(config.getPrefix());
-			commandBuilder.setAlternativePrefix(getConfig().getAlternativePrefix());
-			commandBuilder.addCommand(new CmdGuild());
-			commandBuilder.addCommand(new CmdMe());
-			commandBuilder.addCommand(new CmdUser());
-			commandBuilder.addCommand(new CmdRoles());
-			commandBuilder.addCommand(new CmdJustAsk());
-			commandBuilder.addCommand(new CmdPaste());
-			commandBuilder.addCommand(new CmdXy());
-			commandBuilder.addCommand(new CmdReadme());
-			commandBuilder.addCommand(new CmdRules());
-			commandBuilder.addCommand(new CmdCatFacts());
-			commandBuilder.addCommand(new CmdSearch("Google", "https://www.google.com/search?q=", "goog"));
-			commandBuilder.addCommand(new CmdSearch("Bing", "https://www.bing.com/search?q="));
-			commandBuilder.addCommand(new CmdSearch("DuckDuckGo", "https://duckduckgo.com/?q=", "ddg"));
-			commandBuilder.addCommand(new CmdSearch("LMGTFY", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"));
-			commandBuilder.addCommand(new CmdEventsHelp());
-			commandBuilder.addCommand(new CmdToggleMcServerPings());
-			commandBuilder.addCommand(new CmdForgeVersion());
-			commandBuilder.addCommand(new CmdMute());
-			commandBuilder.addCommand(new CmdUnmute());
-			commandBuilder.setHelpWord("help");
-
-			final CommandClient commandListener = commandBuilder.build();
-			botBuilder.addEventListeners(commandListener);
-			botBuilder.enableIntents(intents);
-
-			INSTANCE = botBuilder.build();
+			INSTANCE = JDABuilder
+				.create(config.getBotToken(), intents)
+				.disableCache(CacheFlag.VOICE_STATE)
+				.disableCache(CacheFlag.ACTIVITY)
+				.disableCache(CacheFlag.CLIENT_STATUS)
+				.addEventListeners(new EventUserJoined())
+				.addEventListeners(new EventUserLeft())
+				.addEventListeners(new EventNicknameChanged())
+				.addEventListeners(new EventRoleAdded())
+				.addEventListeners(new EventRoleRemoved())
+				.addEventListeners(new EventReactionAdded())
+				.addEventListeners(new MiscEvents())
+				.addEventListeners(commandListener)
+				.build();
 		} catch (final LoginException exception) {
 			LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.", exception);
 			System.exit(1);
-			//throw new RuntimeException(null, null);
 		}
 	}
 }
