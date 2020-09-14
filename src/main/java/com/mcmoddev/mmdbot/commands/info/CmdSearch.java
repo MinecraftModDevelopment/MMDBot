@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.commands.search;
+package com.mcmoddev.mmdbot.commands.info;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
@@ -12,7 +12,6 @@ import java.util.Locale;
 /**
  * The bulk of the Search commands functions live here to be shared between all other commands.
  */
-//TODO Fix up and finish this class before removing the old ones.
 public class CmdSearch extends Command {
 
 	/**
