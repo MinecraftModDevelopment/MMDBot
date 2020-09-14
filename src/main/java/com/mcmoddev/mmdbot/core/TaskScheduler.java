@@ -13,12 +13,12 @@ public class TaskScheduler {
 	public static void init() {
 		// Check each every hour
 		try {
-			timer.scheduleAtFixedRate(new ForgeUpdateNotifier(), 0, 1000 * 60 * 60);
+			timer.scheduleAtFixedRate(new ForgeUpdateNotifier(), 0, 1000 * 60 * 60 * 3);
 		} catch (Exception e) {
 			MMDBot.LOGGER.error("Unable to schedule job Forge Update Notifier", e);
 			e.printStackTrace();
 		}
-		timer.scheduleAtFixedRate(new MinecraftUpdateNotifier(), 0, 1000 * 60 * 60);
-		timer.scheduleAtFixedRate(new FabricApiUpdateNotifier(), 0, 1000 * 60 * 60);
+		timer.scheduleAtFixedRate(new MinecraftUpdateNotifier(), 0, 1000 * 60 * 60 * 3);
+		timer.scheduleAtFixedRate(new FabricApiUpdateNotifier(), 0, 1000 * 60 * 60 * 3);
 	}
 }
