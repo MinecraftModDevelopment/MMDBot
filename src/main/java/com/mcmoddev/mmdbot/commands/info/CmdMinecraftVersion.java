@@ -35,7 +35,7 @@ public final class CmdMinecraftVersion extends Command {
 		final EmbedBuilder embed = new EmbedBuilder();
 		final TextChannel channel = event.getTextChannel();
 
-		embed.setTitle("Minecraft versions");
+		embed.setTitle("Minecraft Versions");
 		embed.addField("Latest", MinecraftVersionHelper.getLatest(), true);
 		embed.addField("Latest Stable", MinecraftVersionHelper.getLatestStable(), true);
 		embed.setColor(Color.GREEN);
