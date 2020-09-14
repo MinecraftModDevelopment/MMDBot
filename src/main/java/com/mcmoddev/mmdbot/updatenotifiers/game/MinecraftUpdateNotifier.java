@@ -14,7 +14,7 @@ public class MinecraftUpdateNotifier extends TimerTask {
 	private String lastLatest;
 	private String lastLatestStable;
 
-	public MinecraftUpdateNotifier() throws Exception {
+	public MinecraftUpdateNotifier() {
 		MinecraftVersionHelper.update();
 		lastLatest = MinecraftVersionHelper.getLatest();
 		lastLatestStable = MinecraftVersionHelper.getLatestStable();
