@@ -16,44 +16,44 @@ import java.time.Instant;
  */
 public final class CmdForgeVersion extends Command {
 
-	/**
-	 *
-	 */
-	public CmdForgeVersion() {
-		super();
-		this.name = "forgev";
-		aliases = new String[]{"forge"};
-		help = "Get forge versions for latest Minecraft version";
-	}
+    /**
+     *
+     */
+    public CmdForgeVersion() {
+        super();
+        this.name = "forgev";
+        aliases = new String[]{"forge"};
+        help = "Get forge versions for latest Minecraft version";
+    }
 
-	/**
-	 *
-	 */
-	@Override
-	protected void execute(final CommandEvent event) {
-		final EmbedBuilder embed = new EmbedBuilder();
-		final TextChannel channel = event.getTextChannel();
+    /**
+     *
+     */
+    @Override
+    protected void execute(final CommandEvent event) {
+        final EmbedBuilder embed = new EmbedBuilder();
+        final TextChannel channel = event.getTextChannel();
 
-		MinecraftForgeVersion latest = null;
-		try {
-			latest = ForgeVersionHelper.getLatestMcVersionForgeVersions();
-		} catch (Exception e) {
-			channel.sendMessage("Unable to get forge versions.").queue();
-			e.printStackTrace();
-			return;
-		}
+        MinecraftForgeVersion latest = null;
+        try {
+            latest = ForgeVersionHelper.getLatestMcVersionForgeVersions();
+        } catch (Exception e) {
+            channel.sendMessage("Unable to get forge versions.").queue();
+            e.printStackTrace();
+            return;
+        }
 
-		String latestForge = latest.getForgeVersion().getLatest();
-		String recommendedForge = latest.getForgeVersion().getRecommended();
-		if (recommendedForge == null) {
-			recommendedForge = "none";
-		}
+        String latestForge = latest.getForgeVersion().getLatest();
+        String recommendedForge = latest.getForgeVersion().getRecommended();
+        if (recommendedForge == null) {
+            recommendedForge = "none";
+        }
 
-		embed.setTitle(String.format("Forge Versions for MC %s", latest.getMcVersion()));
-		final String changelogLink = Utils.makeHyperlink("Changelog", String.format("https://files.minecraftforge.net/maven/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt", latest.getMcVersion(), latest.getForgeVersion().getLatest()));
-		embed.setDescription(String.format("Latest: **%s**\nRecommended: **%s**\n%s", latestForge, recommendedForge, changelogLink));
-		embed.setColor(Color.ORANGE);
-		embed.setTimestamp(Instant.now());
-		channel.sendMessage(embed.build()).queue();
-	}
+        embed.setTitle(String.format("Forge Versions for MC %s", latest.getMcVersion()));
+        final String changelogLink = Utils.makeHyperlink("Changelog", String.format("https://files.minecraftforge.net/maven/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt", latest.getMcVersion(), latest.getForgeVersion().getLatest()));
+        embed.setDescription(String.format("Latest: **%s**\nRecommended: **%s**\n%s", latestForge, recommendedForge, changelogLink));
+        embed.setColor(Color.ORANGE);
+        embed.setTimestamp(Instant.now());
+        channel.sendMessage(embed.build()).queue();
+    }
 }

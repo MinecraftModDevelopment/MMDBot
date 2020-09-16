@@ -14,39 +14,39 @@ import java.util.Locale;
  */
 public class CmdSearch extends Command {
 
-	/**
-	 * The search provider we want to generate a url for.
-	 */
-	private final String baseUrl;
+    /**
+     * The search provider we want to generate a url for.
+     */
+    private final String baseUrl;
 
-	/**
-	 * @param name    The command's/search engine's name.
-	 * @param baseUrl The base url of the search provider.
-	 */
-	public CmdSearch(String name, String baseUrl, String... aliases) {
-		super();
-		this.name = name.toLowerCase(Locale.ROOT);
-		this.aliases = aliases;
-		this.help = "Search for something using " + name + ".";
-		this.baseUrl = baseUrl;
-	}
+    /**
+     * @param name    The command's/search engine's name.
+     * @param baseUrl The base url of the search provider.
+     */
+    public CmdSearch(String name, String baseUrl, String... aliases) {
+        super();
+        this.name = name.toLowerCase(Locale.ROOT);
+        this.aliases = aliases;
+        this.help = "Search for something using " + name + ".";
+        this.baseUrl = baseUrl;
+    }
 
-	/**
-	 * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
-	 */
-	protected void execute(final CommandEvent event) {
-		if (event.getArgs().isEmpty()) {
-			event.getChannel().sendMessage("No arguments given!").queue();
-			return;
-		}
+    /**
+     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
+     */
+    protected void execute(final CommandEvent event) {
+        if (event.getArgs().isEmpty()) {
+            event.getChannel().sendMessage("No arguments given!").queue();
+            return;
+        }
 
-		try {
-			final String query = URLEncoder.encode(event.getArgs(), StandardCharsets.UTF_8.toString());
-			event.getChannel().sendMessage(baseUrl + query).queue();
-		} catch (UnsupportedEncodingException e) {
-			MMDBot.LOGGER.error("Error processing search query {}: {}", event.getArgs(), e);
-			event.getChannel().sendMessage("There was an error processing your command.").queue();
-		}
+        try {
+            final String query = URLEncoder.encode(event.getArgs(), StandardCharsets.UTF_8.toString());
+            event.getChannel().sendMessage(baseUrl + query).queue();
+        } catch (UnsupportedEncodingException e) {
+            MMDBot.LOGGER.error("Error processing search query {}: {}", event.getArgs(), e);
+            event.getChannel().sendMessage("There was an error processing your command.").queue();
+        }
 
-	}
+    }
 }

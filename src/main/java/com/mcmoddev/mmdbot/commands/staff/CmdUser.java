@@ -19,53 +19,53 @@ import java.util.Locale;
  */
 public class CmdUser extends Command {
 
-	/**
-	 *
-	 */
-	public CmdUser() {
-		super();
-		name = "user";
-		aliases = new String[]{"whois", "userinfo"};
-		help = "Get information about another user with their user ID.";
-		hidden = true;
-	}
+    /**
+     *
+     */
+    public CmdUser() {
+        super();
+        name = "user";
+        aliases = new String[]{"whois", "userinfo"};
+        help = "Get information about another user with their user ID.";
+        hidden = true;
+    }
 
-	/**
-	 *
-	 */
-	@Override
-	protected void execute(final CommandEvent event) {
-		final TextChannel channel = event.getTextChannel();
-		final Member member = Utils.getMemberFromString(event.getArgs(), event.getGuild());
-		final EmbedBuilder embed = createMemberEmbed(member);
-		channel.sendMessage(embed.build()).queue();
-	}
+    /**
+     *
+     */
+    @Override
+    protected void execute(final CommandEvent event) {
+        final TextChannel channel = event.getTextChannel();
+        final Member member = Utils.getMemberFromString(event.getArgs(), event.getGuild());
+        final EmbedBuilder embed = createMemberEmbed(member);
+        channel.sendMessage(embed.build()).queue();
+    }
 
-	protected EmbedBuilder createMemberEmbed(final Member member) {
-		final User user = member.getUser();
-		final EmbedBuilder embed = new EmbedBuilder();
-		final Instant dateJoinedDiscord = member.getTimeCreated().toInstant();
-		final Instant dateJoinedMMD = Utils.getMemberJoinTime(member);
+    protected EmbedBuilder createMemberEmbed(final Member member) {
+        final User user = member.getUser();
+        final EmbedBuilder embed = new EmbedBuilder();
+        final Instant dateJoinedDiscord = member.getTimeCreated().toInstant();
+        final Instant dateJoinedMMD = Utils.getMemberJoinTime(member);
 
-		embed.setTitle("User info");
-		embed.setColor(Color.WHITE);
-		embed.setThumbnail(user.getEffectiveAvatarUrl());
-		embed.addField("Username:", user.getName(), true);
-		embed.addField("Users discriminator:", "#" + user.getDiscriminator(), true);
-		embed.addField("Users id:", member.getId(), true);
+        embed.setTitle("User info");
+        embed.setColor(Color.WHITE);
+        embed.setThumbnail(user.getEffectiveAvatarUrl());
+        embed.addField("Username:", user.getName(), true);
+        embed.addField("Users discriminator:", "#" + user.getDiscriminator(), true);
+        embed.addField("Users id:", member.getId(), true);
 
-		if (member.getNickname() != null) {
-			embed.addField("Users nickname:", member.getNickname(), true);
-		} else {
-			embed.addField("Users nickname:", "No nickname applied.", true);
-		}
+        if (member.getNickname() != null) {
+            embed.addField("Users nickname:", member.getNickname(), true);
+        } else {
+            embed.addField("Users nickname:", "No nickname applied.", true);
+        }
 
-		final SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH);
-		embed.addField("Joined Discord:", date.format(dateJoinedDiscord.toEpochMilli()), true);
-		embed.addField("Joined MMD:", date.format(dateJoinedMMD.toEpochMilli()), true);
-		embed.addField("Member for:", Utils.getTimeDifference(Utils.getLocalTime(dateJoinedMMD), LocalDateTime.now()), true);
-		embed.setTimestamp(Instant.now());
+        final SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH);
+        embed.addField("Joined Discord:", date.format(dateJoinedDiscord.toEpochMilli()), true);
+        embed.addField("Joined MMD:", date.format(dateJoinedMMD.toEpochMilli()), true);
+        embed.addField("Member for:", Utils.getTimeDifference(Utils.getLocalTime(dateJoinedMMD), LocalDateTime.now()), true);
+        embed.setTimestamp(Instant.now());
 
-		return embed;
-	}
+        return embed;
+    }
 }

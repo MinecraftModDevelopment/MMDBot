@@ -8,9 +8,9 @@ plugins {
     id 'pmd'
 }
 
-mainClassName = 'com.mcmoddev.bot.MMDBot'
+mainClassName = 'com.mcmoddev.mmdbot.MMDBot'
 group 'com.mcmoddev'
-version '3.0'
+version '3.0.1'
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
 

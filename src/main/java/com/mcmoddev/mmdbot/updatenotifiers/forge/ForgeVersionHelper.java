@@ -12,88 +12,89 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ForgeVersionHelper {
-	private static final String VERSION_URL = "https://files.minecraftforge.net/maven/net/minecraftforge/forge/promotions_slim.json";
-	private static final Pattern VERSION_REGEX = Pattern.compile("(.+?)-(.+)");
 
-	private static final Gson gson = new Gson();
+    private static final String VERSION_URL = "https://files.minecraftforge.net/maven/net/minecraftforge/forge/promotions_slim.json";
+    private static final Pattern VERSION_REGEX = Pattern.compile("(.+?)-(.+)");
 
-	public static String getLatestVersion(List<String> versions) {
-		SemVer latest = new SemVer(versions.get(0));
+    private static final Gson gson = new Gson();
 
-		for (String version : versions) {
-			SemVer ver = new SemVer(version);
-			if (latest.compareTo(ver) < 0) {
-				latest = ver;
-			}
-		}
+    public static String getLatestVersion(List<String> versions) {
+        SemVer latest = new SemVer(versions.get(0));
 
-		return latest.toString();
-	}
+        for (String version : versions) {
+            SemVer ver = new SemVer(version);
+            if (latest.compareTo(ver) < 0) {
+                latest = ver;
+            }
+        }
 
-	public static ForgeVersion getForgeVersionsForMcVersion(String mcVersion) throws Exception {
-		return getForgeVersions().get(mcVersion);
-	}
+        return latest.toString();
+    }
 
-	public static MinecraftForgeVersion getLatestMcVersionForgeVersions() throws Exception {
-		Map<String, ForgeVersion> versions = getForgeVersions();
+    public static ForgeVersion getForgeVersionsForMcVersion(String mcVersion) throws Exception {
+        return getForgeVersions().get(mcVersion);
+    }
 
-		String latest = getLatestVersion(new ArrayList<>(versions.keySet()));
+    public static MinecraftForgeVersion getLatestMcVersionForgeVersions() throws Exception {
+        Map<String, ForgeVersion> versions = getForgeVersions();
 
-		return new MinecraftForgeVersion(latest, versions.get(latest));
-	}
+        String latest = getLatestVersion(new ArrayList<>(versions.keySet()));
 
-	private static InputStreamReader openUrl() throws Exception {
-		URL urlObj = new URL(VERSION_URL);
+        return new MinecraftForgeVersion(latest, versions.get(latest));
+    }
 
-		return new InputStreamReader(urlObj.openStream());
-	}
+    private static InputStreamReader openUrl() throws Exception {
+        URL urlObj = new URL(VERSION_URL);
 
-	public static Map<String, ForgeVersion> getForgeVersions() throws Exception {
-		InputStreamReader reader = openUrl();
+        return new InputStreamReader(urlObj.openStream());
+    }
 
-		ForgePromoData data = gson.fromJson(reader, ForgePromoData.class);
+    public static Map<String, ForgeVersion> getForgeVersions() throws Exception {
+        InputStreamReader reader = openUrl();
 
-		// Remove broken entries from the API
-		data.promos.remove("1.7.10-latest-1.7.10");
-		data.promos.remove("latest-1.7.10");
+        ForgePromoData data = gson.fromJson(reader, ForgePromoData.class);
 
-		// Collect version data
-		Map<String, ForgeVersion> versions = new HashMap<>();
+        // Remove broken entries from the API
+        data.promos.remove("1.7.10-latest-1.7.10");
+        data.promos.remove("latest-1.7.10");
 
-		for (Map.Entry<String, String> entry : data.promos.entrySet()) {
-			String mc = entry.getKey();
-			String forge = entry.getValue();
+        // Collect version data
+        Map<String, ForgeVersion> versions = new HashMap<>();
 
-			VersionMeta meta = getMCVersion(mc);
+        for (Map.Entry<String, String> entry : data.promos.entrySet()) {
+            String mc = entry.getKey();
+            String forge = entry.getValue();
 
-			if (versions.containsKey(meta.version)) {
-				ForgeVersion version = versions.get(meta.version);
-				if (meta.state.equals("recommended")) {
-					version.setRecommended(forge);
-				} else {
-					version.setLatest(forge);
-				}
-			} else {
-				ForgeVersion version = new ForgeVersion();
-				if (meta.state.equals("recommended")) {
-					version.setRecommended(forge);
-				} else {
-					version.setLatest(forge);
-				}
-				versions.put(meta.version, version);
-			}
-		}
+            VersionMeta meta = getMCVersion(mc);
 
-		return versions;
-	}
+            if (versions.containsKey(meta.version)) {
+                ForgeVersion version = versions.get(meta.version);
+                if (meta.state.equals("recommended")) {
+                    version.setRecommended(forge);
+                } else {
+                    version.setLatest(forge);
+                }
+            } else {
+                ForgeVersion version = new ForgeVersion();
+                if (meta.state.equals("recommended")) {
+                    version.setRecommended(forge);
+                } else {
+                    version.setLatest(forge);
+                }
+                versions.put(meta.version, version);
+            }
+        }
 
-	public static VersionMeta getMCVersion(String version) {
-		Matcher m = VERSION_REGEX.matcher(version);
+        return versions;
+    }
 
-		if (m.find()) {
-			return new VersionMeta(m.group(1), m.group(2));
-		} else {
-			return null;
-		}
-	}
+    public static VersionMeta getMCVersion(String version) {
+        Matcher m = VERSION_REGEX.matcher(version);
+
+        if (m.find()) {
+            return new VersionMeta(m.group(1), m.group(2));
+        } else {
+            return null;
+        }
+    }
 }
