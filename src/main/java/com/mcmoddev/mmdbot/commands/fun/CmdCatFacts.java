@@ -17,6 +17,7 @@ public class CmdCatFacts extends Command {
         super();
         name = "catfacts";
         help = "Get a random fact about cats, you learn something new every day!";
+        guildOnly = false;
     }
 
     public static String getFact() {
