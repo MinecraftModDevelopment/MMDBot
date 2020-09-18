@@ -62,7 +62,7 @@ public final class MMDBot {
     /**
      * The bots current version.
      */
-    public static final String VERSION = "3.0.1";
+    public static final String VERSION = "3.0.2";
 
     /**
      * The issue tracker where bugs and crashes should be reported, and PR's made.
@@ -163,13 +163,13 @@ public final class MMDBot {
                     .disableCache(CacheFlag.VOICE_STATE)
                     .disableCache(CacheFlag.ACTIVITY)
                     .disableCache(CacheFlag.CLIENT_STATUS)
-                    //.addEventListeners(new EventUserJoined())
-                    //.addEventListeners(new EventUserLeft())
-                    //.addEventListeners(new EventNicknameChanged())
-                    //.addEventListeners(new EventRoleAdded())
-                    //.addEventListeners(new EventRoleRemoved())
-                    //.addEventListeners(new EventReactionAdded())
-                    //.addEventListeners(new MiscEvents())
+                    .addEventListeners(new EventUserJoined())
+                    .addEventListeners(new EventUserLeft())
+                    .addEventListeners(new EventNicknameChanged())
+                    .addEventListeners(new EventRoleAdded())
+                    .addEventListeners(new EventRoleRemoved())
+                    .addEventListeners(new EventReactionAdded())
+                    .addEventListeners(new MiscEvents())
                     .addEventListeners(commandListener)
                     .build();
         } catch (final LoginException exception) {
