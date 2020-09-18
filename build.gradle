@@ -10,7 +10,7 @@ plugins {
 
 mainClassName = 'com.mcmoddev.mmdbot.MMDBot'
 group 'com.mcmoddev'
-version '3.0.1'
+version '3.0.2'
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
 
