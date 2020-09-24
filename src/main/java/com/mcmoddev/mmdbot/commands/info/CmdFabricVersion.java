@@ -33,8 +33,12 @@ public final class CmdFabricVersion extends Command {
         final EmbedBuilder embed = new EmbedBuilder();
         final TextChannel channel = event.getTextChannel();
 
+        String mcVersion = event.getArgs().trim();
+        if (mcVersion.isEmpty())
+        	mcVersion = MinecraftVersionHelper.getLatest();
+
         embed.setTitle("Fabric Versions");
-        embed.addField("Latest Yarn", FabricVersionHelper.getLatestYarn(MinecraftVersionHelper.getLatest()), true);
+        embed.addField("Latest Yarn", FabricVersionHelper.getLatestYarn(mcVersion), true);
         embed.addField("Latest API", FabricVersionHelper.getLatestApi(), true);
         embed.addField("Latest Loader", FabricVersionHelper.getLatestLoader(), true);
         embed.setColor(Color.WHITE);

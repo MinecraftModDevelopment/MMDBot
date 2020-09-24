@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,28 +32,36 @@ public final class FabricVersionHelper {
     private static String latestLoader;
     private static String latestApi;
 
+    private static final Duration timeUntilOutdated = Duration.ofMinutes(20);
+    private static Instant lastUpdated;
+
     public static String getLatestYarn(String mcVersion) {
-        if (latestYarns.isEmpty())
+        if (latestYarns.isEmpty() || isOutdated())
             update();
         return latestYarns.get(mcVersion);
     }
 
     public static String getLatestLoader() {
-        if (latestLoader == null)
+        if (latestLoader == null || isOutdated())
             update();
         return latestLoader;
     }
 
     public static String getLatestApi() {
-        if (latestApi == null)
+        if (latestApi == null || isOutdated())
             update();
         return latestApi;
     }
+
+    private static boolean isOutdated() {
+    	return lastUpdated.plus(timeUntilOutdated).isBefore(Instant.now());
+	}
 
     public static void update() {
         updateYarn();
         updateLoader();
         updateApi();
+        lastUpdated = Instant.now();
     }
 
     private static void updateYarn() {
@@ -132,4 +142,8 @@ public final class FabricVersionHelper {
         public String version;
         public boolean stable;
     }
+
+    static {
+    	update();
+	}
 }

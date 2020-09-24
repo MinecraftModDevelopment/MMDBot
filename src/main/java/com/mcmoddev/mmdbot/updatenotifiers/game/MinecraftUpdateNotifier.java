@@ -15,14 +15,12 @@ public class MinecraftUpdateNotifier extends TimerTask {
     private String lastLatestStable;
 
     public MinecraftUpdateNotifier() {
-        MinecraftVersionHelper.update();
         lastLatest = MinecraftVersionHelper.getLatest();
         lastLatestStable = MinecraftVersionHelper.getLatestStable();
     }
 
     @Override
     public void run() {
-        MinecraftVersionHelper.update();
         String latest = MinecraftVersionHelper.getLatest();
         String latestStable = MinecraftVersionHelper.getLatestStable();
 
