@@ -37,7 +37,7 @@ public final class CmdFabricVersion extends Command {
         if (mcVersion.isEmpty())
         	mcVersion = MinecraftVersionHelper.getLatest();
 
-        embed.setTitle("Fabric Versions");
+        embed.setTitle("Fabric Versions for Minecraft "+mcVersion);
         embed.addField("Latest Yarn", FabricVersionHelper.getLatestYarn(mcVersion), true);
         embed.addField("Latest API", FabricVersionHelper.getLatestApi(), true);
         embed.addField("Latest Loader", FabricVersionHelper.getLatestLoader(), true);
