@@ -7,6 +7,8 @@ import com.mcmoddev.mmdbot.MMDBot;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 public final class MinecraftVersionHelper {
@@ -16,7 +18,10 @@ public final class MinecraftVersionHelper {
     private static String latest;
     private static String latestStable;
 
-    public static String getLatest() {
+	private static final Duration timeUntilOutdated = Duration.ofMinutes(20);
+	private static Instant lastUpdated;
+
+	public static String getLatest() {
         if (latest == null)
             update();
         return latest;
@@ -38,6 +43,7 @@ public final class MinecraftVersionHelper {
 
         latest = versions.get(0).version;
         latestStable = versions.stream().filter(it -> it.stable).findFirst().map(it -> it.version).orElse(latest);
+        lastUpdated = Instant.now();
     }
 
     private static InputStreamReader openUrl() {
@@ -54,4 +60,8 @@ public final class MinecraftVersionHelper {
         public String version;
         public boolean stable;
     }
+
+	static {
+		update();
+	}
 }
