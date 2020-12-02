@@ -10,7 +10,7 @@ plugins {
 
 mainClassName = 'com.mcmoddev.mmdbot.MMDBot'
 group 'com.mcmoddev'
-version '3.0.2'
+version project.bot_version
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
 
@@ -23,11 +23,29 @@ repositories {
 }
 
 dependencies {
-    compile 'com.jagrosh:jda-utilities:3.0.4'
-    compile 'net.dv8tion:JDA:4.2.0_168'
-    implementation 'com.google.guava:guava:29.0-jre'
-    compile 'com.google.code.gson:gson:2.8.6'
-    compile 'ch.qos.logback:logback-classic:1.2.3'
+    compile "com.jagrosh:jda-utilities:${project.jdautils_version}"
+    compile "net.dv8tion:JDA:${project.jda_version}"
+    implementation "com.google.guava:guava:${project.guava_version}"
+    compile "com.google.code.gson:gson:${project.gson_version}"
+    compile "ch.qos.logback:logback-classic:${project.logback_classic_version}"
+}
+
+jar {
+    manifest {
+        mainAttributes(
+                "Maven-Artifact": "${project.group}:${archivesBaseName}:${project.bot_version}",
+                "Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "Specification-Title": archivesBaseName,
+                "Specification-Vendor": "MinecraftModDevs",
+                "Specification-Version": "1",
+                "Implementation-Title": archivesBaseName,
+                "Implementation-Version": "${project.bot_version}",
+                "Implementation-Vendor": "MinecraftModDevs",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "Built-On-Java": "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
+                "Built-On": "${project.jda_version}-${project.jdautils_version}"
+        )
+    }
 }
 
 compileJava.options.encoding = 'UTF-8'

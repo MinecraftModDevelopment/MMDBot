@@ -123,6 +123,11 @@ public final class BotConfig {
     private String roleTranslator = "201471697482678273";
 
     /**
+     * The Event Notifications role ID.
+     */
+    private String roleEventNotifications = "777633879938826252";
+
+    /**
      * The Booster role ID.
      */
     private String roleBooster = "590166091234279465";
@@ -328,6 +333,13 @@ public final class BotConfig {
      */
     public String getRoleTranslator() {
         return roleTranslator;
+    }
+
+    /**
+     * @return The ID of the Event Notifications role.
+     */
+    public String getRoleEventNotifications() {
+        return roleEventNotifications;
     }
 
     /**

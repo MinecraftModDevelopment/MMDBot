@@ -1,0 +1,4 @@
+3.0.5:
+- Add guild member intent so that some of our events work as they should.
+- Add the build command back.
+- Update build.gradle to store the bots version in the jar properties, this way we only need to update it in build.properties.

@@ -5,6 +5,7 @@ import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.commands.fun.CmdCatFacts;
 import com.mcmoddev.mmdbot.commands.fun.CmdToggleMcServerPings;
+import com.mcmoddev.mmdbot.commands.info.CmdBuild;
 import com.mcmoddev.mmdbot.commands.info.CmdEventsHelp;
 import com.mcmoddev.mmdbot.commands.info.CmdFabricVersion;
 import com.mcmoddev.mmdbot.commands.info.CmdForgeVersion;
@@ -12,6 +13,7 @@ import com.mcmoddev.mmdbot.commands.info.CmdJustAsk;
 import com.mcmoddev.mmdbot.commands.info.CmdMinecraftVersion;
 import com.mcmoddev.mmdbot.commands.info.CmdPaste;
 import com.mcmoddev.mmdbot.commands.info.CmdSearch;
+import com.mcmoddev.mmdbot.commands.fun.CmdToggleEventPings;
 import com.mcmoddev.mmdbot.commands.info.CmdXy;
 import com.mcmoddev.mmdbot.commands.info.server.CmdGuild;
 import com.mcmoddev.mmdbot.commands.info.server.CmdMe;
@@ -47,6 +49,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Our Main class.
@@ -62,7 +65,7 @@ public final class MMDBot {
     /**
      * The bots current version.
      */
-    public static final String VERSION = "3.0.2";
+    public static final String VERSION = MMDBot.class.getPackage().getImplementationVersion();
 
     /**
      * The issue tracker where bugs and crashes should be reported, and PR's made.
@@ -86,6 +89,7 @@ public final class MMDBot {
         intents.add(GatewayIntent.GUILD_EMOJIS);
         intents.add(GatewayIntent.GUILD_MESSAGE_REACTIONS);
         intents.add(GatewayIntent.GUILD_MESSAGES);
+        intents.add(GatewayIntent.GUILD_MEMBERS);
     }
 
     /**
@@ -135,6 +139,7 @@ public final class MMDBot {
                     .setPrefix(config.getPrefix())
                     .setAlternativePrefix(getConfig().getAlternativePrefix())
                     .addCommand(new CmdGuild())
+                    .addCommand(new CmdBuild())
                     .addCommand(new CmdMe())
                     .addCommand(new CmdUser())
                     .addCommand(new CmdRoles())
@@ -150,6 +155,7 @@ public final class MMDBot {
                     .addCommand(new CmdSearch("LMGTFY", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"))
                     .addCommand(new CmdEventsHelp())
                     .addCommand(new CmdToggleMcServerPings())
+                    .addCommand(new CmdToggleEventPings())
                     .addCommand(new CmdForgeVersion())
                     .addCommand(new CmdMinecraftVersion())
                     .addCommand(new CmdFabricVersion())
