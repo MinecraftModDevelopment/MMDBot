@@ -39,7 +39,7 @@ public final class EventUserJoined extends ListenerAdapter {
 
         if (MMDBot.getConfig().getGuildID().equals(guildId)) {
             final List<Role> roles = Utils.getOldUserRoles(guild, user.getIdLong());
-            if (roles != null && member != null) {
+            if (member != null) {
                 for (Role role : roles) {
                     try {
                         guild.addRoleToMember(member, role).queue();
@@ -57,12 +57,8 @@ public final class EventUserJoined extends ListenerAdapter {
             embed.addField("User:", user.getAsTag(), true);
             embed.addField("User ID:", user.getId(), true);
             //TODO Check if this works.
-            if (roles != null) {
-                embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), true);
-            } else {
-                embed.addField("Roles:", "Users roles currently unobtainable.", true);
-            }
-            embed.setTimestamp(Instant.now());
+			embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), true);
+			embed.setTimestamp(Instant.now());
 
             channel.sendMessage(embed.build()).queue();
         }

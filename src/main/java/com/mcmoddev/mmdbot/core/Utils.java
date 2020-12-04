@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.Role;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -180,10 +181,11 @@ public final class Utils {
      * @param userID The users ID.
      * @return A list of the roles the user had to save to a file for when they return.
      */
+    @Nonnull
     public static List<Role> getOldUserRoles(final Guild guild, final Long userID) {
         Map<String, List<String>> roles = getUserToRoleMap();
-        if (roles == null)
-            return null;
+        if (!roles.containsKey(userID.toString()))
+            return Collections.emptyList();
 
         return roles.get(userID.toString()).stream().map(guild::getRoleById).collect(Collectors.toList());
     }
@@ -199,10 +201,7 @@ public final class Utils {
     public static void writeUserRoles(final Long userID, final List<Role> roles) {
         final File roleFile = new File(STICKY_ROLES_FILE_PATH);
         Map<String, List<String>> userToRoleMap = getUserToRoleMap();
-        if (userToRoleMap == null) {
-            userToRoleMap = new HashMap<>();
-        }
-        userToRoleMap.put(userID.toString(), roles.stream().map(ISnowflake::getId).collect(Collectors.toList()));
+		userToRoleMap.put(userID.toString(), roles.stream().map(ISnowflake::getId).collect(Collectors.toList()));
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(roleFile), StandardCharsets.UTF_8)) {
             new Gson().toJson(userToRoleMap, writer);
         } catch (final FileNotFoundException exception) {
@@ -215,19 +214,19 @@ public final class Utils {
     /**
      * @return
      */
+    @Nonnull
     public static Map<String, List<String>> getUserToRoleMap() {
         final File roleFile = new File(STICKY_ROLES_FILE_PATH);
         if (!roleFile.exists())
-            return null;
-        Map<String, List<String>> roles = null;
+            return new HashMap<>();
         try (InputStreamReader reader = new InputStreamReader(new FileInputStream(roleFile), StandardCharsets.UTF_8)) {
             Type typeOfHashMap = new TypeToken<Map<String, List<String>>>() {
             }.getType();
-            roles = new Gson().fromJson(reader, typeOfHashMap);
+            return new Gson().fromJson(reader, typeOfHashMap);
         } catch (final IOException exception) {
             MMDBot.LOGGER.trace("Failed to read sticky roles file...", exception);
         }
-        return roles;
+        return new HashMap<>();
     }
 
     /**
@@ -239,10 +238,7 @@ public final class Utils {
     public static void writeUserJoinTimes(final String userID, final Instant joinTime) {
         final File userJoinTimesFile = new File(USER_JOIN_TIMES_FILE_PATH);
         Map<String, Instant> userJoinTimes = getUserJoinTimeMap();
-        if (userJoinTimes == null) {
-            userJoinTimes = new HashMap<>();
-        }
-        userJoinTimes.put(userID, joinTime);
+		userJoinTimes.put(userID, joinTime);
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(userJoinTimesFile), StandardCharsets.UTF_8)) {
             new Gson().toJson(userJoinTimes, writer);
         } catch (final FileNotFoundException exception) {
@@ -255,19 +251,19 @@ public final class Utils {
     /**
      * @return
      */
+    @Nonnull
     public static Map<String, Instant> getUserJoinTimeMap() {
         final File joinTimesFile = new File(USER_JOIN_TIMES_FILE_PATH);
         if (!joinTimesFile.exists())
-            return null;
-        Map<String, Instant> userJoinTimes = null;
+            return new HashMap<>();
         try (InputStreamReader reader = new InputStreamReader(new FileInputStream(joinTimesFile), StandardCharsets.UTF_8)) {
             Type typeOfHashMap = new TypeToken<Map<String, Instant>>() {
             }.getType();
-            userJoinTimes = new Gson().fromJson(reader, typeOfHashMap);
+            return new Gson().fromJson(reader, typeOfHashMap);
         } catch (final IOException exception) {
             MMDBot.LOGGER.trace("Failed to read user join times file...", exception);
         }
-        return userJoinTimes;
+        return new HashMap<>();
     }
 
     /**
@@ -277,7 +273,7 @@ public final class Utils {
     public static Instant getMemberJoinTime(Member member) {
         final Map<String, Instant> userJoinTimes = getUserJoinTimeMap();
         final String memberID = member.getId();
-        return userJoinTimes != null && userJoinTimes.containsKey(memberID) ?
+        return userJoinTimes.containsKey(memberID) ?
                 userJoinTimes.get(memberID) :
                 member.getTimeJoined().toInstant();
     }
