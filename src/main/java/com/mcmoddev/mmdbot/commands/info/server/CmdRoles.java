@@ -46,12 +46,12 @@ public final class CmdRoles extends Command {
 
         final String rolesCount = event.getGuild().getRoles()
 			.stream()
-			.filter(role -> !role.isManaged())
+			.filter(role -> !role.isManaged()) // Filter out managed roles
 			.map(role -> role.getAsMention() + ": " + role.getGuild().getMembersWithRoles(role).size())
 			.collect(Collectors.joining("\n"));
 
         embed.setColor(Color.GREEN);
-        embed.setTitle("Users With Role");
+        embed.setTitle("Users With Roles");
         embed.setDescription("A count of how many members have been assigned some of MMD's many roles.");
         embed.addField("Role count:", rolesCount, true);
         embed.setTimestamp(Instant.now());
