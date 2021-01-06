@@ -2,7 +2,6 @@ package com.mcmoddev.mmdbot.commands.info.server;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -34,6 +33,7 @@ public final class CmdGuild extends Command {
      */
     @Override
     protected void execute(final CommandEvent event) {
+    	if (!Utils.checkCommand(this, event)) return;
         final Guild guild = event.getGuild();
         final EmbedBuilder embed = new EmbedBuilder();
         final TextChannel channel = event.getTextChannel();
@@ -51,12 +51,6 @@ public final class CmdGuild extends Command {
         embed.addField("Date created:", new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH).format(dateGuildCreated.toEpochMilli()), true);
         embed.addField("Guilds age:", Utils.getTimeDifference(Utils.getLocalTime(dateGuildCreated), LocalDateTime.now()), true);
         embed.setTimestamp(Instant.now());
-
-        final long channelID = MMDBot.getConfig().getBotStuffChannelId();
-        if (channel.getIdLong() != channelID) {
-            channel.sendMessage("This command is channel locked to <#" + channelID + ">").queue();
-        } else {
-            channel.sendMessage(embed.build()).queue();
-        }
+		channel.sendMessage(embed.build()).queue();
     }
 }

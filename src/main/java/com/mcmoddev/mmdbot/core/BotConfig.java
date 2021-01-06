@@ -1,400 +1,261 @@
 package com.mcmoddev.mmdbot.core;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
+import com.electronwill.nightconfig.core.ConfigFormat;
+import com.electronwill.nightconfig.core.UnmodifiableConfig;
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import com.electronwill.nightconfig.core.file.FileNotFoundAction;
+import com.electronwill.nightconfig.toml.TomlFormat;
+import com.google.common.io.Resources;
+import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
+
+import javax.annotation.Nullable;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 /**
- *
+ * The configuration holder for the bot.
  */
-@Deprecated
 public final class BotConfig {
-
-    /**
-     * Discord Bot Token.
-     */
-    private String botToken = "Enter your bot token here.";
-
-    /**
-     * The ID of the bots owner. (Currently Proxy)
-     */
-    private String ownerID = "141990014346199040";
-
-    /**
-     * The bots Command Prefix.
-     */
-    private String prefix = "!mmd-";
-
-    /**
-     * The alternative command prefix, shorter and faster to type out than the long one.
-     */
-    private String alternativePrefix = "!";
-
-    /**
-     * The ID of the guild we will be running the bot in.
-     */
-    private Long guildID = 0L;
-
-    /**
-     * The channel the bots commands are primarily used in.
-     */
-    private Long botStuffChannelId = 0L;
-
-    //Channel ID's
-    /**
-     * ID for Basic Events Channel.
-     */
-    private Long channelIDBasicEvents = 0L;
-
-    /**
-     * ID for Important Events Channel.
-     */
-    private Long channelIDImportantEvents = 0L;
-
-    /**
-     * ID for Deleted Messages Channel.
-     */
-    private Long channelIDDeletedMessages = 0L;
-
-    /**
-     * ID for the Readme Channel.
-     */
-    private Long channelIDReadme = 0L;
-
-    /**
-     * ID for the Rules channel.
-     */
-    private Long channelIDRules = 0L;
-
-    /**
-     * ID for the bots Debug Channel.
-     */
-    private Long channelIDDebug = 0L;
-
-    /**
-     * ID for the bots Console Channel.
-     */
-    private Long channelIDConsole = 0L;
-
-    /**
-     * ID for Requests Channel
-     */
-    private Long channelIDRequests = 0L;
-
-    /**
-     * ID for Requests Channel
-     */
-    private Long channelIDRequestsDiscussion = 0L;
-
-    /**
-     * The channel ID of the channel we want to put forge updates notifications in.
-     */
-    private Long channelIDForgeNotifier = 0L;
-
-    /**
-     * The Staff role ID.
-     */
-    private String roleStaff = "218607518048452610";
-
-    /**
-     * The Community Reps role ID.
-     */
-    private String roleCommunityRep = "286223615765118986";
-
-    /**
-     * The Modder role ID.
-     */
-    private String roleModder = "191145754583105536";
-
-    /**
-     * The Artist role ID.
-     */
-    private String roleArtist = "179305517343047680";
-
-    /**
-     * The Streamer role ID.
-     */
-    private String roleStreamer = "219679192462131210";
-
-    /**
-     * The Modpack Maker role ID.
-     */
-    private String roleModpackMaker = "215403201090813952";
-
-    /**
-     * The Translator role ID.
-     */
-    private String roleTranslator = "201471697482678273";
-
-    /**
-     * The Event Notifications role ID.
-     */
-    private String roleEventNotifications = "777633879938826252";
-
-    /**
-     * The Booster role ID.
-     */
-    private String roleBooster = "590166091234279465";
-
-    /**
-     * The Public Server Player role ID.
-     */
-    private String rolePublicServerPlayer = "325780906579066881";
-
-    /**
-     * The Muted role ID.
-     */
-    private String roleMuted = "305875306529554432";
-
-    /**
-     * The ID of the request is bad emoticon.
-     */
-    private Long[] emoteIDsBad = new Long[]{0L};
-
-    /**
-     * The ID of the request needs improvement emoticon.
-     */
-    private Long[] emoteIDsNeedsImprovement = new Long[]{0L};
-
-    /**
-     * The ID of the request is good emoticon.
-     */
-    private Long[] emoteIDsGood = new Long[]{0L};
-
-    /**
-     * The bad reaction threshold.
-     */
-    private double badReactionThreshold = 0.0;
-
-    /**
-     * The bad reaction warning threshold.
-     */
-    private double warningBadReactionThreshold = 0.0;
-
-    /**
-     *
-     */
-    public BotConfig() {
-        //
-    }
-
-    /**
-     * @return The bots token.
-     */
-    public String getBotToken() {
-        return botToken;
-    }
-
-    /**
-     * @return The ID of the bot owner.
-     */
-    public String getOwnerID() {
-        return ownerID;
-    }
-
-    /**
-     * @return The prefix the bot will use when users run commands.
-     */
-    public String getPrefix() {
-        return prefix;
-    }
-
-    /**
-     * @return The alternative prefix the bot will use when users run commands.
-     */
-    public String getAlternativePrefix() {
-        return alternativePrefix;
-    }
-
-    /**
-     * @return The guild/servers ID.
-     */
-    public Long getGuildID() {
-        return guildID;
-    }
-
-    /**
-     * @return The channel ID for the bot-stuff channel.
-     */
-    public Long getBotStuffChannelId() {
-        return botStuffChannelId;
-    }
-
-    /**
-     * @return The channel ID for the basic events channel.
-     */
-    public Long getChannelIDBasicEvents() {
-        return channelIDBasicEvents;
-    }
-
-    /**
-     * @return The channel ID for the important events channel.
-     */
-    public Long getChannelIDImportantEvents() {
-        return channelIDImportantEvents;
-    }
-
-    /**
-     * @return The channel ID of the channel the bot logs deleted messages in.
-     */
-    public Long getChannelIDDeletedMessages() {
-        return channelIDDeletedMessages;
-    }
-
-    /**
-     * @return The channel ID of the bots debug channel.
-     */
-    public Long getChannelIDDebug() {
-        return channelIDDebug;
-    }
-
-    /**
-     * @return The channel ID for the bots console channel.
-     */
-    public Long getChannelIDConsole() {
-        return channelIDConsole;
-    }
-
-    /**
-     * @return The channel ID for the readme channel.
-     */
-    public Long getChannelIDReadme() {
-        return channelIDReadme;
-    }
-
-    /**
-     * @return The channel ID for the rules.
-     */
-    public Long getChannelIDRules() {
-        return channelIDRules;
-    }
-
-    /**
-     * @return The channel ID for requests channel.
-     */
-    public Long getChannelIDRequests() {
-        return channelIDRequests;
-    }
-
-    /**
-     * @return The channel ID for request-discussion.
-     */
-    public Long getChannelIDRequestsDiscussion() {
-        return channelIDRequestsDiscussion;
-    }
-
-    /**
-     * @return The channel ID of the channel we want to display forge update notifications in.
-     */
-    public Long getChannelIDForgeNotifier() {
-        return channelIDForgeNotifier;
-    }
-
-    /**
-     * @return The role ID of the Staff role.
-     */
-    public String getRoleStaff() {
-        return roleStaff;
-    }
-
-    /**
-     * @return The role ID of the Community Reps role.
-     */
-    public String getRoleCommunityRep() {
-        return roleCommunityRep;
-    }
-
-    /**
-     * @return The role ID of the Modder role.
-     */
-    public String getRoleModder() {
-        return roleModder;
-    }
-
-    /**
-     * @return The role ID of the Artist role.
-     */
-    public String getRoleArtist() {
-        return roleArtist;
-    }
-
-    /**
-     * @return The role ID of the Streamer role.
-     */
-    public String getRoleStreamer() {
-        return roleStreamer;
-    }
-
-    /**
-     * @return The role ID of the Modpack Maker role.
-     */
-    public String getRoleModpackMaker() {
-        return roleModpackMaker;
-    }
-
-    /**
-     * @return The ID of the Translator role.
-     */
-    public String getRoleTranslator() {
-        return roleTranslator;
-    }
-
-    /**
-     * @return The ID of the Event Notifications role.
-     */
-    public String getRoleEventNotifications() {
-        return roleEventNotifications;
-    }
-
-    /**
-     * @return The ID of the Booster role.
-     */
-    public String getRoleBooster() {
-        return roleBooster;
-    }
-
-    /**
-     * @return The ID of the public server player role.
-     */
-    public String getRolePublicServerPlayer() {
-        return rolePublicServerPlayer;
-    }
-
-    /**
-     * @return The ID of the muted role.
-     */
-    public String getRoleMuted() {
-        return roleMuted;
-    }
-
-    /**
-     * @return The ID of the request is bad emoticon.
-     */
-    public Long[] getEmoteIDsBad() {
-        return emoteIDsBad;
-    }
-
-    /**
-     * @return The ID of the request needs improvement emoticon.
-     */
-    public Long[] getEmoteIDsNeedsImprovement() {
-        return emoteIDsNeedsImprovement;
-    }
-
-    /**
-     * @return The ID of the request is good emoticon.
-     */
-    public Long[] getEmoteIDsGood() {
-        return emoteIDsGood;
-    }
-
-    /**
-     * @return The threshold of the request is bad emoticon.
-     */
-    public double getBadReactionThreshold() {
-        return badReactionThreshold;
-    }
-
-    /**
-     * @return The warning threshold of the request is bad emoticon.
-     */
-    public double getWarningBadReactionThreshold() {
-        return warningBadReactionThreshold;
-    }
+	private final CommentedFileConfig config;
+	private boolean newlyGenerated = false;
+
+	public BotConfig(Path configFile) {
+		this(configFile, TomlFormat.instance());
+	}
+
+	public BotConfig(Path configFile, ConfigFormat<? extends CommentedConfig> configFormat) {
+		this.config = CommentedFileConfig.builder(configFile, configFormat)
+			.autoreload()
+			.onFileNotFound((file, format) -> {
+				this.newlyGenerated = true;
+				//noinspection UnstableApiUsage
+				return FileNotFoundAction.copyData(Resources.getResource("default-config.toml")).run(file, format);
+			})
+			.preserveInsertionOrder()
+			.build();
+		config.load();
+	}
+
+	/**
+	 * Returns whether the configuration file was newly generated (e.g. the bot was run for the first time).
+	 *
+	 * @return If the config file was newly generated
+	 */
+	public boolean isNewlyGenerated() {
+		return newlyGenerated;
+	}
+
+	/**
+	 * Returns the raw {@link CommentedFileConfig} object.
+	 *
+	 * @return The raw config object
+	 */
+	public CommentedFileConfig getConfig() {
+		return config;
+	}
+
+	/**
+	 * Returns the configured bot token, or {@code null} if there is none configured.
+	 *
+	 * @return The configured bot token, or {@code null}
+	 */
+	@Nullable
+	public String getToken() {
+		return config.<String>getOptional("bot.token")
+			.filter(string -> string.indexOf('!') == -1 || string.isEmpty())
+			.orElse(null);
+	}
+
+	/**
+	 * Returns the snowflake ID of the bot's owner, or {@code null} is none is configured.
+	 * <p>
+	 * The bot owner has access to special owner-only commands.
+	 *
+	 * @return The snowflake ID of the bot owner, or {@code null}
+	 */
+	@Nullable
+	public String getOwnerID() {
+		return config.get("bot.owner");
+	}
+
+	/**
+	 * Returns the snowflake ID of the guild where this bot resides, or {@code 0L} is none is configured.
+	 *
+	 * @return The snowflake ID of the guild
+	 */
+	public long getGuildID() {
+		return SafeIdUtil.safeConvert(config.get("bot.guildId"));
+	}
+
+	/**
+	 * Returns the main commands prefix for bot commands.
+	 *
+	 * @return The main commands prefix
+	 */
+	public String getMainPrefix() {
+		return config.getOrElse("commands.prefix.main", "!mmd-");
+	}
+
+	/**
+	 * Returns the alternative commands prefix for bot commands.
+	 * <p>
+	 * This will usually be a shorter version of the {@linkplain #getMainPrefix() main commands prefix}, to be easier and
+	 * quicker to type out commands.
+	 *
+	 * @return The alternative commands prefix
+	 */
+	public String getAlternativePrefix() {
+		return config.getOrElse("commands.prefix.alternative", "!");
+	}
+
+	/**
+	 * Returns the table of channel aliases, in the form of an {@link UnmodifiableConfig}.
+	 * <p>
+	 * Channel aliases are used in channel snowflakes lists to substitute the actual channel snowflake ID with a human-readable
+	 * identifier.
+	 *
+	 * @return The table of channel aliases
+	 */
+	public Optional<UnmodifiableConfig> getChannelAliases() {
+		return config.getOptional("channels.aliases");
+	}
+
+	/**
+	 * Returns the snowflake ID of the given channel key based on the configuration, or {@code 0L} if none is configured.
+	 * <p>
+	 * The channel key consists of ASCII letters, optionally separated by periods/full stops ({@code .}) for connoting
+	 * categories.
+	 *
+	 * @param channelKey The channel key
+	 * @return The snowflake ID of the given channel key, or {@code 0L}
+	 */
+	public long getChannel(String channelKey) {
+		return SafeIdUtil.safeConvert(getAliased("channels." + channelKey, getChannelAliases()));
+	}
+
+	/**
+	 * Returns whether the given command is enabled.
+	 *
+	 * @param commandName The command name
+	 * @return If the command is enabled
+	 */
+	public boolean isEnabled(String commandName) {
+		return config.<Boolean>getOrElse("commands." + commandName + ".enabled", true);
+	}
+
+	/**
+	 * Returns the list of snowflake IDs of the channels where the given command is allowed to run in.
+	 *
+	 * @param commandName The command name
+	 * @return The list of snowflake IDs of allowed channels
+	 */
+	public List<Long> getAllowedChannels(String commandName) {
+		return getAliasedSnowflakeList("commands." + commandName + ".allowed_channels", getChannelAliases())
+			.orElseGet(Collections::emptyList);
+	}
+
+	/**
+	 * Returns whether the given command is allowed to run in the given channel.
+	 * <p>
+	 * If the allowed channels list for the command does not exist, then the command defaults to being allowed to run.
+	 * Otherwise, the command is only allowed to run if the channel ID is in the list of allowed channels for the command.
+	 *
+	 * @param commandName The command name
+	 * @param channelID   The snowflake ID of the channel
+	 * @return If the command is allowed to run in the channel
+	 */
+	public boolean isAllowed(String commandName, long channelID) {
+		final List<Long> allowedChannels = getAllowedChannels(commandName);
+		return allowedChannels.isEmpty() || allowedChannels.contains(channelID);
+	}
+
+	/**
+	 * Returns the snowflake ID of the given role key based on the configuration, or {@code 0L} if none is configured.
+	 * <p>
+	 * The role key consists of ASCII letters, optionally separated by periods/full stops ({@code .}) for connoting
+	 * categories.
+	 *
+	 * @param roleKey The role key
+	 * @return The snowflake ID of the given role key, or {@code 0L}
+	 */
+	public long getRole(String roleKey) {
+		return SafeIdUtil.safeConvert(config.getOrElse("roles." + roleKey, ""));
+	}
+
+	/**
+	 * Returns the list of snowflake IDs of the reaction emotes for bad requests.
+	 *
+	 * @return The list of snowflake IDs of bad request reaction emotes
+	 */
+	public List<Long> getBadRequestsReactions() {
+		return getSnowflakeList("requests.emotes.bad").orElseGet(Collections::emptyList);
+	}
+
+	/**
+	 * Returns the list of snowflake IDs of the reaction emotes for requests that need improvement.
+	 * <p>
+	 * These reaction emotes carry half the weight of the {@link #getBadRequestsReactions() bad requests reactions}.
+	 *
+	 * @return The list of snowflake IDs of needs improvement request reaction emotes
+	 */
+	public List<Long> getRequestsNeedsImprovementReactions() {
+		return getSnowflakeList("requests.emotes.needs_improvement").orElseGet(Collections::emptyList);
+	}
+
+	/**
+	 * Returns the list of snowflake IDs of the reaction emotes for good requests.
+	 *
+	 * @return The list of snowflake IDs of good request reaction emotes
+	 */
+	public List<Long> getGoodRequestsReactions() {
+		return getSnowflakeList("requests.emotes.good").orElseGet(Collections::emptyList);
+	}
+
+	/**
+	 * Returns the request reaction threshold before a user is warned of their request being potentially removed.
+	 *
+	 * @return The request warning threshold
+	 */
+	public double getRequestsWarningThreshold() {
+		return config.<Number>getOrElse("requests.thresholds.warning", 0.0d).doubleValue();
+	}
+
+	/**
+	 * Returns the request reaction threshold before a request is removed.
+	 *
+	 * @return The request removal threshold
+	 */
+	public double getRequestsRemovalThreshold() {
+		return config.<Number>getOrElse("requests.thresholds.removal", 0.0d).doubleValue();
+	}
+
+	private Optional<List<Long>> getSnowflakeList(String path) {
+		return config.<List<String>>getOptional(path)
+			.map(strings -> strings.stream()
+				.map(SafeIdUtil::safeConvert)
+				.filter(snowflake -> snowflake != 0)
+				.collect(Collectors.toList()));
+	}
+
+	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+	private Optional<List<Long>> getAliasedSnowflakeList(String path, Optional<UnmodifiableConfig> aliases) {
+		return config.<List<String>>getOptional(path)
+			.filter(list -> !list.isEmpty())
+			.map(strings -> strings.stream()
+				.map(str -> aliases.flatMap(cfg -> cfg.<String>getOptional(str)).orElse(str))
+				.map(SafeIdUtil::safeConvert)
+				.filter(snowflake -> snowflake != 0)
+				.collect(Collectors.toList()));
+	}
+
+	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+	private String getAliased(String key, Optional<UnmodifiableConfig> aliases) {
+		return config.<String>getOptional(key)
+			.map(str -> aliases.flatMap(cfg -> cfg.<String>getOptional(str)).orElse(str))
+			.orElse("");
+	}
 }

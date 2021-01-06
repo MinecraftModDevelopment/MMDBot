@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.awt.Color;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,22 +31,29 @@ public final class EventUserLeft extends ListenerAdapter {
         final User user = event.getUser();
         final EmbedBuilder embed = new EmbedBuilder();
         final Guild guild = event.getGuild();
-        final Long guildId = guild.getIdLong();
-        final TextChannel channel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDBasicEvents());
+        final long guildId = guild.getIdLong();
+        final TextChannel channel = guild.getTextChannelById(MMDBot.getConfig().getChannel("events.basic"));
+        if (channel == null) return;
         final Member member = event.getMember();
-        final List<Role> roles;
-        roles = member.getRoles();
+        List<Role> roles = new ArrayList<>();
+        if (member != null) {
+			roles = member.getRoles();
+		} else {
+			MMDBot.LOGGER.warn("Could not get roles of leaving user " + user.getAsTag() + ": " + user.getId());
+		}
 
-        if (MMDBot.getConfig().getGuildID().equals(guildId)) {
+        if (MMDBot.getConfig().getGuildID() == guildId) {
             Utils.writeUserRoles(user.getIdLong(), roles);
-            Utils.writeUserJoinTimes(user.getId(), member.getTimeJoined().toInstant());
+            if (member != null) {
+				Utils.writeUserJoinTimes(user.getId(), member.getTimeJoined().toInstant());
+			}
             embed.setColor(Color.RED);
             embed.setTitle("User Left");
             embed.setThumbnail(user.getEffectiveAvatarUrl());
             embed.addField("User:", user.getAsTag(), true);
             embed.addField("User ID:", user.getId(), true);
             //TODO Check if this works.
-            if (roles != null) {
+            if (!roles.isEmpty()) {
                 embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), true);
             } else {
                 embed.addField("Roles:", "Users roles currently unobtainable.", true);

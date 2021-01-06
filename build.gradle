@@ -23,11 +23,14 @@ repositories {
 }
 
 dependencies {
-    compile "com.jagrosh:jda-utilities:${project.jdautils_version}"
-    compile "net.dv8tion:JDA:${project.jda_version}"
+    implementation "com.jagrosh:jda-utilities:${project.jdautils_version}"
+    implementation "net.dv8tion:JDA:${project.jda_version}"
     implementation "com.google.guava:guava:${project.guava_version}"
-    compile "com.google.code.gson:gson:${project.gson_version}"
-    compile "ch.qos.logback:logback-classic:${project.logback_classic_version}"
+    implementation "com.google.code.gson:gson:${project.gson_version}"
+    implementation "ch.qos.logback:logback-classic:${project.logback_classic_version}"
+    implementation "com.electronwill.night-config:toml:${project.nightconfig_version}"
+
+    testImplementation "org.junit.jupiter:junit-jupiter:5.6.0"
 }
 
 jar {
@@ -62,10 +65,6 @@ idea.module {
 
 javadoc {
   failOnError = false
-}
-
-dependencies {
-    testImplementation('org.junit.jupiter:junit-jupiter:5.6.0')
 }
 
 test {
@@ -133,6 +132,6 @@ pmd {
     'java-unnecessary',
     'java-unusedcode'
   ]
-  toolVersion = '5.8.1'; // 6.19.0
+  toolVersion = '5.8.1' // 6.19.0
 //  incrementalAnalysis = true // Requires PMD 6.0.0 or newer
 }

@@ -3,6 +3,7 @@ package com.mcmoddev.mmdbot.commands.info.server;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -18,8 +19,9 @@ public final class CmdReadme extends Command {
      *
      */
     private static final String BODY =
-            "Please give <#" + MMDBot.getConfig().getChannelIDReadme() + "> a thorough read, this channel gives users a "
-                    + "guide to the server, how to get roles and general settling in notes. Thank you.";
+            "Please give <#" + MMDBot.getConfig().getChannel("info.readme") + "> a thorough read, this "
+                    + "channel gives users a guide to the server, how to get roles and general settling in notes. "
+                    + "Thank you.";
 
     /**
      *
@@ -36,6 +38,7 @@ public final class CmdReadme extends Command {
      */
     @Override
     protected void execute(final CommandEvent event) {
+		if (!Utils.checkCommand(this, event)) return;
         final EmbedBuilder embed = new EmbedBuilder();
         final TextChannel channel = event.getTextChannel();
 

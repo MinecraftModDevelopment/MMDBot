@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -27,22 +28,31 @@ public final class EventReactionAdded extends ListenerAdapter {
     @Override
     public void onMessageReactionAdd(final MessageReactionAddEvent event) {
         final Guild guild = event.getGuild();
-        final Long guildId = guild.getIdLong();
+        final long guildId = guild.getIdLong();
         final TextChannel channel = event.getTextChannel();
-        final TextChannel discussionChannel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDRequestsDiscussion());
+        final TextChannel discussionChannel = guild.getTextChannelById(MMDBot.getConfig().getChannel("requests.discussion"));
 
         MessageHistory history = MessageHistory.getHistoryAround(channel, event.getMessageId()).limit(1).complete();
         final Message message = history.getMessageById(event.getMessageId());
         if (message == null) return;
         final User messageAuthor = message.getAuthor();
+		final double removalThreshold = MMDBot.getConfig().getRequestsRemovalThreshold();
+		final double warningThreshold = MMDBot.getConfig().getRequestsWarningThreshold();
+		if (removalThreshold == 0 || warningThreshold == 0) return;
 
-        if (MMDBot.getConfig().getGuildID().equals(guildId) && MMDBot.getConfig().getChannelIDRequests().equals(channel.getIdLong())) {
-            final int badReactions = Utils.getNumberOfMatchingReactions(message, Utils::isReactionBad);
-            final int goodReactions = Utils.getNumberOfMatchingReactions(message, Utils::isReactionGood);
-            final int needsImprovementReactions = Utils.getNumberOfMatchingReactions(message, Utils::isReactionNeedsImprovement);
+        if (MMDBot.getConfig().getGuildID() == guildId && MMDBot.getConfig().getChannel("requests.main") == channel.getIdLong()) {
 
-            if ((badReactions + needsImprovementReactions * 0.5) - goodReactions >= MMDBot.getConfig().getBadReactionThreshold()) {
-                final TextChannel logChannel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDDeletedMessages());
+        	final List<Long> badReactionsList = MMDBot.getConfig().getBadRequestsReactions();
+			final List<Long> goodReactionsList = MMDBot.getConfig().getGoodRequestsReactions();
+			final List<Long> needsImprovementReactionsList = MMDBot.getConfig().getRequestsNeedsImprovementReactions();
+            final int badReactions = Utils.getNumberOfMatchingReactions(message, badReactionsList::contains);
+            final int goodReactions = Utils.getNumberOfMatchingReactions(message, goodReactionsList::contains);
+            final int needsImprovementReactions = Utils.getNumberOfMatchingReactions(message, needsImprovementReactionsList::contains);
+
+            final double requestScore = (badReactions + needsImprovementReactions * 0.5) - goodReactions;
+
+            if (requestScore >= removalThreshold) {
+                final TextChannel logChannel = guild.getTextChannelById(MMDBot.getConfig().getChannel("events.requests_deletion"));
                 if (logChannel != null) {
                     logChannel.sendMessage(String.format("Auto-deleted request from %s: %s", messageAuthor.getId(), message.getContentRaw())).queue();
                 }
@@ -65,7 +75,7 @@ public final class EventReactionAdded extends ListenerAdapter {
                 messageAuthor.openPrivateChannel().submit().thenCompose(c -> c.sendMessage(response).submit()).whenComplete((msg, throwable) -> {
                     if (throwable != null && discussionChannel != null) discussionChannel.sendMessage(response).queue();
                 });
-            } else if (!warnedMessages.contains(message) && (badReactions + needsImprovementReactions * 0.5) - goodReactions >= MMDBot.getConfig().getWarningBadReactionThreshold()) {
+            } else if (!warnedMessages.contains(message) && requestScore >= warningThreshold) {
                 final MessageBuilder responseBuilder = new MessageBuilder();
                 responseBuilder.append(messageAuthor.getAsMention());
                 responseBuilder.append(", ");

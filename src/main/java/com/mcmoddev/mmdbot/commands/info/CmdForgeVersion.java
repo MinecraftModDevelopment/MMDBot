@@ -31,10 +31,11 @@ public final class CmdForgeVersion extends Command {
 	 */
 	@Override
 	protected void execute(final CommandEvent event) {
+		if (!Utils.checkCommand(this, event)) return;
 		final EmbedBuilder embed = new EmbedBuilder();
 		final TextChannel channel = event.getTextChannel();
 
-		MinecraftForgeVersion latest = null;
+		MinecraftForgeVersion latest;
 		try {
 			latest = ForgeVersionHelper.getLatestMcVersionForgeVersions();
 		} catch (Exception e) {
