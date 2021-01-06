@@ -1,6 +1,5 @@
 package com.mcmoddev.mmdbot;
 
-import com.google.gson.Gson;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.commands.fun.CmdCatFacts;
@@ -39,17 +38,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Function;
 
 /**
  * Our Main class.
@@ -77,10 +69,7 @@ public final class MMDBot {
      */
     public static final Logger LOGGER = LoggerFactory.getLogger(NAME);
     private static final Set<GatewayIntent> intents = new HashSet<>();
-    /**
-     *
-     */
-    private static BotConfig config; // = new BotConfig("mmdbot_config.json");
+	private static BotConfig config;
     private static JDA INSTANCE;
 
     static {
@@ -98,14 +87,15 @@ public final class MMDBot {
     private MMDBot() {
     }
 
-    /**
-     * @return The Bots configuration.
-     */
-    public static BotConfig getConfig() {
-        return config;
-    }
+	/**
+	 * Returns the configuration of this bot.
+	 * @return The configuration of this bot
+	 */
+	public static BotConfig getConfig() {
+		return config;
+	}
 
-    public static JDA getInstance() {
+	public static JDA getInstance() {
         return INSTANCE;
     }
 
@@ -113,31 +103,24 @@ public final class MMDBot {
      * @param args Arguments provided to the program.
      */
     public static void main(final String[] args) {
-        final File configFile = new File("mmdbot_config.json");
-        if (configFile.exists()) {
-            try (InputStreamReader reader = new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8)) {
-                config = new Gson().fromJson(reader, BotConfig.class);
-            } catch (final IOException exception) {
-                MMDBot.LOGGER.trace("Failed to read config...", exception);
-            }
-        } else {
-            try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(configFile), StandardCharsets.UTF_8)) {
-                new Gson().toJson(new BotConfig(), writer);
-            } catch (final FileNotFoundException exception) {
-                MMDBot.LOGGER.error("An FileNotFound occurred...", exception);
-            } catch (final IOException exception) {
-                MMDBot.LOGGER.error("An IOException occurred...", exception);
-            }
-            MMDBot.LOGGER.error("New config generated. Please configurate the bot.");
-            System.exit(0);
-        }
+        final Path configPath = Paths.get("mmdbot_config.toml");
+        config = new BotConfig(configPath);
+        if (config.isNewlyGenerated()) {
+        	LOGGER.warn("A new config file at {} has been generated. Please configure the bot and try again.", configPath);
+			System.exit(0);
+		} else if (config.getToken() == null) {
+        	LOGGER.error("No token is specified in the config. Please configure the bot and try again");
+		} else if (config.getGuildID() == 0L) {
+        	LOGGER.error("No guild ID is configured. Please configure the bot and try again.");
+        	System.exit(0);
+		}
 
         try {
 
             final CommandClient commandListener = new CommandClientBuilder()
                     .setOwnerId(config.getOwnerID())
-                    .setPrefix(config.getPrefix())
-                    .setAlternativePrefix(getConfig().getAlternativePrefix())
+                    .setPrefix(config.getMainPrefix())
+                    .setAlternativePrefix(config.getAlternativePrefix())
                     .addCommand(new CmdGuild())
                     .addCommand(new CmdBuild())
                     .addCommand(new CmdMe())
@@ -165,7 +148,7 @@ public final class MMDBot {
                     .build();
 
             INSTANCE = JDABuilder
-                    .create(config.getBotToken(), intents)
+                    .create(config.getToken(), intents)
                     .disableCache(CacheFlag.VOICE_STATE)
                     .disableCache(CacheFlag.ACTIVITY)
                     .disableCache(CacheFlag.CLIENT_STATUS)

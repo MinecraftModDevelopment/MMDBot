@@ -33,8 +33,9 @@ public final class EventRoleAdded extends ListenerAdapter {
         final User user = event.getUser();
         final EmbedBuilder embed = new EmbedBuilder();
         final Guild guild = event.getGuild();
-        final Long guildId = guild.getIdLong();
-        final TextChannel channel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDImportantEvents());
+        final long guildId = guild.getIdLong();
+        final TextChannel channel = guild.getTextChannelById(MMDBot.getConfig().getChannel("events.important"));
+        if (channel == null) return;
 
         Utils.sleepTimer();
 
@@ -59,7 +60,7 @@ public final class EventRoleAdded extends ListenerAdapter {
         final List<Role> addedRoles = new ArrayList<>(event.getRoles());
         previousRoles.removeAll(addedRoles);
 
-        if (MMDBot.getConfig().getGuildID().equals(guildId)) {
+        if (MMDBot.getConfig().getGuildID() == guildId) {
             embed.setColor(Color.YELLOW);
             embed.setTitle("User Role Added");
             embed.setThumbnail(user.getEffectiveAvatarUrl());

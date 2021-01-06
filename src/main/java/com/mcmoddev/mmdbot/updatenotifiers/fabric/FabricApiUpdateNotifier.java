@@ -23,8 +23,10 @@ public class FabricApiUpdateNotifier extends TimerTask {
 
         final long guildId = MMDBot.getConfig().getGuildID();
         final Guild guild = MMDBot.getInstance().getGuildById(guildId);
-        final long channelId = MMDBot.getConfig().getChannelIDForgeNotifier();
+        if (guild == null) return;
+        final long channelId = MMDBot.getConfig().getChannel("notifications.fabric");
         final TextChannel channel = guild.getTextChannelById(channelId);
+        if (channel == null) return;
 
         if (!lastLatest.equals(latest)) {
             lastLatest = latest;

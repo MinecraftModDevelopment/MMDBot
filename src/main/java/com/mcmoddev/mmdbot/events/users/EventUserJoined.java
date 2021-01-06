@@ -33,11 +33,12 @@ public final class EventUserJoined extends ListenerAdapter {
         final User user = event.getUser();
         final EmbedBuilder embed = new EmbedBuilder();
         final Guild guild = event.getGuild();
-        final Long guildId = guild.getIdLong();
-        final TextChannel channel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDBasicEvents().toString());
+        final long guildId = guild.getIdLong();
+        final TextChannel channel = guild.getTextChannelById(MMDBot.getConfig().getChannel("events.basic"));
+        if (channel == null) return;
         final Member member = guild.getMember(user);
 
-        if (MMDBot.getConfig().getGuildID().equals(guildId)) {
+        if (MMDBot.getConfig().getGuildID() == guildId) {
             final List<Role> roles = Utils.getOldUserRoles(guild, user.getIdLong());
             if (member != null) {
                 for (Role role : roles) {
@@ -46,8 +47,10 @@ public final class EventUserJoined extends ListenerAdapter {
                     } catch (final HierarchyException e) {
                         MMDBot.LOGGER.info("Unable to give member {} role {}: {}", member.getId(), role.getId(), e.getMessage());
                         final Message consoleMessage = new MessageBuilder().appendFormat("Unable to give member %s role %s: %s", member.getAsMention(), role.getAsMention(), e.getMessage()).build();
-                        final TextChannel consoleChannel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDConsole());
-                        if (consoleChannel != null) consoleChannel.sendMessage(consoleMessage).queue();
+                        final TextChannel consoleChannel = guild.getTextChannelById(MMDBot.getConfig().getChannel("console"));
+                        if (consoleChannel != null) {
+							consoleChannel.sendMessage(consoleMessage).queue();
+						}
                     }
                 }
             }
