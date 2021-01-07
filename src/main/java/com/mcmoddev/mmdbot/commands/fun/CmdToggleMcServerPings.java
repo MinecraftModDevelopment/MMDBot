@@ -3,6 +3,7 @@ package com.mcmoddev.mmdbot.commands.fun;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -30,10 +31,11 @@ public class CmdToggleMcServerPings extends Command {
      */
     @Override
     protected void execute(final CommandEvent event) {
+		if (!Utils.checkCommand(this, event)) return;
         final TextChannel channel = event.getTextChannel();
         final Guild guild = event.getGuild();
         final Member member = event.getMember();
-        final Role role = guild.getRoleById(MMDBot.getConfig().getRolePublicServerPlayer());
+        final Role role = guild.getRoleById(MMDBot.getConfig().getRole("pings.toggle-mc-server-pings"));
 
         if (role == null) {
             channel.sendMessage("The MMD Public Server Players role doesn't exist! The config is borked.").queue();

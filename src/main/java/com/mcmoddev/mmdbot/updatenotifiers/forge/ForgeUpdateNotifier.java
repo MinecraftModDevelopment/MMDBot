@@ -64,10 +64,12 @@ public class ForgeUpdateNotifier extends TimerTask {
                 // TODO: save this to disk to persist on restarts
                 lastForgeVersions = latest;
 
-                Long guildId = MMDBot.getConfig().getGuildID();
+                long guildId = MMDBot.getConfig().getGuildID();
                 final Guild guild = MMDBot.getInstance().getGuildById(guildId);
-                Long channelId = MMDBot.getConfig().getChannelIDForgeNotifier();
+				if (guild == null) return;
+                long channelId = MMDBot.getConfig().getChannel("notifications.forge");
                 final TextChannel channel = guild.getTextChannelById(channelId);
+                if (channel == null) return;
                 channel.sendMessage(embed.build()).queue();
             } else {
                 MMDBot.LOGGER.info("[ForgeUpdateNotifier] No Forge version update");

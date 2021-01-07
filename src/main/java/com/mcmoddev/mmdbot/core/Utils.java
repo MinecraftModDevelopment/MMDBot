@@ -1,8 +1,9 @@
 package com.mcmoddev.mmdbot.core;
 
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -25,12 +26,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -151,30 +148,6 @@ public final class Utils {
     }
 
     /**
-     * @param emoteID The ID of the good request emoticon.
-     * @return
-     */
-    public static boolean isReactionGood(final Long emoteID) {
-        return Arrays.asList(MMDBot.getConfig().getEmoteIDsGood()).contains(emoteID);
-    }
-
-    /**
-     * @param emoteID The ID of the request bad emoticon.
-     * @return
-     */
-    public static boolean isReactionBad(final Long emoteID) {
-        return Arrays.asList(MMDBot.getConfig().getEmoteIDsBad()).contains(emoteID);
-    }
-
-    /**
-     * @param emoteID The ID of the needs improvement emoticon.
-     * @return
-     */
-    public static boolean isReactionNeedsImprovement(final Long emoteID) {
-        return Arrays.asList(MMDBot.getConfig().getEmoteIDsNeedsImprovement()).contains(emoteID);
-    }
-
-    /**
      * Get the users roles when they leave the guild with the user leave event.
      *
      * @param guild  The guild we are in.
@@ -278,45 +251,31 @@ public final class Utils {
                 member.getTimeJoined().toInstant();
     }
 
-    /**
-     * Allows a map to be sorted.
-     *
-     * @param map    The map to sort.
-     * @param invert Whether or not order should be inverted.
-     * @return The sorted map.
-     */
-    public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map, boolean invert) {
-
-        List<Map.Entry<K, V>> list = new LinkedList<>(map.entrySet());
-        Collections.sort(list, Comparator.comparing(Map.Entry<K, V>::getValue));
-
-        if (invert) {
-            list = Lists.reverse(list);
-        }
-
-        final Map<K, V> result = new LinkedHashMap<>();
-
-        for (final Map.Entry<K, V> entry : list) {
-            result.put(entry.getKey(), entry.getValue());
-        }
-
-        return result;
-    }
-
-    /**
-     * Converts a map into a multi-line string.
-     *
-     * @param map The map to print.
-     * @return The string value of the map.
-     */
-    public static <K, V> String mapToString(Map<K, V> map) {
-
-        String output = "";
-
-        for (final Map.Entry<K, V> entry : map.entrySet()) {
-            output += entry.getKey().toString() + ": " + entry.getValue().toString() + System.lineSeparator();
-        }
-
-        return output;
-    }
+	/**
+	 * Checks if the command can run in the given context, and returns if it should continue running.
+	 * <p>
+	 * Checks if the command is enabled through {@link BotConfig#isEnabled(String)}.
+	 * Then, checks if the command is allowed to run in the current guild channel through
+	 * {@link BotConfig#isAllowed(String, long)}.
+	 *
+	 * @param command The command
+	 * @param event The command event
+	 * @return If the command can run in that context
+	 */
+    public static boolean checkCommand(Command command, CommandEvent event) {
+    	final String name = command.getName();
+    	if (!MMDBot.getConfig().isEnabled(name)) {
+			// Could also send an informational message
+    		return false;
+		} else if (command.isGuildOnly() && !MMDBot.getConfig().isAllowed(name, event.getChannel().getIdLong())) {
+    		final String allowedChannels = MMDBot.getConfig().getAllowedChannels(name).stream()
+				.map(id -> "<#" + id + ">")
+				.collect(Collectors.joining(", "));
+			event.getChannel()
+				.sendMessage("This command cannot be run in this channel, only in " + allowedChannels)
+				.queue();
+    		return false;
+		}
+    	return true;
+	}
 }

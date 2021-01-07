@@ -22,13 +22,15 @@ public class CmdUnmute extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
+		if (!Utils.checkCommand(this, event)) return;
         final Guild guild = event.getGuild();
         final MessageChannel channel = event.getChannel();
         final String[] args = event.getArgs().split(" ");
         final Member author = event.getGuild().getMember(event.getAuthor());
+        if (author == null) return;
         final Member member = Utils.getMemberFromString(args[0], event.getGuild());
-        final Role mutedRole = guild.getRoleById(MMDBot.getConfig().getRoleMuted());
-        final TextChannel consoleChannel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDConsole());
+        final Role mutedRole = guild.getRoleById(MMDBot.getConfig().getRole("muted"));
+        final TextChannel consoleChannel = guild.getTextChannelById(MMDBot.getConfig().getChannel("console"));
 
         if (author.hasPermission(Permission.KICK_MEMBERS)) {
             if (member == null) {
@@ -43,7 +45,9 @@ public class CmdUnmute extends Command {
 
             guild.removeRoleFromMember(member, mutedRole).queue();
             channel.sendMessageFormat("Unmuted user %s.", member.getAsMention()).queue();
-            consoleChannel.sendMessageFormat("Unuted user %s.", member.getAsMention()).queue();
+            if (consoleChannel != null) {
+				consoleChannel.sendMessageFormat("Unmuted user %s.", member.getAsMention()).queue();
+			}
         } else {
             channel.sendMessage("You do not have permission to use this command.").queue();
         }

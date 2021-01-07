@@ -3,6 +3,7 @@ package com.mcmoddev.mmdbot.commands.info;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.core.Utils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -35,6 +36,7 @@ public class CmdSearch extends Command {
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     protected void execute(final CommandEvent event) {
+		if (!Utils.checkCommand(this, event)) return;
         if (event.getArgs().isEmpty()) {
             event.getChannel().sendMessage("No arguments given!").queue();
             return;

@@ -1,0 +1,137 @@
+# The configuration file for MMDBot
+
+# For most keys, if it is left blank or an invalid value, the corresponding feature is disabled or cannot output
+
+# Configuration for the bot itself
+[bot]
+    # The token used for connecting to Discord.
+    # A value with the character '!' will be considered as being empty or unconfigured.
+    token = "!!! Insert token here !!!"
+
+    # The snowflake ID of a user, to be the owner of this bot.
+    # The owner has access to owner-only bot commands.
+    owner = ""
+
+    # The snowflake ID of the guild where this bot resides in
+    # Event logging will be filtered to only receive from this guild
+    guildId = ""
+
+# Configuration of channels
+[channels]
+    # The snowflake ID (or alias) of the bot console channel
+    # This channel will receive different bot messages
+    # Currently receives: failures to reapply roles on user rejoin, muting a user, unmuting a user
+    console = ""
+
+    # Configuration of event logging channels
+    # These channels will receive messages for different events within the guild
+    [channels.events]
+        # The snowflake ID (or alias) of the basic events logging channel
+        # Basic events include: user joining, user leaving, nickname changes
+        basic = ""
+
+        # The snowflake ID (or alias) of the important events logging channel
+        # Important events include: role added to user, role removed from user
+        important = ""
+
+        # The snowflake ID (or alias) of the requests deletion events logging channel
+        # Deletion of requests over the bad reaction threshold shall be logged here
+        requests_deletion = ""
+
+    # Configuration of requests-related channels
+    # Used for the requests bad reaction threshold system
+    [channels.requests]
+        # The snowflake (or alias) ID of the main requests channel
+        # This channel will be monitored by the bot for bad reactions, according to the bad reaction thresholds
+        main = ""
+
+        # The snowflake (or alias) ID of the requests discussion channel
+        # This channel will be used to alert users when their requests reaches the bad reaction thresholds
+        discussion = ""
+
+    # Configuration of channels used in informative bot commands
+    [channels.info]
+        # The snowflake ID (or alias) of the readme channel
+        # This channel is mentioned in the `readme` command
+        readme = ""
+
+        # The snowflake ID (or alias) of the rules channel
+        # This channel is mentioned in the `rules` command
+        rules = ""
+
+    # Configuration of version notification channels
+    # Version update notification messages will be sent to the specified channels
+    [channels.notifications]
+        # The snowflake ID (or alias) of the Forge notifications channel
+        forge = ""
+
+        # The snowflake ID (or alias) of the Fabric notifications channel
+        fabric = ""
+
+        # The snowflake ID (or alias) of the Minecraft notifications channel
+        minecraft = ""
+
+    # Configuration of channel aliases
+    # The path of a channel entry within this category may be used as a substitute for snowflake IDs of channels
+    # This allows for more human-readable configuration of other settings
+    [channels.aliases]
+        # A possible usage:
+        # bots_stuff=""
+
+# Configuration of roles
+[roles]
+    # The snowflake ID of the role affected by the `mute` and `unmute` commands
+    muted = ""
+
+    # Configuration of pingable and user-requestable roles
+    [roles.pings]
+        # The snowflake ID of the role for the `event-pings` command
+        event-pings = ""
+
+        # The snowflake ID of the role for the `toggle-mc-server-pings` command
+        toggle-mc-server-pings = ""
+
+# Configuration for the requests bad reaction threshold
+[requests]
+    # Configuration of the reaction emotes
+    [requests.emotes]
+        # The snowflake IDs of the reaction emotes for bad requests
+        bad = []
+
+        # The snowflake IDs of the reaction emotes for requests that need improvements
+        # These reaction emotes have half the weight of the reaction emotes for bad requests
+        needs_improvement = []
+
+        # The snowflake IDs of the reaction emotes for good requests
+        good = []
+
+    # Configuration of the requests reaction thresholds
+    # Request weights are calculated through the following formula: [bad + (needs_improvement * 0.5)] - good
+    # If a request falls below the given thresholds, then the indicated action is taken
+    [requests.thresholds]
+        # Threshold where a user is warned that their request may be removed with further negative reactions
+        warning = 3
+
+        # Threshold where the request is removed and the user is informed of its removal
+        removal = 5
+
+# Configuration for the bot commands
+[commands]
+    # Configuration of the commands prefixes
+    [commands.prefix]
+    # The main commands prefix for bot commands
+    main = "!mmd-"
+
+    # The alternative commands prefix for bot commands
+    # This can be used in lieu of the main commands prefix, for quicker and shorter usage of commands
+    alternative = "!"
+
+    # Bot commands may be individually configured; following is an example
+    [commands.build] # This configures the `build` command
+        # Whether the command is enabled and can be used
+        # If not configured, the default value is `true`
+        enabled = true
+
+        # A list of snowflake IDs (or aliases) for channels which this command is allowed to work in
+        # If the list is empty or not present, the default is to allow the command to work in all channels
+        allowed_channels = []

@@ -29,8 +29,9 @@ public final class EventNicknameChanged extends ListenerAdapter {
         final User user = event.getUser();
         final EmbedBuilder embed = new EmbedBuilder();
         final Guild guild = event.getGuild();
-        final TextChannel channel = guild.getTextChannelById(MMDBot.getConfig().getChannelIDBasicEvents());
-        final Long guildId = guild.getIdLong();
+        final TextChannel channel = guild.getTextChannelById(MMDBot.getConfig().getChannel("events.basic"));
+        if (channel == null) return;
+        final long guildId = guild.getIdLong();
         String oldNick;
         String newNick;
 
@@ -65,7 +66,7 @@ public final class EventNicknameChanged extends ListenerAdapter {
             newNick = event.getNewNickname();
         }
 
-        if (MMDBot.getConfig().getGuildID().equals(guildId)) {
+        if (MMDBot.getConfig().getGuildID() == guildId) {
 
             embed.setColor(Color.YELLOW);
             embed.setTitle("Nickname Changed");

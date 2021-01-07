@@ -4,14 +4,10 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.Color;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -39,8 +35,7 @@ public final class CmdRoles extends Command {
      */
     @Override
     protected void execute(final CommandEvent event) {
-        final Guild guild = event.getGuild();
-        final Map<String, String> roleList = new HashMap<>();
+		if (!Utils.checkCommand(this, event)) return;
         final EmbedBuilder embed = new EmbedBuilder();
         final TextChannel channel = event.getTextChannel();
 

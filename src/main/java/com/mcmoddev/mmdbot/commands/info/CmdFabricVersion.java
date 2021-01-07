@@ -2,6 +2,7 @@ package com.mcmoddev.mmdbot.commands.info;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.mcmoddev.mmdbot.core.Utils;
 import com.mcmoddev.mmdbot.updatenotifiers.fabric.FabricVersionHelper;
 import com.mcmoddev.mmdbot.updatenotifiers.game.MinecraftVersionHelper;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -30,6 +31,7 @@ public final class CmdFabricVersion extends Command {
      */
     @Override
     protected void execute(final CommandEvent event) {
+		if (!Utils.checkCommand(this, event)) return;
         final EmbedBuilder embed = new EmbedBuilder();
         final TextChannel channel = event.getTextChannel();
 

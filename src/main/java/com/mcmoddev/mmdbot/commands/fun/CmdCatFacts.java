@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.core.Utils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -40,6 +41,7 @@ public class CmdCatFacts extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
+		if (!Utils.checkCommand(this, event)) return;
         if (getFact() != null) {
             event.getChannel().sendMessage(getFact()).queue();
         }

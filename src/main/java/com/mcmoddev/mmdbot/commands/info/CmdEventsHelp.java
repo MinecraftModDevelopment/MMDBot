@@ -2,6 +2,7 @@ package com.mcmoddev.mmdbot.commands.info;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -34,6 +35,7 @@ public final class CmdEventsHelp extends Command {
      */
     @Override
     protected void execute(final CommandEvent event) {
+		if (!Utils.checkCommand(this, event)) return;
         final EmbedBuilder embed = new EmbedBuilder();
         final TextChannel channel = event.getTextChannel();
 
