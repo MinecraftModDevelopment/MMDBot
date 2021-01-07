@@ -1,6 +1,5 @@
 package com.mcmoddev.mmdbot.events.users;
 
-import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -18,6 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
+import static com.mcmoddev.mmdbot.MMDBot.getConfig;
+import static com.mcmoddev.mmdbot.logging.MMDMarkers.*;
+
 /**
  *
  */
@@ -32,17 +35,18 @@ public final class EventUserLeft extends ListenerAdapter {
         final EmbedBuilder embed = new EmbedBuilder();
         final Guild guild = event.getGuild();
         final long guildId = guild.getIdLong();
-        final TextChannel channel = guild.getTextChannelById(MMDBot.getConfig().getChannel("events.basic"));
+        final TextChannel channel = guild.getTextChannelById(getConfig().getChannel("events.basic"));
         if (channel == null) return;
         final Member member = event.getMember();
-        List<Role> roles = new ArrayList<>();
-        if (member != null) {
-			roles = member.getRoles();
-		} else {
-			MMDBot.LOGGER.warn("Could not get roles of leaving user " + user.getAsTag() + ": " + user.getId());
-		}
 
-        if (MMDBot.getConfig().getGuildID() == guildId) {
+        if (getConfig().getGuildID() == guildId) {
+            LOGGER.info(EVENTS, "User {} left the guild", user.getId());
+            List<Role> roles = new ArrayList<>();
+            if (member != null) {
+                roles = member.getRoles();
+            } else {
+                LOGGER.warn(EVENTS, "Could not get roles of leaving user " + user.getAsTag() + ": " + user.getId());
+            }
             Utils.writeUserRoles(user.getIdLong(), roles);
             if (member != null) {
 				Utils.writeUserJoinTimes(user.getId(), member.getTimeJoined().toInstant());

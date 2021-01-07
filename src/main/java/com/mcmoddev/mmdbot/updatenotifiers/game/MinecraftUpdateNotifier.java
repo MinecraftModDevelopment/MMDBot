@@ -9,6 +9,10 @@ import java.awt.Color;
 import java.time.Instant;
 import java.util.TimerTask;
 
+import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
+import static com.mcmoddev.mmdbot.MMDBot.getConfig;
+import static com.mcmoddev.mmdbot.logging.MMDMarkers.*;
+
 public class MinecraftUpdateNotifier extends TimerTask {
 
     private String lastLatest;
@@ -24,14 +28,15 @@ public class MinecraftUpdateNotifier extends TimerTask {
         String latest = MinecraftVersionHelper.getLatest();
         String latestStable = MinecraftVersionHelper.getLatestStable();
 
-        final long guildId = MMDBot.getConfig().getGuildID();
+        final long guildId = getConfig().getGuildID();
         final Guild guild = MMDBot.getInstance().getGuildById(guildId);
         if (guild == null) return;
-        final long channelId = MMDBot.getConfig().getChannel("notifications.minecraft");
+        final long channelId = getConfig().getChannel("notifications.minecraft");
         final TextChannel channel = guild.getTextChannelById(channelId);
         if (channel == null) return;
 
         if (!lastLatestStable.equals(latestStable)) {
+            LOGGER.info(NOTIFIER_MC, "New Minecraft release found, from {} to {}", lastLatest, latest);
             lastLatest = latest;
 
             final EmbedBuilder embed = new EmbedBuilder();
@@ -41,6 +46,7 @@ public class MinecraftUpdateNotifier extends TimerTask {
             embed.setTimestamp(Instant.now());
             channel.sendMessage(embed.build()).queue();
         } else if (!lastLatest.equals(latest)) {
+            LOGGER.info(NOTIFIER_MC, "New Minecraft snapshot found, from {} to {}", lastLatest, latest);
             lastLatest = latest;
 
             final EmbedBuilder embed = new EmbedBuilder();

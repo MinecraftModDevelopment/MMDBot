@@ -2,16 +2,18 @@ package com.mcmoddev.mmdbot.commands.staff;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.concurrent.TimeUnit;
+
+import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
+import static com.mcmoddev.mmdbot.MMDBot.getConfig;
+import static com.mcmoddev.mmdbot.logging.MMDMarkers.MUTING;
 
 public class CmdMute extends Command {
 
@@ -24,15 +26,15 @@ public class CmdMute extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-		if (!Utils.checkCommand(this, event)) return;
+        if (!Utils.checkCommand(this, event)) return;
         final Guild guild = event.getGuild();
         final MessageChannel channel = event.getChannel();
         final String[] args = event.getArgs().split(" ");
         final Member author = event.getGuild().getMember(event.getAuthor());
-		if (author == null) return;
+        if (author == null) return;
         final Member member = Utils.getMemberFromString(args[0], event.getGuild());
-        final Role mutedRole = guild.getRoleById(MMDBot.getConfig().getRole("muted"));
-        final TextChannel consoleChannel = guild.getTextChannelById(MMDBot.getConfig().getChannel("console"));
+        final long mutedRoleID = getConfig().getRole("muted");
+        final Role mutedRole = guild.getRoleById(mutedRoleID);
 
         if (author.hasPermission(Permission.KICK_MEMBERS)) {
             if (member == null) {
@@ -41,7 +43,7 @@ public class CmdMute extends Command {
             }
 
             if (mutedRole == null) {
-                MMDBot.LOGGER.error("Unable to find muted role!");
+                LOGGER.error(MUTING, "Unable to find muted role {}", mutedRoleID);
                 return;
             }
 
@@ -85,9 +87,7 @@ public class CmdMute extends Command {
             }
 
             channel.sendMessageFormat("Muted user %s for%s.", member.getAsMention(), timeString).queue();
-            if (consoleChannel != null) {
-				consoleChannel.sendMessageFormat("Muted user %s for%s", member.getAsMention(), timeString).queue();
-			}
+            LOGGER.info(MUTING, "User {} was muted by {} for{}", member, author, timeString);
         } else {
             channel.sendMessage("You do not have permission to use this command.").queue();
         }

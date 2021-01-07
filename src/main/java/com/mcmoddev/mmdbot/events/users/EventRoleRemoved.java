@@ -1,6 +1,5 @@
 package com.mcmoddev.mmdbot.events.users;
 
-import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.audit.ActionType;
@@ -20,6 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
+import static com.mcmoddev.mmdbot.MMDBot.getConfig;
+import static com.mcmoddev.mmdbot.logging.MMDMarkers.EVENTS;
+
 /**
  *
  */
@@ -34,15 +37,15 @@ public final class EventRoleRemoved extends ListenerAdapter {
         final EmbedBuilder embed = new EmbedBuilder();
         final Guild guild = event.getGuild();
         final long guildId = guild.getIdLong();
-        final TextChannel channel = guild.getTextChannelById(MMDBot.getConfig().getChannel("events.important"));
+        final TextChannel channel = guild.getTextChannelById(getConfig().getChannel("events.important"));
         if (channel == null) return;
 
         Utils.sleepTimer();
 
         final AuditLogPaginationAction paginationAction = event.getGuild().retrieveAuditLogs()
-                .type(ActionType.MEMBER_ROLE_UPDATE)
-                .limit(1)
-                .cache(false);
+            .type(ActionType.MEMBER_ROLE_UPDATE)
+            .limit(1)
+            .cache(false);
 
         final List<AuditLogEntry> entries = paginationAction.complete();
 
@@ -60,7 +63,9 @@ public final class EventRoleRemoved extends ListenerAdapter {
         final List<Role> removedRoles = new ArrayList<>(event.getRoles());
         previousRoles.removeAll(removedRoles);
 
-        if (MMDBot.getConfig().getGuildID() == guildId) {
+        if (getConfig().getGuildID() == guildId) {
+            LOGGER.info(EVENTS, "Role {} was removed from user {} by {}", removedRoles, user, editor);
+
             embed.setColor(Color.YELLOW);
             embed.setTitle("User Role Removed");
             embed.setThumbnail(user.getEffectiveAvatarUrl());

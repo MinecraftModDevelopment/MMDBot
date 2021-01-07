@@ -9,6 +9,10 @@ import java.awt.Color;
 import java.time.Instant;
 import java.util.TimerTask;
 
+import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
+import static com.mcmoddev.mmdbot.MMDBot.getConfig;
+import static com.mcmoddev.mmdbot.logging.MMDMarkers.NOTIFIER_FABRIC;
+
 public class FabricApiUpdateNotifier extends TimerTask {
 
     private String lastLatest;
@@ -21,14 +25,15 @@ public class FabricApiUpdateNotifier extends TimerTask {
     public void run() {
         String latest = FabricVersionHelper.getLatestApi();
 
-        final long guildId = MMDBot.getConfig().getGuildID();
+        final long guildId = getConfig().getGuildID();
         final Guild guild = MMDBot.getInstance().getGuildById(guildId);
         if (guild == null) return;
-        final long channelId = MMDBot.getConfig().getChannel("notifications.fabric");
+        final long channelId = getConfig().getChannel("notifications.fabric");
         final TextChannel channel = guild.getTextChannelById(channelId);
         if (channel == null) return;
 
         if (!lastLatest.equals(latest)) {
+            LOGGER.info(NOTIFIER_FABRIC, "New Fabric API release found, from {} to {}", lastLatest, latest);
             lastLatest = latest;
 
             final EmbedBuilder embed = new EmbedBuilder();
