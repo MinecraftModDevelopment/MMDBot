@@ -108,6 +108,7 @@
     # Configuration of the requests reaction thresholds
     # Request weights are calculated through the following formula: [bad + (needs_improvement * 0.5)] - good
     # If a request falls below the given thresholds, then the indicated action is taken
+    # If any of the two thresholds are disabled, then the whole warning and removal system is disabled
     [requests.thresholds]
         # Threshold where a user is warned that their request may be removed with further negative reactions
         warning = 3
