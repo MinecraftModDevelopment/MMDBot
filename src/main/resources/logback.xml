@@ -10,24 +10,34 @@
         </rollingPolicy>
         <encoder>
             <pattern>
-                %nopex[%d{HH:mm:ss}] [%level] [%logger{0}]: %msg%n%ex
+                %nopex[%d{HH:mm:ss}] [%level] [%logger{0}/%marker]: %msg%n%ex
             </pattern>
         </encoder>
     </appender>
     <!--Log levels include ERROR, WARN, INFO, DEBUG, TRACE-->
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="FILE"/>
     </root>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>
-                %d %green([%thread]) %highlight(%level) %logger{50} - %msg%n
+                %d %green([%thread]) %highlight(%level) %logger{50}/%marker - %msg%n
             </pattern>
         </encoder>
     </appender>
     <!--Log levels include ERROR, WARN, INFO, DEBUG, TRACE-->
     <root level="WARN">
         <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <appender name="CHANNEL" class="com.mcmoddev.mmdbot.logging.ConsoleChannelAppender">
+        <allowMentions>false</allowMentions>
+        <layout class="com.mcmoddev.mmdbot.logging.ConsoleChannelLayout"/>
+    </appender>
+
+    <!--Log levels include ERROR, WARN, INFO, DEBUG, TRACE-->
+    <root level="INFO">
+        <appender-ref ref="CHANNEL"/>
     </root>
 </configuration>

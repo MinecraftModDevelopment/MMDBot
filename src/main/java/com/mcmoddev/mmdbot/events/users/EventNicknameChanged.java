@@ -1,6 +1,5 @@
 package com.mcmoddev.mmdbot.events.users;
 
-import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.audit.ActionType;
@@ -16,6 +15,10 @@ import java.awt.Color;
 import java.time.Instant;
 import java.util.List;
 
+import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
+import static com.mcmoddev.mmdbot.MMDBot.getConfig;
+import static com.mcmoddev.mmdbot.logging.MMDMarkers.EVENTS;
+
 /**
  *
  */
@@ -29,7 +32,7 @@ public final class EventNicknameChanged extends ListenerAdapter {
         final User user = event.getUser();
         final EmbedBuilder embed = new EmbedBuilder();
         final Guild guild = event.getGuild();
-        final TextChannel channel = guild.getTextChannelById(MMDBot.getConfig().getChannel("events.basic"));
+        final TextChannel channel = guild.getTextChannelById(getConfig().getChannel("events.basic"));
         if (channel == null) return;
         final long guildId = guild.getIdLong();
         String oldNick;
@@ -66,7 +69,8 @@ public final class EventNicknameChanged extends ListenerAdapter {
             newNick = event.getNewNickname();
         }
 
-        if (MMDBot.getConfig().getGuildID() == guildId) {
+        if (getConfig().getGuildID() == guildId) {
+            LOGGER.info(EVENTS, "User {} changed nickname from {} to {}, changed by {}", user.getId(), oldNick, newNick, editorID);
 
             embed.setColor(Color.YELLOW);
             embed.setTitle("Nickname Changed");
