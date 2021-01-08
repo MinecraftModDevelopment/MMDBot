@@ -41,6 +41,6 @@ public final class TaskScheduler {
         }
         TIMER.scheduleAtFixedRate(new MinecraftUpdateNotifier(), 0, 15 * 60 * 1000);
         TIMER.scheduleAtFixedRate(new FabricApiUpdateNotifier(), 0, 15 * 60 * 1000);
-        TIMER.scheduleAtFixedRate(new ChannelMessageChecker(), 0, 1000 * 60 * 60 * 12);
+        TIMER.scheduleAtFixedRate(new ChannelMessageChecker(), 0, 1000 * 60 * 60 * 24);
     }
 }
