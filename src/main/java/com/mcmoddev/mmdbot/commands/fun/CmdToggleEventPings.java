@@ -21,8 +21,8 @@ public class CmdToggleEventPings extends Command {
      */
     public CmdToggleEventPings() {
         super();
-        name = "event-pings";
-        aliases = new String[]{"toggle-event-pings", "eventpings", "toggleeventpings"};
+        name = "eventpings";
+        aliases = new String[]{"toggle-event-pings", "event-pings", "toggleeventpings"};
         help = "Add or remove the Event Notifications role to get or stop getting pings about events in MMD.";
     }
 

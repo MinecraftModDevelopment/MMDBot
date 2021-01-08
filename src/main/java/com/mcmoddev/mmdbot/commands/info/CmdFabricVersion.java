@@ -21,8 +21,8 @@ public final class CmdFabricVersion extends Command {
      */
     public CmdFabricVersion() {
         super();
-        this.name = "fabricv";
-        aliases = new String[]{"fabric", "yarn"};
+        this.name = "fabric";
+        aliases = new String[]{"fabricv", "yarn"};
         help = "Get the latest Fabric versions";
     }
 

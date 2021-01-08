@@ -20,8 +20,8 @@ public final class CmdMinecraftVersion extends Command {
      */
     public CmdMinecraftVersion() {
         super();
-        this.name = "minecraftv";
-        aliases = new String[]{"minecraft", "mcv"};
+        this.name = "minecraft";
+        aliases = new String[]{"minecraftv", "mcv"};
         help = "Get the latest Minecraft versions";
     }
 

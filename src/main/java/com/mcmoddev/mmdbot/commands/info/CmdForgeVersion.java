@@ -21,8 +21,8 @@ public final class CmdForgeVersion extends Command {
 	 */
 	public CmdForgeVersion() {
 		super();
-		this.name = "forgev";
-		aliases = new String[]{"forge"};
+		this.name = "forge";
+		aliases = new String[]{"forgev"};
 		help = "Get forge versions for latest Minecraft version";
 	}
 
