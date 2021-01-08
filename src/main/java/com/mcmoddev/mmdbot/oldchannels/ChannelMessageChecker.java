@@ -43,5 +43,6 @@ public class ChannelMessageChecker extends TimerTask {
 				-1;
 			OldChannelsHelper.put(channel, daysSinceLastMessage);
 		}
+		OldChannelsHelper.setReady(true);
 	}
 }

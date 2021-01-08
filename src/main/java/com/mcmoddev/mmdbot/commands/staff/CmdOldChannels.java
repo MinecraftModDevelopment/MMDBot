@@ -3,6 +3,7 @@ package com.mcmoddev.mmdbot.commands.staff;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.core.Utils;
 import com.mcmoddev.mmdbot.oldchannels.OldChannelsHelper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -19,43 +20,48 @@ import java.util.function.Predicate;
  */
 public final class CmdOldChannels extends Command {
 
-    /**
-     *
-     */
-    public CmdOldChannels() {
-        super();
-        name = "old-channels";
-        help = "Gives channels which haven't been used in an amount of days given as an argument (default 60)." +
-                "Usage:"+MMDBot.getConfig().getMainPrefix()+"old-channels [threshold] [channel or category blacklist, seperated by spaces]";
-    }
+	/**
+	 *
+	 */
+	public CmdOldChannels() {
+		super();
+		name = "old-channels";
+		help = "Gives channels which haven't been used in an amount of days given as an argument (default 60)." +
+			"Usage: "+MMDBot.getConfig().getMainPrefix()+"old-channels [threshold] [channel or category blacklist, seperated by spaces]";
+		hidden = true;
+	}
 
-    /**
-     *
-     */
-    @Override
-    protected void execute(final CommandEvent event) {
-        final Guild guild = event.getGuild();
-        final EmbedBuilder embed = new EmbedBuilder();
-        final TextChannel outputChannel = event.getTextChannel();
-        final List<String> args = Arrays.asList(event.getArgs().split(" "));
-        if (MMDBot.getConfig().getAllowedChannels("old-commands", guild.getIdLong()).contains(outputChannel.getIdLong())) {
-            outputChannel.sendMessage("This command is channel locked.").queue();
-            return;
-        }
+	/**
+	 *
+	 */
+	@Override
+	protected void execute(final CommandEvent event) {
+		final Guild guild = event.getGuild();
+		final EmbedBuilder embed = new EmbedBuilder();
+		final TextChannel outputChannel = event.getTextChannel();
+		final List<String> args = new ArrayList<>(Arrays.asList(event.getArgs().split(" "))); //I have to do this so we can use `remove` later
+		if (!Utils.checkCommand(this, event)) {
+			outputChannel.sendMessage("This command is channel locked.").queue();
+			return;
+		}
 
-        final int dayThreshold = args.size() > 0 && args.get(0).matches("-?\\d+") ? Integer.parseInt(args.get(0)) : 60;
+		if (!OldChannelsHelper.isReady()) {
+			outputChannel.sendMessage("This command is still setting up. Please try again in a few moments.").queue();
+			return;
+		}
 
-        List<String> blacklist;
+		final int dayThreshold = args.size() > 0 && args.get(0).matches("-?\\d+") ? Integer.parseInt(args.remove(0)) : 60;
 
-        if (args.size() > 1) {
-            blacklist = new ArrayList<>(args);
-            blacklist.remove(0);
-        } else {
-            blacklist = new ArrayList<>();
-        }
+		List<String> blacklist;
 
-        embed.setTitle("Days since last message in channels:");
-        embed.setColor(Color.YELLOW);
+		if (args.size() > 0) {
+			blacklist = new ArrayList<>(args);
+		} else {
+			blacklist = new ArrayList<>();
+		}
+
+		embed.setTitle("Days since last message in channels:");
+		embed.setColor(Color.YELLOW);
 
 		guild.getTextChannels().stream()
 			.distinct()
@@ -70,20 +76,20 @@ public final class CmdOldChannels extends Command {
 				}
 			});
 
-        outputChannel.sendMessage(embed.build()).queue();
-    }
+		outputChannel.sendMessage(embed.build()).queue();
+	}
 
-    private Predicate<TextChannel> listDoesNotContainChannelParentName(List<String> list) {
-    	return (channel) -> !(channel.getParent() != null && list.contains(channel.getParent().getName().replace(' ', '-')));
+	private Predicate<TextChannel> listDoesNotContainChannelParentName(List<String> list) {
+		return (channel) -> !(channel.getParent() != null && list.contains(channel.getParent().getName().replace(' ', '-')));
 	}
 
 	private static class ChannelData {
-    	private TextChannel channel;
-    	private long days;
+		final private TextChannel channel;
+		final private long days;
 
-    	private ChannelData(final TextChannel channel, final long days) {
-    		this.channel = channel;
-    		this.days = days;
+		private ChannelData(final TextChannel channel, final long days) {
+			this.channel = channel;
+			this.days = days;
 		}
 	}
 }
