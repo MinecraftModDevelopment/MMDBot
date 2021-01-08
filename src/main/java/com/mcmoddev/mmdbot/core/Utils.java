@@ -5,14 +5,18 @@ import com.google.gson.reflect.TypeToken;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
+import net.dv8tion.jda.api.entities.Category;
+import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -35,6 +39,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
+
+import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 
 /**
  *
@@ -139,12 +145,12 @@ public final class Utils {
      */
     public static int getNumberOfMatchingReactions(final Message message, final Predicate<Long> predicate) {
         return message
-                .getReactions()
-                .stream()
-                .filter(messageReaction -> messageReaction.getReactionEmote().isEmote())
-                .filter(messageReaction -> predicate.test(messageReaction.getReactionEmote().getIdLong()))
-                .mapToInt(MessageReaction::getCount)
-                .sum();
+            .getReactions()
+            .stream()
+            .filter(messageReaction -> messageReaction.getReactionEmote().isEmote())
+            .filter(messageReaction -> predicate.test(messageReaction.getReactionEmote().getIdLong()))
+            .mapToInt(MessageReaction::getCount)
+            .sum();
     }
 
     /**
@@ -174,7 +180,7 @@ public final class Utils {
     public static void writeUserRoles(final Long userID, final List<Role> roles) {
         final File roleFile = new File(STICKY_ROLES_FILE_PATH);
         Map<String, List<String>> userToRoleMap = getUserToRoleMap();
-		userToRoleMap.put(userID.toString(), roles.stream().map(ISnowflake::getId).collect(Collectors.toList()));
+        userToRoleMap.put(userID.toString(), roles.stream().map(ISnowflake::getId).collect(Collectors.toList()));
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(roleFile), StandardCharsets.UTF_8)) {
             new Gson().toJson(userToRoleMap, writer);
         } catch (final FileNotFoundException exception) {
@@ -211,7 +217,7 @@ public final class Utils {
     public static void writeUserJoinTimes(final String userID, final Instant joinTime) {
         final File userJoinTimesFile = new File(USER_JOIN_TIMES_FILE_PATH);
         Map<String, Instant> userJoinTimes = getUserJoinTimeMap();
-		userJoinTimes.put(userID, joinTime);
+        userJoinTimes.put(userID, joinTime);
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(userJoinTimesFile), StandardCharsets.UTF_8)) {
             new Gson().toJson(userJoinTimes, writer);
         } catch (final FileNotFoundException exception) {
@@ -247,35 +253,91 @@ public final class Utils {
         final Map<String, Instant> userJoinTimes = getUserJoinTimeMap();
         final String memberID = member.getId();
         return userJoinTimes.containsKey(memberID) ?
-                userJoinTimes.get(memberID) :
-                member.getTimeJoined().toInstant();
+            userJoinTimes.get(memberID) :
+            member.getTimeJoined().toInstant();
     }
 
 	/**
 	 * Checks if the command can run in the given context, and returns if it should continue running.
 	 * <p>
-	 * Checks if the command is enabled through {@link BotConfig#isEnabled(String)}.
-	 * Then, checks if the command is allowed to run in the current guild channel through
-	 * {@link BotConfig#isAllowed(String, long)}.
+	 * This does the following checks in order (checks prefixed with GUILD will only take effect when ran from a
+     * {@linkplain TextChannel guild channel}):
+     * <ul>
+     *     <li>GUILD; checks if the command is enabled in the guild.</li>
+     *     <li>not in GUILD; checks if the command is enabled globally.</li>
+     *     <li>GUILD: checks if the command is blocked in the channel/category.</li>
+     *     <li>GUILD: checks if the command is allowed in the channel/category.</li>
+     * </ul>
 	 *
 	 * @param command The command
 	 * @param event The command event
 	 * @return If the command can run in that context
 	 */
     public static boolean checkCommand(Command command, CommandEvent event) {
-    	final String name = command.getName();
-    	if (!MMDBot.getConfig().isEnabled(name)) {
-			// Could also send an informational message
-    		return false;
-		} else if (command.isGuildOnly() && !MMDBot.getConfig().isAllowed(name, event.getChannel().getIdLong())) {
-    		final String allowedChannels = MMDBot.getConfig().getAllowedChannels(name).stream()
-				.map(id -> "<#" + id + ">")
-				.collect(Collectors.joining(", "));
-			event.getChannel()
-				.sendMessage("This command cannot be run in this channel, only in " + allowedChannels)
-				.queue();
-    		return false;
-		}
-    	return true;
-	}
+        final String name = command.getName();
+
+        if (!isEnabled(command, event)) {
+            // Could also send an informational message
+            return false;
+        }
+
+        if (isBlocked(command, event)) {
+            event.getChannel()
+                .sendMessage("This command is blocked from running in this channel!")
+                .queue();
+            return false;
+        }
+
+        if (event.isFromType(ChannelType.TEXT)) { // Sent from a guild
+            final long channelID = event.getChannel().getIdLong();
+            final List<Long> allowedChannels = getConfig().getAllowedChannels(command.getName(), event.getGuild().getIdLong());
+
+            if (allowedChannels.isEmpty()) { // If the allow list is empty, default allowed
+                return true;
+            }
+
+            @Nullable final Category category = event.getTextChannel().getParent();
+            boolean allowed;
+            if (category != null) { // If there's a category, also check that
+                final long categoryID = category.getIdLong();
+                allowed = allowedChannels.stream()
+                    .anyMatch(id -> id == channelID || id == categoryID);
+            } else {
+                allowed = allowedChannels.stream().anyMatch(id -> id == channelID);
+            }
+
+            if (!allowed) {
+                final String allowedChannelStr = allowedChannels.stream()
+                    .map(id -> "<#" + id + ">")
+                    .collect(Collectors.joining(", "));
+                event.getChannel() // TODO: remove the allowed channel string?
+                    .sendMessage("This command cannot be run in this channel, only in " + allowedChannelStr + "!")
+                    .queue();
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean isEnabled(Command command, CommandEvent event) {
+        if (event.isFromType(ChannelType.TEXT)) // Sent from a guild
+            return getConfig().isEnabled(command.getName(), event.getGuild().getIdLong());
+        return getConfig().isEnabled(command.getName());
+    }
+
+    private static boolean isBlocked(Command command, CommandEvent event) {
+        if (event.isFromType(ChannelType.TEXT)) { // Sent from a guild
+            final long channelID = event.getChannel().getIdLong();
+            final List<Long> blockedChannels = getConfig().getBlockedChannels(command.getName(), event.getGuild().getIdLong());
+            @Nullable final Category category = event.getTextChannel().getParent();
+            if (category != null) {
+                final long categoryID = category.getIdLong();
+                return blockedChannels.stream()
+                    .anyMatch(id -> id == channelID || id == categoryID);
+            }
+            return blockedChannels.stream().anyMatch(id -> id == channelID);
+        }
+        return false; // If not from a guild, default not blocked
+    }
 }
