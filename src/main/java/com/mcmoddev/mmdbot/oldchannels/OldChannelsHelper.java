@@ -12,7 +12,7 @@ public class OldChannelsHelper {
 	private static boolean ready = false;
 
 	public static long getLastMessageTime(final TextChannel channel) {
-		return channelLastMessageMap.get(channel);
+		return channelLastMessageMap.getOrDefault(channel, -1L);
 	}
 
 	public static void clear() {
