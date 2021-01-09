@@ -31,7 +31,7 @@ public class CmdToggleMcServerPings extends Command {
      */
     @Override
     protected void execute(final CommandEvent event) {
-		if (!Utils.checkCommand(this, event)) return;
+        if (!Utils.checkCommand(this, event)) return;
         final TextChannel channel = event.getTextChannel();
         final Guild guild = event.getGuild();
         final Member member = event.getMember();

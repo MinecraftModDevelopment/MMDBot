@@ -41,7 +41,7 @@ public class CmdCatFacts extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-		if (!Utils.checkCommand(this, event)) return;
+        if (!Utils.checkCommand(this, event)) return;
         if (getFact() != null) {
             event.getChannel().sendMessage(getFact()).queue();
         }

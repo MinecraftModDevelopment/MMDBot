@@ -36,7 +36,7 @@ public class CmdSearch extends Command {
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     protected void execute(final CommandEvent event) {
-		if (!Utils.checkCommand(this, event)) return;
+        if (!Utils.checkCommand(this, event)) return;
         if (event.getArgs().isEmpty()) {
             event.getChannel().sendMessage("No arguments given!").queue();
             return;

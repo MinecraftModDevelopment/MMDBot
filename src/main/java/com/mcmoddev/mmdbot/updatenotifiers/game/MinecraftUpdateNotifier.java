@@ -11,7 +11,7 @@ import java.util.TimerTask;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
-import static com.mcmoddev.mmdbot.logging.MMDMarkers.*;
+import static com.mcmoddev.mmdbot.logging.MMDMarkers.NOTIFIER_MC;
 
 public class MinecraftUpdateNotifier extends TimerTask {
 

@@ -31,19 +31,19 @@ public final class CmdFabricVersion extends Command {
      */
     @Override
     protected void execute(final CommandEvent event) {
-		if (!Utils.checkCommand(this, event)) return;
+        if (!Utils.checkCommand(this, event)) return;
         final EmbedBuilder embed = new EmbedBuilder();
         final TextChannel channel = event.getTextChannel();
 
         String mcVersion = event.getArgs().trim();
         if (mcVersion.isEmpty())
-        	mcVersion = MinecraftVersionHelper.getLatest();
+            mcVersion = MinecraftVersionHelper.getLatest();
 
         String yarnVersion = FabricVersionHelper.getLatestYarn(mcVersion);
         if (yarnVersion == null)
-        	yarnVersion = "None";
+            yarnVersion = "None";
 
-        embed.setTitle("Fabric Versions for Minecraft "+mcVersion);
+        embed.setTitle("Fabric Versions for Minecraft " + mcVersion);
         embed.addField("Latest Yarn", yarnVersion, true);
         embed.addField("Latest API", FabricVersionHelper.getLatestApi(), true);
         embed.addField("Latest Loader", FabricVersionHelper.getLatestLoader(), true);

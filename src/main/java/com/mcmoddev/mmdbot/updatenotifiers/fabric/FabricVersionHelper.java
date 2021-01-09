@@ -29,11 +29,14 @@ public final class FabricVersionHelper {
     private static final String API_URL = "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/maven-metadata.xml";
 
     private static final Map<String, String> latestYarns = new HashMap<>();
+    private static final Duration timeUntilOutdated = Duration.ofMinutes(20);
     private static String latestLoader;
     private static String latestApi;
-
-    private static final Duration timeUntilOutdated = Duration.ofMinutes(20);
     private static Instant lastUpdated;
+
+    static {
+        update();
+    }
 
     public static String getLatestYarn(String mcVersion) {
         if (latestYarns.isEmpty() || isOutdated())
@@ -54,8 +57,8 @@ public final class FabricVersionHelper {
     }
 
     private static boolean isOutdated() {
-    	return lastUpdated.plus(timeUntilOutdated).isBefore(Instant.now());
-	}
+        return lastUpdated.plus(timeUntilOutdated).isBefore(Instant.now());
+    }
 
     public static void update() {
         updateYarn();
@@ -142,8 +145,4 @@ public final class FabricVersionHelper {
         public String version;
         public boolean stable;
     }
-
-    static {
-    	update();
-	}
 }

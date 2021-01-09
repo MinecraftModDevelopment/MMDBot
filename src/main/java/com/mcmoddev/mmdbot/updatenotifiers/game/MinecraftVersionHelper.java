@@ -14,14 +14,16 @@ import java.util.List;
 public final class MinecraftVersionHelper {
 
     private static final String API_URL = "https://meta.fabricmc.net/v2/versions/game";
-
+    private static final Duration timeUntilOutdated = Duration.ofMinutes(20);
     private static String latest;
     private static String latestStable;
+    private static Instant lastUpdated;
 
-	private static final Duration timeUntilOutdated = Duration.ofMinutes(20);
-	private static Instant lastUpdated;
+    static {
+        update();
+    }
 
-	public static String getLatest() {
+    public static String getLatest() {
         if (latest == null)
             update();
         return latest;
@@ -60,8 +62,4 @@ public final class MinecraftVersionHelper {
         public String version;
         public boolean stable;
     }
-
-	static {
-		update();
-	}
 }

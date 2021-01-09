@@ -13,10 +13,8 @@ import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * The configuration holder for the bot.
@@ -31,14 +29,14 @@ public final class BotConfig {
 
     public BotConfig(Path configFile, ConfigFormat<? extends CommentedConfig> configFormat) {
         this.config = CommentedFileConfig.builder(configFile, configFormat)
-            .autoreload()
-            .onFileNotFound((file, format) -> {
-                this.newlyGenerated = true;
-                //noinspection UnstableApiUsage
-                return FileNotFoundAction.copyData(Resources.getResource("default-config.toml")).run(file, format);
-            })
-            .preserveInsertionOrder()
-            .build();
+                .autoreload()
+                .onFileNotFound((file, format) -> {
+                    this.newlyGenerated = true;
+                    //noinspection UnstableApiUsage
+                    return FileNotFoundAction.copyData(Resources.getResource("default-config.toml")).run(file, format);
+                })
+                .preserveInsertionOrder()
+                .build();
         config.load();
     }
 
@@ -68,8 +66,8 @@ public final class BotConfig {
     @Nullable
     public String getToken() {
         return config.<String>getOptional("bot.token")
-            .filter(string -> string.indexOf('!') == -1 || string.isEmpty())
-            .orElse(null);
+                .filter(string -> string.indexOf('!') == -1 || string.isEmpty())
+                .orElse(null);
     }
 
     /**
@@ -133,12 +131,12 @@ public final class BotConfig {
      */
     public Optional<String> getAlias(long snowflake) {
         return getAliases()
-            .flatMap(aliases -> aliases.entrySet().stream()
-                .filter(entry -> entry.getValue() instanceof String)
-                .filter(entry -> SafeIdUtil.safeConvert(entry.getValue()) == snowflake)
-                .findFirst()
-            )
-            .map(UnmodifiableConfig.Entry::getKey);
+                .flatMap(aliases -> aliases.entrySet().stream()
+                        .filter(entry -> entry.getValue() instanceof String)
+                        .filter(entry -> SafeIdUtil.safeConvert(entry.getValue()) == snowflake)
+                        .findFirst()
+                )
+                .map(UnmodifiableConfig.Entry::getKey);
     }
 
     /**
@@ -166,10 +164,10 @@ public final class BotConfig {
      */
     public boolean isEnabled(String commandName, long guildID) {
         return config.<Boolean>getOptional(
-            "commands." + commandName + "."
-                + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
-                + ".enabled")
-            .orElseGet(() -> isEnabled(commandName));
+                "commands." + commandName + "."
+                        + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
+                        + ".enabled")
+                .orElseGet(() -> isEnabled(commandName));
     }
 
     /**
@@ -181,10 +179,10 @@ public final class BotConfig {
      */
     public List<Long> getBlockedChannels(String commandName, long guildID) {
         return getAliasedSnowflakeList(
-            "commands." + commandName + "."
-                + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
-                + ".blocked_channels", getAliases())
-            .orElseGet(Collections::emptyList);
+                "commands." + commandName + "."
+                        + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
+                        + ".blocked_channels", getAliases())
+                .orElseGet(Collections::emptyList);
     }
 
     /**
@@ -196,10 +194,10 @@ public final class BotConfig {
      */
     public List<Long> getAllowedChannels(String commandName, long guildID) {
         return getAliasedSnowflakeList(
-            "commands." + commandName + "."
-                + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
-                + ".allowed_channels", getAliases())
-            .orElseGet(Collections::emptyList);
+                "commands." + commandName + "."
+                        + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
+                        + ".allowed_channels", getAliases())
+                .orElseGet(Collections::emptyList);
     }
 
     /**
@@ -235,7 +233,7 @@ public final class BotConfig {
      */
     public List<Long> getBadRequestsReactions() {
         return getAliasedSnowflakeList("requests.emotes.bad", getAliases())
-            .orElseGet(Collections::emptyList);
+                .orElseGet(Collections::emptyList);
     }
 
     /**
@@ -247,7 +245,7 @@ public final class BotConfig {
      */
     public List<Long> getRequestsNeedsImprovementReactions() {
         return getAliasedSnowflakeList("requests.emotes.needs_improvement", getAliases())
-            .orElseGet(Collections::emptyList);
+                .orElseGet(Collections::emptyList);
     }
 
     /**
@@ -257,7 +255,7 @@ public final class BotConfig {
      */
     public List<Long> getGoodRequestsReactions() {
         return getAliasedSnowflakeList("requests.emotes.good", getAliases())
-            .orElseGet(Collections::emptyList);
+                .orElseGet(Collections::emptyList);
     }
 
     /**
@@ -280,27 +278,27 @@ public final class BotConfig {
 
     private Optional<List<Long>> getSnowflakeList(String path) {
         return config.<List<String>>getOptional(path)
-            .map(strings -> strings.stream()
-                .map(SafeIdUtil::safeConvert)
-                .filter(snowflake -> snowflake != 0)
-                .collect(Collectors.toList()));
+                .map(strings -> strings.stream()
+                        .map(SafeIdUtil::safeConvert)
+                        .filter(snowflake -> snowflake != 0)
+                        .collect(Collectors.toList()));
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private Optional<List<Long>> getAliasedSnowflakeList(String path, Optional<UnmodifiableConfig> aliases) {
         return config.<List<String>>getOptional(path)
-            .filter(list -> !list.isEmpty())
-            .map(strings -> strings.stream()
-                .map(str -> aliases.flatMap(cfg -> cfg.<String>getOptional(str)).orElse(str))
-                .map(SafeIdUtil::safeConvert)
-                .filter(snowflake -> snowflake != 0)
-                .collect(Collectors.toList()));
+                .filter(list -> !list.isEmpty())
+                .map(strings -> strings.stream()
+                        .map(str -> aliases.flatMap(cfg -> cfg.<String>getOptional(str)).orElse(str))
+                        .map(SafeIdUtil::safeConvert)
+                        .filter(snowflake -> snowflake != 0)
+                        .collect(Collectors.toList()));
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private String getAliased(String key, Optional<UnmodifiableConfig> aliases) {
         return config.<String>getOptional(key)
-            .map(str -> aliases.flatMap(cfg -> cfg.<String>getOptional(str)).orElse(str))
-            .orElse("");
+                .map(str -> aliases.flatMap(cfg -> cfg.<String>getOptional(str)).orElse(str))
+                .orElse("");
     }
 }

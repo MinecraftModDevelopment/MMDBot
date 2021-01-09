@@ -35,7 +35,7 @@ public class CmdUser extends Command {
      */
     @Override
     protected void execute(final CommandEvent event) {
-		if (!Utils.checkCommand(this, event)) return;
+        if (!Utils.checkCommand(this, event)) return;
         final TextChannel channel = event.getTextChannel();
         final Member member = Utils.getMemberFromString(event.getArgs(), event.getGuild());
         final EmbedBuilder embed = createMemberEmbed(member);

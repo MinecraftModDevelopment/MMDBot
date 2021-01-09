@@ -35,16 +35,16 @@ public class ForgeUpdateNotifier extends TimerTask {
 
             boolean changed = false;
             EmbedBuilder embed = new EmbedBuilder();
-			embed.addField("Minecraft Version", mcVersion, true);
-			embed.setTitle("Forge version update");
-			embed.setColor(Color.ORANGE);
-			embed.setTimestamp(Instant.now());
+            embed.addField("Minecraft Version", mcVersion, true);
+            embed.setTitle("Forge version update");
+            embed.setColor(Color.ORANGE);
+            embed.setTimestamp(Instant.now());
 
-			StringBuilder logMsg = new StringBuilder(32);
-			if (latest.getLatest() != null) {
+            StringBuilder logMsg = new StringBuilder(32);
+            if (latest.getLatest() != null) {
                 if (lastForgeVersions.getLatest() == null) {
-					embed.addField("Latest", String.format("*none* -> **%s**\n", latest.getLatest()), true);
-					embed.setDescription(Utils.makeHyperlink("Changelog", String.format(CHANGELOG_URL_TEMPLATE, mcVersion, latest.getLatest())));
+                    embed.addField("Latest", String.format("*none* -> **%s**\n", latest.getLatest()), true);
+                    embed.setDescription(Utils.makeHyperlink("Changelog", String.format(CHANGELOG_URL_TEMPLATE, mcVersion, latest.getLatest())));
                     changed = true;
                     logMsg.append("Latest, from none to ").append(latest.getLatest());
                 } else if (!latest.getLatest().equals(lastForgeVersions.getLatest())) {
@@ -77,7 +77,7 @@ public class ForgeUpdateNotifier extends TimerTask {
 
                 long guildId = getConfig().getGuildID();
                 final Guild guild = MMDBot.getInstance().getGuildById(guildId);
-				if (guild == null) return;
+                if (guild == null) return;
                 long channelId = getConfig().getChannel("notifications.forge");
                 final TextChannel channel = guild.getTextChannelById(channelId);
                 if (channel == null) return;

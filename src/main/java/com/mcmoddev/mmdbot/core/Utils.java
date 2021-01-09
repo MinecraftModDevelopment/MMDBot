@@ -145,12 +145,12 @@ public final class Utils {
      */
     public static int getNumberOfMatchingReactions(final Message message, final Predicate<Long> predicate) {
         return message
-            .getReactions()
-            .stream()
-            .filter(messageReaction -> messageReaction.getReactionEmote().isEmote())
-            .filter(messageReaction -> predicate.test(messageReaction.getReactionEmote().getIdLong()))
-            .mapToInt(MessageReaction::getCount)
-            .sum();
+                .getReactions()
+                .stream()
+                .filter(messageReaction -> messageReaction.getReactionEmote().isEmote())
+                .filter(messageReaction -> predicate.test(messageReaction.getReactionEmote().getIdLong()))
+                .mapToInt(MessageReaction::getCount)
+                .sum();
     }
 
     /**
@@ -253,14 +253,14 @@ public final class Utils {
         final Map<String, Instant> userJoinTimes = getUserJoinTimeMap();
         final String memberID = member.getId();
         return userJoinTimes.containsKey(memberID) ?
-            userJoinTimes.get(memberID) :
-            member.getTimeJoined().toInstant();
+                userJoinTimes.get(memberID) :
+                member.getTimeJoined().toInstant();
     }
 
-	/**
-	 * Checks if the command can run in the given context, and returns if it should continue running.
-	 * <p>
-	 * This does the following checks in order (checks prefixed with GUILD will only take effect when ran from a
+    /**
+     * Checks if the command can run in the given context, and returns if it should continue running.
+     * <p>
+     * This does the following checks in order (checks prefixed with GUILD will only take effect when ran from a
      * {@linkplain TextChannel guild channel}):
      * <ul>
      *     <li>GUILD; checks if the command is enabled in the guild.</li>
@@ -268,11 +268,11 @@ public final class Utils {
      *     <li>GUILD: checks if the command is blocked in the channel/category.</li>
      *     <li>GUILD: checks if the command is allowed in the channel/category.</li>
      * </ul>
-	 *
-	 * @param command The command
-	 * @param event The command event
-	 * @return If the command can run in that context
-	 */
+     *
+     * @param command The command
+     * @param event   The command event
+     * @return If the command can run in that context
+     */
     public static boolean checkCommand(Command command, CommandEvent event) {
         final String name = command.getName();
 
@@ -283,8 +283,8 @@ public final class Utils {
 
         if (isBlocked(command, event)) {
             event.getChannel()
-                .sendMessage("This command is blocked from running in this channel!")
-                .queue();
+                    .sendMessage("This command is blocked from running in this channel!")
+                    .queue();
             return false;
         }
 
@@ -301,18 +301,18 @@ public final class Utils {
             if (category != null) { // If there's a category, also check that
                 final long categoryID = category.getIdLong();
                 allowed = allowedChannels.stream()
-                    .anyMatch(id -> id == channelID || id == categoryID);
+                        .anyMatch(id -> id == channelID || id == categoryID);
             } else {
                 allowed = allowedChannels.stream().anyMatch(id -> id == channelID);
             }
 
             if (!allowed) {
                 final String allowedChannelStr = allowedChannels.stream()
-                    .map(id -> "<#" + id + ">")
-                    .collect(Collectors.joining(", "));
+                        .map(id -> "<#" + id + ">")
+                        .collect(Collectors.joining(", "));
                 event.getChannel() // TODO: remove the allowed channel string?
-                    .sendMessage("This command cannot be run in this channel, only in " + allowedChannelStr + "!")
-                    .queue();
+                        .sendMessage("This command cannot be run in this channel, only in " + allowedChannelStr + "!")
+                        .queue();
                 return false;
             }
         }
@@ -334,7 +334,7 @@ public final class Utils {
             if (category != null) {
                 final long categoryID = category.getIdLong();
                 return blockedChannels.stream()
-                    .anyMatch(id -> id == channelID || id == categoryID);
+                        .anyMatch(id -> id == channelID || id == categoryID);
             }
             return blockedChannels.stream().anyMatch(id -> id == channelID);
         }

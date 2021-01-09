@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
-import static com.mcmoddev.mmdbot.logging.MMDMarkers.*;
+import static com.mcmoddev.mmdbot.logging.MMDMarkers.EVENTS;
 
 /**
  *
@@ -49,8 +49,8 @@ public final class EventUserLeft extends ListenerAdapter {
             }
             Utils.writeUserRoles(user.getIdLong(), roles);
             if (member != null) {
-				Utils.writeUserJoinTimes(user.getId(), member.getTimeJoined().toInstant());
-			}
+                Utils.writeUserJoinTimes(user.getId(), member.getTimeJoined().toInstant());
+            }
             embed.setColor(Color.RED);
             embed.setTitle("User Left");
             embed.setThumbnail(user.getEffectiveAvatarUrl());
