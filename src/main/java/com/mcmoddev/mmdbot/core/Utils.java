@@ -127,6 +127,7 @@ public final class Utils {
      * @param guild        The guild we are currently in.
      * @return The guild member.
      */
+    @Nullable
     public static Member getMemberFromString(final String memberString, final Guild guild) {
         final Matcher matcher = Message.MentionType.USER.getPattern().matcher(memberString);
         if (matcher.matches()) {
