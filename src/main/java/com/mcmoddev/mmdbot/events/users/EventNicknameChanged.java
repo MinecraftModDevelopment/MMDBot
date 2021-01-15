@@ -70,7 +70,7 @@ public final class EventNicknameChanged extends ListenerAdapter {
         }
 
         if (getConfig().getGuildID() == guildId) {
-            LOGGER.info(EVENTS, "User {} changed nickname from {} to {}, changed by {}", user.getId(), oldNick, newNick, editorID);
+            LOGGER.info(EVENTS, "User {} changed nickname from {} to {}, changed by {}({})", user, oldNick, newNick, editorTag, editorID);
 
             embed.setColor(Color.YELLOW);
             embed.setTitle("Nickname Changed");

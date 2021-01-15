@@ -40,12 +40,12 @@ public final class EventUserLeft extends ListenerAdapter {
         final Member member = event.getMember();
 
         if (getConfig().getGuildID() == guildId) {
-            LOGGER.info(EVENTS, "User {} left the guild", user.getId());
+            LOGGER.info(EVENTS, "User {} left the guild", user);
             List<Role> roles = new ArrayList<>();
             if (member != null) {
                 roles = member.getRoles();
             } else {
-                LOGGER.warn(EVENTS, "Could not get roles of leaving user " + user.getAsTag() + ": " + user.getId());
+                LOGGER.warn(EVENTS, "Could not get roles of leaving user {}", user);
             }
             Utils.writeUserRoles(user.getIdLong(), roles);
             if (member != null) {
