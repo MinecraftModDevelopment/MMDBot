@@ -213,6 +213,18 @@ public final class BotConfig {
     }
 
     /**
+     * Returns the list of roles exempt from the blocklists and allowlists of commands.
+     * <p>
+     * Users with these roles bypass the block and allow lists of commands, allowing them to run (enabled) commands in any channel.
+     *
+     * @return The roles exempt from channel checking
+     */
+    public List<Long> getChannelExemptRoles() {
+        return getAliasedSnowflakeList("commands.exempt_roles", getAliases())
+            .orElseGet(Collections::emptyList);
+    }
+
+    /**
      * Returns the snowflake ID of the given role key based on the configuration, or {@code 0L} if none is configured.
      * <p>
      * The role key consists of ASCII letters, optionally separated by periods/full stops ({@code .}) for connoting

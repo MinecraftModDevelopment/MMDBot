@@ -283,6 +283,16 @@ public final class Utils {
             return false;
         }
 
+        if (event.isFromType(ChannelType.TEXT)) {
+            final List<Long> exemptRoles = getConfig().getChannelExemptRoles();
+            if (event.getMember().getRoles().stream()
+                .map(ISnowflake::getIdLong)
+                .anyMatch(exemptRoles::contains)) {
+                // The member has a channel-checking-exempt role, bypass checking and allow the command
+                return true;
+            }
+        }
+
         if (isBlocked(command, event)) {
             event.getChannel()
                     .sendMessage("This command is blocked from running in this channel!")

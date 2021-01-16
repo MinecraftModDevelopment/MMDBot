@@ -123,6 +123,10 @@
     # These will be excluded from the error message when a command is sent from a non-allowed channel
     hidden_channels = []
 
+    # The snowflake IDs (or aliases) of roles exempted from the allowlist and blocklist checking
+    # This means that members with these roles may run any (enabled) command in any channel
+    exempt_roles = []
+
     # Configuration of the commands prefixes
     [commands.prefix]
         # The main commands prefix for bot commands
