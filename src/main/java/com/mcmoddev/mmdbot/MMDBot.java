@@ -41,6 +41,8 @@ import javax.security.auth.login.LoginException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
@@ -69,7 +71,7 @@ public final class MMDBot {
     static {
         String version = MMDBot.class.getPackage().getImplementationVersion();
         if (version == null) {
-            version = "DEV " + DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(Instant.now());
+            version = "DEV " + DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(OffsetDateTime.now(ZoneOffset.UTC));
         }
         VERSION = version;
     }
