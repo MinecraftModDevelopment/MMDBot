@@ -68,7 +68,7 @@ public final class MMDBot {
     // Gets the version from the JAR manifest, else defaults to the time the bot was started
     static {
         String version = MMDBot.class.getPackage().getImplementationVersion();
-        if (version != null) {
+        if (version == null) {
             version = "DEV " + DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(Instant.now());
         }
         VERSION = version;
