@@ -1,9 +1,7 @@
 package com.mcmoddev.mmdbot.updatenotifiers.game;
 
-import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -25,36 +23,35 @@ public class MinecraftUpdateNotifier extends TimerTask {
 
     @Override
     public void run() {
+        LOGGER.debug(NOTIFIER_MC, "Checking for new Minecraft versions...");
         String latest = MinecraftVersionHelper.getLatest();
         String latestStable = MinecraftVersionHelper.getLatestStable();
-
-        final long guildId = getConfig().getGuildID();
-        final Guild guild = MMDBot.getInstance().getGuildById(guildId);
-        if (guild == null) return;
         final long channelId = getConfig().getChannel("notifications.minecraft");
-        final TextChannel channel = guild.getTextChannelById(channelId);
-        if (channel == null) return;
 
         if (!lastLatestStable.equals(latestStable)) {
             LOGGER.info(NOTIFIER_MC, "New Minecraft release found, from {} to {}", lastLatest, latest);
-            lastLatest = latest;
 
-            final EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle("New Minecraft release available!");
-            embed.setDescription(latest);
-            embed.setColor(Color.GREEN);
-            embed.setTimestamp(Instant.now());
-            channel.sendMessage(embed.build()).queue();
+            Utils.getChannelIfPresent(channelId, channel -> {
+                final EmbedBuilder embed = new EmbedBuilder();
+                embed.setTitle("New Minecraft release available!");
+                embed.setDescription(latest);
+                embed.setColor(Color.GREEN);
+                embed.setTimestamp(Instant.now());
+                channel.sendMessage(embed.build()).queue();
+            });
         } else if (!lastLatest.equals(latest)) {
             LOGGER.info(NOTIFIER_MC, "New Minecraft snapshot found, from {} to {}", lastLatest, latest);
-            lastLatest = latest;
 
-            final EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle("New Minecraft snapshot available!");
-            embed.setDescription(latest);
-            embed.setColor(Color.ORANGE);
-            embed.setTimestamp(Instant.now());
-            channel.sendMessage(embed.build()).queue();
+            Utils.getChannelIfPresent(channelId, channel -> {
+                final EmbedBuilder embed = new EmbedBuilder();
+                embed.setTitle("New Minecraft snapshot available!");
+                embed.setDescription(latest);
+                embed.setColor(Color.ORANGE);
+                embed.setTimestamp(Instant.now());
+                channel.sendMessage(embed.build()).queue();
+            });
+        } else {
+            LOGGER.debug(NOTIFIER_MC, "No new Minecraft version found");
         }
 
         lastLatest = latest;

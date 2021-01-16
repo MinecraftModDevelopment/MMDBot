@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
@@ -340,5 +341,15 @@ public final class Utils {
             return blockedChannels.stream().anyMatch(id -> id == channelID);
         }
         return false; // If not from a guild, default not blocked
+    }
+
+    public static void getChannelIfPresent(long channelID, Consumer<TextChannel> consumer) {
+        final long guildID = getConfig().getGuildID();
+        final Guild guild = MMDBot.getInstance().getGuildById(guildID);
+        if (guild == null) return;
+        final TextChannel channel = guild.getTextChannelById(channelID);
+        if (channel != null) {
+            consumer.accept(channel);
+        }
     }
 }
