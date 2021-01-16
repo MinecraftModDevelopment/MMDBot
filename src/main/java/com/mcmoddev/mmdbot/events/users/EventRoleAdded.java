@@ -3,15 +3,12 @@ package com.mcmoddev.mmdbot.events.users;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.audit.ActionType;
-import net.dv8tion.jda.api.audit.AuditLogEntry;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.requests.restaction.pagination.AuditLogPaginationAction;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -33,50 +30,45 @@ public final class EventRoleAdded extends ListenerAdapter {
      */
     @Override
     public void onGuildMemberRoleAdd(final GuildMemberRoleAddEvent event) {
-        final User user = event.getUser();
-        final EmbedBuilder embed = new EmbedBuilder();
+        final User target = event.getUser();
         final Guild guild = event.getGuild();
-        final long guildId = guild.getIdLong();
-        final TextChannel channel = guild.getTextChannelById(getConfig().getChannel("events.important"));
-        if (channel == null) return;
+        final long channelID = getConfig().getChannel("events.important");
 
-        Utils.sleepTimer();
+        if (getConfig().getGuildID() != guild.getIdLong())
+            return; // Make sure that we don't post if it's not related to 'our' guild
 
-        final AuditLogPaginationAction paginationAction = event.getGuild().retrieveAuditLogs()
+        Utils.getChannelIfPresent(channelID, channel ->
+            guild.retrieveAuditLogs()
                 .type(ActionType.MEMBER_ROLE_UPDATE)
                 .limit(1)
-                .cache(false);
+                .cache(false)
+                .map(list -> list.get(0))
+                .flatMap(entry -> {
+                    final List<Role> previousRoles = new ArrayList<>(event.getMember().getRoles());
+                    final List<Role> addedRoles = new ArrayList<>(event.getRoles());
+                    previousRoles.removeAll(addedRoles); // Just if the member has already been updated
 
-        final List<AuditLogEntry> entries = paginationAction.complete();
+                    final EmbedBuilder embed = new EmbedBuilder();
 
-        final AuditLogEntry entry = entries.get(0);
-        final User editor = entry.getUser();
+                    embed.setColor(Color.YELLOW);
+                    embed.setTitle("User Role(s) Added");
+                    embed.setThumbnail(target.getEffectiveAvatarUrl());
+                    embed.addField("User:", target.getAsMention() + " (" + target.getId() + ")", true);
+                    if (entry.getTargetIdLong() != target.getIdLong()) {
+                        LOGGER.warn(EVENTS, "Inconsistency between target of retrieved audit log entry and actual role event target: retrieved is {}, but target is {}", target, entry.getUser());
+                    } else if (entry.getUser() != null) {
+                        final User editor = entry.getUser();
+                        embed.addField("Editor:", editor.getAsMention() + " (" + editor.getId() + ")", true);
+                    }
+                    embed.addField("Previous Role(s):", previousRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining(" ")), false);
+                    embed.addField("Added Role(s):", addedRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining(" ")), false);
+                    embed.setTimestamp(Instant.now());
 
-        String editorID = "Unknown";
-        String editorTag = "Unknown";
-        if (editor != null) {
-            editorID = editor.getId();
-            editorTag = editor.getAsTag();
-        }
+                    LOGGER.info(EVENTS, "Role(s) {} was added to user {} by {}", addedRoles, target, entry.getUser());
 
-        final List<Role> previousRoles = new ArrayList<>(event.getMember().getRoles());
-        final List<Role> addedRoles = new ArrayList<>(event.getRoles());
-        previousRoles.removeAll(addedRoles);
-
-        if (getConfig().getGuildID() == guildId) {
-            LOGGER.info(EVENTS, "Role {} was added to user {} by {}", addedRoles, user, editor);
-
-            embed.setColor(Color.YELLOW);
-            embed.setTitle("User Role Added");
-            embed.setThumbnail(user.getEffectiveAvatarUrl());
-            embed.addField("User:", user.getAsTag(), true);
-            embed.addField("User ID:", user.getId(), true);
-            embed.addField("Edited By:", editorTag, true);
-            embed.addField("Editor ID:", editorID, true);
-            embed.addField("Previous Roles:", previousRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), false);
-            embed.addField("Added Roles:", addedRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), false);
-            embed.setTimestamp(Instant.now());
-            channel.sendMessage(embed.build()).queue();
-        }
+                    return channel.sendMessage(embed.build());
+                })
+                .queue()
+        );
     }
 }
