@@ -27,7 +27,7 @@ public final class CmdOldChannels extends Command {
 		super();
 		name = "old-channels";
 		help = "Gives channels which haven't been used in an amount of days given as an argument (default 60)." +
-			"Usage: "+MMDBot.getConfig().getMainPrefix()+"old-channels [threshold] [channel or category blacklist, seperated by spaces]";
+			"Usage: "+MMDBot.getConfig().getMainPrefix()+"old-channels [threshold] [channel or category list, seperated by spaces]";
 		hidden = true;
 	}
 
@@ -52,21 +52,15 @@ public final class CmdOldChannels extends Command {
 
 		final int dayThreshold = args.size() > 0 && args.get(0).matches("-?\\d+") ? Integer.parseInt(args.remove(0)) : 60;
 
-		List<String> blacklist;
-
-		if (args.size() > 0) {
-			blacklist = new ArrayList<>(args);
-		} else {
-			blacklist = new ArrayList<>();
-		}
+		List<String> toCheck = new ArrayList<>(args);
 
 		embed.setTitle("Days since last message in channels:");
 		embed.setColor(Color.YELLOW);
 
 		guild.getTextChannels().stream()
 			.distinct()
-			.filter(channel -> !blacklist.contains(channel.getName()))
-			.filter(listDoesNotContainChannelParentName(blacklist))
+			.filter(channel -> toCheck.contains(channel.getName()))
+			.filter(channelIsAllowedByList(toCheck))
 			.map(channel -> new ChannelData(channel, OldChannelsHelper.getLastMessageTime(channel)))
 			.forEach(channelData -> {
 				if (channelData.days > dayThreshold) {
@@ -79,8 +73,10 @@ public final class CmdOldChannels extends Command {
 		outputChannel.sendMessage(embed.build()).queue();
 	}
 
-	private Predicate<TextChannel> listDoesNotContainChannelParentName(List<String> list) {
-		return (channel) -> !(channel.getParent() != null && list.contains(channel.getParent().getName().replace(' ', '-')));
+	private Predicate<TextChannel> channelIsAllowedByList(List<String> list) {
+		return (channel) -> list.isEmpty() ||
+			(channel.getParent() != null && list.contains(channel.getParent().getName().replace(' ', '-')))
+			|| list.contains(channel.getName());
 	}
 
 	private static class ChannelData {
