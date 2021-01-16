@@ -24,6 +24,7 @@ public class MinecraftUpdateNotifier extends TimerTask {
     @Override
     public void run() {
         LOGGER.debug(NOTIFIER_MC, "Checking for new Minecraft versions...");
+        MinecraftVersionHelper.update();
         String latest = MinecraftVersionHelper.getLatest();
         String latestStable = MinecraftVersionHelper.getLatestStable();
         final long channelId = getConfig().getChannel("notifications.minecraft");
