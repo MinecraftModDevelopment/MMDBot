@@ -309,12 +309,21 @@ public final class Utils {
             }
 
             if (!allowed) {
+                final List<Long> hiddenChannels = getConfig().getHiddenChannels();
                 final String allowedChannelStr = allowedChannels.stream()
-                        .map(id -> "<#" + id + ">")
-                        .collect(Collectors.joining(", "));
+                    .filter(id -> !hiddenChannels.contains(id))
+                    .map(id -> "<#" + id + ">")
+                    .collect(Collectors.joining(", "));
+
+                StringBuilder str = new StringBuilder()
+                    .append("This command cannot be run in this channel");
+                if (!allowedChannelStr.isEmpty()) {
+                    str.append(", only in ")
+                        .append(allowedChannelStr);
+                }
                 event.getChannel() // TODO: remove the allowed channel string?
-                        .sendMessage("This command cannot be run in this channel, only in " + allowedChannelStr + "!")
-                        .queue();
+                    .sendMessage(str.append("!"))
+                    .queue();
                 return false;
             }
         }
@@ -343,6 +352,12 @@ public final class Utils {
         return false; // If not from a guild, default not blocked
     }
 
+    /**
+     * Calls the given consumer only if the channel with the given ID is present within the {@linkplain BotConfig#getGuildID() bot's guild}.
+     *
+     * @param channelID The channel ID
+     * @param consumer  The consumer of the channel
+     */
     public static void getChannelIfPresent(long channelID, Consumer<TextChannel> consumer) {
         final long guildID = getConfig().getGuildID();
         final Guild guild = MMDBot.getInstance().getGuildById(guildID);
