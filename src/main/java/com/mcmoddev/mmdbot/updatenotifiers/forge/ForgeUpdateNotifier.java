@@ -1,10 +1,7 @@
 package com.mcmoddev.mmdbot.updatenotifiers.forge;
 
-import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -29,6 +26,7 @@ public class ForgeUpdateNotifier extends TimerTask {
     @Override
     public void run() {
         try {
+            LOGGER.debug(NOTIFIER_FORGE, "Checking for new Forge versions...");
             mcVersion = ForgeVersionHelper.getLatestMcVersionForgeVersions().getMcVersion();
 
             ForgeVersion latest = ForgeVersionHelper.getForgeVersionsForMcVersion(mcVersion);
@@ -75,15 +73,10 @@ public class ForgeUpdateNotifier extends TimerTask {
                 // TODO: save this to disk to persist on restarts
                 lastForgeVersions = latest;
 
-                long guildId = getConfig().getGuildID();
-                final Guild guild = MMDBot.getInstance().getGuildById(guildId);
-                if (guild == null) return;
-                long channelId = getConfig().getChannel("notifications.forge");
-                final TextChannel channel = guild.getTextChannelById(channelId);
-                if (channel == null) return;
-                channel.sendMessage(embed.build()).queue();
+                Utils.getChannelIfPresent(getConfig().getChannel("notifications.forge"),
+                    channel -> channel.sendMessage(embed.build()).queue());
             } else {
-                LOGGER.info(NOTIFIER_FORGE, "No new Forge version found");
+                LOGGER.debug(NOTIFIER_FORGE, "No new Forge version found");
             }
         } catch (Exception e) {
             LOGGER.error(NOTIFIER_FORGE, "Error while running", e);

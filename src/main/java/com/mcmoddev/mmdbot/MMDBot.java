@@ -40,6 +40,10 @@ import org.slf4j.LoggerFactory;
 import javax.security.auth.login.LoginException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -56,8 +60,21 @@ public final class MMDBot {
 
     /**
      * The bots current version.
+     * <p>
+     * The version will be taken from the {@code Implementation-Version} attribute of the JAR manifest.
+     * If that is unavailable, the version shall be the combination of the string {@code "DEV "} and the the current
+     * date and time in {@link java.time.format.DateTimeFormatter#ISO_OFFSET_DATE_TIME}.
      */
-    public static final String VERSION = MMDBot.class.getPackage().getImplementationVersion();
+    public static final String VERSION;
+
+    // Gets the version from the JAR manifest, else defaults to the time the bot was started
+    static {
+        String version = MMDBot.class.getPackage().getImplementationVersion();
+        if (version == null) {
+            version = "DEV " + DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(OffsetDateTime.now(ZoneOffset.UTC));
+        }
+        VERSION = version;
+    }
 
     /**
      * The issue tracker where bugs and crashes should be reported, and PR's made.

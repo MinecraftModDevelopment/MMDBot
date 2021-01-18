@@ -3,17 +3,13 @@ package com.mcmoddev.mmdbot.events.users;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.audit.ActionType;
-import net.dv8tion.jda.api.audit.AuditLogEntry;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.requests.restaction.pagination.AuditLogPaginationAction;
 
 import java.awt.Color;
 import java.time.Instant;
-import java.util.List;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
@@ -29,61 +25,44 @@ public final class EventNicknameChanged extends ListenerAdapter {
      */
     @Override
     public void onGuildMemberUpdateNickname(final GuildMemberUpdateNicknameEvent event) {
-        final User user = event.getUser();
-        final EmbedBuilder embed = new EmbedBuilder();
+        final User target = event.getUser();
         final Guild guild = event.getGuild();
-        final TextChannel channel = guild.getTextChannelById(getConfig().getChannel("events.basic"));
-        if (channel == null) return;
-        final long guildId = guild.getIdLong();
-        String oldNick;
-        String newNick;
+        final long channelID = getConfig().getChannel("events.basic");
+        final String oldNick = event.getOldNickname() != null ? event.getOldNickname() : target.getName();
+        final String newNick = event.getNewNickname() != null ? event.getNewNickname() : target.getName();
 
-        Utils.sleepTimer();
+        if (getConfig().getGuildID() != guild.getIdLong())
+            return; // Make sure that we don't post if it's not related to 'our' guild
 
-        final AuditLogPaginationAction paginationAction = event.getGuild().retrieveAuditLogs()
+        Utils.getChannelIfPresent(channelID, channel ->
+            guild.retrieveAuditLogs()
                 .type(ActionType.MEMBER_UPDATE)
                 .limit(1)
-                .cache(false);
+                .cache(false)
+                .map(list -> list.get(0))
+                .flatMap(entry -> {
+                    final EmbedBuilder embed = new EmbedBuilder();
 
-        final List<AuditLogEntry> entries = paginationAction.complete();
+                    embed.setColor(Color.YELLOW);
+                    embed.setTitle("Nickname Changed");
+                    embed.setThumbnail(target.getEffectiveAvatarUrl());
+                    embed.addField("User:", target.getAsMention() + " (" + target.getId() + ")", true);
+                    embed.setTimestamp(Instant.now());
+                    if (entry.getTargetIdLong() != target.getIdLong()) {
+                        LOGGER.warn(EVENTS, "Inconsistency between target of retrieved audit log entry and actual nickname event target: retrieved is {}, but target is {}", target, entry.getUser());
+                    } else if (entry.getUser() != null) {
+                        final User editor = entry.getUser();
+                        embed.addField("Nickname Editor:", editor.getAsMention() + " (" + editor.getId() + ")", true);
+                        embed.addBlankField(true);
+                    }
+                    embed.addField("Old Nickname:", oldNick, true);
+                    embed.addField("New Nickname:", newNick, true);
 
-        final AuditLogEntry entry = entries.get(0);
-        final User editor = entry.getUser();
+                    LOGGER.info(EVENTS, "User {} changed nickname from {} to {}, by {}", target, oldNick, newNick, entry.getUser());
 
-        String editorID = "Unknown";
-        String editorTag = "Unknown";
-        if (editor != null) {
-            editorID = editor.getId();
-            editorTag = editor.getAsTag();
-        }
-
-        if (event.getOldNickname() == null) {
-            oldNick = user.getName();
-        } else {
-            oldNick = event.getOldNickname();
-        }
-
-        if (event.getNewNickname() == null) {
-            newNick = user.getName();
-        } else {
-            newNick = event.getNewNickname();
-        }
-
-        if (getConfig().getGuildID() == guildId) {
-            LOGGER.info(EVENTS, "User {} changed nickname from {} to {}, changed by {}", user.getId(), oldNick, newNick, editorID);
-
-            embed.setColor(Color.YELLOW);
-            embed.setTitle("Nickname Changed");
-            embed.setThumbnail(user.getEffectiveAvatarUrl());
-            embed.addField("User:", user.getAsTag(), true);
-            embed.addField("User ID:", user.getId(), true);
-            embed.addField("Old Nickname:", oldNick, true);
-            embed.addField("New Nickname:", newNick, true);
-            embed.addField("Nickname Editor:", editorTag, true);
-            embed.addField("Nickname Editor ID:", editorID, true);
-            embed.setTimestamp(Instant.now());
-
-            channel.sendMessage(embed.build()).queue();
-        }
+                    return channel.sendMessage(embed.build());
+                })
+                .queue()
+        );
     }
 }

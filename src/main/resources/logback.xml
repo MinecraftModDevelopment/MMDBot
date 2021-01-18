@@ -27,7 +27,7 @@
         </encoder>
     </appender>
     <!--Log levels include ERROR, WARN, INFO, DEBUG, TRACE-->
-    <root level="WARN">
+    <root level="DEBUG">
         <appender-ref ref="CONSOLE"/>
     </root>
 

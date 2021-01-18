@@ -40,15 +40,15 @@ public final class EventUserJoined extends ListenerAdapter {
         final Member member = guild.getMember(user);
 
         if (getConfig().getGuildID() == guildId) {
-            LOGGER.info(EVENTS, "User {} joined the guild", user.getId());
+            LOGGER.info(EVENTS, "User {} joined the guild", user);
             final List<Role> roles = Utils.getOldUserRoles(guild, user.getIdLong());
             if (member != null) {
-                LOGGER.info(EVENTS, "Giving old roles to user {}: {}", user.getId(), roles);
+                LOGGER.info(EVENTS, "Giving old roles to user {}: {}", user, roles);
                 for (Role role : roles) {
                     try {
                         guild.addRoleToMember(member, role).queue();
                     } catch (final HierarchyException e) {
-                        LOGGER.warn(EVENTS, "Unable to give member {} role {}: {}", member.getId(), role.getId(), e.getMessage());
+                        LOGGER.warn(EVENTS, "Unable to give member {} role {}: {}", member, role, e.getMessage());
                     }
                 }
             }

@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
@@ -282,6 +283,16 @@ public final class Utils {
             return false;
         }
 
+        if (event.isFromType(ChannelType.TEXT)) {
+            final List<Long> exemptRoles = getConfig().getChannelExemptRoles();
+            if (event.getMember().getRoles().stream()
+                .map(ISnowflake::getIdLong)
+                .anyMatch(exemptRoles::contains)) {
+                // The member has a channel-checking-exempt role, bypass checking and allow the command
+                return true;
+            }
+        }
+
         if (isBlocked(command, event)) {
             event.getChannel()
                     .sendMessage("This command is blocked from running in this channel!")
@@ -308,12 +319,21 @@ public final class Utils {
             }
 
             if (!allowed) {
+                final List<Long> hiddenChannels = getConfig().getHiddenChannels();
                 final String allowedChannelStr = allowedChannels.stream()
-                        .map(id -> "<#" + id + ">")
-                        .collect(Collectors.joining(", "));
+                    .filter(id -> !hiddenChannels.contains(id))
+                    .map(id -> "<#" + id + ">")
+                    .collect(Collectors.joining(", "));
+
+                StringBuilder str = new StringBuilder()
+                    .append("This command cannot be run in this channel");
+                if (!allowedChannelStr.isEmpty()) {
+                    str.append(", only in ")
+                        .append(allowedChannelStr);
+                }
                 event.getChannel() // TODO: remove the allowed channel string?
-                        .sendMessage("This command cannot be run in this channel, only in " + allowedChannelStr + "!")
-                        .queue();
+                    .sendMessage(str.append("!"))
+                    .queue();
                 return false;
             }
         }
@@ -340,5 +360,21 @@ public final class Utils {
             return blockedChannels.stream().anyMatch(id -> id == channelID);
         }
         return false; // If not from a guild, default not blocked
+    }
+
+    /**
+     * Calls the given consumer only if the channel with the given ID is present within the {@linkplain BotConfig#getGuildID() bot's guild}.
+     *
+     * @param channelID The channel ID
+     * @param consumer  The consumer of the channel
+     */
+    public static void getChannelIfPresent(long channelID, Consumer<TextChannel> consumer) {
+        final long guildID = getConfig().getGuildID();
+        final Guild guild = MMDBot.getInstance().getGuildById(guildID);
+        if (guild == null) return;
+        final TextChannel channel = guild.getTextChannelById(channelID);
+        if (channel != null) {
+            consumer.accept(channel);
+        }
     }
 }
