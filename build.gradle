@@ -6,6 +6,7 @@ plugins {
     id 'com.github.spotbugs' version '1.6.9' // 4.0 or later
     id 'checkstyle' // 2.7 or later
     id 'pmd'
+    id "org.flywaydb.flyway" version "7.5.0"
 }
 
 mainClassName = 'com.mcmoddev.mmdbot.MMDBot'
@@ -29,6 +30,7 @@ dependencies {
     implementation "com.google.code.gson:gson:${project.gson_version}"
     implementation "ch.qos.logback:logback-classic:${project.logback_classic_version}"
     implementation "com.electronwill.night-config:toml:${project.nightconfig_version}"
+    implementation "org.xerial:sqlite-jdbc:${project.sqlite_jdbc_version}"
 
     testImplementation "org.junit.jupiter:junit-jupiter:5.6.0"
 }
@@ -72,6 +74,11 @@ test {
     testLogging {
         events "passed", "skipped", "failed"
     }
+}
+
+flyway {
+    url = 'jdbc:sqlite:./data.db'
+    user = 'sa'
 }
 
 spotbugs {

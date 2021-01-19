@@ -42,3 +42,4 @@ mmdbot_user_join_times.json
 mmdbot_config.json
 config.json
 bot_logs/*
+data.db

@@ -23,6 +23,8 @@ import com.mcmoddev.mmdbot.commands.staff.CmdMute;
 import com.mcmoddev.mmdbot.commands.staff.CmdUnmute;
 import com.mcmoddev.mmdbot.commands.staff.CmdUser;
 import com.mcmoddev.mmdbot.core.BotConfig;
+import com.mcmoddev.mmdbot.database.DatabaseManager;
+import com.mcmoddev.mmdbot.database.models.PersonModel;
 import com.mcmoddev.mmdbot.events.EventReactionAdded;
 import com.mcmoddev.mmdbot.events.MiscEvents;
 import com.mcmoddev.mmdbot.events.users.EventNicknameChanged;
@@ -40,11 +42,12 @@ import org.slf4j.LoggerFactory;
 import javax.security.auth.login.LoginException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -134,6 +137,16 @@ public final class MMDBot {
         }
 
         try {
+
+            Random rand = new Random();
+            PersonModel p = new PersonModel(rand.nextInt(Integer.MAX_VALUE), "Poke");
+            DatabaseManager.insertPerson(p);
+
+            System.out.println("People in DB:");
+            List<PersonModel> list = DatabaseManager.getPeople();
+            for(PersonModel person : list) {
+                System.out.println(String.format("[%d] %s ", person.getId(), person.getName()));
+            }
 
             final CommandClient commandListener = new CommandClientBuilder()
                     .setOwnerId(config.getOwnerID())
