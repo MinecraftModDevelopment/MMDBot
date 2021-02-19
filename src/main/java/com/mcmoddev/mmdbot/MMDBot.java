@@ -3,16 +3,17 @@ package com.mcmoddev.mmdbot;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.commands.fun.CmdCatFacts;
+import com.mcmoddev.mmdbot.commands.fun.CmdToggleEventPings;
 import com.mcmoddev.mmdbot.commands.fun.CmdToggleMcServerPings;
 import com.mcmoddev.mmdbot.commands.info.CmdBuild;
 import com.mcmoddev.mmdbot.commands.info.CmdEventsHelp;
 import com.mcmoddev.mmdbot.commands.info.CmdFabricVersion;
 import com.mcmoddev.mmdbot.commands.info.CmdForgeVersion;
 import com.mcmoddev.mmdbot.commands.info.CmdJustAsk;
+import com.mcmoddev.mmdbot.commands.info.CmdMappings;
 import com.mcmoddev.mmdbot.commands.info.CmdMinecraftVersion;
 import com.mcmoddev.mmdbot.commands.info.CmdPaste;
 import com.mcmoddev.mmdbot.commands.info.CmdSearch;
-import com.mcmoddev.mmdbot.commands.fun.CmdToggleEventPings;
 import com.mcmoddev.mmdbot.commands.info.CmdXy;
 import com.mcmoddev.mmdbot.commands.info.server.CmdGuild;
 import com.mcmoddev.mmdbot.commands.info.server.CmdMe;
@@ -30,13 +31,10 @@ import com.mcmoddev.mmdbot.events.users.EventRoleAdded;
 import com.mcmoddev.mmdbot.events.users.EventRoleRemoved;
 import com.mcmoddev.mmdbot.events.users.EventUserJoined;
 import com.mcmoddev.mmdbot.events.users.EventUserLeft;
+import me.shedaniel.linkie.Namespaces;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.exceptions.ErrorHandler;
-import net.dv8tion.jda.api.exceptions.ErrorResponseException;
-import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,8 +44,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Our Main class.
@@ -120,6 +116,7 @@ public final class MMDBot {
         	LOGGER.error("No guild ID is configured. Please configure the bot and try again.");
         	System.exit(0);
 		}
+        Namespaces.INSTANCE.init(CmdMappings.Companion.getMappings());
 
         try {
 
@@ -150,7 +147,9 @@ public final class MMDBot {
                     .addCommand(new CmdFabricVersion())
                     .addCommand(new CmdMute())
                     .addCommand(new CmdUnmute())
-                    .setHelpWord("help")
+					.addCommand(new CmdMappings("yarnmappings", Namespaces.INSTANCE.get("yarn")))
+					.addCommand(new CmdMappings("mcpmappings", Namespaces.INSTANCE.get("mcp")))
+					.setHelpWord("help")
                     .build();
 
             INSTANCE = JDABuilder
