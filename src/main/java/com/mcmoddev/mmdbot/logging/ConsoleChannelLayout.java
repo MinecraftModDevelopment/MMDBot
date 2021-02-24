@@ -49,6 +49,17 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
             .put(Level.TRACE, ":small_orange_diamond:")
             .build();
 
+    private boolean prependLevelName = true;
+
+    /**
+     * Sets whether to prepend the logging {@link Level} name to the output.
+     *
+     * @param prependLevelName Whether to prepend level names
+     */
+    public void setPrependLevelName(boolean prependLevelName) {
+        this.prependLevelName = prependLevelName;
+    }
+
     /**
      * Tries to convert the given object (or any contained objects within) to
      * {@linkplain IMentionable#getAsMention() string mentions}.
@@ -119,9 +130,13 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
     public String doLayout(final ILoggingEvent event) {
         final StringBuilder builder = new StringBuilder();
         builder
-                .append(LEVEL_TO_EMOTE.getOrDefault(event.getLevel(), UNKNOWN_EMOTE))
-                .append(" ")
-                .append(event.getLevel().toString())
+                .append(LEVEL_TO_EMOTE.getOrDefault(event.getLevel(), UNKNOWN_EMOTE));
+        if (prependLevelName) {
+            builder
+                    .append(" ")
+                    .append(event.getLevel().toString());
+        }
+        builder
                 .append(" [**")
                 .append(event.getLoggerName());
         if (event.getMarker() != null) {
