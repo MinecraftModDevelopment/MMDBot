@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.awt.Color;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,13 +40,13 @@ public final class EventUserLeft extends ListenerAdapter {
 
         if (getConfig().getGuildID() == guildId) {
             LOGGER.info(EVENTS, "User {} left the guild", user);
-            List<Role> roles = new ArrayList<>();
+            List<Role> roles = null;
             if (member != null) {
                 roles = member.getRoles();
+                Utils.writeUserRoles(user.getIdLong(), roles);
             } else {
                 LOGGER.warn(EVENTS, "Could not get roles of leaving user {}", user);
             }
-            Utils.writeUserRoles(user.getIdLong(), roles);
             if (member != null) {
                 Utils.writeUserJoinTimes(user.getId(), member.getTimeJoined().toInstant());
             }
@@ -57,10 +56,11 @@ public final class EventUserLeft extends ListenerAdapter {
             embed.addField("User:", user.getAsTag(), true);
             embed.addField("User ID:", user.getId(), true);
             //TODO Check if this works.
-            if (!roles.isEmpty()) {
+            if (roles != null && !roles.isEmpty()) {
                 embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), true);
-            } else {
-                embed.addField("Roles:", "Users roles currently unobtainable.", true);
+                LOGGER.info(EVENTS, "User {} had the following roles before leaving: {}", user, roles);
+            } else if (roles == null) {
+                embed.addField("Roles:", "_Could not obtain user's roles._", true);
             }
             embed.setTimestamp(Instant.now());
 
