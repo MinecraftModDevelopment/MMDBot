@@ -29,7 +29,7 @@ public class CmdCommunityChannel extends Command {
         aliases = new String[]{"community-channel", "comm-ch"};
         help = "Creates a new community channel for the given user. Usage: !mmd-create-community-channel <user ID/mention> <channel name>";
         hidden = true;
-        botPermissions = REQUIRED_PERMISSIONS.toArray(Permission[]::new);
+        botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class CmdCommunityChannel extends Command {
 
         // Flavor text: if the emotes are available, use them, else just use plain MMD
         String emoteText = emote.size() == 4 ? emote.stream().map(Emote::getAsMention).collect(Collectors.joining()) : "";
-        final String flavorText = emoteText.isBlank() ? "MMD" : emoteText;
+        final String flavorText = emoteText.isEmpty() ? "MMD" : emoteText;
 
         MMDBot.LOGGER.info("Creating new community channel for {}, named \"{}\" (command issued by {})", newOwner, channelName, author);
         category.createTextChannel(channelName)

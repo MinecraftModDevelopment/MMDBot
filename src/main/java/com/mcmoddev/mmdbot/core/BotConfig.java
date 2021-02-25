@@ -336,7 +336,7 @@ public final class BotConfig {
             return permissions;
         }
         MMDBot.LOGGER.warn("Unknown format of \"community_channels.owner_permissions\", resetting to blank list");
-        config.set("community_channels.owner_permissions", List.of());
+        config.set("community_channels.owner_permissions", Collections.emptyList());
         return EnumSet.noneOf(Permission.class);
     }
 
