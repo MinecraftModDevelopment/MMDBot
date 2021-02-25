@@ -19,6 +19,7 @@ import com.mcmoddev.mmdbot.commands.info.server.CmdMe;
 import com.mcmoddev.mmdbot.commands.info.server.CmdReadme;
 import com.mcmoddev.mmdbot.commands.info.server.CmdRoles;
 import com.mcmoddev.mmdbot.commands.info.server.CmdRules;
+import com.mcmoddev.mmdbot.commands.staff.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.commands.staff.CmdMute;
 import com.mcmoddev.mmdbot.commands.staff.CmdUnmute;
 import com.mcmoddev.mmdbot.commands.staff.CmdUser;
@@ -40,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import javax.security.auth.login.LoginException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -162,6 +162,7 @@ public final class MMDBot {
                     .addCommand(new CmdFabricVersion())
                     .addCommand(new CmdMute())
                     .addCommand(new CmdUnmute())
+                    .addCommand(new CmdCommunityChannel())
                     .setHelpWord("help")
                     .build();
 
