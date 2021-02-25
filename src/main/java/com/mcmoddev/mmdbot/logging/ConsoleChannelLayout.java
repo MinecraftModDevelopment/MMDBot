@@ -97,9 +97,9 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
                 name = ((Emote) obj).getName();
             }
             if (name != null) {
-                return String.format("%s:(%s|%s)", ((IMentionable) obj).getAsMention(), name, ((IMentionable) obj).getIdLong());
+                return String.format("%s (%s;`%s`)", ((IMentionable) obj).getAsMention(), name, ((IMentionable) obj).getIdLong());
             } else {
-                return String.format("%s:(%s)", ((IMentionable) obj).getAsMention(), ((IMentionable) obj).getIdLong());
+                return String.format("%s (`%s`)", ((IMentionable) obj).getAsMention(), ((IMentionable) obj).getIdLong());
             }
         } else if (obj instanceof Collection) {
             final Stream<Object> stream = ((Collection<?>) obj).stream()
