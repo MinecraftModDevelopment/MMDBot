@@ -33,7 +33,9 @@
 
     <appender name="CHANNEL" class="com.mcmoddev.mmdbot.logging.ConsoleChannelAppender">
         <allowMentions>false</allowMentions>
-        <layout class="com.mcmoddev.mmdbot.logging.ConsoleChannelLayout"/>
+        <layout class="com.mcmoddev.mmdbot.logging.ConsoleChannelLayout">
+            <prependLevelName>false</prependLevelName>
+        </layout>
     </appender>
 
     <!--Log levels include ERROR, WARN, INFO, DEBUG, TRACE-->

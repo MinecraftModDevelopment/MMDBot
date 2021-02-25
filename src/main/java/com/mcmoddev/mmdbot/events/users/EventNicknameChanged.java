@@ -58,7 +58,7 @@ public final class EventNicknameChanged extends ListenerAdapter {
                     embed.addField("Old Nickname:", oldNick, true);
                     embed.addField("New Nickname:", newNick, true);
 
-                    LOGGER.info(EVENTS, "User {} changed nickname from {} to {}, by {}", target, oldNick, newNick, entry.getUser());
+                    LOGGER.info(EVENTS, "User {} changed nickname from `{}` to `{}`, by {}", target, oldNick, newNick, entry.getUser());
 
                     return channel.sendMessage(embed.build());
                 })
