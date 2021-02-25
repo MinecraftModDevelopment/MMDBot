@@ -8,10 +8,13 @@ import com.electronwill.nightconfig.core.file.FileNotFoundAction;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.google.common.io.Resources;
 import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
+import com.mcmoddev.mmdbot.MMDBot;
+import net.dv8tion.jda.api.Permission;
 
 import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -298,6 +301,43 @@ public final class BotConfig {
      */
     public double getRequestsRemovalThreshold() {
         return config.<Number>getOrElse("requests.thresholds.removal", 0.0d).doubleValue();
+    }
+
+    /**
+     * Returns the snowflake ID for the community channels category.
+     *
+     * @return The snowflake ID for the community channels category, or else {@code 0L}
+     */
+    public long getCommunityChannelCategory() {
+        return SafeIdUtil.safeConvert(getAliased("community_channels.category", getAliases()));
+    }
+
+    @SuppressWarnings("unchecked")
+    public EnumSet<Permission> getCommunityChannelOwnerPermissions() {
+        if (!config.contains("community_channels.owner_permissions")) {
+            return EnumSet.noneOf(Permission.class);
+        }
+        Object obj = config.get("community_channels.owner_permissions");
+        if (obj instanceof Number) {
+            return Permission.getPermissions(((Number) obj).longValue());
+        } else if (obj instanceof List) {
+            List<String> permList = ((List<String>) obj);
+            EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
+            outer:
+            for (String perm : permList) {
+                for (Permission permission : Permission.values()) {
+                    if (permission.getName().equals(perm) || permission.name().equals(perm)) {
+                        permissions.add(permission);
+                        continue outer;
+                    }
+                }
+                MMDBot.LOGGER.warn("Unknown permission in \"community_channels.owner_permissions\": '{}'", perm);
+            }
+            return permissions;
+        }
+        MMDBot.LOGGER.warn("Unknown format of \"community_channels.owner_permissions\", resetting to blank list");
+        config.set("community_channels.owner_permissions", List.of());
+        return EnumSet.noneOf(Permission.class);
     }
 
     private Optional<List<Long>> getSnowflakeList(String path) {
