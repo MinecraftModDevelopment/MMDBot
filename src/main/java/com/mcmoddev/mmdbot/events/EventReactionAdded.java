@@ -59,11 +59,11 @@ public final class EventReactionAdded extends ListenerAdapter {
                 LOGGER.info(REQUESTS, "Removed request from {} due to score of {} reaching removal threshold {}", messageAuthor, requestScore, removalThreshold);
 
                 final Message response = new MessageBuilder().append(messageAuthor.getAsMention()).append(", ")
-                        .append("your request has been found to be low quality by community review and has been removed.\n")
-                        .append("Please see other requests for how to do it correctly.\n")
-                        .appendFormat("It received %d 'bad' reactions, %d 'needs improvement' reactions, and %d 'good' reactions.",
-                                badReactions, needsImprovementReactions, goodReactions)
-                        .build();
+                    .append("your request has been found to be low quality by community review and has been removed.\n")
+                    .append("Please see other requests for how to do it correctly.\n")
+                    .appendFormat("It received %d 'bad' reactions, %d 'needs improvement' reactions, and %d 'good' reactions.",
+                        badReactions, needsImprovementReactions, goodReactions)
+                    .build();
 
                 warnedMessages.remove(message);
 
@@ -73,33 +73,33 @@ public final class EventReactionAdded extends ListenerAdapter {
                 }
 
                 channel.deleteMessageById(event.getMessageId())
-                        .reason(String.format(
-                                "Bad request: %d bad reactions, %d needs improvement reactions, %d good reactions",
-                                badReactions, needsImprovementReactions, goodReactions))
-                        .flatMap(v -> {
-                            RestAction<Message> action = messageAuthor.openPrivateChannel()
-                                    .flatMap(privateChannel -> privateChannel.sendMessage(response));
-                            if (discussionChannel != null) // If we can't DM the user, send it in the discussions channel instead
-                                action = action.onErrorFlatMap(throwable -> discussionChannel.sendMessage(response));
-                            return action;
-                        })
-                        .queue();
+                    .reason(String.format(
+                        "Bad request: %d bad reactions, %d needs improvement reactions, %d good reactions",
+                        badReactions, needsImprovementReactions, goodReactions))
+                    .flatMap(v -> {
+                        RestAction<Message> action = messageAuthor.openPrivateChannel()
+                            .flatMap(privateChannel -> privateChannel.sendMessage(response));
+                        if (discussionChannel != null) // If we can't DM the user, send it in the discussions channel instead
+                            action = action.onErrorFlatMap(throwable -> discussionChannel.sendMessage(response));
+                        return action;
+                    })
+                    .queue();
 
             } else if (!warnedMessages.contains(message) && requestScore >= warningThreshold) {
                 LOGGER.info(REQUESTS, "Warned user {} due to their request (message id: {}) score of {} reaching warning threshold {}", messageAuthor, message.getId(), requestScore, warningThreshold);
 
                 final Message response = new MessageBuilder()
-                        .append(messageAuthor.getAsMention()).append(", ")
-                        .append("your request is close to being removed by community review.\n")
-                        .append("Please edit your message to bring it to a higher standard.\n")
-                        .appendFormat("It has so far received %d 'bad' reactions, %d 'needs improvement' reactions, and %d 'good' reactions.",
-                                badReactions, needsImprovementReactions, goodReactions)
-                        .build();
+                    .append(messageAuthor.getAsMention()).append(", ")
+                    .append("your request is close to being removed by community review.\n")
+                    .append("Please edit your message to bring it to a higher standard.\n")
+                    .appendFormat("It has so far received %d 'bad' reactions, %d 'needs improvement' reactions, and %d 'good' reactions.",
+                        badReactions, needsImprovementReactions, goodReactions)
+                    .build();
 
                 warnedMessages.add(message);
 
                 RestAction<Message> action = messageAuthor.openPrivateChannel()
-                        .flatMap(privateChannel -> privateChannel.sendMessage(response));
+                    .flatMap(privateChannel -> privateChannel.sendMessage(response));
                 if (discussionChannel != null) // If we can't DM the user, send it in the discussions channel instead
                     action = action.onErrorFlatMap(throwable -> discussionChannel.sendMessage(response));
                 action.queue();

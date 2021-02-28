@@ -16,7 +16,7 @@ public class MMDMarkers {
      */
     public static final Marker NOTIFIER_FORGE = MarkerFactory.getMarker("Notifier.Forge");
     /**
-     * The {@link Marker} for the {@link com.mcmoddev.mmdbot.updatenotifiers.game.MinecraftUpdateNotifier}.
+     * The {@link Marker} for the {@link com.mcmoddev.mmdbot.updatenotifiers.minecraft.MinecraftUpdateNotifier}.
      */
     public static final Marker NOTIFIER_MC = MarkerFactory.getMarker("Notifier.MC");
 

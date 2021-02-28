@@ -56,7 +56,6 @@ public final class EventUserJoined extends ListenerAdapter {
             embed.setTitle("User Joined");
             embed.setThumbnail(user.getEffectiveAvatarUrl());
             embed.addField("User:", user.getAsTag(), true);
-            //TODO Check if this works.
             if (!roles.isEmpty()) {
                 embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), true);
             }

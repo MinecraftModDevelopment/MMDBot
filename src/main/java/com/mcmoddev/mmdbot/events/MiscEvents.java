@@ -2,6 +2,7 @@ package com.mcmoddev.mmdbot.events;
 
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.TaskScheduler;
+import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.events.DisconnectEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ReconnectedEvent;
@@ -27,14 +28,15 @@ public final class MiscEvents extends ListenerAdapter {
      */
     @Override
     public void onDisconnect(final @NotNull DisconnectEvent event) {
-        MMDBot.LOGGER.warn("*** Connection terminated ***");
+        MMDBot.LOGGER.warn("*** Connection to Discord terminated ***");
     }
 
     /**
      *
      */
     @Override
-    public void onReconnect(final @NotNull ReconnectedEvent event) {
+    public void onReconnected(final @NotNull ReconnectedEvent event) {
+        Utils.sleepTimer();
         MMDBot.LOGGER.warn("*** Bot reconnected to Discord successfully. ***");
     }
 }

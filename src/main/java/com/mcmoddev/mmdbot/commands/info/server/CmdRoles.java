@@ -40,10 +40,10 @@ public final class CmdRoles extends Command {
         final TextChannel channel = event.getTextChannel();
 
         final String rolesCount = event.getGuild().getRoles()
-                .stream()
-                .filter(role -> !role.isManaged()) // Filter out managed roles
-                .map(role -> role.getAsMention() + ": " + role.getGuild().getMembersWithRoles(role).size())
-                .collect(Collectors.joining("\n"));
+            .stream()
+            .filter(role -> !role.isManaged()) // Filter out managed roles
+            .map(role -> role.getAsMention() + ": " + role.getGuild().getMembersWithRoles(role).size())
+            .collect(Collectors.joining("\n"));
 
         embed.setColor(Color.GREEN);
         embed.setTitle("Users With Roles");

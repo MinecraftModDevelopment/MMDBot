@@ -19,10 +19,10 @@ public class CmdRules extends Command {
      *
      */
     private static final String BODY =
-            "Please give <#" + MMDBot.getConfig().getChannel("info.rules") + "> a thorough read, "
-                    + "**including** the full text of the Code of Conduct, which is linked there. "
-                    + "Having everyone read and understand these rules and guidelines helps keep this server "
-                    + "functioning well as a space for collaboration and discussion. Thank you.";
+        "Please give <#" + MMDBot.getConfig().getChannel("info.rules") + "> a thorough read, "
+            + "**including** the full text of the Code of Conduct, which is linked there. "
+            + "Having everyone read and understand these rules and guidelines helps keep this server "
+            + "functioning well as a space for collaboration and discussion. Thank you.";
 
     /**
      *

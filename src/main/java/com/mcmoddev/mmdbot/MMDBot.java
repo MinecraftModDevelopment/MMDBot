@@ -2,9 +2,6 @@ package com.mcmoddev.mmdbot;
 
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
-import com.mcmoddev.mmdbot.commands.fun.CmdCatFacts;
-import com.mcmoddev.mmdbot.commands.fun.CmdToggleEventPings;
-import com.mcmoddev.mmdbot.commands.fun.CmdToggleMcServerPings;
 import com.mcmoddev.mmdbot.commands.info.CmdBuild;
 import com.mcmoddev.mmdbot.commands.info.CmdEventsHelp;
 import com.mcmoddev.mmdbot.commands.info.CmdFabricVersion;
@@ -14,11 +11,14 @@ import com.mcmoddev.mmdbot.commands.info.CmdMinecraftVersion;
 import com.mcmoddev.mmdbot.commands.info.CmdPaste;
 import com.mcmoddev.mmdbot.commands.info.CmdSearch;
 import com.mcmoddev.mmdbot.commands.info.CmdXy;
+import com.mcmoddev.mmdbot.commands.info.fun.CmdCatFacts;
 import com.mcmoddev.mmdbot.commands.info.server.CmdGuild;
 import com.mcmoddev.mmdbot.commands.info.server.CmdMe;
 import com.mcmoddev.mmdbot.commands.info.server.CmdReadme;
 import com.mcmoddev.mmdbot.commands.info.server.CmdRoles;
 import com.mcmoddev.mmdbot.commands.info.server.CmdRules;
+import com.mcmoddev.mmdbot.commands.info.server.CmdToggleEventPings;
+import com.mcmoddev.mmdbot.commands.info.server.CmdToggleMcServerPings;
 import com.mcmoddev.mmdbot.commands.staff.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.commands.staff.CmdMute;
 import com.mcmoddev.mmdbot.commands.staff.CmdUnmute;
@@ -136,50 +136,50 @@ public final class MMDBot {
         try {
 
             final CommandClient commandListener = new CommandClientBuilder()
-                    .setOwnerId(config.getOwnerID())
-                    .setPrefix(config.getMainPrefix())
-                    .setAlternativePrefix(config.getAlternativePrefix())
-                    .addCommand(new CmdGuild())
-                    .addCommand(new CmdBuild())
-                    .addCommand(new CmdMe())
-                    .addCommand(new CmdUser())
-                    .addCommand(new CmdRoles())
-                    .addCommand(new CmdJustAsk())
-                    .addCommand(new CmdPaste())
-                    .addCommand(new CmdXy())
-                    .addCommand(new CmdReadme())
-                    .addCommand(new CmdRules())
-                    .addCommand(new CmdCatFacts())
-                    .addCommand(new CmdSearch("google", "https://www.google.com/search?q=", "goog"))
-                    .addCommand(new CmdSearch("bing", "https://www.bing.com/search?q="))
-                    .addCommand(new CmdSearch("duckduckgo", "https://duckduckgo.com/?q=", "ddg"))
-                    .addCommand(new CmdSearch("lmgtfy", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"))
-                    .addCommand(new CmdEventsHelp())
-                    .addCommand(new CmdToggleMcServerPings())
-                    .addCommand(new CmdToggleEventPings())
-                    .addCommand(new CmdForgeVersion())
-                    .addCommand(new CmdMinecraftVersion())
-                    .addCommand(new CmdFabricVersion())
-                    .addCommand(new CmdMute())
-                    .addCommand(new CmdUnmute())
-                    .addCommand(new CmdCommunityChannel())
-                    .setHelpWord("help")
-                    .build();
+                .setOwnerId(config.getOwnerID())
+                .setPrefix(config.getMainPrefix())
+                .setAlternativePrefix(config.getAlternativePrefix())
+                .addCommand(new CmdGuild())
+                .addCommand(new CmdBuild())
+                .addCommand(new CmdMe())
+                .addCommand(new CmdUser())
+                .addCommand(new CmdRoles())
+                .addCommand(new CmdJustAsk())
+                .addCommand(new CmdPaste())
+                .addCommand(new CmdXy())
+                .addCommand(new CmdReadme())
+                .addCommand(new CmdRules())
+                .addCommand(new CmdCatFacts())
+                .addCommand(new CmdSearch("google", "https://www.google.com/search?q=", "goog"))
+                .addCommand(new CmdSearch("bing", "https://www.bing.com/search?q="))
+                .addCommand(new CmdSearch("duckduckgo", "https://duckduckgo.com/?q=", "ddg"))
+                .addCommand(new CmdSearch("lmgtfy", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"))
+                .addCommand(new CmdEventsHelp())
+                .addCommand(new CmdToggleMcServerPings())
+                .addCommand(new CmdToggleEventPings())
+                .addCommand(new CmdForgeVersion())
+                .addCommand(new CmdMinecraftVersion())
+                .addCommand(new CmdFabricVersion())
+                .addCommand(new CmdMute())
+                .addCommand(new CmdUnmute())
+                .addCommand(new CmdCommunityChannel())
+                .setHelpWord("help")
+                .build();
 
             INSTANCE = JDABuilder
-                    .create(config.getToken(), intents)
-                    .disableCache(CacheFlag.VOICE_STATE)
-                    .disableCache(CacheFlag.ACTIVITY)
-                    .disableCache(CacheFlag.CLIENT_STATUS)
-                    .addEventListeners(new EventUserJoined())
-                    .addEventListeners(new EventUserLeft())
-                    .addEventListeners(new EventNicknameChanged())
-                    .addEventListeners(new EventRoleAdded())
-                    .addEventListeners(new EventRoleRemoved())
-                    .addEventListeners(new EventReactionAdded())
-                    .addEventListeners(new MiscEvents())
-                    .addEventListeners(commandListener)
-                    .build();
+                .create(config.getToken(), intents)
+                .disableCache(CacheFlag.VOICE_STATE)
+                .disableCache(CacheFlag.ACTIVITY)
+                .disableCache(CacheFlag.CLIENT_STATUS)
+                .addEventListeners(new EventUserJoined())
+                .addEventListeners(new EventUserLeft())
+                .addEventListeners(new EventNicknameChanged())
+                .addEventListeners(new EventRoleAdded())
+                .addEventListeners(new EventRoleRemoved())
+                .addEventListeners(new EventReactionAdded())
+                .addEventListeners(new MiscEvents())
+                .addEventListeners(commandListener)
+                .build();
         } catch (final LoginException exception) {
             LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.", exception);
             System.exit(1);

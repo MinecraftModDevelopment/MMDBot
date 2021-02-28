@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.updatenotifiers.game;
+package com.mcmoddev.mmdbot.updatenotifiers.minecraft;
 
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
