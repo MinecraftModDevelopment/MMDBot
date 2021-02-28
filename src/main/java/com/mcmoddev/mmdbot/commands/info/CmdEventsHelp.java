@@ -18,7 +18,7 @@ public final class CmdEventsHelp extends Command {
      *
      */
     private static final String IMAGE_URL =
-            "https://cdn.discordapp.com/attachments/665281306426474506/665605979798372392/eventhandler.png";
+        "https://cdn.discordapp.com/attachments/665281306426474506/665605979798372392/eventhandler.png";
 
     /**
      *

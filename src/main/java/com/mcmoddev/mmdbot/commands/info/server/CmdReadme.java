@@ -19,9 +19,9 @@ public final class CmdReadme extends Command {
      *
      */
     private static final String BODY =
-            "Please give <#" + MMDBot.getConfig().getChannel("info.readme") + "> a thorough read, this "
-                    + "channel gives users a guide to the server, how to get roles and general settling in notes. "
-                    + "Thank you.";
+        "Please give <#" + MMDBot.getConfig().getChannel("info.readme") + "> a thorough read, this "
+            + "channel gives users a guide to the server, how to get roles and general settling in notes. "
+            + "Thank you.";
 
     /**
      *

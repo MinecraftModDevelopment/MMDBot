@@ -18,10 +18,10 @@ public final class CmdJustAsk extends Command {
      *
      */
     private static final String BODY =
-            "Please just ask the question; don't test the waters for the _real_ question. Instead, ask the full "
-                    + "question so that others can better understand what you need, rather than creating an "
-                    + "atmosphere of assumptions and discouraging people from wanting to help."
-                    + System.lineSeparator() + Utils.makeHyperlink("More info", "https://sol.gfxile.net/dontask.html");
+        "Please just ask the question; don't test the waters for the _real_ question. Instead, ask the full "
+            + "question so that others can better understand what you need, rather than creating an "
+            + "atmosphere of assumptions and discouraging people from wanting to help."
+            + System.lineSeparator() + Utils.makeHyperlink("More info", "https://sol.gfxile.net/dontask.html");
 
     /**
      *

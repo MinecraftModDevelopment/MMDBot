@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.commands.fun;
+package com.mcmoddev.mmdbot.commands.info.server;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
@@ -22,19 +22,29 @@ public class CmdToggleEventPings extends Command {
     public CmdToggleEventPings() {
         super();
         name = "eventpings";
-        aliases = new String[]{"toggle-event-pings", "event-pings", "toggleeventpings"};
-        help = "Add or remove the Event Notifications role to get or stop getting pings about events in MMD.";
+        aliases = new String[]{"event-pings", "event-notifications", "eventnotifications",
+            "toggle-event-pings", "toggleeventpings"};
+        help = "Toggle the event notifications role on your user.";
+        guildOnly = true;
     }
 
+    /**
+     *
+     */
+    @Override
     protected void execute(final CommandEvent event) {
-        if (!Utils.checkCommand(this, event)) return;
-        final TextChannel channel = event.getTextChannel();
+        if (!Utils.checkCommand(this, event)) {
+            return;
+        }
+
         final Guild guild = event.getGuild();
         final Member member = event.getMember();
+        final TextChannel channel = event.getTextChannel();
+        //TODO get the per guild ID if enabled for the guild the command was run in.
         final Role role = guild.getRoleById(MMDBot.getConfig().getRole("pings.event-pings"));
 
         if (role == null) {
-            channel.sendMessage("The Event Notifications role doesn't exist! The config must be borked.").queue();
+            channel.sendMessage("The Event Notifications role doesn't exist! The config may be broken.").queue();
             return;
         }
 
@@ -47,6 +57,8 @@ public class CmdToggleEventPings extends Command {
             guild.addRoleToMember(member, role).queue();
             added = true;
         }
-        channel.sendMessageFormat("%s, you %s have the Event Notifications role.", member.getAsMention(), added ? "now" : "no longer").queue();
+
+        channel.sendMessageFormat("%s, you %s have the Event Notifications role.", member.getAsMention(),
+            added ? "now" : "no longer").queue();
     }
 }

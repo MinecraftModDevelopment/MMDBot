@@ -147,12 +147,12 @@ public final class Utils {
      */
     public static int getNumberOfMatchingReactions(final Message message, final Predicate<Long> predicate) {
         return message
-                .getReactions()
-                .stream()
-                .filter(messageReaction -> messageReaction.getReactionEmote().isEmote())
-                .filter(messageReaction -> predicate.test(messageReaction.getReactionEmote().getIdLong()))
-                .mapToInt(MessageReaction::getCount)
-                .sum();
+            .getReactions()
+            .stream()
+            .filter(messageReaction -> messageReaction.getReactionEmote().isEmote())
+            .filter(messageReaction -> predicate.test(messageReaction.getReactionEmote().getIdLong()))
+            .mapToInt(MessageReaction::getCount)
+            .sum();
     }
 
     /**
@@ -255,8 +255,8 @@ public final class Utils {
         final Map<String, Instant> userJoinTimes = getUserJoinTimeMap();
         final String memberID = member.getId();
         return userJoinTimes.containsKey(memberID) ?
-                userJoinTimes.get(memberID) :
-                member.getTimeJoined().toInstant();
+            userJoinTimes.get(memberID) :
+            member.getTimeJoined().toInstant();
     }
 
     /**
@@ -295,8 +295,8 @@ public final class Utils {
 
         if (isBlocked(command, event)) {
             event.getChannel()
-                    .sendMessage("This command is blocked from running in this channel!")
-                    .queue();
+                .sendMessage("This command is blocked from running in this channel!")
+                .queue();
             return false;
         }
 
@@ -313,7 +313,7 @@ public final class Utils {
             if (category != null) { // If there's a category, also check that
                 final long categoryID = category.getIdLong();
                 allowed = allowedChannels.stream()
-                        .anyMatch(id -> id == channelID || id == categoryID);
+                    .anyMatch(id -> id == channelID || id == categoryID);
             } else {
                 allowed = allowedChannels.stream().anyMatch(id -> id == channelID);
             }
@@ -355,7 +355,7 @@ public final class Utils {
             if (category != null) {
                 final long categoryID = category.getIdLong();
                 return blockedChannels.stream()
-                        .anyMatch(id -> id == channelID || id == categoryID);
+                    .anyMatch(id -> id == channelID || id == categoryID);
             }
             return blockedChannels.stream().anyMatch(id -> id == channelID);
         }

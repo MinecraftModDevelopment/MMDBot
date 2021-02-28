@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.updatenotifiers.game;
+package com.mcmoddev.mmdbot.updatenotifiers.minecraft;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

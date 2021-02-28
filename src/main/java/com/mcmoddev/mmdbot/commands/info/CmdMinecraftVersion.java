@@ -3,7 +3,7 @@ package com.mcmoddev.mmdbot.commands.info;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.core.Utils;
-import com.mcmoddev.mmdbot.updatenotifiers.game.MinecraftVersionHelper;
+import com.mcmoddev.mmdbot.updatenotifiers.minecraft.MinecraftVersionHelper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 

@@ -37,12 +37,12 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
      * Used for visual distinction of log messages within the Discord console channel.
      */
     private static final ImmutableMap<Level, String> LEVEL_TO_EMOTE = ImmutableMap.<Level, String>builder()
-            .put(Level.ERROR, ":red_square:")
-            .put(Level.WARN, ":yellow_circle:")
-            .put(Level.INFO, ":white_medium_small_square:")
-            .put(Level.DEBUG, ":large_blue_diamond:")
-            .put(Level.TRACE, ":small_orange_diamond:")
-            .build();
+        .put(Level.ERROR, ":red_square:")
+        .put(Level.WARN, ":yellow_circle:")
+        .put(Level.INFO, ":white_medium_small_square:")
+        .put(Level.DEBUG, ":large_blue_diamond:")
+        .put(Level.TRACE, ":small_orange_diamond:")
+        .build();
 
     /**
      * Tries to convert the given object (or any contained objects within) to
@@ -70,17 +70,17 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
             return ((IMentionable) obj).getAsMention();
         } else if (obj instanceof Collection) {
             final Stream<Object> stream = ((Collection<?>) obj).stream()
-                    .map(ConsoleChannelLayout::tryConvertMentionables);
+                .map(ConsoleChannelLayout::tryConvertMentionables);
             if (obj instanceof Set)
                 return stream.collect(Collectors.toSet());
             return stream.collect(Collectors.toList());
 
         } else if (obj instanceof Map) {
             return ((Map<?, ?>) obj).entrySet().stream()
-                    .map(entry -> new AbstractMap.SimpleImmutableEntry<>(
-                            tryConvertMentionables(entry.getKey()), tryConvertMentionables(entry.getValue())
-                    ))
-                    .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+                .map(entry -> new AbstractMap.SimpleImmutableEntry<>(
+                    tryConvertMentionables(entry.getKey()), tryConvertMentionables(entry.getValue())
+                ))
+                .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
 
         } else if (obj instanceof Map.Entry) {
             final Map.Entry<?, ?> entry = (Map.Entry<?, ?>) obj;
@@ -97,20 +97,20 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
     public String doLayout(final ILoggingEvent event) {
         final StringBuilder builder = new StringBuilder();
         builder
-                .append(LEVEL_TO_EMOTE.getOrDefault(event.getLevel(), UNKNOWN_EMOTE))
-                .append(" ")
-                .append(event.getLevel().toString())
-                .append(" [**")
-                .append(event.getLoggerName());
+            .append(LEVEL_TO_EMOTE.getOrDefault(event.getLevel(), UNKNOWN_EMOTE))
+            .append(" ")
+            .append(event.getLevel().toString())
+            .append(" [**")
+            .append(event.getLoggerName());
         if (event.getMarker() != null) {
             builder
-                    .append("**/**")
-                    .append(event.getMarker().getName());
+                .append("**/**")
+                .append(event.getMarker().getName());
         }
         builder
-                .append("**] - ")
-                .append(getFormattedMessage(event))
-                .append(CoreConstants.LINE_SEPARATOR);
+            .append("**] - ")
+            .append(getFormattedMessage(event))
+            .append(CoreConstants.LINE_SEPARATOR);
         return builder.toString();
     }
 

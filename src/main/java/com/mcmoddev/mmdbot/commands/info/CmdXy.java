@@ -18,10 +18,10 @@ public final class CmdXy extends Command {
      *
      */
     private static final String BODY =
-            "The XY problem is asking about your attempted solution rather than your actual problem."
-                    + "This leads to enormous amounts of wasted time and energy, both on the part of people asking for help,"
-                    + "and on the part of those providing help." + System.lineSeparator()
-                    + Utils.makeHyperlink("More Info", "http://xyproblem.info/");
+        "The XY problem is asking about your attempted solution rather than your actual problem."
+            + "This leads to enormous amounts of wasted time and energy, both on the part of people asking for help,"
+            + "and on the part of those providing help." + System.lineSeparator()
+            + Utils.makeHyperlink("More Info", "http://xyproblem.info/");
 
     /**
      *

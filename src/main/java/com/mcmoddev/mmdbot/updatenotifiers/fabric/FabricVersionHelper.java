@@ -77,8 +77,8 @@ public final class FabricVersionHelper {
 
         latestYarns.clear();
         Map<String, List<YarnVersionInfo>> map = versions.stream()
-                .distinct()
-                .collect(Collectors.groupingBy(it -> it.gameVersion));
+            .distinct()
+            .collect(Collectors.groupingBy(it -> it.gameVersion));
         map.keySet().forEach(it -> latestYarns.put(it, map.get(it).get(0).version));
     }
 
@@ -99,11 +99,11 @@ public final class FabricVersionHelper {
             return;
         try {
             Document doc = DocumentBuilderFactory.newInstance()
-                    .newDocumentBuilder()
-                    .parse(stream);
+                .newDocumentBuilder()
+                .parse(stream);
             XPathExpression expr = XPathFactory.newInstance()
-                    .newXPath()
-                    .compile("/metadata/versioning/latest/text()");
+                .newXPath()
+                .compile("/metadata/versioning/latest/text()");
             latestApi = expr.evaluate(doc);
         } catch (SAXException | XPathExpressionException | ParserConfigurationException | IOException e) {
             MMDBot.LOGGER.error("Failed to resolve latest loader version", e);
