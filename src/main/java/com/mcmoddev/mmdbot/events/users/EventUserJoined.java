@@ -42,7 +42,7 @@ public final class EventUserJoined extends ListenerAdapter {
         if (getConfig().getGuildID() == guildId) {
             LOGGER.info(EVENTS, "User {} joined the guild", user);
             final List<Role> roles = Utils.getOldUserRoles(guild, user.getIdLong());
-            if (member != null) {
+            if (member != null && !roles.isEmpty()) {
                 LOGGER.info(EVENTS, "Giving old roles to user {}: {}", user, roles);
                 for (Role role : roles) {
                     try {
@@ -56,9 +56,11 @@ public final class EventUserJoined extends ListenerAdapter {
             embed.setTitle("User Joined");
             embed.setThumbnail(user.getEffectiveAvatarUrl());
             embed.addField("User:", user.getAsTag(), true);
-            embed.addField("User ID:", user.getId(), true);
             //TODO Check if this works.
-            embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), true);
+            if (!roles.isEmpty()) {
+                embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), true);
+            }
+            embed.setFooter("User ID: " + user.getId());
             embed.setTimestamp(Instant.now());
 
             channel.sendMessage(embed.build()).queue();

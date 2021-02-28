@@ -5,7 +5,12 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.LayoutBase;
 import com.google.common.collect.ImmutableMap;
+import net.dv8tion.jda.api.entities.Emote;
+import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
 import org.slf4j.helpers.MessageFormatter;
 
 import java.util.AbstractMap;
@@ -44,9 +49,23 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
         .put(Level.TRACE, ":small_orange_diamond:")
         .build();
 
+    private boolean prependLevelName = true;
+
+    /**
+     * Sets whether to prepend the logging {@link Level} name to the output.
+     *
+     * @param prependLevelName Whether to prepend level names
+     */
+    public void setPrependLevelName(boolean prependLevelName) {
+        this.prependLevelName = prependLevelName;
+    }
+
     /**
      * Tries to convert the given object (or any contained objects within) to
      * {@linkplain IMentionable#getAsMention() string mentions}.
+     * <p>
+     * Mentions will consist of the return value of {@link IMentionable#getAsMention()}, along with the {@linkplain
+     * ISnowflake#getIdLong() snowflake ID} and the name of the object if available.
      * <p>
      * The rules for conversion are as follows:
      * <ul>
@@ -67,7 +86,21 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
      */
     private static Object tryConvertMentionables(Object obj) {
         if (obj instanceof IMentionable) {
-            return ((IMentionable) obj).getAsMention();
+            String name = null;
+            if (obj instanceof User) {
+                name = ((User) obj).getAsTag();
+            } else if (obj instanceof Role) {
+                name = ((Role) obj).getName();
+            } else if (obj instanceof GuildChannel) {
+                name = ((GuildChannel) obj).getName();
+            } else if (obj instanceof Emote) {
+                name = ((Emote) obj).getName();
+            }
+            if (name != null) {
+                return String.format("%s (%s;`%s`)", ((IMentionable) obj).getAsMention(), name, ((IMentionable) obj).getIdLong());
+            } else {
+                return String.format("%s (`%s`)", ((IMentionable) obj).getAsMention(), ((IMentionable) obj).getIdLong());
+            }
         } else if (obj instanceof Collection) {
             final Stream<Object> stream = ((Collection<?>) obj).stream()
                 .map(ConsoleChannelLayout::tryConvertMentionables);
@@ -97,11 +130,15 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
     public String doLayout(final ILoggingEvent event) {
         final StringBuilder builder = new StringBuilder();
         builder
-            .append(LEVEL_TO_EMOTE.getOrDefault(event.getLevel(), UNKNOWN_EMOTE))
-            .append(" ")
-            .append(event.getLevel().toString())
-            .append(" [**")
-            .append(event.getLoggerName());
+                .append(LEVEL_TO_EMOTE.getOrDefault(event.getLevel(), UNKNOWN_EMOTE));
+        if (prependLevelName) {
+            builder
+                    .append(" ")
+                    .append(event.getLevel().toString());
+        }
+        builder
+                .append(" [**")
+                .append(event.getLoggerName());
         if (event.getMarker() != null) {
             builder
                 .append("**/**")
