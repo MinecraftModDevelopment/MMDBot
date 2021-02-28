@@ -17,9 +17,9 @@ import com.mcmoddev.mmdbot.commands.info.server.CmdMe;
 import com.mcmoddev.mmdbot.commands.info.server.CmdReadme;
 import com.mcmoddev.mmdbot.commands.info.server.CmdRoles;
 import com.mcmoddev.mmdbot.commands.info.server.CmdRules;
-import com.mcmoddev.mmdbot.commands.staff.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.commands.info.server.CmdToggleEventPings;
 import com.mcmoddev.mmdbot.commands.info.server.CmdToggleMcServerPings;
+import com.mcmoddev.mmdbot.commands.staff.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.commands.staff.CmdMute;
 import com.mcmoddev.mmdbot.commands.staff.CmdUnmute;
 import com.mcmoddev.mmdbot.commands.staff.CmdUser;
@@ -136,35 +136,35 @@ public final class MMDBot {
         try {
 
             final CommandClient commandListener = new CommandClientBuilder()
-                    .setOwnerId(config.getOwnerID())
-                    .setPrefix(config.getMainPrefix())
-                    .setAlternativePrefix(config.getAlternativePrefix())
-                    .addCommand(new CmdGuild())
-                    .addCommand(new CmdBuild())
-                    .addCommand(new CmdMe())
-                    .addCommand(new CmdUser())
-                    .addCommand(new CmdRoles())
-                    .addCommand(new CmdJustAsk())
-                    .addCommand(new CmdPaste())
-                    .addCommand(new CmdXy())
-                    .addCommand(new CmdReadme())
-                    .addCommand(new CmdRules())
-                    .addCommand(new CmdCatFacts())
-                    .addCommand(new CmdSearch("google", "https://www.google.com/search?q=", "goog"))
-                    .addCommand(new CmdSearch("bing", "https://www.bing.com/search?q="))
-                    .addCommand(new CmdSearch("duckduckgo", "https://duckduckgo.com/?q=", "ddg"))
-                    .addCommand(new CmdSearch("lmgtfy", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"))
-                    .addCommand(new CmdEventsHelp())
-                    .addCommand(new CmdToggleMcServerPings())
-                    .addCommand(new CmdToggleEventPings())
-                    .addCommand(new CmdForgeVersion())
-                    .addCommand(new CmdMinecraftVersion())
-                    .addCommand(new CmdFabricVersion())
-                    .addCommand(new CmdMute())
-                    .addCommand(new CmdUnmute())
-                    .addCommand(new CmdCommunityChannel())
-                    .setHelpWord("help")
-                    .build();
+                .setOwnerId(config.getOwnerID())
+                .setPrefix(config.getMainPrefix())
+                .setAlternativePrefix(config.getAlternativePrefix())
+                .addCommand(new CmdGuild())
+                .addCommand(new CmdBuild())
+                .addCommand(new CmdMe())
+                .addCommand(new CmdUser())
+                .addCommand(new CmdRoles())
+                .addCommand(new CmdJustAsk())
+                .addCommand(new CmdPaste())
+                .addCommand(new CmdXy())
+                .addCommand(new CmdReadme())
+                .addCommand(new CmdRules())
+                .addCommand(new CmdCatFacts())
+                .addCommand(new CmdSearch("google", "https://www.google.com/search?q=", "goog"))
+                .addCommand(new CmdSearch("bing", "https://www.bing.com/search?q="))
+                .addCommand(new CmdSearch("duckduckgo", "https://duckduckgo.com/?q=", "ddg"))
+                .addCommand(new CmdSearch("lmgtfy", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"))
+                .addCommand(new CmdEventsHelp())
+                .addCommand(new CmdToggleMcServerPings())
+                .addCommand(new CmdToggleEventPings())
+                .addCommand(new CmdForgeVersion())
+                .addCommand(new CmdMinecraftVersion())
+                .addCommand(new CmdFabricVersion())
+                .addCommand(new CmdMute())
+                .addCommand(new CmdUnmute())
+                .addCommand(new CmdCommunityChannel())
+                .setHelpWord("help")
+                .build();
 
             INSTANCE = JDABuilder
                 .create(config.getToken(), intents)
