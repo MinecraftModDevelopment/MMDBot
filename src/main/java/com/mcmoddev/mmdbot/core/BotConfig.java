@@ -254,6 +254,21 @@ public final class BotConfig {
     }
 
     /**
+     * Returns the amount of time in hours since a request was created for it to be deleted upon the user leaving the
+     * server.
+     * <p>
+     * For example, a value of {@code 5} means all requests made by a user who leaves the server that is less than 5
+     * hours old will be deleted.
+     * <p>
+     * A value of {@code 0} disables this leave deletion functionality.
+     *
+     * @return The time in hours since request creation by a leaving user to be deleted
+     */
+    public int getRequestLeaveDeletionTime() {
+        return config.getIntOrElse("requests.leave_deletion", 0);
+    }
+
+    /**
      * Returns the list of snowflake IDs of the reaction emotes for bad requests.
      *
      * @return The list of snowflake IDs of bad request reaction emotes

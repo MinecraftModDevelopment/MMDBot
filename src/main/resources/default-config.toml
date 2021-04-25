@@ -94,6 +94,12 @@
 
 # Configuration for the requests bad reaction threshold
 [requests]
+    # Time in hours since request creation for a request of a user who left the server to be deleted
+    # For example, a value of 3 hours would mean any requests less than 3 hours old by a user who just
+    # left the server will be deleted
+    # A value of 0 will leave this functionality disabled
+    leave_deletion = 0
+
     # Configuration of the reaction emotes
     [requests.emotes]
         # The snowflake IDs of the reaction emotes for bad requests
