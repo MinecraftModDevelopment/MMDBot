@@ -74,7 +74,7 @@ public final class EventUserLeft extends ListenerAdapter {
     }
 
     private void deleteRecentRequests(Guild guild, User leavingUser) {
-        TextChannel requestsChannel = guild.getTextChannelById(getConfig().getChannel("channels.requests.main"));
+        TextChannel requestsChannel = guild.getTextChannelById(getConfig().getChannel("requests.main"));
         int deletionTime = getConfig().getRequestLeaveDeletionTime();
         if (requestsChannel != null && deletionTime > 0) {
             OffsetDateTime now = OffsetDateTime.now().minusHours(deletionTime);
