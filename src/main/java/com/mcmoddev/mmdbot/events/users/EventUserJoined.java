@@ -44,6 +44,7 @@ public final class EventUserJoined extends ListenerAdapter {
             final List<Role> roles = Utils.getOldUserRoles(guild, user.getIdLong());
             if (member != null && !roles.isEmpty()) {
                 LOGGER.info(EVENTS, "Giving old roles to user {}: {}", user, roles);
+                EventRoleAdded.IGNORE_ONCE.putAll(user, roles);
                 for (Role role : roles) {
                     try {
                         guild.addRoleToMember(member, role).queue();
