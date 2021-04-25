@@ -100,6 +100,11 @@
     # A value of 0 will leave this functionality disabled
     leave_deletion = 0
 
+    # Time in days for a request to be actionable through the request bad reactions systems
+    # Any request past this freshness duration (stale requests) will not trigger the warning or deletion threshold
+    # A value of 0 will leave this functionality disabled
+    freshness_duration = 0
+
     # Configuration of the reaction emotes
     [requests.emotes]
         # The snowflake IDs of the reaction emotes for bad requests

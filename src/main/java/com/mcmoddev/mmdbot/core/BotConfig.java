@@ -269,6 +269,20 @@ public final class BotConfig {
     }
 
     /**
+     * Returns the amount of time in days where a request is actionable using the requests warning and removal system.
+     * <p>
+     * A request that has existed for longer that this duration (a "stale request") will not cause the warning or
+     * removal threshold to trip when reacted to by users.
+     * <p>
+     * A value of {@code 0} disables this freshness functionality, and allows any request to be actionable.
+     *
+     * @return The time in days for a request to be actionable by the warning system
+     */
+    public int getRequestFreshnessDuration() {
+        return config.getIntOrElse("requests.freshness_duration", 0);
+    }
+
+    /**
      * Returns the list of snowflake IDs of the reaction emotes for bad requests.
      *
      * @return The list of snowflake IDs of bad request reaction emotes
