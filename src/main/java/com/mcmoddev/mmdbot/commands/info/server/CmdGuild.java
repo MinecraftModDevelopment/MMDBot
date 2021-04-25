@@ -43,11 +43,11 @@ public final class CmdGuild extends Command {
         embed.setColor(Color.GREEN);
         embed.setThumbnail(guild.getIconUrl());
         embed.addField("Guilds name:", guild.getName(), true);
-        embed.addField("Member count:", Integer.toString(guild.getMembers().size()), true);
-        embed.addField("Emote count:", Integer.toString(guild.getEmotes().size()), true);
-        embed.addField("Category count:", Integer.toString(guild.getCategories().size()), true);
+        embed.addField("Member count:", Integer.toString(guild.getMemberCount()), true);
+        embed.addField("Emote count:", Long.toString(guild.getEmoteCache().size()), true);
+        embed.addField("Category count:", Long.toString(guild.getCategoryCache().size()), true);
         embed.addField("Channel count:", Integer.toString(guild.getChannels().size()), true);
-        embed.addField("Role count:", Integer.toString(guild.getRoles().size()), true);
+        embed.addField("Role count:", Long.toString(guild.getRoleCache().size()), true);
         embed.addField("Date created:", new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH).format(dateGuildCreated.toEpochMilli()), true);
         embed.addField("Guilds age:", Utils.getTimeDifference(Utils.getLocalTime(dateGuildCreated), LocalDateTime.now()), true);
         embed.setTimestamp(Instant.now());
