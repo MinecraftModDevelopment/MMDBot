@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.RestAction;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -69,7 +70,9 @@ public final class EventReactionAdded extends ListenerAdapter {
 
                 final TextChannel logChannel = guild.getTextChannelById(getConfig().getChannel("events.requests_deletion"));
                 if (logChannel != null) {
-                    logChannel.sendMessage(String.format("Auto-deleted request from %s: %s", messageAuthor.getId(), message.getContentRaw())).queue();
+                    logChannel.sendMessage(String.format("Auto-deleted request from %s due to reaching deletion threshold: %n%s", messageAuthor.getId(), message.getContentRaw()))
+                        .allowedMentions(Collections.emptySet())
+                        .queue();
                 }
 
                 channel.deleteMessageById(event.getMessageId())
