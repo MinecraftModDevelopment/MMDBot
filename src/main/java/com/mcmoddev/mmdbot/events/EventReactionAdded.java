@@ -80,7 +80,7 @@ public final class EventReactionAdded extends ListenerAdapter {
 
                 final TextChannel logChannel = guild.getTextChannelById(getConfig().getChannel("events.requests_deletion"));
                 if (logChannel != null) {
-                    logChannel.sendMessage(String.format("Auto-deleted request from %s due to reaching deletion threshold: %n%s", messageAuthor.getId(), message.getContentRaw()))
+                    logChannel.sendMessage(String.format("Auto-deleted request from %s (%s;%s) due to reaching deletion threshold: %n%s", messageAuthor.getAsMention(), messageAuthor.getAsTag(), messageAuthor.getId(), message.getContentRaw()))
                         .allowedMentions(Collections.emptySet())
                         .queue();
                 }
