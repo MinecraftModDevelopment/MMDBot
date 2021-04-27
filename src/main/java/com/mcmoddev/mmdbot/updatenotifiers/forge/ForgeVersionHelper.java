@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 public class ForgeVersionHelper {
 
-    private static final String VERSION_URL = "https://files.minecraftforge.net/maven/net/minecraftforge/forge/promotions_slim.json";
+    private static final String VERSION_URL = "https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json";
     private static final Pattern VERSION_REGEX = Pattern.compile("(.+?)-(.+)");
 
     private static final Gson gson = new Gson();
@@ -54,9 +54,8 @@ public class ForgeVersionHelper {
 
         ForgePromoData data = gson.fromJson(reader, ForgePromoData.class);
 
-        // Remove broken entries from the API
-        data.promos.remove("1.7.10-latest-1.7.10");
-        data.promos.remove("latest-1.7.10");
+        // Remove this specific entry (differs from others with having the `_pre4` version)
+        data.promos.remove("1.7.10_pre4-latest");
 
         // Collect version data
         Map<String, ForgeVersion> versions = new HashMap<>();

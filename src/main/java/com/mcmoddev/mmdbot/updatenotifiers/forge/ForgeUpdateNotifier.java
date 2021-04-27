@@ -13,7 +13,7 @@ import static com.mcmoddev.mmdbot.logging.MMDMarkers.NOTIFIER_FORGE;
 
 public class ForgeUpdateNotifier extends TimerTask {
 
-    private static final String CHANGELOG_URL_TEMPLATE = "https://files.minecraftforge.net/maven/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt";
+    private static final String CHANGELOG_URL_TEMPLATE = "https://maven.minecraftforge.net/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt";
     String mcVersion;
     ForgeVersion lastForgeVersions;
 

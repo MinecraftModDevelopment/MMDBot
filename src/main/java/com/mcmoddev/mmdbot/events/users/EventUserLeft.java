@@ -13,12 +13,15 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.awt.Color;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.EVENTS;
+import static com.mcmoddev.mmdbot.logging.MMDMarkers.REQUESTS;
 
 /**
  *
@@ -50,11 +53,13 @@ public final class EventUserLeft extends ListenerAdapter {
             if (member != null) {
                 Utils.writeUserJoinTimes(user.getId(), member.getTimeJoined().toInstant());
             }
+
+            deleteRecentRequests(guild, user);
+
             embed.setColor(Color.RED);
             embed.setTitle("User Left");
             embed.setThumbnail(user.getEffectiveAvatarUrl());
             embed.addField("User:", user.getAsTag(), true);
-            //TODO Check if this works.
             if (roles != null && !roles.isEmpty()) {
                 embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), true);
                 LOGGER.info(EVENTS, "User {} had the following roles before leaving: {}", user, roles);
@@ -65,6 +70,31 @@ public final class EventUserLeft extends ListenerAdapter {
             embed.setTimestamp(Instant.now());
 
             channel.sendMessage(embed.build()).queue();
+        }
+    }
+
+    private void deleteRecentRequests(Guild guild, User leavingUser) {
+        TextChannel requestsChannel = guild.getTextChannelById(getConfig().getChannel("requests.main"));
+        int deletionTime = getConfig().getRequestLeaveDeletionTime();
+        if (requestsChannel != null && deletionTime > 0) {
+            OffsetDateTime now = OffsetDateTime.now().minusHours(deletionTime);
+            requestsChannel.getIterableHistory()
+                .takeWhileAsync(message -> message.getTimeCreated().isAfter(now) && message.getAuthor().equals(leavingUser))
+                .thenAccept(messages ->
+                    messages.forEach(message -> {
+                        LOGGER.info(REQUESTS, "Removed request from {} (current leave deletion of {} hour(s), sent {}) because they left the server", leavingUser, message.getTimeCreated(), deletionTime);
+
+                        final TextChannel logChannel = guild.getTextChannelById(getConfig().getChannel("events.requests_deletion"));
+                        if (logChannel != null) {
+                            logChannel.sendMessage(String.format("Auto-deleted request from %s (%s;`%s`) due to leaving server: %n%s", leavingUser.getAsMention(), leavingUser.getAsTag(), leavingUser.getId(), message.getContentRaw()))
+                                .allowedMentions(Collections.emptySet())
+                                .queue();
+                        }
+
+                        message.delete()
+                            .reason(String.format("User left, message created at %s, within leave deletion threshold of %s hour(s)", message.getTimeCreated(), deletionTime))
+                            .queue();
+                    }));
         }
     }
 }

@@ -27,7 +27,7 @@ class ForgeVersionHelperTest {
             assertTrue(result.size() > 0);
             assertTrue(result.containsKey("1.7.10"));
             assertEquals(result.get("1.7.10").getLatest(), "10.13.4.1614");
-            assertEquals(result.get("1.7.10").getRecommended(), "10.13.4.1558");
+            assertEquals(result.get("1.7.10").getRecommended(), "10.13.4.1614");
         } catch(Exception e) {
             fail("Exception thrown", e);
         }

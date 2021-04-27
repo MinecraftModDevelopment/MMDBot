@@ -12,6 +12,7 @@ import com.mcmoddev.mmdbot.commands.info.CmdPaste;
 import com.mcmoddev.mmdbot.commands.info.CmdSearch;
 import com.mcmoddev.mmdbot.commands.info.CmdXy;
 import com.mcmoddev.mmdbot.commands.info.fun.CmdCatFacts;
+import com.mcmoddev.mmdbot.commands.info.fun.CmdGreatMoves;
 import com.mcmoddev.mmdbot.commands.info.server.CmdGuild;
 import com.mcmoddev.mmdbot.commands.info.server.CmdMe;
 import com.mcmoddev.mmdbot.commands.info.server.CmdReadme;
@@ -163,6 +164,7 @@ public final class MMDBot {
                 .addCommand(new CmdMute())
                 .addCommand(new CmdUnmute())
                 .addCommand(new CmdCommunityChannel())
+                .addCommand(new CmdGreatMoves())
                 .setHelpWord("help")
                 .build();
 

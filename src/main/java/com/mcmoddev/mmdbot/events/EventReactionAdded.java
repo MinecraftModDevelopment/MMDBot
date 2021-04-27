@@ -11,6 +11,8 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.RestAction;
 
+import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -46,6 +48,15 @@ public final class EventReactionAdded extends ListenerAdapter {
 
         if (getConfig().getGuildID() == guildId && getConfig().getChannel("requests.main") == channel.getIdLong()) {
 
+            int freshnessDuration = getConfig().getRequestFreshnessDuration();
+            if (freshnessDuration > 0) {
+                OffsetDateTime creationTime = message.getTimeCreated();
+                OffsetDateTime now = OffsetDateTime.now();
+                if (now.minusDays(freshnessDuration).isAfter(creationTime)) {
+                    return; // Do nothing if the request has gone past the freshness duration
+                }
+            }
+
             final List<Long> badReactionsList = getConfig().getBadRequestsReactions();
             final List<Long> goodReactionsList = getConfig().getGoodRequestsReactions();
             final List<Long> needsImprovementReactionsList = getConfig().getRequestsNeedsImprovementReactions();
@@ -69,7 +80,9 @@ public final class EventReactionAdded extends ListenerAdapter {
 
                 final TextChannel logChannel = guild.getTextChannelById(getConfig().getChannel("events.requests_deletion"));
                 if (logChannel != null) {
-                    logChannel.sendMessage(String.format("Auto-deleted request from %s: %s", messageAuthor.getId(), message.getContentRaw())).queue();
+                    logChannel.sendMessage(String.format("Auto-deleted request from %s (%s;%s) due to reaching deletion threshold: %n%s", messageAuthor.getAsMention(), messageAuthor.getAsTag(), messageAuthor.getId(), message.getContentRaw()))
+                        .allowedMentions(Collections.emptySet())
+                        .queue();
                 }
 
                 channel.deleteMessageById(event.getMessageId())
