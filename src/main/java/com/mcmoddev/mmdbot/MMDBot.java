@@ -1,5 +1,6 @@
 package com.mcmoddev.mmdbot;
 
+import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.commands.fun.CmdCatFacts;
@@ -30,6 +31,7 @@ import com.mcmoddev.mmdbot.events.users.EventRoleAdded;
 import com.mcmoddev.mmdbot.events.users.EventRoleRemoved;
 import com.mcmoddev.mmdbot.events.users.EventUserJoined;
 import com.mcmoddev.mmdbot.events.users.EventUserLeft;
+import com.mcmoddev.mmdbot.tricks.Tricks;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -40,7 +42,6 @@ import org.slf4j.LoggerFactory;
 import javax.security.auth.login.LoginException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -162,6 +163,7 @@ public final class MMDBot {
                     .addCommand(new CmdFabricVersion())
                     .addCommand(new CmdMute())
                     .addCommand(new CmdUnmute())
+                    .addCommands(Tricks.createTrickCommands().toArray(new Command[0]))
                     .setHelpWord("help")
                     .build();
 
