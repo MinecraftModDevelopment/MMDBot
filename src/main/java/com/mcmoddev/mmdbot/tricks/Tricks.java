@@ -2,7 +2,12 @@ package com.mcmoddev.mmdbot.tricks;
 
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.commands.tricks.CmdRunTrick;
 
@@ -24,6 +29,7 @@ import java.util.stream.Collectors;
 //TODO: Migrate to a SQLite DB with PR #45
 public final class Tricks {
     private static final String TRICK_STORAGE_PATH = "mmdbot_tricks.json";
+    private static final Gson GSON;
 
     private static @Nullable List<Trick> tricks = null;
 
@@ -32,6 +38,7 @@ public final class Tricks {
     }
 
     public static List<CmdRunTrick> createTrickCommands() {
+        write();
         return getTricks().stream().map(CmdRunTrick::new).collect(Collectors.toList());
     }
 
@@ -43,11 +50,11 @@ public final class Tricks {
             try (InputStreamReader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
                 Type typeOfList = new TypeToken<List<Trick>>() {
                 }.getType();
-                tricks = new Gson().fromJson(reader, typeOfList);
+                tricks = GSON.fromJson(reader, typeOfList);
             } catch (final IOException exception) {
                 MMDBot.LOGGER.trace("Failed to read tricks file...", exception);
+                tricks = new ArrayList<>();
             }
-            tricks = new ArrayList<>();
         }
         return tricks;
     }
@@ -56,7 +63,7 @@ public final class Tricks {
         final File userJoinTimesFile = new File(TRICK_STORAGE_PATH);
         List<Trick> tricks = getTricks();
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(userJoinTimesFile), StandardCharsets.UTF_8)) {
-            new Gson().toJson(tricks, writer);
+            GSON.toJson(tricks, writer);
         } catch (final FileNotFoundException exception) {
             MMDBot.LOGGER.error("An FileNotFoundException occurred saving tricks...", exception);
         } catch (final IOException exception) {
@@ -64,4 +71,48 @@ public final class Tricks {
         }
     }
 
+    static {
+        GSON = new GsonBuilder()
+            .registerTypeAdapterFactory(new TrickSerializer())
+            .create();
+    }
+
+    final static class TrickSerializer implements TypeAdapterFactory {
+        @Override
+        public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
+            if (!Trick.class.isAssignableFrom(type.getRawType())) {
+                return null;
+            }
+            final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
+            return new TypeAdapter<T>() {
+                @Override
+                public void write(final JsonWriter out, final T value) throws IOException {
+                    out.beginObject();
+                    out.name("$type");
+                    out.value(type.toString());
+                    out.name("value");
+                    delegate.write(out, value);
+                    out.endObject();
+                }
+
+                @Override
+                public T read(final JsonReader in) throws IOException {
+                    in.beginObject();
+                    if (!"$type".equals(in.nextName())) {
+                        return null;
+                    }
+                    try {
+                        @SuppressWarnings("unchecked") Class<T> clazz = (Class<T>) Class.forName(in.nextString());
+                        TypeToken<T> readType = TypeToken.get(clazz);
+                        in.nextName();
+                        T result = gson.getDelegateAdapter(TrickSerializer.this, readType).read(in);
+                        in.endObject();
+                        return result;
+                    } catch (ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            };
+        }
+    }
 }
