@@ -22,7 +22,9 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -30,6 +32,7 @@ import java.util.stream.Collectors;
 public final class Tricks {
     private static final String TRICK_STORAGE_PATH = "mmdbot_tricks.json";
     private static final Gson GSON;
+    private static final Map<String, Trick.TrickType<?>> trickTypes = new HashMap<>();
 
     private static @Nullable List<Trick> tricks = null;
 
@@ -38,7 +41,6 @@ public final class Tricks {
     }
 
     public static List<CmdRunTrick> createTrickCommands() {
-        write();
         return getTricks().stream().map(CmdRunTrick::new).collect(Collectors.toList());
     }
 
@@ -57,6 +59,18 @@ public final class Tricks {
             }
         }
         return tricks;
+    }
+
+    public static void registerTrickType(String name, Trick.TrickType<?> type) {
+        trickTypes.put(name, type);
+    }
+
+    public static Map<String, Trick.TrickType<?>> getTrickTypes() {
+        return new HashMap<>(trickTypes);
+    }
+
+    public static Trick.TrickType<?> getTrickType(String name) {
+        return trickTypes.get(name);
     }
 
     private static void write() {

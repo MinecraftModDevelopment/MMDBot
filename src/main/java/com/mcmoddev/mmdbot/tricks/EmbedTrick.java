@@ -1,5 +1,6 @@
 package com.mcmoddev.mmdbot.tricks;
 
+import com.google.common.collect.Lists;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -54,5 +55,32 @@ public class EmbedTrick implements Trick {
 
     public List<MessageEmbed.Field> getFields() {
         return fields;
+    }
+
+    private static class Type implements TrickType<EmbedTrick> {
+        @Override
+        public Class<EmbedTrick> getClazz() {
+            return EmbedTrick.class;
+        }
+
+        @Override
+        public List<String> getArgNames() {
+            return Lists.newArrayList("names", "title", "description", "color", "fields");
+        }
+
+        @Override
+        public EmbedTrick createFromArgs(final String args) {
+            String[] argsArray = args.split(" \\| ");
+            return new EmbedTrick(
+                Arrays.asList(argsArray[0].split(" ")),
+                argsArray[1],
+                argsArray[2],
+                Integer.parseInt(argsArray[3].replace("#", ""), 16)
+            );
+        }
+
+        static {
+            Tricks.registerTrickType("embed", new Type());
+        }
     }
 }
