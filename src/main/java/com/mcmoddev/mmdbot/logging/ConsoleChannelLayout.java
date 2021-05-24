@@ -8,14 +8,12 @@ import com.google.common.collect.ImmutableMap;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.IMentionable;
-import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import org.slf4j.helpers.MessageFormatter;
 
 import java.util.AbstractMap;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,6 +28,9 @@ import java.util.stream.Stream;
  * Any {@link IMentionable} in the {@linkplain ILoggingEvent#getArgumentArray() message formatting arguments}, even
  * inside {@link Collection}s and {@link Map}s, are converted into string mentions using
  * {@link IMentionable#getAsMention()}.
+ *
+ * @author
+ *
  */
 public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
     /**
@@ -49,15 +50,18 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
         .put(Level.TRACE, ":small_orange_diamond:")
         .build();
 
+    /**
+     *
+     */
     private boolean prependLevelName = true;
 
     /**
      * Sets whether to prepend the logging {@link Level} name to the output.
      *
-     * @param prependLevelName Whether to prepend level names
+     * @param prependLevelNameIn Whether to prepend level names
      */
-    public void setPrependLevelName(boolean prependLevelName) {
-        this.prependLevelName = prependLevelName;
+    public void setPrependLevelName(final boolean prependLevelNameIn) {
+        this.prependLevelName = prependLevelNameIn;
     }
 
     /**
@@ -84,7 +88,7 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
      * @param obj The object
      * @return The converted object, according to the conversion rules
      */
-    private static Object tryConvertMentionables(Object obj) {
+    private static Object tryConvertMentionables(final Object obj) {
         if (obj instanceof IMentionable) {
             String name = null;
             if (obj instanceof User) {
@@ -104,8 +108,9 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
         } else if (obj instanceof Collection) {
             final Stream<Object> stream = ((Collection<?>) obj).stream()
                 .map(ConsoleChannelLayout::tryConvertMentionables);
-            if (obj instanceof Set)
+            if (obj instanceof Set) {
                 return stream.collect(Collectors.toSet());
+            }
             return stream.collect(Collectors.toList());
 
         } else if (obj instanceof Map) {
@@ -159,7 +164,7 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
      * @return The formatted message, with replaced mentions
      * @see #tryConvertMentionables(Object)
      */
-    private String getFormattedMessage(ILoggingEvent event) {
+    private String getFormattedMessage(final ILoggingEvent event) {
         final Object[] arguments = event.getArgumentArray();
         if (event.getArgumentArray() != null) {
             Object[] newArgs = new Object[arguments.length];

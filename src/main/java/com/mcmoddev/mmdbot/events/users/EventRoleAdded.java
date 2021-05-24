@@ -25,6 +25,8 @@ import static com.mcmoddev.mmdbot.logging.MMDMarkers.EVENTS;
 
 /**
  *
+ * @author
+ *
  */
 public final class EventRoleAdded extends ListenerAdapter {
 
@@ -42,21 +44,21 @@ public final class EventRoleAdded extends ListenerAdapter {
      */
     @Override
     public void onGuildMemberRoleAdd(final GuildMemberRoleAddEvent event) {
-        final User target = event.getUser();
         final Guild guild = event.getGuild();
-        final long channelID = getConfig().getChannel("events.important");
 
-        if (getConfig().getGuildID() != guild.getIdLong())
+        if (getConfig().getGuildID() != guild.getIdLong()) {
             return; // Make sure that we don't post if it's not related to 'our' guild
+        }
 
         final List<Role> previousRoles = new ArrayList<>(event.getMember().getRoles());
         final List<Role> addedRoles = new ArrayList<>(event.getRoles());
         previousRoles.removeAll(addedRoles); // Just if the member has already been updated
 
+        final User target = event.getUser();
         if (IGNORE_ONCE.containsKey(target)) { // Check for ignored roles
-            Iterator<Role> ignoredRoles = IGNORE_ONCE.get(target).iterator();
+            final Iterator<Role> ignoredRoles = IGNORE_ONCE.get(target).iterator();
             while (ignoredRoles.hasNext()) {
-                Role ignored = ignoredRoles.next();
+                final Role ignored = ignoredRoles.next();
                 if (addedRoles.contains(ignored)) { // Remove ignored roles from event listing and ignore map
                     LOGGER.info(EVENTS, "Role {} for {} was in role ignore map, removing from map and ignoring", ignored, target);
                     addedRoles.remove(ignored);
@@ -68,6 +70,7 @@ public final class EventRoleAdded extends ListenerAdapter {
             }
         }
 
+        final long channelID = getConfig().getChannel("events.important");
         Utils.getChannelIfPresent(channelID, channel ->
             guild.retrieveAuditLogs()
                 .type(ActionType.MEMBER_ROLE_UPDATE)

@@ -11,6 +11,8 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  *
+ * @author
+ *
  */
 public final class MiscEvents extends ListenerAdapter {
 

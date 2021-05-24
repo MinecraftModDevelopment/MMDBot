@@ -1,19 +1,43 @@
 package com.mcmoddev.mmdbot.updatenotifiers.forge;
 
-public class MinecraftForgeVersion {
+/**
+ *
+ * @author
+ *
+ */
+public final class MinecraftForgeVersion {
 
-    ForgeVersion forgeVersion;
-    String mcVersion;
+	/**
+	 *
+	 */
+    private final ForgeVersion forgeVersion;
+    /**
+     *
+     */
+    private final String mcVersion;
 
-    public MinecraftForgeVersion(String mcVersion, ForgeVersion forgeVersion) {
-        this.mcVersion = mcVersion;
-        this.forgeVersion = forgeVersion;
+    /**
+     *
+     * @param mcVersion
+     * @param forgeVersion
+     */
+    public MinecraftForgeVersion(final String mcVersionIn, final ForgeVersion forgeVersionIn) {
+        this.mcVersion = mcVersionIn;
+        this.forgeVersion = forgeVersionIn;
     }
 
+    /**
+     *
+     * @return
+     */
     public ForgeVersion getForgeVersion() {
         return forgeVersion;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getMcVersion() {
         return mcVersion;
     }

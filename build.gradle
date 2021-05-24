@@ -34,7 +34,7 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:${project.logback_classic_version}"
     implementation "com.electronwill.night-config:toml:${project.nightconfig_version}"
 
-    testImplementation "org.junit.jupiter:junit-jupiter:5.6.0"
+    testImplementation "org.junit.jupiter:junit-jupiter:5.7.0"
 }
 
 jar {
@@ -102,29 +102,32 @@ checkstyle {
 pmd {
   consoleOutput = false
   ignoreFailures = true
-  sourceSets = [sourceSets.main]
+  sourceSets = [sourceSets.main, sourceSets.test]
   reportsDir = file("$project.buildDir/reports/pmd")
   rulePriority = 5
   ruleSets = [
-    'java-android',
+//    'java-android',
     'java-basic',
     'java-braces',
     'java-clone',
-    'java-codesize',
-    'java-comments',
-    'java-controversial',
-    'java-coupling',
+//    'java-codesize',
+//    'java-comments',
+//    'java-controversial',
+//    'java-coupling',
     'java-design',
     'java-empty',
     'java-finalizers',
     'java-imports',
-    'java-j2ee',
-    'java-javabeans',
+//    'java-j2ee',
+//    'java-javabeans',
     'java-junit',
     'java-logging-jakarta-commons',
     'java-logging-java',
 //    'java-metrics', // Upsets 5.8.1
     'java-migrating',
+//    'java-migrating_to_13',
+//    'java-migrating_to_14',
+//    'java-migrating_to_15',
     'java-migrating_to_junit4',
     'java-naming',
     'java-optimizations',

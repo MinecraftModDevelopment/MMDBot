@@ -1,31 +1,69 @@
 package com.mcmoddev.mmdbot.updatenotifiers.forge;
 
-public class ForgeVersion {
+/**
+ *
+ * @author
+ *
+ */
+public final class ForgeVersion {
 
+	/**
+	 *
+	 */
     private String recommended;
+
+    /**
+     *
+     */
     private String latest;
 
+    /**
+     *
+     */
     public ForgeVersion() {
+        this.recommended = "(unspecified)";
+        this.latest = "(unspecified)";
     }
 
-    public ForgeVersion(String recommended, String latest) {
-        this.recommended = recommended;
-        this.latest = latest;
+    /**
+     *
+     * @param recommendedIn
+     * @param latestIn
+     */
+    public ForgeVersion(final String recommendedIn, final String latestIn) {
+        this.recommended = recommendedIn;
+        this.latest = latestIn;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getRecommended() {
         return recommended;
     }
 
-    public void setRecommended(String recommended) {
-        this.recommended = recommended;
+    /**
+     *
+     * @param recommended
+     */
+    public void setRecommended(final String recommendedIn) {
+        this.recommended = recommendedIn;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getLatest() {
         return latest;
     }
 
-    public void setLatest(String latest) {
-        this.latest = latest;
+    /**
+     *
+     * @param latestIn
+     */
+    public void setLatest(final String latestIn) {
+        this.latest = latestIn;
     }
 }

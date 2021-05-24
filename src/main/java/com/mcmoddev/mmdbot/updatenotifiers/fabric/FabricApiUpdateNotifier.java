@@ -11,10 +11,21 @@ import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.NOTIFIER_FABRIC;
 
-public class FabricApiUpdateNotifier extends TimerTask {
+/**
+ *
+ * @author
+ *
+ */
+public final class FabricApiUpdateNotifier extends TimerTask {
 
+	/**
+	 *
+	 */
     private String lastLatest;
 
+    /**
+     *
+     */
     public FabricApiUpdateNotifier() {
         lastLatest = FabricVersionHelper.getLatestApi();
     }
@@ -22,7 +33,7 @@ public class FabricApiUpdateNotifier extends TimerTask {
     @Override
     public void run() {
         LOGGER.debug(NOTIFIER_FABRIC, "Checking for new Fabric API versions...");
-        String latest = FabricVersionHelper.getLatestApi();
+        final String latest = FabricVersionHelper.getLatestApi();
 
         final long channelId = getConfig().getChannel("notifications.fabric");
 

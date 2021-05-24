@@ -50,6 +50,9 @@ import java.util.Set;
 
 /**
  * Our Main class.
+ *
+ * @author
+ *
  */
 public final class MMDBot {
 
@@ -70,7 +73,7 @@ public final class MMDBot {
 
     // Gets the version from the JAR manifest, else defaults to the time the bot was started
     static {
-        String version = MMDBot.class.getPackage().getImplementationVersion();
+    	String version = MMDBot.class.getPackage().getImplementationVersion();
         if (version == null) {
             version = "DEV " + DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(OffsetDateTime.now(ZoneOffset.UTC));
         }
@@ -86,17 +89,29 @@ public final class MMDBot {
      * Where needed for events being fired, errors and other misc stuff, log things to console using this.
      */
     public static final Logger LOGGER = LoggerFactory.getLogger(NAME);
-    private static final Set<GatewayIntent> intents = new HashSet<>();
+
+    /**
+     *
+     */
+    private static final Set<GatewayIntent> INTENTS = new HashSet<>();
+
+    /**
+     *
+     */
     private static BotConfig config;
-    private static JDA INSTANCE;
+
+    /**
+     *
+     */
+    private static JDA instance;
 
     static {
-        intents.add(GatewayIntent.DIRECT_MESSAGES);
-        intents.add(GatewayIntent.GUILD_BANS);
-        intents.add(GatewayIntent.GUILD_EMOJIS);
-        intents.add(GatewayIntent.GUILD_MESSAGE_REACTIONS);
-        intents.add(GatewayIntent.GUILD_MESSAGES);
-        intents.add(GatewayIntent.GUILD_MEMBERS);
+    	INTENTS.add(GatewayIntent.DIRECT_MESSAGES);
+    	INTENTS.add(GatewayIntent.GUILD_BANS);
+    	INTENTS.add(GatewayIntent.GUILD_EMOJIS);
+    	INTENTS.add(GatewayIntent.GUILD_MESSAGE_REACTIONS);
+    	INTENTS.add(GatewayIntent.GUILD_MESSAGES);
+    	INTENTS.add(GatewayIntent.GUILD_MEMBERS);
     }
 
     /**
@@ -108,14 +123,18 @@ public final class MMDBot {
     /**
      * Returns the configuration of this bot.
      *
-     * @return The configuration of this bot
+     * @return The configuration of this bot.
      */
     public static BotConfig getConfig() {
         return config;
     }
 
+    /**
+     *
+     * @return
+     */
     public static JDA getInstance() {
-        return INSTANCE;
+        return instance;
     }
 
     /**
@@ -168,8 +187,8 @@ public final class MMDBot {
                 .setHelpWord("help")
                 .build();
 
-            INSTANCE = JDABuilder
-                .create(config.getToken(), intents)
+            instance = JDABuilder
+                .create(config.getToken(), INTENTS)
                 .disableCache(CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY)
                 .disableCache(CacheFlag.CLIENT_STATUS)

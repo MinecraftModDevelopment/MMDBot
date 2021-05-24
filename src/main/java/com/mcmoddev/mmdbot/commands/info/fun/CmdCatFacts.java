@@ -1,5 +1,6 @@
 package com.mcmoddev.mmdbot.commands.info.fun;
 
+import com.google.common.base.Charsets;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.jagrosh.jdautilities.command.Command;
@@ -12,9 +13,18 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Random;
 
-public class CmdCatFacts extends Command {
+/**
+ *
+ * @author
+ *
+ */
+public final class CmdCatFacts extends Command {
 
+	/**
+	 *
+	 */
     public CmdCatFacts() {
         super();
         name = "catfacts";
@@ -23,30 +33,43 @@ public class CmdCatFacts extends Command {
         guildOnly = false;
     }
 
+    /**
+     *
+     * @return
+     */
     public static String getFact() {
         try {
-            URL url = new URL("https://catfact.ninja/fact");
-            URLConnection connection = url.openConnection();
+        	final URL url = new URL("https://catfact.ninja/fact");
+        	final URLConnection connection = url.openConnection();
             connection.setConnectTimeout(10 * 1000);
-            BufferedReader reader = new BufferedReader(
-                new InputStreamReader(connection.getInputStream()));
-            String inputLine = reader.readLine();
-            JsonObject objectArray = JsonParser.parseString(inputLine).getAsJsonObject();
+            final BufferedReader reader = new BufferedReader(
+                new InputStreamReader(connection.getInputStream(), Charsets.UTF_8));
+            final String inputLine = reader.readLine();
+            reader.close();
+            final JsonObject objectArray = JsonParser.parseString(inputLine).getAsJsonObject();
             return ":cat:  " + objectArray.get("fact").toString();
 
-        } catch (Exception exception) {
-            MMDBot.LOGGER.error("Error getting cat fact...", exception);
-            exception.printStackTrace();
+        } catch(final RuntimeException ex) {
+        	throw ex;
+        } catch (final Exception ex) {
+            MMDBot.LOGGER.error("Error getting cat fact...", ex);
+            ex.printStackTrace();
         }
         return null;
     }
 
+    /**
+     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
+     */
     @Override
-    protected void execute(CommandEvent event) {
-        if (!Utils.checkCommand(this, event)) return;
-        EmbedBuilder embed = new EmbedBuilder();
+    protected void execute(final CommandEvent event) {
+        if (!Utils.checkCommand(this, event)) {
+            return;
+        }
+        final EmbedBuilder embed = new EmbedBuilder();
         if (getFact() != null) {
-            embed.setColor((int) (Math.random() * 0x1000000));
+        	final Random random = new Random();
+            embed.setColor((int) (random.nextInt(0x1000000)));
             embed.appendDescription(getFact());
             embed.setFooter("Puwerrd by https://catfact.ninja");
 

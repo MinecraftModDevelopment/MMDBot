@@ -16,6 +16,8 @@ import java.util.Locale;
 
 /**
  *
+ * @author
+ *
  */
 public class CmdUser extends Command {
 
@@ -31,11 +33,13 @@ public class CmdUser extends Command {
     }
 
     /**
-     *
+     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override
     protected void execute(final CommandEvent event) {
-        if (!Utils.checkCommand(this, event)) return;
+        if (!Utils.checkCommand(this, event)) {
+            return;
+        }
         final TextChannel channel = event.getTextChannel();
         final Member member = Utils.getMemberFromString(event.getArgs(), event.getGuild());
         if (member == null) {
@@ -46,6 +50,11 @@ public class CmdUser extends Command {
         channel.sendMessage(embed.build()).queue();
     }
 
+    /**
+     *
+     * @param member
+     * @return
+     */
     protected EmbedBuilder createMemberEmbed(final Member member) {
         final User user = member.getUser();
         final EmbedBuilder embed = new EmbedBuilder();
@@ -59,10 +68,10 @@ public class CmdUser extends Command {
         embed.addField("Users discriminator:", "#" + user.getDiscriminator(), true);
         embed.addField("Users id:", member.getId(), true);
 
-        if (member.getNickname() != null) {
-            embed.addField("Users nickname:", member.getNickname(), true);
-        } else {
+        if (member.getNickname() == null) {
             embed.addField("Users nickname:", "No nickname applied.", true);
+        } else {
+            embed.addField("Users nickname:", member.getNickname(), true);
         }
 
         final SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH);

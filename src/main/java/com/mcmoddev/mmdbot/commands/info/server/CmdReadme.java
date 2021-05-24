@@ -12,6 +12,8 @@ import java.time.Instant;
 
 /**
  *
+ * @author
+ *
  */
 public final class CmdReadme extends Command {
 
@@ -34,11 +36,13 @@ public final class CmdReadme extends Command {
     }
 
     /**
-     *
+     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override
     protected void execute(final CommandEvent event) {
-        if (!Utils.checkCommand(this, event)) return;
+        if (!Utils.checkCommand(this, event)) {
+            return;
+        }
         final EmbedBuilder embed = new EmbedBuilder();
         final TextChannel channel = event.getTextChannel();
 

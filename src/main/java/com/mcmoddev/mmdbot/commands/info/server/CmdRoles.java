@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 
 /**
  * A {@link Command} for listing the roles and their member counts.
+ *
+ * @author
+ *
  */
 public final class CmdRoles extends Command {
 
@@ -31,11 +34,13 @@ public final class CmdRoles extends Command {
      * Sends a message with a listing of all roles in the guild, along with a count of how many members hold those roles.
      * The message is sent in the same channel where the command was sent from.
      *
-     * @param event The command event
+     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override
     protected void execute(final CommandEvent event) {
-        if (!Utils.checkCommand(this, event)) return;
+        if (!Utils.checkCommand(this, event)) {
+            return;
+        }
         final EmbedBuilder embed = new EmbedBuilder();
         final TextChannel channel = event.getTextChannel();
 

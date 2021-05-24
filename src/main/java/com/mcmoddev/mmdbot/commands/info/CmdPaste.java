@@ -11,6 +11,8 @@ import java.time.Instant;
 
 /**
  *
+ * @author
+ *
  */
 public final class CmdPaste extends Command {
 
@@ -26,6 +28,7 @@ public final class CmdPaste extends Command {
             + Utils.makeHyperlink("gist", "https://gist.github.com") + " " + "Free: 100MB Membership required" + System.lineSeparator()
             + Utils.makeHyperlink("paste.ee", "https://paste.ee") + " " + "Free: 1MB - Members get: 6MB" + System.lineSeparator()
             + Utils.makeHyperlink("paste.gg", "https://paste.gg") + " " + "Free: 15MB" + System.lineSeparator()
+            + Utils.makeHyperlink("paste.gemwire.uk", "paste.gemwire.uk") + " " + "Free 10MB" + System.lineSeparator()
             + Utils.makeHyperlink("pastebin", "https://pastebin.com") + " " + "Free: 512KB - Paid users get: 10MB" + System.lineSeparator();
 
     /**
@@ -40,11 +43,13 @@ public final class CmdPaste extends Command {
     }
 
     /**
-     *
+     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override
     protected void execute(final CommandEvent event) {
-        if (!Utils.checkCommand(this, event)) return;
+        if (!Utils.checkCommand(this, event)) {
+            return;
+        }
         final EmbedBuilder embed = new EmbedBuilder();
         final TextChannel channel = event.getTextChannel();
 
