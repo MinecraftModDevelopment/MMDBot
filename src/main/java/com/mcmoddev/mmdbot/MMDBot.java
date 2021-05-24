@@ -89,6 +89,7 @@ public final class MMDBot {
     private static final Set<GatewayIntent> intents = new HashSet<>();
     private static BotConfig config;
     private static JDA INSTANCE;
+    private static CommandClient commandClient;
 
     static {
         intents.add(GatewayIntent.DIRECT_MESSAGES);
@@ -118,6 +119,10 @@ public final class MMDBot {
         return INSTANCE;
     }
 
+    public static CommandClient getCommandClient() {
+        return commandClient;
+    }
+
     /**
      * @param args Arguments provided to the program.
      */
@@ -135,8 +140,7 @@ public final class MMDBot {
         }
 
         try {
-
-            final CommandClient commandListener = new CommandClientBuilder()
+            commandClient = new CommandClientBuilder()
                     .setOwnerId(config.getOwnerID())
                     .setPrefix(config.getMainPrefix())
                     .setAlternativePrefix(config.getAlternativePrefix())
@@ -179,7 +183,7 @@ public final class MMDBot {
                     .addEventListeners(new EventRoleRemoved())
                     .addEventListeners(new EventReactionAdded())
                     .addEventListeners(new MiscEvents())
-                    .addEventListeners(commandListener)
+                    .addEventListeners(commandClient)
                     .build();
         } catch (final LoginException exception) {
             LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.", exception);

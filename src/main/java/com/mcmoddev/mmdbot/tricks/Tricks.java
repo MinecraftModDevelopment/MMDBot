@@ -73,6 +73,11 @@ public final class Tricks {
         return trickTypes.get(name);
     }
 
+    public static void registerTrick(Trick trick) {
+        getTricks().add(trick);
+        MMDBot.getCommandClient().addCommand(new CmdRunTrick(trick));
+    }
+
     private static void write() {
         final File userJoinTimesFile = new File(TRICK_STORAGE_PATH);
         List<Trick> tricks = getTricks();
