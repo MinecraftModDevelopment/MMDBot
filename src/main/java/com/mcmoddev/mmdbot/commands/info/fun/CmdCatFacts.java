@@ -50,7 +50,7 @@ public final class CmdCatFacts extends Command {
             return ":cat:  " + objectArray.get("fact").toString();
 
         } catch(final RuntimeException ex) {
-        	throw ex;
+            throw ex;
         } catch (final Exception ex) {
             MMDBot.LOGGER.error("Error getting cat fact...", ex);
             ex.printStackTrace();
@@ -68,7 +68,7 @@ public final class CmdCatFacts extends Command {
         }
         final EmbedBuilder embed = new EmbedBuilder();
         if (getFact() != null) {
-        	final Random random = new Random();
+            final Random random = new Random();
             embed.setColor((int) (random.nextInt(0x1000000)));
             embed.appendDescription(getFact());
             embed.setFooter("Puwerrd by https://catfact.ninja");

@@ -73,7 +73,7 @@ public final class MMDBot {
 
     // Gets the version from the JAR manifest, else defaults to the time the bot was started
     static {
-    	String version = MMDBot.class.getPackage().getImplementationVersion();
+        String version = MMDBot.class.getPackage().getImplementationVersion();
         if (version == null) {
             version = "DEV " + DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(OffsetDateTime.now(ZoneOffset.UTC));
         }
@@ -106,12 +106,12 @@ public final class MMDBot {
     private static JDA instance;
 
     static {
-    	INTENTS.add(GatewayIntent.DIRECT_MESSAGES);
-    	INTENTS.add(GatewayIntent.GUILD_BANS);
-    	INTENTS.add(GatewayIntent.GUILD_EMOJIS);
-    	INTENTS.add(GatewayIntent.GUILD_MESSAGE_REACTIONS);
-    	INTENTS.add(GatewayIntent.GUILD_MESSAGES);
-    	INTENTS.add(GatewayIntent.GUILD_MEMBERS);
+        INTENTS.add(GatewayIntent.DIRECT_MESSAGES);
+        INTENTS.add(GatewayIntent.GUILD_BANS);
+        INTENTS.add(GatewayIntent.GUILD_EMOJIS);
+        INTENTS.add(GatewayIntent.GUILD_MESSAGE_REACTIONS);
+        INTENTS.add(GatewayIntent.GUILD_MESSAGES);
+        INTENTS.add(GatewayIntent.GUILD_MEMBERS);
     }
 
     /**

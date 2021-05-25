@@ -23,9 +23,9 @@ import static com.mcmoddev.mmdbot.logging.MMDMarkers.MUTING;
  */
 public final class CmdMute extends Command {
 
-	/**
-	 *
-	 */
+   /**
+    *
+    */
     public CmdMute() {
         super();
         name = "mute";
@@ -80,7 +80,7 @@ public final class CmdMute extends Command {
             if (args.length > 2) {
                 TimeUnit unit1;
                 try {
-                    unit1 = TimeUnit.valueOf(args[2].toUpperCase(Locale.ENGLISH));
+                    unit1 = TimeUnit.valueOf(args[2].toUpperCase(Locale.ROOT));
                 } catch (IllegalArgumentException ex) {
                     unit1 = TimeUnit.MINUTES;
                 }
@@ -97,7 +97,7 @@ public final class CmdMute extends Command {
 
             final String timeString;
             if (time > 0) {
-                timeString = " " + time + " " + unit.toString().toLowerCase(Locale.ENGLISH);
+                timeString = " " + time + " " + unit.toString().toLowerCase(Locale.ROOT);
             } else {
                 timeString = "ever";
             }

@@ -33,7 +33,7 @@ public final class TaskScheduler {
         //Check each every 3 hours. 1000 * 60 * 60 * 3
         //Check every 15 min. 15 * 60 * 1000
         try {
-        	TIMER.scheduleAtFixedRate(new ForgeUpdateNotifier(), 0, 15 * 60 * 1000);
+            TIMER.scheduleAtFixedRate(new ForgeUpdateNotifier(), 0, 15 * 60 * 1000);
         } catch (Exception ex) {
             MMDBot.LOGGER.error("Unable to schedule job Forge Update Notifier", ex);
             ex.printStackTrace();
