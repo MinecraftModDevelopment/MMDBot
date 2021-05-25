@@ -35,6 +35,8 @@ dependencies {
     implementation "com.electronwill.night-config:toml:${project.nightconfig_version}"
 
     testImplementation "org.junit.jupiter:junit-jupiter:5.7.0"
+
+    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.11.0'
 }
 
 jar {
