@@ -395,11 +395,11 @@ public final class BotConfig {
                         continue outer;
                     }
                 }
-                MMDBot.LOGGER.warn("Unknown permission in \"" + COMMUNITY_CHANNEL_OWNER_PERMISSIONS + "\": '{}'", perm);
+                MMDBot.LOGGER.warn("Unknown permission in \"{}\": '{}'", COMMUNITY_CHANNEL_OWNER_PERMISSIONS, perm);
             }
             return permissions;
         }
-        MMDBot.LOGGER.warn("Unknown format of \"" + COMMUNITY_CHANNEL_OWNER_PERMISSIONS + "\", resetting to blank list");
+        MMDBot.LOGGER.warn("Unknown format of \"{}\", resetting to blank list", COMMUNITY_CHANNEL_OWNER_PERMISSIONS);
         config.set(COMMUNITY_CHANNEL_OWNER_PERMISSIONS, Collections.emptyList());
         return EnumSet.noneOf(Permission.class);
     }
