@@ -36,10 +36,8 @@ public final class CmdListTricks extends Command {
             new EmbedBuilder()
                 .setDescription(Tricks.getTricks()
                     .stream()
-                    .map(it -> it.getNames().stream().reduce((a, b) -> a + " / " + b))
-                    .filter(Optional::isPresent)
-                    .map(it -> it.orElseThrow(NullPointerException::new))
-                    .reduce((a, b) -> a + "\n" + b).orElse("")
+                    .map(it -> it.getNames().stream().reduce("", (a, b) -> a + " / " + b))
+                    .reduce("", (a, b) -> a + "\n" + b)
                 )
                 .build()
         ).queue();
