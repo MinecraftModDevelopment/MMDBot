@@ -2,7 +2,6 @@ package com.mcmoddev.mmdbot;
 
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
-import com.mcmoddev.bot.commands.locked.moderation.CmdOldChannels;
 import com.mcmoddev.mmdbot.commands.info.CmdBuild;
 import com.mcmoddev.mmdbot.commands.info.CmdEventsHelp;
 import com.mcmoddev.mmdbot.commands.info.CmdFabricVersion;
@@ -23,6 +22,7 @@ import com.mcmoddev.mmdbot.commands.info.server.CmdToggleEventPings;
 import com.mcmoddev.mmdbot.commands.info.server.CmdToggleMcServerPings;
 import com.mcmoddev.mmdbot.commands.staff.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.commands.staff.CmdMute;
+import com.mcmoddev.mmdbot.commands.staff.CmdOldChannels;
 import com.mcmoddev.mmdbot.commands.staff.CmdUnmute;
 import com.mcmoddev.mmdbot.commands.staff.CmdUser;
 import com.mcmoddev.mmdbot.core.BotConfig;
