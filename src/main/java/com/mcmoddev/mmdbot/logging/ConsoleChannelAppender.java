@@ -19,27 +19,38 @@ import java.util.Collections;
  * Otherwise, {@link ILoggingEvent#getFormattedMessage()} will be sent.
  *
  * @see ConsoleChannelLayout
+ *
+ * @author
+ *
  */
 public class ConsoleChannelAppender extends AppenderBase<ILoggingEvent> {
+
+    /**
+     *
+     */
     private boolean allowMentions;
+
+    /**
+     *
+     */
     private Layout<ILoggingEvent> layout;
 
     /**
      * Sets whether the Discord messages should allow mentions, i.e. ping any mentioned users and roles.
      *
-     * @param allowMentions Whether to allow mentions
+     * @param allowMentionsIn Whether to allow mentions
      */
-    public void setAllowMentions(boolean allowMentions) {
-        this.allowMentions = allowMentions;
+    public void setAllowMentions(final boolean allowMentionsIn) {
+        this.allowMentions = allowMentionsIn;
     }
 
     /**
      * Sets the inner {@link Layout}, used for formatting the message to be sent.
      *
-     * @param layout The layout
+     * @param layoutIn The layout
      */
-    public void setLayout(Layout<ILoggingEvent> layout) {
-        this.layout = layout;
+    public void setLayout(final Layout<ILoggingEvent> layoutIn) {
+        this.layout = layoutIn;
     }
 
     /**
@@ -51,10 +62,14 @@ public class ConsoleChannelAppender extends AppenderBase<ILoggingEvent> {
         final BotConfig config = MMDBot.getConfig();
         if (jda != null && config != null) {
             final Guild guild = jda.getGuildById(config.getGuildID());
-            if (guild == null) return;
+            if (guild == null) {
+                return;
+            }
             final TextChannel channel = guild.getTextChannelById(config.getChannel("console"));
-            if (channel == null) return;
-            MessageBuilder builder = new MessageBuilder();
+            if (channel == null) {
+                return;
+            }
+            final MessageBuilder builder = new MessageBuilder();
             builder.append(layout != null ? layout.doLayout(event) : event.getFormattedMessage());
             if (!allowMentions) {
                 builder.setAllowedMentions(Collections.emptyList());

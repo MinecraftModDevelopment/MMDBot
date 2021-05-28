@@ -13,8 +13,10 @@ import java.util.List;
 
 /**
  *
+ * @author
+ *
  */
-public class CmdToggleMcServerPings extends Command {
+public final class CmdToggleMcServerPings extends Command {
 
     /**
      *
@@ -29,7 +31,7 @@ public class CmdToggleMcServerPings extends Command {
     }
 
     /**
-     *
+     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override
     protected void execute(final CommandEvent event) {
@@ -38,7 +40,6 @@ public class CmdToggleMcServerPings extends Command {
         }
 
         final Guild guild = event.getGuild();
-        final Member member = event.getMember();
         final TextChannel channel = event.getTextChannel();
         //TODO get the per guild ID if enabled for the guild the command was run in.
         final Role role = guild.getRoleById(MMDBot.getConfig().getRole("pings.toggle-mc-server-pings"));
@@ -48,6 +49,7 @@ public class CmdToggleMcServerPings extends Command {
             return;
         }
 
+        final Member member = event.getMember();
         final List<Role> roles = member.getRoles();
         boolean added;
         if (roles.contains(role)) {

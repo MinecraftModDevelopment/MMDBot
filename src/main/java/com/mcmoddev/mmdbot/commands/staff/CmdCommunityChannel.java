@@ -11,7 +11,6 @@ import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,38 +19,55 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class CmdCommunityChannel extends Command {
+/**
+ *
+ * @author
+ *
+ */
+public final class CmdCommunityChannel extends Command {
+
+	/**
+	 *
+	 */
     private static final EnumSet<Permission> REQUIRED_PERMISSIONS = EnumSet.of(Permission.MANAGE_PERMISSIONS, Permission.MANAGE_CHANNEL);
 
+    /**
+     *
+     */
     public CmdCommunityChannel() {
         super();
         name = "create-community-channel";
         aliases = new String[]{"community-channel", "comm-ch"};
         help = "Creates a new community channel for the given user. Usage: !mmd-create-community-channel <user ID/mention> <channel name>";
         hidden = true;
-        botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
+        botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[REQUIRED_PERMISSIONS.size()]);
     }
 
+    /**
+     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
+     */
     @Override
     protected void execute(final CommandEvent event) {
-        if (!Utils.checkCommand(this, event)) return;
+        if (!Utils.checkCommand(this, event)) {
+            return;
+        }
         final Guild guild = event.getGuild();
-        final TextChannel channel = event.getTextChannel();
-        final String[] args = event.getArgs().split(" ");
-        final Member author = event.getGuild().getMember(event.getAuthor());
-        if (author == null) return;
+        final Member author = guild.getMember(event.getAuthor());
+        if (author == null) {
+            return;
+        }
 
         if (!author.hasPermission(REQUIRED_PERMISSIONS)) {
             event.reply("You do not have permission to use this command.");
             return;
         }
 
+        final String[] args = event.getArgs().split(" ");
         final Member newOwner = Utils.getMemberFromString(args[0], event.getGuild());
         if (newOwner == null) {
             event.reply("Invalid user!");
             return;
         }
-        final String channelName = args[1];
 
         final long categoryID = MMDBot.getConfig().getCommunityChannelCategory();
         final net.dv8tion.jda.api.entities.Category category = guild.getCategoryById(categoryID);
@@ -68,23 +84,24 @@ public class CmdCommunityChannel extends Command {
             return;
         }
 
-        Set<Permission> diff = Sets.difference(ownerPermissions, event.getSelfMember().getPermissions());
+        final Set<Permission> diff = Sets.difference(ownerPermissions, event.getSelfMember().getPermissions());
         if (!diff.isEmpty()) {
             MMDBot.LOGGER.warn("Cannot assign permissions to channel owner due to insufficient permissions: {}", diff);
             event.reply("Cannot assign certain permissions to channel owner due to insufficient permissions; continuing anyway...");
             ownerPermissions.removeIf(diff::contains);
         }
 
-        List<Emote> emote = new ArrayList<>(4);
+        final List<Emote> emote = new ArrayList<>(4);
         emote.addAll(guild.getEmotesByName("mmd1", true));
         emote.addAll(guild.getEmotesByName("mmd2", true));
         emote.addAll(guild.getEmotesByName("mmd3", true));
         emote.addAll(guild.getEmotesByName("mmd4", true));
 
         // Flavor text: if the emotes are available, use them, else just use plain MMD
-        String emoteText = emote.size() == 4 ? emote.stream().map(Emote::getAsMention).collect(Collectors.joining()) : "";
+        final String emoteText = emote.size() == 4 ? emote.stream().map(Emote::getAsMention).collect(Collectors.joining()) : "";
         final String flavorText = emoteText.isEmpty() ? "MMD" : emoteText;
 
+        final String channelName = args[1];
         MMDBot.LOGGER.info("Creating new community channel for {}, named \"{}\" (command issued by {})", newOwner, channelName, author);
         category.createTextChannel(channelName)
             .flatMap(ch -> category.modifyTextChannelPositions()

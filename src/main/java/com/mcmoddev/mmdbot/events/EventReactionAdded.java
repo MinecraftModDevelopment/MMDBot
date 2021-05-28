@@ -23,9 +23,14 @@ import static com.mcmoddev.mmdbot.logging.MMDMarkers.REQUESTS;
 
 /**
  *
+ * @author
+ *
  */
 public final class EventReactionAdded extends ListenerAdapter {
 
+	/**
+	 *
+	 */
     private final Set<Message> warnedMessages = new HashSet<>();
 
     /**
@@ -33,25 +38,27 @@ public final class EventReactionAdded extends ListenerAdapter {
      */
     @Override
     public void onMessageReactionAdd(final MessageReactionAddEvent event) {
-        final Guild guild = event.getGuild();
-        final long guildId = guild.getIdLong();
         final TextChannel channel = event.getTextChannel();
-        final TextChannel discussionChannel = guild.getTextChannelById(getConfig().getChannel("requests.discussion"));
-
-        MessageHistory history = MessageHistory.getHistoryAround(channel, event.getMessageId()).limit(1).complete();
+        final MessageHistory history = MessageHistory.getHistoryAround(channel, event.getMessageId()).limit(1).complete();
         final Message message = history.getMessageById(event.getMessageId());
-        if (message == null) return;
-        final User messageAuthor = message.getAuthor();
+        if (message == null) {
+            return;
+        }
         final double removalThreshold = getConfig().getRequestsRemovalThreshold();
         final double warningThreshold = getConfig().getRequestsWarningThreshold();
-        if (removalThreshold == 0 || warningThreshold == 0) return;
+        if (removalThreshold == 0 || warningThreshold == 0) {
+            return;
+        }
 
+        final Guild guild = event.getGuild();
+        final long guildId = guild.getIdLong();
+        final TextChannel discussionChannel = guild.getTextChannelById(getConfig().getChannel("requests.discussion"));
         if (getConfig().getGuildID() == guildId && getConfig().getChannel("requests.main") == channel.getIdLong()) {
 
-            int freshnessDuration = getConfig().getRequestFreshnessDuration();
+        	final int freshnessDuration = getConfig().getRequestFreshnessDuration();
             if (freshnessDuration > 0) {
-                OffsetDateTime creationTime = message.getTimeCreated();
-                OffsetDateTime now = OffsetDateTime.now();
+            	final OffsetDateTime creationTime = message.getTimeCreated();
+            	final OffsetDateTime now = OffsetDateTime.now();
                 if (now.minusDays(freshnessDuration).isAfter(creationTime)) {
                     return; // Do nothing if the request has gone past the freshness duration
                 }
@@ -66,6 +73,7 @@ public final class EventReactionAdded extends ListenerAdapter {
 
             final double requestScore = (badReactions + needsImprovementReactions * 0.5) - goodReactions;
 
+            final User messageAuthor = message.getAuthor();
             if (requestScore >= removalThreshold) {
                 LOGGER.info(REQUESTS, "Removed request from {} due to score of {} reaching removal threshold {}", messageAuthor, requestScore, removalThreshold);
 
@@ -92,8 +100,9 @@ public final class EventReactionAdded extends ListenerAdapter {
                     .flatMap(v -> {
                         RestAction<Message> action = messageAuthor.openPrivateChannel()
                             .flatMap(privateChannel -> privateChannel.sendMessage(response));
-                        if (discussionChannel != null) // If we can't DM the user, send it in the discussions channel instead
+                        if (discussionChannel != null) { // If we can't DM the user, send it in the discussions channel instead
                             action = action.onErrorFlatMap(throwable -> discussionChannel.sendMessage(response));
+                        }
                         return action;
                     })
                     .queue();
@@ -113,8 +122,9 @@ public final class EventReactionAdded extends ListenerAdapter {
 
                 RestAction<Message> action = messageAuthor.openPrivateChannel()
                     .flatMap(privateChannel -> privateChannel.sendMessage(response));
-                if (discussionChannel != null) // If we can't DM the user, send it in the discussions channel instead
+                if (discussionChannel != null) { // If we can't DM the user, send it in the discussions channel instead
                     action = action.onErrorFlatMap(throwable -> discussionChannel.sendMessage(response));
+                }
                 action.queue();
             }
         }

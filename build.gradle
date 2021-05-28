@@ -1,10 +1,10 @@
 plugins {
     id 'application'
-    id 'com.github.johnrengelman.shadow' version '4.0.4'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
     id 'eclipse'
     id 'idea'
-    id 'com.github.spotbugs' version '1.6.9' // 4.0 or later
-    id 'checkstyle' // 2.7 or later
+    id 'com.github.spotbugs' version '4.7.1'
+    id 'checkstyle'
     id 'pmd'
 }
 
@@ -34,7 +34,9 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:${project.logback_classic_version}"
     implementation "com.electronwill.night-config:toml:${project.nightconfig_version}"
 
-    testImplementation "org.junit.jupiter:junit-jupiter:5.6.0"
+    testImplementation "org.junit.jupiter:junit-jupiter:5.7.0"
+
+    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.11.0'
 }
 
 jar {
@@ -80,13 +82,14 @@ test {
 
 spotbugs {
   ignoreFailures = true
-  toolVersion = '3.1.6'
+  showStackTraces = false
+  toolVersion = '4.2.3'
   effort = 'max'
   reportLevel = 'low'
   //includeFilter = file("$rootProject.projectDir/config/spotbugs-filter.xml")
 }
 
-tasks.withType(com.github.spotbugs.SpotBugsTask) {
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
   reports {
     xml.enabled = false
     html.enabled = true
@@ -95,36 +98,41 @@ tasks.withType(com.github.spotbugs.SpotBugsTask) {
 
 checkstyle {
   ignoreFailures = true
-  toolVersion = '8.20' // 5.7 is default
+  toolVersion = '8.42'
   showViolations = false
 }
 
 pmd {
   consoleOutput = false
   ignoreFailures = true
-  sourceSets = [sourceSets.main]
+  sourceSets = [sourceSets.main, sourceSets.test]
   reportsDir = file("$project.buildDir/reports/pmd")
-  rulePriority = 5
+  rulesMinimumPriority = 5
+  ruleSetFiles = files('config/pmd/pmd.xml')
   ruleSets = [
-    'java-android',
+/*
+//    'java-android',
     'java-basic',
     'java-braces',
     'java-clone',
-    'java-codesize',
-    'java-comments',
-    'java-controversial',
-    'java-coupling',
+//    'java-codesize',
+//    'java-comments',
+//    'java-controversial',
+//    'java-coupling',
     'java-design',
     'java-empty',
     'java-finalizers',
     'java-imports',
-    'java-j2ee',
-    'java-javabeans',
+//    'java-j2ee',
+//    'java-javabeans',
     'java-junit',
     'java-logging-jakarta-commons',
     'java-logging-java',
 //    'java-metrics', // Upsets 5.8.1
     'java-migrating',
+//    'java-migrating_to_13',
+//    'java-migrating_to_14',
+//    'java-migrating_to_15',
     'java-migrating_to_junit4',
     'java-naming',
     'java-optimizations',
@@ -135,7 +143,8 @@ pmd {
     'java-typeresolution',
     'java-unnecessary',
     'java-unusedcode'
+*/
   ]
-  toolVersion = '5.8.1' // 6.19.0
-//  incrementalAnalysis = true // Requires PMD 6.0.0 or newer
+  toolVersion = '6.34.0' // 5.8.1
+  incrementalAnalysis = true
 }

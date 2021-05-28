@@ -21,16 +21,47 @@ import java.util.stream.Collectors;
 
 /**
  * The configuration holder for the bot.
+ *
+ * @author
+ *
  */
 public final class BotConfig {
-    private final CommentedFileConfig config;
-    private boolean newlyGenerated = false;
 
-    public BotConfig(Path configFile) {
+    /**
+     *
+     */
+    private static final String COMMUNITY_CHANNEL_OWNER_PERMISSIONS = "community_channels.owner_permissions";
+
+    /**
+    *
+    */
+   private static final String COMMANDS_PREFIX = "commands.";
+
+   /**
+     *
+     */
+    private final CommentedFileConfig config;
+
+    /**
+     *
+     */
+    private boolean newlyGenerated;
+
+    /**
+     *
+     * @param configFile
+     */
+    public BotConfig(final Path configFile) {
         this(configFile, TomlFormat.instance());
     }
 
-    public BotConfig(Path configFile, ConfigFormat<? extends CommentedConfig> configFormat) {
+    /**
+     *
+     * @param configFile
+     * @param configFormat
+     */
+    public BotConfig(final Path configFile, final ConfigFormat<? extends CommentedConfig> configFormat) {
+        this.newlyGenerated = false;
         this.config = CommentedFileConfig.builder(configFile, configFormat)
             .autoreload()
             .onFileNotFound((file, format) -> {
@@ -132,7 +163,7 @@ public final class BotConfig {
      * @param snowflake The snowflake ID
      * @return The alias for the given snowflake
      */
-    public Optional<String> getAlias(long snowflake) {
+    public Optional<String> getAlias(final long snowflake) {
         return getAliases()
             .flatMap(aliases -> aliases.entrySet().stream()
                 .filter(entry -> entry.getValue() instanceof String)
@@ -151,8 +182,8 @@ public final class BotConfig {
      * @return If the command is globally enabled, or {@code true} if not configured
      * @see #isEnabled(String, long)
      */
-    public boolean isEnabled(String commandName) {
-        return config.<Boolean>getOrElse("commands." + commandName + ".enabled", true);
+    public boolean isEnabled(final String commandName) {
+        return config.<Boolean>getOrElse(COMMANDS_PREFIX + commandName + ".enabled", true);
     }
 
     /**
@@ -165,9 +196,9 @@ public final class BotConfig {
      * @param guildID     The guild's snowflake ID
      * @return If the command is enabled for the guild, or the value of {@link #isEnabled(String)}
      */
-    public boolean isEnabled(String commandName, long guildID) {
+    public boolean isEnabled(final String commandName, final long guildID) {
         return config.<Boolean>getOptional(
-            "commands." + commandName + "."
+            COMMANDS_PREFIX + commandName + "."
                 + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
                 + ".enabled")
             .orElseGet(() -> isEnabled(commandName));
@@ -180,9 +211,9 @@ public final class BotConfig {
      * @param guildID     The guild's snowflake ID
      * @return The list of blocked channels for the command
      */
-    public List<Long> getBlockedChannels(String commandName, long guildID) {
+    public List<Long> getBlockedChannels(final String commandName, final long guildID) {
         return getAliasedSnowflakeList(
-            "commands." + commandName + "."
+            COMMANDS_PREFIX + commandName + "."
                 + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
                 + ".blocked_channels", getAliases())
             .orElseGet(Collections::emptyList);
@@ -195,9 +226,9 @@ public final class BotConfig {
      * @param guildID     The guild's snowflake ID
      * @return The list of allowed channels for the command
      */
-    public List<Long> getAllowedChannels(String commandName, long guildID) {
+    public List<Long> getAllowedChannels(final String commandName, final long guildID) {
         return getAliasedSnowflakeList(
-            "commands." + commandName + "."
+            COMMANDS_PREFIX + commandName + "."
                 + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
                 + ".allowed_channels", getAliases())
             .orElseGet(Collections::emptyList);
@@ -236,7 +267,7 @@ public final class BotConfig {
      * @param roleKey The role key
      * @return The snowflake ID of the given role key, or {@code 0L}
      */
-    public long getRole(String roleKey) {
+    public long getRole(final String roleKey) {
         return SafeIdUtil.safeConvert(getAliased("roles." + roleKey, getAliases()));
     }
 
@@ -249,7 +280,7 @@ public final class BotConfig {
      * @param channelKey The channel key
      * @return The snowflake ID of the given channel key, or {@code 0L}
      */
-    public long getChannel(String channelKey) {
+    public long getChannel(final String channelKey) {
         return SafeIdUtil.safeConvert(getAliased("channels." + channelKey, getAliases()));
     }
 
@@ -341,35 +372,44 @@ public final class BotConfig {
         return SafeIdUtil.safeConvert(getAliased("community_channels.category", getAliases()));
     }
 
+    /**
+     *
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public EnumSet<Permission> getCommunityChannelOwnerPermissions() {
-        if (!config.contains("community_channels.owner_permissions")) {
+        if (!config.contains(COMMUNITY_CHANNEL_OWNER_PERMISSIONS)) {
             return EnumSet.noneOf(Permission.class);
         }
-        Object obj = config.get("community_channels.owner_permissions");
+        final Object obj = config.get(COMMUNITY_CHANNEL_OWNER_PERMISSIONS);
         if (obj instanceof Number) {
             return Permission.getPermissions(((Number) obj).longValue());
         } else if (obj instanceof List) {
-            List<String> permList = ((List<String>) obj);
-            EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
+        	final List<String> permList = ((List<String>) obj);
+        	final EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
             outer:
-            for (String perm : permList) {
-                for (Permission permission : Permission.values()) {
+            for (final String perm : permList) {
+                for (final Permission permission : Permission.values()) {
                     if (permission.getName().equals(perm) || permission.name().equals(perm)) {
                         permissions.add(permission);
                         continue outer;
                     }
                 }
-                MMDBot.LOGGER.warn("Unknown permission in \"community_channels.owner_permissions\": '{}'", perm);
+                MMDBot.LOGGER.warn("Unknown permission in \"{}\": '{}'", COMMUNITY_CHANNEL_OWNER_PERMISSIONS, perm);
             }
             return permissions;
         }
-        MMDBot.LOGGER.warn("Unknown format of \"community_channels.owner_permissions\", resetting to blank list");
-        config.set("community_channels.owner_permissions", Collections.emptyList());
+        MMDBot.LOGGER.warn("Unknown format of \"{}\", resetting to blank list", COMMUNITY_CHANNEL_OWNER_PERMISSIONS);
+        config.set(COMMUNITY_CHANNEL_OWNER_PERMISSIONS, Collections.emptyList());
         return EnumSet.noneOf(Permission.class);
     }
 
-    private Optional<List<Long>> getSnowflakeList(String path) {
+    /**
+     *
+     * @param path
+     * @return
+     */
+    private Optional<List<Long>> getSnowflakeList(final String path) {
         return config.<List<String>>getOptional(path)
             .map(strings -> strings.stream()
                 .map(SafeIdUtil::safeConvert)
@@ -377,8 +417,14 @@ public final class BotConfig {
                 .collect(Collectors.toList()));
     }
 
+    /**
+     *
+     * @param path
+     * @param aliases
+     * @return
+     */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private Optional<List<Long>> getAliasedSnowflakeList(String path, Optional<UnmodifiableConfig> aliases) {
+    private Optional<List<Long>> getAliasedSnowflakeList(final String path, final Optional<UnmodifiableConfig> aliases) {
         return config.<List<String>>getOptional(path)
             .filter(list -> !list.isEmpty())
             .map(strings -> strings.stream()
@@ -388,8 +434,14 @@ public final class BotConfig {
                 .collect(Collectors.toList()));
     }
 
+    /**
+     *
+     * @param key
+     * @param aliases
+     * @return
+     */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private String getAliased(String key, Optional<UnmodifiableConfig> aliases) {
+    private String getAliased(final String key, final Optional<UnmodifiableConfig> aliases) {
         return config.<String>getOptional(key)
             .map(str -> aliases.flatMap(cfg -> cfg.<String>getOptional(str)).orElse(str))
             .orElse("");

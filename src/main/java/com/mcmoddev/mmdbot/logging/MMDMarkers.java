@@ -5,8 +5,12 @@ import org.slf4j.MarkerFactory;
 
 /**
  * Class for holding the {@link Marker}s used for logging.
+ *
+ * @author
+ *
  */
-public class MMDMarkers {
+public final class MMDMarkers {
+
     /**
      * The {@link Marker} for the {@link com.mcmoddev.mmdbot.updatenotifiers.fabric.FabricApiUpdateNotifier}.
      */
@@ -39,4 +43,11 @@ public class MMDMarkers {
      * @see com.mcmoddev.mmdbot.commands.staff.CmdUnmute
      */
     public static final Marker MUTING = MarkerFactory.getMarker("Muting");
+
+    /**
+	 *
+	 */
+	private MMDMarkers() {
+       throw new IllegalStateException("Utility class");
+   }
 }

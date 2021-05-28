@@ -15,6 +15,8 @@ import java.util.Locale;
 
 /**
  *
+ * @author
+ *
  */
 public final class CmdGuild extends Command {
 
@@ -29,11 +31,13 @@ public final class CmdGuild extends Command {
     }
 
     /**
-     *
+     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override
     protected void execute(final CommandEvent event) {
-        if (!Utils.checkCommand(this, event)) return;
+        if (!Utils.checkCommand(this, event)) {
+            return;
+        }
         final Guild guild = event.getGuild();
         final EmbedBuilder embed = new EmbedBuilder();
         final TextChannel channel = event.getTextChannel();

@@ -25,6 +25,8 @@ import static com.mcmoddev.mmdbot.logging.MMDMarkers.REQUESTS;
 
 /**
  *
+ * @author
+ *
  */
 public final class EventUserLeft extends ListenerAdapter {
 
@@ -33,15 +35,16 @@ public final class EventUserLeft extends ListenerAdapter {
      */
     @Override
     public void onGuildMemberRemove(final GuildMemberRemoveEvent event) {
-        final User user = event.getUser();
-        final EmbedBuilder embed = new EmbedBuilder();
         final Guild guild = event.getGuild();
-        final long guildId = guild.getIdLong();
         final TextChannel channel = guild.getTextChannelById(getConfig().getChannel("events.basic"));
-        if (channel == null) return;
+        if (channel == null) {
+            return;
+        }
         final Member member = event.getMember();
 
+        final long guildId = guild.getIdLong();
         if (getConfig().getGuildID() == guildId) {
+            final User user = event.getUser();
             LOGGER.info(EVENTS, "User {} left the guild", user);
             List<Role> roles = null;
             if (member != null) {
@@ -56,6 +59,7 @@ public final class EventUserLeft extends ListenerAdapter {
 
             deleteRecentRequests(guild, user);
 
+            final EmbedBuilder embed = new EmbedBuilder();
             embed.setColor(Color.RED);
             embed.setTitle("User Left");
             embed.setThumbnail(user.getEffectiveAvatarUrl());
@@ -73,11 +77,16 @@ public final class EventUserLeft extends ListenerAdapter {
         }
     }
 
-    private void deleteRecentRequests(Guild guild, User leavingUser) {
-        TextChannel requestsChannel = guild.getTextChannelById(getConfig().getChannel("requests.main"));
-        int deletionTime = getConfig().getRequestLeaveDeletionTime();
+    /**
+     *
+     * @param guild
+     * @param leavingUser
+     */
+    private void deleteRecentRequests(final Guild guild, final User leavingUser) {
+    	final TextChannel requestsChannel = guild.getTextChannelById(getConfig().getChannel("requests.main"));
+        final int deletionTime = getConfig().getRequestLeaveDeletionTime();
         if (requestsChannel != null && deletionTime > 0) {
-            OffsetDateTime now = OffsetDateTime.now().minusHours(deletionTime);
+        	final OffsetDateTime now = OffsetDateTime.now().minusHours(deletionTime);
             requestsChannel.getIterableHistory()
                 .takeWhileAsync(message -> message.getTimeCreated().isAfter(now) && message.getAuthor().equals(leavingUser))
                 .thenAccept(messages ->

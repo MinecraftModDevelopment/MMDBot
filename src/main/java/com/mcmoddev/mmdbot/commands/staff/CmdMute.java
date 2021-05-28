@@ -9,14 +9,23 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
 
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.MUTING;
 
-public class CmdMute extends Command {
+/**
+ *
+ * @author
+ *
+ */
+public final class CmdMute extends Command {
 
+   /**
+    *
+    */
     public CmdMute() {
         super();
         name = "mute";
@@ -24,17 +33,24 @@ public class CmdMute extends Command {
         hidden = true;
     }
 
+    /**
+     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
+     */
     @Override
-    protected void execute(CommandEvent event) {
-        if (!Utils.checkCommand(this, event)) return;
+    protected void execute(final CommandEvent event) {
+        if (!Utils.checkCommand(this, event)) {
+            return;
+        }
         final Guild guild = event.getGuild();
-        final MessageChannel channel = event.getChannel();
+        final Member author = guild.getMember(event.getAuthor());
+        if (author == null) {
+            return;
+        }
         final String[] args = event.getArgs().split(" ");
-        final Member author = event.getGuild().getMember(event.getAuthor());
-        if (author == null) return;
         final Member member = Utils.getMemberFromString(args[0], event.getGuild());
         final long mutedRoleID = getConfig().getRole("muted");
         final Role mutedRole = guild.getRoleById(mutedRoleID);
+        final MessageChannel channel = event.getChannel();
 
         if (author.hasPermission(Permission.KICK_MEMBERS)) {
             if (member == null) {
@@ -53,7 +69,7 @@ public class CmdMute extends Command {
                 long time1;
                 try {
                     time1 = Long.parseLong(args[1]);
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException ex) {
                     time1 = -1;
                 }
                 time = time1;
@@ -64,8 +80,8 @@ public class CmdMute extends Command {
             if (args.length > 2) {
                 TimeUnit unit1;
                 try {
-                    unit1 = TimeUnit.valueOf(args[2].toUpperCase());
-                } catch (IllegalArgumentException e) {
+                    unit1 = TimeUnit.valueOf(args[2].toUpperCase(Locale.ROOT));
+                } catch (IllegalArgumentException ex) {
                     unit1 = TimeUnit.MINUTES;
                 }
                 unit = unit1;
@@ -81,7 +97,7 @@ public class CmdMute extends Command {
 
             final String timeString;
             if (time > 0) {
-                timeString = " " + time + " " + unit.toString().toLowerCase();
+                timeString = " " + time + " " + unit.toString().toLowerCase(Locale.ROOT);
             } else {
                 timeString = "ever";
             }
