@@ -59,7 +59,6 @@ public final class CmdOldChannels extends Command {
 
 		guild.getTextChannels().stream()
 			.distinct()
-			.filter(channel -> toCheck.contains(channel.getName()))
 			.filter(channelIsAllowedByList(toCheck))
 			.map(channel -> new ChannelData(channel, OldChannelsHelper.getLastMessageTime(channel)))
 			.forEach(channelData -> {
