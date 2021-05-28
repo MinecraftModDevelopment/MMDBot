@@ -79,6 +79,12 @@ public final class Tricks {
         write();
     }
 
+    public static void removeTrick(Trick trick) {
+        getTricks().remove(trick);
+        MMDBot.getCommandClient().removeCommand(trick.getNames().get(0));
+        write();
+    }
+
     private static void write() {
         final File userJoinTimesFile = new File(TRICK_STORAGE_PATH);
         List<Trick> tricks = getTricks();

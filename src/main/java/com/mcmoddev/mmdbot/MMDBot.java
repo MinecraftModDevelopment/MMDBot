@@ -25,6 +25,7 @@ import com.mcmoddev.mmdbot.commands.staff.CmdUnmute;
 import com.mcmoddev.mmdbot.commands.staff.CmdUser;
 import com.mcmoddev.mmdbot.commands.tricks.CmdAddTrick;
 import com.mcmoddev.mmdbot.commands.tricks.CmdListTricks;
+import com.mcmoddev.mmdbot.commands.tricks.CmdRemoveTrick;
 import com.mcmoddev.mmdbot.core.BotConfig;
 import com.mcmoddev.mmdbot.events.EventReactionAdded;
 import com.mcmoddev.mmdbot.events.MiscEvents;
@@ -171,6 +172,7 @@ public final class MMDBot {
                     .addCommand(new CmdUnmute())
                     .addCommand(new CmdAddTrick())
                     .addCommand(new CmdListTricks())
+                    .addCommand(new CmdRemoveTrick())
                     .addCommands(Tricks.createTrickCommands().toArray(new Command[0]))
                     .setHelpWord("help")
                     .build();
