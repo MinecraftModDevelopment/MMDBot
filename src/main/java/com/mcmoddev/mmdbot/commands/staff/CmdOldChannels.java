@@ -13,7 +13,9 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -52,7 +54,7 @@ public final class CmdOldChannels extends Command {
 
 		final int dayThreshold = args.size() > 0 && args.get(0).matches("-?\\d+") ? Integer.parseInt(args.remove(0)) : 60;
 
-		List<String> toCheck = new ArrayList<>(args);
+		List<String> toCheck = args.stream().map(it -> it.toLowerCase(Locale.ROOT)).collect(Collectors.toList());
 
 		embed.setTitle("Days since last message in channels:");
 		embed.setColor(Color.YELLOW);
@@ -74,8 +76,8 @@ public final class CmdOldChannels extends Command {
 
 	private Predicate<TextChannel> channelIsAllowedByList(List<String> list) {
 		return (channel) -> list.isEmpty() ||
-			(channel.getParent() != null && list.contains(channel.getParent().getName().replace(' ', '-')))
-			|| list.contains(channel.getName());
+			(channel.getParent() != null && list.contains(channel.getParent().getName().toLowerCase(Locale.ROOT).replace(' ', '-')))
+			|| list.contains(channel.getName().toLowerCase(Locale.ROOT));
 	}
 
 	private static class ChannelData {
