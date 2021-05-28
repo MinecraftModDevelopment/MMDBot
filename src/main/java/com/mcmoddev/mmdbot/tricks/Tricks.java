@@ -73,9 +73,10 @@ public final class Tricks {
         return trickTypes.get(name);
     }
 
-    public static void registerTrick(Trick trick) {
+    public static void addTrick(Trick trick) {
         getTricks().add(trick);
         MMDBot.getCommandClient().addCommand(new CmdRunTrick(trick));
+        write();
     }
 
     private static void write() {
@@ -91,6 +92,9 @@ public final class Tricks {
     }
 
     static {
+        Tricks.registerTrickType("string", new StringTrick.Type());
+        Tricks.registerTrickType("embed", new EmbedTrick.Type());
+
         GSON = new GsonBuilder()
             .registerTypeAdapterFactory(new TrickSerializer())
             .create();

@@ -57,7 +57,7 @@ public class EmbedTrick implements Trick {
         return fields;
     }
 
-    private static class Type implements TrickType<EmbedTrick> {
+    static class Type implements TrickType<EmbedTrick> {
         @Override
         public Class<EmbedTrick> getClazz() {
             return EmbedTrick.class;
@@ -77,10 +77,6 @@ public class EmbedTrick implements Trick {
                 argsArray[2],
                 Integer.parseInt(argsArray[3].replace("#", ""), 16)
             );
-        }
-
-        static {
-            Tricks.registerTrickType("embed", new Type());
         }
     }
 }

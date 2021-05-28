@@ -3,12 +3,8 @@ package com.mcmoddev.mmdbot.commands.tricks;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.core.Utils;
-import com.mcmoddev.mmdbot.tricks.Trick;
 import com.mcmoddev.mmdbot.tricks.Tricks;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
-
-import java.util.List;
 
 /**
  *
@@ -37,6 +33,6 @@ public final class CmdAddTrick extends Command {
         int firstSpace = args.indexOf(" ");
 
         //TODO: Permissions
-        Tricks.registerTrick(Tricks.getTrickType(args.substring(0, firstSpace)).createFromArgs(args.substring(firstSpace+1)));
+        Tricks.addTrick(Tricks.getTrickType(args.substring(0, firstSpace)).createFromArgs(args.substring(firstSpace+1)));
     }
 }

@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class StringTrick implements Trick {
@@ -31,7 +30,7 @@ public class StringTrick implements Trick {
         return body;
     }
 
-    private static class Type implements TrickType<StringTrick> {
+    static class Type implements TrickType<StringTrick> {
         @Override
         public Class<StringTrick> getClazz() {
             return StringTrick.class;
@@ -46,10 +45,6 @@ public class StringTrick implements Trick {
         public StringTrick createFromArgs(final String args) {
             String[] argsArray = args.split(" \\| ");
             return new StringTrick(Arrays.asList(argsArray[0].split(" ")), argsArray[1]);
-        }
-
-        static {
-            Tricks.registerTrickType("string", new Type());
         }
     }
 }
