@@ -7,8 +7,6 @@ import com.mcmoddev.mmdbot.tricks.Tricks;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-import java.util.Optional;
-
 /**
  *
  */
@@ -20,7 +18,7 @@ public final class CmdListTricks extends Command {
     public CmdListTricks() {
         super();
         name = "listtricks";
-        aliases = new String[]{"list-tricks"};
+        aliases = new String[]{"list-tricks", "tricks"};
         help = "Lists all tricks";
     }
 
@@ -36,7 +34,7 @@ public final class CmdListTricks extends Command {
             new EmbedBuilder()
                 .setDescription(Tricks.getTricks()
                     .stream()
-                    .map(it -> it.getNames().stream().reduce("", (a, b) -> a + " / " + b))
+                    .map(it -> it.getNames().stream().reduce("", (a, b) -> String.join(a, " ", b).trim()))
                     .reduce("", (a, b) -> a + "\n" + b)
                 )
                 .build()
