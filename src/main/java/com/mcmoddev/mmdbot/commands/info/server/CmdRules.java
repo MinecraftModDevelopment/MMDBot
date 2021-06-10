@@ -12,17 +12,19 @@ import java.time.Instant;
 
 /**
  *
+ * @author
+ *
  */
-public class CmdRules extends Command {
+public final class CmdRules extends Command {
 
     /**
      *
      */
     private static final String BODY =
-            "Please give <#" + MMDBot.getConfig().getChannel("info.rules") + "> a thorough read, "
-                    + "**including** the full text of the Code of Conduct, which is linked there. "
-                    + "Having everyone read and understand these rules and guidelines helps keep this server "
-                    + "functioning well as a space for collaboration and discussion. Thank you.";
+        "Please give <#" + MMDBot.getConfig().getChannel("info.rules") + "> a thorough read, "
+            + "**including** the full text of the Code of Conduct, which is linked there. "
+            + "Having everyone read and understand these rules and guidelines helps keep this server "
+            + "functioning well as a space for collaboration and discussion. Thank you.";
 
     /**
      *
@@ -34,11 +36,13 @@ public class CmdRules extends Command {
     }
 
     /**
-     *
+     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override
     protected void execute(final CommandEvent event) {
-        if (!Utils.checkCommand(this, event)) return;
+        if (!Utils.checkCommand(this, event)) {
+            return;
+        }
         final EmbedBuilder embed = new EmbedBuilder();
         final TextChannel channel = event.getTextChannel();
 

@@ -1,12 +1,29 @@
 package com.mcmoddev.mmdbot.updatenotifiers.forge;
 
-public class VersionMeta {
+/**
+ *
+ * @author
+ *
+ */
+public final class VersionMeta {
 
+	/**
+	 *
+	 */
     public String version;
+
+    /**
+     *
+     */
     public String state;
 
-    public VersionMeta(String version, String state) {
-        this.version = version;
-        this.state = state;
+    /**
+     *
+     * @param version
+     * @param state
+     */
+    public VersionMeta(final String versionIn, final String stateIn) {
+        this.version = versionIn;
+        this.state = stateIn;
     }
 }

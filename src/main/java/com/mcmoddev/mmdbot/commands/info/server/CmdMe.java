@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.entities.TextChannel;
 
 /**
  *
+ * @author
+ *
  */
 public final class CmdMe extends CmdUser {
 
@@ -22,11 +24,13 @@ public final class CmdMe extends CmdUser {
     }
 
     /**
-     *
+     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override
     protected void execute(final CommandEvent event) {
-        if (!Utils.checkCommand(this, event)) return;
+        if (!Utils.checkCommand(this, event)) {
+            return;
+        }
         final TextChannel channel = event.getTextChannel();
         final EmbedBuilder embed = createMemberEmbed(event.getMember());
         channel.sendMessage(embed.build()).queue();

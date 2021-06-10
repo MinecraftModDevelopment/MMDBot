@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.commands.fun;
+package com.mcmoddev.mmdbot.commands.info.server;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
@@ -13,8 +13,10 @@ import java.util.List;
 
 /**
  *
+ * @author
+ *
  */
-public class CmdToggleMcServerPings extends Command {
+public final class CmdToggleMcServerPings extends Command {
 
     /**
      *
@@ -22,26 +24,32 @@ public class CmdToggleMcServerPings extends Command {
     public CmdToggleMcServerPings() {
         super();
         name = "serverpings";
-        aliases = new String[]{"toggle-mc-server-pings", "mc-server-pings", "toggle-mc-server-announcements", "mc-server-announcements"};
+        aliases = new String[]{"server-pings", "mc-pings", "mcpings", "toggle-mc-pings", "togglemcpings",
+            "mc-server-pings", "mcserverpings"};
         help = "Add or remove the public server player role from your user.";
+        guildOnly = true;
     }
 
     /**
-     *
+     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override
     protected void execute(final CommandEvent event) {
-        if (!Utils.checkCommand(this, event)) return;
-        final TextChannel channel = event.getTextChannel();
-        final Guild guild = event.getGuild();
-        final Member member = event.getMember();
-        final Role role = guild.getRoleById(MMDBot.getConfig().getRole("pings.toggle-mc-server-pings"));
-
-        if (role == null) {
-            channel.sendMessage("The MMD Public Server Players role doesn't exist! The config is borked.").queue();
+        if (!Utils.checkCommand(this, event)) {
             return;
         }
 
+        final Guild guild = event.getGuild();
+        final TextChannel channel = event.getTextChannel();
+        //TODO get the per guild ID if enabled for the guild the command was run in.
+        final Role role = guild.getRoleById(MMDBot.getConfig().getRole("pings.toggle-mc-server-pings"));
+
+        if (role == null) {
+            channel.sendMessage("The Server Players role doesn't exist! The config may be broken.").queue();
+            return;
+        }
+
+        final Member member = event.getMember();
         final List<Role> roles = member.getRoles();
         boolean added;
         if (roles.contains(role)) {
@@ -51,6 +59,8 @@ public class CmdToggleMcServerPings extends Command {
             guild.addRoleToMember(member, role).queue();
             added = true;
         }
-        channel.sendMessageFormat("%s, you %s have the MMD Public Server Players role.", member.getAsMention(), added ? "now" : "no longer").queue();
+
+        channel.sendMessageFormat("%s, you %s have the MMD Public Server Players role.", member.getAsMention(),
+            added ? "now" : "no longer").queue();
     }
 }

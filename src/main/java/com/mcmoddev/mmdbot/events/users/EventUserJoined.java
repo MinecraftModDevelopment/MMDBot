@@ -23,6 +23,8 @@ import static com.mcmoddev.mmdbot.logging.MMDMarkers.EVENTS;
 
 /**
  *
+ * @author
+ *
  */
 public final class EventUserJoined extends ListenerAdapter {
 
@@ -31,34 +33,39 @@ public final class EventUserJoined extends ListenerAdapter {
      */
     @Override
     public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
-        final User user = event.getUser();
-        final EmbedBuilder embed = new EmbedBuilder();
         final Guild guild = event.getGuild();
-        final long guildId = guild.getIdLong();
         final TextChannel channel = guild.getTextChannelById(getConfig().getChannel("events.basic"));
-        if (channel == null) return;
+        if (channel == null) {
+            return;
+        }
+
+        final User user = event.getUser();
         final Member member = guild.getMember(user);
 
+        final long guildId = guild.getIdLong();
         if (getConfig().getGuildID() == guildId) {
             LOGGER.info(EVENTS, "User {} joined the guild", user);
             final List<Role> roles = Utils.getOldUserRoles(guild, user.getIdLong());
-            if (member != null) {
+            if (member != null && !roles.isEmpty()) {
                 LOGGER.info(EVENTS, "Giving old roles to user {}: {}", user, roles);
-                for (Role role : roles) {
+                EventRoleAdded.IGNORE_ONCE.putAll(user, roles);
+                for (final Role role : roles) {
                     try {
                         guild.addRoleToMember(member, role).queue();
-                    } catch (final HierarchyException e) {
-                        LOGGER.warn(EVENTS, "Unable to give member {} role {}: {}", member, role, e.getMessage());
+                    } catch (final HierarchyException ex) {
+                        LOGGER.warn(EVENTS, "Unable to give member {} role {}: {}", member, role, ex.getMessage());
                     }
                 }
             }
+            final EmbedBuilder embed = new EmbedBuilder();
             embed.setColor(Color.GREEN);
             embed.setTitle("User Joined");
             embed.setThumbnail(user.getEffectiveAvatarUrl());
             embed.addField("User:", user.getAsTag(), true);
-            embed.addField("User ID:", user.getId(), true);
-            //TODO Check if this works.
-            embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), true);
+            if (!roles.isEmpty()) {
+                embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), true);
+            }
+            embed.setFooter("User ID: " + user.getId());
             embed.setTimestamp(Instant.now());
 
             channel.sendMessage(embed.build()).queue();

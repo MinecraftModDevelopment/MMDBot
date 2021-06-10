@@ -22,6 +22,8 @@ import static com.mcmoddev.mmdbot.logging.MMDMarkers.EVENTS;
 
 /**
  *
+ * @author
+ *
  */
 public final class EventRoleRemoved extends ListenerAdapter {
 
@@ -30,13 +32,13 @@ public final class EventRoleRemoved extends ListenerAdapter {
      */
     @Override
     public void onGuildMemberRoleRemove(final GuildMemberRoleRemoveEvent event) {
-        final User target = event.getUser();
         final Guild guild = event.getGuild();
-        final long channelID = getConfig().getChannel("events.important");
 
-        if (getConfig().getGuildID() != guild.getIdLong())
+        if (getConfig().getGuildID() != guild.getIdLong()) {
             return; // Make sure that we don't post if it's not related to 'our' guild
+        }
 
+        final long channelID = getConfig().getChannel("events.important");
         Utils.getChannelIfPresent(channelID, channel ->
             guild.retrieveAuditLogs()
                 .type(ActionType.MEMBER_ROLE_UPDATE)
@@ -49,6 +51,7 @@ public final class EventRoleRemoved extends ListenerAdapter {
                     previousRoles.addAll(removedRoles); // Just if the member has already been updated
 
                     final EmbedBuilder embed = new EmbedBuilder();
+                    final User target = event.getUser();
 
                     embed.setColor(Color.YELLOW);
                     embed.setTitle("User Role(s) Removed");

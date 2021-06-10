@@ -94,6 +94,17 @@
 
 # Configuration for the requests bad reaction threshold
 [requests]
+    # Time in hours since request creation for a request of a user who left the server to be deleted
+    # For example, a value of 3 hours would mean any requests less than 3 hours old by a user who just
+    # left the server will be deleted
+    # A value of 0 will leave this functionality disabled
+    leave_deletion = 0
+
+    # Time in days for a request to be actionable through the request bad reactions systems
+    # Any request past this freshness duration (stale requests) will not trigger the warning or deletion threshold
+    # A value of 0 will leave this functionality disabled
+    freshness_duration = 0
+
     # Configuration of the reaction emotes
     [requests.emotes]
         # The snowflake IDs of the reaction emotes for bad requests
@@ -116,6 +127,18 @@
 
         # Threshold where the request is removed and the user is informed of its removal
         removal = 5
+
+# Configuration of community channels
+# This is used for the community channel creation command
+[community_channels]
+    # The snowflake ID (or alias) of the channel category where new community channels are created under
+    category = ""
+
+    # The default permissions of channel owners in their new community channels
+    # This can be either bitfield, or a list of strings of the names of permissions (see the Permission enum)
+    # Note: the bot can only assign permissions to channel owners if the bot has those permissions
+    # Example: ["Manage Messages", "MANAGE_PERMISSIONS"]
+    owner_permissions = []
 
 # Configuration for the bot commands
 [commands]

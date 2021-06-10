@@ -3,9 +3,6 @@ package com.mcmoddev.mmdbot;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
-import com.mcmoddev.mmdbot.commands.fun.CmdCatFacts;
-import com.mcmoddev.mmdbot.commands.fun.CmdToggleEventPings;
-import com.mcmoddev.mmdbot.commands.fun.CmdToggleMcServerPings;
 import com.mcmoddev.mmdbot.commands.info.CmdBuild;
 import com.mcmoddev.mmdbot.commands.info.CmdEventsHelp;
 import com.mcmoddev.mmdbot.commands.info.CmdFabricVersion;
@@ -15,11 +12,16 @@ import com.mcmoddev.mmdbot.commands.info.CmdMinecraftVersion;
 import com.mcmoddev.mmdbot.commands.info.CmdPaste;
 import com.mcmoddev.mmdbot.commands.info.CmdSearch;
 import com.mcmoddev.mmdbot.commands.info.CmdXy;
+import com.mcmoddev.mmdbot.commands.info.fun.CmdCatFacts;
+import com.mcmoddev.mmdbot.commands.info.fun.CmdGreatMoves;
 import com.mcmoddev.mmdbot.commands.info.server.CmdGuild;
 import com.mcmoddev.mmdbot.commands.info.server.CmdMe;
 import com.mcmoddev.mmdbot.commands.info.server.CmdReadme;
 import com.mcmoddev.mmdbot.commands.info.server.CmdRoles;
 import com.mcmoddev.mmdbot.commands.info.server.CmdRules;
+import com.mcmoddev.mmdbot.commands.info.server.CmdToggleEventPings;
+import com.mcmoddev.mmdbot.commands.info.server.CmdToggleMcServerPings;
+import com.mcmoddev.mmdbot.commands.staff.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.commands.staff.CmdMute;
 import com.mcmoddev.mmdbot.commands.staff.CmdUnmute;
 import com.mcmoddev.mmdbot.commands.staff.CmdUser;
@@ -53,6 +55,9 @@ import java.util.Set;
 
 /**
  * Our Main class.
+ *
+ * @author
+ *
  */
 public final class MMDBot {
 
@@ -89,18 +94,34 @@ public final class MMDBot {
      * Where needed for events being fired, errors and other misc stuff, log things to console using this.
      */
     public static final Logger LOGGER = LoggerFactory.getLogger(NAME);
-    private static final Set<GatewayIntent> intents = new HashSet<>();
+
+    /**
+     *
+     */
+    private static final Set<GatewayIntent> INTENTS = new HashSet<>();
+
+    /**
+     *
+     */
     private static BotConfig config;
-    private static JDA INSTANCE;
+
+    /**
+     *
+     */
+    private static JDA instance;
+
+    /**
+     *
+     */
     private static CommandClient commandClient;
 
     static {
-        intents.add(GatewayIntent.DIRECT_MESSAGES);
-        intents.add(GatewayIntent.GUILD_BANS);
-        intents.add(GatewayIntent.GUILD_EMOJIS);
-        intents.add(GatewayIntent.GUILD_MESSAGE_REACTIONS);
-        intents.add(GatewayIntent.GUILD_MESSAGES);
-        intents.add(GatewayIntent.GUILD_MEMBERS);
+        INTENTS.add(GatewayIntent.DIRECT_MESSAGES);
+        INTENTS.add(GatewayIntent.GUILD_BANS);
+        INTENTS.add(GatewayIntent.GUILD_EMOJIS);
+        INTENTS.add(GatewayIntent.GUILD_MESSAGE_REACTIONS);
+        INTENTS.add(GatewayIntent.GUILD_MESSAGES);
+        INTENTS.add(GatewayIntent.GUILD_MEMBERS);
     }
 
     /**
@@ -112,14 +133,18 @@ public final class MMDBot {
     /**
      * Returns the configuration of this bot.
      *
-     * @return The configuration of this bot
+     * @return The configuration of this bot.
      */
     public static BotConfig getConfig() {
         return config;
     }
 
+    /**
+     *
+     * @return
+     */
     public static JDA getInstance() {
-        return INSTANCE;
+        return instance;
     }
 
     public static CommandClient getCommandClient() {
@@ -170,6 +195,8 @@ public final class MMDBot {
                     .addCommand(new CmdFabricVersion())
                     .addCommand(new CmdMute())
                     .addCommand(new CmdUnmute())
+                    .addCommand(new CmdCommunityChannel())
+                    .addCommand(new CmdGreatMoves())
                     .addCommand(new CmdAddTrick())
                     .addCommand(new CmdListTricks())
                     .addCommand(new CmdRemoveTrick())
@@ -177,8 +204,8 @@ public final class MMDBot {
                     .setHelpWord("help")
                     .build();
 
-            INSTANCE = JDABuilder
-                    .create(config.getToken(), intents)
+            instance = JDABuilder
+                    .create(config.getToken(), INTENTS)
                     .disableCache(CacheFlag.VOICE_STATE)
                     .disableCache(CacheFlag.ACTIVITY)
                     .disableCache(CacheFlag.CLIENT_STATUS)

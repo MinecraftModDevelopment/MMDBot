@@ -13,6 +13,8 @@ import java.time.Instant;
 
 /**
  *
+ * @author
+ *
  */
 public final class CmdBuild extends Command {
 
@@ -27,11 +29,13 @@ public final class CmdBuild extends Command {
     }
 
     /**
-     *
+     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override
     protected void execute(final CommandEvent event) {
-        if (!Utils.checkCommand(this, event)) return;
+        if (!Utils.checkCommand(this, event)) {
+            return;
+        }
         final Guild guild = event.getGuild();
         final EmbedBuilder embed = new EmbedBuilder();
         final TextChannel channel = event.getTextChannel();
@@ -41,7 +45,7 @@ public final class CmdBuild extends Command {
         embed.setThumbnail(guild.getIconUrl());
         embed.addField("Version:", MMDBot.VERSION, true);
         embed.addField("Issue Tracker:", MMDBot.ISSUE_TRACKER, true);
-        embed.addField("Current maintainers:", "jriwanek, WillBL, ProxyNeko", true);
+        embed.addField("Current maintainers:", "jriwanek, WillBL, ProxyNeko, sciwhiz12", true);
         embed.setTimestamp(Instant.now());
         channel.sendMessage(embed.build()).queue();
     }

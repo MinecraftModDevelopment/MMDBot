@@ -1,5 +1,6 @@
 package com.mcmoddev.mmdbot.updatenotifiers.fabric;
 
+import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mcmoddev.mmdbot.MMDBot;
@@ -22,44 +23,109 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ *
+ * @author
+ *
+ */
 public final class FabricVersionHelper {
 
+    /**
+     *
+     */
     private static final String YARN_URL = "https://meta.fabricmc.net/v2/versions/yarn";
+
+    /**
+     *
+     */
     private static final String LOADER_URL = "https://meta.fabricmc.net/v2/versions/loader";
+
+    /**
+     *
+     */
     private static final String API_URL = "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/maven-metadata.xml";
 
-    private static final Map<String, String> latestYarns = new HashMap<>();
-    private static final Duration timeUntilOutdated = Duration.ofMinutes(20);
+    /**
+     *
+     */
+    private static final Map<String, String> LATEST_YARNS = new HashMap<>();
+
+    /**
+     *
+     */
+    private static final Duration TIME_UNTIL_OUTDATED = Duration.ofMinutes(20);
+
+    /**
+     *
+     */
     private static String latestLoader;
+
+    /**
+     *
+     */
     private static String latestApi;
+
+    /**
+     *
+     */
     private static Instant lastUpdated;
 
     static {
         update();
     }
 
-    public static String getLatestYarn(String mcVersion) {
-        if (latestYarns.isEmpty() || isOutdated())
+    /**
+	 *
+	 */
+   private FabricVersionHelper() {
+       throw new IllegalStateException("Utility class");
+   }
+
+    /**
+     *
+     * @param mcVersion
+     * @return
+     */
+    public static String getLatestYarn(final String mcVersion) {
+        if (LATEST_YARNS.isEmpty() || isOutdated()) {
             update();
-        return latestYarns.get(mcVersion);
+        }
+        return LATEST_YARNS.get(mcVersion);
     }
 
+    /**
+     *
+     * @return
+     */
     public static String getLatestLoader() {
-        if (latestLoader == null || isOutdated())
+        if (latestLoader == null || isOutdated()) {
             update();
+        }
         return latestLoader;
     }
 
+    /**
+     *
+     * @return
+     */
     public static String getLatestApi() {
-        if (latestApi == null || isOutdated())
+        if (latestApi == null || isOutdated()) {
             update();
+        }
         return latestApi;
     }
 
+    /**
+     *
+     * @return
+     */
     private static boolean isOutdated() {
-        return lastUpdated.plus(timeUntilOutdated).isBefore(Instant.now());
+        return lastUpdated.plus(TIME_UNTIL_OUTDATED).isBefore(Instant.now());
     }
 
+    /**
+     *
+     */
     public static void update() {
         updateYarn();
         updateLoader();
@@ -67,82 +133,158 @@ public final class FabricVersionHelper {
         lastUpdated = Instant.now();
     }
 
+    /**
+     *
+     */
     private static void updateYarn() {
-        InputStreamReader reader = getReader(YARN_URL);
-        if (reader == null)
+    	final InputStreamReader reader = getReader(YARN_URL);
+        if (reader == null) {
             return;
-        TypeToken<List<YarnVersionInfo>> token = new TypeToken<List<YarnVersionInfo>>() {
+        }
+        final TypeToken<List<YarnVersionInfo>> token = new TypeToken<List<YarnVersionInfo>>() {
         };
-        List<YarnVersionInfo> versions = new Gson().fromJson(reader, token.getType());
+        final List<YarnVersionInfo> versions = new Gson().fromJson(reader, token.getType());
 
-        latestYarns.clear();
-        Map<String, List<YarnVersionInfo>> map = versions.stream()
-                .distinct()
-                .collect(Collectors.groupingBy(it -> it.gameVersion));
-        map.keySet().forEach(it -> latestYarns.put(it, map.get(it).get(0).version));
+        LATEST_YARNS.clear();
+        final Map<String, List<YarnVersionInfo>> map = versions.stream()
+            .distinct()
+            .collect(Collectors.groupingBy(it -> it.gameVersion));
+        map.keySet().forEach(it -> LATEST_YARNS.put(it, map.get(it).get(0).version));
     }
 
+    /**
+     *
+     */
     private static void updateLoader() {
-        InputStreamReader reader = getReader(LOADER_URL);
-        if (reader == null)
+    	final InputStreamReader reader = getReader(LOADER_URL);
+        if (reader == null) {
             return;
-        TypeToken<List<LoaderVersionInfo>> token = new TypeToken<List<LoaderVersionInfo>>() {
+        }
+        final TypeToken<List<LoaderVersionInfo>> token = new TypeToken<List<LoaderVersionInfo>>() {
         };
-        List<LoaderVersionInfo> versions = new Gson().fromJson(reader, token.getType());
+        final List<LoaderVersionInfo> versions = new Gson().fromJson(reader, token.getType());
 
         latestLoader = versions.get(0).version;
     }
 
+    /**
+     *
+     */
     private static void updateApi() {
-        InputStream stream = getStream(API_URL);
-        if (stream == null)
+    	final InputStream stream = getStream(API_URL);
+        if (stream == null) {
             return;
+        }
         try {
-            Document doc = DocumentBuilderFactory.newInstance()
-                    .newDocumentBuilder()
-                    .parse(stream);
-            XPathExpression expr = XPathFactory.newInstance()
-                    .newXPath()
-                    .compile("/metadata/versioning/latest/text()");
+        	final Document doc = DocumentBuilderFactory.newInstance()
+                .newDocumentBuilder()
+                .parse(stream);
+        	final XPathExpression expr = XPathFactory.newInstance()
+                .newXPath()
+                .compile("/metadata/versioning/latest/text()");
             latestApi = expr.evaluate(doc);
-        } catch (SAXException | XPathExpressionException | ParserConfigurationException | IOException e) {
-            MMDBot.LOGGER.error("Failed to resolve latest loader version", e);
+        } catch (SAXException | XPathExpressionException | ParserConfigurationException | IOException ex) {
+            MMDBot.LOGGER.error("Failed to resolve latest loader version", ex);
         }
     }
 
-    private static InputStreamReader getReader(String urlString) {
-        InputStream stream = getStream(urlString);
+    /**
+     *
+     * @param urlString
+     * @return
+     */
+    private static InputStreamReader getReader(final String urlString) {
+    	final InputStream stream = getStream(urlString);
         if (stream == null) {
             return null;
         } else {
-            return new InputStreamReader(stream);
+            return new InputStreamReader(stream, Charsets.UTF_8);
         }
     }
 
-    private static InputStream getStream(String urlString) {
+    /**
+     *
+     * @param urlString
+     * @return
+     */
+    private static InputStream getStream(final String urlString) {
         try {
-            URL url = new URL(urlString);
+        	final URL url = new URL(urlString);
             return url.openStream();
-        } catch (IOException e) {
-            MMDBot.LOGGER.error("Failed to get minecraft version", e);
+        } catch (IOException ex) {
+            MMDBot.LOGGER.error("Failed to get minecraft version", ex);
             return null;
         }
     }
 
+    /**
+     *
+     * @author
+     *
+     */
     private static class YarnVersionInfo {
+
+    	/**
+    	 *
+    	 */
         public String gameVersion;
+
+        /**
+         *
+         */
         public String separator;
+
+        /**
+         *
+         */
         public int build;
+
+        /**
+         *
+         */
         public String maven;
+
+        /**
+         *
+         */
         public String version;
+
+        /**
+         *
+         */
         public boolean stable;
     }
 
+    /**
+     *
+     * @author
+     *
+     */
     private static class LoaderVersionInfo {
+
+    	/**
+    	 *
+    	 */
         public String separator;
+
+        /**
+         *
+         */
         public int build;
+
+        /**
+         *
+         */
         public String maven;
+
+        /**
+         *
+         */
         public String version;
+
+        /**
+         *
+         */
         public boolean stable;
     }
 }
