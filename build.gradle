@@ -12,7 +12,11 @@ mainClassName = 'com.mcmoddev.mmdbot.MMDBot'
 group 'com.mcmoddev'
 version project.bot_version
 
-sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
+java.toolchain.languageVersion = JavaLanguageVersion.of(11)
+
+compileJava {
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
+}
 
 repositories {
     jcenter()
