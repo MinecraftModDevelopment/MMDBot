@@ -18,8 +18,8 @@ public final class MinecraftForgeVersion {
 
     /**
      *
-     * @param mcVersion
-     * @param forgeVersion
+     * @param mcVersionIn
+     * @param forgeVersionIn
      */
     public MinecraftForgeVersion(final String mcVersionIn, final ForgeVersion forgeVersionIn) {
         this.mcVersion = mcVersionIn;

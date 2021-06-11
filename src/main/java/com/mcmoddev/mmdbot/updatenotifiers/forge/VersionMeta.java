@@ -19,8 +19,8 @@ public final class VersionMeta {
 
     /**
      *
-     * @param version
-     * @param state
+     * @param versionIn
+     * @param stateIn
      */
     public VersionMeta(final String versionIn, final String stateIn) {
         this.version = versionIn;

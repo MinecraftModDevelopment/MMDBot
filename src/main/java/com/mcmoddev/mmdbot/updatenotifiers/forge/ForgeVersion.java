@@ -45,7 +45,7 @@ public final class ForgeVersion {
 
     /**
      *
-     * @param recommended
+     * @param recommendedIn
      */
     public void setRecommended(final String recommendedIn) {
         this.recommended = recommendedIn;
