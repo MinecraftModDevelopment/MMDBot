@@ -35,7 +35,7 @@ public final class CmdCatFacts extends Command {
 
     /**
      *
-     * @return
+     * @return String.
      */
     public static String getFact() {
         try {
@@ -49,7 +49,7 @@ public final class CmdCatFacts extends Command {
             final JsonObject objectArray = JsonParser.parseString(inputLine).getAsJsonObject();
             return ":cat:  " + objectArray.get("fact").toString();
 
-        } catch(final RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             throw ex;
         } catch (final Exception ex) {
             MMDBot.LOGGER.error("Error getting cat fact...", ex);

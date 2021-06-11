@@ -84,7 +84,7 @@ public final class FabricVersionHelper {
     /**
      *
      * @param mcVersion
-     * @return
+     * @return String.
      */
     public static String getLatestYarn(final String mcVersion) {
         if (LATEST_YARNS.isEmpty() || isOutdated()) {
@@ -95,7 +95,7 @@ public final class FabricVersionHelper {
 
     /**
      *
-     * @return
+     * @return String.
      */
     public static String getLatestLoader() {
         if (latestLoader == null || isOutdated()) {
@@ -106,7 +106,7 @@ public final class FabricVersionHelper {
 
     /**
      *
-     * @return
+     * @return String.
      */
     public static String getLatestApi() {
         if (latestApi == null || isOutdated()) {

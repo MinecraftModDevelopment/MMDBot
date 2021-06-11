@@ -374,7 +374,7 @@ public final class BotConfig {
 
     /**
      *
-     * @return
+     * @return EnumSet.
      */
     @SuppressWarnings("unchecked")
     public EnumSet<Permission> getCommunityChannelOwnerPermissions() {

@@ -131,7 +131,7 @@ public final class MMDBot {
 
     /**
      *
-     * @return
+     * @return JDA.
      */
     public static JDA getInstance() {
         return instance;

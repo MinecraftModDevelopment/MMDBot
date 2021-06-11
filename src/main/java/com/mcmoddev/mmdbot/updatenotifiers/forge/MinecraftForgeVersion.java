@@ -28,7 +28,7 @@ public final class MinecraftForgeVersion {
 
     /**
      *
-     * @return
+     * @return ForgeVersion.
      */
     public ForgeVersion getForgeVersion() {
         return forgeVersion;
@@ -36,7 +36,7 @@ public final class MinecraftForgeVersion {
 
     /**
      *
-     * @return
+     * @return String.
      */
     public String getMcVersion() {
         return mcVersion;

@@ -47,7 +47,7 @@ public final class MinecraftVersionHelper {
 
    /**
      *
-     * @return
+     * @return String.
      */
     public static String getLatest() {
         if (latest == null) {
@@ -58,7 +58,7 @@ public final class MinecraftVersionHelper {
 
     /**
      *
-     * @return
+     * @return String.
      */
     public static String getLatestStable() {
         if (latestStable == null) {

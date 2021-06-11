@@ -91,7 +91,7 @@ public final class Utils {
      * The Bot Base repo and code is now deleted if you need it for reference Proxy has a copy. Dark may also have one.
      *
      * @param instant
-     * @return
+     * @return LocalDateTime.
      */
     public static LocalDateTime getLocalTime(final Instant instant) {
         return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
@@ -209,7 +209,7 @@ public final class Utils {
     }
 
     /**
-     * @return
+     * @return Map.
      */
     @Nonnull
     public static Map<String, List<String>> getUserToRoleMap() {
@@ -250,7 +250,7 @@ public final class Utils {
     }
 
     /**
-     * @return
+     * @return Map.
      */
     @Nonnull
     public static Map<String, Instant> getUserJoinTimeMap() {

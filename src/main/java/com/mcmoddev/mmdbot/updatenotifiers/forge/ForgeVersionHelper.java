@@ -48,7 +48,7 @@ public final class ForgeVersionHelper {
     /**
      *
      * @param versions
-     * @return
+     * @return String.
      */
     public static String getLatestVersion(final List<String> versions) {
         SemVer latest = new SemVer(versions.get(0));
@@ -66,7 +66,7 @@ public final class ForgeVersionHelper {
     /**
      *
      * @param mcVersion
-     * @return
+     * @return ForgeVersion.
      * @throws IOException
      * @throws ClassCastException
      * @throws NullPointerException
@@ -77,7 +77,7 @@ public final class ForgeVersionHelper {
 
     /**
      *
-     * @return
+     * @return MinecraftForgeVersion.
      * @throws IOException
      * @throws JsonSyntaxException
      * @throws JsonIOException
@@ -103,7 +103,7 @@ public final class ForgeVersionHelper {
 
     /**
      *
-     * @return
+     * @return Map.
      * @throws IOException
      * @throws JsonSyntaxException
      * @throws JsonIOException
@@ -151,13 +151,13 @@ public final class ForgeVersionHelper {
     /**
      *
      * @param version
-     * @return
+     * @return VersionMeta.
      */
     public static VersionMeta getMCVersion(final String version) {
-    	final Matcher m = VERSION_REGEX.matcher(version);
+    	final Matcher matcher = VERSION_REGEX.matcher(version);
 
-        if (m.find()) {
-            return new VersionMeta(m.group(1), m.group(2));
+        if (matcher.find()) {
+            return new VersionMeta(matcher.group(1), matcher.group(2));
         } else {
             return null;
         }
