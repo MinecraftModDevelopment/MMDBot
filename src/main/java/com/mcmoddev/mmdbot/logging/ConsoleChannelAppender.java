@@ -5,10 +5,7 @@ import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.Layout;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.BotConfig;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.Collections;
 
@@ -58,18 +55,18 @@ public class ConsoleChannelAppender extends AppenderBase<ILoggingEvent> {
      */
     @Override
     protected void append(final ILoggingEvent event) {
-        final JDA jda = MMDBot.getInstance();
+        final var jda = MMDBot.getInstance();
         final BotConfig config = MMDBot.getConfig();
         if (jda != null && config != null) {
-            final Guild guild = jda.getGuildById(config.getGuildID());
+            final var guild = jda.getGuildById(config.getGuildID());
             if (guild == null) {
                 return;
             }
-            final TextChannel channel = guild.getTextChannelById(config.getChannel("console"));
+            final var channel = guild.getTextChannelById(config.getChannel("console"));
             if (channel == null) {
                 return;
             }
-            final MessageBuilder builder = new MessageBuilder();
+            final var builder = new MessageBuilder();
             builder.append(layout != null ? layout.doLayout(event) : event.getFormattedMessage());
             if (!allowMentions) {
                 builder.setAllowedMentions(Collections.emptyList());

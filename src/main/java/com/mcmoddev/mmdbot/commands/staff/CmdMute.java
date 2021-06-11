@@ -4,10 +4,7 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.Role;
 
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -41,15 +38,15 @@ public final class CmdMute extends Command {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
-        final Guild guild = event.getGuild();
-        final Member author = guild.getMember(event.getAuthor());
+        final var guild = event.getGuild();
+        final var author = guild.getMember(event.getAuthor());
         if (author == null) {
             return;
         }
         final String[] args = event.getArgs().split(" ");
-        final Member member = Utils.getMemberFromString(args[0], event.getGuild());
+        final var member = Utils.getMemberFromString(args[0], event.getGuild());
         final long mutedRoleID = getConfig().getRole("muted");
-        final Role mutedRole = guild.getRoleById(mutedRoleID);
+        final var mutedRole = guild.getRoleById(mutedRoleID);
         final MessageChannel channel = event.getChannel();
 
         if (author.hasPermission(Permission.KICK_MEMBERS)) {

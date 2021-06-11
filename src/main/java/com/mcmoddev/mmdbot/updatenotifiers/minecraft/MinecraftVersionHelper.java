@@ -1,6 +1,5 @@
 package com.mcmoddev.mmdbot.updatenotifiers.minecraft;
 
-import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mcmoddev.mmdbot.MMDBot;
@@ -8,6 +7,7 @@ import com.mcmoddev.mmdbot.MMDBot;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -86,12 +86,12 @@ public final class MinecraftVersionHelper {
 
     /**
      *
-     * @return
+     * @return InputStreamReader.
      */
     private static InputStreamReader openUrl() {
         try {
-            final URL url = new URL(API_URL);
-            return new InputStreamReader(url.openStream(), Charsets.UTF_8);
+            final var url = new URL(API_URL);
+            return new InputStreamReader(url.openStream(), StandardCharsets.UTF_8);
         } catch (IOException ex) {
             MMDBot.LOGGER.error("Failed to get minecraft version", ex);
             return null;

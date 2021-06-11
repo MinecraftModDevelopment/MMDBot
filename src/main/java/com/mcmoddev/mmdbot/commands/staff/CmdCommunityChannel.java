@@ -8,9 +8,7 @@ import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Emote;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
-import net.dv8tion.jda.api.entities.Member;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -51,8 +49,8 @@ public final class CmdCommunityChannel extends Command {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
-        final Guild guild = event.getGuild();
-        final Member author = guild.getMember(event.getAuthor());
+        final var guild = event.getGuild();
+        final var author = guild.getMember(event.getAuthor());
         if (author == null) {
             return;
         }
@@ -63,14 +61,14 @@ public final class CmdCommunityChannel extends Command {
         }
 
         final String[] args = event.getArgs().split(" ");
-        final Member newOwner = Utils.getMemberFromString(args[0], event.getGuild());
+        final var newOwner = Utils.getMemberFromString(args[0], event.getGuild());
         if (newOwner == null) {
             event.reply("Invalid user!");
             return;
         }
 
         final long categoryID = MMDBot.getConfig().getCommunityChannelCategory();
-        final net.dv8tion.jda.api.entities.Category category = guild.getCategoryById(categoryID);
+        final var category = guild.getCategoryById(categoryID);
         if (categoryID == 0 || category == null) {
             MMDBot.LOGGER.warn("Community channel category is incorrectly configured");
             event.reply("Community channel category is incorrectly configured. Please contact the bot maintainers.");

@@ -42,7 +42,7 @@ public final class FabricApiUpdateNotifier extends TimerTask {
             lastLatest = latest;
 
             Utils.getChannelIfPresent(channelId, channel -> {
-                final EmbedBuilder embed = new EmbedBuilder();
+                final var embed = new EmbedBuilder();
                 embed.setTitle("New Fabric API release available!");
                 embed.setDescription(latest);
                 embed.setColor(Color.WHITE);

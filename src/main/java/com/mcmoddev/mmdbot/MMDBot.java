@@ -40,7 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -141,7 +140,7 @@ public final class MMDBot {
      * @param args Arguments provided to the program.
      */
     public static void main(final String[] args) {
-        final Path configPath = Paths.get("mmdbot_config.toml");
+        final var configPath = Paths.get("mmdbot_config.toml");
         config = new BotConfig(configPath);
         if (config.isNewlyGenerated()) {
             LOGGER.warn("A new config file at {} has been generated. Please configure the bot and try again.", configPath);

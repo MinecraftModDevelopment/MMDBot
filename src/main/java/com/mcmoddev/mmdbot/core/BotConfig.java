@@ -407,7 +407,7 @@ public final class BotConfig {
     /**
      *
      * @param path
-     * @return
+     * @return List.
      */
     private Optional<List<Long>> getSnowflakeList(final String path) {
         return config.<List<String>>getOptional(path)
@@ -421,9 +421,8 @@ public final class BotConfig {
      *
      * @param path
      * @param aliases
-     * @return
+     * @return List.
      */
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private Optional<List<Long>> getAliasedSnowflakeList(final String path, final Optional<UnmodifiableConfig> aliases) {
         return config.<List<String>>getOptional(path)
             .filter(list -> !list.isEmpty())
@@ -438,9 +437,8 @@ public final class BotConfig {
      *
      * @param key
      * @param aliases
-     * @return
+     * @return String.
      */
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private String getAliased(final String key, final Optional<UnmodifiableConfig> aliases) {
         return config.<String>getOptional(key)
             .map(str -> aliases.flatMap(cfg -> cfg.<String>getOptional(str)).orElse(str))

@@ -5,7 +5,6 @@ import com.google.common.collect.Multimap;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.audit.ActionType;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
@@ -44,7 +43,7 @@ public final class EventRoleAdded extends ListenerAdapter {
      */
     @Override
     public void onGuildMemberRoleAdd(final GuildMemberRoleAddEvent event) {
-        final Guild guild = event.getGuild();
+        final var guild = event.getGuild();
 
         if (getConfig().getGuildID() != guild.getIdLong()) {
             return; // Make sure that we don't post if it's not related to 'our' guild
@@ -54,11 +53,11 @@ public final class EventRoleAdded extends ListenerAdapter {
         final List<Role> addedRoles = new ArrayList<>(event.getRoles());
         previousRoles.removeAll(addedRoles); // Just if the member has already been updated
 
-        final User target = event.getUser();
+        final var target = event.getUser();
         if (IGNORE_ONCE.containsKey(target)) { // Check for ignored roles
             final Iterator<Role> ignoredRoles = IGNORE_ONCE.get(target).iterator();
             while (ignoredRoles.hasNext()) {
-                final Role ignored = ignoredRoles.next();
+                final var ignored = ignoredRoles.next();
                 if (addedRoles.contains(ignored)) { // Remove ignored roles from event listing and ignore map
                     LOGGER.info(EVENTS, "Role {} for {} was in role ignore map, removing from map and ignoring", ignored, target);
                     addedRoles.remove(ignored);
@@ -78,7 +77,7 @@ public final class EventRoleAdded extends ListenerAdapter {
                 .cache(false)
                 .map(list -> list.get(0))
                 .flatMap(entry -> {
-                    final EmbedBuilder embed = new EmbedBuilder();
+                    final var embed = new EmbedBuilder();
 
                     embed.setColor(Color.YELLOW);
                     embed.setTitle("User Role(s) Added");
@@ -87,7 +86,7 @@ public final class EventRoleAdded extends ListenerAdapter {
                     if (entry.getTargetIdLong() != target.getIdLong()) {
                         LOGGER.warn(EVENTS, "Inconsistency between target of retrieved audit log entry and actual role event target: retrieved is {}, but target is {}", target, entry.getUser());
                     } else if (entry.getUser() != null) {
-                        final User editor = entry.getUser();
+                        final var editor = entry.getUser();
                         embed.addField("Editor:", editor.getAsMention() + " (" + editor.getId() + ")", true);
                     }
                     embed.addField("Previous Role(s):", previousRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining(" ")), false);
