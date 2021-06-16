@@ -3,10 +3,8 @@ package com.mcmoddev.mmdbot.events.users;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.audit.ActionType;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -22,6 +20,8 @@ import static com.mcmoddev.mmdbot.logging.MMDMarkers.EVENTS;
 
 /**
  *
+ * @author
+ *
  */
 public final class EventRoleRemoved extends ListenerAdapter {
 
@@ -30,13 +30,13 @@ public final class EventRoleRemoved extends ListenerAdapter {
      */
     @Override
     public void onGuildMemberRoleRemove(final GuildMemberRoleRemoveEvent event) {
-        final User target = event.getUser();
-        final Guild guild = event.getGuild();
-        final long channelID = getConfig().getChannel("events.important");
+        final var guild = event.getGuild();
 
-        if (getConfig().getGuildID() != guild.getIdLong())
+        if (getConfig().getGuildID() != guild.getIdLong()) {
             return; // Make sure that we don't post if it's not related to 'our' guild
+        }
 
+        final long channelID = getConfig().getChannel("events.important");
         Utils.getChannelIfPresent(channelID, channel ->
             guild.retrieveAuditLogs()
                 .type(ActionType.MEMBER_ROLE_UPDATE)
@@ -48,7 +48,8 @@ public final class EventRoleRemoved extends ListenerAdapter {
                     final List<Role> removedRoles = new ArrayList<>(event.getRoles());
                     previousRoles.addAll(removedRoles); // Just if the member has already been updated
 
-                    final EmbedBuilder embed = new EmbedBuilder();
+                    final var embed = new EmbedBuilder();
+                    final var target = event.getUser();
 
                     embed.setColor(Color.YELLOW);
                     embed.setTitle("User Role(s) Removed");
@@ -57,7 +58,7 @@ public final class EventRoleRemoved extends ListenerAdapter {
                     if (entry.getTargetIdLong() != target.getIdLong()) {
                         LOGGER.warn(EVENTS, "Inconsistency between target of retrieved audit log entry and actual role event target: retrieved is {}, but target is {}", target, entry.getUser());
                     } else if (entry.getUser() != null) {
-                        final User editor = entry.getUser();
+                        final var editor = entry.getUser();
                         embed.addField("Editor:", editor.getAsMention() + " (" + editor.getId() + ")", true);
                     }
                     embed.addField("Previous Role(s):", previousRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining(" ")), false);

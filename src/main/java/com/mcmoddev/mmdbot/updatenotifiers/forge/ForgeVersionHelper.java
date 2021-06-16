@@ -1,28 +1,59 @@
 package com.mcmoddev.mmdbot.updatenotifiers.forge;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ForgeVersionHelper {
+/**
+ *
+ * @author
+ *
+ */
+public final class ForgeVersionHelper {
 
-    private static final String VERSION_URL = "https://files.minecraftforge.net/maven/net/minecraftforge/forge/promotions_slim.json";
+    /**
+     *
+     */
+    private static final String VERSION_URL = "https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json";
+
+    /**
+     *
+     */
     private static final Pattern VERSION_REGEX = Pattern.compile("(.+?)-(.+)");
 
-    private static final Gson gson = new Gson();
+    /**
+     *
+     */
+    private static final Gson GSON = new Gson();
 
-    public static String getLatestVersion(List<String> versions) {
-        SemVer latest = new SemVer(versions.get(0));
 
-        for (String version : versions) {
-            SemVer ver = new SemVer(version);
+	/**
+	 *
+	 */
+    private ForgeVersionHelper() {
+        throw new IllegalStateException("Utility class");
+    }
+
+    /**
+     *
+     * @param versions
+     * @return String.
+     */
+    public static String getLatestVersion(final List<String> versions) {
+        var latest = new SemVer(versions.get(0));
+
+        for (final String version : versions) {
+            final var ver = new SemVer(version);
             if (latest.compareTo(ver) < 0) {
                 latest = ver;
             }
@@ -31,68 +62,101 @@ public class ForgeVersionHelper {
         return latest.toString();
     }
 
-    public static ForgeVersion getForgeVersionsForMcVersion(String mcVersion) throws Exception {
+    /**
+     *
+     * @param mcVersion
+     * @return ForgeVersion.
+     * @throws IOException
+     * @throws ClassCastException
+     * @throws NullPointerException
+     */
+    public static ForgeVersion getForgeVersionsForMcVersion(final String mcVersion) throws IOException, ClassCastException, NullPointerException {
         return getForgeVersions().get(mcVersion);
     }
 
-    public static MinecraftForgeVersion getLatestMcVersionForgeVersions() throws Exception {
-        Map<String, ForgeVersion> versions = getForgeVersions();
+    /**
+     *
+     * @return MinecraftForgeVersion.
+     * @throws IOException
+     * @throws JsonSyntaxException
+     * @throws JsonIOException
+     */
+    public static MinecraftForgeVersion getLatestMcVersionForgeVersions() throws IOException, JsonSyntaxException, JsonIOException {
+        final Map<String, ForgeVersion> versions = getForgeVersions();
 
-        String latest = getLatestVersion(new ArrayList<>(versions.keySet()));
+        final String latest = getLatestVersion(new ArrayList<>(versions.keySet()));
 
         return new MinecraftForgeVersion(latest, versions.get(latest));
     }
 
-    private static InputStreamReader openUrl() throws Exception {
-        URL urlObj = new URL(VERSION_URL);
+    /**
+     *
+     * @return InputStreamReader.
+     * @throws IOException
+     */
+    private static InputStreamReader openUrl() throws IOException {
+        final var urlObj = new URL(VERSION_URL);
 
-        return new InputStreamReader(urlObj.openStream());
+        return new InputStreamReader(urlObj.openStream(), StandardCharsets.UTF_8);
     }
 
-    public static Map<String, ForgeVersion> getForgeVersions() throws Exception {
-        InputStreamReader reader = openUrl();
+    /**
+     *
+     * @return Map.
+     * @throws IOException
+     * @throws JsonSyntaxException
+     * @throws JsonIOException
+     */
+    public static Map<String, ForgeVersion> getForgeVersions() throws IOException, JsonSyntaxException, JsonIOException {
+    	final InputStreamReader reader = openUrl();
 
-        ForgePromoData data = gson.fromJson(reader, ForgePromoData.class);
+    	final ForgePromoData data = GSON.fromJson(reader, ForgePromoData.class);
 
-        // Remove broken entries from the API
-        data.promos.remove("1.7.10-latest-1.7.10");
-        data.promos.remove("latest-1.7.10");
+        // Remove this specific entry (differs from others with having the `_pre4` version)
+        data.promos.remove("1.7.10_pre4-latest");
 
         // Collect version data
-        Map<String, ForgeVersion> versions = new HashMap<>();
+        final Map<String, ForgeVersion> versions = new HashMap<>();
 
-        for (Map.Entry<String, String> entry : data.promos.entrySet()) {
-            String mc = entry.getKey();
-            String forge = entry.getValue();
+        for (final Map.Entry<String, String> entry : data.promos.entrySet()) {
+        	final String mc = entry.getKey();
+        	final String forge = entry.getValue();
 
-            VersionMeta meta = getMCVersion(mc);
+        	final VersionMeta meta = getMCVersion(mc);
 
-            if (versions.containsKey(meta.version)) {
-                ForgeVersion version = versions.get(meta.version);
-                if (meta.state.equals("recommended")) {
-                    version.setRecommended(forge);
+        	if (meta != null) {
+                if (versions.containsKey(meta.version)) {
+                    final ForgeVersion version = versions.get(meta.version);
+                    if (meta.state.equals("recommended")) {
+                        version.setRecommended(forge);
+                    } else {
+                        version.setLatest(forge);
+                    }
                 } else {
-                    version.setLatest(forge);
+                    final var version = new ForgeVersion();
+                    if (meta.state.equals("recommended")) {
+                        version.setRecommended(forge);
+                    } else {
+                        version.setLatest(forge);
+                    }
+                    versions.put(meta.version, version);
                 }
-            } else {
-                ForgeVersion version = new ForgeVersion();
-                if (meta.state.equals("recommended")) {
-                    version.setRecommended(forge);
-                } else {
-                    version.setLatest(forge);
-                }
-                versions.put(meta.version, version);
             }
         }
 
         return versions;
     }
 
-    public static VersionMeta getMCVersion(String version) {
-        Matcher m = VERSION_REGEX.matcher(version);
+    /**
+     *
+     * @param version
+     * @return VersionMeta.
+     */
+    public static VersionMeta getMCVersion(final String version) {
+    	final var matcher = VERSION_REGEX.matcher(version);
 
-        if (m.find()) {
-            return new VersionMeta(m.group(1), m.group(2));
+        if (matcher.find()) {
+            return new VersionMeta(matcher.group(1), matcher.group(2));
         } else {
             return null;
         }

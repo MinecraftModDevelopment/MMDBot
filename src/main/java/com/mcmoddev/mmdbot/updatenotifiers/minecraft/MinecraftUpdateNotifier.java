@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.updatenotifiers.game;
+package com.mcmoddev.mmdbot.updatenotifiers.minecraft;
 
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -11,29 +11,47 @@ import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.NOTIFIER_MC;
 
-public class MinecraftUpdateNotifier extends TimerTask {
+/**
+ *
+ * @author
+ *
+ */
+public final class MinecraftUpdateNotifier extends TimerTask {
 
+	/**
+	 *
+	 */
     private String lastLatest;
+
+    /**
+     *
+     */
     private String lastLatestStable;
 
+    /**
+     *
+     */
     public MinecraftUpdateNotifier() {
         lastLatest = MinecraftVersionHelper.getLatest();
         lastLatestStable = MinecraftVersionHelper.getLatestStable();
     }
 
+    /**
+     *
+     */
     @Override
     public void run() {
         LOGGER.debug(NOTIFIER_MC, "Checking for new Minecraft versions...");
         MinecraftVersionHelper.update();
-        String latest = MinecraftVersionHelper.getLatest();
-        String latestStable = MinecraftVersionHelper.getLatestStable();
+        final String latest = MinecraftVersionHelper.getLatest();
+        final String latestStable = MinecraftVersionHelper.getLatestStable();
         final long channelId = getConfig().getChannel("notifications.minecraft");
 
         if (!lastLatestStable.equals(latestStable)) {
             LOGGER.info(NOTIFIER_MC, "New Minecraft release found, from {} to {}", lastLatest, latest);
 
             Utils.getChannelIfPresent(channelId, channel -> {
-                final EmbedBuilder embed = new EmbedBuilder();
+                final var embed = new EmbedBuilder();
                 embed.setTitle("New Minecraft release available!");
                 embed.setDescription(latest);
                 embed.setColor(Color.GREEN);
@@ -44,7 +62,7 @@ public class MinecraftUpdateNotifier extends TimerTask {
             LOGGER.info(NOTIFIER_MC, "New Minecraft snapshot found, from {} to {}", lastLatest, latest);
 
             Utils.getChannelIfPresent(channelId, channel -> {
-                final EmbedBuilder embed = new EmbedBuilder();
+                final var embed = new EmbedBuilder();
                 embed.setTitle("New Minecraft snapshot available!");
                 embed.setDescription(latest);
                 embed.setColor(Color.ORANGE);

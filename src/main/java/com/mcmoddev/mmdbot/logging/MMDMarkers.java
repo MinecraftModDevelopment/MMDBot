@@ -5,8 +5,12 @@ import org.slf4j.MarkerFactory;
 
 /**
  * Class for holding the {@link Marker}s used for logging.
+ *
+ * @author
+ *
  */
-public class MMDMarkers {
+public final class MMDMarkers {
+
     /**
      * The {@link Marker} for the {@link com.mcmoddev.mmdbot.updatenotifiers.fabric.FabricApiUpdateNotifier}.
      */
@@ -16,7 +20,7 @@ public class MMDMarkers {
      */
     public static final Marker NOTIFIER_FORGE = MarkerFactory.getMarker("Notifier.Forge");
     /**
-     * The {@link Marker} for the {@link com.mcmoddev.mmdbot.updatenotifiers.game.MinecraftUpdateNotifier}.
+     * The {@link Marker} for the {@link com.mcmoddev.mmdbot.updatenotifiers.minecraft.MinecraftUpdateNotifier}.
      */
     public static final Marker NOTIFIER_MC = MarkerFactory.getMarker("Notifier.MC");
 
@@ -39,4 +43,11 @@ public class MMDMarkers {
      * @see com.mcmoddev.mmdbot.commands.staff.CmdUnmute
      */
     public static final Marker MUTING = MarkerFactory.getMarker("Muting");
+
+    /**
+	 *
+	 */
+	private MMDMarkers() {
+       throw new IllegalStateException("Utility class");
+   }
 }

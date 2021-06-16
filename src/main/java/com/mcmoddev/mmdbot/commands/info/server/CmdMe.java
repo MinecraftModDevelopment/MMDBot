@@ -4,9 +4,10 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.commands.staff.CmdUser;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 /**
+ *
+ * @author
  *
  */
 public final class CmdMe extends CmdUser {
@@ -22,12 +23,14 @@ public final class CmdMe extends CmdUser {
     }
 
     /**
-     *
+     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override
     protected void execute(final CommandEvent event) {
-        if (!Utils.checkCommand(this, event)) return;
-        final TextChannel channel = event.getTextChannel();
+        if (!Utils.checkCommand(this, event)) {
+            return;
+        }
+        final var channel = event.getTextChannel();
         final EmbedBuilder embed = createMemberEmbed(event.getMember());
         channel.sendMessage(embed.build()).queue();
     }

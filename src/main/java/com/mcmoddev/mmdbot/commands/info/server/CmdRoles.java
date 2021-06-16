@@ -4,7 +4,6 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -12,6 +11,9 @@ import java.util.stream.Collectors;
 
 /**
  * A {@link Command} for listing the roles and their member counts.
+ *
+ * @author
+ *
  */
 public final class CmdRoles extends Command {
 
@@ -31,19 +33,21 @@ public final class CmdRoles extends Command {
      * Sends a message with a listing of all roles in the guild, along with a count of how many members hold those roles.
      * The message is sent in the same channel where the command was sent from.
      *
-     * @param event The command event
+     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override
     protected void execute(final CommandEvent event) {
-        if (!Utils.checkCommand(this, event)) return;
-        final EmbedBuilder embed = new EmbedBuilder();
-        final TextChannel channel = event.getTextChannel();
+        if (!Utils.checkCommand(this, event)) {
+            return;
+        }
+        final var embed = new EmbedBuilder();
+        final var channel = event.getTextChannel();
 
         final String rolesCount = event.getGuild().getRoles()
-                .stream()
-                .filter(role -> !role.isManaged()) // Filter out managed roles
-                .map(role -> role.getAsMention() + ": " + role.getGuild().getMembersWithRoles(role).size())
-                .collect(Collectors.joining("\n"));
+            .stream()
+            .filter(role -> !role.isManaged()) // Filter out managed roles
+            .map(role -> role.getAsMention() + ": " + role.getGuild().getMembersWithRoles(role).size())
+            .collect(Collectors.joining("\n"));
 
         embed.setColor(Color.GREEN);
         embed.setTitle("Users With Roles");

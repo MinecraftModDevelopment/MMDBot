@@ -4,17 +4,22 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.Role;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.MUTING;
 
-public class CmdUnmute extends Command {
+/**
+ *
+ * @author
+ *
+ */
+public final class CmdUnmute extends Command {
 
+	/**
+	 *
+	 */
     public CmdUnmute() {
         super();
         name = "unmute";
@@ -22,17 +27,24 @@ public class CmdUnmute extends Command {
         hidden = true;
     }
 
+    /**
+     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
+     */
     @Override
-    protected void execute(CommandEvent event) {
-        if (!Utils.checkCommand(this, event)) return;
-        final Guild guild = event.getGuild();
+    protected void execute(final CommandEvent event) {
+        if (!Utils.checkCommand(this, event)) {
+            return;
+        }
+        final var guild = event.getGuild();
+        final var author = guild.getMember(event.getAuthor());
+        if (author == null) {
+            return;
+        }
         final MessageChannel channel = event.getChannel();
         final String[] args = event.getArgs().split(" ");
-        final Member author = event.getGuild().getMember(event.getAuthor());
-        if (author == null) return;
-        final Member member = Utils.getMemberFromString(args[0], event.getGuild());
+        final var member = Utils.getMemberFromString(args[0], event.getGuild());
         final long mutedRoleID = getConfig().getRole("muted");
-        final Role mutedRole = guild.getRoleById(mutedRoleID);
+        final var mutedRole = guild.getRoleById(mutedRoleID);
 
         if (author.hasPermission(Permission.KICK_MEMBERS)) {
             if (member == null) {

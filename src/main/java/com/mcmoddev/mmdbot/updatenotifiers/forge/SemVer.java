@@ -2,35 +2,71 @@ package com.mcmoddev.mmdbot.updatenotifiers.forge;
 
 import org.jetbrains.annotations.NotNull;
 
-public class SemVer implements Comparable<SemVer> {
+/**
+ *
+ * @author
+ *
+ */
+public final class SemVer implements Comparable<SemVer> {
 
+	/**
+	 *
+	 */
     private final Integer major;
+
+    /**
+     *
+     */
     private final Integer minor;
+
+    /**
+     *
+     */
     private Integer patch;
 
-    public SemVer(String versionString) {
-        String[] vs = versionString.split("\\.");
+    /**
+     *
+     * @param versionString
+     */
+    public SemVer(final String versionString) {
+    	final String[] vs = versionString.split("\\.");
         this.major = Integer.parseInt(vs[0]);
         this.minor = Integer.parseInt(vs[1]);
 
-        if (vs.length == 3)
+        if (vs.length == 3) {
             this.patch = Integer.parseInt(vs[2]);
+        }
     }
 
+    /**
+     *
+     * @return int.
+     */
     public int getMajor() {
         return major;
     }
 
+    /**
+     *
+     * @return int.
+     */
     public int getMinor() {
         return minor;
     }
 
+    /**
+     *
+     * @return int.
+     */
     public int getPatch() {
         return patch;
     }
 
+    /**
+     *
+     */
     @Override
-    public int compareTo(@NotNull SemVer other) {
+    public int compareTo(@NotNull final SemVer other) {
         if (this.major > other.major) {
             return 1;
         }
@@ -63,6 +99,9 @@ public class SemVer implements Comparable<SemVer> {
         return 0;
     }
 
+    /**
+     *
+     */
     @Override
     public String toString() {
         if (this.patch == null) {

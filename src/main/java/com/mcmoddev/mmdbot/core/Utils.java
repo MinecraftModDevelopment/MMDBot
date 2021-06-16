@@ -5,7 +5,6 @@ import com.google.gson.reflect.TypeToken;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
-import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -24,7 +23,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -38,17 +36,25 @@ import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 
 /**
  *
+ * @author
+ *
  */
 public final class Utils {
 
+	/**
+	 *
+	 */
     public static final String STICKY_ROLES_FILE_PATH = "mmdbot_sticky_roles.json";
+
+    /**
+     *
+     */
     public static final String USER_JOIN_TIMES_FILE_PATH = "mmdbot_user_join_times.json";
 
     /**
@@ -73,12 +79,16 @@ public final class Utils {
             TimeUnit.SECONDS.sleep(2);
         } catch (final InterruptedException exception) {
             MMDBot.LOGGER.trace("InterruptedException", exception);
+            Thread.currentThread().interrupt();
         }
     }
 
     /**
      * Borrowed from Darkhax's BotBase, all credit for the below methods go to him.
      * The Bot Base repo and code is now deleted if you need it for reference Proxy has a copy. Dark may also have one.
+     *
+     * @param instant
+     * @return LocalDateTime.
      */
     public static LocalDateTime getLocalTime(final Instant instant) {
         return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
@@ -101,13 +111,13 @@ public final class Utils {
      */
     public static String getTimeDifference(final LocalDateTime fromTime, final LocalDateTime toTime,
                                            final ChronoUnit... units) {
-        final StringJoiner joiner = new StringJoiner(", ");
-        LocalDateTime temp = LocalDateTime.from(fromTime);
+        final var joiner = new StringJoiner(", ");
+        var temp = LocalDateTime.from(fromTime);
         for (final ChronoUnit unit : units) {
             final long time = temp.until(toTime, unit);
             if (time > 0) {
                 temp = temp.plus(time, unit);
-                final String unitName = unit.toString();
+                final var unitName = unit.toString();
                 joiner.add(time + " " + (time < 2 && unitName.endsWith("s") ? unitName.substring(0, unitName.length() - 1) : unitName));
             }
         }
@@ -130,7 +140,7 @@ public final class Utils {
      */
     @Nullable
     public static Member getMemberFromString(final String memberString, final Guild guild) {
-        final Matcher matcher = Message.MentionType.USER.getPattern().matcher(memberString);
+        final var matcher = Message.MentionType.USER.getPattern().matcher(memberString);
         if (matcher.matches()) {
             return guild.getMemberById(matcher.group(1));
         } else if (memberString.contains("#")) {
@@ -147,12 +157,12 @@ public final class Utils {
      */
     public static int getNumberOfMatchingReactions(final Message message, final Predicate<Long> predicate) {
         return message
-                .getReactions()
-                .stream()
-                .filter(messageReaction -> messageReaction.getReactionEmote().isEmote())
-                .filter(messageReaction -> predicate.test(messageReaction.getReactionEmote().getIdLong()))
-                .mapToInt(MessageReaction::getCount)
-                .sum();
+            .getReactions()
+            .stream()
+            .filter(messageReaction -> messageReaction.getReactionEmote().isEmote())
+            .filter(messageReaction -> predicate.test(messageReaction.getReactionEmote().getIdLong()))
+            .mapToInt(MessageReaction::getCount)
+            .sum();
     }
 
     /**
@@ -164,9 +174,10 @@ public final class Utils {
      */
     @Nonnull
     public static List<Role> getOldUserRoles(final Guild guild, final Long userID) {
-        Map<String, List<String>> roles = getUserToRoleMap();
-        if (!roles.containsKey(userID.toString()))
+        final Map<String, List<String>> roles = getUserToRoleMap();
+        if (!roles.containsKey(userID.toString())) {
             return Collections.emptyList();
+        }
 
         return roles.get(userID.toString()).stream().map(guild::getRoleById).collect(Collectors.toList());
     }
@@ -180,32 +191,36 @@ public final class Utils {
      * @param roles  The roles the user had before they left.
      */
     public static void writeUserRoles(final Long userID, final List<Role> roles) {
-        final File roleFile = new File(STICKY_ROLES_FILE_PATH);
-        Map<String, List<String>> userToRoleMap = getUserToRoleMap();
+        final var roleFile = new File(STICKY_ROLES_FILE_PATH);
+        final Map<String, List<String>> userToRoleMap = getUserToRoleMap();
         userToRoleMap.put(userID.toString(), roles.stream().map(ISnowflake::getId).collect(Collectors.toList()));
-        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(roleFile), StandardCharsets.UTF_8)) {
+        try (var writer = new OutputStreamWriter(new FileOutputStream(roleFile), StandardCharsets.UTF_8)) {
             new Gson().toJson(userToRoleMap, writer);
         } catch (final FileNotFoundException exception) {
             MMDBot.LOGGER.error("An FileNotFound occurred saving sticky roles...", exception);
+            exception.printStackTrace();
         } catch (final IOException exception) {
             MMDBot.LOGGER.error("An IOException occurred saving sticky roles...", exception);
+            exception.printStackTrace();
         }
     }
 
     /**
-     * @return
+     * @return Map.
      */
     @Nonnull
     public static Map<String, List<String>> getUserToRoleMap() {
-        final File roleFile = new File(STICKY_ROLES_FILE_PATH);
-        if (!roleFile.exists())
+        final var roleFile = new File(STICKY_ROLES_FILE_PATH);
+        if (!roleFile.exists()) {
             return new HashMap<>();
-        try (InputStreamReader reader = new InputStreamReader(new FileInputStream(roleFile), StandardCharsets.UTF_8)) {
-            Type typeOfHashMap = new TypeToken<Map<String, List<String>>>() {
+        }
+        try (var reader = new InputStreamReader(new FileInputStream(roleFile), StandardCharsets.UTF_8)) {
+            final var typeOfHashMap = new TypeToken<Map<String, List<String>>>() {
             }.getType();
             return new Gson().fromJson(reader, typeOfHashMap);
         } catch (final IOException exception) {
             MMDBot.LOGGER.trace("Failed to read sticky roles file...", exception);
+            exception.printStackTrace();
         }
         return new HashMap<>();
     }
@@ -217,32 +232,36 @@ public final class Utils {
      * @param joinTime The join time of the user.
      */
     public static void writeUserJoinTimes(final String userID, final Instant joinTime) {
-        final File userJoinTimesFile = new File(USER_JOIN_TIMES_FILE_PATH);
-        Map<String, Instant> userJoinTimes = getUserJoinTimeMap();
+        final var userJoinTimesFile = new File(USER_JOIN_TIMES_FILE_PATH);
+        final Map<String, Instant> userJoinTimes = getUserJoinTimeMap();
         userJoinTimes.put(userID, joinTime);
-        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(userJoinTimesFile), StandardCharsets.UTF_8)) {
+        try (var writer = new OutputStreamWriter(new FileOutputStream(userJoinTimesFile), StandardCharsets.UTF_8)) {
             new Gson().toJson(userJoinTimes, writer);
         } catch (final FileNotFoundException exception) {
             MMDBot.LOGGER.error("An FileNotFound occurred saving user join times...", exception);
+            exception.printStackTrace();
         } catch (final IOException exception) {
             MMDBot.LOGGER.error("An IOException occurred saving user join times...", exception);
+            exception.printStackTrace();
         }
     }
 
     /**
-     * @return
+     * @return Map.
      */
     @Nonnull
     public static Map<String, Instant> getUserJoinTimeMap() {
-        final File joinTimesFile = new File(USER_JOIN_TIMES_FILE_PATH);
-        if (!joinTimesFile.exists())
+        final var joinTimesFile = new File(USER_JOIN_TIMES_FILE_PATH);
+        if (!joinTimesFile.exists()) {
             return new HashMap<>();
-        try (InputStreamReader reader = new InputStreamReader(new FileInputStream(joinTimesFile), StandardCharsets.UTF_8)) {
-            Type typeOfHashMap = new TypeToken<Map<String, Instant>>() {
+        }
+        try (var reader = new InputStreamReader(new FileInputStream(joinTimesFile), StandardCharsets.UTF_8)) {
+        	final var typeOfHashMap = new TypeToken<Map<String, Instant>>() {
             }.getType();
             return new Gson().fromJson(reader, typeOfHashMap);
         } catch (final IOException exception) {
             MMDBot.LOGGER.trace("Failed to read user join times file...", exception);
+            exception.printStackTrace();
         }
         return new HashMap<>();
     }
@@ -251,12 +270,12 @@ public final class Utils {
      * @param member The user.
      * @return The users join time.
      */
-    public static Instant getMemberJoinTime(Member member) {
+    public static Instant getMemberJoinTime(final Member member) {
         final Map<String, Instant> userJoinTimes = getUserJoinTimeMap();
         final String memberID = member.getId();
-        return userJoinTimes.containsKey(memberID) ?
-                userJoinTimes.get(memberID) :
-                member.getTimeJoined().toInstant();
+        return userJoinTimes.containsKey(memberID)
+            ? userJoinTimes.get(memberID)
+            : member.getTimeJoined().toInstant();
     }
 
     /**
@@ -275,8 +294,7 @@ public final class Utils {
      * @param event   The command event
      * @return If the command can run in that context
      */
-    public static boolean checkCommand(Command command, CommandEvent event) {
-        final String name = command.getName();
+    public static boolean checkCommand(final Command command, final CommandEvent event) {
 
         if (!isEnabled(command, event)) {
             // Could also send an informational message
@@ -295,27 +313,27 @@ public final class Utils {
 
         if (isBlocked(command, event)) {
             event.getChannel()
-                    .sendMessage("This command is blocked from running in this channel!")
-                    .queue();
+                .sendMessage("This command is blocked from running in this channel!")
+                .queue();
             return false;
         }
 
         if (event.isFromType(ChannelType.TEXT)) { // Sent from a guild
-            final long channelID = event.getChannel().getIdLong();
             final List<Long> allowedChannels = getConfig().getAllowedChannels(command.getName(), event.getGuild().getIdLong());
 
             if (allowedChannels.isEmpty()) { // If the allow list is empty, default allowed
                 return true;
             }
 
-            @Nullable final Category category = event.getTextChannel().getParent();
+            final var channelID = event.getChannel().getIdLong();
+            @Nullable final var category = event.getTextChannel().getParent();
             boolean allowed;
-            if (category != null) { // If there's a category, also check that
-                final long categoryID = category.getIdLong();
-                allowed = allowedChannels.stream()
-                        .anyMatch(id -> id == channelID || id == categoryID);
-            } else {
+            if (category == null) {
                 allowed = allowedChannels.stream().anyMatch(id -> id == channelID);
+            } else { // If there's a category, also check that
+                final var categoryID = category.getIdLong();
+                allowed = allowedChannels.stream()
+                    .anyMatch(id -> id == channelID || id == categoryID);
             }
 
             if (!allowed) {
@@ -325,7 +343,7 @@ public final class Utils {
                     .map(id -> "<#" + id + ">")
                     .collect(Collectors.joining(", "));
 
-                StringBuilder str = new StringBuilder()
+                final StringBuilder str = new StringBuilder(84)
                     .append("This command cannot be run in this channel");
                 if (!allowedChannelStr.isEmpty()) {
                     str.append(", only in ")
@@ -341,21 +359,34 @@ public final class Utils {
         return true;
     }
 
-    private static boolean isEnabled(Command command, CommandEvent event) {
-        if (event.isFromType(ChannelType.TEXT)) // Sent from a guild
+    /**
+     *
+     * @param command
+     * @param event
+     * @return boolean.
+     */
+    private static boolean isEnabled(final Command command, final CommandEvent event) {
+        if (event.isFromType(ChannelType.TEXT)) { // Sent from a guild
             return getConfig().isEnabled(command.getName(), event.getGuild().getIdLong());
+        }
         return getConfig().isEnabled(command.getName());
     }
 
-    private static boolean isBlocked(Command command, CommandEvent event) {
+    /**
+     *
+     * @param command
+     * @param event
+     * @return boolean.
+     */
+    private static boolean isBlocked(final Command command, final CommandEvent event) {
         if (event.isFromType(ChannelType.TEXT)) { // Sent from a guild
-            final long channelID = event.getChannel().getIdLong();
+            final var channelID = event.getChannel().getIdLong();
             final List<Long> blockedChannels = getConfig().getBlockedChannels(command.getName(), event.getGuild().getIdLong());
-            @Nullable final Category category = event.getTextChannel().getParent();
+            @Nullable final var category = event.getTextChannel().getParent();
             if (category != null) {
-                final long categoryID = category.getIdLong();
+                final var categoryID = category.getIdLong();
                 return blockedChannels.stream()
-                        .anyMatch(id -> id == channelID || id == categoryID);
+                    .anyMatch(id -> id == channelID || id == categoryID);
             }
             return blockedChannels.stream().anyMatch(id -> id == channelID);
         }
@@ -368,11 +399,13 @@ public final class Utils {
      * @param channelID The channel ID
      * @param consumer  The consumer of the channel
      */
-    public static void getChannelIfPresent(long channelID, Consumer<TextChannel> consumer) {
+    public static void getChannelIfPresent(final long channelID, final Consumer<TextChannel> consumer) {
         final long guildID = getConfig().getGuildID();
-        final Guild guild = MMDBot.getInstance().getGuildById(guildID);
-        if (guild == null) return;
-        final TextChannel channel = guild.getTextChannelById(channelID);
+        final var guild = MMDBot.getInstance().getGuildById(guildID);
+        if (guild == null) {
+            return;
+        }
+        final var channel = guild.getTextChannelById(channelID);
         if (channel != null) {
             consumer.accept(channel);
         }
