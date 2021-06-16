@@ -23,8 +23,6 @@ import com.mcmoddev.mmdbot.commands.staff.CmdMute;
 import com.mcmoddev.mmdbot.commands.staff.CmdUnmute;
 import com.mcmoddev.mmdbot.commands.staff.CmdUser;
 import com.mcmoddev.mmdbot.core.BotConfig;
-import com.mcmoddev.mmdbot.database.DatabaseManager;
-import com.mcmoddev.mmdbot.database.models.PersonModel;
 import com.mcmoddev.mmdbot.events.EventReactionAdded;
 import com.mcmoddev.mmdbot.events.MiscEvents;
 import com.mcmoddev.mmdbot.events.users.EventNicknameChanged;
@@ -46,8 +44,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 /**
@@ -137,61 +133,50 @@ public final class MMDBot {
         }
 
         try {
-
-            Random rand = new Random();
-            PersonModel p = new PersonModel(rand.nextInt(Integer.MAX_VALUE), "Poke");
-            DatabaseManager.insertPerson(p);
-
-            System.out.println("People in DB:");
-            List<PersonModel> list = DatabaseManager.getPeople();
-            for(PersonModel person : list) {
-                System.out.println(String.format("[%d] %s ", person.getId(), person.getName()));
-            }
-
             final CommandClient commandListener = new CommandClientBuilder()
-                    .setOwnerId(config.getOwnerID())
-                    .setPrefix(config.getMainPrefix())
-                    .setAlternativePrefix(config.getAlternativePrefix())
-                    .addCommand(new CmdGuild())
-                    .addCommand(new CmdBuild())
-                    .addCommand(new CmdMe())
-                    .addCommand(new CmdUser())
-                    .addCommand(new CmdRoles())
-                    .addCommand(new CmdJustAsk())
-                    .addCommand(new CmdPaste())
-                    .addCommand(new CmdXy())
-                    .addCommand(new CmdReadme())
-                    .addCommand(new CmdRules())
-                    .addCommand(new CmdCatFacts())
-                    .addCommand(new CmdSearch("google", "https://www.google.com/search?q=", "goog"))
-                    .addCommand(new CmdSearch("bing", "https://www.bing.com/search?q="))
-                    .addCommand(new CmdSearch("duckduckgo", "https://duckduckgo.com/?q=", "ddg"))
-                    .addCommand(new CmdSearch("lmgtfy", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"))
-                    .addCommand(new CmdEventsHelp())
-                    .addCommand(new CmdToggleMcServerPings())
-                    .addCommand(new CmdToggleEventPings())
-                    .addCommand(new CmdForgeVersion())
-                    .addCommand(new CmdMinecraftVersion())
-                    .addCommand(new CmdFabricVersion())
-                    .addCommand(new CmdMute())
-                    .addCommand(new CmdUnmute())
-                    .setHelpWord("help")
-                    .build();
+                .setOwnerId(config.getOwnerID())
+                .setPrefix(config.getMainPrefix())
+                .setAlternativePrefix(config.getAlternativePrefix())
+                .addCommand(new CmdGuild())
+                .addCommand(new CmdBuild())
+                .addCommand(new CmdMe())
+                .addCommand(new CmdUser())
+                .addCommand(new CmdRoles())
+                .addCommand(new CmdJustAsk())
+                .addCommand(new CmdPaste())
+                .addCommand(new CmdXy())
+                .addCommand(new CmdReadme())
+                .addCommand(new CmdRules())
+                .addCommand(new CmdCatFacts())
+                .addCommand(new CmdSearch("google", "https://www.google.com/search?q=", "goog"))
+                .addCommand(new CmdSearch("bing", "https://www.bing.com/search?q="))
+                .addCommand(new CmdSearch("duckduckgo", "https://duckduckgo.com/?q=", "ddg"))
+                .addCommand(new CmdSearch("lmgtfy", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"))
+                .addCommand(new CmdEventsHelp())
+                .addCommand(new CmdToggleMcServerPings())
+                .addCommand(new CmdToggleEventPings())
+                .addCommand(new CmdForgeVersion())
+                .addCommand(new CmdMinecraftVersion())
+                .addCommand(new CmdFabricVersion())
+                .addCommand(new CmdMute())
+                .addCommand(new CmdUnmute())
+                .setHelpWord("help")
+                .build();
 
             INSTANCE = JDABuilder
-                    .create(config.getToken(), intents)
-                    .disableCache(CacheFlag.VOICE_STATE)
-                    .disableCache(CacheFlag.ACTIVITY)
-                    .disableCache(CacheFlag.CLIENT_STATUS)
-                    .addEventListeners(new EventUserJoined())
-                    .addEventListeners(new EventUserLeft())
-                    .addEventListeners(new EventNicknameChanged())
-                    .addEventListeners(new EventRoleAdded())
-                    .addEventListeners(new EventRoleRemoved())
-                    .addEventListeners(new EventReactionAdded())
-                    .addEventListeners(new MiscEvents())
-                    .addEventListeners(commandListener)
-                    .build();
+                .create(config.getToken(), intents)
+                .disableCache(CacheFlag.VOICE_STATE)
+                .disableCache(CacheFlag.ACTIVITY)
+                .disableCache(CacheFlag.CLIENT_STATUS)
+                .addEventListeners(new EventUserJoined())
+                .addEventListeners(new EventUserLeft())
+                .addEventListeners(new EventNicknameChanged())
+                .addEventListeners(new EventRoleAdded())
+                .addEventListeners(new EventRoleRemoved())
+                .addEventListeners(new EventReactionAdded())
+                .addEventListeners(new MiscEvents())
+                .addEventListeners(commandListener)
+                .build();
         } catch (final LoginException exception) {
             LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.", exception);
             System.exit(1);
