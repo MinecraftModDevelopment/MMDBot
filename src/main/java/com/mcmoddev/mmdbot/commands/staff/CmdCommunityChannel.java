@@ -75,7 +75,7 @@ public final class CmdCommunityChannel extends Command {
             return;
         }
 
-        final EnumSet<Permission> ownerPermissions = MMDBot.getConfig().getCommunityChannelOwnerPermissions();
+        final Set<Permission> ownerPermissions = MMDBot.getConfig().getCommunityChannelOwnerPermissions();
         if (ownerPermissions.isEmpty()) {
             MMDBot.LOGGER.warn("Community channel owner permissions is incorrectly configured");
             event.reply("Channel owner permissions is incorrectly configured. Please contact the bot maintainers.");

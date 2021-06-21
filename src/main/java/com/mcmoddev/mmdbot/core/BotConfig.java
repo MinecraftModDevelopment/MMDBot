@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -374,10 +375,10 @@ public final class BotConfig {
 
     /**
      *
-     * @return EnumSet.
+     * @return Set.
      */
     @SuppressWarnings("unchecked")
-    public EnumSet<Permission> getCommunityChannelOwnerPermissions() {
+    public Set<Permission> getCommunityChannelOwnerPermissions() {
         if (!config.contains(COMMUNITY_CHANNEL_OWNER_PERMISSIONS)) {
             return EnumSet.noneOf(Permission.class);
         }
