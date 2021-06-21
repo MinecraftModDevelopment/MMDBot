@@ -38,7 +38,7 @@ public final class CmdToggleEventPings extends Command {
 
         final var guild = event.getGuild();
         final var channel = event.getTextChannel();
-        //TODO get the per guild ID if enabled for the guild the command was run in.
+        // TODO: Get the per guild ID if enabled for the guild the command was run in.
         final var role = guild.getRoleById(MMDBot.getConfig().getRole("pings.event-pings"));
 
         if (role == null) {

@@ -349,7 +349,7 @@ public final class Utils {
                     str.append(", only in ")
                         .append(allowedChannelStr);
                 }
-                event.getChannel() // TODO: remove the allowed channel string?
+                event.getChannel() // TODO: Remove the allowed channel string?
                     .sendMessage(str.append("!"))
                     .queue();
                 return false;

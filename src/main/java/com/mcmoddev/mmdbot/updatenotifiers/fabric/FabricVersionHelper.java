@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.mcmoddev.mmdbot.MMDBot;
 import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpression;
@@ -175,9 +176,12 @@ public final class FabricVersionHelper {
             return;
         }
         try {
-        	final var doc = DocumentBuilderFactory.newInstance()
-                .newDocumentBuilder()
-                .parse(stream);
+            final var factory = DocumentBuilderFactory.newInstance();
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+            final var builder = factory.newDocumentBuilder();
+        	final var doc = builder.parse(stream);
         	final XPathExpression expr = XPathFactory.newInstance()
                 .newXPath()
                 .compile("/metadata/versioning/latest/text()");
