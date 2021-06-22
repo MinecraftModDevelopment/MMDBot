@@ -34,5 +34,6 @@ public final class CmdAddTrick extends Command {
 
         //TODO: Permissions
         Tricks.addTrick(Tricks.getTrickType(args.substring(0, firstSpace)).createFromArgs(args.substring(firstSpace+1)));
+        channel.sendMessage("Added trick!").queue();
     }
 }

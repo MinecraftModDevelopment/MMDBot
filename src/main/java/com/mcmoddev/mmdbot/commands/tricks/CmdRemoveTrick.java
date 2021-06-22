@@ -31,5 +31,6 @@ public final class CmdRemoveTrick extends Command {
 
         //TODO: Permissions
         Tricks.getTrick(event.getArgs().split(" ")[0]).ifPresent(Tricks::removeTrick);
+        channel.sendMessage("Removed trick!").queue();
     }
 }
