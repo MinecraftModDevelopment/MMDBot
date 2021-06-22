@@ -40,7 +40,7 @@ public final class SemVer implements Comparable<SemVer> {
 
     /**
      *
-     * @return
+     * @return int.
      */
     public int getMajor() {
         return major;
@@ -48,7 +48,7 @@ public final class SemVer implements Comparable<SemVer> {
 
     /**
      *
-     * @return
+     * @return int.
      */
     public int getMinor() {
         return minor;
@@ -56,7 +56,7 @@ public final class SemVer implements Comparable<SemVer> {
 
     /**
      *
-     * @return
+     * @return int.
      */
     public int getPatch() {
         return patch;

@@ -4,8 +4,6 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.Color;
 import java.text.SimpleDateFormat;
@@ -38,10 +36,10 @@ public final class CmdGuild extends Command {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
-        final Guild guild = event.getGuild();
-        final EmbedBuilder embed = new EmbedBuilder();
-        final TextChannel channel = event.getTextChannel();
-        final Instant dateGuildCreated = guild.getTimeCreated().toInstant();
+        final var guild = event.getGuild();
+        final var embed = new EmbedBuilder();
+        final var channel = event.getTextChannel();
+        final var dateGuildCreated = guild.getTimeCreated().toInstant();
 
         embed.setTitle("Guild info");
         embed.setColor(Color.GREEN);
@@ -55,6 +53,6 @@ public final class CmdGuild extends Command {
         embed.addField("Date created:", new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH).format(dateGuildCreated.toEpochMilli()), true);
         embed.addField("Guilds age:", Utils.getTimeDifference(Utils.getLocalTime(dateGuildCreated), LocalDateTime.now()), true);
         embed.setTimestamp(Instant.now());
-        channel.sendMessage(embed.build()).queue();
+        channel.sendMessageEmbeds(embed.build()).queue();
     }
 }

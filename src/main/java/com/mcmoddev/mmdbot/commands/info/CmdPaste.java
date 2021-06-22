@@ -4,7 +4,6 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -50,14 +49,14 @@ public final class CmdPaste extends Command {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
-        final EmbedBuilder embed = new EmbedBuilder();
-        final TextChannel channel = event.getTextChannel();
+        final var embed = new EmbedBuilder();
+        final var channel = event.getTextChannel();
 
         embed.setTitle("Paste tools");
         embed.setDescription(BODY);
         embed.setColor(Color.GREEN);
         embed.setTimestamp(Instant.now());
 
-        channel.sendMessage(embed.build()).queue();
+        channel.sendMessageEmbeds(embed.build()).queue();
     }
 }

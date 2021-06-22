@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -101,7 +102,7 @@ public final class BotConfig {
     public String getToken() {
         return config.<String>getOptional("bot.token")
             .filter(string -> string.indexOf('!') == -1 || string.isEmpty())
-            .orElse(null);
+            .orElse("");
     }
 
     /**
@@ -374,10 +375,10 @@ public final class BotConfig {
 
     /**
      *
-     * @return
+     * @return Set.
      */
     @SuppressWarnings("unchecked")
-    public EnumSet<Permission> getCommunityChannelOwnerPermissions() {
+    public Set<Permission> getCommunityChannelOwnerPermissions() {
         if (!config.contains(COMMUNITY_CHANNEL_OWNER_PERMISSIONS)) {
             return EnumSet.noneOf(Permission.class);
         }
@@ -407,23 +408,9 @@ public final class BotConfig {
     /**
      *
      * @param path
-     * @return
-     */
-    private Optional<List<Long>> getSnowflakeList(final String path) {
-        return config.<List<String>>getOptional(path)
-            .map(strings -> strings.stream()
-                .map(SafeIdUtil::safeConvert)
-                .filter(snowflake -> snowflake != 0)
-                .collect(Collectors.toList()));
-    }
-
-    /**
-     *
-     * @param path
      * @param aliases
-     * @return
+     * @return List.
      */
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private Optional<List<Long>> getAliasedSnowflakeList(final String path, final Optional<UnmodifiableConfig> aliases) {
         return config.<List<String>>getOptional(path)
             .filter(list -> !list.isEmpty())
@@ -438,9 +425,8 @@ public final class BotConfig {
      *
      * @param key
      * @param aliases
-     * @return
+     * @return String.
      */
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private String getAliased(final String key, final Optional<UnmodifiableConfig> aliases) {
         return config.<String>getOptional(key)
             .map(str -> aliases.flatMap(cfg -> cfg.<String>getOptional(str)).orElse(str))

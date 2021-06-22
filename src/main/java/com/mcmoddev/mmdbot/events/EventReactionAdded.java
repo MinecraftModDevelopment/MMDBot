@@ -2,10 +2,8 @@ package com.mcmoddev.mmdbot.events;
 
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -38,9 +36,9 @@ public final class EventReactionAdded extends ListenerAdapter {
      */
     @Override
     public void onMessageReactionAdd(final MessageReactionAddEvent event) {
-        final TextChannel channel = event.getTextChannel();
+        final var channel = event.getTextChannel();
         final MessageHistory history = MessageHistory.getHistoryAround(channel, event.getMessageId()).limit(1).complete();
-        final Message message = history.getMessageById(event.getMessageId());
+        final var message = history.getMessageById(event.getMessageId());
         if (message == null) {
             return;
         }
@@ -50,15 +48,15 @@ public final class EventReactionAdded extends ListenerAdapter {
             return;
         }
 
-        final Guild guild = event.getGuild();
-        final long guildId = guild.getIdLong();
-        final TextChannel discussionChannel = guild.getTextChannelById(getConfig().getChannel("requests.discussion"));
+        final var guild = event.getGuild();
+        final var guildId = guild.getIdLong();
+        final var discussionChannel = guild.getTextChannelById(getConfig().getChannel("requests.discussion"));
         if (getConfig().getGuildID() == guildId && getConfig().getChannel("requests.main") == channel.getIdLong()) {
 
         	final int freshnessDuration = getConfig().getRequestFreshnessDuration();
             if (freshnessDuration > 0) {
             	final OffsetDateTime creationTime = message.getTimeCreated();
-            	final OffsetDateTime now = OffsetDateTime.now();
+            	final var now = OffsetDateTime.now();
                 if (now.minusDays(freshnessDuration).isAfter(creationTime)) {
                     return; // Do nothing if the request has gone past the freshness duration
                 }
@@ -86,7 +84,7 @@ public final class EventReactionAdded extends ListenerAdapter {
 
                 warnedMessages.remove(message);
 
-                final TextChannel logChannel = guild.getTextChannelById(getConfig().getChannel("events.requests_deletion"));
+                final var logChannel = guild.getTextChannelById(getConfig().getChannel("events.requests_deletion"));
                 if (logChannel != null) {
                     logChannel.sendMessage(String.format("Auto-deleted request from %s (%s;%s) due to reaching deletion threshold: %n%s", messageAuthor.getAsMention(), messageAuthor.getAsTag(), messageAuthor.getId(), message.getContentRaw()))
                         .allowedMentions(Collections.emptySet())

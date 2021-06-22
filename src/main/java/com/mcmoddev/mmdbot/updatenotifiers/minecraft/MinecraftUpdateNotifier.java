@@ -51,23 +51,23 @@ public final class MinecraftUpdateNotifier extends TimerTask {
             LOGGER.info(NOTIFIER_MC, "New Minecraft release found, from {} to {}", lastLatest, latest);
 
             Utils.getChannelIfPresent(channelId, channel -> {
-                final EmbedBuilder embed = new EmbedBuilder();
+                final var embed = new EmbedBuilder();
                 embed.setTitle("New Minecraft release available!");
                 embed.setDescription(latest);
                 embed.setColor(Color.GREEN);
                 embed.setTimestamp(Instant.now());
-                channel.sendMessage(embed.build()).queue();
+                channel.sendMessageEmbeds(embed.build()).queue();
             });
         } else if (!lastLatest.equals(latest)) {
             LOGGER.info(NOTIFIER_MC, "New Minecraft snapshot found, from {} to {}", lastLatest, latest);
 
             Utils.getChannelIfPresent(channelId, channel -> {
-                final EmbedBuilder embed = new EmbedBuilder();
+                final var embed = new EmbedBuilder();
                 embed.setTitle("New Minecraft snapshot available!");
                 embed.setDescription(latest);
                 embed.setColor(Color.ORANGE);
                 embed.setTimestamp(Instant.now());
-                channel.sendMessage(embed.build()).queue();
+                channel.sendMessageEmbeds(embed.build()).queue();
             });
         } else {
             LOGGER.debug(NOTIFIER_MC, "No new Minecraft version found");
