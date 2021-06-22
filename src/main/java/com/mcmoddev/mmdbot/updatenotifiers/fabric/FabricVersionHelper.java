@@ -75,8 +75,8 @@ public final class FabricVersionHelper {
     }
 
     /**
-	 *
-	 */
+     *
+     */
    private FabricVersionHelper() {
        throw new IllegalStateException("Utility class");
    }
@@ -137,7 +137,7 @@ public final class FabricVersionHelper {
      *
      */
     private static void updateYarn() {
-    	final InputStreamReader reader = getReader(YARN_URL);
+        final InputStreamReader reader = getReader(YARN_URL);
         if (reader == null) {
             return;
         }
@@ -156,7 +156,7 @@ public final class FabricVersionHelper {
      *
      */
     private static void updateLoader() {
-    	final InputStreamReader reader = getReader(LOADER_URL);
+        final InputStreamReader reader = getReader(LOADER_URL);
         if (reader == null) {
             return;
         }
@@ -171,18 +171,23 @@ public final class FabricVersionHelper {
      *
      */
     private static void updateApi() {
-    	final InputStream stream = getStream(API_URL);
+        final InputStream stream = getStream(API_URL);
         if (stream == null) {
             return;
         }
         try {
+            final var doc = DocumentBuilderFactory.newInstance()
+                .newDocumentBuilder()
+                .parse(stream);
+            /*
             final var factory = DocumentBuilderFactory.newInstance();
             factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
             factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
             factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
             final var builder = factory.newDocumentBuilder();
-        	final var doc = builder.parse(stream);
-        	final XPathExpression expr = XPathFactory.newInstance()
+            final var doc = builder.parse(stream);
+            */
+            final XPathExpression expr = XPathFactory.newInstance()
                 .newXPath()
                 .compile("/metadata/versioning/latest/text()");
             latestApi = expr.evaluate(doc);
@@ -197,7 +202,7 @@ public final class FabricVersionHelper {
      * @return InputStreamReader.
      */
     private static InputStreamReader getReader(final String urlString) {
-    	final InputStream stream = getStream(urlString);
+        final InputStream stream = getStream(urlString);
         if (stream == null) {
             return null;
         } else {
@@ -212,7 +217,7 @@ public final class FabricVersionHelper {
      */
     private static InputStream getStream(final String urlString) {
         try {
-        	final var url = new URL(urlString);
+            final var url = new URL(urlString);
             return url.openStream();
         } catch (IOException ex) {
             MMDBot.LOGGER.error("Failed to get minecraft version", ex);
@@ -227,9 +232,9 @@ public final class FabricVersionHelper {
      */
     private static class YarnVersionInfo {
 
-    	/**
-    	 *
-    	 */
+        /**
+         *
+         */
         public String gameVersion;
 
         /**
@@ -265,9 +270,9 @@ public final class FabricVersionHelper {
      */
     private static class LoaderVersionInfo {
 
-    	/**
-    	 *
-    	 */
+        /**
+         *
+         */
         public String separator;
 
         /**
