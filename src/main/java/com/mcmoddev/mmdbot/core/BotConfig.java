@@ -102,7 +102,7 @@ public final class BotConfig {
     public String getToken() {
         return config.<String>getOptional("bot.token")
             .filter(string -> string.indexOf('!') == -1 || string.isEmpty())
-            .orElse(null);
+            .orElse("");
     }
 
     /**
