@@ -61,7 +61,7 @@ public final class EventNicknameChanged extends ListenerAdapter {
 
                     LOGGER.info(EVENTS, "User {} changed nickname from `{}` to `{}`, by {}", target, oldNick, newNick, entry.getUser());
 
-                    return channel.sendMessage(embed.build());
+                    return channel.sendMessageEmbeds(embed.build());
                 })
                 .queue()
         );

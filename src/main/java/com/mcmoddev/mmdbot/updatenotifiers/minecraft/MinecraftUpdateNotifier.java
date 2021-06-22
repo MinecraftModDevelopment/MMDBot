@@ -56,7 +56,7 @@ public final class MinecraftUpdateNotifier extends TimerTask {
                 embed.setDescription(latest);
                 embed.setColor(Color.GREEN);
                 embed.setTimestamp(Instant.now());
-                channel.sendMessage(embed.build()).queue();
+                channel.sendMessageEmbeds(embed.build()).queue();
             });
         } else if (!lastLatest.equals(latest)) {
             LOGGER.info(NOTIFIER_MC, "New Minecraft snapshot found, from {} to {}", lastLatest, latest);
@@ -67,7 +67,7 @@ public final class MinecraftUpdateNotifier extends TimerTask {
                 embed.setDescription(latest);
                 embed.setColor(Color.ORANGE);
                 embed.setTimestamp(Instant.now());
-                channel.sendMessage(embed.build()).queue();
+                channel.sendMessageEmbeds(embed.build()).queue();
             });
         } else {
             LOGGER.debug(NOTIFIER_MC, "No new Minecraft version found");

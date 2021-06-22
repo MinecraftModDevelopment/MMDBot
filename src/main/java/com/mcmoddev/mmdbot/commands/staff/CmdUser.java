@@ -45,7 +45,7 @@ public class CmdUser extends Command {
             return;
         }
         final EmbedBuilder embed = createMemberEmbed(member);
-        channel.sendMessage(embed.build()).queue();
+        channel.sendMessageEmbeds(embed.build()).queue();
     }
 
     /**

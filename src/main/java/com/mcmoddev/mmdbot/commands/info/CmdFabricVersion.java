@@ -54,6 +54,6 @@ public final class CmdFabricVersion extends Command {
         embed.addField("Latest Loader", FabricVersionHelper.getLatestLoader(), true);
         embed.setColor(Color.WHITE);
         embed.setTimestamp(Instant.now());
-        channel.sendMessage(embed.build()).queue();
+        channel.sendMessageEmbeds(embed.build()).queue();
     }
 }

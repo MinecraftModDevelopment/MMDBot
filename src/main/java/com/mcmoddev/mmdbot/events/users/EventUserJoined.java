@@ -64,7 +64,7 @@ public final class EventUserJoined extends ListenerAdapter {
             embed.setFooter("User ID: " + user.getId());
             embed.setTimestamp(Instant.now());
 
-            channel.sendMessage(embed.build()).queue();
+            channel.sendMessageEmbeds(embed.build()).queue();
         }
     }
 }

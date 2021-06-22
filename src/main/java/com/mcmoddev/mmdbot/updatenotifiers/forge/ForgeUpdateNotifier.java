@@ -102,7 +102,7 @@ public final class ForgeUpdateNotifier extends TimerTask {
                 lastForgeVersions = latest;
 
                 Utils.getChannelIfPresent(getConfig().getChannel("notifications.forge"),
-                    channel -> channel.sendMessage(embed.build()).queue());
+                    channel -> channel.sendMessageEmbeds(embed.build()).queue());
             } else {
                 LOGGER.debug(NOTIFIER_FORGE, "No new Forge version found");
             }

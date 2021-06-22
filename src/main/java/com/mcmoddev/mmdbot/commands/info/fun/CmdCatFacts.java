@@ -77,7 +77,7 @@ public final class CmdCatFacts extends Command {
             embed.appendDescription(fact);
             embed.setFooter("Puwerrd by https://catfact.ninja");
 
-            event.getChannel().sendMessage(embed.build()).queue();
+            event.getChannel().sendMessageEmbeds(embed.build()).queue();
         }
     }
 }

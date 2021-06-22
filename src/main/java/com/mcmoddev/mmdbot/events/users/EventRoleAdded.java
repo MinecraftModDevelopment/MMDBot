@@ -95,7 +95,7 @@ public final class EventRoleAdded extends ListenerAdapter {
 
                     LOGGER.info(EVENTS, "Role(s) {} was added to user {} by {}", addedRoles, target, entry.getUser());
 
-                    return channel.sendMessage(embed.build());
+                    return channel.sendMessageEmbeds(embed.build());
                 })
                 .queue()
         );
