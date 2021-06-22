@@ -19,6 +19,16 @@ compileJava {
     sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
 }
 
+tasks.withType(JavaCompile) {
+  options.encoding = 'UTF-8'
+  options.compilerArgs = [
+    '-Xlint:deprecation', // deprecation, rawtypes, cast, unchecked, all
+    //'-Xdiags:verbose',
+    //'-Werror'
+  ]
+  compileJava.options.compilerArgs += '-proc:none'
+}
+
 repositories {
     jcenter()
     mavenCentral()
@@ -72,7 +82,7 @@ eclipse.project {
 
 idea.module {
   downloadJavadoc = true
-  //inheritOutputDirs = true
+  inheritOutputDirs = true
 }
 
 javadoc {
@@ -109,8 +119,17 @@ tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
 
 checkstyle {
   ignoreFailures = true
-  toolVersion = '8.42'
+  toolVersion = '8.43'
   showViolations = false
+}
+
+tasks.withType(Checkstyle) {
+    reports {
+        xml.enabled true
+        html.enabled true
+//        html.stylesheet resources.text.fromFile('config/xsl/checkstyle-noframes.xsl') // Default
+        html.stylesheet resources.text.fromFile('config/xsl/checkstyle-noframes-severity-sorted.xsl')
+    }
 }
 
 pmd {
@@ -156,6 +175,6 @@ pmd {
     'java-unusedcode'
 */
   ]
-  toolVersion = '6.34.0' // 5.8.1
+  toolVersion = '6.35.0'
   incrementalAnalysis = true
 }

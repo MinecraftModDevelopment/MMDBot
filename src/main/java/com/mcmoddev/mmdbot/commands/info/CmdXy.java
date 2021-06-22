@@ -50,6 +50,6 @@ public final class CmdXy extends Command {
         embed.setColor(Color.ORANGE);
         embed.setTimestamp(Instant.now());
 
-        channel.sendMessage(embed.build()).queue();
+        channel.sendMessageEmbeds(embed.build()).queue();
     }
 }

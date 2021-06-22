@@ -61,27 +61,15 @@ public final class CmdMute extends Command {
             }
 
             final long time;
-            final TimeUnit unit;
             if (args.length > 1) {
-                long time1;
-                try {
-                    time1 = Long.parseLong(args[1]);
-                } catch (NumberFormatException ex) {
-                    time1 = -1;
-                }
-                time = time1;
+            	time = parseTime(args[1]);
             } else {
                 time = -1;
             }
 
+            final TimeUnit unit;
             if (args.length > 2) {
-                TimeUnit unit1;
-                try {
-                    unit1 = TimeUnit.valueOf(args[2].toUpperCase(Locale.ROOT));
-                } catch (IllegalArgumentException ex) {
-                    unit1 = TimeUnit.MINUTES;
-                }
-                unit = unit1;
+            	unit = parseTimeUnit(args[2]);
             } else {
                 unit = TimeUnit.MINUTES;
             }
@@ -104,5 +92,35 @@ public final class CmdMute extends Command {
         } else {
             channel.sendMessage("You do not have permission to use this command.").queue();
         }
+    }
+
+    /**
+     *
+     * @param timeIn
+     * @return The Time formatted from a {@code String}.
+     */
+    long parseTime(final String timeIn) {
+        long time;
+        try {
+            time = Long.parseLong(timeIn);
+        } catch (NumberFormatException ex) {
+            time = -1;
+        }
+        return time;
+    }
+
+    /**
+     *
+     * @param timeUnitIn
+     * @return The {@code TimeUnit} formatted from a {@code String}.
+     */
+    TimeUnit parseTimeUnit(final String timeUnitIn) {
+        TimeUnit unit;
+        try {
+            unit = TimeUnit.valueOf(timeUnitIn.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ex) {
+            unit = TimeUnit.MINUTES;
+        }
+        return unit;
     }
 }

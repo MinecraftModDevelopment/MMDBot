@@ -49,6 +49,6 @@ public final class CmdJustAsk extends Command {
         embed.setDescription(BODY);
         embed.setColor(Color.GREEN);
         embed.setTimestamp(Instant.now());
-        channel.sendMessage(embed.build()).queue();
+        channel.sendMessageEmbeds(embed.build()).queue();
     }
 }

@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -101,7 +102,7 @@ public final class BotConfig {
     public String getToken() {
         return config.<String>getOptional("bot.token")
             .filter(string -> string.indexOf('!') == -1 || string.isEmpty())
-            .orElse(null);
+            .orElse("");
     }
 
     /**
@@ -374,10 +375,10 @@ public final class BotConfig {
 
     /**
      *
-     * @return EnumSet.
+     * @return Set.
      */
     @SuppressWarnings("unchecked")
-    public EnumSet<Permission> getCommunityChannelOwnerPermissions() {
+    public Set<Permission> getCommunityChannelOwnerPermissions() {
         if (!config.contains(COMMUNITY_CHANNEL_OWNER_PERMISSIONS)) {
             return EnumSet.noneOf(Permission.class);
         }
@@ -402,19 +403,6 @@ public final class BotConfig {
         MMDBot.LOGGER.warn("Unknown format of \"{}\", resetting to blank list", COMMUNITY_CHANNEL_OWNER_PERMISSIONS);
         config.set(COMMUNITY_CHANNEL_OWNER_PERMISSIONS, Collections.emptyList());
         return EnumSet.noneOf(Permission.class);
-    }
-
-    /**
-     *
-     * @param path
-     * @return List.
-     */
-    private Optional<List<Long>> getSnowflakeList(final String path) {
-        return config.<List<String>>getOptional(path)
-            .map(strings -> strings.stream()
-                .map(SafeIdUtil::safeConvert)
-                .filter(snowflake -> snowflake != 0)
-                .collect(Collectors.toList()));
     }
 
     /**

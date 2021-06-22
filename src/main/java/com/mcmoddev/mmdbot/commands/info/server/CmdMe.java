@@ -32,6 +32,6 @@ public final class CmdMe extends CmdUser {
         }
         final var channel = event.getTextChannel();
         final EmbedBuilder embed = createMemberEmbed(event.getMember());
-        channel.sendMessage(embed.build()).queue();
+        channel.sendMessageEmbeds(embed.build()).queue();
     }
 }

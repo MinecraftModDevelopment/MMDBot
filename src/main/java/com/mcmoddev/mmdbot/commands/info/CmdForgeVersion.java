@@ -61,6 +61,6 @@ public final class CmdForgeVersion extends Command {
         embed.setDescription(changelogLink);
         embed.setColor(Color.ORANGE);
         embed.setTimestamp(Instant.now());
-        channel.sendMessage(embed.build()).queue();
+        channel.sendMessageEmbeds(embed.build()).queue();
     }
 }

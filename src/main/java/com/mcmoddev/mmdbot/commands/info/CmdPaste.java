@@ -57,6 +57,6 @@ public final class CmdPaste extends Command {
         embed.setColor(Color.GREEN);
         embed.setTimestamp(Instant.now());
 
-        channel.sendMessage(embed.build()).queue();
+        channel.sendMessageEmbeds(embed.build()).queue();
     }
 }

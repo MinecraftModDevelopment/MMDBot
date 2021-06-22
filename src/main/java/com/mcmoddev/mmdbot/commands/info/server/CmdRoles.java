@@ -54,6 +54,6 @@ public final class CmdRoles extends Command {
         embed.setDescription("A count of how many members have been assigned some of MMD's many roles.");
         embed.addField("Role count:", rolesCount, true);
         embed.setTimestamp(Instant.now());
-        channel.sendMessage(embed.build()).queue();
+        channel.sendMessageEmbeds(embed.build()).queue();
     }
 }

@@ -49,6 +49,6 @@ public final class CmdReadme extends Command {
         embed.setDescription(BODY);
         embed.setColor(Color.CYAN);
         embed.setTimestamp(Instant.now());
-        channel.sendMessage(embed.build()).queue();
+        channel.sendMessageEmbeds(embed.build()).queue();
     }
 }

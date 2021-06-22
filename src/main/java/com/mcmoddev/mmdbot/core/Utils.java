@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
+import java.util.function.LongPredicate;
 import java.util.stream.Collectors;
 
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
@@ -155,7 +155,7 @@ public final class Utils {
      * @param predicate
      * @return The amount of matching reactions.
      */
-    public static int getNumberOfMatchingReactions(final Message message, final Predicate<Long> predicate) {
+    public static int getNumberOfMatchingReactions(final Message message, final LongPredicate predicate) {
         return message
             .getReactions()
             .stream()
@@ -349,7 +349,7 @@ public final class Utils {
                     str.append(", only in ")
                         .append(allowedChannelStr);
                 }
-                event.getChannel() // TODO: remove the allowed channel string?
+                event.getChannel() // TODO: Remove the allowed channel string?
                     .sendMessage(str.append("!"))
                     .queue();
                 return false;

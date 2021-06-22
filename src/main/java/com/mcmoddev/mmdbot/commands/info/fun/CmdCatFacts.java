@@ -24,6 +24,7 @@ public final class CmdCatFacts extends Command {
    /**
     *
     */
+    private static final Random random = new Random();
 
    /**
     *
@@ -72,12 +73,11 @@ public final class CmdCatFacts extends Command {
         final var embed = new EmbedBuilder();
         final var fact = getFact();
         if (!"".equals(fact)) {
-            final var random = new Random();
             embed.setColor(random.nextInt(0x1000000));
             embed.appendDescription(fact);
             embed.setFooter("Puwerrd by https://catfact.ninja");
 
-            event.getChannel().sendMessage(embed.build()).queue();
+            event.getChannel().sendMessageEmbeds(embed.build()).queue();
         }
     }
 }

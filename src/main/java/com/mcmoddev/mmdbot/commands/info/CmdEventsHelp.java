@@ -47,6 +47,6 @@ public final class CmdEventsHelp extends Command {
         embed.setColor(Color.GREEN);
         embed.setTimestamp(Instant.now());
 
-        channel.sendMessage(embed.build()).queue();
+        channel.sendMessageEmbeds(embed.build()).queue();
     }
 }

@@ -98,11 +98,11 @@ public final class ForgeUpdateNotifier extends TimerTask {
 
             if (changed) {
                 LOGGER.info(NOTIFIER_FORGE, "New Forge version found for {}: {}", mcVersion, logMsg);
-                // TODO: save this to disk to persist on restarts
+                // TODO: Save this to disk to persist on restarts
                 lastForgeVersions = latest;
 
                 Utils.getChannelIfPresent(getConfig().getChannel("notifications.forge"),
-                    channel -> channel.sendMessage(embed.build()).queue());
+                    channel -> channel.sendMessageEmbeds(embed.build()).queue());
             } else {
                 LOGGER.debug(NOTIFIER_FORGE, "No new Forge version found");
             }

@@ -45,6 +45,6 @@ public final class CmdBuild extends Command {
         embed.addField("Issue Tracker:", MMDBot.ISSUE_TRACKER, true);
         embed.addField("Current maintainers:", "jriwanek, WillBL, ProxyNeko, sciwhiz12", true);
         embed.setTimestamp(Instant.now());
-        channel.sendMessage(embed.build()).queue();
+        channel.sendMessageEmbeds(embed.build()).queue();
     }
 }

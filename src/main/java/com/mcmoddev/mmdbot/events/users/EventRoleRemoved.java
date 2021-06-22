@@ -67,7 +67,7 @@ public final class EventRoleRemoved extends ListenerAdapter {
 
                     LOGGER.info(EVENTS, "Role(s) {} was removed from user {} by {}", removedRoles, target, entry.getUser());
 
-                    return channel.sendMessage(embed.build());
+                    return channel.sendMessageEmbeds(embed.build());
                 })
                 .queue()
         );
