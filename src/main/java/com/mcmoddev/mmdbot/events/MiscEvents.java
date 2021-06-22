@@ -5,7 +5,7 @@ import com.mcmoddev.mmdbot.core.TaskScheduler;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.events.DisconnectEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.ResumeEvent;
+import net.dv8tion.jda.api.events.ResumedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +37,7 @@ public final class MiscEvents extends ListenerAdapter {
      *
      */
     @Override
-    public void onResumed(@Nonnull ResumedEvent event) {
+    public void onResumed(final @NotNull ResumedEvent event) {
         Utils.sleepTimer();
         MMDBot.LOGGER.warn("*** Bot reconnected to Discord successfully. ***");
     }
