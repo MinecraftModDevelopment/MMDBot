@@ -10,20 +10,20 @@ import java.awt.Color;
 import java.time.Instant;
 
 /**
- *
- * @author
+
+ * @author ProxyNeko Jriwanek
  *
  */
-public final class CmdBuild extends Command {
+public final class CmdAbout extends Command {
 
     /**
      *
      */
-    public CmdBuild() {
+    public CmdAbout() {
         super();
-        name = "build";
-        aliases = new String[0];
-        help = "Gives build info about this bot.";
+        name = "about";
+        aliases = new String[]{"build"};
+        help = "Gives info about this bot.";
     }
 
     /**
@@ -34,15 +34,16 @@ public final class CmdBuild extends Command {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
-        final var guild = event.getGuild();
         final var embed = new EmbedBuilder();
         final var channel = event.getTextChannel();
 
         embed.setTitle("Bot Build info");
         embed.setColor(Color.GREEN);
-        embed.setThumbnail(guild.getIconUrl());
+        embed.setThumbnail(MMDBot.getInstance().getSelfUser().getAvatarUrl());
+        embed.setDescription("An in house bot to assists staff with daily tasks and provide fun and useful commands "
+        + "for the community, please try ``" + MMDBot.getConfig().getMainPrefix() + "help`` for a list of commands!");
         embed.addField("Version:", MMDBot.VERSION, true);
-        embed.addField("Issue Tracker:", MMDBot.ISSUE_TRACKER, true);
+        embed.addField("Issue Tracker:", Utils.makeHyperlink("MMDBot's Github", MMDBot.ISSUE_TRACKER), true);
         embed.addField("Current maintainers:", "jriwanek, WillBL, ProxyNeko, sciwhiz12", true);
         embed.setTimestamp(Instant.now());
         channel.sendMessageEmbeds(embed.build()).queue();

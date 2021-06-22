@@ -1,7 +1,3 @@
-/*
- *
- */
-
 package com.mcmoddev.mmdbot;
 
 import java.nio.file.Paths;
@@ -17,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
-import com.mcmoddev.mmdbot.commands.info.CmdBuild;
+import com.mcmoddev.mmdbot.commands.info.CmdAbout;
 import com.mcmoddev.mmdbot.commands.info.CmdEventsHelp;
 import com.mcmoddev.mmdbot.commands.info.CmdFabricVersion;
 import com.mcmoddev.mmdbot.commands.info.CmdForgeVersion;
@@ -163,7 +159,7 @@ public final class MMDBot {
                 .setPrefix(MMDBot.config.getMainPrefix())
                 .setAlternativePrefix(MMDBot.config.getAlternativePrefix())
                 .addCommand(new CmdGuild())
-                .addCommand(new CmdBuild())
+                .addCommand(new CmdAbout())
                 .addCommand(new CmdMe())
                 .addCommand(new CmdUser())
                 .addCommand(new CmdRoles())
