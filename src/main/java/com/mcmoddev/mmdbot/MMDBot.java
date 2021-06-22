@@ -149,8 +149,17 @@ public final class MMDBot {
         } else if (MMDBot.config.getToken() == null) {
             MMDBot.LOGGER.error("No token is specified in the config. Please configure the bot and try again");
             System.exit(0);
+        } else if (MMDBot.config.getOwnerID() == null) {
+            MMDBot.LOGGER.error("No owner ID is specified in the config. Please configure the bot and try again");
+            System.exit(0);
         } else if (MMDBot.config.getGuildID() == 0L) {
             MMDBot.LOGGER.error("No guild ID is configured. Please configure the bot and try again.");
+            System.exit(0);
+        } else if (MMDBot.config.getMainPrefix() == null) {
+            MMDBot.LOGGER.error("No main prefix is specified in the config. Please configure the bot and try again");
+            System.exit(0);
+        } else if (MMDBot.config.getAlternativePrefix() == null) {
+            MMDBot.LOGGER.error("No alternative prefix is specified in the config. Please configure the bot and try again");
             System.exit(0);
         }
 
@@ -174,11 +183,11 @@ public final class MMDBot {
 
             MMDBot.instance = JDABuilder.create(MMDBot.config.getToken(), MMDBot.INTENTS)
                     .disableCache(CacheFlag.VOICE_STATE).disableCache(CacheFlag.ACTIVITY)
-                    .disableCache(CacheFlag.CLIENT_STATUS).addEventListeners(new EventUserJoined())
-                    .addEventListeners(new EventUserLeft()).addEventListeners(new EventNicknameChanged())
-                    .addEventListeners(new EventRoleAdded()).addEventListeners(new EventRoleRemoved())
-                    .addEventListeners(new EventReactionAdded()).addEventListeners(new MiscEvents())
-                    .addEventListeners(commandListener).build();
+                    .disableCache(CacheFlag.CLIENT_STATUS).disableCache(CacheFlag.ONLINE_STATUS)
+                    .addEventListeners(new EventUserJoined()).addEventListeners(new EventUserLeft())
+                    .addEventListeners(new EventNicknameChanged()).addEventListeners(new EventRoleAdded())
+                    .addEventListeners(new EventRoleRemoved()).addEventListeners(new EventReactionAdded())
+                    .addEventListeners(new MiscEvents()).addEventListeners(commandListener).build();
         } catch (final LoginException exception) {
             MMDBot.LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.",
                     exception);
