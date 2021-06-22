@@ -1,6 +1,5 @@
 package com.mcmoddev.mmdbot.updatenotifiers.forge;
 
-import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
@@ -8,11 +7,11 @@ import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -48,13 +47,13 @@ public final class ForgeVersionHelper {
     /**
      *
      * @param versions
-     * @return
+     * @return String.
      */
     public static String getLatestVersion(final List<String> versions) {
-        SemVer latest = new SemVer(versions.get(0));
+        var latest = new SemVer(versions.get(0));
 
         for (final String version : versions) {
-            final SemVer ver = new SemVer(version);
+            final var ver = new SemVer(version);
             if (latest.compareTo(ver) < 0) {
                 latest = ver;
             }
@@ -66,7 +65,7 @@ public final class ForgeVersionHelper {
     /**
      *
      * @param mcVersion
-     * @return
+     * @return ForgeVersion.
      * @throws IOException
      * @throws ClassCastException
      * @throws NullPointerException
@@ -77,7 +76,7 @@ public final class ForgeVersionHelper {
 
     /**
      *
-     * @return
+     * @return MinecraftForgeVersion.
      * @throws IOException
      * @throws JsonSyntaxException
      * @throws JsonIOException
@@ -92,18 +91,18 @@ public final class ForgeVersionHelper {
 
     /**
      *
-     * @return
+     * @return InputStreamReader.
      * @throws IOException
      */
     private static InputStreamReader openUrl() throws IOException {
-        final URL urlObj = new URL(VERSION_URL);
+        final var urlObj = new URL(VERSION_URL);
 
-        return new InputStreamReader(urlObj.openStream(), Charsets.UTF_8);
+        return new InputStreamReader(urlObj.openStream(), StandardCharsets.UTF_8);
     }
 
     /**
      *
-     * @return
+     * @return Map.
      * @throws IOException
      * @throws JsonSyntaxException
      * @throws JsonIOException
@@ -134,7 +133,7 @@ public final class ForgeVersionHelper {
                         version.setLatest(forge);
                     }
                 } else {
-                    final ForgeVersion version = new ForgeVersion();
+                    final var version = new ForgeVersion();
                     if (meta.state.equals("recommended")) {
                         version.setRecommended(forge);
                     } else {
@@ -151,13 +150,13 @@ public final class ForgeVersionHelper {
     /**
      *
      * @param version
-     * @return
+     * @return VersionMeta.
      */
     public static VersionMeta getMCVersion(final String version) {
-    	final Matcher m = VERSION_REGEX.matcher(version);
+    	final var matcher = VERSION_REGEX.matcher(version);
 
-        if (m.find()) {
-            return new VersionMeta(m.group(1), m.group(2));
+        if (matcher.find()) {
+            return new VersionMeta(matcher.group(1), matcher.group(2));
         } else {
             return null;
         }

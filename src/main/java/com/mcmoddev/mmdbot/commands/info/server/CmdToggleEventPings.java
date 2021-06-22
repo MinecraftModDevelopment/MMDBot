@@ -4,10 +4,7 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.Utils;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.List;
 
@@ -39,17 +36,17 @@ public final class CmdToggleEventPings extends Command {
             return;
         }
 
-        final Guild guild = event.getGuild();
-        final TextChannel channel = event.getTextChannel();
-        //TODO get the per guild ID if enabled for the guild the command was run in.
-        final Role role = guild.getRoleById(MMDBot.getConfig().getRole("pings.event-pings"));
+        final var guild = event.getGuild();
+        final var channel = event.getTextChannel();
+        // TODO: Get the per guild ID if enabled for the guild the command was run in.
+        final var role = guild.getRoleById(MMDBot.getConfig().getRole("pings.event-pings"));
 
         if (role == null) {
             channel.sendMessage("The Event Notifications role doesn't exist! The config may be broken.").queue();
             return;
         }
 
-        final Member member = event.getMember();
+        final var member = event.getMember();
         final List<Role> roles = member.getRoles();
         boolean added;
         if (roles.contains(role)) {

@@ -43,3 +43,4 @@ mmdbot_tricks.json
 mmdbot_config.json
 config.json
 bot_logs/*
+data.db

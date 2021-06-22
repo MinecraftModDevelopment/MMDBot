@@ -55,16 +55,16 @@ public final class ForgeUpdateNotifier extends TimerTask {
             LOGGER.debug(NOTIFIER_FORGE, "Checking for new Forge versions...");
             mcVersion = ForgeVersionHelper.getLatestMcVersionForgeVersions().getMcVersion();
 
-            final ForgeVersion latest = ForgeVersionHelper.getForgeVersionsForMcVersion(mcVersion);
+            final var latest = ForgeVersionHelper.getForgeVersionsForMcVersion(mcVersion);
 
-            boolean changed = false;
-            final EmbedBuilder embed = new EmbedBuilder();
+            var changed = false;
+            final var embed = new EmbedBuilder();
             embed.addField("Minecraft Version", mcVersion, true);
             embed.setTitle("Forge version update");
             embed.setColor(Color.ORANGE);
             embed.setTimestamp(Instant.now());
 
-            final StringBuilder logMsg = new StringBuilder(32);
+            final var logMsg = new StringBuilder(32);
             if (latest.getLatest() != null) {
                 if (lastForgeVersions.getLatest() == null) {
                     embed.addField("Latest", String.format("*none* -> **%s**%n", latest.getLatest()), true);
@@ -98,11 +98,11 @@ public final class ForgeUpdateNotifier extends TimerTask {
 
             if (changed) {
                 LOGGER.info(NOTIFIER_FORGE, "New Forge version found for {}: {}", mcVersion, logMsg);
-                // TODO: save this to disk to persist on restarts
+                // TODO: Save this to disk to persist on restarts
                 lastForgeVersions = latest;
 
                 Utils.getChannelIfPresent(getConfig().getChannel("notifications.forge"),
-                    channel -> channel.sendMessage(embed.build()).queue());
+                    channel -> channel.sendMessageEmbeds(embed.build()).queue());
             } else {
                 LOGGER.debug(NOTIFIER_FORGE, "No new Forge version found");
             }

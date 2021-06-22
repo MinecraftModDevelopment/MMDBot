@@ -133,7 +133,7 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
      */
     @Override
     public String doLayout(final ILoggingEvent event) {
-        final StringBuilder builder = new StringBuilder();
+        final var builder = new StringBuilder();
         builder
                 .append(LEVEL_TO_EMOTE.getOrDefault(event.getLevel(), UNKNOWN_EMOTE));
         if (prependLevelName) {
@@ -167,8 +167,8 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
     private String getFormattedMessage(final ILoggingEvent event) {
         final Object[] arguments = event.getArgumentArray();
         if (event.getArgumentArray() != null) {
-            Object[] newArgs = new Object[arguments.length];
-            for (int i = 0; i < arguments.length; i++) {
+            var newArgs = new Object[arguments.length];
+            for (var i = 0; i < arguments.length; i++) {
                 newArgs[i] = tryConvertMentionables(arguments[i]);
             }
 

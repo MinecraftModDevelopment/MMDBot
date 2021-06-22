@@ -37,7 +37,7 @@ public final class ForgeVersion {
 
     /**
      *
-     * @return
+     * @return String.
      */
     public String getRecommended() {
         return recommended;
@@ -45,7 +45,7 @@ public final class ForgeVersion {
 
     /**
      *
-     * @param recommended
+     * @param recommendedIn
      */
     public void setRecommended(final String recommendedIn) {
         this.recommended = recommendedIn;
@@ -53,7 +53,7 @@ public final class ForgeVersion {
 
     /**
      *
-     * @return
+     * @return String.
      */
     public String getLatest() {
         return latest;

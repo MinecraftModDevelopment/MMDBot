@@ -4,7 +4,6 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -41,8 +40,8 @@ public final class CmdRoles extends Command {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
-        final EmbedBuilder embed = new EmbedBuilder();
-        final TextChannel channel = event.getTextChannel();
+        final var embed = new EmbedBuilder();
+        final var channel = event.getTextChannel();
 
         final String rolesCount = event.getGuild().getRoles()
             .stream()
@@ -55,6 +54,6 @@ public final class CmdRoles extends Command {
         embed.setDescription("A count of how many members have been assigned some of MMD's many roles.");
         embed.addField("Role count:", rolesCount, true);
         embed.setTimestamp(Instant.now());
-        channel.sendMessage(embed.build()).queue();
+        channel.sendMessageEmbeds(embed.build()).queue();
     }
 }
