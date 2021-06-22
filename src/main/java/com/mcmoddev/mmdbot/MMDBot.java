@@ -147,6 +147,7 @@ public final class MMDBot {
             System.exit(0);
         } else if (config.getToken() == null) {
             LOGGER.error("No token is specified in the config. Please configure the bot and try again");
+            System.exit(0);
         } else if (config.getGuildID() == 0L) {
             LOGGER.error("No guild ID is configured. Please configure the bot and try again.");
             System.exit(0);
