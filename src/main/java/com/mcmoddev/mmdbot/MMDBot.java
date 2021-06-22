@@ -33,6 +33,7 @@ import com.mcmoddev.mmdbot.commands.info.server.CmdToggleEventPings;
 import com.mcmoddev.mmdbot.commands.info.server.CmdToggleMcServerPings;
 import com.mcmoddev.mmdbot.commands.staff.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.commands.staff.CmdMute;
+import com.mcmoddev.mmdbot.commands.staff.CmdOldChannels;
 import com.mcmoddev.mmdbot.commands.staff.CmdUnmute;
 import com.mcmoddev.mmdbot.commands.staff.CmdUser;
 import com.mcmoddev.mmdbot.core.BotConfig;
@@ -182,6 +183,7 @@ public final class MMDBot {
                 .addCommand(new CmdMute())
                 .addCommand(new CmdUnmute())
                 .addCommand(new CmdCommunityChannel())
+                .addCommand(new CmdOldChannels())
                 .addCommand(new CmdGreatMoves())
                 .setHelpWord("help")
                 .build();
