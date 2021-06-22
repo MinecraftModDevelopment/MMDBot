@@ -408,19 +408,6 @@ public final class BotConfig {
     /**
      *
      * @param path
-     * @return List.
-     */
-    private Optional<List<Long>> getSnowflakeList(final String path) {
-        return config.<List<String>>getOptional(path)
-            .map(strings -> strings.stream()
-                .map(SafeIdUtil::safeConvert)
-                .filter(snowflake -> snowflake != 0)
-                .collect(Collectors.toList()));
-    }
-
-    /**
-     *
-     * @param path
      * @param aliases
      * @return List.
      */
