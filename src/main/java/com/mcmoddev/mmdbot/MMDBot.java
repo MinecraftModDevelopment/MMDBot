@@ -146,20 +146,14 @@ public final class MMDBot {
             MMDBot.LOGGER.warn("A new config file at {} has been generated. Please configure the bot and try again.",
                     configPath);
             System.exit(0);
-        } else if (MMDBot.config.getToken() == null) {
+        } else if (MMDBot.config.getToken().isEmpty()) {
             MMDBot.LOGGER.error("No token is specified in the config. Please configure the bot and try again");
             System.exit(0);
-        } else if (MMDBot.config.getOwnerID() == null) {
+        } else if (MMDBot.config.getOwnerID().isEmpty()) {
             MMDBot.LOGGER.error("No owner ID is specified in the config. Please configure the bot and try again");
             System.exit(0);
         } else if (MMDBot.config.getGuildID() == 0L) {
             MMDBot.LOGGER.error("No guild ID is configured. Please configure the bot and try again.");
-            System.exit(0);
-        } else if (MMDBot.config.getMainPrefix() == null) {
-            MMDBot.LOGGER.error("No main prefix is specified in the config. Please configure the bot and try again");
-            System.exit(0);
-        } else if (MMDBot.config.getAlternativePrefix() == null) {
-            MMDBot.LOGGER.error("No alternative prefix is specified in the config. Please configure the bot and try again");
             System.exit(0);
         }
 
