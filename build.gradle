@@ -1,61 +1,227 @@
 buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.github.rodionmoiseev.gradle.plugins:idea-utils:0.2'
-    }
+  repositories {
+    mavenCentral()
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.github.rodionmoiseev.gradle.plugins:idea-utils:0.2'
+  }
 }
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'idea-utils'
-apply plugin: 'maven'
+plugins {
+  id 'application'
+  id 'com.github.johnrengelman.shadow' version '6.1.0'
+//id 'maven-publish'
+  id 'eclipse'
+  id 'idea'
+  id 'com.github.spotbugs' version '4.7.1'
+  id 'checkstyle'
+  id 'pmd'
+}
 
-group 'MMDBot'
+apply plugin: 'idea-utils'
+
+mainClassName = 'com.mcmoddev.mmdbot.MMDBot'
+group 'com.mcmoddev'
+version project.bot_version
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+
+application {
+    mainClass = 'com.mcmoddev.mmdbot.MMDBot'
+}
+
+compileJava {
+  sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+  options.encoding = 'UTF-8'
+}
+
+tasks.withType(JavaCompile) {
+  options.encoding = 'UTF-8'
+  options.compilerArgs = [
+    '-Xlint:deprecation', // deprecation, rawtypes, cast, unchecked, all
+    //'-Xdiags:verbose',
+    //'-Werror'
+  ]
+  compileJava.options.compilerArgs += '-proc:none'
+}
 
 repositories {
-    jcenter()
-    maven {
-        url 'https://maven.mcmoddev.com'
-    }
-    maven {
-        url 'https://jitpack.io'
-    }
+  mavenCentral()
+  jcenter()
+  maven {
+    name 'mmd'
+    url 'https://maven.mcmoddev.com'
+  }
+  maven {
+    name 'jitpack'
+    url 'https://jitpack.io'
+  }
 }
 
 dependencies {
-    compile 'com.github.austinv11:Discord4j:2.9.3'
-    compile 'com.google.guava:guava:19.0'
-    compile 'com.google.code.gson:gson:2.2.4'
-    compile 'org.jsoup:jsoup:1.8.3'
-    compile 'ch.qos.logback:logback-classic:1.2.3'
-    compile 'mysql:mysql-connector-java:5.1.48'
+  implementation group: 'com.github.austinv11', name: 'Discord4j', version: "${project.d4j_version}"
+  implementation group: 'com.google.guava', name: 'guava', version: "${project.guava_version}"
+  implementation group: 'com.google.code.gson', name: 'gson', version: "${project.gson_version}"
+  implementation group: 'org.jsoup', name: 'jsoup', version: "${project.jsoup_version}"
+  implementation group: 'ch.qos.logback', name: 'logback-classic', version: "${project.logback_classic_version}"
+  implementation group: 'mysql', name: 'mysql-connector-java', version: "${project.mysql_connector_java_version}"
+
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: "${project.junit_version}"
+
+  spotbugsPlugins "com.h3xstream.findsecbugs:findsecbugs-plugin:${project.findsecbugs_version}"
 }
 
+/*
 task fatJar(type: Jar) {
-    manifest {
-        attributes 'Implementation-Title': 'MMDBot', 'Implementation-Version': '1.0.0', 'Main-Class': 'com.mcmoddev.bot.MMDBot'
-    }
-    baseName = project.name + '-all'
-
-        from {
-        configurations.compile.collect {
-            it.isDirectory() ? it : zipTree(it).matching {
-                exclude 'META-INF/**.RSA'
-                exclude 'META-INF/MANIFEST.MF'
-                exclude 'META-INF/log4j-provider.properties'
-            } } }
-    with jar
-}
-
-build.dependsOn(fatJar)
-
-jar {
   manifest {
-    attributes(
-      'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+    mainAttributes(
+      'Maven-Artifact': "${project.group}:${archivesBaseName}:${project.bot_version}",
+      'Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+      'Specification-Title': archivesBaseName,
+      'Specification-Vendor': "MinecraftModDevs",
+      'Specification-Version': "1",
+      'Implementation-Title': archivesBaseName,
+      'Implementation-Version': "${project.bot_version}",
+      'Implementation-Vendor': "MinecraftModDevs",
+      'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+      'Built-On-Java': "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
+//      'Built-On': "${project.jda_version}-${project.jdautils_version}",
       'Main-Class': 'com.mcmoddev.bot.MMDBot'
     )
   }
+  archiveBaseName = project.name + '-all'
+
+  from {
+    configurations.compileClasspath.collect {
+      it.isDirectory() ? it : zipTree(it).matching {
+        exclude 'META-INF/**.RSA'
+        exclude 'META-INF/MANIFEST.MF'
+        exclude 'META-INF/log4j-provider.properties'
+      }
+    }
+  }
+  with jar
+}
+
+build.dependsOn(fatJar)
+*/
+
+jar {
+  manifest {
+    mainAttributes(
+      'Maven-Artifact': "${project.group}:${archivesBaseName}:${project.bot_version}",
+      'Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+      'Specification-Title': archivesBaseName,
+      'Specification-Vendor': "MinecraftModDevs",
+      'Specification-Version': "1",
+      'Implementation-Title': archivesBaseName,
+      'Implementation-Version': "${project.bot_version}",
+      'Implementation-Vendor': "MinecraftModDevs",
+      'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+      'Built-On-Java': "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
+//      'Built-On': "${project.jda_version}-${project.jdautils_version}",
+      'Class-Path': configurations.compileClasspath.collect { it.getName() }.join(' '),
+      'Main-Class': 'com.mcmoddev.bot.MMDBot'
+    )
+  }
+}
+
+eclipse.project {
+  buildCommand 'org.eclipse.buildship.core.gradleprojectbuilder'
+  natures 'org.eclipse.buildship.core.gradleprojectnature'
+}
+
+idea.module {
+  downloadJavadoc = true
+  inheritOutputDirs = true
+}
+
+javadoc {
+  failOnError = false
+}
+
+test {
+  useJUnitPlatform()
+  testLogging {
+    events "passed", "skipped", "failed"
+  }
+}
+
+spotbugs {
+  ignoreFailures = true
+  showStackTraces = false
+  toolVersion = '4.2.3'
+  effort = 'max'
+  reportLevel = 'low'
+  //includeFilter = file("$rootProject.projectDir/config/spotbugs-filter.xml")
+}
+
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
+  reports {
+    xml.enabled = false
+    html.enabled = true
+  }
+}
+
+checkstyle {
+  ignoreFailures = true
+  toolVersion = '8.43'
+  showViolations = false
+}
+
+tasks.withType(Checkstyle) {
+  reports {
+    xml.enabled true
+    html.enabled true
+//  html.stylesheet resources.text.fromFile('config/xsl/checkstyle-noframes.xsl') // Default
+    html.stylesheet resources.text.fromFile('config/xsl/checkstyle-noframes-severity-sorted.xsl')
+  }
+}
+
+pmd {
+  consoleOutput = false
+  ignoreFailures = true
+  sourceSets = [sourceSets.main, sourceSets.test]
+  reportsDir = file("$project.buildDir/reports/pmd")
+  rulesMinimumPriority = 5
+  ruleSetFiles = files('config/pmd/pmd.xml')
+  ruleSets = [
+/*
+//  'java-android',
+    'java-basic',
+    'java-braces',
+    'java-clone',
+//  'java-codesize',
+//  'java-comments',
+//  'java-controversial',
+//  'java-coupling',
+    'java-design',
+    'java-empty',
+    'java-finalizers',
+    'java-imports',
+//  'java-j2ee',
+//  'java-javabeans',
+    'java-junit',
+    'java-logging-jakarta-commons',
+    'java-logging-java',
+//  'java-metrics', // Upsets 5.8.1
+    'java-migrating',
+//  'java-migrating_to_13',
+//  'java-migrating_to_14',
+//  'java-migrating_to_15',
+    'java-migrating_to_junit4',
+    'java-naming',
+    'java-optimizations',
+//  'java-quickstart', // 6.x
+    'java-strictexception',
+    'java-strings',
+    'java-sunsecure',
+    'java-typeresolution',
+    'java-unnecessary',
+    'java-unusedcode'
+*/
+  ]
+  toolVersion = '6.35.0'
+  incrementalAnalysis = true
 }
