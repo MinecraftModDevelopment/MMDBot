@@ -9,18 +9,20 @@ import java.awt.Color;
 import java.time.Instant;
 
 /**
+ * The type Cmd events help.
+ *
  * @author
  */
 public final class CmdEventsHelp extends Command {
 
     /**
-     *
+     * The constant IMAGE_URL.
      */
     private static final String IMAGE_URL =
         "https://cdn.discordapp.com/attachments/665281306426474506/665605979798372392/eventhandler.png";
 
     /**
-     *
+     * Instantiates a new Cmd events help.
      */
     public CmdEventsHelp() {
         super();
@@ -30,6 +32,8 @@ public final class CmdEventsHelp extends Command {
     }
 
     /**
+     * Execute.
+     *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override

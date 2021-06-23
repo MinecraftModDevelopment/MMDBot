@@ -11,12 +11,14 @@ import java.awt.Color;
 import java.time.Instant;
 
 /**
+ * The type Cmd fabric version.
+ *
  * @author williambl
  */
 public final class CmdFabricVersion extends Command {
 
     /**
-     *
+     * Instantiates a new Cmd fabric version.
      */
     public CmdFabricVersion() {
         super();
@@ -26,6 +28,8 @@ public final class CmdFabricVersion extends Command {
     }
 
     /**
+     * Execute.
+     *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override

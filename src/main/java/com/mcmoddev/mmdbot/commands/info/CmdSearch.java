@@ -24,9 +24,11 @@ public final class CmdSearch extends Command {
     private final String baseUrl;
 
     /**
+     * Instantiates a new Cmd search.
+     *
      * @param name      The command's/search engine's name.
      * @param baseUrlIn The base URL of the search provider.
-     * @param aliases
+     * @param aliases   the aliases
      */
     public CmdSearch(final String name, final String baseUrlIn, final String... aliases) {
         super();
@@ -37,6 +39,8 @@ public final class CmdSearch extends Command {
     }
 
     /**
+     * Execute.
+     *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     protected void execute(final CommandEvent event) {

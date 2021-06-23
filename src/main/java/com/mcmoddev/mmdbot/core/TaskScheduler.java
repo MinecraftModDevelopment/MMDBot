@@ -9,24 +9,26 @@ import com.mcmoddev.mmdbot.updatenotifiers.minecraft.MinecraftUpdateNotifier;
 import java.util.Timer;
 
 /**
+ * The type Task scheduler.
+ *
  * @author Antoine Gagnon
  */
 public final class TaskScheduler {
 
     /**
-     *
+     * The constant TIMER.
      */
     private static final Timer TIMER = new Timer();
 
     /**
-     *
+     * Instantiates a new Task scheduler.
      */
     private TaskScheduler() {
         throw new IllegalStateException("Utility class");
     }
 
     /**
-     *
+     * Init.
      */
     public static void init() {
         //Check each every 3 hours. 1000 * 60 * 60 * 3

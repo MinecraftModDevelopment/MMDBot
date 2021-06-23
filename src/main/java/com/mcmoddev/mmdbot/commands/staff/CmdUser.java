@@ -13,12 +13,14 @@ import java.time.LocalDateTime;
 import java.util.Locale;
 
 /**
+ * The type Cmd user.
+ *
  * @author
  */
 public class CmdUser extends Command {
 
     /**
-     *
+     * Instantiates a new Cmd user.
      */
     public CmdUser() {
         super();
@@ -29,6 +31,8 @@ public class CmdUser extends Command {
     }
 
     /**
+     * Execute.
+     *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override
@@ -47,8 +51,10 @@ public class CmdUser extends Command {
     }
 
     /**
-     * @param member
-     * @return EmbedBuilder.
+     * Create member embed embed builder.
+     *
+     * @param member the member
+     * @return EmbedBuilder. embed builder
      */
     protected EmbedBuilder createMemberEmbed(final Member member) {
         final var user = member.getUser();
@@ -72,7 +78,8 @@ public class CmdUser extends Command {
         final var date = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH);
         embed.addField("Joined Discord:", date.format(dateJoinedDiscord.toEpochMilli()), true);
         embed.addField("Joined MMD:", date.format(dateJoinedMMD.toEpochMilli()), true);
-        embed.addField("Member for:", Utils.getTimeDifference(Utils.getLocalTime(dateJoinedMMD), LocalDateTime.now()), true);
+        embed.addField("Member for:", Utils.getTimeDifference(Utils.getLocalTime(dateJoinedMMD),
+            LocalDateTime.now()), true);
         embed.setTimestamp(Instant.now());
 
         return embed;

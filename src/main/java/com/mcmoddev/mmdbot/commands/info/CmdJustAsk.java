@@ -9,12 +9,14 @@ import java.awt.Color;
 import java.time.Instant;
 
 /**
+ * The type Cmd just ask.
+ *
  * @author
  */
 public final class CmdJustAsk extends Command {
 
     /**
-     *
+     * The constant BODY.
      */
     private static final String BODY =
         "Please just ask the question; don't test the waters for the _real_ question. Instead, ask the full "
@@ -23,7 +25,7 @@ public final class CmdJustAsk extends Command {
             + System.lineSeparator() + Utils.makeHyperlink("More info", "https://sol.gfxile.net/dontask.html");
 
     /**
-     *
+     * Instantiates a new Cmd just ask.
      */
     public CmdJustAsk() {
         super();
@@ -33,6 +35,8 @@ public final class CmdJustAsk extends Command {
     }
 
     /**
+     * Execute.
+     *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override

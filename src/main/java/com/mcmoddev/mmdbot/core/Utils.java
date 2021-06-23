@@ -41,22 +41,24 @@ import java.util.stream.Collectors;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 
 /**
+ * The type Utils.
+ *
  * @author
  */
 public final class Utils {
 
     /**
-     *
+     * The constant STICKY_ROLES_FILE_PATH.
      */
     public static final String STICKY_ROLES_FILE_PATH = "mmdbot_sticky_roles.json";
 
     /**
-     *
+     * The constant USER_JOIN_TIMES_FILE_PATH.
      */
     public static final String USER_JOIN_TIMES_FILE_PATH = "mmdbot_user_join_times.json";
 
     /**
-     *
+     * Instantiates a new Utils.
      */
     private Utils() {
         // Shut up Sonarqube warns
@@ -85,14 +87,16 @@ public final class Utils {
      * Borrowed from Darkhax's BotBase, all credit for the below methods go to him.
      * The Bot Base repo and code is now deleted if you need it for reference Proxy has a copy. Dark may also have one.
      *
-     * @param instant
-     * @return LocalDateTime.
+     * @param instant the instant
+     * @return LocalDateTime. local time
      */
     public static LocalDateTime getLocalTime(final Instant instant) {
         return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
     }
 
     /**
+     * Gets time difference.
+     *
      * @param fromTime The starting time.
      * @param toTime   The end time.
      * @return The difference between the two times.
@@ -102,9 +106,11 @@ public final class Utils {
     }
 
     /**
+     * Gets time difference.
+     *
      * @param fromTime The starting time.
      * @param toTime   The end time.
-     * @param units
+     * @param units    the units
      * @return The difference between the two times.
      */
     public static String getTimeDifference(final LocalDateTime fromTime, final LocalDateTime toTime,
@@ -116,13 +122,16 @@ public final class Utils {
             if (time > 0) {
                 temp = temp.plus(time, unit);
                 final var unitName = unit.toString();
-                joiner.add(time + " " + (time < 2 && unitName.endsWith("s") ? unitName.substring(0, unitName.length() - 1) : unitName));
+                joiner.add(time + " " + (time < 2 && unitName.endsWith("s") ? unitName.substring(0, unitName.length()
+                    - 1) : unitName));
             }
         }
         return joiner.toString();
     }
 
     /**
+     * Make hyperlink string.
+     *
      * @param text The text to display for the link.
      * @param url  The URL the text points to.
      * @return The new hyperlink.
@@ -132,6 +141,8 @@ public final class Utils {
     }
 
     /**
+     * Gets member from string.
+     *
      * @param memberString The members string name or ID.
      * @param guild        The guild we are currently in.
      * @return The guild member.
@@ -149,8 +160,10 @@ public final class Utils {
     }
 
     /**
+     * Gets number of matching reactions.
+     *
      * @param message   The message we are getting the number of matching reactions from.
-     * @param predicate
+     * @param predicate the predicate
      * @return The amount of matching reactions.
      */
     public static int getNumberOfMatchingReactions(final Message message, final LongPredicate predicate) {
@@ -204,7 +217,9 @@ public final class Utils {
     }
 
     /**
-     * @return Map.
+     * Gets user to role map.
+     *
+     * @return Map. user to role map
      */
     @Nonnull
     public static Map<String, List<String>> getUserToRoleMap() {
@@ -245,7 +260,9 @@ public final class Utils {
     }
 
     /**
-     * @return Map.
+     * Gets user join time map.
+     *
+     * @return Map. user join time map
      */
     @Nonnull
     public static Map<String, Instant> getUserJoinTimeMap() {
@@ -265,6 +282,8 @@ public final class Utils {
     }
 
     /**
+     * Gets member join time.
+     *
      * @param member The user.
      * @return The users join time.
      */
@@ -295,7 +314,7 @@ public final class Utils {
     public static boolean checkCommand(final Command command, final CommandEvent event) {
 
         if (!isEnabled(command, event)) {
-            // Could also send an informational message
+            //Could also send an informational message.
             return false;
         }
 
@@ -304,7 +323,7 @@ public final class Utils {
             if (event.getMember().getRoles().stream()
                 .map(ISnowflake::getIdLong)
                 .anyMatch(exemptRoles::contains)) {
-                // The member has a channel-checking-exempt role, bypass checking and allow the command
+                //The member has a channel-checking-exempt role, bypass checking and allow the command.
                 return true;
             }
         }
@@ -316,10 +335,13 @@ public final class Utils {
             return false;
         }
 
-        if (event.isFromType(ChannelType.TEXT)) { // Sent from a guild
-            final List<Long> allowedChannels = getConfig().getAllowedChannels(command.getName(), event.getGuild().getIdLong());
+        //Sent from a guild.
+        if (event.isFromType(ChannelType.TEXT)) {
+            final List<Long> allowedChannels = getConfig().getAllowedChannels(command.getName(),
+                event.getGuild().getIdLong());
 
-            if (allowedChannels.isEmpty()) { // If the allow list is empty, default allowed
+            //If the allow list is empty, default allowed.
+            if (allowedChannels.isEmpty()) {
                 return true;
             }
 
@@ -347,7 +369,8 @@ public final class Utils {
                     str.append(", only in ")
                         .append(allowedChannelStr);
                 }
-                event.getChannel() // TODO: Remove the allowed channel string?
+                event.getChannel()
+                    //TODO: Remove the allowed channel string?
                     .sendMessage(str.append("!"))
                     .queue();
                 return false;
@@ -358,9 +381,11 @@ public final class Utils {
     }
 
     /**
-     * @param command
-     * @param event
-     * @return boolean.
+     * Is enabled boolean.
+     *
+     * @param command the command
+     * @param event   the event
+     * @return boolean. boolean
      */
     private static boolean isEnabled(final Command command, final CommandEvent event) {
         if (event.isFromType(ChannelType.TEXT)) { // Sent from a guild
@@ -370,14 +395,17 @@ public final class Utils {
     }
 
     /**
-     * @param command
-     * @param event
-     * @return boolean.
+     * Is blocked boolean.
+     *
+     * @param command the command
+     * @param event   the event
+     * @return boolean. boolean
      */
     private static boolean isBlocked(final Command command, final CommandEvent event) {
         if (event.isFromType(ChannelType.TEXT)) { // Sent from a guild
             final var channelID = event.getChannel().getIdLong();
-            final List<Long> blockedChannels = getConfig().getBlockedChannels(command.getName(), event.getGuild().getIdLong());
+            final List<Long> blockedChannels = getConfig().getBlockedChannels(command.getName(),
+                event.getGuild().getIdLong());
             @Nullable final var category = event.getTextChannel().getParent();
             if (category != null) {
                 final var categoryID = category.getIdLong();
@@ -390,7 +418,8 @@ public final class Utils {
     }
 
     /**
-     * Calls the given consumer only if the channel with the given ID is present within the {@linkplain BotConfig#getGuildID() bot's guild}.
+     * Calls the given consumer only if the channel with the given ID is present within the
+     * {@linkplain BotConfig#getGuildID() bot's guild}.
      *
      * @param channelID The channel ID
      * @param consumer  The consumer of the channel

@@ -10,12 +10,14 @@ import java.awt.Color;
 import java.time.Instant;
 
 /**
+ * The type Cmd minecraft version.
+ *
  * @author
  */
 public final class CmdMinecraftVersion extends Command {
 
     /**
-     *
+     * Instantiates a new Cmd minecraft version.
      */
     public CmdMinecraftVersion() {
         super();
@@ -25,6 +27,8 @@ public final class CmdMinecraftVersion extends Command {
     }
 
     /**
+     * Execute.
+     *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override

@@ -4,17 +4,19 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 
 /**
+ * The type Cmd great moves.
+ *
  * @author
  */
 public final class CmdGreatMoves extends Command {
 
     /**
-     *
+     * The constant URL.
      */
     public static final String URL = "https://soundcloud.com/aldenchambers/great-moves-keep-it-up";
 
     /**
-     *
+     * Instantiates a new Cmd great moves.
      */
     public CmdGreatMoves() {
         name = "greatmoves";
@@ -24,6 +26,8 @@ public final class CmdGreatMoves extends Command {
     }
 
     /**
+     * Execute.
+     *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override

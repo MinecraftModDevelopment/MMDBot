@@ -15,17 +15,19 @@ import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 /**
+ * The type Cmd cat facts.
+ *
  * @author
  */
 public final class CmdCatFacts extends Command {
 
     /**
-     *
+     * The constant random.
      */
-    private static final Random random = new Random();
+    private static final Random RANDOM = new Random();
 
     /**
-     *
+     * Instantiates a new Cmd cat facts.
      */
     public CmdCatFacts() {
         super();
@@ -36,7 +38,9 @@ public final class CmdCatFacts extends Command {
     }
 
     /**
-     * @return String.
+     * Gets fact.
+     *
+     * @return String. fact
      */
     public static String getFact() {
         try {
@@ -60,6 +64,8 @@ public final class CmdCatFacts extends Command {
     }
 
     /**
+     * Execute.
+     *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override
@@ -70,7 +76,7 @@ public final class CmdCatFacts extends Command {
         final var embed = new EmbedBuilder();
         final var fact = getFact();
         if (!"".equals(fact)) {
-            embed.setColor(random.nextInt(0x1000000));
+            embed.setColor(RANDOM.nextInt(0x1000000));
             embed.appendDescription(fact);
             embed.setFooter("Puwerrd by https://catfact.ninja");
 

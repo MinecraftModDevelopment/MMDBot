@@ -13,32 +13,37 @@ import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.NOTIFIER_FORGE;
 
 /**
+ * The type Forge update notifier.
+ *
  * @author Antoine Gagnon
  */
 public final class ForgeUpdateNotifier extends TimerTask {
 
     /**
-     *
+     * The constant CHANGELOG.
      */
     private static final String CHANGELOG = "Changelog";
 
     /**
-     *
+     * The constant CHANGELOG_URL_TEMPLATE.
      */
-    private static final String CHANGELOG_URL_TEMPLATE = "https://maven.minecraftforge.net/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt";
+    private static final String CHANGELOG_URL_TEMPLATE
+        = "https://maven.minecraftforge.net/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt";
 
     /**
-     *
+     * The Mc version.
      */
     private String mcVersion;
 
     /**
-     *
+     * The Last forge versions.
      */
     private ForgeVersion lastForgeVersions;
 
     /**
-     * @throws IOException
+     * Instantiates a new Forge update notifier.
+     *
+     * @throws IOException the io exception
      */
     public ForgeUpdateNotifier() throws IOException {
         final MinecraftForgeVersion mcForgeVersions = ForgeVersionHelper.getLatestMcVersionForgeVersions();
@@ -46,6 +51,9 @@ public final class ForgeUpdateNotifier extends TimerTask {
         lastForgeVersions = mcForgeVersions.getForgeVersion();
     }
 
+    /**
+     * Run.
+     */
     @Override
     public void run() {
         try {
@@ -64,15 +72,20 @@ public final class ForgeUpdateNotifier extends TimerTask {
             final var logMsg = new StringBuilder(32);
             if (latest.getLatest() != null) {
                 if (lastForgeVersions.getLatest() == null) {
-                    embed.addField("Latest", String.format("*none* -> **%s**%n", latest.getLatest()), true);
-                    embed.setDescription(Utils.makeHyperlink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE, mcVersion, latest.getLatest())));
+                    embed.addField("Latest", String.format("*none* -> **%s**%n", latest.getLatest()),
+                        true);
+                    embed.setDescription(Utils.makeHyperlink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE,
+                        mcVersion, latest.getLatest())));
                     changed = true;
                     logMsg.append("Latest, from none to ").append(latest.getLatest());
                 } else if (!latest.getLatest().equals(lastForgeVersions.getLatest())) {
-                    embed.addField("Latest", String.format("**%s** -> **%s**%n", lastForgeVersions.getLatest(), latest.getLatest()), true);
-                    embed.setDescription(Utils.makeHyperlink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE, mcVersion, latest.getLatest())));
+                    embed.addField("Latest", String.format("**%s** -> **%s**%n", lastForgeVersions.getLatest(),
+                        latest.getLatest()), true);
+                    embed.setDescription(Utils.makeHyperlink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE, mcVersion,
+                        latest.getLatest())));
                     changed = true;
-                    logMsg.append("Latest, from ").append(lastForgeVersions.getLatest()).append(" to ").append(latest.getLatest());
+                    logMsg.append("Latest, from ").append(lastForgeVersions.getLatest()).append(" to ")
+                        .append(latest.getLatest());
                 }
             }
 
@@ -81,15 +94,20 @@ public final class ForgeUpdateNotifier extends TimerTask {
                     logMsg.append("; ");
                 }
                 if (lastForgeVersions.getRecommended() == null) {
-                    embed.addField("Recommended", String.format("*none* -> **%s**%n", latest.getRecommended()), true);
-                    embed.setDescription(Utils.makeHyperlink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE, mcVersion, latest.getRecommended())));
+                    embed.addField("Recommended", String.format("*none* -> **%s**%n", latest.getRecommended()),
+                        true);
+                    embed.setDescription(Utils.makeHyperlink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE,
+                        mcVersion, latest.getRecommended())));
                     changed = true;
                     logMsg.append("Recommended, from none to ").append(latest.getLatest());
                 } else if (!latest.getRecommended().equals(lastForgeVersions.getRecommended())) {
-                    embed.addField("Recommended", String.format("**%s** -> **%s**%n", lastForgeVersions.getRecommended(), latest.getRecommended()), true);
-                    embed.setDescription(Utils.makeHyperlink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE, mcVersion, latest.getRecommended())));
+                    embed.addField("Recommended", String.format("**%s** -> **%s**%n",
+                        lastForgeVersions.getRecommended(), latest.getRecommended()), true);
+                    embed.setDescription(Utils.makeHyperlink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE,
+                        mcVersion, latest.getRecommended())));
                     changed = true;
-                    logMsg.append("Recommended, from ").append(lastForgeVersions.getLatest()).append(" to ").append(latest.getLatest());
+                    logMsg.append("Recommended, from ").append(lastForgeVersions.getLatest()).append(" to ")
+                        .append(latest.getLatest());
                 }
             }
 

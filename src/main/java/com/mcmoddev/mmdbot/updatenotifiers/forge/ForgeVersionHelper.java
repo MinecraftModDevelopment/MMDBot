@@ -15,36 +15,41 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
+ * The type Forge version helper.
+ *
  * @author Antoine Gagnon
  */
 public final class ForgeVersionHelper {
 
     /**
-     *
+     * The constant VERSION_URL.
      */
-    private static final String VERSION_URL = "https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json";
+    private static final String VERSION_URL
+        = "https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json";
 
     /**
-     *
+     * The constant VERSION_REGEX.
      */
     private static final Pattern VERSION_REGEX = Pattern.compile("(.+?)-(.+)");
 
     /**
-     *
+     * The constant GSON.
      */
     private static final Gson GSON = new Gson();
 
 
     /**
-     *
+     * Instantiates a new Forge version helper.
      */
     private ForgeVersionHelper() {
         throw new IllegalStateException("Utility class");
     }
 
     /**
-     * @param versions
-     * @return String.
+     * Gets latest version.
+     *
+     * @param versions the versions
+     * @return String. latest version
      */
     public static String getLatestVersion(final List<String> versions) {
         var latest = new SemVer(versions.get(0));
@@ -60,23 +65,29 @@ public final class ForgeVersionHelper {
     }
 
     /**
-     * @param mcVersion
-     * @return ForgeVersion.
-     * @throws IOException
-     * @throws ClassCastException
-     * @throws NullPointerException
+     * Gets forge versions for mc version.
+     *
+     * @param mcVersion the mc version
+     * @return ForgeVersion. forge versions for mc version
+     * @throws IOException          the io exception
+     * @throws ClassCastException   the class cast exception
+     * @throws NullPointerException the null pointer exception
      */
-    public static ForgeVersion getForgeVersionsForMcVersion(final String mcVersion) throws IOException, ClassCastException, NullPointerException {
+    public static ForgeVersion getForgeVersionsForMcVersion(final String mcVersion) throws IOException,
+        ClassCastException, NullPointerException {
         return getForgeVersions().get(mcVersion);
     }
 
     /**
-     * @return MinecraftForgeVersion.
-     * @throws IOException
-     * @throws JsonSyntaxException
-     * @throws JsonIOException
+     * Gets latest mc version forge versions.
+     *
+     * @return MinecraftForgeVersion. latest mc version forge versions
+     * @throws IOException         the io exception
+     * @throws JsonSyntaxException the json syntax exception
+     * @throws JsonIOException     the json io exception
      */
-    public static MinecraftForgeVersion getLatestMcVersionForgeVersions() throws IOException, JsonSyntaxException, JsonIOException {
+    public static MinecraftForgeVersion getLatestMcVersionForgeVersions() throws IOException,
+        JsonSyntaxException, JsonIOException {
         final Map<String, ForgeVersion> versions = getForgeVersions();
 
         final String latest = getLatestVersion(new ArrayList<>(versions.keySet()));
@@ -85,8 +96,10 @@ public final class ForgeVersionHelper {
     }
 
     /**
-     * @return InputStreamReader.
-     * @throws IOException
+     * Open url input stream reader.
+     *
+     * @return InputStreamReader. input stream reader
+     * @throws IOException the io exception
      */
     private static InputStreamReader openUrl() throws IOException {
         final var urlObj = new URL(VERSION_URL);
@@ -95,44 +108,47 @@ public final class ForgeVersionHelper {
     }
 
     /**
-     * @return Map.
-     * @throws IOException
-     * @throws JsonSyntaxException
-     * @throws JsonIOException
+     * Gets forge versions.
+     *
+     * @return Map. forge versions
+     * @throws IOException         the io exception
+     * @throws JsonSyntaxException the json syntax exception
+     * @throws JsonIOException     the json io exception
      */
-    public static Map<String, ForgeVersion> getForgeVersions() throws IOException, JsonSyntaxException, JsonIOException {
+    public static Map<String, ForgeVersion> getForgeVersions() throws IOException,
+        JsonSyntaxException, JsonIOException {
         final InputStreamReader reader = openUrl();
 
         final ForgePromoData data = GSON.fromJson(reader, ForgePromoData.class);
 
         // Remove this specific entry (differs from others with having the `_pre4` version)
-        data.promos.remove("1.7.10_pre4-latest");
+        data.getPromos().remove("1.7.10_pre4-latest");
 
         // Collect version data
         final Map<String, ForgeVersion> versions = new HashMap<>();
 
-        for (final Map.Entry<String, String> entry : data.promos.entrySet()) {
+        for (final Map.Entry<String, String> entry : data.getPromos().entrySet()) {
             final String mc = entry.getKey();
             final String forge = entry.getValue();
 
             final VersionMeta meta = getMCVersion(mc);
 
             if (meta != null) {
-                if (versions.containsKey(meta.version)) {
-                    final ForgeVersion version = versions.get(meta.version);
-                    if (meta.state.equals("recommended")) {
+                if (versions.containsKey(meta.getVersion())) {
+                    final ForgeVersion version = versions.get(meta.getVersion());
+                    if (meta.getState().equals("recommended")) {
                         version.setRecommended(forge);
                     } else {
                         version.setLatest(forge);
                     }
                 } else {
                     final var version = new ForgeVersion();
-                    if (meta.state.equals("recommended")) {
+                    if (meta.getState().equals("recommended")) {
                         version.setRecommended(forge);
                     } else {
                         version.setLatest(forge);
                     }
-                    versions.put(meta.version, version);
+                    versions.put(meta.getVersion(), version);
                 }
             }
         }
@@ -141,8 +157,10 @@ public final class ForgeVersionHelper {
     }
 
     /**
-     * @param version
-     * @return VersionMeta.
+     * Gets mc version.
+     *
+     * @param version the version
+     * @return VersionMeta. mc version
      */
     public static VersionMeta getMCVersion(final String version) {
         final var matcher = VERSION_REGEX.matcher(version);

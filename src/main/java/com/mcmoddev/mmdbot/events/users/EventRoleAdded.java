@@ -23,6 +23,8 @@ import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.EVENTS;
 
 /**
+ * The type Event role added.
+ *
  * @author
  */
 public final class EventRoleAdded extends ListenerAdapter {
@@ -37,7 +39,9 @@ public final class EventRoleAdded extends ListenerAdapter {
     public static final Multimap<User, Role> IGNORE_ONCE = HashMultimap.create();
 
     /**
+     * On guild member role add.
      *
+     * @param event the event
      */
     @Override
     public void onGuildMemberRoleAdd(final GuildMemberRoleAddEvent event) {
@@ -57,7 +61,8 @@ public final class EventRoleAdded extends ListenerAdapter {
             while (ignoredRoles.hasNext()) {
                 final var ignored = ignoredRoles.next();
                 if (addedRoles.contains(ignored)) { // Remove ignored roles from event listing and ignore map
-                    LOGGER.info(EVENTS, "Role {} for {} was in role ignore map, removing from map and ignoring", ignored, target);
+                    LOGGER.info(EVENTS, "Role {} for {} was in role ignore map, removing from map and ignoring",
+                        ignored, target);
                     addedRoles.remove(ignored);
                     ignoredRoles.remove();
                 }
@@ -80,15 +85,20 @@ public final class EventRoleAdded extends ListenerAdapter {
                     embed.setColor(Color.YELLOW);
                     embed.setTitle("User Role(s) Added");
                     embed.setThumbnail(target.getEffectiveAvatarUrl());
-                    embed.addField("User:", target.getAsMention() + " (" + target.getId() + ")", true);
+                    embed.addField("User:", target.getAsMention() + " (" + target.getId() + ")",
+                        true);
                     if (entry.getTargetIdLong() != target.getIdLong()) {
-                        LOGGER.warn(EVENTS, "Inconsistency between target of retrieved audit log entry and actual role event target: retrieved is {}, but target is {}", target, entry.getUser());
+                        LOGGER.warn(EVENTS, "Inconsistency between target of retrieved audit log entry and actual "
+                            + "role event target: retrieved is {}, but target is {}", target, entry.getUser());
                     } else if (entry.getUser() != null) {
                         final var editor = entry.getUser();
-                        embed.addField("Editor:", editor.getAsMention() + " (" + editor.getId() + ")", true);
+                        embed.addField("Editor:", editor.getAsMention() + " (" + editor.getId() + ")",
+                            true);
                     }
-                    embed.addField("Previous Role(s):", previousRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining(" ")), false);
-                    embed.addField("Added Role(s):", addedRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining(" ")), false);
+                    embed.addField("Previous Role(s):", previousRoles.stream().map(IMentionable::getAsMention)
+                        .collect(Collectors.joining(" ")), false);
+                    embed.addField("Added Role(s):", addedRoles.stream().map(IMentionable::getAsMention)
+                        .collect(Collectors.joining(" ")), false);
                     embed.setTimestamp(Instant.now());
 
                     LOGGER.info(EVENTS, "Role(s) {} was added to user {} by {}", addedRoles, target, entry.getUser());

@@ -50,7 +50,7 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
         .build();
 
     /**
-     *
+     * The Prepend level name.
      */
     private boolean prependLevelName = true;
 
@@ -68,15 +68,15 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
      * {@linkplain IMentionable#getAsMention() string mentions}.
      * <p>
      * Mentions will consist of the return value of {@link IMentionable#getAsMention()}, along with the {@linkplain
-     * ISnowflake#getIdLong() snowflake ID} and the name of the object if available.
+     * net.dv8tion.jda.api.entities.ISnowflake#getIdLong() snowflake ID}* and the name of the object if available.
      * <p>
      * The rules for conversion are as follows:
      * <ul>
-     *     <li>If the object is an {@link IMentionable}, cast and convert into mention, then return the new mention.</li>
-     *     <li>If the object is an {@link Collection}, call this method on all entries within the collection, then
+     *     <li>If the object is {@link IMentionable}, cast and convert into mention, then return the new mention.</li>
+     *     <li>If the object is a {@link Collection}, call this method on all entries within the collection, then
      *     return a new collection with those modified entries.
      *     <p>If the object is a {@link Set}, then the returned collection is a {@code Set}. Otherwise, the returned
-     *     collection is a {@link List}.</p></li>
+     *     collection is a {@link java.util.List}.</p></li>
      *     <li>If the object is a {@link Map}, call this method on all keys and values within the map, then return an
      *     new {@link ImmutableMap} with those modified entries.</li>
      *     <li>If the object is a {@link Map.Entry}, call this method on the key and value, then return a new
@@ -100,9 +100,11 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
                 name = ((Emote) obj).getName();
             }
             if (name != null) {
-                return String.format("%s (%s;`%s`)", ((IMentionable) obj).getAsMention(), name, ((IMentionable) obj).getIdLong());
+                return String.format("%s (%s;`%s`)", ((IMentionable) obj).getAsMention(), name, ((IMentionable)
+                    obj).getIdLong());
             } else {
-                return String.format("%s (`%s`)", ((IMentionable) obj).getAsMention(), ((IMentionable) obj).getIdLong());
+                return String.format("%s (`%s`)", ((IMentionable) obj).getAsMention(),
+                    ((IMentionable) obj).getIdLong());
             }
         } else if (obj instanceof Collection) {
             final Stream<Object> stream = ((Collection<?>) obj).stream()
@@ -121,7 +123,8 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
 
         } else if (obj instanceof Map.Entry) {
             final Map.Entry<?, ?> entry = (Map.Entry<?, ?>) obj;
-            return new AbstractMap.SimpleImmutableEntry<>(tryConvertMentionables(entry.getKey()), tryConvertMentionables(entry.getValue()));
+            return new AbstractMap.SimpleImmutableEntry<>(tryConvertMentionables(entry.getKey()),
+                tryConvertMentionables(entry.getValue()));
 
         }
         return obj;
@@ -129,6 +132,9 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
 
     /**
      * {@inheritDoc}
+     *
+     * @param event the event
+     * @return the string
      */
     @Override
     public String doLayout(final ILoggingEvent event) {
@@ -161,7 +167,7 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
      *
      * @param event The logging event
      * @return The formatted message, with replaced mentions
-     * @see #tryConvertMentionables(Object)
+     * @see #tryConvertMentionables(Object) #tryConvertMentionables(Object)
      */
     private String getFormattedMessage(final ILoggingEvent event) {
         final Object[] arguments = event.getArgumentArray();

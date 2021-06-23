@@ -11,12 +11,14 @@ import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.MUTING;
 
 /**
+ * The type Cmd unmute.
+ *
  * @author
  */
 public final class CmdUnmute extends Command {
 
     /**
-     *
+     * Instantiates a new Cmd unmute.
      */
     public CmdUnmute() {
         super();
@@ -26,6 +28,8 @@ public final class CmdUnmute extends Command {
     }
 
     /**
+     * Execute.
+     *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override

@@ -18,12 +18,16 @@ import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.EVENTS;
 
 /**
+ * The type Event user joined.
+ *
  * @author
  */
 public final class EventUserJoined extends ListenerAdapter {
 
     /**
+     * On guild member join.
      *
+     * @param event the event
      */
     @Override
     public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
@@ -57,7 +61,8 @@ public final class EventUserJoined extends ListenerAdapter {
             embed.setThumbnail(user.getEffectiveAvatarUrl());
             embed.addField("User:", user.getAsTag(), true);
             if (!roles.isEmpty()) {
-                embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention).collect(Collectors.joining()), true);
+                embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention)
+                    .collect(Collectors.joining()), true);
             }
             embed.setFooter("User ID: " + user.getId());
             embed.setTimestamp(Instant.now());

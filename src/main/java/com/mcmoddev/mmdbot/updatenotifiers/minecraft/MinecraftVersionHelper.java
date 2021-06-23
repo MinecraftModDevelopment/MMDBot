@@ -11,40 +11,44 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
+ * The type Minecraft version helper.
+ *
  * @author
  */
 public final class MinecraftVersionHelper {
 
     /**
-     *
+     * The constant API_URL.
      */
     private static final String API_URL = "https://meta.fabricmc.net/v2/versions/game";
-//    private static final Duration timeUntilOutdated = Duration.ofMinutes(20);
+    //private static final Duration timeUntilOutdated = Duration.ofMinutes(20);
 
     /**
-     *
+     * The constant latest.
      */
     private static String latest;
 
     /**
-     *
+     * The constant latestStable.
      */
     private static String latestStable;
-//    private static Instant lastUpdated;
+    //private static Instant lastUpdated;
 
     static {
         update();
     }
 
     /**
-     *
+     * Instantiates a new Minecraft version helper.
      */
     private MinecraftVersionHelper() {
         throw new IllegalStateException("Utility class");
     }
 
     /**
-     * @return String.
+     * Gets latest.
+     *
+     * @return String. latest
      */
     public static String getLatest() {
         if (latest == null) {
@@ -54,7 +58,9 @@ public final class MinecraftVersionHelper {
     }
 
     /**
-     * @return String.
+     * Gets latest stable.
+     *
+     * @return String. latest stable
      */
     public static String getLatestStable() {
         if (latestStable == null) {
@@ -64,7 +70,7 @@ public final class MinecraftVersionHelper {
     }
 
     /**
-     *
+     * Update.
      */
     public static void update() {
         final InputStreamReader reader = openUrl();
@@ -77,11 +83,13 @@ public final class MinecraftVersionHelper {
 
         latest = versions.get(0).version;
         latestStable = versions.stream().filter(it -> it.stable).findFirst().map(it -> it.version).orElse(latest);
-//        lastUpdated = Instant.now();
+        //lastUpdated = Instant.now();
     }
 
     /**
-     * @return InputStreamReader.
+     * Open url input stream reader.
+     *
+     * @return InputStreamReader. input stream reader
      */
     private static InputStreamReader openUrl() {
         try {
@@ -94,17 +102,19 @@ public final class MinecraftVersionHelper {
     }
 
     /**
+     * The type Minecraft version info.
+     *
      * @author
      */
     private static class MinecraftVersionInfo {
 
         /**
-         *
+         * The Version.
          */
-        public String version;
+         public String version;
 
         /**
-         *
+         * The Stable.
          */
         public boolean stable;
     }

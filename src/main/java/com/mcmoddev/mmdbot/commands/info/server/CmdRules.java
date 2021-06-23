@@ -10,12 +10,14 @@ import java.awt.Color;
 import java.time.Instant;
 
 /**
+ * The type Cmd rules.
+ *
  * @author ProxyNeko
  */
 public final class CmdRules extends Command {
 
     /**
-     *
+     * The constant BODY.
      */
     private static final String BODY =
         "Please give <#" + MMDBot.getConfig().getChannel("info.rules") + "> a thorough read, "
@@ -24,7 +26,7 @@ public final class CmdRules extends Command {
             + "functioning well as a space for collaboration and discussion. Thank you.";
 
     /**
-     *
+     * Instantiates a new Cmd rules.
      */
     public CmdRules() {
         super();
@@ -33,6 +35,8 @@ public final class CmdRules extends Command {
     }
 
     /**
+     * Execute.
+     *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override

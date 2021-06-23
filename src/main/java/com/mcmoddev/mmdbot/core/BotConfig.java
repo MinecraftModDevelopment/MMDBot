@@ -28,35 +28,39 @@ import java.util.stream.Collectors;
 public final class BotConfig {
 
     /**
-     *
+     * The constant COMMUNITY_CHANNEL_OWNER_PERMISSIONS.
      */
     private static final String COMMUNITY_CHANNEL_OWNER_PERMISSIONS = "community_channels.owner_permissions";
 
     /**
-     *
+     * The constant COMMANDS_PREFIX.
      */
     private static final String COMMANDS_PREFIX = "commands.";
 
     /**
-     *
+     * The Config.
      */
     private final CommentedFileConfig config;
 
     /**
-     *
+     * The Newly generated.
      */
     private boolean newlyGenerated;
 
     /**
-     * @param configFile
+     * Instantiates a new Bot config.
+     *
+     * @param configFile the config file
      */
     public BotConfig(final Path configFile) {
         this(configFile, TomlFormat.instance());
     }
 
     /**
-     * @param configFile
-     * @param configFormat
+     * Instantiates a new Bot config.
+     *
+     * @param configFile   the config file
+     * @param configFormat the config format
      */
     public BotConfig(final Path configFile, final ConfigFormat<? extends CommentedConfig> configFormat) {
         this.newlyGenerated = false;
@@ -65,7 +69,8 @@ public final class BotConfig {
             .onFileNotFound((file, format) -> {
                 this.newlyGenerated = true;
                 //noinspection UnstableApiUsage
-                return FileNotFoundAction.copyData(Resources.getResource("default-config.toml")).run(file, format);
+                return FileNotFoundAction.copyData(Resources.getResource("default-config.toml"))
+                    .run(file, format);
             })
             .preserveInsertionOrder()
             .build();
@@ -134,8 +139,8 @@ public final class BotConfig {
     /**
      * Returns the alternative commands prefix for bot commands.
      * <p>
-     * This will usually be a shorter version of the {@linkplain #getMainPrefix() main commands prefix}, to be easier and
-     * quicker to type out commands.
+     * This will usually be a shorter version of the {@linkplain #getMainPrefix() main commands prefix}, to be easier
+     * and quicker to type out commands.
      *
      * @return The alternative commands prefix
      */
@@ -178,7 +183,7 @@ public final class BotConfig {
      *
      * @param commandName The command name
      * @return If the command is globally enabled, or {@code true} if not configured
-     * @see #isEnabled(String, long)
+     * @see #isEnabled(String, long) #isEnabled(String, long)#isEnabled(String, long)
      */
     public boolean isEnabled(final String commandName) {
         return config.<Boolean>getOrElse(COMMANDS_PREFIX + commandName + ".enabled", true);
@@ -235,7 +240,8 @@ public final class BotConfig {
     /**
      * Returns the list of hidden channels.
      * <p>
-     * Hidden channels are channels which are not printed / hidden from the message when a command is run in a non-allowed channel.
+     * Hidden channels are channels which are not printed / hidden from the message when a command is run
+     * in a non-allowed channel.
      *
      * @return The list of hidden channels
      */
@@ -247,7 +253,8 @@ public final class BotConfig {
     /**
      * Returns the list of roles exempt from the blocklists and allowlists of commands.
      * <p>
-     * Users with these roles bypass the block and allow lists of commands, allowing them to run (enabled) commands in any channel.
+     * Users with these roles bypass the block and allow lists of commands, allowing them to run (enabled) commands
+     * in any channel.
      *
      * @return The roles exempt from channel checking
      */
@@ -270,7 +277,7 @@ public final class BotConfig {
     }
 
     /**
-     * Returns the snowflake ID of the given channel key based on the configuration, or {@code 0L} if none is configured.
+     * Returns the snowflake ID of the given channel based on the configuration, or {@code 0L} if none is configured.
      * <p>
      * The channel key consists of ASCII letters, optionally separated by periods/full stops ({@code .}) for connoting
      * categories.
@@ -371,7 +378,9 @@ public final class BotConfig {
     }
 
     /**
-     * @return Set.
+     * Gets community channel owner permissions.
+     *
+     * @return Set. community channel owner permissions
      */
     @SuppressWarnings("unchecked")
     public Set<Permission> getCommunityChannelOwnerPermissions() {
@@ -402,11 +411,14 @@ public final class BotConfig {
     }
 
     /**
-     * @param path
-     * @param aliases
-     * @return List.
+     * Gets aliased snowflake list.
+     *
+     * @param path    the path
+     * @param aliases the aliases
+     * @return List. aliased snowflake list
      */
-    private Optional<List<Long>> getAliasedSnowflakeList(final String path, final Optional<UnmodifiableConfig> aliases) {
+    private Optional<List<Long>> getAliasedSnowflakeList(final String path,
+                                                         final Optional<UnmodifiableConfig> aliases) {
         return config.<List<String>>getOptional(path)
             .filter(list -> !list.isEmpty())
             .map(strings -> strings.stream()
@@ -417,9 +429,11 @@ public final class BotConfig {
     }
 
     /**
-     * @param key
-     * @param aliases
-     * @return String.
+     * Gets aliased.
+     *
+     * @param key     the key
+     * @param aliases the aliases
+     * @return String. aliased
      */
     private String getAliased(final String key, final Optional<UnmodifiableConfig> aliases) {
         return config.<String>getOptional(key)

@@ -10,12 +10,14 @@ import java.awt.Color;
 import java.time.Instant;
 
 /**
+ * The type Cmd readme.
+ *
  * @author ProxyNeko
  */
 public final class CmdReadme extends Command {
 
     /**
-     *
+     * The constant BODY.
      */
     private static final String BODY =
         "Please give <#" + MMDBot.getConfig().getChannel("info.readme") + "> a thorough read, this "
@@ -23,7 +25,7 @@ public final class CmdReadme extends Command {
             + "Thank you.";
 
     /**
-     *
+     * Instantiates a new Cmd readme.
      */
     public CmdReadme() {
         super();
@@ -33,6 +35,8 @@ public final class CmdReadme extends Command {
     }
 
     /**
+     * Execute.
+     *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override

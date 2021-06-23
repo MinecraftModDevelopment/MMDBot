@@ -19,12 +19,16 @@ import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.EVENTS;
 
 /**
+ * The type Event role removed.
+ *
  * @author
  */
 public final class EventRoleRemoved extends ListenerAdapter {
 
     /**
+     * On guild member role remove.
      *
+     * @param event the event
      */
     @Override
     public void onGuildMemberRoleRemove(final GuildMemberRoleRemoveEvent event) {
@@ -52,18 +56,24 @@ public final class EventRoleRemoved extends ListenerAdapter {
                     embed.setColor(Color.YELLOW);
                     embed.setTitle("User Role(s) Removed");
                     embed.setThumbnail(target.getEffectiveAvatarUrl());
-                    embed.addField("User:", target.getAsMention() + " (" + target.getId() + ")", true);
+                    embed.addField("User:", target.getAsMention() + " (" + target.getId() + ")",
+                        true);
                     if (entry.getTargetIdLong() != target.getIdLong()) {
-                        LOGGER.warn(EVENTS, "Inconsistency between target of retrieved audit log entry and actual role event target: retrieved is {}, but target is {}", target, entry.getUser());
+                        LOGGER.warn(EVENTS, "Inconsistency between target of retrieved audit log entry and actual "
+                            + "role event target: retrieved is {}, but target is {}", target, entry.getUser());
                     } else if (entry.getUser() != null) {
                         final var editor = entry.getUser();
-                        embed.addField("Editor:", editor.getAsMention() + " (" + editor.getId() + ")", true);
+                        embed.addField("Editor:", editor.getAsMention() + " (" + editor.getId() + ")",
+                            true);
                     }
-                    embed.addField("Previous Role(s):", previousRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining(" ")), false);
-                    embed.addField("Removed Role(s):", removedRoles.stream().map(IMentionable::getAsMention).collect(Collectors.joining(" ")), false);
+                    embed.addField("Previous Role(s):", previousRoles.stream().map(IMentionable::getAsMention)
+                        .collect(Collectors.joining(" ")), false);
+                    embed.addField("Removed Role(s):", removedRoles.stream().map(IMentionable::getAsMention)
+                        .collect(Collectors.joining(" ")), false);
                     embed.setTimestamp(Instant.now());
 
-                    LOGGER.info(EVENTS, "Role(s) {} was removed from user {} by {}", removedRoles, target, entry.getUser());
+                    LOGGER.info(EVENTS, "Role(s) {} was removed from user {} by {}", removedRoles, target,
+                        entry.getUser());
 
                     return channel.sendMessageEmbeds(embed.build());
                 })

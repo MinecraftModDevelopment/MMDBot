@@ -29,7 +29,7 @@ public final class CmdRoles extends Command {
     /**
      * Executes the command.
      * <p>
-     * Sends a message with a listing of all roles in the guild, along with a count of how many members hold those roles.
+     * Sends a message with a listing of all roles in the guild, along with a count of how many members have the role.
      * The message is sent in the same channel where the command was sent from.
      *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.

@@ -30,29 +30,63 @@ import java.util.stream.Collectors;
 //TODO: Migrate to a SQLite DB with PR #45
 
 /**
+ * The type Tricks.
+ *
  * @author williambl
  */
 public final class Tricks {
-    private static final String TRICK_STORAGE_PATH = "mmdbot_tricks.json";
-    private static final Gson GSON;
-    private static final Map<String, Trick.TrickType<?>> trickTypes = new HashMap<>();
 
+    /**
+     * The storage location for the tricks file.
+     */
+    private static final String TRICK_STORAGE_PATH = "mmdbot_tricks.json";
+
+    /**
+     * The constant GSON.
+     */
+    private static final Gson GSON;
+
+    /**
+     * The constant trickTypes.
+     */
+    private static final Map<String, Trick.TrickType<?>> TRICK_TYPES = new HashMap<>();
+
+    /**
+     * The Tricks.
+     */
     private static @Nullable
     List<Trick> tricks = null;
 
-    public static Optional<Trick> getTrick(String name) {
+    /**
+     * Gets trick.
+     *
+     * @param name the name
+     * @return the trick
+     */
+    public static Optional<Trick> getTrick(final String name) {
         return getTricks().stream().filter(trick -> trick.getNames().contains(name)).findAny();
     }
 
+    /**
+     * Create trick commands list.
+     *
+     * @return the list
+     */
     public static List<CmdRunTrick> createTrickCommands() {
         return getTricks().stream().map(CmdRunTrick::new).collect(Collectors.toList());
     }
 
+    /**
+     * Gets tricks.
+     *
+     * @return the tricks
+     */
     public static List<Trick> getTricks() {
         if (tricks == null) {
             final File file = new File(TRICK_STORAGE_PATH);
-            if (!file.exists())
+            if (!file.exists()) {
                 tricks = new ArrayList<>();
+            }
             try (InputStreamReader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
                 Type typeOfList = new TypeToken<List<Trick>>() {
                 }.getType();
@@ -65,30 +99,60 @@ public final class Tricks {
         return tricks;
     }
 
-    public static void registerTrickType(String name, Trick.TrickType<?> type) {
-        trickTypes.put(name, type);
+    /**
+     * Register trick type.
+     *
+     * @param name the name
+     * @param type the type
+     */
+    public static void registerTrickType(final String name, final Trick.TrickType<?> type) {
+        TRICK_TYPES.put(name, type);
     }
 
+    /**
+     * Gets trick types.
+     *
+     * @return the trick types
+     */
     public static Map<String, Trick.TrickType<?>> getTrickTypes() {
-        return new HashMap<>(trickTypes);
+        return new HashMap<>(TRICK_TYPES);
     }
 
-    public static Trick.TrickType<?> getTrickType(String name) {
-        return trickTypes.get(name);
+    /**
+     * Gets trick type.
+     *
+     * @param name the name
+     * @return the trick type
+     */
+    public static Trick.TrickType<?> getTrickType(final String name) {
+        return TRICK_TYPES.get(name);
     }
 
-    public static void addTrick(Trick trick) {
+    /**
+     * Add trick.
+     *
+     * @param trick the trick
+     */
+    public static void addTrick(final Trick trick) {
         getTricks().add(trick);
         MMDBot.getCommandClient().addCommand(new CmdRunTrick(trick));
         write();
     }
 
-    public static void removeTrick(Trick trick) {
+    /**
+     * Remove trick.
+     *
+     * @param trick the trick
+     */
+    public static void removeTrick(final Trick trick) {
         getTricks().remove(trick);
         MMDBot.getCommandClient().removeCommand(trick.getNames().get(0));
         write();
     }
 
+    /**
+     * Write.
+     */
     private static void write() {
         final var userJoinTimesFile = new File(TRICK_STORAGE_PATH);
         List<Trick> tricks = getTricks();
@@ -110,7 +174,18 @@ public final class Tricks {
             .create();
     }
 
+    /**
+     * The type Trick serializer.
+     */
     static final class TrickSerializer implements TypeAdapterFactory {
+        /**
+         * Create type adapter.
+         *
+         * @param <T>  the type parameter
+         * @param gson the gson
+         * @param type the type
+         * @return the type adapter
+         */
         @Override
         public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
             if (!Trick.class.isAssignableFrom(type.getRawType())) {

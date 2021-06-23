@@ -4,15 +4,16 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.core.Utils;
 import com.mcmoddev.mmdbot.tricks.Tricks;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 /**
+ * @author williambl
  *
+ * The type Cmd remove trick.
  */
 public final class CmdRemoveTrick extends Command {
 
     /**
-     *
+     * Instantiates a new Cmd remove trick.
      */
     public CmdRemoveTrick() {
         super();
@@ -22,12 +23,16 @@ public final class CmdRemoveTrick extends Command {
     }
 
     /**
+     * Execute.
      *
+     * @param event the event
      */
     @Override
     protected void execute(final CommandEvent event) {
-        if (!Utils.checkCommand(this, event)) return;
-        final TextChannel channel = event.getTextChannel();
+        if (!Utils.checkCommand(this, event)) {
+            return;
+        }
+        final var channel = event.getTextChannel();
 
         //TODO: Permissions
         Tricks.getTrick(event.getArgs().split(" ")[0]).ifPresent(Tricks::removeTrick);

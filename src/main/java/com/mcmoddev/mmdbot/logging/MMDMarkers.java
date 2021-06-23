@@ -44,7 +44,7 @@ public final class MMDMarkers {
     public static final Marker MUTING = MarkerFactory.getMarker("Muting");
 
     /**
-     *
+     * Instantiates a new Mmd markers.
      */
     private MMDMarkers() {
         throw new IllegalStateException("Utility class");

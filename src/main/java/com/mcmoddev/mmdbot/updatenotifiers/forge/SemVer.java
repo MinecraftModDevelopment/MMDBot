@@ -3,27 +3,31 @@ package com.mcmoddev.mmdbot.updatenotifiers.forge;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * The type Sem ver.
+ *
  * @author Antoine Gagnon
  */
 public final class SemVer implements Comparable<SemVer> {
 
     /**
-     *
+     * The Major.
      */
     private final Integer major;
 
     /**
-     *
+     * The Minor.
      */
     private final Integer minor;
 
     /**
-     *
+     * The Patch.
      */
     private Integer patch;
 
     /**
-     * @param versionString
+     * Instantiates a new Sem ver.
+     *
+     * @param versionString the version string
      */
     public SemVer(final String versionString) {
         final String[] vs = versionString.split("\\.");
@@ -36,28 +40,37 @@ public final class SemVer implements Comparable<SemVer> {
     }
 
     /**
-     * @return int.
+     * Gets major.
+     *
+     * @return int. major
      */
     public int getMajor() {
         return major;
     }
 
     /**
-     * @return int.
+     * Gets minor.
+     *
+     * @return int. minor
      */
     public int getMinor() {
         return minor;
     }
 
     /**
-     * @return int.
+     * Gets patch.
+     *
+     * @return int. patch
      */
     public int getPatch() {
         return patch;
     }
 
     /**
+     * Compare to int.
      *
+     * @param other the other
+     * @return the int
      */
     @Override
     public int compareTo(@NotNull final SemVer other) {
@@ -94,7 +107,9 @@ public final class SemVer implements Comparable<SemVer> {
     }
 
     /**
+     * To string string.
      *
+     * @return the string
      */
     @Override
     public String toString() {

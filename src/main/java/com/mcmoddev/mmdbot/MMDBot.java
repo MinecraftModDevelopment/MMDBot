@@ -109,7 +109,7 @@ public final class MMDBot {
     private static JDA instance;
 
     /**
-     *
+     * The constant commandClient.
      */
     private static CommandClient commandClient;
 
@@ -134,12 +134,17 @@ public final class MMDBot {
     /**
      * Gets the single instance of MMDBot.
      *
-     * @return JDA.
+     * @return JDA. instance
      */
     public static JDA getInstance() {
         return MMDBot.instance;
     }
 
+    /**
+     * Gets command client.
+     *
+     * @return the command client
+     */
     public static CommandClient getCommandClient() {
         return commandClient;
     }
@@ -199,7 +204,7 @@ public final class MMDBot {
                 .addCommand(new CmdOldChannels())
                 .addCommand(new CmdGreatMoves())
                 //TODO Setup DB storage for tricks and polish them off/add permission restrictions for when needed.
-                /**
+                /*
                  .addCommand(new CmdAddTrick())
                  .addCommand(new CmdListTricks())
                  .addCommand(new CmdRemoveTrick())

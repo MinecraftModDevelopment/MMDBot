@@ -12,22 +12,24 @@ import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.NOTIFIER_MC;
 
 /**
+ * The type Minecraft update notifier.
+ *
  * @author
  */
 public final class MinecraftUpdateNotifier extends TimerTask {
 
     /**
-     *
+     * The Last latest.
      */
     private String lastLatest;
 
     /**
-     *
+     * The Last latest stable.
      */
     private String lastLatestStable;
 
     /**
-     *
+     * Instantiates a new Minecraft update notifier.
      */
     public MinecraftUpdateNotifier() {
         lastLatest = MinecraftVersionHelper.getLatest();
@@ -35,7 +37,7 @@ public final class MinecraftUpdateNotifier extends TimerTask {
     }
 
     /**
-     *
+     * Run.
      */
     @Override
     public void run() {

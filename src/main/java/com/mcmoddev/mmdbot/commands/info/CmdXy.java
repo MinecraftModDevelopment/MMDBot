@@ -9,12 +9,14 @@ import java.awt.Color;
 import java.time.Instant;
 
 /**
+ * The type Cmd xy.
+ *
  * @author
  */
 public final class CmdXy extends Command {
 
     /**
-     *
+     * The constant BODY.
      */
     private static final String BODY =
         "The XY problem is asking about your attempted solution rather than your actual problem."
@@ -23,7 +25,7 @@ public final class CmdXy extends Command {
             + Utils.makeHyperlink("More Info", "http://xyproblem.info/");
 
     /**
-     *
+     * Instantiates a new Cmd xy.
      */
     public CmdXy() {
         super();
@@ -33,6 +35,8 @@ public final class CmdXy extends Command {
     }
 
     /**
+     * Execute.
+     *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override

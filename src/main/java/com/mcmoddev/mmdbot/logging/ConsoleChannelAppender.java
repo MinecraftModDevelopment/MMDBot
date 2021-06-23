@@ -21,12 +21,12 @@ import java.util.Collections;
 public class ConsoleChannelAppender extends AppenderBase<ILoggingEvent> {
 
     /**
-     *
+     * The Allow mentions.
      */
     private boolean allowMentions;
 
     /**
-     *
+     * The Layout.
      */
     private Layout<ILoggingEvent> layout;
 
@@ -50,6 +50,8 @@ public class ConsoleChannelAppender extends AppenderBase<ILoggingEvent> {
 
     /**
      * {@inheritDoc}
+     *
+     * @param event the event
      */
     @Override
     protected void append(final ILoggingEvent event) {

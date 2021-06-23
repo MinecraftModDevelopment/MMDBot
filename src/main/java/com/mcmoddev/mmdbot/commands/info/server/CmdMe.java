@@ -6,13 +6,15 @@ import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 /**
+ * The type Cmd me.
+ *
  * @author ProxyNeko
  * @author sciwhiz12
  */
 public final class CmdMe extends CmdUser {
 
     /**
-     *
+     * Instantiates a new Cmd me.
      */
     public CmdMe() {
         super();
@@ -22,6 +24,8 @@ public final class CmdMe extends CmdUser {
     }
 
     /**
+     * Execute.
+     *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override

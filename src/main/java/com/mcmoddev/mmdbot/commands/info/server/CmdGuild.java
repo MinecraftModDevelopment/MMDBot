@@ -12,12 +12,14 @@ import java.time.LocalDateTime;
 import java.util.Locale;
 
 /**
+ * The type Cmd guild.
+ *
  * @author ProxyNeko
  */
 public final class CmdGuild extends Command {
 
     /**
-     *
+     * Instantiates a new Cmd guild.
      */
     public CmdGuild() {
         super();
@@ -27,6 +29,8 @@ public final class CmdGuild extends Command {
     }
 
     /**
+     * Execute.
+     *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override
@@ -48,8 +52,10 @@ public final class CmdGuild extends Command {
         embed.addField("Category count:", Long.toString(guild.getCategoryCache().size()), true);
         embed.addField("Channel count:", Integer.toString(guild.getChannels().size()), true);
         embed.addField("Role count:", Long.toString(guild.getRoleCache().size()), true);
-        embed.addField("Date created:", new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH).format(dateGuildCreated.toEpochMilli()), true);
-        embed.addField("Guilds age:", Utils.getTimeDifference(Utils.getLocalTime(dateGuildCreated), LocalDateTime.now()), true);
+        embed.addField("Date created:", new SimpleDateFormat("yyyy/MM/dd HH:mm",
+            Locale.ENGLISH).format(dateGuildCreated.toEpochMilli()), true);
+        embed.addField("Guilds age:", Utils.getTimeDifference(Utils.getLocalTime(dateGuildCreated),
+            LocalDateTime.now()), true);
         embed.setTimestamp(Instant.now());
         channel.sendMessageEmbeds(embed.build()).queue();
     }

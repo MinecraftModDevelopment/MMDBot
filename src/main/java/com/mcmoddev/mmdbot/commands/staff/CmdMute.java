@@ -14,12 +14,14 @@ import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.MUTING;
 
 /**
+ * The type Cmd mute.
+ *
  * @author
  */
 public final class CmdMute extends Command {
 
     /**
-     *
+     * Instantiates a new Cmd mute.
      */
     public CmdMute() {
         super();
@@ -29,6 +31,8 @@ public final class CmdMute extends Command {
     }
 
     /**
+     * Execute.
+     *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override
@@ -93,7 +97,9 @@ public final class CmdMute extends Command {
     }
 
     /**
-     * @param timeIn
+     * Parse time long.
+     *
+     * @param timeIn the time in
      * @return The Time formatted from a {@code String}.
      */
     long parseTime(final String timeIn) {
@@ -107,7 +113,9 @@ public final class CmdMute extends Command {
     }
 
     /**
-     * @param timeUnitIn
+     * Parse time unit time unit.
+     *
+     * @param timeUnitIn the time unit in
      * @return The {@code TimeUnit} formatted from a {@code String}.
      */
     TimeUnit parseTimeUnit(final String timeUnitIn) {

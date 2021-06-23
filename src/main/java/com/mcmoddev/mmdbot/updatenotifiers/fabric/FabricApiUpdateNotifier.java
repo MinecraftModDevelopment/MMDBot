@@ -12,22 +12,27 @@ import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.NOTIFIER_FABRIC;
 
 /**
+ * The type Fabric api update notifier.
+ *
  * @author williambl
  */
 public final class FabricApiUpdateNotifier extends TimerTask {
 
     /**
-     *
+     * The Last latest.
      */
     private String lastLatest;
 
     /**
-     *
+     * Instantiates a new Fabric api update notifier.
      */
     public FabricApiUpdateNotifier() {
         lastLatest = FabricVersionHelper.getLatestApi();
     }
 
+    /**
+     * Run.
+     */
     @Override
     public void run() {
         LOGGER.debug(NOTIFIER_FABRIC, "Checking for new Fabric API versions...");

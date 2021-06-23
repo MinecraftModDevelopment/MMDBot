@@ -32,8 +32,8 @@ class ForgeVersionHelperTest {
     @Test
     void parseVersion() {
         final VersionMeta vMeta = ForgeVersionHelper.getMCVersion("1.7.10-latest");
-        assertEquals(vMeta.state, "latest");
-        assertEquals(vMeta.version, ONE_SEVEN_TEN);
+        assertEquals(vMeta.getState(), "latest");
+        assertEquals(vMeta.getVersion(), ONE_SEVEN_TEN);
     }
 
     /**

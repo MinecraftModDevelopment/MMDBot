@@ -10,12 +10,16 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * The type Misc events.
+ *
  * @author
  */
 public final class MiscEvents extends ListenerAdapter {
 
     /**
+     * On ready.
      *
+     * @param event the event
      */
     @Override
     public void onReady(final @NotNull ReadyEvent event) {
@@ -24,7 +28,9 @@ public final class MiscEvents extends ListenerAdapter {
     }
 
     /**
+     * On disconnect.
      *
+     * @param event the event
      */
     @Override
     public void onDisconnect(final @NotNull DisconnectEvent event) {
@@ -32,7 +38,9 @@ public final class MiscEvents extends ListenerAdapter {
     }
 
     /**
+     * On resumed.
      *
+     * @param event the event
      */
     @Override
     public void onResumed(final @NotNull ResumedEvent event) {

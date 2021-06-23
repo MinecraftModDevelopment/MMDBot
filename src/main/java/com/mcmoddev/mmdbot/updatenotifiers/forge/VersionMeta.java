@@ -1,23 +1,45 @@
 package com.mcmoddev.mmdbot.updatenotifiers.forge;
 
 /**
+ * The type Version meta.
+ *
  * @author Antoine Gagnon
  */
 public final class VersionMeta {
 
     /**
-     *
+     * The Version.
      */
-    public String version;
+    private final String version;
 
     /**
-     *
+     * The State.
      */
-    public String state;
+    private final String state;
 
     /**
-     * @param versionIn
-     * @param stateIn
+     * Gets version.
+     *
+     * @return the version
+     */
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     * Gets state.
+     *
+     * @return the state
+     */
+    public String getState() {
+        return state;
+    }
+
+    /**
+     * Instantiates a new Version meta.
+     *
+     * @param versionIn the version in
+     * @param stateIn   the state in
      */
     public VersionMeta(final String versionIn, final String stateIn) {
         this.version = versionIn;

@@ -9,12 +9,14 @@ import net.dv8tion.jda.api.entities.Role;
 import java.util.List;
 
 /**
+ * The type Cmd toggle mc server pings.
+ *
  * @author
  */
 public final class CmdToggleMcServerPings extends Command {
 
     /**
-     *
+     * Instantiates a new Cmd toggle mc server pings.
      */
     public CmdToggleMcServerPings() {
         super();
@@ -26,6 +28,8 @@ public final class CmdToggleMcServerPings extends Command {
     }
 
     /**
+     * Execute.
+     *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override

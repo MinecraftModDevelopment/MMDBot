@@ -9,12 +9,14 @@ import net.dv8tion.jda.api.entities.Role;
 import java.util.List;
 
 /**
+ * The type Cmd toggle event pings.
+ *
  * @author
  */
 public final class CmdToggleEventPings extends Command {
 
     /**
-     *
+     * Instantiates a new Cmd toggle event pings.
      */
     public CmdToggleEventPings() {
         super();
@@ -26,6 +28,8 @@ public final class CmdToggleEventPings extends Command {
     }
 
     /**
+     * Execute.
+     *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override

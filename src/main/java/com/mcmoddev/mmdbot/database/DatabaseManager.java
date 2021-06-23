@@ -5,10 +5,17 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
+ * The type Database manager.
+ *
  * @author Antoine Gagnon
  */
 public class DatabaseManager {
 
+    /**
+     * Gets connection.
+     *
+     * @return the connection
+     */
     public static Connection getConnection() {
         Connection conn = null;
         try {

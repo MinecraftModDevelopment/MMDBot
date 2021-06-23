@@ -11,12 +11,14 @@ import java.awt.Color;
 import java.time.Instant;
 
 /**
+ * The type Cmd forge version.
+ *
  * @author
  */
 public final class CmdForgeVersion extends Command {
 
     /**
-     *
+     * Instantiates a new Cmd forge version.
      */
     public CmdForgeVersion() {
         super();
@@ -26,6 +28,8 @@ public final class CmdForgeVersion extends Command {
     }
 
     /**
+     * Execute.
+     *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override
@@ -50,7 +54,9 @@ public final class CmdForgeVersion extends Command {
         if (recommendedForge == null) {
             recommendedForge = "none";
         }
-        final String changelogLink = Utils.makeHyperlink("Changelog", String.format("https://files.minecraftforge.net/maven/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt", latest.getMcVersion(), latest.getForgeVersion().getLatest()));
+        final String changelogLink = Utils.makeHyperlink("Changelog",
+            String.format("https://files.minecraftforge.net/maven/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt",
+                latest.getMcVersion(), latest.getForgeVersion().getLatest()));
         final var embed = new EmbedBuilder();
 
         embed.setTitle(String.format("Forge Versions for MC %s", latest.getMcVersion()));

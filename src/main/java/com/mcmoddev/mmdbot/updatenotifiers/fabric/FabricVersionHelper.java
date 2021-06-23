@@ -23,47 +23,50 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
+ * The type Fabric version helper.
+ *
  * @author williambl
  */
 public final class FabricVersionHelper {
 
     /**
-     *
+     * The constant YARN_URL.
      */
     private static final String YARN_URL = "https://meta.fabricmc.net/v2/versions/yarn";
 
     /**
-     *
+     * The constant LOADER_URL.
      */
     private static final String LOADER_URL = "https://meta.fabricmc.net/v2/versions/loader";
 
     /**
-     *
+     * The constant API_URL.
      */
-    private static final String API_URL = "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/maven-metadata.xml";
+    private static final String API_URL
+        = "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/maven-metadata.xml";
 
     /**
-     *
+     * The constant LATEST_YARNS.
      */
     private static final Map<String, String> LATEST_YARNS = new HashMap<>();
 
     /**
-     *
+     * The constant TIME_UNTIL_OUTDATED.
      */
     private static final Duration TIME_UNTIL_OUTDATED = Duration.ofMinutes(20);
 
     /**
-     *
+     * The constant latestLoader.
      */
     private static String latestLoader;
 
     /**
-     *
+     * The constant latestApi.
      */
     private static String latestApi;
 
     /**
-     *
+     * The constant lastUpdated.
      */
     private static Instant lastUpdated;
 
@@ -72,15 +75,17 @@ public final class FabricVersionHelper {
     }
 
     /**
-     *
+     * Instantiates a new Fabric version helper.
      */
     private FabricVersionHelper() {
         throw new IllegalStateException("Utility class");
     }
 
     /**
-     * @param mcVersion
-     * @return String.
+     * Gets latest yarn.
+     *
+     * @param mcVersion the mc version
+     * @return String. latest yarn
      */
     public static String getLatestYarn(final String mcVersion) {
         if (LATEST_YARNS.isEmpty() || isOutdated()) {
@@ -90,7 +95,9 @@ public final class FabricVersionHelper {
     }
 
     /**
-     * @return String.
+     * Gets latest loader.
+     *
+     * @return String. latest loader
      */
     public static String getLatestLoader() {
         if (latestLoader == null || isOutdated()) {
@@ -100,7 +107,9 @@ public final class FabricVersionHelper {
     }
 
     /**
-     * @return String.
+     * Gets latest api.
+     *
+     * @return String. latest api
      */
     public static String getLatestApi() {
         if (latestApi == null || isOutdated()) {
@@ -110,14 +119,16 @@ public final class FabricVersionHelper {
     }
 
     /**
-     * @return boolean.
+     * Is outdated boolean.
+     *
+     * @return boolean. boolean
      */
     private static boolean isOutdated() {
         return lastUpdated.plus(TIME_UNTIL_OUTDATED).isBefore(Instant.now());
     }
 
     /**
-     *
+     * Update.
      */
     public static void update() {
         updateYarn();
@@ -127,14 +138,14 @@ public final class FabricVersionHelper {
     }
 
     /**
-     *
+     * Update yarn.
      */
     private static void updateYarn() {
         final InputStreamReader reader = getReader(YARN_URL);
         if (reader == null) {
             return;
         }
-        final TypeToken<List<YarnVersionInfo>> token = new TypeToken<List<YarnVersionInfo>>() {
+        final TypeToken<List<YarnVersionInfo>> token = new TypeToken<>() {
         };
         final List<YarnVersionInfo> versions = new Gson().fromJson(reader, token.getType());
 
@@ -146,14 +157,14 @@ public final class FabricVersionHelper {
     }
 
     /**
-     *
+     * Update loader.
      */
     private static void updateLoader() {
         final InputStreamReader reader = getReader(LOADER_URL);
         if (reader == null) {
             return;
         }
-        final TypeToken<List<LoaderVersionInfo>> token = new TypeToken<List<LoaderVersionInfo>>() {
+        final TypeToken<List<LoaderVersionInfo>> token = new TypeToken<>() {
         };
         final List<LoaderVersionInfo> versions = new Gson().fromJson(reader, token.getType());
 
@@ -161,7 +172,7 @@ public final class FabricVersionHelper {
     }
 
     /**
-     *
+     * Update api.
      */
     private static void updateApi() {
         final InputStream stream = getStream(API_URL);
@@ -173,12 +184,12 @@ public final class FabricVersionHelper {
                 .newDocumentBuilder()
                 .parse(stream);
             /*
-            final var factory = DocumentBuilderFactory.newInstance();
-            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
-            final var builder = factory.newDocumentBuilder();
-            final var doc = builder.parse(stream);
+             final var factory = DocumentBuilderFactory.newInstance();
+             factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+             factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+             factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+             final var builder = factory.newDocumentBuilder();
+             final var doc = builder.parse(stream);
             */
             final XPathExpression expr = XPathFactory.newInstance()
                 .newXPath()
@@ -190,8 +201,10 @@ public final class FabricVersionHelper {
     }
 
     /**
-     * @param urlString
-     * @return InputStreamReader.
+     * Gets reader.
+     *
+     * @param urlString the url string
+     * @return InputStreamReader. reader
      */
     private static InputStreamReader getReader(final String urlString) {
         final InputStream stream = getStream(urlString);
@@ -203,8 +216,10 @@ public final class FabricVersionHelper {
     }
 
     /**
-     * @param urlString
-     * @return InputStream.
+     * Gets stream.
+     *
+     * @param urlString the url string
+     * @return InputStream. stream
      */
     private static InputStream getStream(final String urlString) {
         try {
@@ -217,69 +232,43 @@ public final class FabricVersionHelper {
     }
 
     /**
-     * @author
+     * The type Yarn version info.
+     *
+     * @author williambl
      */
     private static class YarnVersionInfo {
 
         /**
-         *
+         * The Game version.
          */
         public String gameVersion;
 
         /**
-         *
-         */
-        public String separator;
-
-        /**
-         *
+         * The Build.
          */
         public int build;
 
         /**
-         *
-         */
-        public String maven;
-
-        /**
-         *
+         * The Version.
          */
         public String version;
-
-        /**
-         *
-         */
-        public boolean stable;
     }
 
     /**
-     * @author
+     * The type Loader version info.
+     *
+     * @author williambl
      */
     private static class LoaderVersionInfo {
 
         /**
-         *
-         */
-        public String separator;
-
-        /**
-         *
+         * The Build.
          */
         public int build;
 
         /**
-         *
-         */
-        public String maven;
-
-        /**
-         *
+         * The Version.
          */
         public String version;
-
-        /**
-         *
-         */
-        public boolean stable;
     }
 }
