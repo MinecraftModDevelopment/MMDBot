@@ -1,12 +1,8 @@
 buildscript {
-
     repositories {
-
         jcenter()
     }
-
     dependencies {
-
         classpath 'com.github.rodionmoiseev.gradle.plugins:idea-utils:0.2'
     }
 }
@@ -19,23 +15,17 @@ apply plugin: 'maven'
 group 'MMDBot'
 
 repositories {
-
     jcenter()
-    
     maven { 
-    
         url 'https://maven.mcmoddev.com'
     }
-    
     maven {
-    
         url 'https://jitpack.io'
     }
 }
 
 dependencies {
-
-    compile 'com.github.austinv11:Discord4j:2.9.2'
+    compile 'com.github.austinv11:Discord4j:2.9.3'
     compile 'com.google.guava:guava:19.0'
     compile 'com.google.code.gson:gson:2.2.4'
     compile 'org.jsoup:jsoup:1.8.3'
@@ -43,7 +33,7 @@ dependencies {
 }
 
 task fatJar(type: Jar) {
-	manifest {
+    manifest {
         attributes 'Implementation-Title': 'MMDBot', 'Implementation-Version': '1.0.0', 'Main-Class': 'com.mcmoddev.bot.MMDBot'
     }
     baseName = project.name + '-all'
@@ -57,6 +47,8 @@ task fatJar(type: Jar) {
             } } }
     with jar
 }
+
+build.dependsOn(fatJar)
 
 jar {
   manifest {
