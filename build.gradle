@@ -11,7 +11,7 @@ buildscript {
 plugins {
   id 'application'
   id 'com.github.johnrengelman.shadow' version '6.1.0'
-//id 'maven-publish'
+  id 'maven'
   id 'eclipse'
   id 'idea'
   id 'com.github.spotbugs' version '4.7.1'
@@ -146,6 +146,27 @@ test {
   testLogging {
     events "passed", "skipped", "failed"
   }
+}
+
+task generatePom {
+    doLast {
+        pom {
+            project {
+                groupId project.group.toString()
+                artifactId archivesBaseName
+                version version
+
+                inceptionYear '2016'
+                licenses {
+                    license {
+                        name 'LGPL2.1 License'
+                        url 'LGPL2.1'
+                        distribution 'repo'
+                    }
+                }
+            }
+        }.writeTo("$rootProject.projectDir/pom.xml")
+    }
 }
 
 spotbugs {
