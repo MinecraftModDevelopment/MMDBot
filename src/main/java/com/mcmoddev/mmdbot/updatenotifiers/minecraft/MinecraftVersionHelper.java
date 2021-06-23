@@ -11,9 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
- *
  * @author
- *
  */
 public final class MinecraftVersionHelper {
 
@@ -38,15 +36,14 @@ public final class MinecraftVersionHelper {
         update();
     }
 
-	/**
-	 *
-	 */
-   private MinecraftVersionHelper() {
-       throw new IllegalStateException("Utility class");
-   }
-
-   /**
+    /**
      *
+     */
+    private MinecraftVersionHelper() {
+        throw new IllegalStateException("Utility class");
+    }
+
+    /**
      * @return String.
      */
     public static String getLatest() {
@@ -57,7 +54,6 @@ public final class MinecraftVersionHelper {
     }
 
     /**
-     *
      * @return String.
      */
     public static String getLatestStable() {
@@ -85,7 +81,6 @@ public final class MinecraftVersionHelper {
     }
 
     /**
-     *
      * @return InputStreamReader.
      */
     private static InputStreamReader openUrl() {
@@ -99,9 +94,7 @@ public final class MinecraftVersionHelper {
     }
 
     /**
-     *
      * @author
-     *
      */
     private static class MinecraftVersionInfo {
 

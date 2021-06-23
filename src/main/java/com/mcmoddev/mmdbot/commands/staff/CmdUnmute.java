@@ -11,15 +11,13 @@ import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.MUTING;
 
 /**
- *
  * @author
- *
  */
 public final class CmdUnmute extends Command {
 
-	/**
-	 *
-	 */
+    /**
+     *
+     */
     public CmdUnmute() {
         super();
         name = "unmute";

@@ -3,15 +3,13 @@ package com.mcmoddev.mmdbot.updatenotifiers.forge;
 import org.jetbrains.annotations.NotNull;
 
 /**
- *
  * @author Antoine Gagnon
- *
  */
 public final class SemVer implements Comparable<SemVer> {
 
-	/**
-	 *
-	 */
+    /**
+     *
+     */
     private final Integer major;
 
     /**
@@ -25,11 +23,10 @@ public final class SemVer implements Comparable<SemVer> {
     private Integer patch;
 
     /**
-     *
      * @param versionString
      */
     public SemVer(final String versionString) {
-    	final String[] vs = versionString.split("\\.");
+        final String[] vs = versionString.split("\\.");
         this.major = Integer.parseInt(vs[0]);
         this.minor = Integer.parseInt(vs[1]);
 
@@ -39,7 +36,6 @@ public final class SemVer implements Comparable<SemVer> {
     }
 
     /**
-     *
      * @return int.
      */
     public int getMajor() {
@@ -47,7 +43,6 @@ public final class SemVer implements Comparable<SemVer> {
     }
 
     /**
-     *
      * @return int.
      */
     public int getMinor() {
@@ -55,7 +50,6 @@ public final class SemVer implements Comparable<SemVer> {
     }
 
     /**
-     *
      * @return int.
      */
     public int getPatch() {

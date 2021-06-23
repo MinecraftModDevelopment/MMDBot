@@ -12,15 +12,13 @@ import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.NOTIFIER_MC;
 
 /**
- *
  * @author
- *
  */
 public final class MinecraftUpdateNotifier extends TimerTask {
 
-	/**
-	 *
-	 */
+    /**
+     *
+     */
     private String lastLatest;
 
     /**

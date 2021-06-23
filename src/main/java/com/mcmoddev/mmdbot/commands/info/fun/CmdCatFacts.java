@@ -15,20 +15,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 /**
- *
  * @author
- *
  */
 public final class CmdCatFacts extends Command {
 
-   /**
-    *
-    */
+    /**
+     *
+     */
     private static final Random random = new Random();
 
-   /**
-    *
-    */
+    /**
+     *
+     */
     public CmdCatFacts() {
         super();
         name = "catfacts";
@@ -38,13 +36,12 @@ public final class CmdCatFacts extends Command {
     }
 
     /**
-     *
      * @return String.
      */
     public static String getFact() {
         try {
-        	final var url = new URL("https://catfact.ninja/fact");
-        	final URLConnection connection = url.openConnection();
+            final var url = new URL("https://catfact.ninja/fact");
+            final URLConnection connection = url.openConnection();
             connection.setConnectTimeout(10 * 1000);
             final var reader = new BufferedReader(
                 new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));

@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
  * The configuration holder for the bot.
  *
  * @author sciwhiz12
- *
  */
 public final class BotConfig {
 
@@ -34,11 +33,11 @@ public final class BotConfig {
     private static final String COMMUNITY_CHANNEL_OWNER_PERMISSIONS = "community_channels.owner_permissions";
 
     /**
-    *
-    */
-   private static final String COMMANDS_PREFIX = "commands.";
+     *
+     */
+    private static final String COMMANDS_PREFIX = "commands.";
 
-   /**
+    /**
      *
      */
     private final CommentedFileConfig config;
@@ -49,7 +48,6 @@ public final class BotConfig {
     private boolean newlyGenerated;
 
     /**
-     *
      * @param configFile
      */
     public BotConfig(final Path configFile) {
@@ -57,7 +55,6 @@ public final class BotConfig {
     }
 
     /**
-     *
      * @param configFile
      * @param configFormat
      */
@@ -374,7 +371,6 @@ public final class BotConfig {
     }
 
     /**
-     *
      * @return Set.
      */
     @SuppressWarnings("unchecked")
@@ -386,8 +382,8 @@ public final class BotConfig {
         if (obj instanceof Number) {
             return Permission.getPermissions(((Number) obj).longValue());
         } else if (obj instanceof List) {
-        	final List<String> permList = ((List<String>) obj);
-        	final EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
+            final List<String> permList = ((List<String>) obj);
+            final EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
             outer:
             for (final String perm : permList) {
                 for (final Permission permission : Permission.values()) {
@@ -406,7 +402,6 @@ public final class BotConfig {
     }
 
     /**
-     *
      * @param path
      * @param aliases
      * @return List.
@@ -422,7 +417,6 @@ public final class BotConfig {
     }
 
     /**
-     *
      * @param key
      * @param aliases
      * @return String.

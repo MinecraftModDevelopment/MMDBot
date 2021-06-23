@@ -30,7 +30,6 @@ import java.util.stream.Stream;
  * {@link IMentionable#getAsMention()}.
  *
  * @author
- *
  */
 public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
     /**
@@ -135,15 +134,15 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
     public String doLayout(final ILoggingEvent event) {
         final var builder = new StringBuilder();
         builder
-                .append(LEVEL_TO_EMOTE.getOrDefault(event.getLevel(), UNKNOWN_EMOTE));
+            .append(LEVEL_TO_EMOTE.getOrDefault(event.getLevel(), UNKNOWN_EMOTE));
         if (prependLevelName) {
             builder
-                    .append(" ")
-                    .append(event.getLevel().toString());
+                .append(" ")
+                .append(event.getLevel().toString());
         }
         builder
-                .append(" [**")
-                .append(event.getLoggerName());
+            .append(" [**")
+            .append(event.getLoggerName());
         if (event.getMarker() != null) {
             builder
                 .append("**/**")

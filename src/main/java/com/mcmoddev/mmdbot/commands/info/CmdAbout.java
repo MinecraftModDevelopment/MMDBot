@@ -10,10 +10,8 @@ import java.awt.Color;
 import java.time.Instant;
 
 /**
- *
  * @author ProxyNeko
  * @author Jriwanek
- *
  */
 public final class CmdAbout extends Command {
 
@@ -42,7 +40,7 @@ public final class CmdAbout extends Command {
         embed.setColor(Color.GREEN);
         embed.setThumbnail(MMDBot.getInstance().getSelfUser().getAvatarUrl());
         embed.setDescription("An in house bot to assists staff with daily tasks and provide fun and useful commands "
-        + "for the community, please try ``" + MMDBot.getConfig().getMainPrefix() + "help`` for a list of commands!");
+            + "for the community, please try ``" + MMDBot.getConfig().getMainPrefix() + "help`` for a list of commands!");
         embed.addField("Version:", MMDBot.VERSION, true);
         embed.addField("Issue Tracker:", Utils.makeHyperlink("MMDBot's Github", MMDBot.ISSUE_TRACKER), true);
         embed.addField("Current maintainers:", "jriwanek, WillBL, ProxyNeko, sciwhiz12, Antoine Gagnon", true);

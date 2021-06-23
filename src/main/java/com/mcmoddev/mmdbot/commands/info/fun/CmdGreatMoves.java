@@ -4,15 +4,13 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 
 /**
- *
  * @author
- *
  */
 public final class CmdGreatMoves extends Command {
 
-	/**
-	 *
-	 */
+    /**
+     *
+     */
     public static final String URL = "https://soundcloud.com/aldenchambers/great-moves-keep-it-up";
 
     /**

@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 //TODO: Migrate to a SQLite DB with PR #45
+
 /**
  * @author williambl
  */
@@ -36,7 +37,8 @@ public final class Tricks {
     private static final Gson GSON;
     private static final Map<String, Trick.TrickType<?>> trickTypes = new HashMap<>();
 
-    private static @Nullable List<Trick> tricks = null;
+    private static @Nullable
+    List<Trick> tricks = null;
 
     public static Optional<Trick> getTrick(String name) {
         return getTricks().stream().filter(trick -> trick.getNames().contains(name)).findAny();

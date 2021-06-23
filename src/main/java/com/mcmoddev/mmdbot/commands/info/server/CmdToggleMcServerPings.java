@@ -9,9 +9,7 @@ import net.dv8tion.jda.api.entities.Role;
 import java.util.List;
 
 /**
- *
  * @author
- *
  */
 public final class CmdToggleMcServerPings extends Command {
 

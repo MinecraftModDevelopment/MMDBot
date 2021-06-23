@@ -1,15 +1,13 @@
 package com.mcmoddev.mmdbot.updatenotifiers.forge;
 
 /**
- *
  * @author Antoine Gagnon
- *
  */
 public final class ForgeVersion {
 
-	/**
-	 *
-	 */
+    /**
+     *
+     */
     private String recommended;
 
     /**
@@ -26,7 +24,6 @@ public final class ForgeVersion {
     }
 
     /**
-     *
      * @param recommendedIn
      * @param latestIn
      */
@@ -36,7 +33,6 @@ public final class ForgeVersion {
     }
 
     /**
-     *
      * @return String.
      */
     public String getRecommended() {
@@ -44,7 +40,6 @@ public final class ForgeVersion {
     }
 
     /**
-     *
      * @param recommendedIn
      */
     public void setRecommended(final String recommendedIn) {
@@ -52,7 +47,6 @@ public final class ForgeVersion {
     }
 
     /**
-     *
      * @return String.
      */
     public String getLatest() {
@@ -60,7 +54,6 @@ public final class ForgeVersion {
     }
 
     /**
-     *
      * @param latestIn
      */
     public void setLatest(final String latestIn) {

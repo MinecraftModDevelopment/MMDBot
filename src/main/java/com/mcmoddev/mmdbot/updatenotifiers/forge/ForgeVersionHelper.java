@@ -15,9 +15,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- *
  * @author Antoine Gagnon
- *
  */
 public final class ForgeVersionHelper {
 
@@ -37,15 +35,14 @@ public final class ForgeVersionHelper {
     private static final Gson GSON = new Gson();
 
 
-	/**
-	 *
-	 */
+    /**
+     *
+     */
     private ForgeVersionHelper() {
         throw new IllegalStateException("Utility class");
     }
 
     /**
-     *
      * @param versions
      * @return String.
      */
@@ -63,7 +60,6 @@ public final class ForgeVersionHelper {
     }
 
     /**
-     *
      * @param mcVersion
      * @return ForgeVersion.
      * @throws IOException
@@ -75,7 +71,6 @@ public final class ForgeVersionHelper {
     }
 
     /**
-     *
      * @return MinecraftForgeVersion.
      * @throws IOException
      * @throws JsonSyntaxException
@@ -90,7 +85,6 @@ public final class ForgeVersionHelper {
     }
 
     /**
-     *
      * @return InputStreamReader.
      * @throws IOException
      */
@@ -101,16 +95,15 @@ public final class ForgeVersionHelper {
     }
 
     /**
-     *
      * @return Map.
      * @throws IOException
      * @throws JsonSyntaxException
      * @throws JsonIOException
      */
     public static Map<String, ForgeVersion> getForgeVersions() throws IOException, JsonSyntaxException, JsonIOException {
-    	final InputStreamReader reader = openUrl();
+        final InputStreamReader reader = openUrl();
 
-    	final ForgePromoData data = GSON.fromJson(reader, ForgePromoData.class);
+        final ForgePromoData data = GSON.fromJson(reader, ForgePromoData.class);
 
         // Remove this specific entry (differs from others with having the `_pre4` version)
         data.promos.remove("1.7.10_pre4-latest");
@@ -119,12 +112,12 @@ public final class ForgeVersionHelper {
         final Map<String, ForgeVersion> versions = new HashMap<>();
 
         for (final Map.Entry<String, String> entry : data.promos.entrySet()) {
-        	final String mc = entry.getKey();
-        	final String forge = entry.getValue();
+            final String mc = entry.getKey();
+            final String forge = entry.getValue();
 
-        	final VersionMeta meta = getMCVersion(mc);
+            final VersionMeta meta = getMCVersion(mc);
 
-        	if (meta != null) {
+            if (meta != null) {
                 if (versions.containsKey(meta.version)) {
                     final ForgeVersion version = versions.get(meta.version);
                     if (meta.state.equals("recommended")) {
@@ -148,12 +141,11 @@ public final class ForgeVersionHelper {
     }
 
     /**
-     *
      * @param version
      * @return VersionMeta.
      */
     public static VersionMeta getMCVersion(final String version) {
-    	final var matcher = VERSION_REGEX.matcher(version);
+        final var matcher = VERSION_REGEX.matcher(version);
 
         if (matcher.find()) {
             return new VersionMeta(matcher.group(1), matcher.group(2));

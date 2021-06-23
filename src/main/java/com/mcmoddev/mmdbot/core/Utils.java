@@ -41,15 +41,13 @@ import java.util.stream.Collectors;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 
 /**
- *
  * @author
- *
  */
 public final class Utils {
 
-	/**
-	 *
-	 */
+    /**
+     *
+     */
     public static final String STICKY_ROLES_FILE_PATH = "mmdbot_sticky_roles.json";
 
     /**
@@ -256,7 +254,7 @@ public final class Utils {
             return new HashMap<>();
         }
         try (var reader = new InputStreamReader(new FileInputStream(joinTimesFile), StandardCharsets.UTF_8)) {
-        	final var typeOfHashMap = new TypeToken<Map<String, Instant>>() {
+            final var typeOfHashMap = new TypeToken<Map<String, Instant>>() {
             }.getType();
             return new Gson().fromJson(reader, typeOfHashMap);
         } catch (final IOException exception) {
@@ -360,7 +358,6 @@ public final class Utils {
     }
 
     /**
-     *
      * @param command
      * @param event
      * @return boolean.
@@ -373,7 +370,6 @@ public final class Utils {
     }
 
     /**
-     *
      * @param command
      * @param event
      * @return boolean.

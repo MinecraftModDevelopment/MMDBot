@@ -7,7 +7,6 @@ import org.slf4j.MarkerFactory;
  * Class for holding the {@link Marker}s used for logging.
  *
  * @author
- *
  */
 public final class MMDMarkers {
 
@@ -45,9 +44,9 @@ public final class MMDMarkers {
     public static final Marker MUTING = MarkerFactory.getMarker("Muting");
 
     /**
-	 *
-	 */
-	private MMDMarkers() {
-       throw new IllegalStateException("Utility class");
-   }
+     *
+     */
+    private MMDMarkers() {
+        throw new IllegalStateException("Utility class");
+    }
 }

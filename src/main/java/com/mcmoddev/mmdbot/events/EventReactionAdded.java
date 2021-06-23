@@ -20,15 +20,13 @@ import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.REQUESTS;
 
 /**
- *
  * @author
- *
  */
 public final class EventReactionAdded extends ListenerAdapter {
 
-	/**
-	 *
-	 */
+    /**
+     *
+     */
     private final Set<Message> warnedMessages = new HashSet<>();
 
     /**
@@ -53,10 +51,10 @@ public final class EventReactionAdded extends ListenerAdapter {
         final var discussionChannel = guild.getTextChannelById(getConfig().getChannel("requests.discussion"));
         if (getConfig().getGuildID() == guildId && getConfig().getChannel("requests.main") == channel.getIdLong()) {
 
-        	final int freshnessDuration = getConfig().getRequestFreshnessDuration();
+            final int freshnessDuration = getConfig().getRequestFreshnessDuration();
             if (freshnessDuration > 0) {
-            	final OffsetDateTime creationTime = message.getTimeCreated();
-            	final var now = OffsetDateTime.now();
+                final OffsetDateTime creationTime = message.getTimeCreated();
+                final var now = OffsetDateTime.now();
                 if (now.minusDays(freshnessDuration).isAfter(creationTime)) {
                     return; // Do nothing if the request has gone past the freshness duration
                 }

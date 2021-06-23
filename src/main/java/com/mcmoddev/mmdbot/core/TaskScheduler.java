@@ -9,16 +9,14 @@ import com.mcmoddev.mmdbot.updatenotifiers.minecraft.MinecraftUpdateNotifier;
 import java.util.Timer;
 
 /**
- *
  * @author Antoine Gagnon
- *
  */
 public final class TaskScheduler {
 
     /**
-    *
-    */
-   private static final Timer TIMER = new Timer();
+     *
+     */
+    private static final Timer TIMER = new Timer();
 
     /**
      *
@@ -33,7 +31,7 @@ public final class TaskScheduler {
     public static void init() {
         //Check each every 3 hours. 1000 * 60 * 60 * 3
         //Check every 15 min. 15 * 60 * 1000
-    	final long fifteenMinutes = 15 * 60 * 1000L;
+        final long fifteenMinutes = 15 * 60 * 1000L;
         try {
             TIMER.scheduleAtFixedRate(new ForgeUpdateNotifier(), 0, fifteenMinutes);
         } catch (Exception ex) {

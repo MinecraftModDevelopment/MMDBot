@@ -4,7 +4,6 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.Utils;
-
 import net.dv8tion.jda.api.entities.MessageChannel;
 
 import java.io.UnsupportedEncodingException;
@@ -16,7 +15,6 @@ import java.util.Locale;
  * The bulk of the Search commands functions live here to be shared between all other commands.
  *
  * @author
- *
  */
 public final class CmdSearch extends Command {
 
@@ -26,7 +24,6 @@ public final class CmdSearch extends Command {
     private final String baseUrl;
 
     /**
-     *
      * @param name      The command's/search engine's name.
      * @param baseUrlIn The base URL of the search provider.
      * @param aliases
@@ -46,7 +43,7 @@ public final class CmdSearch extends Command {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
-    	final MessageChannel channel = event.getChannel();
+        final MessageChannel channel = event.getChannel();
         if (event.getArgs().isEmpty()) {
             channel.sendMessage("No arguments given!").queue();
             return;

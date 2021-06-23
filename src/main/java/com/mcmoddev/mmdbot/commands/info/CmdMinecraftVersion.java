@@ -10,9 +10,7 @@ import java.awt.Color;
 import java.time.Instant;
 
 /**
- *
  * @author
- *
  */
 public final class CmdMinecraftVersion extends Command {
 

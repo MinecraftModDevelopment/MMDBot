@@ -18,15 +18,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- *
  * @author
- *
  */
 public final class CmdCommunityChannel extends Command {
 
-	/**
-	 *
-	 */
+    /**
+     *
+     */
     private static final EnumSet<Permission> REQUIRED_PERMISSIONS = EnumSet.of(Permission.MANAGE_PERMISSIONS, Permission.MANAGE_CHANNEL);
 
     /**

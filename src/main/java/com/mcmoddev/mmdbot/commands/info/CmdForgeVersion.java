@@ -11,9 +11,7 @@ import java.awt.Color;
 import java.time.Instant;
 
 /**
- *
  * @author
- *
  */
 public final class CmdForgeVersion extends Command {
 

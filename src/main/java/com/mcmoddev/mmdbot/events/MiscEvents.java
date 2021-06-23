@@ -10,9 +10,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 /**
- *
  * @author
- *
  */
 public final class MiscEvents extends ListenerAdapter {
 

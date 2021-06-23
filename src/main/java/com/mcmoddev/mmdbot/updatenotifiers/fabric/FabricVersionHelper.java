@@ -5,7 +5,6 @@ import com.google.gson.reflect.TypeToken;
 import com.mcmoddev.mmdbot.MMDBot;
 import org.xml.sax.SAXException;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpression;
@@ -24,9 +23,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- *
  * @author williambl
- *
  */
 public final class FabricVersionHelper {
 
@@ -77,12 +74,11 @@ public final class FabricVersionHelper {
     /**
      *
      */
-   private FabricVersionHelper() {
-       throw new IllegalStateException("Utility class");
-   }
+    private FabricVersionHelper() {
+        throw new IllegalStateException("Utility class");
+    }
 
     /**
-     *
      * @param mcVersion
      * @return String.
      */
@@ -94,7 +90,6 @@ public final class FabricVersionHelper {
     }
 
     /**
-     *
      * @return String.
      */
     public static String getLatestLoader() {
@@ -105,7 +100,6 @@ public final class FabricVersionHelper {
     }
 
     /**
-     *
      * @return String.
      */
     public static String getLatestApi() {
@@ -116,7 +110,6 @@ public final class FabricVersionHelper {
     }
 
     /**
-     *
      * @return boolean.
      */
     private static boolean isOutdated() {
@@ -197,7 +190,6 @@ public final class FabricVersionHelper {
     }
 
     /**
-     *
      * @param urlString
      * @return InputStreamReader.
      */
@@ -211,7 +203,6 @@ public final class FabricVersionHelper {
     }
 
     /**
-     *
      * @param urlString
      * @return InputStream.
      */
@@ -226,9 +217,7 @@ public final class FabricVersionHelper {
     }
 
     /**
-     *
      * @author
-     *
      */
     private static class YarnVersionInfo {
 
@@ -264,9 +253,7 @@ public final class FabricVersionHelper {
     }
 
     /**
-     *
      * @author
-     *
      */
     private static class LoaderVersionInfo {
 

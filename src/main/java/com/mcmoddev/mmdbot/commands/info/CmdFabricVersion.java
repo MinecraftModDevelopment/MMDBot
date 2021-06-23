@@ -11,9 +11,7 @@ import java.awt.Color;
 import java.time.Instant;
 
 /**
- *
  * @author williambl
- *
  */
 public final class CmdFabricVersion extends Command {
 

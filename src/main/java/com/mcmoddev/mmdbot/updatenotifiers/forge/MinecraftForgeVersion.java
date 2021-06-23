@@ -1,15 +1,13 @@
 package com.mcmoddev.mmdbot.updatenotifiers.forge;
 
 /**
- *
  * @author Antoine Gagnon
- *
  */
 public final class MinecraftForgeVersion {
 
-	/**
-	 *
-	 */
+    /**
+     *
+     */
     private final ForgeVersion forgeVersion;
     /**
      *
@@ -17,7 +15,6 @@ public final class MinecraftForgeVersion {
     private final String mcVersion;
 
     /**
-     *
      * @param mcVersionIn
      * @param forgeVersionIn
      */
@@ -27,7 +24,6 @@ public final class MinecraftForgeVersion {
     }
 
     /**
-     *
      * @return ForgeVersion.
      */
     public ForgeVersion getForgeVersion() {
@@ -35,7 +31,6 @@ public final class MinecraftForgeVersion {
     }
 
     /**
-     *
      * @return String.
      */
     public String getMcVersion() {

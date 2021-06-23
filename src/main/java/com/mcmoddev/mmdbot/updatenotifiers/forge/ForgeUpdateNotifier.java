@@ -13,20 +13,18 @@ import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.NOTIFIER_FORGE;
 
 /**
- *
  * @author Antoine Gagnon
- *
  */
 public final class ForgeUpdateNotifier extends TimerTask {
 
-	/**
-	 *
-	 */
-	private static final String CHANGELOG = "Changelog";
+    /**
+     *
+     */
+    private static final String CHANGELOG = "Changelog";
 
-	/**
-	 *
-	 */
+    /**
+     *
+     */
     private static final String CHANGELOG_URL_TEMPLATE = "https://maven.minecraftforge.net/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt";
 
     /**
@@ -40,7 +38,6 @@ public final class ForgeUpdateNotifier extends TimerTask {
     private ForgeVersion lastForgeVersions;
 
     /**
-     *
      * @throws IOException
      */
     public ForgeUpdateNotifier() throws IOException {
@@ -107,7 +104,7 @@ public final class ForgeUpdateNotifier extends TimerTask {
                 LOGGER.debug(NOTIFIER_FORGE, "No new Forge version found");
             }
         } catch (RuntimeException ex) {
-        	throw ex;
+            throw ex;
         } catch (Exception ex) {
             LOGGER.error(NOTIFIER_FORGE, "Error while running", ex);
             ex.printStackTrace();

@@ -15,10 +15,8 @@ import java.util.Collections;
  * This appender may have an inner {@link Layout}, for formatting the message to be sent to the channel.
  * Otherwise, {@link ILoggingEvent#getFormattedMessage()} will be sent.
  *
- * @see ConsoleChannelLayout
- *
  * @author
- *
+ * @see ConsoleChannelLayout
  */
 public class ConsoleChannelAppender extends AppenderBase<ILoggingEvent> {
 

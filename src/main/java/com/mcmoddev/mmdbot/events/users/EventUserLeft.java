@@ -22,9 +22,7 @@ import static com.mcmoddev.mmdbot.logging.MMDMarkers.EVENTS;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.REQUESTS;
 
 /**
- *
  * @author
- *
  */
 public final class EventUserLeft extends ListenerAdapter {
 
@@ -76,15 +74,14 @@ public final class EventUserLeft extends ListenerAdapter {
     }
 
     /**
-     *
      * @param guild
      * @param leavingUser
      */
     private void deleteRecentRequests(final Guild guild, final User leavingUser) {
-    	final var requestsChannel = guild.getTextChannelById(getConfig().getChannel("requests.main"));
+        final var requestsChannel = guild.getTextChannelById(getConfig().getChannel("requests.main"));
         final int deletionTime = getConfig().getRequestLeaveDeletionTime();
         if (requestsChannel != null && deletionTime > 0) {
-        	final OffsetDateTime now = OffsetDateTime.now().minusHours(deletionTime);
+            final OffsetDateTime now = OffsetDateTime.now().minusHours(deletionTime);
             requestsChannel.getIterableHistory()
                 .takeWhileAsync(message -> message.getTimeCreated().isAfter(now) && message.getAuthor().equals(leavingUser))
                 .thenAccept(messages ->

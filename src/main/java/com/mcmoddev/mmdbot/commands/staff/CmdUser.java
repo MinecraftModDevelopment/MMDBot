@@ -13,9 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Locale;
 
 /**
- *
  * @author
- *
  */
 public class CmdUser extends Command {
 
@@ -49,7 +47,6 @@ public class CmdUser extends Command {
     }
 
     /**
-     *
      * @param member
      * @return EmbedBuilder.
      */

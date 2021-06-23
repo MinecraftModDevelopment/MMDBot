@@ -10,9 +10,7 @@ import java.awt.Color;
 import java.time.Instant;
 
 /**
- *
  * @author ProxyNeko
- *
  */
 public final class CmdRules extends Command {
 

@@ -9,9 +9,7 @@ import java.awt.Color;
 import java.time.Instant;
 
 /**
- *
  * @author
- *
  */
 public final class CmdXy extends Command {
 

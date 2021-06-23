@@ -19,9 +19,7 @@ import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.logging.MMDMarkers.EVENTS;
 
 /**
- *
  * @author
- *
  */
 public final class EventRoleRemoved extends ListenerAdapter {
 

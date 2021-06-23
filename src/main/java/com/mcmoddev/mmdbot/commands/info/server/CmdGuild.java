@@ -12,9 +12,7 @@ import java.time.LocalDateTime;
 import java.util.Locale;
 
 /**
- *
  * @author ProxyNeko
- *
  */
 public final class CmdGuild extends Command {
 

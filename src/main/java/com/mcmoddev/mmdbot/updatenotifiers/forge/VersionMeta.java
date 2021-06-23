@@ -1,15 +1,13 @@
 package com.mcmoddev.mmdbot.updatenotifiers.forge;
 
 /**
- *
  * @author Antoine Gagnon
- *
  */
 public final class VersionMeta {
 
-	/**
-	 *
-	 */
+    /**
+     *
+     */
     public String version;
 
     /**
@@ -18,7 +16,6 @@ public final class VersionMeta {
     public String state;
 
     /**
-     *
      * @param versionIn
      * @param stateIn
      */

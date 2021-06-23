@@ -1,17 +1,5 @@
 package com.mcmoddev.mmdbot;
 
-import java.nio.file.Paths;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.security.auth.login.LoginException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.commands.info.CmdAbout;
@@ -45,11 +33,20 @@ import com.mcmoddev.mmdbot.events.users.EventRoleAdded;
 import com.mcmoddev.mmdbot.events.users.EventRoleRemoved;
 import com.mcmoddev.mmdbot.events.users.EventUserJoined;
 import com.mcmoddev.mmdbot.events.users.EventUserLeft;
-
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.security.auth.login.LoginException;
+import java.nio.file.Paths;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Our Main class.
@@ -96,13 +93,19 @@ public final class MMDBot {
      */
     public static final Logger LOGGER = LoggerFactory.getLogger(MMDBot.NAME);
 
-    /** The Constant INTENTS. */
+    /**
+     * The Constant INTENTS.
+     */
     private static final Set<GatewayIntent> INTENTS = new HashSet<>();
 
-    /** The config. */
+    /**
+     * The config.
+     */
     private static BotConfig config;
 
-    /** The instance. */
+    /**
+     * The instance.
+     */
     private static JDA instance;
 
     /**
@@ -151,7 +154,7 @@ public final class MMDBot {
         MMDBot.config = new BotConfig(configPath);
         if (MMDBot.config.isNewlyGenerated()) {
             MMDBot.LOGGER.warn("A new config file at {} has been generated. Please configure the bot and try again.",
-                    configPath);
+                configPath);
             System.exit(0);
         } else if (MMDBot.config.getToken().isEmpty()) {
             MMDBot.LOGGER.error("No token is specified in the config. Please configure the bot and try again");
@@ -197,10 +200,10 @@ public final class MMDBot {
                 .addCommand(new CmdGreatMoves())
                 //TODO Setup DB storage for tricks and polish them off/add permission restrictions for when needed.
                 /**
-                .addCommand(new CmdAddTrick())
-                .addCommand(new CmdListTricks())
-                .addCommand(new CmdRemoveTrick())
-                .addCommands(Tricks.createTrickCommands().toArray(new Command[0]))
+                 .addCommand(new CmdAddTrick())
+                 .addCommand(new CmdListTricks())
+                 .addCommand(new CmdRemoveTrick())
+                 .addCommands(Tricks.createTrickCommands().toArray(new Command[0]))
                  */
                 .setHelpWord("help")
                 .build();
@@ -222,7 +225,7 @@ public final class MMDBot {
                 .build();
         } catch (final LoginException exception) {
             MMDBot.LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.",
-                    exception);
+                exception);
             System.exit(1);
         }
     }
