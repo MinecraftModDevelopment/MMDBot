@@ -4,7 +4,6 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.core.Utils;
 import com.mcmoddev.mmdbot.tricks.Trick;
-import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.util.List;
 
@@ -45,7 +44,6 @@ public final class CmdRunTrick extends Command {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
-        final var embed = new EmbedBuilder();
         final var channel = event.getTextChannel();
 
         channel.sendMessage(trick.getMessage(event.getArgs().split(" "))).queue();

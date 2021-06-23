@@ -2,7 +2,8 @@ package com.mcmoddev.mmdbot;
 
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
-import com.mcmoddev.mmdbot.commands.info.CmdAbout;
+import com.mcmoddev.mmdbot.commands.bot.info.CmdAbout;
+import com.mcmoddev.mmdbot.commands.bot.management.CmdAvatar;
 import com.mcmoddev.mmdbot.commands.info.CmdEventsHelp;
 import com.mcmoddev.mmdbot.commands.info.CmdFabricVersion;
 import com.mcmoddev.mmdbot.commands.info.CmdForgeVersion;
@@ -203,6 +204,7 @@ public final class MMDBot {
                 .addCommand(new CmdCommunityChannel())
                 .addCommand(new CmdOldChannels())
                 .addCommand(new CmdGreatMoves())
+                .addCommand(new CmdAvatar())
                 //TODO Setup DB storage for tricks and polish them off/add permission restrictions for when needed.
                 /*
                  .addCommand(new CmdAddTrick())

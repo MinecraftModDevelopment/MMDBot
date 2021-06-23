@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.commands.info;
+package com.mcmoddev.mmdbot.commands.bot.info;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
