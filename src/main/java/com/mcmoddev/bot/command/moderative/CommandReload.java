@@ -2,7 +2,6 @@ package com.mcmoddev.bot.command.moderative;
 
 import net.darkhax.botbase.BotBase;
 import net.darkhax.botbase.commands.CommandModerator;
-import net.darkhax.botbase.utils.MessageUtils;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 

@@ -7,12 +7,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import com.mcmoddev.bot.curse.CurseTracker;
 import com.mcmoddev.bot.curse.json.Mod;
 import net.darkhax.botbase.utils.MessageUtils;
 import sx.blah.discord.util.EmbedBuilder;
@@ -61,9 +59,9 @@ public class MessageMod extends EmbedBuilder {
 
             this.totalDownloads += mod.getDownloadCount();
             this.totalMonthlyDownloads += mod.getMonthly();
-            
+
             if (modCount < this.modsToShow) {
-    
+
                 modCount++;
                 projectText.add(MessageUtils.makeHyperlink(mod.getName(), mod.getWebSiteURL()) + " - " + NUMBER_FORMAT.format(mod.getDownloadCount()));
             }
@@ -84,7 +82,7 @@ public class MessageMod extends EmbedBuilder {
         projectText.add("Total Mods: " + this.sortedMods.size());
         projectText.add("Monthly Downloads: " + NUMBER_FORMAT.format(this.totalMonthlyDownloads));
         projectText.add("Yearly Downloads (projected): " + NUMBER_FORMAT.format(this.totalMonthlyDownloads*12));
-        
+
         final float percentage = (float) this.totalDownloads / (float) CurseTracker.instance.getAllDownloads() * 100f;
 
         if (percentage >= 0.01) {
@@ -102,7 +100,7 @@ public class MessageMod extends EmbedBuilder {
         for(String name : modNames) {
             mods.add(CurseTracker.instance.getModFromName(name));
         }
-        
+
         final List<Mod> sorted = new ArrayList<>(mods);
         Collections.sort(sorted, Collections.reverseOrder());
         return sorted;

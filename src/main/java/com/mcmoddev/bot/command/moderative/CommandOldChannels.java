@@ -8,7 +8,6 @@ import java.util.Map;
 import net.darkhax.botbase.BotBase;
 import net.darkhax.botbase.commands.CommandAdmin;
 import net.darkhax.botbase.utils.DataUtilities;
-import net.darkhax.botbase.utils.MessageUtils;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.EmbedBuilder;

@@ -3,7 +3,6 @@ package com.mcmoddev.bot.command;
 import net.darkhax.botbase.BotBase;
 import net.darkhax.botbase.commands.Command;
 import net.darkhax.botbase.embed.MessageUser;
-import net.darkhax.botbase.utils.MessageUtils;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
@@ -16,7 +15,7 @@ public class CommandMe implements Command {
 
         final IUser user = message.getAuthor();
         final IGuild guild = message.getGuild();
-    
+
         bot.sendMessage(message.getChannel(), new MessageUser(user, guild, true).build());
     }
 

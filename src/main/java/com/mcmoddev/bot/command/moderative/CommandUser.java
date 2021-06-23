@@ -3,7 +3,6 @@ package com.mcmoddev.bot.command.moderative;
 import net.darkhax.botbase.BotBase;
 import net.darkhax.botbase.commands.CommandModerator;
 import net.darkhax.botbase.embed.MessageUser;
-import net.darkhax.botbase.utils.MessageUtils;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
@@ -25,12 +24,12 @@ public class CommandUser extends CommandModerator {
         }
 
         if (user != null) {
-    
+
             bot.sendMessage(message.getChannel(), new MessageUser(user, guild, true).withColor(user.getColorForGuild(channel.getGuild())).build());
         }
 
         else {
-    
+
             bot.sendMessage(message.getChannel(), this.getDescription());
         }
     }

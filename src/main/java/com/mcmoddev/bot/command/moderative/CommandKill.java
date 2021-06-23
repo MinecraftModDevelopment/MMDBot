@@ -6,7 +6,6 @@ import com.mcmoddev.bot.MMDBot;
 
 import net.darkhax.botbase.BotBase;
 import net.darkhax.botbase.commands.CommandAdmin;
-import net.darkhax.botbase.utils.MessageUtils;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 
@@ -18,23 +17,23 @@ public class CommandKill extends CommandAdmin {
         final int time = params.length == 2 && NumberUtils.isCreatable(params[1]) ? new Integer(params[1]) : 10;
 
         if (time > 500) {
-    
+
             bot.sendMessage(message.getChannel(), "The max time is 300 seconds! (5 mins)");
             return;
         }
 
         if (time < 0) {
-    
+
             bot.sendMessage(message.getChannel(), "Negative times not accepted!");
             return;
         }
 
         if (time < 1) {
-    
+
             bot.sendMessage(message.getChannel(), "At least one second of delay is required!");
             return;
         }
-    
+
         bot.sendFormattedMessage(message.getChannel(), "Oh, I am slain. Killed by %s#%s Death in %d seconds.", message.getAuthor().getName(), message.getAuthor().getDiscriminator(), time);
 
         try {
