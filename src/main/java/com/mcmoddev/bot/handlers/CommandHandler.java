@@ -7,13 +7,16 @@ import com.mcmoddev.bot.MMDBot;
 import com.mcmoddev.bot.command.Command;
 import com.mcmoddev.bot.command.CommandAvatar;
 import com.mcmoddev.bot.command.CommandCurse;
+import com.mcmoddev.bot.command.CommandHTML;
 import com.mcmoddev.bot.command.CommandHelp;
 import com.mcmoddev.bot.command.CommandKill;
 import com.mcmoddev.bot.command.CommandMemberCount;
 import com.mcmoddev.bot.command.CommandMute;
 import com.mcmoddev.bot.command.CommandProbe;
 import com.mcmoddev.bot.command.CommandPruneChannels;
+import com.mcmoddev.bot.command.CommandReload;
 import com.mcmoddev.bot.command.CommandRename;
+import com.mcmoddev.bot.command.CommandReport;
 import com.mcmoddev.bot.command.CommandServerInfo;
 import com.mcmoddev.bot.command.CommandUser;
 import com.mcmoddev.bot.command.CommandXY;
@@ -41,6 +44,8 @@ public class CommandHandler {
             registerCommand("prune", new CommandPruneChannels());
             registerCommand("rename", new CommandRename());
             registerCommand("user", new CommandUser());
+            registerCommand("reload", new CommandReload());
+            registerCommand("html", new CommandHTML());
 
             // Public
             registerCommand("help", new CommandHelp());
@@ -48,6 +53,7 @@ public class CommandHandler {
             registerCommand("server", new CommandServerInfo());
             registerCommand("curse", new CommandCurse());
             registerCommand("xy", new CommandXY());
+//          registerCommand("report", new CommandReport());
 
             enabled = true;
         }

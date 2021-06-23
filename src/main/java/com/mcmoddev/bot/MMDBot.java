@@ -3,6 +3,7 @@ package com.mcmoddev.bot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mcmoddev.bot.database.DatabaseHandler;
 import com.mcmoddev.bot.handlers.CommandHandler;
 import com.mcmoddev.bot.handlers.LoggingHandler;
 import com.mcmoddev.bot.handlers.ScheduleHandler;
@@ -35,6 +36,7 @@ public class MMDBot {
     private static final ScheduleHandler schedule = new ScheduleHandler();
 
     public static IDiscordClient instance;
+    public static DatabaseHandler database;
 
     public static void main (String... args) throws RateLimitException {
 
@@ -53,6 +55,7 @@ public class MMDBot {
             instance.getDispatcher().registerListener(state);
             instance.getDispatcher().registerListener(commands);
             instance.getDispatcher().registerListener(auditor);
+//          initHandlers();
         }
 
         catch (final DiscordException e) {
@@ -61,5 +64,14 @@ public class MMDBot {
             instance.logout();
             System.exit(0);
         }
+    }
+
+    public static void initHandlers () {
+
+        if(database != null){
+            database.disconnect();
+        }
+        database = new DatabaseHandler();
+        database.connect();
     }
 }

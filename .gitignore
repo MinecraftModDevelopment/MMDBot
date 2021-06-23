@@ -4,6 +4,9 @@
 /cursefiles/
 /logs/
 /downloads/
+/out/
+/.ideaDataSources/
+/dataSources/
 
 #Hidden Directories
 .gradle/
