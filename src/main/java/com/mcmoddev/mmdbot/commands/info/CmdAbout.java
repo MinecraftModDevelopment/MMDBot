@@ -10,8 +10,9 @@ import java.awt.Color;
 import java.time.Instant;
 
 /**
-
- * @author ProxyNeko Jriwanek
+ *
+ * @author ProxyNeko
+ * @author Jriwanek
  *
  */
 public final class CmdAbout extends Command {
@@ -44,7 +45,7 @@ public final class CmdAbout extends Command {
         + "for the community, please try ``" + MMDBot.getConfig().getMainPrefix() + "help`` for a list of commands!");
         embed.addField("Version:", MMDBot.VERSION, true);
         embed.addField("Issue Tracker:", Utils.makeHyperlink("MMDBot's Github", MMDBot.ISSUE_TRACKER), true);
-        embed.addField("Current maintainers:", "jriwanek, WillBL, ProxyNeko, sciwhiz12", true);
+        embed.addField("Current maintainers:", "jriwanek, WillBL, ProxyNeko, sciwhiz12, Antoine Gagnon", true);
         embed.setTimestamp(Instant.now());
         channel.sendMessageEmbeds(embed.build()).queue();
     }

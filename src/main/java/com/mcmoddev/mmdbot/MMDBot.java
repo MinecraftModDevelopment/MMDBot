@@ -12,7 +12,6 @@ import javax.security.auth.login.LoginException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.commands.info.CmdAbout;
@@ -38,9 +37,6 @@ import com.mcmoddev.mmdbot.commands.staff.CmdMute;
 import com.mcmoddev.mmdbot.commands.staff.CmdOldChannels;
 import com.mcmoddev.mmdbot.commands.staff.CmdUnmute;
 import com.mcmoddev.mmdbot.commands.staff.CmdUser;
-import com.mcmoddev.mmdbot.commands.tricks.CmdAddTrick;
-import com.mcmoddev.mmdbot.commands.tricks.CmdListTricks;
-import com.mcmoddev.mmdbot.commands.tricks.CmdRemoveTrick;
 import com.mcmoddev.mmdbot.core.BotConfig;
 import com.mcmoddev.mmdbot.events.EventReactionAdded;
 import com.mcmoddev.mmdbot.events.MiscEvents;
@@ -49,7 +45,6 @@ import com.mcmoddev.mmdbot.events.users.EventRoleAdded;
 import com.mcmoddev.mmdbot.events.users.EventRoleRemoved;
 import com.mcmoddev.mmdbot.events.users.EventUserJoined;
 import com.mcmoddev.mmdbot.events.users.EventUserLeft;
-import com.mcmoddev.mmdbot.tricks.Tricks;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -200,10 +195,13 @@ public final class MMDBot {
                 .addCommand(new CmdCommunityChannel())
                 .addCommand(new CmdOldChannels())
                 .addCommand(new CmdGreatMoves())
+                //TODO Setup DB storage for tricks and polish them off/add permission restrictions for when needed.
+                /**
                 .addCommand(new CmdAddTrick())
                 .addCommand(new CmdListTricks())
                 .addCommand(new CmdRemoveTrick())
                 .addCommands(Tricks.createTrickCommands().toArray(new Command[0]))
+                 */
                 .setHelpWord("help")
                 .build();
 

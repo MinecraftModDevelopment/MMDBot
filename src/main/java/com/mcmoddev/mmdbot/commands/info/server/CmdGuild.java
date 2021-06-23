@@ -13,7 +13,7 @@ import java.util.Locale;
 
 /**
  *
- * @author
+ * @author ProxyNeko
  *
  */
 public final class CmdGuild extends Command {

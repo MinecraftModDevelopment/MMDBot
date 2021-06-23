@@ -29,7 +29,7 @@ public final class CmdOldChannels extends Command {
 		super();
 		name = "old-channels";
 		help = "Gives channels which haven't been used in an amount of days given as an argument (default 60)." +
-			"Usage: "+MMDBot.getConfig().getMainPrefix()+"old-channels [threshold] [channel or category list, seperated by spaces]";
+			"Usage: " + MMDBot.getConfig().getMainPrefix() + "old-channels [threshold] [channel or category list, seperated by spaces]";
 		hidden = true;
 	}
 
@@ -71,7 +71,7 @@ public final class CmdOldChannels extends Command {
 				}
 			});
 
-		outputChannel.sendMessage(embed.build()).queue();
+		outputChannel.sendMessageEmbeds(embed.build()).queue();
 	}
 
 	private Predicate<TextChannel> channelIsAllowedByList(List<String> list) {

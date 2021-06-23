@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 /**
  * A {@link Command} for listing the roles and their member counts.
  *
- * @author
+ * @author ProxyNeko
  *
  */
 public final class CmdRoles extends Command {

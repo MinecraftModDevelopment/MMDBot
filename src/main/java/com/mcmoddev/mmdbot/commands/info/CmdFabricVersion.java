@@ -12,7 +12,7 @@ import java.time.Instant;
 
 /**
  *
- * @author
+ * @author williambl
  *
  */
 public final class CmdFabricVersion extends Command {

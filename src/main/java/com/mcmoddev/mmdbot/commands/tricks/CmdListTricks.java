@@ -30,7 +30,7 @@ public final class CmdListTricks extends Command {
         if (!Utils.checkCommand(this, event)) return;
         final TextChannel channel = event.getTextChannel();
 
-        channel.sendMessage(
+        channel.sendMessageEmbeds(
             new EmbedBuilder()
                 .setDescription(Tricks.getTricks()
                     .stream()

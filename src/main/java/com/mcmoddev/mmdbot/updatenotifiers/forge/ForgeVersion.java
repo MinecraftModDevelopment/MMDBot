@@ -2,7 +2,7 @@ package com.mcmoddev.mmdbot.updatenotifiers.forge;
 
 /**
  *
- * @author
+ * @author Antoine Gagnon
  *
  */
 public final class ForgeVersion {

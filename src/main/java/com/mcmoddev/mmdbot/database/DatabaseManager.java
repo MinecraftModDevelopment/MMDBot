@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * @author Poke
+ * @author Antoine Gagnon
  */
 public class DatabaseManager {
 

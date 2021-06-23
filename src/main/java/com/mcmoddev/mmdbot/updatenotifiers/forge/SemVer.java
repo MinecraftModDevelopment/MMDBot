@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  *
- * @author
+ * @author Antoine Gagnon
  *
  */
 public final class SemVer implements Comparable<SemVer> {

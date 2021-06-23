@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 /**
  *
- * @author
+ * @author williambl
  *
  */
 public final class FabricVersionHelper {

@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 
 /**
  *
- * @author
+ * @author Antoine Gagnon
  *
  */
 public final class ForgeVersionHelper {

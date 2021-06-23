@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * The configuration holder for the bot.
  *
- * @author
+ * @author sciwhiz12
  *
  */
 public final class BotConfig {

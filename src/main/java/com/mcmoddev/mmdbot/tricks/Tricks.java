@@ -1,6 +1,5 @@
 package com.mcmoddev.mmdbot.tricks;
 
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
@@ -29,6 +28,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 //TODO: Migrate to a SQLite DB with PR #45
+/**
+ * @author williambl
+ */
 public final class Tricks {
     private static final String TRICK_STORAGE_PATH = "mmdbot_tricks.json";
     private static final Gson GSON;
@@ -86,9 +88,9 @@ public final class Tricks {
     }
 
     private static void write() {
-        final File userJoinTimesFile = new File(TRICK_STORAGE_PATH);
+        final var userJoinTimesFile = new File(TRICK_STORAGE_PATH);
         List<Trick> tricks = getTricks();
-        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(userJoinTimesFile), StandardCharsets.UTF_8)) {
+        try (var writer = new OutputStreamWriter(new FileOutputStream(userJoinTimesFile), StandardCharsets.UTF_8)) {
             GSON.toJson(tricks, writer);
         } catch (final FileNotFoundException exception) {
             MMDBot.LOGGER.error("An FileNotFoundException occurred saving tricks...", exception);
@@ -106,7 +108,7 @@ public final class Tricks {
             .create();
     }
 
-    final static class TrickSerializer implements TypeAdapterFactory {
+    static final class TrickSerializer implements TypeAdapterFactory {
         @Override
         public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
             if (!Trick.class.isAssignableFrom(type.getRawType())) {
@@ -134,7 +136,7 @@ public final class Tricks {
                         @SuppressWarnings("unchecked") Class<T> clazz = (Class<T>) Class.forName(in.nextString());
                         TypeToken<T> readType = TypeToken.get(clazz);
                         in.nextName();
-                        T result = gson.getDelegateAdapter(TrickSerializer.this, readType).read(in);
+                        var result = gson.getDelegateAdapter(TrickSerializer.this, readType).read(in);
                         in.endObject();
                         return result;
                     } catch (ClassNotFoundException e) {

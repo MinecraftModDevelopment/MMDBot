@@ -10,7 +10,7 @@ import java.util.Timer;
 
 /**
  *
- * @author
+ * @author Antoine Gagnon
  *
  */
 public final class TaskScheduler {

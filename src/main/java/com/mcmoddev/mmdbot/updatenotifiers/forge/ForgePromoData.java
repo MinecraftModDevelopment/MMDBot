@@ -4,7 +4,7 @@ import java.util.Map;
 
 /**
  *
- * @author
+ * @author Antoine Gagnon
  *
  */
 public class ForgePromoData {

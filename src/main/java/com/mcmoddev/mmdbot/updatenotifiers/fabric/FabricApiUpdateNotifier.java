@@ -13,7 +13,7 @@ import static com.mcmoddev.mmdbot.logging.MMDMarkers.NOTIFIER_FABRIC;
 
 /**
  *
- * @author
+ * @author williambl
  *
  */
 public final class FabricApiUpdateNotifier extends TimerTask {

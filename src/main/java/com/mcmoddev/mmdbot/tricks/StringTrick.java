@@ -7,6 +7,9 @@ import net.dv8tion.jda.api.entities.Message;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * @author williambl
+ */
 public class StringTrick implements Trick {
     private final List<String> names;
     private final String body;

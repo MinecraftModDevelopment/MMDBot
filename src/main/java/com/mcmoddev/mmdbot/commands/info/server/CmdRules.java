@@ -11,7 +11,7 @@ import java.time.Instant;
 
 /**
  *
- * @author
+ * @author ProxyNeko
  *
  */
 public final class CmdRules extends Command {

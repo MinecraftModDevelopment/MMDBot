@@ -14,7 +14,7 @@ import static com.mcmoddev.mmdbot.logging.MMDMarkers.NOTIFIER_FORGE;
 
 /**
  *
- * @author
+ * @author Antoine Gagnon
  *
  */
 public final class ForgeUpdateNotifier extends TimerTask {

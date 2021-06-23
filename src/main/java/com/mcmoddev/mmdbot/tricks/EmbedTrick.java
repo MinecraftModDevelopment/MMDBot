@@ -9,7 +9,11 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * @author williambl
+ */
 public class EmbedTrick implements Trick {
+
     private final List<String> names;
     private final String title;
     private final String description;

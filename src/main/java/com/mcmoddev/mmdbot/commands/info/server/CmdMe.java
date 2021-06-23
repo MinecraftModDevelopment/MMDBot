@@ -7,7 +7,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 
 /**
  *
- * @author
+ * @author ProxyNeko
+ * @author sciwhiz12
  *
  */
 public final class CmdMe extends CmdUser {
