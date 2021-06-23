@@ -13,7 +13,7 @@ public interface Command {
      * @param params The individual parameter messages. The first parameter is the string/name
      *        of the command being used.
      */
-    public void processCommand (IMessage message, String[] params);
+    public void processCommand(IMessage message, String[] params);
 
     /**
      * Provides a description for the command. This is used by the help command to tell people
@@ -21,7 +21,7 @@ public interface Command {
      *
      * @return The description for the command.
      */
-    public String getDescription ();
+    public String getDescription();
 
     /**
      * Checks if the message is valid for the command. This is intended for use with player
@@ -31,7 +31,7 @@ public interface Command {
      *        contents, and more.
      * @return
      */
-    default public boolean isValidUsage (IMessage message) {
+    default public boolean isValidUsage(IMessage message) {
 
         return true;
     }

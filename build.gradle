@@ -16,7 +16,7 @@ group 'MMDBot'
 
 repositories {
     jcenter()
-    maven { 
+    maven {
         url 'https://maven.mcmoddev.com'
     }
     maven {
