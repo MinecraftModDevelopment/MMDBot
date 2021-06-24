@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.modules.commands;
+package com.mcmoddev.mmdbot.modules;
 
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.MMDBot;
@@ -83,7 +83,6 @@ public class CommandModule {
              */
             .setHelpWord("help")
             .build();
-
 
             if (MMDBot.getConfig().isCommandModuleEnabled()) {
                 MMDBot.getInstance().addEventListener(commandListener);

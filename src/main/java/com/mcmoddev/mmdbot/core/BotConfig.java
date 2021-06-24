@@ -433,6 +433,11 @@ public final class BotConfig {
             .orElse("");
     }
 
+    /**
+     * A boolean check to enable or disable commands in production in case of issues or in dev should we not need them.
+     *
+     * @return true or false.
+     */
     public boolean isCommandModuleEnabled() {
         return config.<Boolean>getOrElse("modules.command_module_enabled", true);
     }
