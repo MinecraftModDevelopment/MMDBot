@@ -48,16 +48,6 @@ import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 public final class Utils {
 
     /**
-     * The constant STICKY_ROLES_FILE_PATH.
-     */
-    public static final String STICKY_ROLES_FILE_PATH = "mmdbot_sticky_roles.json";
-
-    /**
-     * The constant USER_JOIN_TIMES_FILE_PATH.
-     */
-    public static final String USER_JOIN_TIMES_FILE_PATH = "mmdbot_user_join_times.json";
-
-    /**
      * Instantiates a new Utils.
      */
     private Utils() {
@@ -202,7 +192,7 @@ public final class Utils {
      * @param roles  The roles the user had before they left.
      */
     public static void writeUserRoles(final Long userID, final List<Role> roles) {
-        final var roleFile = new File(STICKY_ROLES_FILE_PATH);
+        final var roleFile = new File(References.STICKY_ROLES_FILE_PATH);
         final Map<String, List<String>> userToRoleMap = getUserToRoleMap();
         userToRoleMap.put(userID.toString(), roles.stream().map(ISnowflake::getId).collect(Collectors.toList()));
         try (var writer = new OutputStreamWriter(new FileOutputStream(roleFile), StandardCharsets.UTF_8)) {
@@ -223,7 +213,7 @@ public final class Utils {
      */
     @Nonnull
     public static Map<String, List<String>> getUserToRoleMap() {
-        final var roleFile = new File(STICKY_ROLES_FILE_PATH);
+        final var roleFile = new File(References.STICKY_ROLES_FILE_PATH);
         if (!roleFile.exists()) {
             return new HashMap<>();
         }
@@ -245,7 +235,7 @@ public final class Utils {
      * @param joinTime The join time of the user.
      */
     public static void writeUserJoinTimes(final String userID, final Instant joinTime) {
-        final var userJoinTimesFile = new File(USER_JOIN_TIMES_FILE_PATH);
+        final var userJoinTimesFile = new File(References.USER_JOIN_TIMES_FILE_PATH);
         final Map<String, Instant> userJoinTimes = getUserJoinTimeMap();
         userJoinTimes.put(userID, joinTime);
         try (var writer = new OutputStreamWriter(new FileOutputStream(userJoinTimesFile), StandardCharsets.UTF_8)) {
@@ -266,7 +256,7 @@ public final class Utils {
      */
     @Nonnull
     public static Map<String, Instant> getUserJoinTimeMap() {
-        final var joinTimesFile = new File(USER_JOIN_TIMES_FILE_PATH);
+        final var joinTimesFile = new File(References.USER_JOIN_TIMES_FILE_PATH);
         if (!joinTimesFile.exists()) {
             return new HashMap<>();
         }

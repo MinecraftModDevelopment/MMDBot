@@ -1,6 +1,7 @@
 package com.mcmoddev.mmdbot.events;
 
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.core.TaskScheduler;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.events.DisconnectEvent;
@@ -9,10 +10,12 @@ import net.dv8tion.jda.api.events.ResumedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Instant;
+
 /**
  * The type Misc events.
  *
- * @author
+ * @author ProxyNeko
  */
 public final class MiscEvents extends ListenerAdapter {
 
@@ -25,6 +28,7 @@ public final class MiscEvents extends ListenerAdapter {
     public void onReady(final @NotNull ReadyEvent event) {
         MMDBot.LOGGER.info("Bot is online and ready.");
         TaskScheduler.init();
+        References.STARTUP_TIME = Instant.now();
     }
 
     /**

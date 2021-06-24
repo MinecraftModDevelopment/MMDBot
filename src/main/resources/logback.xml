@@ -38,10 +38,10 @@
     </root>
 
     <appender name="CHANNEL"
-        class="com.mcmoddev.mmdbot.logging.ConsoleChannelAppender">
+        class="com.mcmoddev.mmdbot.utilities.console.ConsoleChannelAppender">
         <allowMentions>false</allowMentions>
         <layout
-            class="com.mcmoddev.mmdbot.logging.ConsoleChannelLayout">
+            class="com.mcmoddev.mmdbot.utilities.console.ConsoleChannelLayout">
             <prependLevelName>false</prependLevelName>
         </layout>
     </appender>

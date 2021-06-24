@@ -3,30 +3,33 @@ package com.mcmoddev.mmdbot;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.commands.bot.info.CmdAbout;
+import com.mcmoddev.mmdbot.commands.bot.info.CmdUptime;
 import com.mcmoddev.mmdbot.commands.bot.management.CmdAvatar;
-import com.mcmoddev.mmdbot.commands.info.CmdEventsHelp;
-import com.mcmoddev.mmdbot.commands.info.CmdFabricVersion;
-import com.mcmoddev.mmdbot.commands.info.CmdForgeVersion;
-import com.mcmoddev.mmdbot.commands.info.CmdJustAsk;
-import com.mcmoddev.mmdbot.commands.info.CmdMinecraftVersion;
-import com.mcmoddev.mmdbot.commands.info.CmdPaste;
-import com.mcmoddev.mmdbot.commands.info.CmdSearch;
-import com.mcmoddev.mmdbot.commands.info.CmdXy;
-import com.mcmoddev.mmdbot.commands.info.fun.CmdCatFacts;
-import com.mcmoddev.mmdbot.commands.info.fun.CmdGreatMoves;
-import com.mcmoddev.mmdbot.commands.info.server.CmdGuild;
-import com.mcmoddev.mmdbot.commands.info.server.CmdMe;
-import com.mcmoddev.mmdbot.commands.info.server.CmdReadme;
-import com.mcmoddev.mmdbot.commands.info.server.CmdRoles;
-import com.mcmoddev.mmdbot.commands.info.server.CmdRules;
-import com.mcmoddev.mmdbot.commands.info.server.CmdToggleEventPings;
-import com.mcmoddev.mmdbot.commands.info.server.CmdToggleMcServerPings;
-import com.mcmoddev.mmdbot.commands.staff.CmdCommunityChannel;
-import com.mcmoddev.mmdbot.commands.staff.CmdMute;
-import com.mcmoddev.mmdbot.commands.staff.CmdOldChannels;
-import com.mcmoddev.mmdbot.commands.staff.CmdUnmute;
-import com.mcmoddev.mmdbot.commands.staff.CmdUser;
+import com.mcmoddev.mmdbot.commands.bot.management.CmdRename;
+import com.mcmoddev.mmdbot.commands.general.fun.CmdCatFacts;
+import com.mcmoddev.mmdbot.commands.general.fun.CmdGreatMoves;
+import com.mcmoddev.mmdbot.commands.general.info.CmdEventsHelp;
+import com.mcmoddev.mmdbot.commands.general.info.CmdFabricVersion;
+import com.mcmoddev.mmdbot.commands.general.info.CmdForgeVersion;
+import com.mcmoddev.mmdbot.commands.general.info.CmdJustAsk;
+import com.mcmoddev.mmdbot.commands.general.info.CmdMe;
+import com.mcmoddev.mmdbot.commands.general.info.CmdMinecraftVersion;
+import com.mcmoddev.mmdbot.commands.general.info.CmdPaste;
+import com.mcmoddev.mmdbot.commands.general.info.CmdSearch;
+import com.mcmoddev.mmdbot.commands.general.info.CmdXy;
+import com.mcmoddev.mmdbot.commands.server.CmdGuild;
+import com.mcmoddev.mmdbot.commands.server.CmdReadme;
+import com.mcmoddev.mmdbot.commands.server.CmdRoles;
+import com.mcmoddev.mmdbot.commands.server.CmdRules;
+import com.mcmoddev.mmdbot.commands.server.CmdToggleEventPings;
+import com.mcmoddev.mmdbot.commands.server.CmdToggleMcServerPings;
+import com.mcmoddev.mmdbot.commands.server.moderation.CmdCommunityChannel;
+import com.mcmoddev.mmdbot.commands.server.moderation.CmdMute;
+import com.mcmoddev.mmdbot.commands.server.moderation.CmdOldChannels;
+import com.mcmoddev.mmdbot.commands.server.moderation.CmdUnmute;
+import com.mcmoddev.mmdbot.commands.server.moderation.CmdUser;
 import com.mcmoddev.mmdbot.core.BotConfig;
+import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.events.EventReactionAdded;
 import com.mcmoddev.mmdbot.events.MiscEvents;
 import com.mcmoddev.mmdbot.events.users.EventNicknameChanged;
@@ -43,9 +46,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.nio.file.Paths;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -61,38 +61,9 @@ import java.util.Set;
 public final class MMDBot {
 
     /**
-     * The name of the bot in code.
-     */
-    public static final String NAME = "MMDBot";
-
-    /**
-     * The bot's current version.
-     *
-     * <p>
-     * The version will be taken from the {@code Implementation-Version} attribute of the JAR manifest. If that is
-     * unavailable, the version shall be the combination of the string {@code "DEV "} and the the current date and time
-     * in {@link java.time.format.DateTimeFormatter#ISO_OFFSET_DATE_TIME}.
-     */
-    public static final String VERSION;
-
-    // Gets the version from the JAR manifest, else defaults to the time the bot was started
-    static {
-        var version = MMDBot.class.getPackage().getImplementationVersion();
-        if (version == null) {
-            version = "DEV " + DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(OffsetDateTime.now(ZoneOffset.UTC));
-        }
-        VERSION = version;
-    }
-
-    /**
-     * The issue tracker where bugs and crashes should be reported, and PR's made.
-     */
-    public static final String ISSUE_TRACKER = "https://github.com/MinecraftModDevelopment/MMDBot/issues/";
-
-    /**
      * Where needed for events being fired, errors and other misc stuff, log things to console using this.
      */
-    public static final Logger LOGGER = LoggerFactory.getLogger(MMDBot.NAME);
+    public static final Logger LOGGER = LoggerFactory.getLogger(References.NAME);
 
     /**
      * The Constant INTENTS.
@@ -205,6 +176,8 @@ public final class MMDBot {
                 .addCommand(new CmdOldChannels())
                 .addCommand(new CmdGreatMoves())
                 .addCommand(new CmdAvatar())
+                .addCommand(new CmdRename())
+                .addCommand(new CmdUptime())
                 //TODO Setup DB storage for tricks and polish them off/add permission restrictions for when needed.
                 /*
                  .addCommand(new CmdAddTrick())

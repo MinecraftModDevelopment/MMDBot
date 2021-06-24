@@ -28,16 +28,6 @@ import java.util.stream.Collectors;
 public final class BotConfig {
 
     /**
-     * The constant COMMUNITY_CHANNEL_OWNER_PERMISSIONS.
-     */
-    private static final String COMMUNITY_CHANNEL_OWNER_PERMISSIONS = "community_channels.owner_permissions";
-
-    /**
-     * The constant COMMANDS_PREFIX.
-     */
-    private static final String COMMANDS_PREFIX = "commands.";
-
-    /**
      * The Config.
      */
     private final CommentedFileConfig config;
@@ -186,7 +176,7 @@ public final class BotConfig {
      * @see #isEnabled(String, long) #isEnabled(String, long)#isEnabled(String, long)
      */
     public boolean isEnabled(final String commandName) {
-        return config.<Boolean>getOrElse(COMMANDS_PREFIX + commandName + ".enabled", true);
+        return config.<Boolean>getOrElse(References.COMMANDS_PREFIX + commandName + ".enabled", true);
     }
 
     /**
@@ -201,7 +191,7 @@ public final class BotConfig {
      */
     public boolean isEnabled(final String commandName, final long guildID) {
         return config.<Boolean>getOptional(
-            COMMANDS_PREFIX + commandName + "."
+            References.COMMANDS_PREFIX + commandName + "."
                 + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
                 + ".enabled")
             .orElseGet(() -> isEnabled(commandName));
@@ -216,7 +206,7 @@ public final class BotConfig {
      */
     public List<Long> getBlockedChannels(final String commandName, final long guildID) {
         return getAliasedSnowflakeList(
-            COMMANDS_PREFIX + commandName + "."
+            References.COMMANDS_PREFIX + commandName + "."
                 + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
                 + ".blocked_channels", getAliases())
             .orElseGet(Collections::emptyList);
@@ -231,7 +221,7 @@ public final class BotConfig {
      */
     public List<Long> getAllowedChannels(final String commandName, final long guildID) {
         return getAliasedSnowflakeList(
-            COMMANDS_PREFIX + commandName + "."
+            References.COMMANDS_PREFIX + commandName + "."
                 + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
                 + ".allowed_channels", getAliases())
             .orElseGet(Collections::emptyList);
@@ -384,10 +374,10 @@ public final class BotConfig {
      */
     @SuppressWarnings("unchecked")
     public Set<Permission> getCommunityChannelOwnerPermissions() {
-        if (!config.contains(COMMUNITY_CHANNEL_OWNER_PERMISSIONS)) {
+        if (!config.contains(References.COMMUNITY_CHANNEL_OWNER_PERMISSIONS)) {
             return EnumSet.noneOf(Permission.class);
         }
-        final Object obj = config.get(COMMUNITY_CHANNEL_OWNER_PERMISSIONS);
+        final Object obj = config.get(References.COMMUNITY_CHANNEL_OWNER_PERMISSIONS);
         if (obj instanceof Number) {
             return Permission.getPermissions(((Number) obj).longValue());
         } else if (obj instanceof List) {
@@ -401,12 +391,14 @@ public final class BotConfig {
                         continue outer;
                     }
                 }
-                MMDBot.LOGGER.warn("Unknown permission in \"{}\": '{}'", COMMUNITY_CHANNEL_OWNER_PERMISSIONS, perm);
+                MMDBot.LOGGER.warn("Unknown permission in \"{}\": '{}'",
+                    References.COMMUNITY_CHANNEL_OWNER_PERMISSIONS, perm);
             }
             return permissions;
         }
-        MMDBot.LOGGER.warn("Unknown format of \"{}\", resetting to blank list", COMMUNITY_CHANNEL_OWNER_PERMISSIONS);
-        config.set(COMMUNITY_CHANNEL_OWNER_PERMISSIONS, Collections.emptyList());
+        MMDBot.LOGGER.warn("Unknown format of \"{}\", resetting to blank list",
+            References.COMMUNITY_CHANNEL_OWNER_PERMISSIONS);
+        config.set(References.COMMUNITY_CHANNEL_OWNER_PERMISSIONS, Collections.emptyList());
         return EnumSet.noneOf(Permission.class);
     }
 

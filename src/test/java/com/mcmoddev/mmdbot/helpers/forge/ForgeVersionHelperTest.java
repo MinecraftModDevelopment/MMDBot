@@ -1,8 +1,8 @@
 package com.mcmoddev.mmdbot.helpers.forge;
 
-import com.mcmoddev.mmdbot.updatenotifiers.forge.ForgeVersion;
-import com.mcmoddev.mmdbot.updatenotifiers.forge.ForgeVersionHelper;
-import com.mcmoddev.mmdbot.updatenotifiers.forge.VersionMeta;
+import com.mcmoddev.mmdbot.utilities.updatenotifiers.forge.ForgeVersion;
+import com.mcmoddev.mmdbot.utilities.updatenotifiers.forge.ForgeVersionHelper;
+import com.mcmoddev.mmdbot.utilities.updatenotifiers.forge.VersionMeta;
 
 import org.junit.jupiter.api.Test;
 

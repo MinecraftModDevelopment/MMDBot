@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
-import static com.mcmoddev.mmdbot.logging.MMDMarkers.EVENTS;
-import static com.mcmoddev.mmdbot.logging.MMDMarkers.REQUESTS;
+import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.EVENTS;
+import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.REQUESTS;
 
 /**
  * The type Event user left.

@@ -17,7 +17,7 @@ import java.util.Set;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
-import static com.mcmoddev.mmdbot.logging.MMDMarkers.REQUESTS;
+import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.REQUESTS;
 
 /**
  * The type Event reaction added.

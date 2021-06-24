@@ -27,7 +27,7 @@ public class CmdAvatar extends Command {
     }
 
     /**
-     * Execute.
+     * Try to set the a new avatar for the bot.
      *
      * @param event the event
      */
@@ -37,27 +37,29 @@ public class CmdAvatar extends Command {
         final var channel = event.getChannel();
         final var trigger = event.getMessage();
         final var attachment = event.getMessage().getAttachments();
-        final var image = attachment.get(0);
+        final var newAvatar = attachment.get(0);
 
         if (commandArgs.length() <= 1) {
             if (attachment.isEmpty()) {
-                channel.sendMessage("No image attachment provided, I need a new avatar!").reference(trigger).queue();
+                channel.sendMessage("No image attachment provided, I need a new avatar!")
+                    .reference(trigger).queue();
                 return;
             }
-            
-            if (!image.isImage()) {
-                channel.sendMessage("This attachment is not an image! Please provide a valid image to use as my avatar!")
+
+            if (!newAvatar.isImage()) {
+                channel.sendMessage("This attachment is not an image! "
+                    + "Please provide a valid image to use as my avatar!")
                 .reference(trigger).queue();
                 return;
             }
 
-            image.retrieveInputStream().thenAccept(setIcon -> {
+            newAvatar.retrieveInputStream().thenAccept(setIcon -> {
                 try {
                     MMDBot.getInstance().getSelfUser().getManager().setAvatar(Icon.from(setIcon)).queue();
-                    event.getPrivateChannel().sendMessage("New avatar set, how do I look?").queue();
+                    channel.sendMessage("New avatar set, how do I look?").queue();
                 } catch (IOException exception) {
-                    event.getPrivateChannel().sendMessage("Failed to set a new avatar... Please see logs for more info!").queue();
-                    exception.printStackTrace();
+                    channel.sendMessage("Failed to set a new avatar... Please see logs for more info!").queue();
+                    MMDBot.LOGGER.error("Failed to set a new avatar... ", exception);
                 }
             });
         }

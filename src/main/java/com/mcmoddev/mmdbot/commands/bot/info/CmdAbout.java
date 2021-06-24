@@ -3,6 +3,7 @@ package com.mcmoddev.mmdbot.commands.bot.info;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -46,8 +47,8 @@ public final class CmdAbout extends Command {
         embed.setDescription("An in house bot to assists staff with daily tasks and provide fun and useful commands "
             + "for the community, please try ``" + MMDBot.getConfig().getMainPrefix()
             + "help`` for a list of commands!");
-        embed.addField("Version:", MMDBot.VERSION, true);
-        embed.addField("Issue Tracker:", Utils.makeHyperlink("MMDBot's Github", MMDBot.ISSUE_TRACKER),
+        embed.addField("Version:", References.VERSION, true);
+        embed.addField("Issue Tracker:", Utils.makeHyperlink("MMDBot's Github", References.ISSUE_TRACKER),
             true);
         embed.addField("Current maintainers:", "jriwanek, WillBL, ProxyNeko, sciwhiz12, Antoine Gagnon",
             true);
