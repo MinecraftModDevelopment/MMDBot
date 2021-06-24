@@ -176,7 +176,7 @@ public final class BotConfig {
      * @see #isEnabled(String, long) #isEnabled(String, long)#isEnabled(String, long)
      */
     public boolean isEnabled(final String commandName) {
-        return config.<Boolean>getOrElse(References.COMMANDS_PREFIX + commandName + ".enabled", true);
+        return config.<Boolean>getOrElse(References.COMMANDS + commandName + ".enabled", true);
     }
 
     /**
@@ -191,7 +191,7 @@ public final class BotConfig {
      */
     public boolean isEnabled(final String commandName, final long guildID) {
         return config.<Boolean>getOptional(
-            References.COMMANDS_PREFIX + commandName + "."
+            References.COMMANDS + commandName + "."
                 + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
                 + ".enabled")
             .orElseGet(() -> isEnabled(commandName));
@@ -206,7 +206,7 @@ public final class BotConfig {
      */
     public List<Long> getBlockedChannels(final String commandName, final long guildID) {
         return getAliasedSnowflakeList(
-            References.COMMANDS_PREFIX + commandName + "."
+            References.COMMANDS + commandName + "."
                 + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
                 + ".blocked_channels", getAliases())
             .orElseGet(Collections::emptyList);
@@ -221,7 +221,7 @@ public final class BotConfig {
      */
     public List<Long> getAllowedChannels(final String commandName, final long guildID) {
         return getAliasedSnowflakeList(
-            References.COMMANDS_PREFIX + commandName + "."
+            References.COMMANDS + commandName + "."
                 + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
                 + ".allowed_channels", getAliases())
             .orElseGet(Collections::emptyList);
@@ -236,7 +236,7 @@ public final class BotConfig {
      * @return The list of hidden channels
      */
     public List<Long> getHiddenChannels() {
-        return getAliasedSnowflakeList("commands.hidden_channels", getAliases())
+        return getAliasedSnowflakeList(References.COMMANDS + "hidden_channels", getAliases())
             .orElseGet(Collections::emptyList);
     }
 
@@ -249,7 +249,7 @@ public final class BotConfig {
      * @return The roles exempt from channel checking
      */
     public List<Long> getChannelExemptRoles() {
-        return getAliasedSnowflakeList("commands.exempt_roles", getAliases())
+        return getAliasedSnowflakeList(References.COMMANDS + "exempt_roles", getAliases())
             .orElseGet(Collections::emptyList);
     }
 
@@ -431,5 +431,9 @@ public final class BotConfig {
         return config.<String>getOptional(key)
             .map(str -> aliases.flatMap(cfg -> cfg.<String>getOptional(str)).orElse(str))
             .orElse("");
+    }
+
+    public boolean isCommandModuleEnabled() {
+        return config.<Boolean>getOrElse("modules.command_module_enabled", true);
     }
 }

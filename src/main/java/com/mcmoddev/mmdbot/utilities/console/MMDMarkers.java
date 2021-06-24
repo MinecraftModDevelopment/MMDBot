@@ -38,8 +38,8 @@ public final class MMDMarkers {
     /**
      * The {@link Marker} for the muting system.
      *
-     * @see com.mcmoddev.mmdbot.commands.server.moderation.CmdMute
-     * @see com.mcmoddev.mmdbot.commands.server.moderation.CmdUnmute
+     * @see com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdMute
+     * @see com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUnmute
      */
     public static final Marker MUTING = MarkerFactory.getMarker("Muting");
 

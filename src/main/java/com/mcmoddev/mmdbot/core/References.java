@@ -50,9 +50,9 @@ public class References {
     public static final String COMMUNITY_CHANNEL_OWNER_PERMISSIONS = "community_channels.owner_permissions";
 
     /**
-     * The constant COMMANDS_PREFIX.
+     * The constant COMMANDS.
      */
-    public static final String COMMANDS_PREFIX = "commands.";
+    public static final String COMMANDS = "commands.";
 
     /**
      * The constant STICKY_ROLES_FILE_PATH.

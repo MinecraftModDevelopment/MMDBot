@@ -140,6 +140,14 @@
     # Example: ["Manage Messages", "MANAGE_PERMISSIONS"]
     owner_permissions = []
 
+# Enable or disable modules of the bot for both development and to stop problmatic modules when live should API's break.
+[modules]
+    # Are the commands from the command module enabled.
+    # When false, all commands will be disabled globally if true all commands will be loaded.
+    command_module_enabled = true
+
+    # Is the logging module for logging guild changes enabled.
+
 # Configuration for the bot commands
 [commands]
     # The snowflake IDs (or aliases) of 'hidden' channels or categories
