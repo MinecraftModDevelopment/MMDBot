@@ -1,6 +1,8 @@
 package com.mcmoddev.mmdbot;
 
 import com.jagrosh.jdautilities.command.CommandClient;
+import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import com.mcmoddev.mmdbot.commands.info.CmdMappings;
 import com.mcmoddev.mmdbot.modules.CommandModule;
 import com.mcmoddev.mmdbot.core.BotConfig;
 import com.mcmoddev.mmdbot.core.References;
@@ -11,6 +13,7 @@ import com.mcmoddev.mmdbot.events.users.EventRoleAdded;
 import com.mcmoddev.mmdbot.events.users.EventRoleRemoved;
 import com.mcmoddev.mmdbot.events.users.EventUserJoined;
 import com.mcmoddev.mmdbot.events.users.EventUserLeft;
+import me.shedaniel.linkie.Namespaces;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -117,8 +120,13 @@ public final class MMDBot {
             MMDBot.LOGGER.error("No guild ID is configured. Please configure the bot and try again.");
             System.exit(0);
         }
+        Namespaces.INSTANCE.init(CmdMappings.Companion.getMappings());
 
         try {
+            final CommandClient commandListener = new CommandClientBuilder()
+                    .addCommand(new CmdMappings("yarnmappings", Namespaces.INSTANCE.get("yarn")))
+                    .addCommand(new CmdMappings("mcpmappings", Namespaces.INSTANCE.get("mcp")))
+                    .build();
             MMDBot.instance = JDABuilder
                 .create(MMDBot.config.getToken(), MMDBot.INTENTS)
                 .disableCache(CacheFlag.VOICE_STATE)
@@ -132,6 +140,7 @@ public final class MMDBot {
                 .addEventListeners(new EventRoleRemoved())
                 .addEventListeners(new EventReactionAdded())
                 .addEventListeners(new MiscEvents())
+                .addEventListeners(commandListener)
                 .build();
             CommandModule.setupCommandModule();
         } catch (final LoginException exception) {

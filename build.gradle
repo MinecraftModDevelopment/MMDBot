@@ -1,13 +1,13 @@
 plugins {
-  id 'application'
-  id 'com.github.johnrengelman.shadow' version '6.1.0'
-  id 'maven'
-  id 'eclipse'
-  id 'idea'
-  id 'com.github.spotbugs' version '4.7.1'
-  id 'checkstyle'
-  id 'pmd'
-  id "org.flywaydb.flyway" version "7.10.0"
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'eclipse'
+    id 'idea'
+    id 'com.github.spotbugs' version '4.7.1'
+    id 'checkstyle'
+    id 'pmd'
+    id "org.jetbrains.kotlin.jvm" version "1.4.21"
+    id "org.flywaydb.flyway" version "7.10.0"
 }
 
 mainClassName = 'com.mcmoddev.mmdbot.MMDBot'
@@ -36,26 +36,38 @@ tasks.withType(JavaCompile) {
 }
 
 repositories {
-  mavenCentral()
-  jcenter()
-  maven {
-    name 'm2-dv8tion'
-    url 'https://m2.dv8tion.net/releases'
-  }
+    jcenter()
+    mavenCentral()
+    maven {
+        url 'https://jitpack.io'
+    }
+    maven {
+        name 'm2-dv8tion'
+        url 'https://m2.dv8tion.net/releases'
+    }
+    maven {
+        url "https://maven.shedaniel.me"
+    }
+    maven {
+        url "https://maven.fabricmc.net"
+    }
 }
 
 dependencies {
-  implementation group: 'com.jagrosh', name: 'jda-utilities', version: "${project.jdautils_version}"
-  implementation group: 'net.dv8tion', name: 'JDA', version: "${project.jda_version}"
-  implementation group: 'com.google.guava', name: 'guava', version: "${project.guava_version}"
-  implementation group: 'com.google.code.gson', name: 'gson', version: "${project.gson_version}"
-  implementation group: 'ch.qos.logback', name: 'logback-classic', version: "${project.logback_classic_version}"
-  implementation group: 'com.electronwill.night-config', name: 'toml', version: "${project.nightconfig_version}"
-  implementation group: 'org.xerial', name: 'sqlite-jdbc', version: "${project.sqlite_jdbc_version}"
-
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: "${project.junit_version}"
-
-  spotbugsPlugins "com.h3xstream.findsecbugs:findsecbugs-plugin:${project.findsecbugs_version}"
+    implementation "com.jagrosh:jda-utilities:${project.jdautils_version}"
+    implementation "net.dv8tion:JDA:${project.jda_version}"
+    implementation "com.google.guava:guava:${project.guava_version}"
+    implementation "com.google.code.gson:gson:${project.gson_version}"
+    implementation "ch.qos.logback:logback-classic:${project.logback_classic_version}"
+    implementation "com.electronwill.night-config:toml:${project.nightconfig_version}"
+    implementation "me.shedaniel:linkie-core:1.0.60"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.21"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1"
+    implementation group: 'org.xerial', name: 'sqlite-jdbc', version: "${project.sqlite_jdbc_version}"
+    
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: "${project.junit_version}"
+    
+    spotbugsPlugins "com.h3xstream.findsecbugs:findsecbugs-plugin:${project.findsecbugs_version}"
 }
 
 jar {
