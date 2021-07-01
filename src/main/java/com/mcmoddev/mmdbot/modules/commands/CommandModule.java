@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.modules;
+package com.mcmoddev.mmdbot.modules.commands;
 
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.MMDBot;

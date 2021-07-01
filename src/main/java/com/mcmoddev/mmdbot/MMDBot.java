@@ -1,7 +1,7 @@
 package com.mcmoddev.mmdbot;
 
 import com.jagrosh.jdautilities.command.CommandClient;
-import com.mcmoddev.mmdbot.modules.CommandModule;
+import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.core.BotConfig;
 import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.events.EventReactionAdded;
