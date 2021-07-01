@@ -147,6 +147,9 @@
     command_module_enabled = true
 
     # Is the logging module for logging guild changes enabled.
+    # When false Discord events will not be logged, this can be used to prevent duplicate spam during development,
+    # or should API's break and we need to disable them to prevent errors while we patch things up.
+    event_logging_module_enabled = true
 
 # Configuration for the bot commands
 [commands]

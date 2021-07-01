@@ -1,16 +1,11 @@
 package com.mcmoddev.mmdbot;
 
 import com.jagrosh.jdautilities.command.CommandClient;
-import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.core.BotConfig;
 import com.mcmoddev.mmdbot.core.References;
-import com.mcmoddev.mmdbot.events.EventReactionAdded;
-import com.mcmoddev.mmdbot.events.MiscEvents;
-import com.mcmoddev.mmdbot.events.users.EventNicknameChanged;
-import com.mcmoddev.mmdbot.events.users.EventRoleAdded;
-import com.mcmoddev.mmdbot.events.users.EventRoleRemoved;
-import com.mcmoddev.mmdbot.events.users.EventUserJoined;
-import com.mcmoddev.mmdbot.events.users.EventUserLeft;
+import com.mcmoddev.mmdbot.modules.commands.CommandModule;
+import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
+import com.mcmoddev.mmdbot.modules.logging.misc.MiscEvents;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -125,15 +120,10 @@ public final class MMDBot {
                 .disableCache(CacheFlag.ACTIVITY)
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
-                .addEventListeners(new EventUserJoined())
-                .addEventListeners(new EventUserLeft())
-                .addEventListeners(new EventNicknameChanged())
-                .addEventListeners(new EventRoleAdded())
-                .addEventListeners(new EventRoleRemoved())
-                .addEventListeners(new EventReactionAdded())
                 .addEventListeners(new MiscEvents())
                 .build();
             CommandModule.setupCommandModule();
+            LoggingModule.setupLoggingModule();
         } catch (final LoginException exception) {
             MMDBot.LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.",
                 exception);

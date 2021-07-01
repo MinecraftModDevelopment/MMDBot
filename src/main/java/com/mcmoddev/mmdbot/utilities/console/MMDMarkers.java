@@ -1,5 +1,6 @@
 package com.mcmoddev.mmdbot.utilities.console;
 
+import com.mcmoddev.mmdbot.modules.logging.misc.EventReactionAdded;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
@@ -26,7 +27,7 @@ public final class MMDMarkers {
     /**
      * The {@link Marker} for the requests removal system.
      *
-     * @see com.mcmoddev.mmdbot.events.EventReactionAdded
+     * @see EventReactionAdded
      */
     public static final Marker REQUESTS = MarkerFactory.getMarker("Requests");
 

@@ -47,7 +47,7 @@
     </appender>
 
     <!--Log levels include ERROR, WARN, INFO, DEBUG, TRACE -->
-    <root level="INFO">
+    <root level="WARN">
         <appender-ref ref="CHANNEL" />
     </root>
 </configuration>

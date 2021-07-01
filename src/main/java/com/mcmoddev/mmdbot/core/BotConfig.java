@@ -441,4 +441,14 @@ public final class BotConfig {
     public boolean isCommandModuleEnabled() {
         return config.<Boolean>getOrElse("modules.command_module_enabled", true);
     }
+
+    /**
+     * A boolean check to enable or disable event logging in production in case of issues or in dev should we not need
+     * the module enabled to prevent spam.
+     *
+     * @return true or false.
+     */
+    public boolean isEventLoggingModuleEnabled() {
+        return config.<Boolean>getOrElse("modules.event_logging_module_enabled", true);
+    }
 }

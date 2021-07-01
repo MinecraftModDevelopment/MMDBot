@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.events;
+package com.mcmoddev.mmdbot.modules.logging.misc;
 
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.References;
@@ -26,7 +26,7 @@ public final class MiscEvents extends ListenerAdapter {
      */
     @Override
     public void onReady(final @NotNull ReadyEvent event) {
-        MMDBot.LOGGER.info("Bot is online and ready.");
+        MMDBot.LOGGER.warn("Bot is online and ready.");
         TaskScheduler.init();
         References.STARTUP_TIME = Instant.now();
     }

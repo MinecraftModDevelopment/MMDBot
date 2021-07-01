@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.events;
+package com.mcmoddev.mmdbot.modules.logging.misc;
 
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.MessageBuilder;

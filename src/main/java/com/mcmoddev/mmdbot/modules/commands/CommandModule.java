@@ -1,5 +1,6 @@
 package com.mcmoddev.mmdbot.modules.commands;
 
+import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
@@ -28,6 +29,10 @@ import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdMute;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdOldChannels;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUnmute;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
+import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdAddTrick;
+import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
+import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRemoveTrick;
+import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 
 /**
  * This is the main class for setting up commands before they are loaded in by the bot,
@@ -76,10 +81,10 @@ public class CommandModule {
             .addCommand(new CmdUptime())
             //TODO Setup DB storage for tricks and polish them off/add permission restrictions for when needed.
             /*
-             .addCommand(new CmdAddTrick())
-             .addCommand(new CmdListTricks())
-             .addCommand(new CmdRemoveTrick())
-             .addCommands(Tricks.createTrickCommands().toArray(new Command[0]))
+            .addCommand(new CmdAddTrick())
+            .addCommand(new CmdListTricks())
+            .addCommand(new CmdRemoveTrick())
+            .addCommands(Tricks.createTrickCommands().toArray(new Command[0]))
              */
             .setHelpWord("help")
             .build();

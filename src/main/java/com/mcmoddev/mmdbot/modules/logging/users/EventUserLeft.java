@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.events.users;
+package com.mcmoddev.mmdbot.modules.logging.users;
 
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
