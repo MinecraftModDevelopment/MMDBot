@@ -1,6 +1,7 @@
 package com.mcmoddev.mmdbot.modules.commands;
 
 import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
@@ -43,6 +44,20 @@ import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 public class CommandModule {
 
     /**
+     * The constant commandClient.
+     */
+    private static CommandClient commandClient;
+
+    /**
+     * Gets command client.
+     *
+     * @return the command client
+     */
+    public static CommandClient getCommandClient() {
+        return commandClient;
+    }
+
+    /**
      * Setup and load the bots command module.
      */
     public static void setupCommandModule() {
@@ -80,12 +95,10 @@ public class CommandModule {
             .addCommand(new CmdRename())
             .addCommand(new CmdUptime())
             //TODO Setup DB storage for tricks and polish them off/add permission restrictions for when needed.
-            /*
             .addCommand(new CmdAddTrick())
             .addCommand(new CmdListTricks())
             .addCommand(new CmdRemoveTrick())
             .addCommands(Tricks.createTrickCommands().toArray(new Command[0]))
-             */
             .setHelpWord("help")
             .build();
 

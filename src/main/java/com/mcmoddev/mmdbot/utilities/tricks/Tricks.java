@@ -8,6 +8,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrick;
 
 import javax.annotation.Nullable;
@@ -135,7 +136,7 @@ public final class Tricks {
      */
     public static void addTrick(final Trick trick) {
         getTricks().add(trick);
-        MMDBot.getCommandClient().addCommand(new CmdRunTrick(trick));
+        CommandModule.getCommandClient().addCommand(new CmdRunTrick(trick));
         write();
     }
 
@@ -146,7 +147,7 @@ public final class Tricks {
      */
     public static void removeTrick(final Trick trick) {
         getTricks().remove(trick);
-        MMDBot.getCommandClient().removeCommand(trick.getNames().get(0));
+        CommandModule.getCommandClient().removeCommand(trick.getNames().get(0));
         write();
     }
 

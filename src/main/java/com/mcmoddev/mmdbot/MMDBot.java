@@ -49,11 +49,6 @@ public final class MMDBot {
      */
     private static JDA instance;
 
-    /**
-     * The constant commandClient.
-     */
-    private static CommandClient commandClient;
-
     static {
         MMDBot.INTENTS.add(GatewayIntent.DIRECT_MESSAGES);
         MMDBot.INTENTS.add(GatewayIntent.GUILD_BANS);
@@ -79,15 +74,6 @@ public final class MMDBot {
      */
     public static JDA getInstance() {
         return MMDBot.instance;
-    }
-
-    /**
-     * Gets command client.
-     *
-     * @return the command client
-     */
-    public static CommandClient getCommandClient() {
-        return commandClient;
     }
 
     /**
