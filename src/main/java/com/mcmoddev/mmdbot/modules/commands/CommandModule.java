@@ -61,7 +61,7 @@ public class CommandModule {
      * Setup and load the bots command module.
      */
     public static void setupCommandModule() {
-        final var commandListener = new CommandClientBuilder()
+        commandClient = new CommandClientBuilder()
             .setOwnerId(MMDBot.getConfig().getOwnerID())
             .setPrefix(MMDBot.getConfig().getMainPrefix())
             .setAlternativePrefix(MMDBot.getConfig().getAlternativePrefix())
@@ -103,7 +103,7 @@ public class CommandModule {
             .build();
 
             if (MMDBot.getConfig().isCommandModuleEnabled()) {
-                MMDBot.getInstance().addEventListener(commandListener);
+                MMDBot.getInstance().addEventListener(commandClient);
                 MMDBot.LOGGER.warn("Command module enabled and loaded.");
             } else {
                 MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");
