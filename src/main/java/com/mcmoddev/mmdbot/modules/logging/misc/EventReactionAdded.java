@@ -2,8 +2,10 @@ package com.mcmoddev.mmdbot.modules.logging.misc;
 
 import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
+import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -70,15 +72,37 @@ public final class EventReactionAdded extends ListenerAdapter {
             final List<Long> badReactionsList = getConfig().getBadRequestsReactions();
             final List<Long> goodReactionsList = getConfig().getGoodRequestsReactions();
             final List<Long> needsImprovementReactionsList = getConfig().getRequestsNeedsImprovementReactions();
-            final int badReactions = Utils.getNumberOfMatchingReactions(message, badReactionsList::contains);
-            final int goodReactions = Utils.getNumberOfMatchingReactions(message, goodReactionsList::contains);
-            final int needsImprovementReactions = Utils.getNumberOfMatchingReactions(message,
+            final var badReactions = Utils.getMatchingReactions(message, badReactionsList::contains);
+
+            final var users = badReactions.get(0).retrieveUsers();
+            final var hasStaffSignoff = users.stream().anyMatch(user -> guild.getMember(user).hasPermission(Permission.KICK_MEMBERS));
+
+            final int badReactionsCount = badReactions.stream().mapToInt(MessageReaction::getCount).sum();
+            final int goodReactionsCount = Utils.getNumberOfMatchingReactions(message, goodReactionsList::contains);
+            final int needsImprovementReactionsCount = Utils.getNumberOfMatchingReactions(message,
                 needsImprovementReactionsList::contains);
 
-            final double requestScore = (badReactions + needsImprovementReactions * 0.5) - goodReactions;
+            final double requestScore = (badReactionsCount + needsImprovementReactionsCount * 0.5) - goodReactionsCount;
 
             final User messageAuthor = message.getAuthor();
             if (requestScore >= removalThreshold) {
+                if (!hasStaffSignoff) {
+                    LOGGER.info(REQUESTS, "Request from {} has a score of {}, reaching removal threshold {}, "
+                            + "awaiting moderation approval.",
+                        messageAuthor, requestScore, removalThreshold);
+
+                    final var logChannel = guild.getTextChannelById(getConfig()
+                        .getChannel("events.requests_deletion"));
+                    if (logChannel != null) {
+                        logChannel.sendMessage(String.format("Request from %s (%s;%s) reached deletion threshold "
+                                + "awaiting moderator approval for deletion", messageAuthor.getAsMention(),
+                            messageAuthor.getAsTag(), messageAuthor.getId(), message.getContentRaw()))
+                            .allowedMentions(Collections.emptySet())
+                            .queue();
+                    }
+                    return;
+                }
+
                 LOGGER.info(REQUESTS, "Removed request from {} due to score of {} reaching removal threshold {}",
                     messageAuthor, requestScore, removalThreshold);
 
@@ -87,7 +111,7 @@ public final class EventReactionAdded extends ListenerAdapter {
                     .append("Please see other requests for how to do it correctly.\n")
                     .appendFormat("It received %d 'bad' reactions, %d 'needs improvement' reactions, and %d "
                             + "'good' reactions.",
-                        badReactions, needsImprovementReactions, goodReactions)
+                        badReactionsCount, needsImprovementReactionsCount, goodReactionsCount)
                     .build();
 
                 warnedMessages.remove(message);
@@ -105,7 +129,7 @@ public final class EventReactionAdded extends ListenerAdapter {
                 channel.deleteMessageById(event.getMessageId())
                     .reason(String.format(
                         "Bad request: %d bad reactions, %d needs improvement reactions, %d good reactions",
-                        badReactions, needsImprovementReactions, goodReactions))
+                        badReactionsCount, needsImprovementReactionsCount, goodReactionsCount))
                     .flatMap(v -> {
                         RestAction<Message> action = messageAuthor.openPrivateChannel()
                             .flatMap(privateChannel -> privateChannel.sendMessage(response));
@@ -127,7 +151,7 @@ public final class EventReactionAdded extends ListenerAdapter {
                     .append("Please edit your message to bring it to a higher standard.\n")
                     .appendFormat("It has so far received %d 'bad' reactions, %d 'needs improvement' reactions, "
                             + "and %d 'good' reactions.",
-                        badReactions, needsImprovementReactions, goodReactions)
+                        badReactionsCount, needsImprovementReactionsCount, goodReactionsCount)
                     .build();
 
                 warnedMessages.add(message);
