@@ -150,6 +150,22 @@ public final class Utils {
     }
 
     /**
+     * Gets reactions matching a predicate
+     *
+     * @param message   The message we are getting the matching reactions from.
+     * @param predicate The predicate
+     * @return The matching reactions.
+     */
+    public static List<MessageReaction> getMatchingReactions(final Message message, final LongPredicate predicate) {
+        return message
+            .getReactions()
+            .stream()
+            .filter(messageReaction -> messageReaction.getReactionEmote().isEmote())
+            .filter(messageReaction -> predicate.test(messageReaction.getReactionEmote().getIdLong()))
+            .collect(Collectors.toList());
+    }
+
+    /**
      * Gets number of matching reactions.
      *
      * @param message   The message we are getting the number of matching reactions from.
