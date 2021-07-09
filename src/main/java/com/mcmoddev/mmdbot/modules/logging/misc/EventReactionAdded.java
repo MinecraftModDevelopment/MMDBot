@@ -94,9 +94,9 @@ public final class EventReactionAdded extends ListenerAdapter {
                     final var logChannel = guild.getTextChannelById(getConfig()
                         .getChannel("events.requests_deletion"));
                     if (logChannel != null) {
-                        logChannel.sendMessage(String.format("Request from %s (%s;%s) reached deletion threshold "
+                        logChannel.sendMessage(String.format("Request from %s (%s;%s) reached deletion threshold, "
                                 + "awaiting moderator approval for deletion", messageAuthor.getAsMention(),
-                            messageAuthor.getAsTag(), messageAuthor.getId(), message.getContentRaw()))
+                            messageAuthor.getAsTag(), messageAuthor.getId()))
                             .allowedMentions(Collections.emptySet())
                             .queue();
                     }
