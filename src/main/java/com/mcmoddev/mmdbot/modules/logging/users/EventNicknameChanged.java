@@ -1,6 +1,7 @@
 package com.mcmoddev.mmdbot.modules.logging.users;
 
 import com.mcmoddev.mmdbot.core.Utils;
+import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.audit.ActionType;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
@@ -11,7 +12,6 @@ import java.time.Instant;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
-import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.EVENTS;
 
 /**
  * The type Event nickname changed.
@@ -51,7 +51,7 @@ public final class EventNicknameChanged extends ListenerAdapter {
                         true);
                     embed.setTimestamp(Instant.now());
                     if (entry.getTargetIdLong() != target.getIdLong()) {
-                        LOGGER.warn(EVENTS, "Inconsistency between target of retrieved audit log entry and actual "
+                        LOGGER.warn(MMDMarkers.EVENTS, "Inconsistency between target of retrieved audit log entry and actual "
                             + "nickname event target: retrieved is {}, but target is {}", target, entry.getUser());
                     } else if (entry.getUser() != null) {
                         final var editor = entry.getUser();
@@ -64,7 +64,7 @@ public final class EventNicknameChanged extends ListenerAdapter {
                     embed.addField("Old Nickname:", oldNick, true);
                     embed.addField("New Nickname:", newNick, true);
 
-                    LOGGER.info(EVENTS, "User {} changed nickname from `{}` to `{}`, by {}", target, oldNick, newNick,
+                    LOGGER.info(MMDMarkers.EVENTS, "User {} changed nickname from `{}` to `{}`, by {}", target, oldNick, newNick,
                         entry.getUser());
 
                     return channel.sendMessageEmbeds(embed.build());

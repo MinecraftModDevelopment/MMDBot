@@ -1,11 +1,10 @@
 package com.mcmoddev.mmdbot;
 
-import com.jagrosh.jdautilities.command.CommandClient;
 import com.mcmoddev.mmdbot.core.BotConfig;
-import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
 import com.mcmoddev.mmdbot.modules.logging.misc.MiscEvents;
+import com.mcmoddev.mmdbot.core.References;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;

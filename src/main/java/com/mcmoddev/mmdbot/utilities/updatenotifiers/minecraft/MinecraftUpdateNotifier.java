@@ -1,6 +1,7 @@
 package com.mcmoddev.mmdbot.utilities.updatenotifiers.minecraft;
 
 import com.mcmoddev.mmdbot.core.Utils;
+import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.Color;
@@ -9,7 +10,6 @@ import java.util.TimerTask;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
-import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.NOTIFIER_MC;
 
 /**
  * The type Minecraft update notifier.
@@ -41,14 +41,14 @@ public final class MinecraftUpdateNotifier extends TimerTask {
      */
     @Override
     public void run() {
-        LOGGER.debug(NOTIFIER_MC, "Checking for new Minecraft versions...");
+        LOGGER.debug(MMDMarkers.NOTIFIER_MC, "Checking for new Minecraft versions...");
         MinecraftVersionHelper.update();
         final String latest = MinecraftVersionHelper.getLatest();
         final String latestStable = MinecraftVersionHelper.getLatestStable();
         final long channelId = getConfig().getChannel("notifications.minecraft");
 
         if (!lastLatestStable.equals(latestStable)) {
-            LOGGER.info(NOTIFIER_MC, "New Minecraft release found, from {} to {}", lastLatest, latest);
+            LOGGER.info(MMDMarkers.NOTIFIER_MC, "New Minecraft release found, from {} to {}", lastLatest, latest);
 
             Utils.getChannelIfPresent(channelId, channel -> {
                 final var embed = new EmbedBuilder();
@@ -59,7 +59,7 @@ public final class MinecraftUpdateNotifier extends TimerTask {
                 channel.sendMessageEmbeds(embed.build()).queue();
             });
         } else if (!lastLatest.equals(latest)) {
-            LOGGER.info(NOTIFIER_MC, "New Minecraft snapshot found, from {} to {}", lastLatest, latest);
+            LOGGER.info(MMDMarkers.NOTIFIER_MC, "New Minecraft snapshot found, from {} to {}", lastLatest, latest);
 
             Utils.getChannelIfPresent(channelId, channel -> {
                 final var embed = new EmbedBuilder();
@@ -70,7 +70,7 @@ public final class MinecraftUpdateNotifier extends TimerTask {
                 channel.sendMessageEmbeds(embed.build()).queue();
             });
         } else {
-            LOGGER.debug(NOTIFIER_MC, "No new Minecraft version found");
+            LOGGER.debug(MMDMarkers.NOTIFIER_MC, "No new Minecraft version found");
         }
 
         lastLatest = latest;

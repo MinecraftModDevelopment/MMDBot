@@ -3,7 +3,7 @@ package com.mcmoddev.mmdbot.modules.logging.users;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.mcmoddev.mmdbot.core.Utils;
-import com.mcmoddev.mmdbot.modules.logging.users.EventUserJoined;
+import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.audit.ActionType;
 import net.dv8tion.jda.api.entities.IMentionable;
@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
-import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.EVENTS;
 
 /**
  * The type Event role added.
@@ -62,7 +61,7 @@ public final class EventRoleAdded extends ListenerAdapter {
             while (ignoredRoles.hasNext()) {
                 final var ignored = ignoredRoles.next();
                 if (addedRoles.contains(ignored)) { // Remove ignored roles from event listing and ignore map
-                    LOGGER.info(EVENTS, "Role {} for {} was in role ignore map, removing from map and ignoring",
+                    LOGGER.info(MMDMarkers.EVENTS, "Role {} for {} was in role ignore map, removing from map and ignoring",
                         ignored, target);
                     addedRoles.remove(ignored);
                     ignoredRoles.remove();
@@ -89,7 +88,7 @@ public final class EventRoleAdded extends ListenerAdapter {
                     embed.addField("User:", target.getAsMention() + " (" + target.getId() + ")",
                         true);
                     if (entry.getTargetIdLong() != target.getIdLong()) {
-                        LOGGER.warn(EVENTS, "Inconsistency between target of retrieved audit log entry and actual "
+                        LOGGER.warn(MMDMarkers.EVENTS, "Inconsistency between target of retrieved audit log entry and actual "
                             + "role event target: retrieved is {}, but target is {}", target, entry.getUser());
                     } else if (entry.getUser() != null) {
                         final var editor = entry.getUser();
@@ -102,7 +101,7 @@ public final class EventRoleAdded extends ListenerAdapter {
                         .collect(Collectors.joining(" ")), false);
                     embed.setTimestamp(Instant.now());
 
-                    LOGGER.info(EVENTS, "Role(s) {} was added to user {} by {}", addedRoles, target, entry.getUser());
+                    LOGGER.info(MMDMarkers.EVENTS, "Role(s) {} was added to user {} by {}", addedRoles, target, entry.getUser());
 
                     return channel.sendMessageEmbeds(embed.build());
                 })

@@ -7,9 +7,9 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrick;
+import com.mcmoddev.mmdbot.MMDBot;
 
 import javax.annotation.Nullable;
 import java.io.File;

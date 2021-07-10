@@ -1,9 +1,9 @@
 package com.mcmoddev.mmdbot.modules.logging.misc;
 
+import com.mcmoddev.mmdbot.core.Utils;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.core.TaskScheduler;
-import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.events.DisconnectEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ResumedEvent;

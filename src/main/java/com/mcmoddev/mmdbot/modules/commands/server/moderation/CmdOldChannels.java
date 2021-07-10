@@ -29,7 +29,7 @@ public final class CmdOldChannels extends Command {
         name = "old-channels";
         help = "Gives channels which haven't been used in an amount of days given as an argument (default 60)."
             + "Usage: " + MMDBot.getConfig().getMainPrefix() + "old-channels [threshold] "
-            + "[channel or category list, seperated by spaces]";
+            + "[channel or category list, separated by spaces]";
         hidden = true;
     }
 

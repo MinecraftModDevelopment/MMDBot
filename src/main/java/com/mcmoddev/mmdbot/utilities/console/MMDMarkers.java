@@ -1,5 +1,10 @@
 package com.mcmoddev.mmdbot.utilities.console;
 
+import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdMute;
+import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUnmute;
+import com.mcmoddev.mmdbot.utilities.updatenotifiers.fabric.FabricApiUpdateNotifier;
+import com.mcmoddev.mmdbot.utilities.updatenotifiers.forge.ForgeUpdateNotifier;
+import com.mcmoddev.mmdbot.utilities.updatenotifiers.minecraft.MinecraftUpdateNotifier;
 import com.mcmoddev.mmdbot.modules.logging.misc.EventReactionAdded;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
@@ -12,15 +17,15 @@ import org.slf4j.MarkerFactory;
 public final class MMDMarkers {
 
     /**
-     * The {@link Marker} for the {@link com.mcmoddev.mmdbot.utilities.updatenotifiers.fabric.FabricApiUpdateNotifier}.
+     * The {@link Marker} for the {@link FabricApiUpdateNotifier}.
      */
     public static final Marker NOTIFIER_FABRIC = MarkerFactory.getMarker("Notifier.Fabric");
     /**
-     * The {@link Marker} for the {@link com.mcmoddev.mmdbot.utilities.updatenotifiers.forge.ForgeUpdateNotifier}.
+     * The {@link Marker} for the {@link ForgeUpdateNotifier}.
      */
     public static final Marker NOTIFIER_FORGE = MarkerFactory.getMarker("Notifier.Forge");
     /**
-     * The {@link Marker} for the {@link com.mcmoddev.mmdbot.utilities.updatenotifiers.minecraft.MinecraftUpdateNotifier}.
+     * The {@link Marker} for the {@link MinecraftUpdateNotifier}.
      */
     public static final Marker NOTIFIER_MC = MarkerFactory.getMarker("Notifier.MC");
 
@@ -39,8 +44,8 @@ public final class MMDMarkers {
     /**
      * The {@link Marker} for the muting system.
      *
-     * @see com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdMute
-     * @see com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUnmute
+     * @see CmdMute
+     * @see CmdUnmute
      */
     public static final Marker MUTING = MarkerFactory.getMarker("Muting");
 

@@ -1,6 +1,7 @@
 package com.mcmoddev.mmdbot.modules.logging.users;
 
 import com.mcmoddev.mmdbot.core.Utils;
+import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.IMentionable;
@@ -18,8 +19,6 @@ import java.util.stream.Collectors;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
-import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.EVENTS;
-import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.REQUESTS;
 
 /**
  * The type Event user left.
@@ -45,13 +44,13 @@ public final class EventUserLeft extends ListenerAdapter {
         final var guildId = guild.getIdLong();
         if (getConfig().getGuildID() == guildId) {
             final var user = event.getUser();
-            LOGGER.info(EVENTS, "User {} left the guild", user);
+            LOGGER.info(MMDMarkers.EVENTS, "User {} left the guild", user);
             List<Role> roles = null;
             if (member != null) {
                 roles = member.getRoles();
                 Utils.writeUserRoles(user.getIdLong(), roles);
             } else {
-                LOGGER.warn(EVENTS, "Could not get roles of leaving user {}", user);
+                LOGGER.warn(MMDMarkers.EVENTS, "Could not get roles of leaving user {}", user);
             }
             if (member != null) {
                 Utils.writeUserJoinTimes(user.getId(), member.getTimeJoined().toInstant());
@@ -67,7 +66,7 @@ public final class EventUserLeft extends ListenerAdapter {
             if (roles != null && !roles.isEmpty()) {
                 embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention)
                     .collect(Collectors.joining()), true);
-                LOGGER.info(EVENTS, "User {} had the following roles before leaving: {}", user, roles);
+                LOGGER.info(MMDMarkers.EVENTS, "User {} had the following roles before leaving: {}", user, roles);
             } else if (roles == null) {
                 embed.addField("Roles:", "_Could not obtain user's roles._", true);
             }
@@ -95,7 +94,7 @@ public final class EventUserLeft extends ListenerAdapter {
                     && message.getAuthor().equals(leavingUser))
                 .thenAccept(messages ->
                     messages.forEach(message -> {
-                        LOGGER.info(REQUESTS, "Removed request from {} (current leave deletion of "
+                        LOGGER.info(MMDMarkers.REQUESTS, "Removed request from {} (current leave deletion of "
                                 + "{} hour(s), sent {}) because they left the server",
                             leavingUser, message.getTimeCreated(), deletionTime);
 
