@@ -4,6 +4,7 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
+import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
 import com.mcmoddev.mmdbot.modules.commands.general.fun.CmdCatFacts;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdJustAsk;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdPaste;
@@ -99,6 +100,7 @@ public class CommandModule {
             .addCommand(new CmdListTricks())
             .addCommand(new CmdRemoveTrick())
             .addCommands(Tricks.createTrickCommands().toArray(new Command[0]))
+            .addCommand(new CmdShutdown())
             .setHelpWord("help")
             .build();
 
