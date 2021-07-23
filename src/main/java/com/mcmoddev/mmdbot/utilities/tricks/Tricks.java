@@ -7,9 +7,9 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrick;
-import com.mcmoddev.mmdbot.MMDBot;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -155,9 +155,9 @@ public final class Tricks {
      * Write.
      */
     private static void write() {
-        final var userJoinTimesFile = new File(TRICK_STORAGE_PATH);
+        final var tricksFile = new File(TRICK_STORAGE_PATH);
         List<Trick> tricks = getTricks();
-        try (var writer = new OutputStreamWriter(new FileOutputStream(userJoinTimesFile), StandardCharsets.UTF_8)) {
+        try (var writer = new OutputStreamWriter(new FileOutputStream(tricksFile), StandardCharsets.UTF_8)) {
             GSON.toJson(tricks, writer);
         } catch (final FileNotFoundException exception) {
             MMDBot.LOGGER.error("An FileNotFoundException occurred saving tricks...", exception);

@@ -20,6 +20,7 @@ public final class CmdRemoveTrick extends Command {
         name = "removetrick";
         aliases = new String[]{"remove-trick", "remtrick"};
         help = "Removes a trick";
+        requiredRole = "bot maintainer";
     }
 
     /**
@@ -34,7 +35,6 @@ public final class CmdRemoveTrick extends Command {
         }
         final var channel = event.getTextChannel();
 
-        //TODO: Permissions
         Tricks.getTrick(event.getArgs().split(" ")[0]).ifPresent(Tricks::removeTrick);
         channel.sendMessage("Removed trick!").queue();
     }

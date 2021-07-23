@@ -29,6 +29,6 @@ public class CmdRestart extends Command {
      */
     @Override
     protected void execute(final CommandEvent event) {
-        //TODO Work on restart code for windows and linux, I don't think anyone runs MacOS in MMD.
+        //TODO Work on restart code, attempt to make it platform agnostic. -Proxy
     }
 }

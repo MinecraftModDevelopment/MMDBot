@@ -40,6 +40,7 @@ public final class CmdCommunityChannel extends Command {
         help = "Creates a new community channel for the given user. Usage: !mmd-create-community-channel "
             + "<user ID/mention> <channel name>";
         hidden = true;
+        requiredRole = "moderators";
         botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
     }
 
@@ -56,11 +57,6 @@ public final class CmdCommunityChannel extends Command {
         final var guild = event.getGuild();
         final var author = guild.getMember(event.getAuthor());
         if (author == null) {
-            return;
-        }
-
-        if (!author.hasPermission(REQUIRED_PERMISSIONS)) {
-            event.reply("You do not have permission to use this command.");
             return;
         }
 
