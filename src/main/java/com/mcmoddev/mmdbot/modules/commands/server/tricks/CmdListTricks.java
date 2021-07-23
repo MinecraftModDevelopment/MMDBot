@@ -36,17 +36,16 @@ public final class CmdListTricks extends Command {
         final var builder = new EmbedBuilder();
         final var channel = event.getTextChannel();
 
+        builder
+            .setDescription(Tricks.getTricks()
+                .stream()
+                .map(it -> it.getNames().stream().reduce("", (a, b) -> String.join(a, " ", b)
+                    .trim()))
+                .reduce("", (a, b) -> a + "\n" + b)
+            );
+
         if (!builder.isEmpty()) {
-            channel.sendMessageEmbeds(
-                builder
-                    .setDescription(Tricks.getTricks()
-                        .stream()
-                        .map(it -> it.getNames().stream().reduce("", (a, b) -> String.join(a, " ", b)
-                            .trim()))
-                        .reduce("", (a, b) -> a + "\n" + b)
-                    )
-                    .build()
-            ).queue();
+            channel.sendMessageEmbeds(builder.build()).queue();
         } else {
             channel.sendMessage("No tricks currently exist!").queue();
         }
