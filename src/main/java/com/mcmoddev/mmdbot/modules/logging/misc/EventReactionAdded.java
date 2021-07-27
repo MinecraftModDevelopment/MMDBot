@@ -10,11 +10,13 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.pagination.PaginationAction;
 
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
@@ -74,8 +76,12 @@ public final class EventReactionAdded extends ListenerAdapter {
             final List<Long> needsImprovementReactionsList = getConfig().getRequestsNeedsImprovementReactions();
             final var badReactions = Utils.getMatchingReactions(message, badReactionsList::contains);
 
-            final var users = badReactions.get(0).retrieveUsers();
-            final var hasStaffSignoff = users.stream().anyMatch(user -> guild.getMember(user).hasPermission(Permission.KICK_MEMBERS));
+            final var hasStaffSignoff = badReactions.stream()
+                .map(MessageReaction::retrieveUsers)
+                .flatMap(PaginationAction::stream)
+                .map(guild::getMember)
+                .filter(Objects::nonNull)
+                .anyMatch(member -> member.hasPermission(Permission.KICK_MEMBERS));
 
             final int badReactionsCount = badReactions.stream().mapToInt(MessageReaction::getCount).sum();
             final int goodReactionsCount = Utils.getNumberOfMatchingReactions(message, goodReactionsList::contains);
