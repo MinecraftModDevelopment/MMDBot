@@ -5,9 +5,7 @@ import com.jagrosh.jdautilities.command.CommandEvent
 import com.mcmoddev.mmdbot.core.Utils
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import me.shedaniel.linkie.LinkieConfig
-import me.shedaniel.linkie.Namespace
-import me.shedaniel.linkie.getMappedDesc
+import me.shedaniel.linkie.*
 import me.shedaniel.linkie.namespaces.MCPNamespace
 import me.shedaniel.linkie.namespaces.YarnNamespace
 import me.shedaniel.linkie.utils.MappingsQuery
@@ -32,9 +30,15 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
             return
         }
 
+        val args = event.args.split(' ');
+
+        val query = args[0];
+        val version = args.getOrElse(1) { namespace.getDefaultVersion() }
+
         GlobalScope.launch {
+            val provider = namespace.getProvider(version)
             var hasPerfectMatch = false
-            MappingsQuery.queryMember(QueryContext(namespace.getDefaultProvider(), event.args)) {it.members.asSequence()}.value.asSequence()
+            MappingsQuery.queryMember(QueryContext(provider, event.args)) {it.members.asSequence()}.value.asSequence()
                 .also { seq ->
                     hasPerfectMatch = seq.any { it.score == 1.0 }
                 }
@@ -42,15 +46,20 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
                 .take(5)
                 .forEach {
                     event.channel.sendMessage(EmbedBuilder()
+                        .setTitle("Yarn ${when(it.value.second) {
+                            is Field -> "Field"
+                            is Method -> "Method"
+                            else -> "Member"
+                        }} mapping for $version:")
                         .addField("Mapped Name", "`${it.value.second.mappedName}`", false)
                         .addField("Intermediary/SRG Name", "`${it.value.second.intermediaryName}`", false)
                         .addField("Obfuscated Name", "`${it.value.second.obfName.merged}`", false)
                         .addField("Member of Class", "`${it.value.first.mappedName ?: it.value.first.intermediaryName}`", false)
-                        .addField("Descriptor", "`${it.value.second.getMappedDesc(namespace.getProvider("1.16.4").get())}`", false)
+                        .addField("Descriptor", "`${it.value.second.getMappedDesc(provider.get())}`", false)
                         .build()
                     ).queue()
                 }
-            MappingsQuery.queryClasses(QueryContext(namespace.getDefaultProvider(), event.args)).value
+            MappingsQuery.queryClasses(QueryContext(provider, event.args)).value
                 .sortedBy { it.score }
                 .also { seq ->
                     hasPerfectMatch = hasPerfectMatch || seq.any { it.score == 1.0 }
@@ -59,6 +68,7 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
                 .take(5)
                 .forEach {
                     event.channel.sendMessage(EmbedBuilder()
+                        .setTitle("Yarn Class mapping for $version:")
                         .run {
                             if (it.value.mappedName != null)
                                 addField("Mapped Name", "`${it.value.mappedName}`", false)
