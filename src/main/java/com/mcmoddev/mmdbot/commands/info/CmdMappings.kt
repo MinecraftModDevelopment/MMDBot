@@ -7,7 +7,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import me.shedaniel.linkie.LinkieConfig
 import me.shedaniel.linkie.Namespace
-import me.shedaniel.linkie.Namespaces
 import me.shedaniel.linkie.getMappedDesc
 import me.shedaniel.linkie.namespaces.MCPNamespace
 import me.shedaniel.linkie.namespaces.YarnNamespace
@@ -21,7 +20,6 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
         this.name = name.toLowerCase(Locale.ROOT)
         this.aliases = aliases
         help = "Search for something using $name."
-        Namespaces.init(LinkieConfig.DEFAULT)
     }
 
     /**
@@ -36,29 +34,31 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
 
         GlobalScope.launch {
             var hasPerfectMatch = false
-            MappingsQuery.queryMember(QueryContext(namespace.getProvider("1.16.4"), event.args)) {it.members.asSequence()}.value
-                    .sortedBy { it.score }
-                    .also { seq ->
-                        hasPerfectMatch = seq.any { it.score == 1.0 }
-                    }
-                    .filter { if (hasPerfectMatch) it.score == 1.0 else true }
-                    .forEach {
-                event.channel.sendMessage(EmbedBuilder()
+            MappingsQuery.queryMember(QueryContext(namespace.getDefaultProvider(), event.args)) {it.members.asSequence()}.value.asSequence()
+                .also { seq ->
+                    hasPerfectMatch = seq.any { it.score == 1.0 }
+                }
+                .filter { if (hasPerfectMatch) it.score == 1.0 else true }
+                .take(5)
+                .forEach {
+                    event.channel.sendMessage(EmbedBuilder()
                         .addField("Mapped Name", "`${it.value.second.mappedName}`", false)
                         .addField("Intermediary/SRG Name", "`${it.value.second.intermediaryName}`", false)
                         .addField("Obfuscated Name", "`${it.value.second.obfName.merged}`", false)
                         .addField("Member of Class", "`${it.value.first.mappedName ?: it.value.first.intermediaryName}`", false)
                         .addField("Descriptor", "`${it.value.second.getMappedDesc(namespace.getProvider("1.16.4").get())}`", false)
                         .build()
-                ).queue()
-            }
-            MappingsQuery.queryClasses(QueryContext(namespace.getProvider("1.16.4"), event.args)).value
-                    .sortedBy { it.score }
-                    .also { seq ->
-                        hasPerfectMatch = hasPerfectMatch || seq.any { it.score == 1.0 }
-                    }
-                    .filter { if (hasPerfectMatch) it.score == 1.0 else true }.forEach {
-                event.channel.sendMessage(EmbedBuilder()
+                    ).queue()
+                }
+            MappingsQuery.queryClasses(QueryContext(namespace.getDefaultProvider(), event.args)).value
+                .sortedBy { it.score }
+                .also { seq ->
+                    hasPerfectMatch = hasPerfectMatch || seq.any { it.score == 1.0 }
+                }
+                .filter { if (hasPerfectMatch) it.score == 1.0 else true }
+                .take(5)
+                .forEach {
+                    event.channel.sendMessage(EmbedBuilder()
                         .run {
                             if (it.value.mappedName != null)
                                 addField("Mapped Name", "`${it.value.mappedName}`", false)
@@ -67,12 +67,12 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
                         .addField("Intermediary/SRG Name", "`${it.value.intermediaryName}`", false)
                         .addField("Obfuscated Name", "`${it.value.obfName.merged}`", false)
                         .build()
-                ).queue()
-            }
+                    ).queue()
+                }
         }
     }
 
     companion object {
-        val mappings = LinkieConfig(LinkieConfig.DEFAULT.cacheDirectory, LinkieConfig.DEFAULT.maximumLoadedVersions, listOf(YarnNamespace, MCPNamespace), LinkieConfig.DEFAULT.reloadCycleDuration)
+        val mappings = LinkieConfig.DEFAULT.copy(namespaces=listOf(YarnNamespace, MCPNamespace))
     }
 }
