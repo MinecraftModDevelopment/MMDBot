@@ -1,67 +1,94 @@
 plugins {
-    id 'application'
-    id 'com.github.johnrengelman.shadow' version '4.0.4'
-    id 'eclipse'
-    id 'idea'
-    id 'com.github.spotbugs' version '1.6.9' // 4.0 or later
-    id 'checkstyle' // 2.7 or later
-    id 'pmd'
-    id "org.jetbrains.kotlin.jvm" version "1.4.21"
+  id 'application'
+  id 'com.github.johnrengelman.shadow' version '6.1.0'
+  id 'maven'
+  id 'eclipse'
+  id 'idea'
+  id 'com.github.spotbugs' version '4.7.2'
+  id 'checkstyle'
+  id 'pmd'
+  id "org.flywaydb.flyway" version "7.11.4"
+  id "org.jetbrains.kotlin.jvm" version "1.5.21"
 }
 
 mainClassName = 'com.mcmoddev.mmdbot.MMDBot'
 group 'com.mcmoddev'
 version project.bot_version
 
-sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+java.toolchain.languageVersion = JavaLanguageVersion.of(11)
+
+application {
+    mainClass = 'com.mcmoddev.mmdbot.MMDBot'
+}
+
+compileJava {
+  sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
+  options.encoding = 'UTF-8'
+}
+
+tasks.withType(JavaCompile) {
+  options.encoding = 'UTF-8'
+  options.compilerArgs = [
+    '-Xlint:deprecation', // deprecation, rawtypes, cast, unchecked, all
+    //'-Xdiags:verbose',
+    //'-Werror'
+  ]
+  compileJava.options.compilerArgs += '-proc:none'
+}
 
 repositories {
-    jcenter()
-    mavenCentral()
-    maven {
-        url 'https://jitpack.io'
-    }
-    maven {
-        url "https://maven.shedaniel.me/"
-    }
-    maven {
-        url "https://maven.fabricmc.net"
-    }
+  jcenter()
+  mavenCentral()
+  maven {
+    name 'm2-dv8tion'
+    url 'https://m2.dv8tion.net/releases'
+  }
+  maven {
+      url "https://maven.shedaniel.me/"
+  }
+  maven {
+      url "https://maven.fabricmc.net"
+  }
+  maven {
+      url "https://jitpack.io"
+  }
 }
 
 dependencies {
-    implementation "com.jagrosh:jda-utilities:${project.jdautils_version}"
-    implementation "net.dv8tion:JDA:${project.jda_version}"
-    implementation "com.google.guava:guava:${project.guava_version}"
-    implementation "com.google.code.gson:gson:${project.gson_version}"
-    implementation "ch.qos.logback:logback-classic:${project.logback_classic_version}"
-    implementation "com.electronwill.night-config:toml:${project.nightconfig_version}"
-    implementation "me.shedaniel:linkie-core:1.0.60"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.21"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1"
+  implementation group: 'com.jagrosh', name: 'jda-utilities', version: "${project.jdautils_version}"
+  implementation group: 'net.dv8tion', name: 'JDA', version: "${project.jda_version}"
+  implementation group: 'com.google.guava', name: 'guava', version: "${project.guava_version}"
+  implementation group: 'com.google.code.gson', name: 'gson', version: "${project.gson_version}"
+  implementation group: 'ch.qos.logback', name: 'logback-classic', version: "${project.logback_classic_version}"
+  implementation group: 'com.electronwill.night-config', name: 'toml', version: "${project.nightconfig_version}"
+  implementation group: 'org.xerial', name: 'sqlite-jdbc', version: "${project.sqlite_jdbc_version}"
+  implementation group: 'me.shedaniel', name: 'linkie-core', version: "${project.linkie_version}"
+  implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: "${project.ktx_coroutines_version}"
 
-    testImplementation "org.junit.jupiter:junit-jupiter:5.6.0"
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: "${project.junit_version}"
+
+  spotbugsPlugins "com.h3xstream.findsecbugs:findsecbugs-plugin:${project.findsecbugs_version}"
 }
 
 jar {
-    manifest {
-        mainAttributes(
-                "Maven-Artifact": "${project.group}:${archivesBaseName}:${project.bot_version}",
-                "Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "Specification-Title": archivesBaseName,
-                "Specification-Vendor": "MinecraftModDevs",
-                "Specification-Version": "1",
-                "Implementation-Title": archivesBaseName,
-                "Implementation-Version": "${project.bot_version}",
-                "Implementation-Vendor": "MinecraftModDevs",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "Built-On-Java": "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
-                "Built-On": "${project.jda_version}-${project.jdautils_version}"
-        )
-    }
+  manifest {
+    mainAttributes(
+      'Maven-Artifact': "${project.group}:${archivesBaseName}:${project.bot_version}",
+      'Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+      'Specification-Title': archivesBaseName,
+      'Specification-Vendor': "MinecraftModDevs",
+      'Specification-Version': "1",
+      'Implementation-Title': archivesBaseName,
+      'Implementation-Version': "${project.bot_version}",
+      'Implementation-Vendor': "MinecraftModDevs",
+      'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+      'Built-On-Java': "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
+      'Built-On': "${project.jda_version}-${project.jdautils_version}",
+      'Class-Path': configurations.compileClasspath.collect { it.getName() }.join(' '),
+      'Main-Class': 'com.mcmoddev.bot.MMDBot'
+    )
+  }
 }
-
-compileJava.options.encoding = 'UTF-8'
 
 eclipse.project {
   buildCommand 'org.eclipse.buildship.core.gradleprojectbuilder'
@@ -70,7 +97,7 @@ eclipse.project {
 
 idea.module {
   downloadJavadoc = true
-  //inheritOutputDirs = true
+  inheritOutputDirs = true
 }
 
 javadoc {
@@ -78,21 +105,48 @@ javadoc {
 }
 
 test {
-    useJUnitPlatform()
-    testLogging {
-        events "passed", "skipped", "failed"
+  useJUnitPlatform()
+  testLogging {
+    events "passed", "skipped", "failed"
+  }
+}
+
+flyway {
+  url = 'jdbc:sqlite:./data.db'
+  user = 'sa'
+}
+
+task generatePom {
+    doLast {
+        pom {
+            project {
+                groupId project.group.toString()
+                artifactId archivesBaseName
+                version version
+
+                inceptionYear '2016'
+                licenses {
+                    license {
+                        name 'LGPL2.1 License'
+                        url 'LGPL2.1'
+                        distribution 'repo'
+                    }
+                }
+            }
+        }.writeTo("$rootProject.projectDir/pom.xml")
     }
 }
 
 spotbugs {
   ignoreFailures = true
-  toolVersion = '3.1.6'
+  showStackTraces = false
+  toolVersion = '4.2.3'
   effort = 'max'
   reportLevel = 'low'
   //includeFilter = file("$rootProject.projectDir/config/spotbugs-filter.xml")
 }
 
-tasks.withType(com.github.spotbugs.SpotBugsTask) {
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
   reports {
     xml.enabled = false
     html.enabled = true
@@ -101,47 +155,62 @@ tasks.withType(com.github.spotbugs.SpotBugsTask) {
 
 checkstyle {
   ignoreFailures = true
-  toolVersion = '8.20' // 5.7 is default
+  toolVersion = '8.43'
   showViolations = false
+}
+
+tasks.withType(Checkstyle) {
+  reports {
+    xml.enabled true
+    html.enabled true
+//  html.stylesheet resources.text.fromFile('config/xsl/checkstyle-noframes.xsl') // Default
+    html.stylesheet resources.text.fromFile('config/xsl/checkstyle-noframes-severity-sorted.xsl')
+  }
 }
 
 pmd {
   consoleOutput = false
   ignoreFailures = true
-  sourceSets = [sourceSets.main]
+  sourceSets = [sourceSets.main, sourceSets.test]
   reportsDir = file("$project.buildDir/reports/pmd")
-  rulePriority = 5
+  rulesMinimumPriority = 5
+  ruleSetFiles = files('config/pmd/pmd.xml')
   ruleSets = [
-    'java-android',
+/*
+//  'java-android',
     'java-basic',
     'java-braces',
     'java-clone',
-    'java-codesize',
-    'java-comments',
-    'java-controversial',
-    'java-coupling',
+//  'java-codesize',
+//  'java-comments',
+//  'java-controversial',
+//  'java-coupling',
     'java-design',
     'java-empty',
     'java-finalizers',
     'java-imports',
-    'java-j2ee',
-    'java-javabeans',
+//  'java-j2ee',
+//  'java-javabeans',
     'java-junit',
     'java-logging-jakarta-commons',
     'java-logging-java',
-//    'java-metrics', // Upsets 5.8.1
+//  'java-metrics', // Upsets 5.8.1
     'java-migrating',
+//  'java-migrating_to_13',
+//  'java-migrating_to_14',
+//  'java-migrating_to_15',
     'java-migrating_to_junit4',
     'java-naming',
     'java-optimizations',
-//    'java-quickstart', // 6.x
+//  'java-quickstart', // 6.x
     'java-strictexception',
     'java-strings',
     'java-sunsecure',
     'java-typeresolution',
     'java-unnecessary',
     'java-unusedcode'
+*/
   ]
-  toolVersion = '5.8.1' // 6.19.0
-//  incrementalAnalysis = true // Requires PMD 6.0.0 or newer
+  toolVersion = '6.35.0'
+  incrementalAnalysis = true
 }

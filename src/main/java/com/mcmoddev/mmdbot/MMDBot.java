@@ -1,36 +1,11 @@
 package com.mcmoddev.mmdbot;
 
-import com.jagrosh.jdautilities.command.CommandClient;
-import com.jagrosh.jdautilities.command.CommandClientBuilder;
-import com.mcmoddev.mmdbot.commands.fun.CmdCatFacts;
-import com.mcmoddev.mmdbot.commands.fun.CmdToggleEventPings;
-import com.mcmoddev.mmdbot.commands.fun.CmdToggleMcServerPings;
-import com.mcmoddev.mmdbot.commands.info.CmdBuild;
-import com.mcmoddev.mmdbot.commands.info.CmdEventsHelp;
-import com.mcmoddev.mmdbot.commands.info.CmdFabricVersion;
-import com.mcmoddev.mmdbot.commands.info.CmdForgeVersion;
-import com.mcmoddev.mmdbot.commands.info.CmdJustAsk;
 import com.mcmoddev.mmdbot.commands.info.CmdMappings;
-import com.mcmoddev.mmdbot.commands.info.CmdMinecraftVersion;
-import com.mcmoddev.mmdbot.commands.info.CmdPaste;
-import com.mcmoddev.mmdbot.commands.info.CmdSearch;
-import com.mcmoddev.mmdbot.commands.info.CmdXy;
-import com.mcmoddev.mmdbot.commands.info.server.CmdGuild;
-import com.mcmoddev.mmdbot.commands.info.server.CmdMe;
-import com.mcmoddev.mmdbot.commands.info.server.CmdReadme;
-import com.mcmoddev.mmdbot.commands.info.server.CmdRoles;
-import com.mcmoddev.mmdbot.commands.info.server.CmdRules;
-import com.mcmoddev.mmdbot.commands.staff.CmdMute;
-import com.mcmoddev.mmdbot.commands.staff.CmdUnmute;
-import com.mcmoddev.mmdbot.commands.staff.CmdUser;
 import com.mcmoddev.mmdbot.core.BotConfig;
-import com.mcmoddev.mmdbot.events.EventReactionAdded;
-import com.mcmoddev.mmdbot.events.MiscEvents;
-import com.mcmoddev.mmdbot.events.users.EventNicknameChanged;
-import com.mcmoddev.mmdbot.events.users.EventRoleAdded;
-import com.mcmoddev.mmdbot.events.users.EventRoleRemoved;
-import com.mcmoddev.mmdbot.events.users.EventUserJoined;
-import com.mcmoddev.mmdbot.events.users.EventUserLeft;
+import com.mcmoddev.mmdbot.modules.commands.CommandModule;
+import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
+import com.mcmoddev.mmdbot.modules.logging.misc.MiscEvents;
+import com.mcmoddev.mmdbot.core.References;
 import me.shedaniel.linkie.Namespaces;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -40,135 +15,111 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Our Main class.
+ *
+ * @author Antoine Gagnon
+ * @author williambl
+ * @author sciwhiz12
+ * @author ProxyNeko
+ * @author jriwanek
  */
 public final class MMDBot {
-
-
-    /**
-     * The name of the bot in code.
-     */
-    public static final String NAME = "MMDBot";
-
-    /**
-     * The bots current version.
-     */
-    public static final String VERSION = MMDBot.class.getPackage().getImplementationVersion();
-
-    /**
-     * The issue tracker where bugs and crashes should be reported, and PR's made.
-     */
-    public static final String ISSUE_TRACKER = "https://github.com/MinecraftModDevelopment/MMDBot/issues/";
 
     /**
      * Where needed for events being fired, errors and other misc stuff, log things to console using this.
      */
-    public static final Logger LOGGER = LoggerFactory.getLogger(NAME);
-    private static final Set<GatewayIntent> intents = new HashSet<>();
-	private static BotConfig config;
-    private static JDA INSTANCE;
+    public static final Logger LOGGER = LoggerFactory.getLogger(References.NAME);
+
+    /**
+     * The Constant INTENTS.
+     */
+    private static final Set<GatewayIntent> INTENTS = new HashSet<>();
+
+    /**
+     * The config.
+     */
+    private static BotConfig config;
+
+    /**
+     * The instance.
+     */
+    private static JDA instance;
 
     static {
-        intents.add(GatewayIntent.DIRECT_MESSAGES);
-        intents.add(GatewayIntent.GUILD_BANS);
-        intents.add(GatewayIntent.GUILD_EMOJIS);
-        intents.add(GatewayIntent.GUILD_MESSAGE_REACTIONS);
-        intents.add(GatewayIntent.GUILD_MESSAGES);
-        intents.add(GatewayIntent.GUILD_MEMBERS);
+        MMDBot.INTENTS.add(GatewayIntent.DIRECT_MESSAGES);
+        MMDBot.INTENTS.add(GatewayIntent.GUILD_BANS);
+        MMDBot.INTENTS.add(GatewayIntent.GUILD_EMOJIS);
+        MMDBot.INTENTS.add(GatewayIntent.GUILD_MESSAGE_REACTIONS);
+        MMDBot.INTENTS.add(GatewayIntent.GUILD_MESSAGES);
+        MMDBot.INTENTS.add(GatewayIntent.GUILD_MEMBERS);
     }
 
     /**
+     * Returns the configuration of this bot.
      *
+     * @return The configuration of this bot.
      */
-    private MMDBot() {
-    }
-
-	/**
-	 * Returns the configuration of this bot.
-	 * @return The configuration of this bot
-	 */
-	public static BotConfig getConfig() {
-		return config;
-	}
-
-	public static JDA getInstance() {
-        return INSTANCE;
+    public static BotConfig getConfig() {
+        return MMDBot.config;
     }
 
     /**
+     * Gets the single instance of MMDBot.
+     *
+     * @return JDA. instance
+     */
+    public static JDA getInstance() {
+        return MMDBot.instance;
+    }
+
+    /**
+     * The main method.
+     *
      * @param args Arguments provided to the program.
      */
     public static void main(final String[] args) {
-        final Path configPath = Paths.get("mmdbot_config.toml");
-        config = new BotConfig(configPath);
-        if (config.isNewlyGenerated()) {
-        	LOGGER.warn("A new config file at {} has been generated. Please configure the bot and try again.", configPath);
-			System.exit(0);
-		} else if (config.getToken() == null) {
-        	LOGGER.error("No token is specified in the config. Please configure the bot and try again");
-		} else if (config.getGuildID() == 0L) {
-        	LOGGER.error("No guild ID is configured. Please configure the bot and try again.");
-        	System.exit(0);
-		}
-        Namespaces.INSTANCE.init(CmdMappings.Companion.getMappings());
+        final var configPath = Paths.get("mmdbot_config.toml");
+        MMDBot.config = new BotConfig(configPath);
+        if (MMDBot.config.isNewlyGenerated()) {
+            MMDBot.LOGGER.warn("A new config file at {} has been generated. Please configure the bot and try again.",
+                configPath);
+            System.exit(0);
+        } else if (MMDBot.config.getToken().isEmpty()) {
+            MMDBot.LOGGER.error("No token is specified in the config. Please configure the bot and try again");
+            System.exit(0);
+        } else if (MMDBot.config.getOwnerID().isEmpty()) {
+            MMDBot.LOGGER.error("No owner ID is specified in the config. Please configure the bot and try again");
+            System.exit(0);
+        } else if (MMDBot.config.getGuildID() == 0L) {
+            MMDBot.LOGGER.error("No guild ID is configured. Please configure the bot and try again.");
+            System.exit(0);
+        }
 
         try {
-
-            final CommandClient commandListener = new CommandClientBuilder()
-                    .setOwnerId(config.getOwnerID())
-                    .setPrefix(config.getMainPrefix())
-                    .setAlternativePrefix(config.getAlternativePrefix())
-                    .addCommand(new CmdGuild())
-                    .addCommand(new CmdBuild())
-                    .addCommand(new CmdMe())
-                    .addCommand(new CmdUser())
-                    .addCommand(new CmdRoles())
-                    .addCommand(new CmdJustAsk())
-                    .addCommand(new CmdPaste())
-                    .addCommand(new CmdXy())
-                    .addCommand(new CmdReadme())
-                    .addCommand(new CmdRules())
-                    .addCommand(new CmdCatFacts())
-                    .addCommand(new CmdSearch("Google", "https://www.google.com/search?q=", "goog"))
-                    .addCommand(new CmdSearch("Bing", "https://www.bing.com/search?q="))
-                    .addCommand(new CmdSearch("DuckDuckGo", "https://duckduckgo.com/?q=", "ddg"))
-                    .addCommand(new CmdSearch("LMGTFY", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"))
-                    .addCommand(new CmdEventsHelp())
-                    .addCommand(new CmdToggleMcServerPings())
-                    .addCommand(new CmdToggleEventPings())
-                    .addCommand(new CmdForgeVersion())
-                    .addCommand(new CmdMinecraftVersion())
-                    .addCommand(new CmdFabricVersion())
-                    .addCommand(new CmdMute())
-                    .addCommand(new CmdUnmute())
-					.addCommand(new CmdMappings("yarnmappings", Namespaces.INSTANCE.get("yarn")))
-					.addCommand(new CmdMappings("mcpmappings", Namespaces.INSTANCE.get("mcp")))
-					.setHelpWord("help")
-                    .build();
-
-            INSTANCE = JDABuilder
-                    .create(config.getToken(), intents)
-                    .disableCache(CacheFlag.VOICE_STATE)
-                    .disableCache(CacheFlag.ACTIVITY)
-                    .disableCache(CacheFlag.CLIENT_STATUS)
-                    .addEventListeners(new EventUserJoined())
-                    .addEventListeners(new EventUserLeft())
-                    .addEventListeners(new EventNicknameChanged())
-                    .addEventListeners(new EventRoleAdded())
-                    .addEventListeners(new EventRoleRemoved())
-                    .addEventListeners(new EventReactionAdded())
-                    .addEventListeners(new MiscEvents())
-                    .addEventListeners(commandListener)
-                    .build();
-        } catch (final LoginException exception) {
-            LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.", exception);
+            MMDBot.instance = JDABuilder
+                .create(MMDBot.config.getToken(), MMDBot.INTENTS)
+                .disableCache(CacheFlag.VOICE_STATE)
+                .disableCache(CacheFlag.ACTIVITY)
+                .disableCache(CacheFlag.CLIENT_STATUS)
+                .addEventListeners(new MiscEvents())
+                .build();
+            CommandModule.setupCommandModule();
+            LoggingModule.setupLoggingModule();
+		} catch (final LoginException exception) {
+            MMDBot.LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.",
+                exception);
             System.exit(1);
         }
+    }
+
+    /**
+     * Instantiates a new MMD bot.
+     */
+    private MMDBot() {
     }
 }
