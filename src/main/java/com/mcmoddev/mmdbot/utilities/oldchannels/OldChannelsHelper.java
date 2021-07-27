@@ -15,7 +15,7 @@ public class OldChannelsHelper {
     /**
      * The constant channelLastMessageMap.
      */
-    private static final Map<TextChannel, Long> CHANNEL_LAST_MESSAGE_MAP = new HashMap<>();
+    private static final Map<Long, Long> CHANNEL_LAST_MESSAGE_MAP = new HashMap<>();
 
     /**
      * The constant ready.
@@ -29,7 +29,7 @@ public class OldChannelsHelper {
      * @return the last message time
      */
     public static long getLastMessageTime(final TextChannel channel) {
-        return CHANNEL_LAST_MESSAGE_MAP.getOrDefault(channel, -1L);
+        return CHANNEL_LAST_MESSAGE_MAP.getOrDefault(channel.getIdLong(), -1L);
     }
 
     /**
@@ -47,7 +47,7 @@ public class OldChannelsHelper {
      * @param timeSinceLastMessage the time since last message
      */
     public static void put(final TextChannel channel, final long timeSinceLastMessage) {
-        CHANNEL_LAST_MESSAGE_MAP.put(channel, timeSinceLastMessage);
+        CHANNEL_LAST_MESSAGE_MAP.put(channel.getIdLong(), timeSinceLastMessage);
     }
 
     /**
