@@ -1,7 +1,9 @@
 package com.mcmoddev.mmdbot.utilities.oldchannels;
 
 import com.mcmoddev.mmdbot.MMDBot;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -44,13 +46,17 @@ public class ChannelMessageChecker extends TimerTask {
         OldChannelsHelper.clear();
 
         final var currentTime = Instant.now();
+        final Member self = guild.getSelfMember();
 
-        CompletableFuture.allOf(guild.getTextChannels()
-            .parallelStream()
+        CompletableFuture.allOf(guild.getTextChannelCache()
+            .parallelStreamUnordered()
+            .filter(self::hasAccess)
+            .filter(channel -> self.hasPermission(channel, Permission.MESSAGE_HISTORY))
             .map(channel -> channel.getIterableHistory()
-                .takeAsync(100).thenAcceptAsync(
-                    messages -> messages.stream().filter(message -> !message.isWebhookMessage()).findFirst()
-                        .ifPresent(message -> {
+                .takeAsync(1000).thenAccept(messages -> messages.stream()
+                    .filter(message -> !message.isWebhookMessage() && !message.getType().isSystem())
+                    .findFirst()
+                    .ifPresent(message -> {
                         final long daysSinceLastMessage = ChronoUnit.DAYS.between(message.getTimeCreated()
                             .toInstant(), currentTime);
                         OldChannelsHelper.put(message.getTextChannel(), daysSinceLastMessage);
