@@ -1,11 +1,12 @@
 package com.mcmoddev.mmdbot.modules.logging.misc;
 
-import com.mcmoddev.mmdbot.core.Utils;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.core.TaskScheduler;
+import com.mcmoddev.mmdbot.core.Utils;
 import net.dv8tion.jda.api.events.DisconnectEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.ReconnectedEvent;
 import net.dv8tion.jda.api.events.ResumedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -18,6 +19,17 @@ import java.time.Instant;
  * @author ProxyNeko
  */
 public final class MiscEvents extends ListenerAdapter {
+
+    /**
+     * The threshold amount in milliseconds between a {@link DisconnectEvent} and either a {@link ReconnectedEvent} or
+     * {@link ResumedEvent}.
+     */
+    private static final long DISCONNECT_WARN_THRESHOLD_MILLIS = 5 * 1000; // 5 seconds
+    /**
+     * The amount of milliseconds since the last {@link DisconnectEvent}, or {@code 0} if no disconnect event has been
+     * handled yet.
+     */
+    private long lastDisconnect = 0;
 
     /**
      * On ready.
@@ -38,7 +50,8 @@ public final class MiscEvents extends ListenerAdapter {
      */
     @Override
     public void onDisconnect(final @NotNull DisconnectEvent event) {
-        MMDBot.LOGGER.warn("*** Connection to Discord terminated ***");
+        MMDBot.LOGGER.debug("Connection to remote Discord server has been terminated");
+        lastDisconnect = System.currentTimeMillis();
     }
 
     /**
@@ -49,6 +62,33 @@ public final class MiscEvents extends ListenerAdapter {
     @Override
     public void onResumed(final @NotNull ResumedEvent event) {
         Utils.sleepTimer();
-        MMDBot.LOGGER.warn("*** Bot reconnected to Discord successfully. ***");
+        MMDBot.LOGGER.debug("Resumed connection to Discord");
+        if (lastDisconnect != 0) {
+            long disconnectTime = System.currentTimeMillis() - lastDisconnect;
+            if (disconnectTime > DISCONNECT_WARN_THRESHOLD_MILLIS) {
+                MMDBot.LOGGER.warn(
+                    "Resumption of Discord connection took a longer time than expected (took {}s, threshold of {}s)",
+                    disconnectTime / 1000.0D, DISCONNECT_WARN_THRESHOLD_MILLIS / 1000.0D);
+            }
+        }
+    }
+
+    /**
+     * On reconnected.
+     *
+     * @param event the event
+     */
+    @Override
+    public void onReconnected(@NotNull final ReconnectedEvent event) {
+        Utils.sleepTimer();
+        MMDBot.LOGGER.debug("Reconnected back to Discord");
+        if (lastDisconnect != 0) {
+            long disconnectTime = System.currentTimeMillis() - lastDisconnect;
+            if (disconnectTime > DISCONNECT_WARN_THRESHOLD_MILLIS) {
+                MMDBot.LOGGER.warn(
+                    "Reconnection to Discord took a longer time than expected (took {}s, threshold of {}s)",
+                    disconnectTime / 1000.0D, DISCONNECT_WARN_THRESHOLD_MILLIS / 1000.0D);
+            }
+        }
     }
 }
