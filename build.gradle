@@ -37,15 +37,20 @@ tasks.withType(JavaCompile) {
 
 repositories {
   mavenCentral()
-  jcenter()
+  //jcenter()
   maven {
     name 'm2-dv8tion'
     url 'https://m2.dv8tion.net/releases'
   }
+  maven {
+    name 'jda-chewtils'
+    url 'https://m2.chew.pro/releases'
+  }
 }
 
 dependencies {
-  implementation group: 'com.jagrosh', name: 'jda-utilities', version: "${project.jdautils_version}"
+  implementation group: 'pw.chew', name: 'jda-chewtils', version: "${project.jda_chewtils_version}"
+  //implementation group: 'com.jagrosh', name: 'jda-utilities', version: "${project.jdautils_version}"
   implementation group: 'net.dv8tion', name: 'JDA', version: "${project.jda_version}"
   implementation group: 'com.google.guava', name: 'guava', version: "${project.guava_version}"
   implementation group: 'com.google.code.gson', name: 'gson', version: "${project.gson_version}"
@@ -71,7 +76,7 @@ jar {
       'Implementation-Vendor': "MinecraftModDevs",
       'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
       'Built-On-Java': "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
-      'Built-On': "${project.jda_version}-${project.jdautils_version}",
+      'Built-On': "${project.jda_version}-${project.jda_chewtils_version}",
       'Class-Path': configurations.compileClasspath.collect { it.getName() }.join(' '),
       'Main-Class': 'com.mcmoddev.bot.MMDBot'
     )
