@@ -109,7 +109,7 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
 
             val msg = event.channel.sendMessageEmbeds(embeds.next().await()).apply {
                 if (embeds.hasNext()) {
-                    setActionRow(Button.primary("next", "Next"))
+                    setActionRow(Button.primary("mappings-next", "Next"))
                 }
             }.complete()
 
@@ -132,13 +132,15 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
 
         override fun onButtonClick(event: ButtonClickEvent) {
             scope.launch {
-                embedsForMessage[event.messageIdLong]?.let {
-                    val newEmbed = it.next().await()
-                    event.editMessageEmbeds(newEmbed).apply {
-                        if (!it.hasNext()) {
-                            setActionRow()
-                        }
-                    }.queue()
+                if (event.componentId == "mappings-next") {
+                    embedsForMessage[event.messageIdLong]?.let {
+                        val newEmbed = it.next().await()
+                        event.editMessageEmbeds(newEmbed).apply {
+                            if (!it.hasNext()) {
+                                setActionRow()
+                            }
+                        }.queue()
+                    }
                 }
             }
         }
