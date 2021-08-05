@@ -10,11 +10,13 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.pagination.PaginationAction;
 
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
@@ -32,6 +34,16 @@ public final class EventReactionAdded extends ListenerAdapter {
      * The Warned messages.
      */
     private final Set<Message> warnedMessages = new HashSet<>();
+
+    /**
+     * The set of messages that have passed the reaction threshold required for request deletion, but are awaiting a
+     * staff member (a user with {@link Permission#KICK_MEMBERS}) to sign-off on the deletion by giving their own
+     * reaction.
+     *
+     * <p>If a message has been added previously to this set, and the message falls back below the request deletion
+     * threshold, it will be removed from this set.</p>
+     */
+    private final Set<Long> messagesAwaitingSignoff = new HashSet<>();
 
     /**
      * On message reaction add.
@@ -74,8 +86,12 @@ public final class EventReactionAdded extends ListenerAdapter {
             final List<Long> needsImprovementReactionsList = getConfig().getRequestsNeedsImprovementReactions();
             final var badReactions = Utils.getMatchingReactions(message, badReactionsList::contains);
 
-            final var users = badReactions.get(0).retrieveUsers();
-            final var hasStaffSignoff = users.stream().anyMatch(user -> guild.getMember(user).hasPermission(Permission.KICK_MEMBERS));
+            final var hasStaffSignoff = badReactions.stream()
+                .map(MessageReaction::retrieveUsers)
+                .flatMap(PaginationAction::stream)
+                .map(guild::getMember)
+                .filter(Objects::nonNull)
+                .anyMatch(member -> member.hasPermission(Permission.KICK_MEMBERS));
 
             final int badReactionsCount = badReactions.stream().mapToInt(MessageReaction::getCount).sum();
             final int goodReactionsCount = Utils.getNumberOfMatchingReactions(message, goodReactionsList::contains);
@@ -86,7 +102,8 @@ public final class EventReactionAdded extends ListenerAdapter {
 
             final User messageAuthor = message.getAuthor();
             if (requestScore >= removalThreshold) {
-                if (!hasStaffSignoff) {
+                // If the message has no staff signing off and it hasn't yet been logged about, log it
+                if (!hasStaffSignoff && messagesAwaitingSignoff.add(message.getIdLong())) {
                     LOGGER.info(REQUESTS, "Request from {} has a score of {}, reaching removal threshold {}, "
                             + "awaiting moderation approval.",
                         messageAuthor, requestScore, removalThreshold);
@@ -163,6 +180,10 @@ public final class EventReactionAdded extends ListenerAdapter {
                     action = action.onErrorFlatMap(throwable -> discussionChannel.sendMessage(response));
                 }
                 action.queue();
+            }
+            // Remove messages under the removal threshold from the awaiting sign-off set
+            if (requestScore < removalThreshold) {
+                messagesAwaitingSignoff.remove(message.getIdLong());
             }
         }
     }

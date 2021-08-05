@@ -33,7 +33,7 @@ public final class CmdPaste extends Command {
             + "Free: 1MB - Members get: 6MB" + System.lineSeparator()
             + Utils.makeHyperlink("paste.gg", "https://paste.gg") + " "
             + "Free: 15MB" + System.lineSeparator()
-            + Utils.makeHyperlink("paste.gemwire.uk", "paste.gemwire.uk")
+            + Utils.makeHyperlink("paste.gemwire.uk", "https://paste.gemwire.uk")
             + " " + "Free 10MB" + System.lineSeparator()
             + Utils.makeHyperlink("pastebin", "https://pastebin.com") + " "
             + "Free: 512KB - Paid users get: 10MB" + System.lineSeparator();
