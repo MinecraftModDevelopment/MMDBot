@@ -11,6 +11,9 @@ import com.mcmoddev.mmdbot.modules.commands.general.info.CmdPaste;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdSearch;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdXy;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
+import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdAddQuote;
+import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdGetQuote;
+import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdRemoveQuote;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdAddTrick;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
@@ -101,6 +104,9 @@ public class CommandModule {
             .addCommand(new CmdRemoveTrick())
             .addCommands(Tricks.createTrickCommands().toArray(new Command[0]))
             .addCommand(new CmdShutdown())
+            .addCommand(new CmdAddQuote())
+            .addCommand(new CmdGetQuote())
+            .addCommand(new CmdRemoveQuote())
             .setHelpWord("help")
             .build();
 
