@@ -105,8 +105,11 @@ public class CommandModule {
             .addCommand(new CmdRemoveTrick())
             .addCommands(Tricks.createTrickCommands().toArray(new Command[0]))
             .addCommand(new CmdShutdown())
-            .addCommand(new CmdMappings("yarnmappings", Namespaces.INSTANCE.get("yarn")))
-            .addCommand(new CmdMappings("mcpmappings", Namespaces.INSTANCE.get("mcp")))
+//          .addCommand(new CmdMappings("yarnmappings", Namespaces.INSTANCE.get("yarn")))
+//          .addCommand(new CmdMappings("mcpmappings", Namespaces.INSTANCE.get("mcp")))
+            .addCommand(new CmdAddQuote())
+            .addCommand(new CmdGetQuote())
+            .addCommand(new CmdRemoveQuote())
             .setHelpWord("help")
             .build();
 

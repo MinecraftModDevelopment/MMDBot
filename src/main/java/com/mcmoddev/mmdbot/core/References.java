@@ -63,5 +63,8 @@ public class References {
      */
     public static final String USER_JOIN_TIMES_FILE_PATH = "mmdbot_user_join_times.json";
 
+    /**
+     * The constant STARTUP_TIME.
+     */
     public static Instant STARTUP_TIME;
 }
