@@ -1,7 +1,6 @@
 package com.mcmoddev.mmdbot.modules.logging.users;
 
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.core.Utils;
 import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
 import com.mcmoddev.mmdbot.utilities.database.dao.PersistedRoles;
 import com.mcmoddev.mmdbot.utilities.database.dao.UserFirstJoins;
