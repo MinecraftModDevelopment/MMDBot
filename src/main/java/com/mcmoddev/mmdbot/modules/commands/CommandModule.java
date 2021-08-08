@@ -3,28 +3,24 @@ package com.mcmoddev.mmdbot.modules.commands;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
-import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
-import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
-import com.mcmoddev.mmdbot.modules.commands.general.fun.CmdCatFacts;
-import com.mcmoddev.mmdbot.modules.commands.general.info.CmdJustAsk;
-import com.mcmoddev.mmdbot.modules.commands.general.info.CmdPaste;
-import com.mcmoddev.mmdbot.modules.commands.general.info.CmdSearch;
-import com.mcmoddev.mmdbot.modules.commands.general.info.CmdXy;
-import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
-import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdAddQuote;
-import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdGetQuote;
-import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdRemoveQuote;
-import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdAddTrick;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdUptime;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
+import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
+import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
+import com.mcmoddev.mmdbot.modules.commands.general.fun.CmdCatFacts;
 import com.mcmoddev.mmdbot.modules.commands.general.fun.CmdGreatMoves;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdEventsHelp;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdFabricVersion;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdForgeVersion;
+import com.mcmoddev.mmdbot.modules.commands.general.info.CmdJustAsk;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdMe;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdMinecraftVersion;
+import com.mcmoddev.mmdbot.modules.commands.general.info.CmdPaste;
+import com.mcmoddev.mmdbot.modules.commands.general.info.CmdSearch;
+import com.mcmoddev.mmdbot.modules.commands.general.info.CmdXy;
+import com.mcmoddev.mmdbot.modules.commands.info.CmdMappings;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdGuild;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdReadme;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdRoles;
@@ -35,9 +31,12 @@ import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdCommunityChanne
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdMute;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdOldChannels;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUnmute;
+import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
+import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdAddTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRemoveTrick;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
+import me.shedaniel.linkie.Namespaces;
 
 /**
  * This is the main class for setting up commands before they are loaded in by the bot,
@@ -65,6 +64,8 @@ public class CommandModule {
      * Setup and load the bots command module.
      */
     public static void setupCommandModule() {
+        Namespaces.INSTANCE.init(CmdMappings.Companion.getMappings());
+
         commandClient = new CommandClientBuilder()
             .setOwnerId(MMDBot.getConfig().getOwnerID())
             .setPrefix(MMDBot.getConfig().getMainPrefix())
@@ -104,6 +105,8 @@ public class CommandModule {
             .addCommand(new CmdRemoveTrick())
             .addCommands(Tricks.createTrickCommands().toArray(new Command[0]))
             .addCommand(new CmdShutdown())
+//          .addCommand(new CmdMappings("yarnmappings", Namespaces.INSTANCE.get("yarn")))
+//          .addCommand(new CmdMappings("mcpmappings", Namespaces.INSTANCE.get("mcp")))
             .addCommand(new CmdAddQuote())
             .addCommand(new CmdGetQuote())
             .addCommand(new CmdRemoveQuote())
@@ -112,6 +115,7 @@ public class CommandModule {
 
             if (MMDBot.getConfig().isCommandModuleEnabled()) {
                 MMDBot.getInstance().addEventListener(commandClient);
+                MMDBot.getInstance().addEventListener(CmdMappings.ButtonListener.INSTANCE);
                 MMDBot.LOGGER.warn("Command module enabled and loaded.");
             } else {
                 MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");

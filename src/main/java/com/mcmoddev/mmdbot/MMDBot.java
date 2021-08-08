@@ -1,10 +1,10 @@
 package com.mcmoddev.mmdbot;
 
 import com.mcmoddev.mmdbot.core.BotConfig;
+import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
 import com.mcmoddev.mmdbot.modules.logging.misc.MiscEvents;
-import com.mcmoddev.mmdbot.core.References;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -104,12 +104,11 @@ public final class MMDBot {
                 .disableCache(CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY)
                 .disableCache(CacheFlag.CLIENT_STATUS)
-                .disableCache(CacheFlag.ONLINE_STATUS)
                 .addEventListeners(new MiscEvents())
                 .build();
             CommandModule.setupCommandModule();
             LoggingModule.setupLoggingModule();
-        } catch (final LoginException exception) {
+		} catch (final LoginException exception) {
             MMDBot.LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.",
                 exception);
             System.exit(1);

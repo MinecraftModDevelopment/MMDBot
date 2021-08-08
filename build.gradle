@@ -7,7 +7,8 @@ plugins {
   id 'com.github.spotbugs' version '4.7.2'
   id 'checkstyle'
   id 'pmd'
-  id "org.flywaydb.flyway" version "7.12.1"
+  id 'org.flywaydb.flyway' version '7.12.1'
+  id 'org.jetbrains.kotlin.jvm' version '1.5.21'
 }
 
 mainClassName = 'com.mcmoddev.mmdbot.MMDBot'
@@ -44,7 +45,19 @@ repositories {
   }
   maven {
     name 'jda-chewtils'
-    url 'https://m2.chew.pro/releases'
+    url "https://m2.chew.pro/releases"
+  }
+  maven {
+    name 'linkie'
+    url "https://maven.shedaniel.me/"
+  }
+  maven {
+    name 'fabric'
+    url "https://maven.fabricmc.net"
+  }
+  maven {
+    name 'jitpack'
+    url "https://jitpack.io"
   }
 }
 
@@ -57,6 +70,9 @@ dependencies {
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: "${project.logback_classic_version}"
   implementation group: 'com.electronwill.night-config', name: 'toml', version: "${project.nightconfig_version}"
   implementation group: 'org.xerial', name: 'sqlite-jdbc', version: "${project.sqlite_jdbc_version}"
+  implementation group: 'me.shedaniel', name: 'linkie-core', version: "${project.linkie_version}"
+  implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: "${project.ktx_coroutines_version}"
+  implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-jdk8', version: "${project.ktx_coroutines_version}"
 
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: "${project.junit_version}"
 
