@@ -1,6 +1,8 @@
 package com.mcmoddev.mmdbot.modules.logging.users;
 
+import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.Utils;
+import com.mcmoddev.mmdbot.utilities.database.dao.PersistedRoles;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Role;
@@ -54,6 +56,7 @@ public final class EventUserJoined extends ListenerAdapter {
                         LOGGER.warn(EVENTS, "Unable to give member {} role {}: {}", member, role, ex.getMessage());
                     }
                 }
+                MMDBot.database().useExtension(PersistedRoles.class, persist -> persist.clear(user.getIdLong()));
             }
             final var embed = new EmbedBuilder();
             embed.setColor(Color.GREEN);

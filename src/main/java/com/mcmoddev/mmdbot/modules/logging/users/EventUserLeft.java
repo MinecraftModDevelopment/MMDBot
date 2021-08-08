@@ -1,10 +1,14 @@
 package com.mcmoddev.mmdbot.modules.logging.users;
 
+import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.Utils;
 import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
+import com.mcmoddev.mmdbot.utilities.database.dao.PersistedRoles;
+import com.mcmoddev.mmdbot.utilities.database.dao.UserFirstJoins;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
@@ -48,12 +52,15 @@ public final class EventUserLeft extends ListenerAdapter {
             List<Role> roles = null;
             if (member != null) {
                 roles = member.getRoles();
-                Utils.writeUserRoles(user.getIdLong(), roles);
+                final List<Long> roleIds = roles.stream().map(ISnowflake::getIdLong).toList();
+                MMDBot.database().useExtension(PersistedRoles.class,
+                    persist -> persist.insert(user.getIdLong(), roleIds));
             } else {
                 LOGGER.warn(MMDMarkers.EVENTS, "Could not get roles of leaving user {}", user);
             }
             if (member != null) {
-                Utils.writeUserJoinTimes(user.getId(), member.getTimeJoined().toInstant());
+                MMDBot.database().useExtension(UserFirstJoins.class,
+                    joins -> joins.insert(user.getIdLong(), member.getTimeJoined().toInstant()));
             }
 
             deleteRecentRequests(guild, user);

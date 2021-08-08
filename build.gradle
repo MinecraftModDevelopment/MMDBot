@@ -73,6 +73,9 @@ dependencies {
   implementation group: 'me.shedaniel', name: 'linkie-core', version: "${project.linkie_version}"
   implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: "${project.ktx_coroutines_version}"
   implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-jdk8', version: "${project.ktx_coroutines_version}"
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: "${project.flyway_version}"
+  implementation group: 'org.jdbi', name: 'jdbi3-core', version: "${project.jdbi_version}"
+  implementation group: 'org.jdbi', name: 'jdbi3-sqlobject', version: "${project.jdbi_version}"
 
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: "${project.junit_version}"
 

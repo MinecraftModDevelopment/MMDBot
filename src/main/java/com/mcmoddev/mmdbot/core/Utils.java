@@ -1,10 +1,10 @@
 package com.mcmoddev.mmdbot.core;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.utilities.database.dao.PersistedRoles;
+import com.mcmoddev.mmdbot.utilities.database.dao.UserFirstJoins;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -16,22 +16,11 @@ import net.dv8tion.jda.api.entities.TextChannel;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -191,100 +180,10 @@ public final class Utils {
      */
     @Nonnull
     public static List<Role> getOldUserRoles(final Guild guild, final Long userID) {
-        final Map<String, List<String>> roles = getUserToRoleMap();
-        if (!roles.containsKey(userID.toString())) {
-            return Collections.emptyList();
-        }
-
-        return roles.get(userID.toString()).stream().map(guild::getRoleById).collect(Collectors.toList());
-    }
-
-    /**
-     * Saves the roles and a user ID to a file so that if the user comes back in the future we can re-apply
-     * the roles rather than have them go through the role-request channel again.
-     * Saves us Moderators some time.
-     *
-     * @param userID The user ID of the user leaving the guild.
-     * @param roles  The roles the user had before they left.
-     */
-    public static void writeUserRoles(final Long userID, final List<Role> roles) {
-        final var roleFile = new File(References.STICKY_ROLES_FILE_PATH);
-        final Map<String, List<String>> userToRoleMap = getUserToRoleMap();
-        userToRoleMap.put(userID.toString(), roles.stream().map(ISnowflake::getId).collect(Collectors.toList()));
-        try (var writer = new OutputStreamWriter(new FileOutputStream(roleFile), StandardCharsets.UTF_8)) {
-            new Gson().toJson(userToRoleMap, writer);
-        } catch (final FileNotFoundException exception) {
-            MMDBot.LOGGER.error("An FileNotFound occurred saving sticky roles...", exception);
-            exception.printStackTrace();
-        } catch (final IOException exception) {
-            MMDBot.LOGGER.error("An IOException occurred saving sticky roles...", exception);
-            exception.printStackTrace();
-        }
-    }
-
-    /**
-     * Gets user to role map.
-     *
-     * @return Map. user to role map
-     */
-    @Nonnull
-    public static Map<String, List<String>> getUserToRoleMap() {
-        final var roleFile = new File(References.STICKY_ROLES_FILE_PATH);
-        if (!roleFile.exists()) {
-            return new HashMap<>();
-        }
-        try (var reader = new InputStreamReader(new FileInputStream(roleFile), StandardCharsets.UTF_8)) {
-            final var typeOfHashMap = new TypeToken<Map<String, List<String>>>() {
-            }.getType();
-            return new Gson().fromJson(reader, typeOfHashMap);
-        } catch (final IOException exception) {
-            MMDBot.LOGGER.trace("Failed to read sticky roles file...", exception);
-            exception.printStackTrace();
-        }
-        return new HashMap<>();
-    }
-
-    /**
-     * Write the users join time to a file so that users don't loose the first join time when they leave the guild.
-     *
-     * @param userID   The users ID.
-     * @param joinTime The join time of the user.
-     */
-    public static void writeUserJoinTimes(final String userID, final Instant joinTime) {
-        final var userJoinTimesFile = new File(References.USER_JOIN_TIMES_FILE_PATH);
-        final Map<String, Instant> userJoinTimes = getUserJoinTimeMap();
-        userJoinTimes.put(userID, joinTime);
-        try (var writer = new OutputStreamWriter(new FileOutputStream(userJoinTimesFile), StandardCharsets.UTF_8)) {
-            new Gson().toJson(userJoinTimes, writer);
-        } catch (final FileNotFoundException exception) {
-            MMDBot.LOGGER.error("An FileNotFound occurred saving user join times...", exception);
-            exception.printStackTrace();
-        } catch (final IOException exception) {
-            MMDBot.LOGGER.error("An IOException occurred saving user join times...", exception);
-            exception.printStackTrace();
-        }
-    }
-
-    /**
-     * Gets user join time map.
-     *
-     * @return Map. user join time map
-     */
-    @Nonnull
-    public static Map<String, Instant> getUserJoinTimeMap() {
-        final var joinTimesFile = new File(References.USER_JOIN_TIMES_FILE_PATH);
-        if (!joinTimesFile.exists()) {
-            return new HashMap<>();
-        }
-        try (var reader = new InputStreamReader(new FileInputStream(joinTimesFile), StandardCharsets.UTF_8)) {
-            final var typeOfHashMap = new TypeToken<Map<String, Instant>>() {
-            }.getType();
-            return new Gson().fromJson(reader, typeOfHashMap);
-        } catch (final IOException exception) {
-            MMDBot.LOGGER.trace("Failed to read user join times file...", exception);
-            exception.printStackTrace();
-        }
-        return new HashMap<>();
+        return MMDBot.database().withExtension(PersistedRoles.class, roles -> roles.getRoles(userID))
+            .stream()
+            .map(guild::getRoleById)
+            .toList();
     }
 
     /**
@@ -294,11 +193,8 @@ public final class Utils {
      * @return The users join time.
      */
     public static Instant getMemberJoinTime(final Member member) {
-        final Map<String, Instant> userJoinTimes = getUserJoinTimeMap();
-        final String memberID = member.getId();
-        return userJoinTimes.containsKey(memberID)
-            ? userJoinTimes.get(memberID)
-            : member.getTimeJoined().toInstant();
+        return MMDBot.database().withExtension(UserFirstJoins.class, joins -> joins.get(member.getIdLong()))
+            .orElse(member.getTimeJoined().toInstant());
     }
 
     /**
