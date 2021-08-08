@@ -18,7 +18,7 @@ import java.util.*
 
 class CmdMappings(name: String, private val namespace: Namespace, vararg aliases: String?) : Command() {
     init {
-        this.name = name.toLowerCase(Locale.ROOT)
+        this.name = name.lowercase(Locale.ROOT)
         this.aliases = aliases
         help = "Search for something using $name."
     }
