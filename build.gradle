@@ -1,7 +1,7 @@
 plugins {
   id 'application'
   id 'com.github.johnrengelman.shadow' version '6.1.0'
-  id 'maven'
+//id 'maven'
   id 'eclipse'
   id 'idea'
   id 'com.github.spotbugs' version '4.7.2'
@@ -15,14 +15,14 @@ mainClassName = 'com.mcmoddev.mmdbot.MMDBot'
 group 'com.mcmoddev'
 version project.bot_version
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(11)
+java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 application {
     mainClass = 'com.mcmoddev.mmdbot.MMDBot'
 }
 
 compileJava {
-  sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
+  sourceCompatibility = targetCompatibility = JavaVersion.VERSION_16
   options.encoding = 'UTF-8'
 }
 
