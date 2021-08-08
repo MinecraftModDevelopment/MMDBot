@@ -45,19 +45,19 @@ repositories {
   }
   maven {
     name 'jda-chewtils'
-    url "https://m2.chew.pro/releases"
+    url 'https://m2.chew.pro/releases'
   }
   maven {
     name 'linkie'
-    url "https://maven.shedaniel.me/"
+    url 'https://maven.shedaniel.me/'
   }
   maven {
     name 'fabric'
-    url "https://maven.fabricmc.net"
+    url 'https://maven.fabricmc.net'
   }
   maven {
     name 'jitpack'
-    url "https://jitpack.io"
+    url 'https://jitpack.io'
   }
 }
 
