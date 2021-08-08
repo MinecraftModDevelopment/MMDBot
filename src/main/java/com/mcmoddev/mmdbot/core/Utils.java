@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -183,6 +184,7 @@ public final class Utils {
         return MMDBot.database().withExtension(PersistedRoles.class, roles -> roles.getRoles(userID))
             .stream()
             .map(guild::getRoleById)
+            .filter(Objects::nonNull)
             .toList();
     }
 
