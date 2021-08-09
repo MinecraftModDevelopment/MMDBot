@@ -50,9 +50,9 @@ public class DatabaseManager {
     }
 
     /**
-     * Constructs a {@code DatabaseManager} using the provided data source. {@link Flyway#migrate()} Flyway migration}
-     * is invoked on the database. Note that the databases connection returned by the data source must not require any
-     * username or password to connect.
+     * Constructs a {@code DatabaseManager} using the provided data source. {@linkplain Flyway#migrate() Flyway
+     * migration} is invoked on the database. Note that the databases connection returned by the data source must not
+     * require any username or password to connect.
      *
      * @param dataSource the SQL data source
      */
