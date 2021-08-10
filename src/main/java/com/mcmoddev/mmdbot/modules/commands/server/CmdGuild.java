@@ -28,7 +28,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import java.awt.Color;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Locale;
 
 /**
@@ -74,8 +75,8 @@ public final class CmdGuild extends Command {
         embed.addField("Role count:", Long.toString(guild.getRoleCache().size()), true);
         embed.addField("Date created:", new SimpleDateFormat("yyyy/MM/dd HH:mm",
             Locale.ENGLISH).format(dateGuildCreated.toEpochMilli()), true);
-        embed.addField("Guilds age:", Utils.getTimeDifference(Utils.getLocalTime(dateGuildCreated),
-            LocalDateTime.now()), true);
+        embed.addField("Guilds age:", Utils.getTimeDifference(Utils.getTimeFromUTC(dateGuildCreated),
+            OffsetDateTime.now(ZoneOffset.UTC)), true);
         embed.setTimestamp(Instant.now());
         channel.sendMessageEmbeds(embed.build()).queue();
     }

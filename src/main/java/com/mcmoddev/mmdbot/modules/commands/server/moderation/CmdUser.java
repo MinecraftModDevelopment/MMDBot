@@ -29,7 +29,8 @@ import net.dv8tion.jda.api.entities.Member;
 import java.awt.Color;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Locale;
 
 /**
@@ -98,8 +99,8 @@ public class CmdUser extends Command {
         final var date = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH);
         embed.addField("Joined Discord:", date.format(dateJoinedDiscord.toEpochMilli()), true);
         embed.addField("Joined MMD:", date.format(dateJoinedMMD.toEpochMilli()), true);
-        embed.addField("Member for:", Utils.getTimeDifference(Utils.getLocalTime(dateJoinedMMD),
-            LocalDateTime.now()), true);
+        embed.addField("Member for:", Utils.getTimeDifference(Utils.getTimeFromUTC(dateJoinedMMD),
+            OffsetDateTime.now(ZoneOffset.UTC)), true);
         embed.setTimestamp(Instant.now());
 
         return embed;

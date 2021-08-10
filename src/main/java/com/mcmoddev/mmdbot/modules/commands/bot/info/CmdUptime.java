@@ -28,7 +28,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.Color;
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 /**
  * The type Cmd uptime.
@@ -59,9 +60,8 @@ public class CmdUptime extends Command {
 
         embed.setTitle("Time spent online.");
         embed.setColor(Color.GREEN);
-        //TODO Fix utils that handle time to show hours and minuets too.
-        embed.addField("I've been online for: ", Utils.getTimeDifference(Utils.getLocalTime(
-            References.STARTUP_TIME), LocalDateTime.now()), false);
+        embed.addField("I've been online for: ", Utils.getTimeDifference(Utils.getTimeFromUTC(
+            References.STARTUP_TIME), OffsetDateTime.now(ZoneOffset.UTC)), false);
         embed.setTimestamp(Instant.now());
         channel.sendMessageEmbeds(embed.build()).queue();
     }

@@ -38,8 +38,8 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
@@ -85,14 +85,14 @@ public final class Utils {
     }
 
     /**
-     * Borrowed from Darkhax's BotBase, all credit for the below methods go to him.
-     * The Bot Base repo and code is now deleted if you need it for reference Proxy has a copy. Dark may also have one.
+     * Get the OffsetDateTime from an Instant value, relative to UTC+0 / GMT+0.
+     * Overtakes the last system which used LocalDateTime and caused issues with the database.
      *
      * @param instant the instant
-     * @return LocalDateTime. local time
+     * @return OffsetDateTime. Offset from UTC+0.
      */
-    public static LocalDateTime getLocalTime(final Instant instant) {
-        return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+    public static OffsetDateTime getTimeFromUTC(final Instant instant) {
+        return OffsetDateTime.ofInstant(instant, ZoneOffset.UTC);
     }
 
     /**
@@ -102,7 +102,7 @@ public final class Utils {
      * @param toTime   The end time.
      * @return The difference between the two times.
      */
-    public static String getTimeDifference(final LocalDateTime fromTime, final LocalDateTime toTime) {
+    public static String getTimeDifference(final OffsetDateTime fromTime, final OffsetDateTime toTime) {
         return getTimeDifference(fromTime, toTime, ChronoUnit.YEARS, ChronoUnit.MONTHS, ChronoUnit.DAYS, ChronoUnit.HOURS);
     }
 
@@ -114,10 +114,10 @@ public final class Utils {
      * @param units    the units
      * @return The difference between the two times.
      */
-    public static String getTimeDifference(final LocalDateTime fromTime, final LocalDateTime toTime,
+    public static String getTimeDifference(final OffsetDateTime fromTime, final OffsetDateTime toTime,
                                            final ChronoUnit... units) {
         final var joiner = new StringJoiner(", ");
-        var temp = LocalDateTime.from(fromTime);
+        var temp = OffsetDateTime.from(fromTime);
         for (final ChronoUnit unit : units) {
             final long time = temp.until(toTime, unit);
             if (time > 0) {
