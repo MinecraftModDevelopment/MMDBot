@@ -50,7 +50,7 @@ public final class CmdAbout extends Command {
         embed.addField("Version:", References.VERSION, true);
         embed.addField("Issue Tracker:", Utils.makeHyperlink("MMDBot's Github", References.ISSUE_TRACKER),
             true);
-        embed.addField("Current maintainers:", "jriwanek, WillBL, ProxyNeko, sciwhiz12, Antoine Gagnon, Curle",
+        embed.addField("Current maintainers:", "jriwanek, WillBL, ProxyNeko, sciwhiz12, Poke, Curle",
             true);
         embed.setTimestamp(Instant.now());
         channel.sendMessageEmbeds(embed.build()).queue();
