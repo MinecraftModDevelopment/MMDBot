@@ -91,16 +91,14 @@ public final class CmdGetQuote extends Command {
             }
         }
 
-        // Get a random quote.
-        int limit = QuoteList.getQuoteSlot() - 1;
-        int index = new Random().nextInt(limit);
-        Quote fetched = QuoteList.getQuote(index);
-
-        // Check if the quote exists.
-        if (fetched == null) {
-            // Send the standard message
-            channel.sendMessageEmbeds(QuoteList.getQuoteNotPresent()).queue();
-            return;
+        Quote fetched = null;
+        // Find a valid quote.
+        while (fetched == null) {
+            // Get a random quote.
+            int limit = QuoteList.getQuoteSlot();
+            int index = new Random().nextInt(limit);
+            // If the next quote is null, we loop back and try again.
+            fetched = QuoteList.getQuote(index);
         }
 
         // It exists, so get the content and send it.

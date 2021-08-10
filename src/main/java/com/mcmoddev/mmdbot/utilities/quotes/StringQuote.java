@@ -66,7 +66,6 @@ public final class StringQuote extends Quote {
     @Override
     public MessageEmbed getQuoteMessage() {
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setAuthor(References.NAME, MMDBot.getInstance().getSelfUser().getAvatarUrl());
         builder.setTitle("Quote " + this.getID());
         builder.setColor(Color.GREEN);
         builder.addField("Content", this.getData(), false);
@@ -75,8 +74,16 @@ public final class StringQuote extends Quote {
         UserReference quotee = this.getQuotee();
         switch (quotee.getReferenceType()) {
             case SNOWFLAKE:
-                UserById user = new UserById(quotee.getSnowflakeData());
-                builder.addField("Author", user.getAsMention(), false);
+                // Try to find the user's data in a server
+                User user = MMDBot.getInstance().getUserById(quotee.getSnowflakeData());
+                // If we have it...
+                if (user != null) {
+                    // Use it
+                    builder.addField("Author", user.getAsTag(), false);
+                } else {
+                    // Otherwise, fall back to the snowflake.
+                    builder.addField("Author", Long.toString(quotee.getSnowflakeData()), false);
+                }
                 break;
             case STRING:
                 builder.addField("Author", quotee.getStringData(), false);
