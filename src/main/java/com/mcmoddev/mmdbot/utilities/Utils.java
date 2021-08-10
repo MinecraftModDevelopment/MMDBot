@@ -103,7 +103,7 @@ public final class Utils {
      * @return The difference between the two times.
      */
     public static String getTimeDifference(final LocalDateTime fromTime, final LocalDateTime toTime) {
-        return getTimeDifference(fromTime, toTime, ChronoUnit.YEARS, ChronoUnit.MONTHS, ChronoUnit.DAYS);
+        return getTimeDifference(fromTime, toTime, ChronoUnit.YEARS, ChronoUnit.MONTHS, ChronoUnit.DAYS, ChronoUnit.HOURS);
     }
 
     /**
@@ -127,6 +127,12 @@ public final class Utils {
                     - 1) : unitName));
             }
         }
+
+        if (joiner.length() == 0) {
+            // No valid representation found.
+            joiner.add("a very short amount of time.");
+        }
+
         return joiner.toString();
     }
 
