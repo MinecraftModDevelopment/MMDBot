@@ -7,7 +7,7 @@ package com.mcmoddev.mmdbot.utilities.quotes;
  * As such, it is abstract so that the data and thus getQuoteMessage() function may be undefined.
  *
  * A quote is serialized as such:
- *  {
+ * <pre>{@code {
  *      "ID": DATA,
  *      "quotee": {
  *          "type": DATA,
@@ -20,7 +20,7 @@ package com.mcmoddev.mmdbot.utilities.quotes;
  *      "content": {
  *          < HANDLED BY IMPLEMENTATION >
  *      }
- *  }
+ *  }}</pre>
  *
  * @author Curle
  */
