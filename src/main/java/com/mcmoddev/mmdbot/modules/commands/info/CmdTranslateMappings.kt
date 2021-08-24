@@ -3,7 +3,10 @@ package com.mcmoddev.mmdbot.modules.commands.info
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
 import com.mcmoddev.mmdbot.core.Utils
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.shedaniel.linkie.*
 import me.shedaniel.linkie.namespaces.MCPNamespace
 import me.shedaniel.linkie.namespaces.YarnNamespace
@@ -43,7 +46,7 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
             val originProvider = namespace1.getProvider(version)
             val targetMappings = namespace2.getProvider(version).get()
             var hasPerfectMatch = false
-            val embeds = (MappingsQuery.queryClasses(
+            var embeds = (MappingsQuery.queryClasses(
                 QueryContext(
                     originProvider,
                     query
@@ -59,7 +62,6 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
                 .map { res -> res to translate(res, targetMappings) }
                 .filter { it.second != null }
                 .mapIndexed { idx, it ->
-                    async {
                         val originalResult = it.first
                         val translation = it.second
 
@@ -68,21 +70,21 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
                             is Class -> {
                                 val value = originalResult.value as Class
                                 EmbedBuilder()
-                                    .setTitle("Class mapping for $version:")
+                                    .setTitle("$namespace1 -> $namespace2 Class mapping for $version:")
                                     .run {
                                         if (value.mappedName != null)
-                                            addField("Mapped Name", "`${value.mappedName}`", false)
+                                            addField("$namespace1 Name", "`${value.mappedName}`", false)
                                         else this
                                     }
                                     .addField("Intermediary/SRG Name", "`${value.intermediaryName}`", false)
                                     .addField("Obfuscated Name", "`${value.obfName.merged}`", false)
-                                    .addField("Translated Name", "`${translation.mappedName}`", false)
+                                    .addField("$namespace2 Name", "`${translation.mappedName}`", false)
                             }
-                            is Pair<*, *> -> {
+                            is MappingsMember -> {
                                 val value = originalResult.value as Pair<Class, MappingsMember>
                                 EmbedBuilder()
                                     .setTitle(
-                                        "${
+                                        "$namespace1 -> $namespace2 ${
                                             when (value.second) {
                                                 is Field -> "Field"
                                                 is Method -> "Method"
@@ -90,29 +92,26 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
                                             }
                                         } mapping for $version:"
                                     )
-                                    .addField("Mapped Name", "`${value.second.mappedName}`", false)
+                                    .addField("$namespace1 Name", "`${value.second.mappedName}`", false)
                                     .addField(
                                         "Intermediary/SRG Name",
                                         "`${value.second.intermediaryName}`",
                                         false
                                     )
                                     .addField("Obfuscated Name", "`${value.second.obfName.merged}`", false)
-                                    .addField("Translated Name", "`${(translation.second as MappingsMember).mappedName}`", false)
-                                    .addField(
-                                        "Member of Class",
-                                        "`${value.first.mappedName ?: value.first.intermediaryName}`",
-                                        false
-                                    )
+                                    .addField("$namespace2 Name", "`${translation.mappedName}`", false)
                             }
                             else -> {
                                 EmbedBuilder().setDescription("???")
                             }
                         }.setFooter("Page ${idx + 1} | Powered by linkie-core").build()
-                    }
                 }.iterator()
 
+            if (!embeds.hasNext()) {
+                embeds = listOf(EmbedBuilder().setTitle("$namespace1 -> $namespace2 Class mapping for $version:").setDescription("No results found.").setFooter("Powered by linkie-core").build()).iterator()
+            }
 
-            val msg = event.channel.sendMessageEmbeds(embeds.next().await()).apply {
+            val msg = event.channel.sendMessageEmbeds(embeds.next()).apply {
                 if (embeds.hasNext()) {
                     setActionRow(Button.primary("mappings-trans-next", "Next"))
                 }
@@ -154,13 +153,13 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
     }
 
     object ButtonListener : ListenerAdapter() {
-        val embedsForMessage: MutableMap<Long, Iterator<Deferred<MessageEmbed>>> = mutableMapOf()
+        val embedsForMessage: MutableMap<Long, Iterator<MessageEmbed>> = mutableMapOf()
 
         override fun onButtonClick(event: ButtonClickEvent) {
             scope.launch {
                 if (event.componentId == "mappings-trans-next") {
                     embedsForMessage[event.messageIdLong]?.let {
-                        val newEmbed = it.next().await()
+                        val newEmbed = it.next()
                         event.editMessageEmbeds(newEmbed).apply {
                             if (!it.hasNext()) {
                                 setActionRow()
