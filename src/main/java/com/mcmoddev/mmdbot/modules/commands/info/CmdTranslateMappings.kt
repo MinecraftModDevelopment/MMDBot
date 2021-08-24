@@ -126,7 +126,7 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
         }
     }
 
-    fun translate(result: ResultHolder<*>, target: MappingsContainer): Any? {
+    private fun translate(result: ResultHolder<*>, target: MappingsContainer): Any? {
         return when {
             result.value is Class -> {
                 (result.value as Class).obfMergedName?.let { target.getClassByObfName(it) }
@@ -168,12 +168,6 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
                     }
                 }
             }
-        }
-    }
-
-    private sealed class Translation {
-        private class Result : Translation() {
-
         }
     }
 }

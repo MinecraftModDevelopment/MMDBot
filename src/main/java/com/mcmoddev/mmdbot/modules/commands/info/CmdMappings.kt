@@ -42,7 +42,7 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
         scope.launch {
             val provider = namespace.getProvider(version)
             var hasPerfectMatch = false
-            val embeds = (MappingsQuery.queryClasses(
+            var embeds = (MappingsQuery.queryClasses(
                 QueryContext(
                     provider,
                     query
@@ -62,7 +62,7 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
                             is Class -> {
                                 val value = it.value as Class
                                 EmbedBuilder()
-                                    .setTitle("Yarn Class mapping for $version:")
+                                    .setTitle("$namespace Class mapping for $version:")
                                     .run {
                                         if (value.mappedName != null)
                                             addField("Mapped Name", "`${value.mappedName}`", false)
@@ -75,7 +75,7 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
                                 val value = it.value as Pair<Class, MappingsMember>
                                 EmbedBuilder()
                                     .setTitle(
-                                        "Yarn ${
+                                        "$namespace ${
                                             when (value.second) {
                                                 is Field -> "Field"
                                                 is Method -> "Method"
@@ -100,6 +100,15 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
                                         "`${value.second.getMappedDesc(provider.get())}`",
                                         false
                                     )
+                                    .addField(
+                                        "Mixin Target",
+                                        "`L${value.first.optimumName};${value.second.optimumName}:${
+                                            value.second.getMappedDesc(
+                                                provider.get()
+                                            )
+                                        }`",
+                                        false
+                                    )
                             }
                             else -> {
                                 EmbedBuilder().setDescription("???")
@@ -107,6 +116,10 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
                         }.setFooter("Page ${idx + 1} | Powered by linkie-core").build()
                     }
                 }.iterator()
+
+            if (!embeds.hasNext()) {
+                embeds = listOf(async { EmbedBuilder().setTitle("$namespace mapping for $version:").setDescription("No results found.").setFooter("Powered by linkie-core").build() }).iterator()
+            }
 
             val msg = event.channel.sendMessageEmbeds(embeds.next().await()).apply {
                 if (embeds.hasNext()) {
