@@ -150,6 +150,16 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
     companion object {
         val mappings = LinkieConfig.DEFAULT.copy(namespaces = listOf(YarnNamespace, MCPNamespace))
         val scope = CoroutineScope(Dispatchers.Default)
+
+        @JvmStatic
+        fun createCommands(): Array<CmdTranslateMappings> = arrayOf(
+            CmdTranslateMappings("yarnmojmap", YarnNamespace, MojangNamespace, "ymm"),
+            CmdTranslateMappings("mcpmojmap", MCPNamespace, MojangNamespace, "mcpmm"),
+            CmdTranslateMappings("mcpyarn", MCPNamespace, YarnNamespace, "mcpy", "dvf"),
+            CmdTranslateMappings("yarnmcp", YarnNamespace, MCPNamespace, "ymcp", "vf"),
+            CmdTranslateMappings("mojmapyarn", MojangNamespace, YarnNamespace, "mmy"),
+            CmdTranslateMappings("mojmapmcp", MojangNamespace, MCPNamespace, "mmmcp")
+        )
     }
 
     object ButtonListener : ListenerAdapter() {

@@ -139,6 +139,13 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
     companion object {
         val mappings = LinkieConfig.DEFAULT.copy(namespaces = listOf(YarnNamespace, MCPNamespace, MojangNamespace))
         val scope = CoroutineScope(Dispatchers.Default)
+
+        @JvmStatic
+        fun createCommands(): Array<CmdMappings> = arrayOf(
+            CmdMappings("yarn", YarnNamespace, "y"),
+            CmdMappings("mcp", MCPNamespace, "mcp"),
+            CmdMappings("mojmap", MojangNamespace, "mm")
+        )
     }
 
     object ButtonListener : ListenerAdapter() {

@@ -23,7 +23,7 @@ public final class CmdFabricVersion extends Command {
     public CmdFabricVersion() {
         super();
         this.name = "fabric";
-        aliases = new String[]{"fabricv", "yarn"};
+        aliases = new String[]{"fabricv"};
         help = "Get the latest Fabric versions";
     }
 

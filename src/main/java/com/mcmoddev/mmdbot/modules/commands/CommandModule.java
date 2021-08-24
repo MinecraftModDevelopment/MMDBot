@@ -41,8 +41,6 @@ import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRemoveTrick;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import me.shedaniel.linkie.Namespaces;
-import me.shedaniel.linkie.namespaces.MojangNamespace;
-import me.shedaniel.linkie.namespaces.YarnNamespace;
 
 /**
  * This is the main class for setting up commands before they are loaded in by the bot,
@@ -111,9 +109,8 @@ public class CommandModule {
             .addCommand(new CmdRemoveTrick())
             .addCommands(Tricks.createTrickCommands().toArray(new Command[0]))
             .addCommand(new CmdShutdown())
-            .addCommand(new CmdMappings("yarnmappings", Namespaces.INSTANCE.get("yarn")))
-            .addCommand(new CmdMappings("mcpmappings", Namespaces.INSTANCE.get("mcp")))
-            .addCommand(new CmdTranslateMappings("ymm", YarnNamespace.INSTANCE, MojangNamespace.INSTANCE))
+            .addCommands(CmdMappings.createCommands())
+            .addCommands(CmdTranslateMappings.createCommands())
             .addCommand(new CmdAddQuote())
             .addCommand(new CmdGetQuote())
             .addCommand(new CmdRemoveQuote())
