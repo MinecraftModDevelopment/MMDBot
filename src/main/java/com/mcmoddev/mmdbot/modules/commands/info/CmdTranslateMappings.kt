@@ -6,10 +6,10 @@ import com.mcmoddev.mmdbot.core.Utils
 import kotlinx.coroutines.*
 import me.shedaniel.linkie.*
 import me.shedaniel.linkie.namespaces.MCPNamespace
-import me.shedaniel.linkie.namespaces.MojangNamespace
 import me.shedaniel.linkie.namespaces.YarnNamespace
 import me.shedaniel.linkie.utils.MappingsQuery
 import me.shedaniel.linkie.utils.QueryContext
+import me.shedaniel.linkie.utils.ResultHolder
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
@@ -17,11 +17,11 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.interactions.components.Button
 import java.util.*
 
-class CmdMappings(name: String, private val namespace: Namespace, vararg aliases: String?) : Command() {
+class CmdTranslateMappings(name: String, private val namespace1: Namespace, private val namespace2: Namespace, vararg aliases: String?) : Command() {
     init {
         this.name = name.lowercase(Locale.ROOT)
         this.aliases = aliases
-        help = "Search for something using $name."
+        help = "Turn $namespace1 into $namespace2"
     }
 
     /**
@@ -37,32 +37,38 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
         val args = event.args.split(' ');
 
         val query = args[0];
-        val version = args.getOrElse(1) { namespace.getDefaultVersion() }
+        val version = args.getOrElse(1) { namespace1.getDefaultVersion() }
 
         scope.launch {
-            val provider = namespace.getProvider(version)
+            val originProvider = namespace1.getProvider(version)
+            val targetMappings = namespace2.getProvider(version).get()
             var hasPerfectMatch = false
             val embeds = (MappingsQuery.queryClasses(
                 QueryContext(
-                    provider,
+                    originProvider,
                     query
                 )
             ).value.asSequence() + MappingsQuery.queryMember(
-                QueryContext(provider, query)
+                QueryContext(originProvider, query)
             ) { it.members.asSequence() }.value.asSequence())
                 .sortedBy { it.score }
                 .also { seq ->
                     hasPerfectMatch = hasPerfectMatch || seq.any { it.score == 1.0 }
                 }
                 .filter { if (hasPerfectMatch) it.score == 1.0 else true }
+                .map { res -> res to translate(res, targetMappings) }
+                .filter { it.second != null }
                 .mapIndexed { idx, it ->
                     async {
+                        val originalResult = it.first
+                        val translation = it.second
+
                         @Suppress("UNCHECKED_CAST")
-                        when (it.value) {
+                        when (translation) {
                             is Class -> {
-                                val value = it.value as Class
+                                val value = originalResult.value as Class
                                 EmbedBuilder()
-                                    .setTitle("Yarn Class mapping for $version:")
+                                    .setTitle("Class mapping for $version:")
                                     .run {
                                         if (value.mappedName != null)
                                             addField("Mapped Name", "`${value.mappedName}`", false)
@@ -70,12 +76,13 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
                                     }
                                     .addField("Intermediary/SRG Name", "`${value.intermediaryName}`", false)
                                     .addField("Obfuscated Name", "`${value.obfName.merged}`", false)
+                                    .addField("Translated Name", "`${translation.mappedName}`", false)
                             }
                             is Pair<*, *> -> {
-                                val value = it.value as Pair<Class, MappingsMember>
+                                val value = originalResult.value as Pair<Class, MappingsMember>
                                 EmbedBuilder()
                                     .setTitle(
-                                        "Yarn ${
+                                        "${
                                             when (value.second) {
                                                 is Field -> "Field"
                                                 is Method -> "Method"
@@ -90,14 +97,10 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
                                         false
                                     )
                                     .addField("Obfuscated Name", "`${value.second.obfName.merged}`", false)
+                                    .addField("Translated Name", "`${(translation.second as MappingsMember).mappedName}`", false)
                                     .addField(
                                         "Member of Class",
                                         "`${value.first.mappedName ?: value.first.intermediaryName}`",
-                                        false
-                                    )
-                                    .addField(
-                                        "Descriptor",
-                                        "`${value.second.getMappedDesc(provider.get())}`",
                                         false
                                     )
                             }
@@ -108,9 +111,10 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
                     }
                 }.iterator()
 
+
             val msg = event.channel.sendMessageEmbeds(embeds.next().await()).apply {
                 if (embeds.hasNext()) {
-                    setActionRow(Button.primary("mappings-next", "Next"))
+                    setActionRow(Button.primary("mappings-trans-next", "Next"))
                 }
             }.complete()
 
@@ -123,8 +127,29 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
         }
     }
 
+    fun translate(result: ResultHolder<*>, target: MappingsContainer): Any? {
+        return when {
+            result.value is Class -> {
+                (result.value as Class).obfMergedName?.let { target.getClassByObfName(it) }
+            }
+            result.value is Pair<*, *> && (result.value as Pair<*, *>).second is Field -> {
+                val parent = (result.value as Pair<*, *>).first as Class
+                val member = (result.value as Pair<*, *>).second as Field
+
+                member.obfMergedName?.let { memberName -> parent.obfMergedName?.let { className -> target.getClassByObfName(className)?.getFieldByObfName(memberName) } }
+            }
+            result.value is Pair<*, *> && (result.value as Pair<*, *>).second is Method -> {
+                val parent = (result.value as Pair<*, *>).first as Class
+                val member = (result.value as Pair<*, *>).second as Method
+
+                member.obfMergedName?.let { memberName -> parent.obfMergedName?.let { className -> target.getClassByObfName(className)?.getMethodByObfName(memberName) } }
+            }
+            else -> null
+        }
+    }
+
     companion object {
-        val mappings = LinkieConfig.DEFAULT.copy(namespaces = listOf(YarnNamespace, MCPNamespace, MojangNamespace))
+        val mappings = LinkieConfig.DEFAULT.copy(namespaces = listOf(YarnNamespace, MCPNamespace))
         val scope = CoroutineScope(Dispatchers.Default)
     }
 
@@ -133,7 +158,7 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
 
         override fun onButtonClick(event: ButtonClickEvent) {
             scope.launch {
-                if (event.componentId == "mappings-next") {
+                if (event.componentId == "mappings-trans-next") {
                     embedsForMessage[event.messageIdLong]?.let {
                         val newEmbed = it.next().await()
                         event.editMessageEmbeds(newEmbed).apply {
@@ -144,6 +169,12 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
                     }
                 }
             }
+        }
+    }
+
+    private sealed class Translation {
+        private class Result : Translation() {
+
         }
     }
 }

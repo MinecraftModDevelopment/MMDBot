@@ -21,6 +21,7 @@ import com.mcmoddev.mmdbot.modules.commands.general.info.CmdPaste;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdSearch;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdXy;
 import com.mcmoddev.mmdbot.modules.commands.info.CmdMappings;
+import com.mcmoddev.mmdbot.modules.commands.info.CmdTranslateMappings;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdGuild;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdReadme;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdRoles;
@@ -40,6 +41,8 @@ import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRemoveTrick;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import me.shedaniel.linkie.Namespaces;
+import me.shedaniel.linkie.namespaces.MojangNamespace;
+import me.shedaniel.linkie.namespaces.YarnNamespace;
 
 /**
  * This is the main class for setting up commands before they are loaded in by the bot,
@@ -110,6 +113,7 @@ public class CommandModule {
             .addCommand(new CmdShutdown())
 //          .addCommand(new CmdMappings("yarnmappings", Namespaces.INSTANCE.get("yarn")))
 //          .addCommand(new CmdMappings("mcpmappings", Namespaces.INSTANCE.get("mcp")))
+            .addCommand(new CmdTranslateMappings("ymm", YarnNamespace.INSTANCE, MojangNamespace.INSTANCE))
             .addCommand(new CmdAddQuote())
             .addCommand(new CmdGetQuote())
             .addCommand(new CmdRemoveQuote())
@@ -119,6 +123,7 @@ public class CommandModule {
             if (MMDBot.getConfig().isCommandModuleEnabled()) {
                 MMDBot.getInstance().addEventListener(commandClient);
                 MMDBot.getInstance().addEventListener(CmdMappings.ButtonListener.INSTANCE);
+                MMDBot.getInstance().addEventListener(CmdTranslateMappings.ButtonListener.INSTANCE);
                 MMDBot.LOGGER.warn("Command module enabled and loaded.");
             } else {
                 MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");
