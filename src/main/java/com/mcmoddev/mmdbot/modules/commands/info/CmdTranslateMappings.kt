@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.interactions.components.Button
+import java.awt.Color
 import java.util.*
 
 class CmdTranslateMappings(name: String, private val namespace1: Namespace, private val namespace2: Namespace, vararg aliases: String?) : Command() {
@@ -153,7 +154,6 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
     }
 
     companion object {
-        val mappings = LinkieConfig.DEFAULT.copy(namespaces = listOf(YarnNamespace, MCPNamespace))
         val scope = CoroutineScope(Dispatchers.Default)
 
         @JvmStatic
@@ -177,7 +177,7 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
                         val newEmbed = it.next()
                         event.editMessageEmbeds(newEmbed).apply {
                             if (!it.hasNext()) {
-                                setActionRow()
+                                setActionRows()
                             }
                         }.queue()
                     }

@@ -158,7 +158,7 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
                         val newEmbed = it.next().await()
                         event.editMessageEmbeds(newEmbed).apply {
                             if (!it.hasNext()) {
-                                setActionRow()
+                                setActionRows()
                             }
                         }.queue()
                     }
