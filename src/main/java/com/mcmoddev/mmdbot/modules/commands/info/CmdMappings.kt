@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.interactions.components.Button
+import java.awt.Color
 import java.util.*
 
 class CmdMappings(name: String, private val namespace: Namespace, vararg aliases: String?) : Command() {
@@ -118,7 +119,13 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
                 }.iterator()
 
             if (!embeds.hasNext()) {
-                embeds = listOf(async { EmbedBuilder().setTitle("$namespace mapping for $version:").setDescription("No results found.").setFooter("Powered by linkie-core").build() }).iterator()
+                embeds = listOf(async { EmbedBuilder()
+                    .setTitle("$namespace mapping for $version:")
+                    .setDescription("No results found.")
+                    .setFooter("Powered by linkie-core")
+                    .setColor(Color.RED)
+                    .build()
+                }).iterator()
             }
 
             val msg = event.channel.sendMessageEmbeds(embeds.next().await()).apply {

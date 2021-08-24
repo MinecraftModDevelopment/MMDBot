@@ -114,7 +114,13 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
                 }.iterator()
 
             if (!embeds.hasNext()) {
-                embeds = listOf(EmbedBuilder().setTitle("$namespace1 -> $namespace2 Class mapping for $version:").setDescription("No results found.").setFooter("Powered by linkie-core").build()).iterator()
+                embeds = listOf(EmbedBuilder()
+                    .setTitle("$namespace1 -> $namespace2 Class mapping for $version:")
+                        .setDescription("No results found.")
+                    .setFooter("Powered by linkie-core")
+                    .setColor(Color.RED)
+                    .build()
+                ).iterator()
             }
 
             val msg = event.channel.sendMessageEmbeds(embeds.next()).apply {
