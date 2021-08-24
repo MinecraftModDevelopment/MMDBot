@@ -138,20 +138,31 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
         }
     }
 
-    private fun translate(result: ResultHolder<*>, target: MappingsContainer): Any? {
+    /**
+     * Translates a mapped class, field, or member, [original], to the [target] mappings.
+     *
+     * If [original] is a `ResultHolder<T>`, then the method will return `T?`. Unfortunately this cannot be expressed
+     * in the code.
+     *
+     * @param original the thing to be translated.
+     * @param target the target mappings.
+     *
+     * @return the translated [Class], [Field], or [Method], or null if none was found.
+     */
+    private fun translate(original: ResultHolder<*>, target: MappingsContainer): Any? {
         return when {
-            result.value is Class -> {
-                (result.value as Class).obfMergedName?.let { target.getClassByObfName(it) }
+            original.value is Class -> {
+                (original.value as Class).obfMergedName?.let { target.getClassByObfName(it) }
             }
-            result.value is Pair<*, *> && (result.value as Pair<*, *>).second is Field -> {
-                val parent = (result.value as Pair<*, *>).first as Class
-                val member = (result.value as Pair<*, *>).second as Field
+            original.value is Pair<*, *> && (original.value as Pair<*, *>).second is Field -> {
+                val parent = (original.value as Pair<*, *>).first as Class
+                val member = (original.value as Pair<*, *>).second as Field
 
                 member.obfMergedName?.let { memberName -> parent.obfMergedName?.let { className -> target.getClassByObfName(className)?.getFieldByObfName(memberName) } }
             }
-            result.value is Pair<*, *> && (result.value as Pair<*, *>).second is Method -> {
-                val parent = (result.value as Pair<*, *>).first as Class
-                val member = (result.value as Pair<*, *>).second as Method
+            original.value is Pair<*, *> && (original.value as Pair<*, *>).second is Method -> {
+                val parent = (original.value as Pair<*, *>).first as Class
+                val member = (original.value as Pair<*, *>).second as Method
 
                 member.obfMergedName?.let { memberName -> parent.obfMergedName?.let { className -> target.getClassByObfName(className)?.getMethodByObfName(memberName) } }
             }
