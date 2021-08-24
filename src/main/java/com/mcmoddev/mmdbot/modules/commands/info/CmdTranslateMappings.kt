@@ -9,10 +9,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.shedaniel.linkie.*
 import me.shedaniel.linkie.namespaces.MCPNamespace
+import me.shedaniel.linkie.namespaces.MojangNamespace
 import me.shedaniel.linkie.namespaces.YarnNamespace
 import me.shedaniel.linkie.utils.MappingsQuery
 import me.shedaniel.linkie.utils.QueryContext
 import me.shedaniel.linkie.utils.ResultHolder
+import me.shedaniel.linkie.utils.tryToVersion
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
@@ -40,7 +42,10 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
         val args = event.args.split(' ');
 
         val query = args[0];
-        val version = args.getOrElse(1) { namespace1.getDefaultVersion() }
+        val version = args.getOrElse(1) {
+            val namespace2Versions = namespace2.getAllVersions().toSet()
+            namespace1.getAllVersions().filter { version -> namespace2Versions.contains(version) }.maxWithOrNull(nullsFirst(compareBy { it.tryToVersion() }))!!
+        }
 
         scope.launch {
             val originProvider = namespace1.getProvider(version)
@@ -78,7 +83,7 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
                                     }
                                     .addField("Intermediary/SRG Name", "`${value.intermediaryName}`", false)
                                     .addField("Obfuscated Name", "`${value.obfName.merged}`", false)
-                                    .addField("$namespace2 Name", "`${translation.mappedName}`", false)
+                                    .addField("$namespace2 Name", "`${translation.optimumName}`", false)
                             }
                             is MappingsMember -> {
                                 val value = originalResult.value as Pair<Class, MappingsMember>
@@ -99,7 +104,7 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
                                         false
                                     )
                                     .addField("Obfuscated Name", "`${value.second.obfName.merged}`", false)
-                                    .addField("$namespace2 Name", "`${translation.mappedName}`", false)
+                                    .addField("$namespace2 Name", "`${translation.optimumName}`", false)
                             }
                             else -> {
                                 EmbedBuilder().setDescription("???")
