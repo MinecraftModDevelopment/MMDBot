@@ -27,7 +27,7 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
     init {
         this.name = name.lowercase(Locale.ROOT)
         this.aliases = aliases
-        help = "Turn $namespace1 into $namespace2"
+        help = "Map a name from $namespace1 to $namespace2"
     }
 
     /**

@@ -22,7 +22,7 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
     init {
         this.name = name.lowercase(Locale.ROOT)
         this.aliases = aliases
-        help = "Search for something using $name."
+        help = "Search for a mapping with $name."
     }
 
     /**
