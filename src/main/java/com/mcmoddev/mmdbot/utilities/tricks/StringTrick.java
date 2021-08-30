@@ -53,7 +53,7 @@ public class StringTrick implements Trick {
      */
     @Override
     public Message getMessage(final String[] args) {
-        return new MessageBuilder(getBody()).build();
+        return new MessageBuilder(String.format(getBody(), (Object[]) args)).build();
     }
 
     /**
