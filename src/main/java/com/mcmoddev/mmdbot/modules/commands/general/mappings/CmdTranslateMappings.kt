@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.modules.commands.info
+package com.mcmoddev.mmdbot.modules.commands.general.mappings
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
