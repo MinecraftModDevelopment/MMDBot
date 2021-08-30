@@ -9,7 +9,9 @@ import me.shedaniel.linkie.namespaces.MCPNamespace
 import me.shedaniel.linkie.namespaces.MojangNamespace
 import me.shedaniel.linkie.namespaces.YarnNamespace
 import me.shedaniel.linkie.utils.MappingsQuery
+import me.shedaniel.linkie.utils.MatchAccuracy
 import me.shedaniel.linkie.utils.QueryContext
+import me.shedaniel.linkie.utils.ResultHolder
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
@@ -40,22 +42,12 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
 
         val args = event.args.split(' ');
 
-        val query = args[0];
+        val queryString = args[0];
         val version = args.getOrElse(1) { namespace.getDefaultVersion() }
 
         scope.launch {
             val provider = namespace.getProvider(version)
-            var hasPerfectMatch = false
-            var embeds = (
-                    MappingsQuery.queryClasses(QueryContext(provider, query)).value.asSequence()
-                    +
-                    MappingsQuery.queryMember(QueryContext(provider, query)) { it.members.asSequence() }.value.asSequence()
-                )
-                .sortedBy { it.score }
-                .also { seq ->
-                    hasPerfectMatch = hasPerfectMatch || seq.any { it.score == 1.0 }
-                }
-                .filter { if (hasPerfectMatch) it.score == 1.0 else true }
+                var embeds = query(provider, queryString)
                 .mapIndexed { idx, it ->
                     async {
                         @Suppress("UNCHECKED_CAST")
@@ -153,6 +145,25 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
             CmdMappings("mcp", MCPNamespace, "mcp"),
             CmdMappings("mojmap", MojangNamespace, "mm")
         )
+
+        suspend fun query(provider: MappingsProvider, query: String): Sequence<ResultHolder<out Any>> {
+            val context = QueryContext(
+                provider,
+                query.replace(Regex("\\(\\w*\\)"), "").replace(Regex("[.#]"), "/"),
+                MatchAccuracy.Fuzzy
+            )
+
+            var hasPerfectMatch = false
+            return (
+                    MappingsQuery.queryClasses(context).value.asSequence()
+                    + MappingsQuery.queryMember(context) { it.members.asSequence() }.value.asSequence()
+                    )
+                .sortedBy { it.score }
+                .also { seq ->
+                    hasPerfectMatch = hasPerfectMatch || seq.any { it.score == 1.0 }
+                }
+                .filter { if (hasPerfectMatch) it.score == 1.0 else true }
+        }
     }
 
     object ButtonListener : ListenerAdapter() {

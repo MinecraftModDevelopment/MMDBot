@@ -11,10 +11,7 @@ import me.shedaniel.linkie.*
 import me.shedaniel.linkie.namespaces.MCPNamespace
 import me.shedaniel.linkie.namespaces.MojangNamespace
 import me.shedaniel.linkie.namespaces.YarnNamespace
-import me.shedaniel.linkie.utils.MappingsQuery
-import me.shedaniel.linkie.utils.QueryContext
-import me.shedaniel.linkie.utils.ResultHolder
-import me.shedaniel.linkie.utils.tryToVersion
+import me.shedaniel.linkie.utils.*
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
@@ -54,20 +51,7 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
         scope.launch {
             val originProvider = namespace1.getProvider(version)
             val targetMappings = namespace2.getProvider(version).get()
-            var hasPerfectMatch = false
-            var embeds = (MappingsQuery.queryClasses(
-                QueryContext(
-                    originProvider,
-                    query
-                )
-            ).value.asSequence() + MappingsQuery.queryMember(
-                QueryContext(originProvider, query)
-            ) { it.members.asSequence() }.value.asSequence())
-                .sortedBy { it.score }
-                .also { seq ->
-                    hasPerfectMatch = hasPerfectMatch || seq.any { it.score == 1.0 }
-                }
-                .filter { if (hasPerfectMatch) it.score == 1.0 else true }
+            var embeds = CmdMappings.query(originProvider, query)
                 .map { res -> res to translate(res, targetMappings) }
                 .filter { it.second != null }
                 .mapIndexed { idx, it ->
