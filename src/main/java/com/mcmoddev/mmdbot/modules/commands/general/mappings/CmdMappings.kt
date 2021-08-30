@@ -43,14 +43,11 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
         scope.launch {
             val provider = namespace.getProvider(version)
             var hasPerfectMatch = false
-            var embeds = (MappingsQuery.queryClasses(
-                QueryContext(
-                    provider,
-                    query
+            var embeds = (
+                    MappingsQuery.queryClasses(QueryContext(provider, query)).value.asSequence()
+                    +
+                    MappingsQuery.queryMember(QueryContext(provider, query)) { it.members.asSequence() }.value.asSequence()
                 )
-            ).value.asSequence() + MappingsQuery.queryMember(
-                QueryContext(provider, query)
-            ) { it.members.asSequence() }.value.asSequence())
                 .sortedBy { it.score }
                 .also { seq ->
                     hasPerfectMatch = hasPerfectMatch || seq.any { it.score == 1.0 }

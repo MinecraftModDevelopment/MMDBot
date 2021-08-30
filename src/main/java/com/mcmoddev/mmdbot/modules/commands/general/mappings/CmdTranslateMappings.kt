@@ -150,19 +150,20 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
      * @return the translated [Class], [Field], or [Method], or null if none was found.
      */
     private fun translate(original: ResultHolder<*>, target: MappingsContainer): Any? {
+        val value = original.value
         return when {
-            original.value is Class -> {
-                (original.value as Class).obfMergedName?.let { target.getClassByObfName(it) }
+            value is Class -> {
+                value.obfMergedName?.let { target.getClassByObfName(it) }
             }
-            original.value is Pair<*, *> && (original.value as Pair<*, *>).second is Field -> {
-                val parent = (original.value as Pair<*, *>).first as Class
-                val member = (original.value as Pair<*, *>).second as Field
+            value is Pair<*, *> && value.second is Field -> {
+                val parent = value.first as Class
+                val member = value.second as Field
 
                 member.obfMergedName?.let { memberName -> parent.obfMergedName?.let { className -> target.getClassByObfName(className)?.getFieldByObfName(memberName) } }
             }
-            original.value is Pair<*, *> && (original.value as Pair<*, *>).second is Method -> {
-                val parent = (original.value as Pair<*, *>).first as Class
-                val member = (original.value as Pair<*, *>).second as Method
+            value is Pair<*, *> && value.second is Method -> {
+                val parent = value.first as Class
+                val member = value.second as Method
 
                 member.obfMergedName?.let { memberName -> parent.obfMergedName?.let { className -> target.getClassByObfName(className)?.getMethodByObfName(memberName) } }
             }
