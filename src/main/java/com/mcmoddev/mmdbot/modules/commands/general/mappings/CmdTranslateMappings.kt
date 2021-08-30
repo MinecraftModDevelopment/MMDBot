@@ -51,6 +51,10 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
         scope.launch {
             val originProvider = namespace1.getProvider(version)
             val targetMappings = namespace2.getProvider(version).get()
+
+            val originMappingsName = originProvider.get().name
+            val targetMappingsName = targetMappings.name
+
             var embeds = CmdMappings.query(originProvider, query)
                 .map { res -> res to translate(res, targetMappings) }
                 .filter { it.second != null }
@@ -63,21 +67,21 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
                             is Class -> {
                                 val value = originalResult.value as Class
                                 EmbedBuilder()
-                                    .setTitle("$namespace1 -> $namespace2 Class mapping for $version:")
+                                    .setTitle("$originMappingsName -> $targetMappingsName Class mapping for $version:")
                                     .run {
                                         if (value.mappedName != null)
-                                            addField("$namespace1 Name", "`${value.mappedName}`", false)
+                                            addField("$originMappingsName Name", "`${value.mappedName}`", false)
                                         else this
                                     }
                                     .addField("Intermediary/SRG Name", "`${value.intermediaryName}`", false)
                                     .addField("Obfuscated Name", "`${value.obfName.merged}`", false)
-                                    .addField("$namespace2 Name", "`${translation.optimumName}`", false)
+                                    .addField("$targetMappingsName Name", "`${translation.optimumName}`", false)
                             }
                             is MappingsMember -> {
                                 val value = originalResult.value as Pair<Class, MappingsMember>
                                 EmbedBuilder()
                                     .setTitle(
-                                        "$namespace1 -> $namespace2 ${
+                                        "$originMappingsName -> $targetMappingsName ${
                                             when (value.second) {
                                                 is Field -> "Field"
                                                 is Method -> "Method"
@@ -85,14 +89,14 @@ class CmdTranslateMappings(name: String, private val namespace1: Namespace, priv
                                             }
                                         } mapping for $version:"
                                     )
-                                    .addField("$namespace1 Name", "`${value.second.mappedName}`", false)
+                                    .addField("$originMappingsName Name", "`${value.second.mappedName}`", false)
                                     .addField(
                                         "Intermediary/SRG Name",
                                         "`${value.second.intermediaryName}`",
                                         false
                                     )
                                     .addField("Obfuscated Name", "`${value.second.obfName.merged}`", false)
-                                    .addField("$namespace2 Name", "`${translation.optimumName}`", false)
+                                    .addField("$targetMappingsName Name", "`${translation.optimumName}`", false)
                             }
                             else -> {
                                 EmbedBuilder().setDescription("???")

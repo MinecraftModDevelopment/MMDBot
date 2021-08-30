@@ -55,7 +55,7 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
                             is Class -> {
                                 val value = it.value as Class
                                 EmbedBuilder()
-                                    .setTitle("$namespace Class mapping for $version:")
+                                    .setTitle("${provider.get().name} Class mapping for $version:")
                                     .run {
                                         if (value.mappedName != null)
                                             addField("Mapped Name", "`${value.mappedName}`", false)
@@ -68,7 +68,7 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
                                 val value = it.value as Pair<Class, MappingsMember>
                                 EmbedBuilder()
                                     .setTitle(
-                                        "$namespace ${
+                                        "${provider.get().name} ${
                                             when (value.second) {
                                                 is Field -> "Field"
                                                 is Method -> "Method"
