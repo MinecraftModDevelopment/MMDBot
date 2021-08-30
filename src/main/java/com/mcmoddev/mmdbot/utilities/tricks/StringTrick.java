@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.Message;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The type String trick.
@@ -53,7 +54,7 @@ public class StringTrick implements Trick {
      */
     @Override
     public Message getMessage(final String[] args) {
-        return new MessageBuilder(String.format(getBody(), (Object[]) args)).build();
+        return new MessageBuilder(String.format(getBody(), (Object[]) args)).setAllowedMentions(Set.of(Message.MentionType.CHANNEL, Message.MentionType.EMOTE)).build();
     }
 
     /**
