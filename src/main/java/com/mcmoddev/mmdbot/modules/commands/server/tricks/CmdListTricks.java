@@ -37,10 +37,10 @@ public final class CmdListTricks extends Command {
         final var channel = event.getTextChannel();
 
         builder
+            .setTitle("Tricks")
             .setDescription(Tricks.getTricks()
                 .stream()
-                .map(it -> it.getNames().stream().reduce("", (a, b) -> String.join(a, " ", b)
-                    .trim()))
+                .map(it -> it.getNames().stream().reduce("", (a, b) -> String.join(a.isEmpty() ? a : a + " / ", b)))
                 .reduce("", (a, b) -> a + "\n" + b)
             );
 
