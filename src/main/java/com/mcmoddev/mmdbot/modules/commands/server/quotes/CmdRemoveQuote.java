@@ -11,8 +11,8 @@ import net.dv8tion.jda.api.entities.TextChannel;
  * Requires an int argument.
  *
  * Possible forms:
- *   !removequote 5
  *
+ * !removequote 5
  * Can only be used by Bot Maintainers and higher.
  *
  * @author Curle
@@ -26,7 +26,7 @@ public final class CmdRemoveQuote extends Command {
     public CmdRemoveQuote() {
         super();
         name = "removequote";
-        aliases = new String[] { "quote-remove", "remove-quote" };
+        aliases = new String[]{"quote-remove", "remove-quote"};
         help = "Remove a quote from the list.";
         requiredRole = "bot maintainer";
     }

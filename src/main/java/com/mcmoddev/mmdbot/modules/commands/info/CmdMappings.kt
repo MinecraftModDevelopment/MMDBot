@@ -33,9 +33,9 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
             return
         }
 
-        val args = event.args.split(' ');
+        val args = event.args.split(' ')
 
-        val query = args[0];
+        val query = args[0]
         val version = args.getOrElse(1) { namespace.getDefaultVersion() }
 
         scope.launch {

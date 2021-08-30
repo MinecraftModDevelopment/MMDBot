@@ -134,10 +134,9 @@ public final class Tricks {
      * Add a trick.
      *
      * @param trick the trick to add.
-     *
      * @throws IllegalArgumentException propogated from
-     * {@link com.jagrosh.jdautilities.command.CommandClient#addCommand(Command)} if a command with the name or alias
-     * of the given trick already exists.
+     *                                  {@link com.jagrosh.jdautilities.command.CommandClient#addCommand(Command)} if a command with the name or alias
+     *                                  of the given trick already exists.
      */
     public static void addTrick(final Trick trick) {
         CommandModule.getCommandClient().addCommand(new CmdRunTrick(trick));

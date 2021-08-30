@@ -191,9 +191,9 @@ public final class BotConfig {
      */
     public boolean isEnabled(final String commandName, final long guildID) {
         return config.<Boolean>getOptional(
-            References.COMMANDS + commandName + "."
-                + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
-                + ".enabled")
+                References.COMMANDS + commandName + "."
+                    + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
+                    + ".enabled")
             .orElseGet(() -> isEnabled(commandName));
     }
 

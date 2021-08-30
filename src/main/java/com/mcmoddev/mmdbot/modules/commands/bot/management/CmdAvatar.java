@@ -48,8 +48,8 @@ public class CmdAvatar extends Command {
 
             if (!newAvatar.isImage()) {
                 channel.sendMessage("This attachment is not an image! "
-                    + "Please provide a valid image to use as my avatar!")
-                .reference(trigger).queue();
+                        + "Please provide a valid image to use as my avatar!")
+                    .reference(trigger).queue();
                 return;
             }
 

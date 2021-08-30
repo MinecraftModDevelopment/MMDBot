@@ -111,7 +111,7 @@ public final class MinecraftVersionHelper {
         /**
          * The Version.
          */
-         public String version;
+        public String version;
 
         /**
          * The Stable.

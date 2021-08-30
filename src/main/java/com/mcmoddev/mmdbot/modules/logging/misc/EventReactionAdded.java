@@ -112,8 +112,8 @@ public final class EventReactionAdded extends ListenerAdapter {
                         .getChannel("events.requests_deletion"));
                     if (logChannel != null) {
                         logChannel.sendMessage(String.format("Request from %s (%s;%s) reached deletion threshold, "
-                                + "awaiting moderator approval for deletion", messageAuthor.getAsMention(),
-                            messageAuthor.getAsTag(), messageAuthor.getId()))
+                                    + "awaiting moderator approval for deletion", messageAuthor.getAsMention(),
+                                messageAuthor.getAsTag(), messageAuthor.getId()))
                             .allowedMentions(Collections.emptySet())
                             .queue();
                     }
@@ -137,8 +137,8 @@ public final class EventReactionAdded extends ListenerAdapter {
                     .getChannel("events.requests_deletion"));
                 if (logChannel != null) {
                     logChannel.sendMessage(String.format("Auto-deleted request from %s (%s;%s) due to "
-                            + "reaching deletion threshold: %n%s", messageAuthor.getAsMention(),
-                        messageAuthor.getAsTag(), messageAuthor.getId(), message.getContentRaw()))
+                                + "reaching deletion threshold: %n%s", messageAuthor.getAsMention(),
+                            messageAuthor.getAsTag(), messageAuthor.getId(), message.getContentRaw()))
                         .allowedMentions(Collections.emptySet())
                         .queue();
                 }

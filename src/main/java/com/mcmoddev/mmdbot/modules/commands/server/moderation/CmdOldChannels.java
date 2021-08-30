@@ -88,7 +88,7 @@ public final class CmdOldChannels extends Command {
     private Predicate<TextChannel> channelIsAllowedByList(final List<String> list) {
         return (channel) -> list.isEmpty() || (channel.getParent() != null
             && list.contains(channel.getParent().getName().toLowerCase(Locale.ROOT)
-                .replace(' ', '-'))) || list.contains(channel.getName().toLowerCase(Locale.ROOT));
+            .replace(' ', '-'))) || list.contains(channel.getName().toLowerCase(Locale.ROOT));
     }
 
     /**

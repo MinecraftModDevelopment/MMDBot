@@ -40,7 +40,7 @@ public class CmdRename extends Command {
 
         if (commandArgs.isEmpty()) {
             channel.sendMessage("No new name provided! Please provide me with a new name!")
-            .reference(trigger).queue();
+                .reference(trigger).queue();
             return;
         }
 

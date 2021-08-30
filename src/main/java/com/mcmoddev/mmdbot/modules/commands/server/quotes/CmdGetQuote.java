@@ -14,9 +14,8 @@ import java.util.Random;
  * Allows an int argument, otherwise random is chosen.
  *
  * Possible forms:
- *   !quote
- *   !quote 111
- *
+ * !quote
+ * !quote 111
  * Can be used by anyone.
  *
  * TODO: Prepare for more Quote implementations.
@@ -32,7 +31,7 @@ public final class CmdGetQuote extends Command {
     public CmdGetQuote() {
         super();
         name = "getquote";
-        aliases = new String[] { "quote", "get-quote", "quoteget", "viewquote" };
+        aliases = new String[]{"quote", "get-quote", "quoteget", "viewquote"};
         help = "Get a quote. Specify a number if you like, otherwise a random is chosen.";
     }
 

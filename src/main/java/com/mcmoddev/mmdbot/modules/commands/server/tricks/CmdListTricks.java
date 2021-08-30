@@ -64,7 +64,7 @@ public final class CmdListTricks extends Command {
         return new EmbedBuilder()
             .setTitle("Tricks")
             .setDescription(Tricks.getTricks()
-                .subList(from, from+TRICKS_PER_PAGE)
+                .subList(from, from + TRICKS_PER_PAGE)
                 .stream()
                 .map(it -> it.getNames().stream().reduce("", (a, b) -> (a.isEmpty() ? a : a + " / ") + b))
                 .reduce("", (a, b) -> a + "\n" + b))
@@ -74,9 +74,9 @@ public final class CmdListTricks extends Command {
     private static Component[] createActionRow(int lowestTrickIndex) {
         List<Component> components = new ArrayList<>();
         if (lowestTrickIndex != 0) {
-            components.add(Button.secondary(ButtonListener.BUTTON_ID_PREFIX+"-"+lowestTrickIndex+"-prev", Emoji.fromUnicode("◀️")));
+            components.add(Button.secondary(ButtonListener.BUTTON_ID_PREFIX + "-" + lowestTrickIndex + "-prev", Emoji.fromUnicode("◀️")));
         }
-        if (lowestTrickIndex+TRICKS_PER_PAGE < Tricks.getTricks().size()) {
+        if (lowestTrickIndex + TRICKS_PER_PAGE < Tricks.getTricks().size()) {
             components.add(Button.primary(ButtonListener.BUTTON_ID_PREFIX + "-" + lowestTrickIndex + "-next", Emoji.fromUnicode("▶️")));
         }
         return components.toArray(new Component[0]);
@@ -84,6 +84,7 @@ public final class CmdListTricks extends Command {
 
     public static class ButtonListener extends ListenerAdapter {
         private static final String BUTTON_ID_PREFIX = "tricklist";
+
         @Override
         public void onButtonClick(@NotNull final ButtonClickEvent event) {
             var button = event.getButton();
@@ -104,13 +105,13 @@ public final class CmdListTricks extends Command {
 
             if (idParts[2].equals("next")) {
                 event
-                    .editMessageEmbeds(List.of(getTrickList(current+TRICKS_PER_PAGE)))
-                    .setActionRow(createActionRow(current+TRICKS_PER_PAGE))
+                    .editMessageEmbeds(List.of(getTrickList(current + TRICKS_PER_PAGE)))
+                    .setActionRow(createActionRow(current + TRICKS_PER_PAGE))
                     .queue();
             } else if (idParts[2].equals("prev")) {
                 event
-                    .editMessageEmbeds(List.of(getTrickList(current-TRICKS_PER_PAGE)))
-                    .setActionRow(createActionRow(current-TRICKS_PER_PAGE))
+                    .editMessageEmbeds(List.of(getTrickList(current - TRICKS_PER_PAGE)))
+                    .setActionRow(createActionRow(current - TRICKS_PER_PAGE))
                     .queue();
             }
         }

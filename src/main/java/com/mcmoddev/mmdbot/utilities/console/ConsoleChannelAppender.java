@@ -3,8 +3,8 @@ package com.mcmoddev.mmdbot.utilities.console;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.Layout;
-import com.mcmoddev.mmdbot.core.BotConfig;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.core.BotConfig;
 import net.dv8tion.jda.api.MessageBuilder;
 
 import java.util.Collections;

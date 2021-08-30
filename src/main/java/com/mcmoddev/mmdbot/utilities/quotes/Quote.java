@@ -43,6 +43,7 @@ public abstract class Quote implements IQuote {
 
     /**
      * Set the creator of this Quote.
+     *
      * @param author A Reference to the User that created the Quote.
      */
     @Override
@@ -60,6 +61,7 @@ public abstract class Quote implements IQuote {
 
     /**
      * Set the target of this Quote.
+     *
      * @param target A Reference to the User being Quoted.
      */
     @Override
@@ -77,6 +79,7 @@ public abstract class Quote implements IQuote {
 
     /**
      * Set the ID of this Quote.
+     *
      * @param pId The integer representing where in the list the Quote is.
      */
     @Override

@@ -108,8 +108,8 @@ public final class EventUserLeft extends ListenerAdapter {
                             .getChannel("events.requests_deletion"));
                         if (logChannel != null) {
                             logChannel.sendMessage(String.format("Auto-deleted request from %s (%s;`%s`) "
-                                    + "due to leaving server: %n%s", leavingUser.getAsMention(), leavingUser.getAsTag(),
-                                leavingUser.getId(), message.getContentRaw()))
+                                        + "due to leaving server: %n%s", leavingUser.getAsMention(), leavingUser.getAsTag(),
+                                    leavingUser.getId(), message.getContentRaw()))
                                 .allowedMentions(Collections.emptySet())
                                 .queue();
                         }

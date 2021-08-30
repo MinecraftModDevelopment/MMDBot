@@ -11,15 +11,15 @@ import net.dv8tion.jda.api.entities.TextChannel;
 
 /**
  * Add a quote to the list.
- *
+ * <p>
  * Possible forms:
- *  !addquote "I said something funny" - @Curle
- *  !addquote "I said something funny" - 462617385157787648
- *  !addquote "I said something funny"
- *  !addquote "I said something funny - The best bot developer
- *
+ * !addquote "I said something funny" - @Curle
+ * !addquote "I said something funny" - 462617385157787648
+ * !addquote "I said something funny"
+ * !addquote "I said something funny - The best bot developer
+ * <p>
  * Can be used by anyone.
- *
+ * <p>
  * TODO: Prepare for more Quote implementations.
  *
  * @author Curle
@@ -33,7 +33,7 @@ public final class CmdAddQuote extends Command {
     public CmdAddQuote() {
         super();
         name = "addquote";
-        aliases = new String[] { "add-quote", "quoteadd", "quote-add" };
+        aliases = new String[]{"add-quote", "quoteadd", "quote-add"};
         help = "Adds a new Quote to the list.\nAdd a quote like so: !addquote \"I said something funny - author\"!";
     }
 

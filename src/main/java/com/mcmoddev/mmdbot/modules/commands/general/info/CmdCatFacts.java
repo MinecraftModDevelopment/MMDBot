@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.modules.commands.general.fun;
+package com.mcmoddev.mmdbot.modules.commands.general.info;
 
 import com.google.gson.JsonParser;
 import com.jagrosh.jdautilities.command.Command;

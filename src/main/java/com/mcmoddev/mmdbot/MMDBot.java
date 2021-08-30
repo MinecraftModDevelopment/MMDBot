@@ -93,6 +93,7 @@ public final class MMDBot {
 
     /**
      * {@return the Jdbi instance from the database manager}
+     *
      * @see DatabaseManager#jdbi()
      */
     public static Jdbi database() {
@@ -136,7 +137,7 @@ public final class MMDBot {
                 .build();
             CommandModule.setupCommandModule();
             LoggingModule.setupLoggingModule();
-		} catch (final LoginException exception) {
+        } catch (final LoginException exception) {
             MMDBot.LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.",
                 exception);
             System.exit(1);

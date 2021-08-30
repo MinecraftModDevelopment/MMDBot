@@ -29,6 +29,7 @@ public final class StringQuote extends Quote {
 
     /**
      * Set the String encoding the Quote data.
+     *
      * @param pData The message or content being quoted.
      */
     protected void setData(final String pData) {
@@ -98,8 +99,9 @@ public final class StringQuote extends Quote {
 
     /**
      * Construct a new StringQuote with all the necessary data.
-     * @param quotee A Reference to the User being Quoted.
-     * @param quote The message or content being Quoted.
+     *
+     * @param quotee  A Reference to the User being Quoted.
+     * @param quote   The message or content being Quoted.
      * @param creator A Reference to the User that created the Quote.
      */
     public StringQuote(final UserReference quotee, final String quote, final UserReference creator) {
