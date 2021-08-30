@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The type Embed trick.
@@ -84,7 +85,7 @@ public class EmbedTrick implements Trick {
         for (MessageEmbed.Field field : getFields()) {
             builder.addField(field);
         }
-        return new MessageBuilder(builder.build()).build();
+        return new MessageBuilder(builder.build()).setAllowedMentions(Set.of(Message.MentionType.CHANNEL, Message.MentionType.EMOTE)).build();
     }
 
     /**

@@ -9,6 +9,7 @@ import com.mcmoddev.mmdbot.utilities.database.DatabaseManager;
 import com.mcmoddev.mmdbot.utilities.database.JSONDataMigrator;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.jdbi.v3.core.Jdbi;
@@ -129,7 +130,9 @@ public final class MMDBot {
                 .disableCache(CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY)
                 .disableCache(CacheFlag.CLIENT_STATUS)
+                .disableCache(CacheFlag.ONLINE_STATUS)
                 .addEventListeners(new MiscEvents())
+                .setActivity(Activity.watching("you from the mist..."))
                 .build();
             CommandModule.setupCommandModule();
             LoggingModule.setupLoggingModule();

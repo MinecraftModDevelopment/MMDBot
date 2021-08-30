@@ -7,6 +7,7 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.jagrosh.jdautilities.command.Command;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrick;
@@ -130,13 +131,17 @@ public final class Tricks {
     }
 
     /**
-     * Add trick.
+     * Add a trick.
      *
-     * @param trick the trick
+     * @param trick the trick to add.
+     *
+     * @throws IllegalArgumentException propogated from
+     * {@link com.jagrosh.jdautilities.command.CommandClient#addCommand(Command)} if a command with the name or alias
+     * of the given trick already exists.
      */
     public static void addTrick(final Trick trick) {
-        getTricks().add(trick);
         CommandModule.getCommandClient().addCommand(new CmdRunTrick(trick));
+        getTricks().add(trick);
         write();
     }
 
