@@ -23,6 +23,9 @@ import net.dv8tion.jda.api.interactions.components.Button
 import java.awt.Color
 import java.util.*
 
+/**
+ * @author Will BL
+ */
 class CmdTranslateMappings(name: String, private val namespace1: Namespace, private val namespace2: Namespace, vararg aliases: String?) : Command() {
     init {
         this.name = name.lowercase(Locale.ROOT)
