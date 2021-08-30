@@ -46,6 +46,10 @@
         # Deletion of requests over the bad reaction threshold shall be logged here
         requests_deletion = ""
 
+        # The channel we log all banned user events into for future reference, because if a user deletes the account we have
+        # no name record of them in the banned users list, only the reason if one was given.
+        banlogchannel = ""
+
     # Configuration of requests-related channels
     # Used for the requests bad reaction threshold system
     [channels.requests]

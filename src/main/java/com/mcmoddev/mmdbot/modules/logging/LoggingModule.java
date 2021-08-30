@@ -7,6 +7,7 @@ import com.mcmoddev.mmdbot.modules.logging.users.EventRoleAdded;
 import com.mcmoddev.mmdbot.modules.logging.users.EventRoleRemoved;
 import com.mcmoddev.mmdbot.modules.logging.users.EventUserJoined;
 import com.mcmoddev.mmdbot.modules.logging.users.EventUserLeft;
+import com.mcmoddev.mmdbot.modules.logging.users.UserBanned;
 
 /**
  * Splits off event logging so we can disable it if the API ever breaks or if we are in dev,
@@ -28,7 +29,8 @@ public class LoggingModule {
                     new EventNicknameChanged(),
                     new EventRoleAdded(),
                     new EventRoleRemoved(),
-                    new EventReactionAdded());
+                    new EventReactionAdded(),
+                    new UserBanned());
             MMDBot.LOGGER.warn("Event logging module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Event logging module disabled via config, Discord event logging won't work right now!");
