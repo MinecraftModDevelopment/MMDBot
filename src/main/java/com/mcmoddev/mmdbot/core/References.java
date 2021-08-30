@@ -54,14 +54,7 @@ public class References {
     public static final String COMMANDS = "commands.";
 
     /**
-     * The constant STICKY_ROLES_FILE_PATH.
+     * The constant STARTUP_TIME.
      */
-    public static final String STICKY_ROLES_FILE_PATH = "mmdbot_sticky_roles.json";
-
-    /**
-     * The constant USER_JOIN_TIMES_FILE_PATH.
-     */
-    public static final String USER_JOIN_TIMES_FILE_PATH = "mmdbot_user_join_times.json";
-
     public static Instant STARTUP_TIME;
 }

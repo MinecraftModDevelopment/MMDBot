@@ -1,15 +1,18 @@
 package com.mcmoddev.mmdbot;
 
 import com.mcmoddev.mmdbot.core.BotConfig;
+import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
 import com.mcmoddev.mmdbot.modules.logging.misc.MiscEvents;
-import com.mcmoddev.mmdbot.core.References;
+import com.mcmoddev.mmdbot.utilities.database.DatabaseManager;
+import com.mcmoddev.mmdbot.utilities.database.JSONDataMigrator;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.jdbi.v3.core.Jdbi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +52,11 @@ public final class MMDBot {
      */
     private static JDA instance;
 
+    /**
+     * The database manager.
+     */
+    private static DatabaseManager database;
+
     static {
         MMDBot.INTENTS.add(GatewayIntent.DIRECT_MESSAGES);
         MMDBot.INTENTS.add(GatewayIntent.GUILD_BANS);
@@ -77,6 +85,21 @@ public final class MMDBot {
     }
 
     /**
+     * {@return the database manager}
+     */
+    public static DatabaseManager getDatabaseManager() {
+        return database;
+    }
+
+    /**
+     * {@return the Jdbi instance from the database manager}
+     * @see DatabaseManager#jdbi()
+     */
+    public static Jdbi database() {
+        return database.jdbi();
+    }
+
+    /**
      * The main method.
      *
      * @param args Arguments provided to the program.
@@ -100,17 +123,20 @@ public final class MMDBot {
         }
 
         try {
+            MMDBot.database = DatabaseManager.connectSQLite("jdbc:sqlite:./data.db");
+            JSONDataMigrator.checkAndMigrate(MMDBot.database);
             MMDBot.instance = JDABuilder
                 .create(MMDBot.config.getToken(), MMDBot.INTENTS)
                 .disableCache(CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY)
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
-                .addEventListeners(new MiscEvents()).setActivity(Activity.watching("you from the mist..."))
+                .addEventListeners(new MiscEvents())
+                .setActivity(Activity.watching("you from the mist..."))
                 .build();
             CommandModule.setupCommandModule();
             LoggingModule.setupLoggingModule();
-        } catch (final LoginException exception) {
+		} catch (final LoginException exception) {
             MMDBot.LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.",
                 exception);
             System.exit(1);

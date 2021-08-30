@@ -1,34 +1,35 @@
 plugins {
   id 'application'
   id 'com.github.johnrengelman.shadow' version '6.1.0'
-  id 'maven'
+//id 'maven'
   id 'eclipse'
   id 'idea'
-  id 'com.github.spotbugs' version '4.7.2'
+  id 'com.github.spotbugs' version '4.7.3'
   id 'checkstyle'
   id 'pmd'
-  id "org.flywaydb.flyway" version "7.12.0"
+  id 'org.flywaydb.flyway' version '7.14.0'
+  id 'org.jetbrains.kotlin.jvm' version '1.5.30'
 }
 
 mainClassName = 'com.mcmoddev.mmdbot.MMDBot'
 group 'com.mcmoddev'
 version project.bot_version
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(11)
+java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 application {
     mainClass = 'com.mcmoddev.mmdbot.MMDBot'
 }
 
 compileJava {
-  sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
+  sourceCompatibility = targetCompatibility = JavaVersion.VERSION_16
   options.encoding = 'UTF-8'
 }
 
 tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
   options.compilerArgs = [
-    '-Xlint:deprecation', // deprecation, rawtypes, cast, unchecked, all
+    '-Xlint:all', // deprecation, rawtypes, cast, unchecked, all
     //'-Xdiags:verbose',
     //'-Werror'
   ]
@@ -46,6 +47,18 @@ repositories {
     name 'jda-chewtils'
     url 'https://m2.chew.pro/releases'
   }
+  maven {
+    name 'linkie'
+    url 'https://maven.shedaniel.me/'
+  }
+  maven {
+    name 'fabric'
+    url 'https://maven.fabricmc.net'
+  }
+  maven {
+    name 'jitpack'
+    url 'https://jitpack.io'
+  }
 }
 
 dependencies {
@@ -57,6 +70,12 @@ dependencies {
   implementation group: 'ch.qos.logback', name: 'logback-classic', version: "${project.logback_classic_version}"
   implementation group: 'com.electronwill.night-config', name: 'toml', version: "${project.nightconfig_version}"
   implementation group: 'org.xerial', name: 'sqlite-jdbc', version: "${project.sqlite_jdbc_version}"
+  implementation group: 'me.shedaniel', name: 'linkie-core', version: "${project.linkie_version}"
+  implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: "${project.ktx_coroutines_version}"
+  implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-jdk8', version: "${project.ktx_coroutines_version}"
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: "${project.flyway_version}"
+  implementation group: 'org.jdbi', name: 'jdbi3-core', version: "${project.jdbi_version}"
+  implementation group: 'org.jdbi', name: 'jdbi3-sqlobject', version: "${project.jdbi_version}"
 
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: "${project.junit_version}"
 
@@ -133,7 +152,7 @@ task generatePom {
 spotbugs {
   ignoreFailures = true
   showStackTraces = false
-  toolVersion = '4.2.3'
+  toolVersion = '4.3.0'
   effort = 'max'
   reportLevel = 'low'
   //includeFilter = file("$rootProject.projectDir/config/spotbugs-filter.xml")
@@ -148,7 +167,7 @@ tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
 
 checkstyle {
   ignoreFailures = true
-  toolVersion = '8.43'
+  toolVersion = '8.45'
   showViolations = false
 }
 
@@ -204,6 +223,6 @@ pmd {
     'java-unusedcode'
 */
   ]
-  toolVersion = '6.35.0'
+  toolVersion = '6.37.0'
   incrementalAnalysis = true
 }

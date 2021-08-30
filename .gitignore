@@ -39,6 +39,7 @@ mmdbot_config.toml
 mmdbot_sticky_roles.json
 mmdbot_user_join_times.json
 mmdbot_tricks.json
+.linkie-cache/
 #Just in case anyone else has this still.
 mmdbot_config.json
 config.json
