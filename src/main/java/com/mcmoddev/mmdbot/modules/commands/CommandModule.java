@@ -35,7 +35,8 @@ import com.mcmoddev.mmdbot.modules.commands.general.info.CmdForgeVersion;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdMe;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdMinecraftVersion;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdSearch;
-import com.mcmoddev.mmdbot.modules.commands.info.CmdMappings;
+import com.mcmoddev.mmdbot.modules.commands.general.mappings.CmdMappings;
+import com.mcmoddev.mmdbot.modules.commands.general.mappings.CmdTranslateMappings;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdGuild;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdRoles;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdToggleEventPings;
@@ -114,8 +115,8 @@ public class CommandModule {
             .addCommand(new CmdRemoveTrick())
             .addCommands(Tricks.createTrickCommands().toArray(new Command[0]))
             .addCommand(new CmdShutdown())
-//          .addCommand(new CmdMappings("yarnmappings", Namespaces.INSTANCE.get("yarn")))
-//          .addCommand(new CmdMappings("mcpmappings", Namespaces.INSTANCE.get("mcp")))
+            .addCommands(CmdMappings.createCommands())
+            .addCommands(CmdTranslateMappings.createCommands())
             .addCommand(new CmdAddQuote())
             .addCommand(new CmdGetQuote())
             .addCommand(new CmdRemoveQuote())
@@ -125,6 +126,7 @@ public class CommandModule {
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
             MMDBot.getInstance().addEventListener(commandClient);
             MMDBot.getInstance().addEventListener(CmdMappings.ButtonListener.INSTANCE);
+            MMDBot.getInstance().addEventListener(CmdTranslateMappings.ButtonListener.INSTANCE);
             MMDBot.getInstance().addEventListener(new CmdListTricks.ButtonListener());
             MMDBot.LOGGER.warn("Command module enabled and loaded.");
         } else {
