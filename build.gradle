@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 plugins {
   id 'application'
   id 'com.github.johnrengelman.shadow' version '6.1.0'
@@ -9,6 +11,7 @@ plugins {
   id 'pmd'
   id 'org.flywaydb.flyway' version '7.14.0'
   id 'org.jetbrains.kotlin.jvm' version '1.5.30'
+  id "org.cadixdev.licenser" version "0.6.1"
 }
 
 mainClassName = 'com.mcmoddev.mmdbot.MMDBot'
@@ -100,6 +103,22 @@ jar {
       'Main-Class': 'com.mcmoddev.bot.MMDBot'
     )
   }
+}
+
+license {
+  header = project.file("LicenseHeader.md")
+  include '**/*.java'
+  exclude '**/package-info.java'
+  newLine = false
+  properties {
+    year = currentCopyrightYear()
+  }
+}
+
+def currentCopyrightYear() {
+  def dateFormat = new SimpleDateFormat("yyyy")
+  dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
+  return dateFormat.format(new Date())
 }
 
 eclipse.project {

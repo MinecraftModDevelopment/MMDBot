@@ -1,3 +1,23 @@
+/*
+ * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
+ * Copyright (C) 2016-2021 <MMD - MinecraftModDevelopment>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ */
 package com.mcmoddev.mmdbot.utilities.quotes;
 
 /**
@@ -35,10 +55,11 @@ public final class UserReference {
      *
      * Encodes the string "Anonymous" which is always returned as the source.
      */
-    private String anonymousData = "Anonymous";
+    private final String anonymousData = "Anonymous";
 
     /**
      * Identifies which of the fields in this class should be read to retrieve the proper data.
+     *
      * @return The Reference Type of this User Reference.
      */
     public ReferenceType getReferenceType() {
@@ -47,6 +68,7 @@ public final class UserReference {
 
     /**
      * Set the Type of the current Reference.
+     *
      * @param pReferenceType The new Type to take over
      */
     public void setReferenceType(final ReferenceType pReferenceType) {
@@ -66,6 +88,7 @@ public final class UserReference {
 
     /**
      * Set the snowflake data of the current Reference.
+     *
      * @param pSnowflakeData The Snowflake data to take over
      */
     public void setSnowflakeData(final long pSnowflakeData) {
@@ -85,6 +108,7 @@ public final class UserReference {
 
     /**
      * Set the String data of the current Reference.
+     *
      * @param pStringData The String data to take over
      */
     public void setStringData(final String pStringData) {
@@ -135,6 +159,7 @@ public final class UserReference {
         /**
          * Construct a new ReferenceType.
          * Internal use only.
+         *
          * @param pName String representation of the name.
          */
         ReferenceType(final String pName) {
@@ -144,6 +169,7 @@ public final class UserReference {
         /**
          * Retrieve the name of this enum entry, as a String.
          * For serialization.
+         *
          * @return The name of this enum entry, as a String.
          */
         public String getName() {
@@ -153,15 +179,19 @@ public final class UserReference {
         /**
          * Get ReferenceType instance from the name.
          * For deserialization.
+         *
          * @param pName The name of the enum value to retrieve.
          * @return The ReferenceType value requested.
          */
         public static ReferenceType of(final String pName) {
             switch (pName) {
-                case "snowflake": return SNOWFLAKE;
-                case "string": return STRING;
+                case "snowflake":
+                    return SNOWFLAKE;
+                case "string":
+                    return STRING;
                 default:
-                case "anonymous": return ANONYMOUS;
+                case "anonymous":
+                    return ANONYMOUS;
             }
         }
 
@@ -182,6 +212,7 @@ public final class UserReference {
      * SNOWFLAKE attribution constructor.
      * Sets the referenceType to SNOWFLAKE.
      * Sets the snowflakeData field to the given ID.
+     *
      * @param id The Discord User ID as a Snowflake for the user to reference.
      */
     public UserReference(final long id) {
@@ -194,6 +225,7 @@ public final class UserReference {
      * STRING attribution constructor.
      * Sets the referenceType to STRING.
      * Sets the stringData field to the given String.
+     *
      * @param source The String to use as the reference.
      */
     public UserReference(final String source) {

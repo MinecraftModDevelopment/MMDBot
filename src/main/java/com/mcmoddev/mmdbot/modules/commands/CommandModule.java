@@ -1,3 +1,23 @@
+/*
+ * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
+ * Copyright (C) 2016-2021 <MMD - MinecraftModDevelopment>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ */
 package com.mcmoddev.mmdbot.modules.commands;
 
 import com.jagrosh.jdautilities.command.Command;
@@ -9,23 +29,16 @@ import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdUptime;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
-import com.mcmoddev.mmdbot.modules.commands.general.fun.CmdCatFacts;
-import com.mcmoddev.mmdbot.modules.commands.general.fun.CmdGreatMoves;
-import com.mcmoddev.mmdbot.modules.commands.general.info.CmdEventsHelp;
+import com.mcmoddev.mmdbot.modules.commands.general.info.CmdCatFacts;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdFabricVersion;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdForgeVersion;
-import com.mcmoddev.mmdbot.modules.commands.general.info.CmdJustAsk;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdMe;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdMinecraftVersion;
-import com.mcmoddev.mmdbot.modules.commands.general.info.CmdPaste;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdSearch;
-import com.mcmoddev.mmdbot.modules.commands.general.info.CmdXy;
 import com.mcmoddev.mmdbot.modules.commands.general.mappings.CmdMappings;
 import com.mcmoddev.mmdbot.modules.commands.general.mappings.CmdTranslateMappings;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdGuild;
-import com.mcmoddev.mmdbot.modules.commands.server.CmdReadme;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdRoles;
-import com.mcmoddev.mmdbot.modules.commands.server.CmdRules;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdToggleEventPings;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdToggleMcServerPings;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdCommunityChannel;
@@ -79,17 +92,11 @@ public class CommandModule {
             .addCommand(new CmdMe())
             .addCommand(new CmdUser())
             .addCommand(new CmdRoles())
-            .addCommand(new CmdJustAsk())
-            .addCommand(new CmdPaste())
-            .addCommand(new CmdXy())
-            .addCommand(new CmdReadme())
-            .addCommand(new CmdRules())
             .addCommand(new CmdCatFacts())
             .addCommand(new CmdSearch("google", "https://www.google.com/search?q=", "goog"))
             .addCommand(new CmdSearch("bing", "https://www.bing.com/search?q="))
             .addCommand(new CmdSearch("duckduckgo", "https://duckduckgo.com/?q=", "ddg"))
             .addCommand(new CmdSearch("lmgtfy", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"))
-            .addCommand(new CmdEventsHelp())
             .addCommand(new CmdToggleMcServerPings())
             .addCommand(new CmdToggleEventPings())
             .addCommand(new CmdForgeVersion())
@@ -99,7 +106,6 @@ public class CommandModule {
             .addCommand(new CmdUnmute())
             .addCommand(new CmdCommunityChannel())
             .addCommand(new CmdOldChannels())
-            .addCommand(new CmdGreatMoves())
             .addCommand(new CmdAvatar())
             .addCommand(new CmdRename())
             .addCommand(new CmdUptime())
@@ -117,14 +123,14 @@ public class CommandModule {
             .setHelpWord("help")
             .build();
 
-            if (MMDBot.getConfig().isCommandModuleEnabled()) {
-                MMDBot.getInstance().addEventListener(commandClient);
-                MMDBot.getInstance().addEventListener(CmdMappings.ButtonListener.INSTANCE);
-                MMDBot.getInstance().addEventListener(CmdTranslateMappings.ButtonListener.INSTANCE);
-                MMDBot.getInstance().addEventListener(new CmdListTricks.ButtonListener());
-                MMDBot.LOGGER.warn("Command module enabled and loaded.");
-            } else {
-                MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");
-            }
+        if (MMDBot.getConfig().isCommandModuleEnabled()) {
+            MMDBot.getInstance().addEventListener(commandClient);
+            MMDBot.getInstance().addEventListener(CmdMappings.ButtonListener.INSTANCE);
+            MMDBot.getInstance().addEventListener(CmdTranslateMappings.ButtonListener.INSTANCE);
+            MMDBot.getInstance().addEventListener(new CmdListTricks.ButtonListener());
+            MMDBot.LOGGER.warn("Command module enabled and loaded.");
+        } else {
+            MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");
+        }
     }
 }

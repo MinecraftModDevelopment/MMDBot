@@ -1,3 +1,23 @@
+/*
+ * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
+ * Copyright (C) 2016-2021 <MMD - MinecraftModDevelopment>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ */
 package com.mcmoddev.mmdbot.utilities.quotes;
 
 import com.google.gson.Gson;
@@ -36,11 +56,13 @@ import java.util.List;
  *
  * TODO: Migrate to SQLite.
  * TODO: Fix the mess i made trying to get subclasses to serialize and deserialize.
+ *
  * @author Curle
  */
 public final class QuoteList {
 
-    private QuoteList() { }
+    private QuoteList() {
+    }
 
     /**
      * Location to the quote storage file.
@@ -80,6 +102,7 @@ public final class QuoteList {
 
     /**
      * Given a numeric ID, fetch the quote at that index, or null.
+     *
      * @param id The index to fetch the quote from.
      * @return The Quote object at that index.
      */
@@ -106,7 +129,8 @@ public final class QuoteList {
 
         try (InputStreamReader reader = new InputStreamReader(new FileInputStream(quoteFile), StandardCharsets.UTF_8)) {
 
-            Type listType = new TypeToken<List<Quote>>() { }.getType();
+            Type listType = new TypeToken<List<Quote>>() {
+            }.getType();
             quotes = GSON.fromJson(reader, listType);
 
         } catch (final IOException exception) {
@@ -132,6 +156,7 @@ public final class QuoteList {
 
     /**
      * Add the specified quote to the list at the specified index.
+     *
      * @param quote The quote to add.
      */
     public static void addQuote(final Quote quote) {
@@ -148,6 +173,7 @@ public final class QuoteList {
      * If the quote is at any point before the start of the list, it will cause a null gap.
      * If the quote is at the start of a null gap and the null gap is at the end of the list, it will close the gap.
      * If the quote is after the end of the list, it will have no effect.
+     *
      * @param id the ID of the item to remove.
      */
     public static void removeQuote(final int id) {
@@ -183,6 +209,7 @@ public final class QuoteList {
      * Does NOT find any holes before the end of the list.
      * TODO: Make this fill holes
      * For generating the next Quote ID.
+     *
      * @return The index of the next empty slot in the list.
      */
     public static int getQuoteSlot() {
@@ -225,6 +252,7 @@ public final class QuoteList {
                     adapter.write(out, value);
                     out.endObject();
                 }
+
                 // And when asked to read...
                 @Override
                 public T read(final JsonReader in) throws IOException {

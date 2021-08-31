@@ -1,3 +1,23 @@
+/*
+ * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
+ * Copyright (C) 2016-2021 <MMD - MinecraftModDevelopment>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ */
 package com.mcmoddev.mmdbot.modules.commands.server.moderation;
 
 import com.google.common.collect.Sets;
@@ -110,16 +130,16 @@ public final class CmdCommunityChannel extends Command {
                 .map($ -> ch))
             .flatMap(ch -> ch.putPermissionOverride(newOwner).setAllow(ownerPermissions).map($ -> ch))
             .flatMap(ch -> ch.sendMessage(new MessageBuilder()
-                .appendFormat("Welcome %s to your new community channel, %s!%n", newOwner.getAsMention(),
-                    ch.getAsMention())
-                .append('\n')
-                .append("Please adhere to the Code of Conduct of the server")
-                .appendFormat(" (which can be visited from the <#%s> channel),", MMDBot.getConfig()
-                    .getChannel("info.rules"))
-                .append(" specifically the Channel Policy section.").append('\n')
-                .append('\n')
-                .appendFormat("Thank you, and enjoy your new home here at %s!", flavorText)
-                .build())
+                    .appendFormat("Welcome %s to your new community channel, %s!%n", newOwner.getAsMention(),
+                        ch.getAsMention())
+                    .append('\n')
+                    .append("Please adhere to the Code of Conduct of the server")
+                    .appendFormat(" (which can be visited from the <#%s> channel),", MMDBot.getConfig()
+                        .getChannel("info.rules"))
+                    .append(" specifically the Channel Policy section.").append('\n')
+                    .append('\n')
+                    .appendFormat("Thank you, and enjoy your new home here at %s!", flavorText)
+                    .build())
                 .map($ -> ch)
             )
             .queue(c -> event.reply("Successfully created community channel at " + c.getAsMention() + "!"));
