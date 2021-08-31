@@ -22,7 +22,7 @@ package com.mcmoddev.mmdbot.modules.commands.server.quotes;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.mcmoddev.mmdbot.core.Utils;
+import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.quotes.Quote;
 import com.mcmoddev.mmdbot.utilities.quotes.QuoteList;
 import com.mcmoddev.mmdbot.utilities.quotes.StringQuote;

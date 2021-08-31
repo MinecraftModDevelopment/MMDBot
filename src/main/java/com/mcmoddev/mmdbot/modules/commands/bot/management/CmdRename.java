@@ -23,7 +23,7 @@ package com.mcmoddev.mmdbot.modules.commands.bot.management;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.core.Utils;
+import com.mcmoddev.mmdbot.utilities.Utils;
 
 /**
  * Rename the bot, not a nickname but it's actual name.

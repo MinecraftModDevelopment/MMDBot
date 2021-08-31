@@ -108,6 +108,7 @@ jar {
 license {
   header = project.file("LicenseHeader.md")
   include '**/*.java'
+  include '**/*.kt'
   exclude '**/package-info.java'
   newLine = false
   properties {

@@ -20,7 +20,7 @@
  */
 package com.mcmoddev.mmdbot.utilities.updatenotifiers.minecraft;
 
-import com.mcmoddev.mmdbot.core.Utils;
+import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
 import net.dv8tion.jda.api.EmbedBuilder;
 

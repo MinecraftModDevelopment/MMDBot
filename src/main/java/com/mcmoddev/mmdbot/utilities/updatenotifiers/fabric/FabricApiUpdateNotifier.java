@@ -20,7 +20,7 @@
  */
 package com.mcmoddev.mmdbot.utilities.updatenotifiers.fabric;
 
-import com.mcmoddev.mmdbot.core.Utils;
+import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.Color;
