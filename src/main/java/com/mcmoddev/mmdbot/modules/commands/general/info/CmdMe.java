@@ -21,8 +21,8 @@
 package com.mcmoddev.mmdbot.modules.commands.general.info;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
+import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 /**

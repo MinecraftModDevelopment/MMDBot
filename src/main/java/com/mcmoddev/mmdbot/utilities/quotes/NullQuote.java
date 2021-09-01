@@ -34,6 +34,11 @@ public final class NullQuote extends Quote {
         return QuoteList.getQuoteNotPresent();
     }
 
+    @Override
+    public String getQuoteText() {
+        return "Quote not found.";
+    }
+
     /**
      * Create a new NullQuote.
      */

@@ -93,7 +93,6 @@ public final class QuoteList {
      * The message used for when quotes are null, or do not exist.
      */
     private static final MessageEmbed QUOTE_NOT_PRESENT = new EmbedBuilder()
-        .setAuthor(References.NAME, MMDBot.getInstance().getSelfUser().getAvatarUrl())
         .setTitle("Quote")
         .setColor(Color.GREEN)
         .addField("Warning", "Specified quote does not exist.", false)

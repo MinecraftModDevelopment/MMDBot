@@ -36,6 +36,7 @@ import java.util.Random;
  * Possible forms:
  * !quote
  * !quote 111
+ *
  * Can be used by anyone.
  *
  * TODO: Prepare for more Quote implementations.
@@ -62,6 +63,12 @@ public final class CmdGetQuote extends Command {
 
         final TextChannel channel = event.getTextChannel();
         String argsFull = event.getArgs();
+
+        // If there are no quotes, exit early.
+        if (QuoteList.getQuoteSlot() == 0) {
+            channel.sendMessageEmbeds(QuoteList.getQuoteNotPresent()).queue();
+            return;
+        }
 
         // Check whether any parameters given.
         if (argsFull.length() > 0) {
@@ -91,17 +98,12 @@ public final class CmdGetQuote extends Command {
             }
         }
 
-        // Get a random quote.
-        int limit = QuoteList.getQuoteSlot() - 1;
-        int index = new Random().nextInt(limit);
-        Quote fetched = QuoteList.getQuote(index);
-
-        // Check if the quote exists.
-        if (fetched == null) {
-            // Send the standard message
-            channel.sendMessageEmbeds(QuoteList.getQuoteNotPresent()).queue();
-            return;
-        }
+        Quote fetched = null;
+        Random rand = new Random();
+        do {
+            int index = rand.nextInt(QuoteList.getQuoteSlot());
+            fetched = QuoteList.getQuote(index);
+        } while (fetched == null);
 
         // It exists, so get the content and send it.
         channel.sendMessageEmbeds(fetched.getQuoteMessage()).queue();
