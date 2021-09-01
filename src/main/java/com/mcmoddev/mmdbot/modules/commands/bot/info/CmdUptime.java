@@ -62,8 +62,8 @@ public class CmdUptime extends Command {
         embed.setTitle("Time spent online.");
         embed.setColor(Color.GREEN);
         embed.addField("I've been online for: ", Utils.getTimeDifference(Utils.getTimeFromUTC(
-            References.STARTUP_TIME), OffsetDateTime.now(ZoneOffset.UTC),
-            ChronoUnit.YEARS, ChronoUnit.MONTHS, ChronoUnit.DAYS, ChronoUnit.HOURS, ChronoUnit.HOURS, ChronoUnit.SECONDS)
+                    References.STARTUP_TIME), OffsetDateTime.now(ZoneOffset.UTC),
+                ChronoUnit.YEARS, ChronoUnit.MONTHS, ChronoUnit.DAYS, ChronoUnit.HOURS, ChronoUnit.HOURS, ChronoUnit.SECONDS)
             , false);
         embed.setTimestamp(Instant.now());
         channel.sendMessageEmbeds(embed.build()).queue();

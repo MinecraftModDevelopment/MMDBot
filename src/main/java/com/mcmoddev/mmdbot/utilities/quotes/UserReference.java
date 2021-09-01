@@ -132,8 +132,8 @@ public final class UserReference {
     /**
      * Convert the Reference to its closest String representation.
      * @return A mention if the user is a Snowflake and is in the current guild,
-     *           An ID if the user is a snowflake and is not in the current guild,
-     *           A message if the user is anonymous or String.
+     * An ID if the user is a snowflake and is not in the current guild,
+     * A message if the user is anonymous or String.
      */
     public String resolveReference() {
         switch (getReferenceType()) {

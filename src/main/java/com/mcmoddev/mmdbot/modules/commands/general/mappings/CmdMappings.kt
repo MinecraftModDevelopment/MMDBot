@@ -67,7 +67,7 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
 
         scope.launch {
             val provider = namespace.getProvider(version)
-                var embeds = query(provider, queryString)
+            var embeds = query(provider, queryString)
                 .mapIndexed { idx, it ->
                     async {
                         @Suppress("UNCHECKED_CAST")
@@ -131,12 +131,13 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
                 }.iterator()
 
             if (!embeds.hasNext()) {
-                embeds = listOf(async { EmbedBuilder()
-                    .setTitle("$namespace mapping for $version:")
-                    .setDescription("No results found.")
-                    .setFooter("Powered by linkie-core")
-                    .setColor(Color.RED)
-                    .build()
+                embeds = listOf(async {
+                    EmbedBuilder()
+                        .setTitle("$namespace mapping for $version:")
+                        .setDescription("No results found.")
+                        .setFooter("Powered by linkie-core")
+                        .setColor(Color.RED)
+                        .build()
                 }).iterator()
             }
 
@@ -176,7 +177,7 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
             var hasPerfectMatch = false
             return (
                     MappingsQuery.queryClasses(context).value.asSequence()
-                    + MappingsQuery.queryMember(context) { it.members.asSequence() }.value.asSequence()
+                            + MappingsQuery.queryMember(context) { it.members.asSequence() }.value.asSequence()
                     )
                 .sortedBy { it.score }
                 .also { seq ->
