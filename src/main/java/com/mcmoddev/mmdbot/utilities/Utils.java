@@ -86,7 +86,7 @@ public final class Utils {
 
     /**
      * Get the OffsetDateTime from an Instant value, relative to UTC+0 / GMT+0.
-     * Overtakes the last system which used LocalDateTime and caused issues with the database.
+     * Overtakes the last system which used LocalDateTime which was unpredictable and caused confusion among developers.
      *
      * @param instant the instant
      * @return OffsetDateTime. Offset from UTC+0.

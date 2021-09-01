@@ -30,6 +30,7 @@ import java.awt.Color;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 /**
  * The type Cmd uptime.
@@ -61,7 +62,9 @@ public class CmdUptime extends Command {
         embed.setTitle("Time spent online.");
         embed.setColor(Color.GREEN);
         embed.addField("I've been online for: ", Utils.getTimeDifference(Utils.getTimeFromUTC(
-            References.STARTUP_TIME), OffsetDateTime.now(ZoneOffset.UTC)), false);
+            References.STARTUP_TIME), OffsetDateTime.now(ZoneOffset.UTC),
+            ChronoUnit.YEARS, ChronoUnit.MONTHS, ChronoUnit.DAYS, ChronoUnit.HOURS, ChronoUnit.HOURS, ChronoUnit.SECONDS)
+            , false);
         embed.setTimestamp(Instant.now());
         channel.sendMessageEmbeds(embed.build()).queue();
     }
