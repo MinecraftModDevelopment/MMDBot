@@ -54,7 +54,7 @@ public final class CmdAddQuote extends Command {
         super();
         name = "addquote";
         aliases = new String[] { "add-quote", "quoteadd", "quote-add" };
-        help = "Adds a new Quote to the list.\nAdd a quote like so: !addquote \"I said something funny - author\"!";
+        help = "Adds a new Quote to the list.\nAdd a quote like so: !addquote \"I said something funny\" - author";
     }
 
     @Override
@@ -75,7 +75,7 @@ public final class CmdAddQuote extends Command {
         }
 
         // Verify that there's a message being quoted.
-        if (!(args[0].charAt(0) == '\"') || !(args[0].charAt(args[0].length() - 3) == '\"') ) {
+        if (!(args[0].charAt(0) == '\"') || !(args[0].charAt(args[0].length() - 2) == '\"') ) {
             channel.sendMessage("Invalid arguments. See the help for this command.").queue();
             return;
         }

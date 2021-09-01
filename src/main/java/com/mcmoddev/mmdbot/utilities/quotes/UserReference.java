@@ -20,6 +20,9 @@
  */
 package com.mcmoddev.mmdbot.utilities.quotes;
 
+import com.mcmoddev.mmdbot.MMDBot;
+import net.dv8tion.jda.api.entities.User;
+
 /**
  * The information containing "who" or "what" a quote is referencing.
  * Can be for either the thing being quoted, or the thing that created the quote.
@@ -124,6 +127,32 @@ public final class UserReference {
      */
     public String getAnonymousData() {
         return anonymousData;
+    }
+
+    /**
+     * Convert the Reference to its closest String representation.
+     * @return A mention if the user is a Snowflake and is in the current guild,
+     *           An ID if the user is a snowflake and is not in the current guild,
+     *           A message if the user is anonymous or String.
+     */
+    public String resolveReference() {
+        switch (getReferenceType()) {
+            case SNOWFLAKE:
+                // Try to find the user's data in a server
+                User user = MMDBot.getInstance().getUserById(getSnowflakeData());
+                // If we have it...
+                if (user != null) {
+                    return user.getAsTag();
+                } else {
+                    return String.valueOf(getSnowflakeData());
+                }
+            case STRING:
+                return getStringData();
+
+            case ANONYMOUS: // Intentional fallthrough.
+            default:
+                return getAnonymousData();
+        }
     }
 
     /**

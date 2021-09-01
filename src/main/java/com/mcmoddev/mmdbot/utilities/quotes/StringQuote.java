@@ -20,12 +20,8 @@
  */
 package com.mcmoddev.mmdbot.utilities.quotes;
 
-import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.core.References;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.internal.entities.UserById;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -65,63 +61,19 @@ public final class StringQuote extends Quote {
 
     @Override
     public MessageEmbed getQuoteMessage() {
-        EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle("Quote " + this.getID());
-        builder.setColor(Color.GREEN);
-        builder.addField("Content", this.getData(), false);
+        return new EmbedBuilder()
+            .setTitle("Quote " + this.getID())
+            .setColor(Color.GREEN)
+            .addField("Content", this.getData(), false)
+            .addField("Author", quotee.resolveReference(), false)
+            .setFooter("Quoted by " + creator.resolveReference())
+            .setTimestamp(Instant.now())
+            .build();
+    }
 
-        // Resolve the person being quoted.
-        UserReference quotee = this.getQuotee();
-        switch (quotee.getReferenceType()) {
-            case SNOWFLAKE:
-                // Try to find the user's data in a server
-                User user = MMDBot.getInstance().getUserById(quotee.getSnowflakeData());
-                // If we have it...
-                if (user != null) {
-                    // Use it
-                    builder.addField("Author", user.getAsTag(), false);
-                } else {
-                    // Otherwise, fall back to the snowflake.
-                    builder.addField("Author", Long.toString(quotee.getSnowflakeData()), false);
-                }
-                break;
-            case STRING:
-                builder.addField("Author", quotee.getStringData(), false);
-                break;
-
-            case ANONYMOUS: // Intentional fallthrough.
-            default:
-                builder.addField("Author", quotee.getAnonymousData(), false);
-                break;
-        }
-
-        // Resolve the person that made the quote..
-        UserReference author = this.getQuoteAuthor();
-        switch (author.getReferenceType()) {
-            case SNOWFLAKE:
-                // Try to find the user's data in a server
-                User user = MMDBot.getInstance().getUserById(author.getSnowflakeData());
-                // If we have it...
-                if (user != null) {
-                    // Use it
-                    builder.setFooter("Quoted by " + user.getAsTag());
-                } else {
-                    // Otherwise, fall back to the snowflake.
-                    builder.setFooter("Quoted by " + author.getSnowflakeData());
-                }
-                break;
-            case STRING:
-                builder.setFooter("Quoted by " + author.getStringData());
-                break;
-
-            case ANONYMOUS: // Intentional fallthrough.
-            default:
-                builder.setFooter("Quoted by " + author.getAnonymousData());
-                break;
-        }
-
-        builder.setTimestamp(Instant.now());
-        return builder.build();
+    @Override
+    public String getQuoteText() {
+        return data;
     }
 
     /**

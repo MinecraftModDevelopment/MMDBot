@@ -48,6 +48,7 @@ import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUnmute;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
 import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdAddQuote;
 import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdGetQuote;
+import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdListQuotes;
 import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdRemoveQuote;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdAddTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
@@ -120,6 +121,7 @@ public class CommandModule {
             .addCommand(new CmdAddQuote())
             .addCommand(new CmdGetQuote())
             .addCommand(new CmdRemoveQuote())
+            .addCommand(new CmdListQuotes())
             .setHelpWord("help")
             .build();
 
@@ -128,6 +130,7 @@ public class CommandModule {
             MMDBot.getInstance().addEventListener(CmdMappings.ButtonListener.INSTANCE);
             MMDBot.getInstance().addEventListener(CmdTranslateMappings.ButtonListener.INSTANCE);
             MMDBot.getInstance().addEventListener(new CmdListTricks.ButtonListener());
+            MMDBot.getInstance().addEventListener(new CmdListQuotes.ButtonListener());
             MMDBot.LOGGER.warn("Command module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");

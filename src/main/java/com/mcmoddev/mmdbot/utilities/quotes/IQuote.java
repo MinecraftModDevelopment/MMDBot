@@ -83,4 +83,10 @@ public interface IQuote {
      */
     MessageEmbed getQuoteMessage();
 
+    /**
+     * Get the closest text representation of the thing being quoted.
+     * @return Depends on the subclass.
+     */
+    String getQuoteText();
+
 }
