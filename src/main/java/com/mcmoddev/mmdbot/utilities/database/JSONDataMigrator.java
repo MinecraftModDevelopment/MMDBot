@@ -21,6 +21,12 @@
 package com.mcmoddev.mmdbot.utilities.database;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
 import com.mcmoddev.mmdbot.utilities.database.dao.PersistedRoles;
@@ -30,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -53,13 +60,19 @@ public final class JSONDataMigrator {
 
     /**
      * The shared Gson instance, used to load JSON files.
+     * +     *
+     * +     * @see InstantDeserializer
      */
-    private static final Gson GSON = new Gson();
+    private static final Gson GSON = new GsonBuilder()
+        .registerTypeAdapter(Instant.class, new InstantDeserializer())
+        .create();
+
     /**
      * The type token for the user first join times data, which represents a {@code Map<String, Instant>}.
      */
     private static final TypeToken<?> USER_FIRST_JOIN_TIMES_TYPE = TypeToken.getParameterized(
         Map.class, String.class, Instant.class);
+
     /**
      * The type token for the stick roles data, which represents a {@code Map<String, List<String>>}.
      */
@@ -220,5 +233,29 @@ public final class JSONDataMigrator {
          * @param t the input argument
          */
         void acceptThrows(T t) throws Exception;
+    }
+
+    /**
+     * A simple deserializer for {@link Instant}. This avoids the use of reflection in creating the Instant objects,
+     * allowing for compatibility on newer Java versions where reflecting into classes from modules is disallowed
+     * by default.
+     */
+    private static class InstantDeserializer implements JsonDeserializer<Instant> {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public Instant deserialize(final JsonElement json, final Type typeOfT,
+                                   final JsonDeserializationContext context) throws JsonParseException {
+            if (json.isJsonNull()) {
+                return null;
+            }
+
+            final JsonObject jsonObj = json.getAsJsonObject();
+            final long seconds = jsonObj.get("seconds").getAsLong();
+            final long nanos = jsonObj.get("nanos").getAsLong();
+
+            return Instant.ofEpochSecond(seconds, nanos);
+        }
     }
 }
