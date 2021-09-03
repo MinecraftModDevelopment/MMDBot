@@ -125,8 +125,19 @@ public class CmdListQuotes extends Command {
      * @return An EmbedBuilder which is ready to be sent.
      */
     private static EmbedBuilder getQuotes(int start) {
-        // Build the list in a StringBuilder.
-        StringBuilder str = new StringBuilder();
+        EmbedBuilder embed;
+        // We have to make sure that this doesn't crash if we list a fresh bot.
+        if (QuoteList.getQuoteSlot() == 0) {
+            embed = new EmbedBuilder()
+                .setColor(Color.GREEN)
+                .setDescription("There are no quotes loaded currently.")
+                .setTimestamp(Instant.now());
+        } else {
+            embed = new EmbedBuilder()
+                .setColor(Color.GREEN)
+                .setTitle("Quote Page " + ((start / QUOTE_PER_PAGE) + 1))
+                .setTimestamp(Instant.now());
+        }
 
         // From the specified starting point until the end of the page..
         for (int x = start; x < start + QUOTE_PER_PAGE; x++) {
@@ -140,25 +151,12 @@ public class CmdListQuotes extends Command {
 
             // Put it in the description.
             // message - author
-            str.append(fetchedQuote == null ? "Quote does not exist." :
-                fetchedQuote.getQuoteText() + " - " + fetchedQuote.getQuotee().resolveReference());
-
-            str.append("\n");
+            embed.addField(String.valueOf(fetchedQuote.getID()), fetchedQuote == null ? "Quote does not exist." :
+                fetchedQuote.getQuoteText() + " - " + fetchedQuote.getQuotee().resolveReference(), false);
         }
 
-        // We have to make sure that this doesn't crash if we list a fresh bot.
-        if (str.length() == 0) {
-            return new EmbedBuilder()
-                .setColor(Color.GREEN)
-                .setDescription("There are no quotes loaded currently.")
-                .setTimestamp(Instant.now());
-        } else {
-            return new EmbedBuilder()
-                .setColor(Color.GREEN)
-                .setTitle("Quote Page " + ((start / QUOTE_PER_PAGE) + 1))
-                .setDescription(str.toString())
-                .setTimestamp(Instant.now());
-        }
+        return embed;
+
     }
 
     public static class ButtonListener extends ListenerAdapter {
