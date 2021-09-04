@@ -69,8 +69,13 @@ public final class CmdAddQuote extends Command {
         // args = [ "text", <@ID> ]
 
         // Verify that there were any arguments
-        if (!(args.length > 0) || args.length > 2) {
+        if (!(args.length > 0)) {
             channel.sendMessage("Invalid arguments. See the help for this command.").queue();
+            return;
+        }
+
+        if(args.length > 2) {
+            channel.sendMessage("A quote cannot contain a dash ( - ). This is being worked on.").queue();
             return;
         }
 
