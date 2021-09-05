@@ -71,7 +71,7 @@ public final class EventNicknameChanged extends ListenerAdapter {
                     if (entry.getTargetIdLong() != target.getIdLong()) {
                         MMDBot.LOGGER.warn(MMDMarkers.EVENTS, "Inconsistency between target of retrieved audit log "
                                 + "entry and actual nickname event target: retrieved is {}, but target is {}",
-                            target, entry.getUser());
+                            entry.getUser(), target);
                     } else if (entry.getUser() != null) {
                         final var editor = entry.getUser();
                         embed.addField("Nickname Editor:", editor.getAsMention() + " ("

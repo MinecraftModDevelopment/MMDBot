@@ -109,7 +109,7 @@ public final class EventRoleAdded extends ListenerAdapter {
                         true);
                     if (entry.getTargetIdLong() != target.getIdLong()) {
                         LOGGER.warn(MMDMarkers.EVENTS, "Inconsistency between target of retrieved audit log entry and actual "
-                            + "role event target: retrieved is {}, but target is {}", target, entry.getUser());
+                            + "role event target: retrieved is {}, but target is {}", entry.getUser(), target);
                     } else if (entry.getUser() != null) {
                         final var editor = entry.getUser();
                         embed.addField("Editor:", editor.getAsMention() + " (" + editor.getId() + ")",
