@@ -116,10 +116,11 @@ public final class EventUserLeft extends ListenerAdapter {
         if (requestsChannel != null && deletionTime > 0) {
             final OffsetDateTime now = OffsetDateTime.now().minusHours(deletionTime);
             requestsChannel.getIterableHistory()
-                .takeWhileAsync(message -> message.getTimeCreated().isAfter(now)
-                    && message.getAuthor().equals(leavingUser))
+                .takeWhileAsync(message -> message.getTimeCreated().isAfter(now))
                 .thenAccept(messages ->
-                    messages.forEach(message -> {
+                    messages.stream()
+                        .filter(message -> message.getAuthor().equals(leavingUser))
+                        .forEach(message -> {
                         LOGGER.info(MMDMarkers.REQUESTS, "Removed request from {} (current leave deletion of "
                                 + "{} hour(s), sent {}) because they left the server",
                             leavingUser, message.getTimeCreated(), deletionTime);
