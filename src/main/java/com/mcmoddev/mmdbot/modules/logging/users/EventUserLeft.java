@@ -122,8 +122,8 @@ public final class EventUserLeft extends ListenerAdapter {
                         .filter(message -> message.getAuthor().equals(leavingUser))
                         .forEach(message -> {
                         LOGGER.info(MMDMarkers.REQUESTS, "Removed request from {} (current leave deletion of "
-                                + "{} hour(s), sent {}) because they left the server",
-                            leavingUser, message.getTimeCreated(), deletionTime);
+                                + "{} hour(s), message sent on {}) because they left the server",
+                            leavingUser, deletionTime, message.getTimeCreated());
 
                         final var logChannel = guild.getTextChannelById(getConfig()
                             .getChannel("events.requests_deletion"));
