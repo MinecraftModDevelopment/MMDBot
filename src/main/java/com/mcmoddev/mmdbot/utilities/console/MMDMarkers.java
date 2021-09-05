@@ -62,6 +62,21 @@ public final class MMDMarkers {
     public static final Marker EVENTS = MarkerFactory.getMarker("Events");
 
     /**
+     * The {@link Marker} for the banning system.
+     *
+     * @see CmdBan
+     * @see CmdUnban
+     */
+    public static final Marker BANNING = MarkerFactory.getMarker("Banning");
+
+    /**
+     * The {@link Marker} for the kicking system.
+     *
+     * @see CmdKick
+     */
+    public static final Marker KICKING = MarkerFactory.getMarker("Kicking");
+
+    /**
      * The {@link Marker} for the muting system.
      *
      * @see CmdMute
