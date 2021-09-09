@@ -32,6 +32,8 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.ErrorResponse;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -116,29 +118,41 @@ public final class EventUserLeft extends ListenerAdapter {
         if (requestsChannel != null && deletionTime > 0) {
             final OffsetDateTime now = OffsetDateTime.now().minusHours(deletionTime);
             requestsChannel.getIterableHistory()
-                .takeWhileAsync(message -> message.getTimeCreated().isAfter(now)
-                    && message.getAuthor().equals(leavingUser))
-                .thenAccept(messages ->
-                    messages.forEach(message -> {
-                        LOGGER.info(MMDMarkers.REQUESTS, "Removed request from {} (current leave deletion of "
-                                + "{} hour(s), sent {}) because they left the server",
-                            leavingUser, message.getTimeCreated(), deletionTime);
+                .takeWhileAsync(message -> message.getTimeCreated().isAfter(now))
+                .thenAccept(messages -> messages.stream()
+                    .filter(message -> message.getAuthor().equals(leavingUser))
+                    .forEach(message -> message.delete()
+                        .reason(String.format("User left, message created at %s, within leave deletion threshold "
+                            + "of %s hour(s)", message.getTimeCreated(), deletionTime))
+                        .map(s -> true)
+                        .onErrorMap(ErrorResponse.UNKNOWN_MESSAGE::test, s -> false)
+                        .queue(success -> {
+                            LOGGER.info(MMDMarkers.REQUESTS, "Removed request from {} (current leave deletion of "
+                                    + "{} hour(s), message sent on {}) because they left the server",
+                                leavingUser, deletionTime, message.getTimeCreated());
 
-                        final var logChannel = guild.getTextChannelById(getConfig()
-                            .getChannel("events.requests_deletion"));
-                        if (logChannel != null) {
-                            logChannel.sendMessage(String.format("Auto-deleted request from %s (%s;`%s`) "
-                                        + "due to leaving server: %n%s", leavingUser.getAsMention(), leavingUser.getAsTag(),
-                                    leavingUser.getId(), message.getContentRaw()))
-                                .allowedMentions(Collections.emptySet())
-                                .queue();
-                        }
+                            final var logChannel = guild.getTextChannelById(getConfig()
+                                .getChannel("events.requests_deletion"));
+                            if (logChannel != null) {
+                                EmbedBuilder builder = new EmbedBuilder();
+                                builder.setTitle("Automatic request deletion");
+                                builder.setAuthor(leavingUser.getAsTag(), leavingUser.getEffectiveAvatarUrl());
+                                builder.appendDescription("Deleted request from ")
+                                    .appendDescription(leavingUser.getAsMention())
+                                    .appendDescription(" as the user left the user.");
+                                builder.addField("Message Creation Time",
+                                    TimeFormat.DATE_TIME_SHORT.format(message.getTimeCreated()), true);
+                                builder.addField("Auto-Deletion on Leave Duration", deletionTime + " hour(s)", true);
+                                builder.setTimestamp(Instant.now());
+                                builder.setColor(Color.PINK);
+                                builder.setFooter("User ID: " + leavingUser.getId());
 
-                        message.delete()
-                            .reason(String.format("User left, message created at %s, within leave deletion threshold "
-                                + "of %s hour(s)", message.getTimeCreated(), deletionTime))
-                            .queue();
-                    }));
+                                logChannel.sendMessage(message.getContentRaw())
+                                    .setEmbeds(builder.build())
+                                    .allowedMentions(Collections.emptySet())
+                                    .queue();
+                            }
+                        })));
         }
     }
 }

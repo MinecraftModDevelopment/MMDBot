@@ -81,7 +81,7 @@ public class UserBanned extends ListenerAdapter {
                     if (entry.getTargetIdLong() != target.getIdLong()) {
                         MMDBot.LOGGER.warn(MMDMarkers.EVENTS, "Inconsistency between target of retrieved audit log "
                                 + "entry and actual ban event target: retrieved is {}, but target is {}",
-                            target, entry.getUser());
+                            entry.getUser(), target);
                     } else if (entry.getUser() != null) {
                         final var editor = entry.getUser();
                         embed.setDescription("Banned By: " + editor.getName() + " (" + editor.getId() + ")");

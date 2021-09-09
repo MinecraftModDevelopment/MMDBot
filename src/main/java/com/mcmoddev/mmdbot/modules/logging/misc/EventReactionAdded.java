@@ -21,8 +21,10 @@
 package com.mcmoddev.mmdbot.modules.logging.misc;
 
 import com.mcmoddev.mmdbot.utilities.Utils;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.MessageReaction;
@@ -31,13 +33,18 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.pagination.PaginationAction;
+import net.dv8tion.jda.api.utils.MarkdownSanitizer;
+import net.dv8tion.jda.api.utils.MarkdownUtil;
 
+import java.awt.Color;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
@@ -106,12 +113,14 @@ public final class EventReactionAdded extends ListenerAdapter {
             final List<Long> needsImprovementReactionsList = getConfig().getRequestsNeedsImprovementReactions();
             final var badReactions = Utils.getMatchingReactions(message, badReactionsList::contains);
 
-            final var hasStaffSignoff = badReactions.stream()
+            final List<Member> signedOffStaff = badReactions.stream()
                 .map(MessageReaction::retrieveUsers)
                 .flatMap(PaginationAction::stream)
                 .map(guild::getMember)
                 .filter(Objects::nonNull)
-                .anyMatch(member -> member.hasPermission(Permission.KICK_MEMBERS));
+                .filter(member -> member.hasPermission(Permission.KICK_MEMBERS))
+                .toList();
+            final var hasStaffSignoff = signedOffStaff.size() > 0;
 
             final int badReactionsCount = badReactions.stream().mapToInt(MessageReaction::getCount).sum();
             final int goodReactionsCount = Utils.getNumberOfMatchingReactions(message, goodReactionsList::contains);
@@ -131,9 +140,22 @@ public final class EventReactionAdded extends ListenerAdapter {
                     final var logChannel = guild.getTextChannelById(getConfig()
                         .getChannel("events.requests_deletion"));
                     if (logChannel != null) {
-                        logChannel.sendMessage(String.format("Request from %s (%s;%s) reached deletion threshold, "
-                                    + "awaiting moderator approval for deletion", messageAuthor.getAsMention(),
-                                messageAuthor.getAsTag(), messageAuthor.getId()))
+                        final EmbedBuilder builder = new EmbedBuilder();
+                        builder.setAuthor(messageAuthor.getAsTag(), messageAuthor.getEffectiveAvatarUrl());
+                        builder.setTitle("Request awaiting moderator approval");
+                        builder.appendDescription("Request from ")
+                                .appendDescription(messageAuthor.getAsMention())
+                            .appendDescription(" has a score of " + requestScore)
+                            .appendDescription(", reaching removal threshold of " + removalThreshold)
+                            .appendDescription(" and is now awaiting moderator approval before deletion.");
+                        builder.addField("Jump to Message",
+                            MarkdownUtil.maskedLink("Message in " + message.getTextChannel().getAsMention(),
+                            message.getJumpUrl()), true);
+                        builder.setTimestamp(Instant.now());
+                        builder.setColor(Color.YELLOW);
+                        builder.setFooter("User ID: " + messageAuthor.getId());
+
+                        logChannel.sendMessageEmbeds(builder.build())
                             .allowedMentions(Collections.emptySet())
                             .queue();
                     }
@@ -156,9 +178,26 @@ public final class EventReactionAdded extends ListenerAdapter {
                 final var logChannel = guild.getTextChannelById(getConfig()
                     .getChannel("events.requests_deletion"));
                 if (logChannel != null) {
-                    logChannel.sendMessage(String.format("Auto-deleted request from %s (%s;%s) due to "
-                                + "reaching deletion threshold: %n%s", messageAuthor.getAsMention(),
-                            messageAuthor.getAsTag(), messageAuthor.getId(), message.getContentRaw()))
+                    final EmbedBuilder builder = new EmbedBuilder();
+                    builder.setAuthor(messageAuthor.getAsTag(), messageAuthor.getEffectiveAvatarUrl());
+                    builder.setTitle("Deleted request by community review");
+                    builder.appendDescription("Deleted request from ")
+                        .appendDescription(messageAuthor.getAsMention())
+                        .appendDescription(" which has a score of " + requestScore)
+                        .appendDescription(", reaching removal threshold of " + removalThreshold)
+                        .appendDescription(", and has been approved by moderators for deletion.");
+
+                    final String approvingMods = signedOffStaff.stream()
+                        .map(s -> "%s (%s, id `%s`)".formatted(s.getAsMention(), s.getUser().getAsTag(), s.getId()))
+                        .collect(Collectors.joining("\n"));
+                    builder.addField("Approving moderators", approvingMods, true);
+
+                    builder.setTimestamp(Instant.now());
+                    builder.setColor(Color.RED);
+                    builder.setFooter("User ID: " + messageAuthor.getId());
+
+                    logChannel.sendMessage(message.getContentRaw())
+                        .setEmbeds(builder.build())
                         .allowedMentions(Collections.emptySet())
                         .queue();
                 }
