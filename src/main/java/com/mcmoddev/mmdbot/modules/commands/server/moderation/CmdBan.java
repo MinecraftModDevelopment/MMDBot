@@ -110,7 +110,7 @@ public final class CmdBan extends Command {
             }
 
             channel.sendMessageFormat("Banned user %s for%s.", member.getAsMention(), timeString).queue();
-            LOGGER.info(MUTING, "User {} was banned by {} for{}", member, author, timeString);
+            LOGGER.info(BANNING, "User {} was banned by {} for{}", member, author, timeString);
         } else {
             channel.sendMessage("You do not have permission to use this command.").queue();
         }

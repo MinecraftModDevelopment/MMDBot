@@ -85,7 +85,7 @@ public final class CmdKick extends Command {
             guild.addRoleToMember(member, kickedRole).queue();
 
             channel.sendMessageFormat("Kicked user %s.", member.getAsMention());
-            LOGGER.info(MUTING, "User {} was kicked by {}", member, author);
+            LOGGER.info(KICKING, "User {} was kicked by {}", member, author);
         } else {
             channel.sendMessage("You do not have permission to use this command.").queue();
         }

@@ -81,7 +81,7 @@ public final class CmdUnban extends Command {
 
             guild.removeRoleFromMember(member, bannedRole).queue();
             channel.sendMessageFormat("Unbanned user %s.", member.getAsMention()).queue();
-            LOGGER.info(MUTING, "User {} was unbanned by {}", member, author);
+            LOGGER.info(BANNING, "User {} was unbanned by {}", member, author);
         } else {
             channel.sendMessage("You do not have permission to use this command.").queue();
         }
