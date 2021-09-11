@@ -114,17 +114,7 @@ public final class CmdOldChannels extends Command {
     /**
      * The type Channel data.
      */
-    private static final class ChannelData {
-
-        /**
-         * The Channel.
-         */
-        private final TextChannel channel;
-
-        /**
-         * The Days.
-         */
-        private final long days;
+    private record ChannelData(TextChannel channel, long days) {
 
         /**
          * Instantiates a new Channel data.
@@ -132,9 +122,7 @@ public final class CmdOldChannels extends Command {
          * @param channel the channel
          * @param days    the days
          */
-        private ChannelData(final TextChannel channel, final long days) {
-            this.channel = channel;
-            this.days = days;
+        private ChannelData {
         }
     }
 }
