@@ -31,7 +31,7 @@ import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
 import com.mcmoddev.mmdbot.MMDBot;
 import net.dv8tion.jda.api.Permission;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -108,9 +108,9 @@ public final class BotConfig {
     /**
      * Returns the configured bot token, or {@code null} if there is none configured.
      *
-     * @return The configured bot token, or {@code null}
+     * @return The configured bot token, or {@code ""}
      */
-    @Nullable
+    @Nonnull
     public String getToken() {
         return config.<String>getOptional("bot.token")
             .filter(string -> string.indexOf('!') == -1 || string.isEmpty())
@@ -315,7 +315,7 @@ public final class BotConfig {
     }
 
     /**
-     * Returns the amount of time in days where a request is actionable using the requests warning and removal system.
+     * Returns the amount of time in days; where a request is actionable using the requests warning and removal system.
      * <p>
      * A request that has existed for longer that this duration (a "stale request") will not cause the warning or
      * removal threshold to trip when reacted to by users.

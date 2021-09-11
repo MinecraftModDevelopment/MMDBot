@@ -37,7 +37,7 @@ import java.util.Random;
 /**
  * The type Cmd cat facts.
  *
- * @author
+ * @author proxyneko
  */
 public final class CmdCatFacts extends Command {
 
@@ -98,7 +98,7 @@ public final class CmdCatFacts extends Command {
         if (!"".equals(fact)) {
             embed.setColor(RANDOM.nextInt(0x1000000));
             embed.appendDescription(fact);
-            embed.setFooter("Puwerrd by https://catfact.ninja");
+            embed.setFooter("Powered by https://catfact.ninja");
 
             event.getChannel().sendMessageEmbeds(embed.build()).queue();
         }

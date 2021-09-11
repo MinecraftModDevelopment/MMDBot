@@ -154,7 +154,7 @@ public final class Tricks {
      * Add a trick.
      *
      * @param trick the trick to add.
-     * @throws IllegalArgumentException propogated from
+     * @throws IllegalArgumentException propagated from
      *                                  {@link com.jagrosh.jdautilities.command.CommandClient#addCommand(Command)} if a command with the name or alias
      *                                  of the given trick already exists.
      */
@@ -217,7 +217,7 @@ public final class Tricks {
                 return null;
             }
             final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
-            return new TypeAdapter<T>() {
+            return new TypeAdapter<>() {
                 @Override
                 public void write(final JsonWriter out, final T value) throws IOException {
                     out.beginObject();

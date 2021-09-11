@@ -213,15 +213,11 @@ public final class UserReference {
          * @return The ReferenceType value requested.
          */
         public static ReferenceType of(final String pName) {
-            switch (pName) {
-                case "snowflake":
-                    return SNOWFLAKE;
-                case "string":
-                    return STRING;
-                default:
-                case "anonymous":
-                    return ANONYMOUS;
-            }
+            return switch (pName) {
+                case "snowflake" -> SNOWFLAKE;
+                case "string" -> STRING;
+                case "anonymous" -> ANONYMOUS;
+            };
         }
 
     }

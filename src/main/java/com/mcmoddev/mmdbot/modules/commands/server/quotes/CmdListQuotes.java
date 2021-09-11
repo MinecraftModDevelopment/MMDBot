@@ -139,7 +139,7 @@ public class CmdListQuotes extends Command {
                 .setTimestamp(Instant.now());
         }
 
-        // From the specified starting point until the end of the page..
+        // From the specified starting point until the end of the page.
         for (int x = start; x < start + QUOTE_PER_PAGE; x++) {
             // But stop early if we hit the end of the list,
             if (x >= QuoteList.getQuoteSlot()) {

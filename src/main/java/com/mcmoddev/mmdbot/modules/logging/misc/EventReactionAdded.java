@@ -33,7 +33,6 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.pagination.PaginationAction;
-import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
 import java.awt.Color;
@@ -131,7 +130,7 @@ public final class EventReactionAdded extends ListenerAdapter {
 
             final User messageAuthor = message.getAuthor();
             if (requestScore >= removalThreshold) {
-                // If the message has no staff signing off and it hasn't yet been logged about, log it
+                // If the message has no staff signing off, and it hasn't yet been logged about, log it
                 if (!hasStaffSignoff && messagesAwaitingSignoff.add(message.getIdLong())) {
                     LOGGER.info(REQUESTS, "Request from {} has a score of {}, reaching removal threshold {}, "
                             + "awaiting moderation approval.",

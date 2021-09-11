@@ -43,7 +43,7 @@ public final class CmdUnmute extends Command {
     public CmdUnmute() {
         super();
         name = "unmute";
-        help = "Unmutes a user. Usage: !mmd-unmute <userID/mention>";
+        help = "Un-mutes a user. Usage: !mmd-unmute <userID/mention>";
         hidden = true;
     }
 
@@ -80,8 +80,8 @@ public final class CmdUnmute extends Command {
             }
 
             guild.removeRoleFromMember(member, mutedRole).queue();
-            channel.sendMessageFormat("Unmuted user %s.", member.getAsMention()).queue();
-            LOGGER.info(MUTING, "User {} was unmuted by {}", member, author);
+            channel.sendMessageFormat("Un-muted user %s.", member.getAsMention()).queue();
+            LOGGER.info(MUTING, "User {} was un-muted by {}", member, author);
         } else {
             channel.sendMessage("You do not have permission to use this command.").queue();
         }

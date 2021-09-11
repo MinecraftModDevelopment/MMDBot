@@ -111,7 +111,7 @@ public class EmbedTrick implements Trick {
     /**
      * Gets description.
      *
-     * @return Get the tricks description.
+     * @return Get the trick's description.
      */
     public String getDescription() {
         return description;

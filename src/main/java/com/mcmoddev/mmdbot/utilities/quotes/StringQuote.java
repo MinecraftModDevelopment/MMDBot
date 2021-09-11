@@ -48,14 +48,14 @@ public final class StringQuote extends Quote {
      *
      * @param pData The message or content being quoted.
      */
-    protected void setData(final String pData) {
+    private void setData(final String pData) {
         this.data = pData;
     }
 
     /**
      * @return The message or content being quoted.
      */
-    protected String getData() {
+    private String getData() {
         return data;
     }
 

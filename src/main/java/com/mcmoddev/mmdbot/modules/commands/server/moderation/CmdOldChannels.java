@@ -63,7 +63,7 @@ public final class CmdOldChannels extends Command {
         final var guild = event.getGuild();
         final var embed = new EmbedBuilder();
         final var outputChannel = event.getTextChannel();
-        //I have to do this so we can use `remove` later. williambl
+        // I have to do this, so we can use `remove` later. williambl
         final List<String> args = new ArrayList<>(Arrays.asList(event.getArgs().split(" ")));
         if (!Utils.checkCommand(this, event)) {
             outputChannel.sendMessage("This command is channel locked.").queue();

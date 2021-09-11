@@ -42,7 +42,7 @@ import java.util.stream.Stream;
 /**
  * A custom {@link ch.qos.logback.core.Layout} for logging to Discord channels.
  * <p>
- * For each logging level (except {@link Level#OFF} and {@link Level#ALL}, there is an associated emote, used for
+ * For each logging level (except {@link Level#OFF} and {@link Level#ALL}), there is an associated emote, used for
  * visual distinction of the log messages.
  * <p>
  * Any {@link IMentionable} in the {@linkplain ILoggingEvent#getArgumentArray() message formatting arguments}, even
@@ -141,8 +141,7 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
                 ))
                 .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        } else if (obj instanceof Map.Entry) {
-            final Map.Entry<?, ?> entry = (Map.Entry<?, ?>) obj;
+        } else if (obj instanceof final Map.Entry<?, ?> entry) {
             return new AbstractMap.SimpleImmutableEntry<>(tryConvertMentionables(entry.getKey()),
                 tryConvertMentionables(entry.getValue()));
 

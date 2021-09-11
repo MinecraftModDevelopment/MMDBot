@@ -26,7 +26,7 @@ import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
 
 /**
- * Rename the bot, not a nickname but it's actual name.
+ * Rename the bot, not a nickname, but it's actual name.
  *
  * @author ProxyNeko
  */

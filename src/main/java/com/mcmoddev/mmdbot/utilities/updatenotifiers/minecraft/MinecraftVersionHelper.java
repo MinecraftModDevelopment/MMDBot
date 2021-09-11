@@ -97,7 +97,7 @@ public final class MinecraftVersionHelper {
         if (reader == null) {
             return;
         }
-        final TypeToken<List<MinecraftVersionInfo>> token = new TypeToken<List<MinecraftVersionInfo>>() {
+        final TypeToken<List<MinecraftVersionInfo>> token = new TypeToken<>() {
         };
         final List<MinecraftVersionInfo> versions = new Gson().fromJson(reader, token.getType());
 
@@ -123,8 +123,6 @@ public final class MinecraftVersionHelper {
 
     /**
      * The type Minecraft version info.
-     *
-     * @author
      */
     private static class MinecraftVersionInfo {
 

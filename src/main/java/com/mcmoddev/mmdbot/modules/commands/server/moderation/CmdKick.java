@@ -26,9 +26,6 @@ import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
-
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.KICKING;

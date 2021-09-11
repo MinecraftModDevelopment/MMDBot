@@ -72,9 +72,9 @@ class CmdTranslateMappings(
             return
         }
 
-        val args = event.args.split(' ');
+        val args = event.args.split(' ')
 
-        val query = args[0];
+        val query = args[0]
         val version = args.getOrElse(1) {
             val namespace2Versions = namespace2.getAllVersions().toSet()
             namespace1.getAllVersions().filter { version -> namespace2Versions.contains(version) }

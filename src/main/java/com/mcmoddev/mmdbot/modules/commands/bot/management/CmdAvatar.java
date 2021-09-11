@@ -30,7 +30,7 @@ import java.io.IOException;
 /**
  * @author ProxyNeko
  *
- * Sett he avatar of the bot, requires bot admin permissions.
+ * Set the avatar of the bot, requires bot admin permissions.
  */
 public class CmdAvatar extends Command {
 
@@ -47,7 +47,7 @@ public class CmdAvatar extends Command {
     }
 
     /**
-     * Try to set the a new avatar for the bot.
+     * Try to set a new avatar for the bot.
      *
      * @param event the event
      */

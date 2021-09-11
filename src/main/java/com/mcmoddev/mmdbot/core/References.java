@@ -44,7 +44,7 @@ public class References {
      *
      * <p>
      * The version will be taken from the {@code Implementation-Version} attribute of the JAR manifest. If that is
-     * unavailable, the version shall be the combination of the string {@code "DEV "} and the the current date and time
+     * unavailable, the version shall be the combination of the string {@code "DEV "} and the current date and time
      * in {@link java.time.format.DateTimeFormatter#ISO_OFFSET_DATE_TIME}.
      */
     public static final String VERSION;

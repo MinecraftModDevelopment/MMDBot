@@ -23,7 +23,6 @@ package com.mcmoddev.mmdbot.utilities;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.core.BotConfig;
 import com.mcmoddev.mmdbot.utilities.database.dao.PersistedRoles;
 import com.mcmoddev.mmdbot.utilities.database.dao.UserFirstJoins;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -69,7 +68,7 @@ public final class Utils {
      * A sleep timer to help with getting some information from the audit log by
      * delaying the running code before we get the info from the audit log.
      * <p>
-     * Helps prevent some NullPointerExceptions that we where getting sometimes.
+     * Helps prevent some NullPointerExceptions that we were getting sometimes.
      * For example getting the reason a user was banned is not always there right
      * away when the user banned event is fired.
      * <p>
@@ -271,7 +270,7 @@ public final class Utils {
             final List<Long> allowedChannels = getConfig().getAllowedChannels(command.getName(),
                 event.getGuild().getIdLong());
 
-            //If the allow list is empty, default allowed.
+            //If the allowlist is empty, default allowed.
             if (allowedChannels.isEmpty()) {
                 return true;
             }

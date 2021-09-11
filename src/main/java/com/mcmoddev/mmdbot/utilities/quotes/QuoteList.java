@@ -29,7 +29,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.core.References;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.Nullable;
@@ -236,10 +235,10 @@ public final class QuoteList {
             // Fetch the Gson adapter that'd otherwise be used to serialize/deserialize this object
             final TypeAdapter<T> adapter = gson.getDelegateAdapter(this, type);
 
-            // Create a new TypeAdapter, that..
+            // Create a new TypeAdapter, that.
             return new TypeAdapter<>() {
 
-                // When asked to serialize..
+                // When asked to serialize.
                 @Override
                 public void write(final JsonWriter out, final T value) throws IOException {
                     out.beginObject();
