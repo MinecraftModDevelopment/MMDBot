@@ -58,7 +58,7 @@ public final class UserReference {
      *
      * Encodes the string "Anonymous" which is always returned as the source.
      */
-    private final String anonymousData = "Anonymous";
+    private static final String anonymousData = "Anonymous";
 
     /**
      * Identifies which of the fields in this class should be read to retrieve the proper data.
@@ -217,6 +217,7 @@ public final class UserReference {
                 case "snowflake" -> SNOWFLAKE;
                 case "string" -> STRING;
                 case "anonymous" -> ANONYMOUS;
+                default -> ANONYMOUS;
             };
         }
 
