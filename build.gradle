@@ -79,6 +79,7 @@ dependencies {
   implementation group: 'org.flywaydb', name: 'flyway-core', version: "${project.flyway_version}"
   implementation group: 'org.jdbi', name: 'jdbi3-core', version: "${project.jdbi_version}"
   implementation group: 'org.jdbi', name: 'jdbi3-sqlobject', version: "${project.jdbi_version}"
+  compileOnly group: 'org.jetbrains', name: 'annotations', version: "${project.jb_annotations_version}"
 
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: "${project.junit_version}"
 
