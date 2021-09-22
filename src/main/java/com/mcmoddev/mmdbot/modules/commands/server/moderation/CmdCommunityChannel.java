@@ -47,8 +47,8 @@ public final class CmdCommunityChannel extends Command {
     /**
      * The constant REQUIRED_PERMISSIONS.
      */
-    private static final EnumSet<Permission> REQUIRED_PERMISSIONS = EnumSet.of(Permission.MANAGE_PERMISSIONS,
-        Permission.MANAGE_CHANNEL);
+    private static final EnumSet<Permission> REQUIRED_PERMISSIONS
+        = EnumSet.of(Permission.MANAGE_PERMISSIONS, Permission.MANAGE_CHANNEL);
 
     /**
      * Instantiates a new Cmd community channel.
@@ -56,11 +56,12 @@ public final class CmdCommunityChannel extends Command {
     public CmdCommunityChannel() {
         super();
         name = "create-community-channel";
+        help = "Creates a new community channel for the given user.";
+        category = new Category("Moderation");
+        arguments = "<user ID/mention> <channel name>";
+        requiredRole = "Moderators";
         aliases = new String[]{"community-channel", "comm-ch"};
-        help = "Creates a new community channel for the given user. Usage: !mmd-create-community-channel "
-            + "<user ID/mention> <channel name>";
-        hidden = true;
-        requiredRole = "moderators";
+        guildOnly = true;
         botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
     }
 
@@ -87,7 +88,7 @@ public final class CmdCommunityChannel extends Command {
             return;
         }
 
-        final long categoryID = MMDBot.getConfig().getCommunityChannelCategory();
+        final var categoryID = MMDBot.getConfig().getCommunityChannelCategory();
         final var category = guild.getCategoryById(categoryID);
         if (categoryID == 0 || category == null) {
             MMDBot.LOGGER.warn("Community channel category is incorrectly configured");
@@ -117,11 +118,11 @@ public final class CmdCommunityChannel extends Command {
         emote.addAll(guild.getEmotesByName("mmd4", true));
 
         // Flavor text: if the emotes are available, use them, else just use plain MMD
-        final String emoteText = emote.size() == 4 ? emote.stream().map(Emote::getAsMention)
+        final var emoteText = emote.size() == 4 ? emote.stream().map(Emote::getAsMention)
             .collect(Collectors.joining()) : "";
-        final String flavorText = emoteText.isEmpty() ? "MMD" : emoteText;
+        final var flavorText = emoteText.isEmpty() ? "MMD" : emoteText;
 
-        final String channelName = args[1];
+        final var channelName = args[1];
         MMDBot.LOGGER.info("Creating new community channel for {}, named \"{}\" (command issued by {})",
             newOwner, channelName, author);
         category.createTextChannel(channelName)

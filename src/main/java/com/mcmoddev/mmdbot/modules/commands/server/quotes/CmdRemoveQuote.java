@@ -24,14 +24,13 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.quotes.QuoteList;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 /**
  * Remove a quote from the list.
  * Requires an int argument.
- *
+ * <p>
  * Possible forms:
- *
+ * <p>
  * !removequote 5
  * Can only be used by Bot Maintainers and higher.
  *
@@ -46,29 +45,32 @@ public final class CmdRemoveQuote extends Command {
     public CmdRemoveQuote() {
         super();
         name = "removequote";
-        aliases = new String[]{"quote-remove", "remove-quote"};
         help = "Remove a quote from the list.";
+        arguments = "<the quotes numerical ID>";
         requiredRole = "bot maintainer";
+        aliases = new String[]{"quote-remove", "remove-quote"};
+        guildOnly = true;
     }
 
     @Override
     protected void execute(final CommandEvent event) {
-        if (!Utils.checkCommand(this, event))
+        if (!Utils.checkCommand(this, event)) {
             return;
+        }
 
-        final TextChannel channel = event.getTextChannel();
-        String argsFull = event.getArgs();
+        final var channel = event.getMessage();
+        var argsFull = event.getArgs();
         if (argsFull.length() > 0) {
             // We have something to parse.
             try {
-                int index = Integer.parseInt(argsFull.trim());
+                var index = Integer.parseInt(argsFull.trim());
                 QuoteList.removeQuote(index);
-                channel.sendMessage("Quote " + index + " removed.").queue();
+                channel.reply("Quote " + index + " removed.").mentionRepliedUser(false).queue();
             } catch (NumberFormatException ignored) {
-                channel.sendMessage("Unable to determine which quote to remove.").queue();
+                channel.reply("Unable to determine which quote to remove.").mentionRepliedUser(false).queue();
             }
         } else {
-            channel.sendMessage("Specify a quote ID to remove.").queue();
+            channel.reply("Specify a quote ID to remove.").mentionRepliedUser(false).queue();
         }
     }
 }

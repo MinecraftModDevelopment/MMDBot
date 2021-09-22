@@ -45,8 +45,9 @@ public class CmdUptime extends Command {
     public CmdUptime() {
         super();
         name = "uptime";
-        guildOnly = false;
         help = "State how long the current instance of the bot has been running, can also be used as a ping test.";
+        category = new Category("Info");
+        guildOnly = true;
     }
 
     /**
@@ -57,7 +58,7 @@ public class CmdUptime extends Command {
     @Override
     protected void execute(final CommandEvent event) {
         final var embed = new EmbedBuilder();
-        final var channel = event.getChannel();
+        final var channel = event.getMessage();
 
         embed.setTitle("Time spent online.");
         embed.setColor(Color.GREEN);
@@ -66,6 +67,6 @@ public class CmdUptime extends Command {
                 ChronoUnit.YEARS, ChronoUnit.MONTHS, ChronoUnit.DAYS, ChronoUnit.HOURS, ChronoUnit.HOURS, ChronoUnit.SECONDS)
             , false);
         embed.setTimestamp(Instant.now());
-        channel.sendMessageEmbeds(embed.build()).queue();
+        channel.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
     }
 }

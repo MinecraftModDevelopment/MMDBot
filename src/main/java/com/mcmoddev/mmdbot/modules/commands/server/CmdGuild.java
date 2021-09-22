@@ -45,8 +45,10 @@ public final class CmdGuild extends Command {
     public CmdGuild() {
         super();
         name = "guild";
-        aliases = new String[]{"server"};
         help = "Gives info about this guild.";
+        category = new Category("Info");
+        aliases = new String[]{"server"};
+        guildOnly = true;
     }
 
     /**

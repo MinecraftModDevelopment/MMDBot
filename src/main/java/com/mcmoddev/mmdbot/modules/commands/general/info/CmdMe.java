@@ -39,8 +39,10 @@ public final class CmdMe extends CmdUser {
     public CmdMe() {
         super();
         name = "me";
-        aliases = new String[]{"whoami", "myinfo"};
         help = "Get information about your own user.";
+        category = new Category("Info");
+        aliases = new String[]{"whoami", "myinfo"};
+        guildOnly = true;
     }
 
     /**
@@ -53,8 +55,9 @@ public final class CmdMe extends CmdUser {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
-        final var channel = event.getTextChannel();
+
+        final var channel = event.getMessage();
         final EmbedBuilder embed = createMemberEmbed(event.getMember());
-        channel.sendMessageEmbeds(embed.build()).queue();
+        channel.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
     }
 }

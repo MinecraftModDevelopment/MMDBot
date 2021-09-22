@@ -26,11 +26,13 @@ import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.oldchannels.OldChannelsHelper;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Predicate;
@@ -42,15 +44,22 @@ import java.util.stream.Collectors;
 public final class CmdOldChannels extends Command {
 
     /**
+     * The constant REQUIRED_PERMISSIONS.
+     */
+    private static final EnumSet<Permission> REQUIRED_PERMISSIONS = EnumSet.of(Permission.MANAGE_CHANNEL);
+
+    /**
      * Instantiates a new Cmd old channels.
      */
     public CmdOldChannels() {
         super();
         name = "old-channels";
-        help = "Gives channels which haven't been used in an amount of days given as an argument (default 60)."
-            + "Usage: " + MMDBot.getConfig().getMainPrefix() + "old-channels [threshold] "
-            + "[channel or category list, separated by spaces]";
-        hidden = true;
+        help = "Gives channels which haven't been used in an amount of days given as an argument (default 60).";
+        category = new Category("Moderation");
+        arguments = "[threshold] [channel or category list, separated by spaces]";
+        requiredRole = "Moderators";
+        guildOnly = true;
+        botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
     }
 
     /**
@@ -75,7 +84,7 @@ public final class CmdOldChannels extends Command {
             return;
         }
 
-        final int dayThreshold = args.size() > 0 && args.get(0).matches("-?\\d+")
+        final var dayThreshold = args.size() > 0 && args.get(0).matches("-?\\d+")
             ? Integer.parseInt(args.remove(0)) : 60;
 
         List<String> toCheck = args.stream().map(it -> it.toLowerCase(Locale.ROOT)).collect(Collectors.toList());

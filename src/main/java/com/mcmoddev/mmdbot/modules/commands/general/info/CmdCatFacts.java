@@ -52,9 +52,10 @@ public final class CmdCatFacts extends Command {
     public CmdCatFacts() {
         super();
         name = "catfacts";
-        aliases = new String[]{"catfact", "cat-fact", "cat-facts"};
         help = "Get a random fact about cats, you learn something new every day!";
-        guildOnly = false;
+        category = new Category("Info");
+        aliases = new String[]{"catfact", "cat-fact", "cat-facts"};
+        guildOnly = true;
     }
 
     /**
@@ -98,9 +99,9 @@ public final class CmdCatFacts extends Command {
         if (!"".equals(fact)) {
             embed.setColor(RANDOM.nextInt(0x1000000));
             embed.appendDescription(fact);
-            embed.setFooter("Powered by https://catfact.ninja");
+            embed.setFooter("Purrwered by https://catfact.ninja");
 
-            event.getChannel().sendMessageEmbeds(embed.build()).queue();
+            event.getMessage().replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
         }
     }
 }

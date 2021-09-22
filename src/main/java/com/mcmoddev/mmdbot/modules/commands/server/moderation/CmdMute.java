@@ -24,8 +24,8 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.MessageChannel;
 
+import java.util.EnumSet;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -41,13 +41,22 @@ import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.MUTING;
 public final class CmdMute extends Command {
 
     /**
+     * The constant REQUIRED_PERMISSIONS.
+     */
+    private static final EnumSet<Permission> REQUIRED_PERMISSIONS = EnumSet.of(Permission.MANAGE_ROLES);
+
+    /**
      * Instantiates a new Cmd mute.
      */
     public CmdMute() {
         super();
         name = "mute";
-        help = "Mutes a user. Usage: !mmd-mute <userID/mention> [time, otherwise forever] [unit, otherwise minutes]";
-        hidden = true;
+        help = "Mute a user either indefinitely or for a set amount of time.";
+        category = new Category("Moderation");
+        arguments = "<userID/Mention> [time, otherwise forever] [unit, otherwise minutes]";
+        requiredRole = "Staff";
+        guildOnly = true;
+        botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
     }
 
     /**
@@ -60,20 +69,24 @@ public final class CmdMute extends Command {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
-        final var guild = event.getGuild();
-        final var author = guild.getMember(event.getAuthor());
+
+        final var author = event.getGuild().getMember(event.getAuthor());
+        final var channel = event.getMessage();
         if (author == null) {
             return;
         }
-        final String[] args = event.getArgs().split(" ");
-        final var member = Utils.getMemberFromString(args[0], event.getGuild());
-        final long mutedRoleID = getConfig().getRole("muted");
-        final var mutedRole = guild.getRoleById(mutedRoleID);
-        final MessageChannel channel = event.getChannel();
 
-        if (author.hasPermission(Permission.KICK_MEMBERS)) {
+        if (event.getArgs().isEmpty()) {
+            channel.reply("No arguments provided, please use the following arguments with this command: "
+                + "``" + getArguments() + "``").queue();
+        } else {
+            final String[] args = event.getArgs().split(" ");
+            final var member = Utils.getMemberFromString(args[0], event.getGuild());
+            final var mutedRoleID = getConfig().getRole("muted");
+            final var mutedRole = event.getGuild().getRoleById(mutedRoleID);
+
             if (member == null) {
-                channel.sendMessage(String.format("User %s not found.", event.getArgs())).queue();
+                channel.reply(String.format("User %s not found.", event.getArgs())).queue();
                 return;
             }
 
@@ -96,10 +109,10 @@ public final class CmdMute extends Command {
                 unit = TimeUnit.MINUTES;
             }
 
-            guild.addRoleToMember(member, mutedRole).queue();
+            event.getGuild().addRoleToMember(member, mutedRole).queue();
 
             if (time > 0) {
-                guild.removeRoleFromMember(member, mutedRole).queueAfter(time, unit);
+                event.getGuild().removeRoleFromMember(member, mutedRole).queueAfter(time, unit);
             }
 
             final String timeString;
@@ -109,10 +122,8 @@ public final class CmdMute extends Command {
                 timeString = "ever";
             }
 
-            channel.sendMessageFormat("Muted user %s for%s.", member.getAsMention(), timeString).queue();
+            channel.replyFormat("Muted user %s for%s.", member.getAsMention(), timeString).queue();
             LOGGER.info(MUTING, "User {} was muted by {} for{}", member, author, timeString);
-        } else {
-            channel.sendMessage("You do not have permission to use this command.").queue();
         }
     }
 
@@ -133,7 +144,7 @@ public final class CmdMute extends Command {
     }
 
     /**
-     * Parse time unit time unit.
+     * Parse time unit.
      *
      * @param timeUnitIn the time unit in
      * @return The {@code TimeUnit} formatted from a {@code String}.

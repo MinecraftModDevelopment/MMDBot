@@ -25,6 +25,7 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.forge.ForgeVersionHelper;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.forge.MinecraftForgeVersion;
+import com.mcmoddev.mmdbot.utilities.updatenotifiers.minecraft.MinecraftVersionHelper;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.Color;
@@ -33,7 +34,7 @@ import java.time.Instant;
 /**
  * The type Cmd forge version.
  *
- * @author
+ * @author @Poke
  */
 public final class CmdForgeVersion extends Command {
 
@@ -42,9 +43,12 @@ public final class CmdForgeVersion extends Command {
      */
     public CmdForgeVersion() {
         super();
-        this.name = "forge";
-        aliases = new String[]{"forgev"};
+        name = "forge";
         help = "Get forge versions for latest Minecraft version";
+        category = new Category("Info");
+        arguments = "<Minecraft Version>";
+        aliases = new String[]{"forgev"};
+        guildOnly = true;
     }
 
     /**
@@ -58,10 +62,15 @@ public final class CmdForgeVersion extends Command {
             return;
         }
 
+        //final var args = event.getArgs().trim();
         final var channel = event.getTextChannel();
         MinecraftForgeVersion latest;
         try {
-            latest = ForgeVersionHelper.getLatestMcVersionForgeVersions();
+            //if (args.isEmpty()) {
+                latest = ForgeVersionHelper.getLatestMcVersionForgeVersions();
+            //} else {
+                //latest = ForgeVersionHelper.getForgeVersionsForMcVersion(args);
+            //}
         } catch (Exception ex) {
             channel.sendMessage("Unable to get forge versions.").queue();
             ex.printStackTrace();
@@ -69,13 +78,13 @@ public final class CmdForgeVersion extends Command {
         }
 
         final var latestForgeVersion = latest.getForgeVersion();
-        final String latestForge = latestForgeVersion.getLatest();
-        String recommendedForge = latestForgeVersion.getRecommended();
+        final var latestForge = latestForgeVersion.getLatest();
+        var recommendedForge = latestForgeVersion.getRecommended();
         if (recommendedForge == null) {
             recommendedForge = "none";
         }
-        final String changelogLink = Utils.makeHyperlink("Changelog",
-            String.format("https://files.minecraftforge.net/maven/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt",
+        final var changelogLink = Utils.makeHyperlink("Changelog", String.format(
+            "https://files.minecraftforge.net/maven/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt",
                 latest.getMcVersion(), latest.getForgeVersion().getLatest()));
         final var embed = new EmbedBuilder();
 
@@ -85,6 +94,6 @@ public final class CmdForgeVersion extends Command {
         embed.setDescription(changelogLink);
         embed.setColor(Color.ORANGE);
         embed.setTimestamp(Instant.now());
-        channel.sendMessageEmbeds(embed.build()).queue();
+        channel.sendMessageEmbeds(embed.build()).mentionRepliedUser(false).queue();
     }
 }

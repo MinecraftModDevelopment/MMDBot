@@ -51,8 +51,10 @@ public final class CmdListTricks extends Command {
     public CmdListTricks() {
         super();
         name = "listtricks";
-        aliases = new String[]{"list-tricks", "tricks"};
         help = "Lists all tricks";
+        category = new Category("Fun");
+        aliases = new String[]{"list-tricks", "tricks"};
+        guildOnly = true;
     }
 
     /**
@@ -65,9 +67,9 @@ public final class CmdListTricks extends Command {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
+
         final var channel = event.getTextChannel();
         final var builder = getTrickList(0);
-
         if (!builder.isEmpty()) {
             var message = channel.sendMessageEmbeds(builder);
             Component[] buttons = createActionRow(0);
@@ -96,9 +98,11 @@ public final class CmdListTricks extends Command {
         if (lowestTrickIndex != 0) {
             components.add(Button.secondary(ButtonListener.BUTTON_ID_PREFIX + "-" + lowestTrickIndex + "-prev", Emoji.fromUnicode("◀️")));
         }
+
         if (lowestTrickIndex + TRICKS_PER_PAGE < Tricks.getTricks().size()) {
             components.add(Button.primary(ButtonListener.BUTTON_ID_PREFIX + "-" + lowestTrickIndex + "-next", Emoji.fromUnicode("▶️")));
         }
+
         return components.toArray(new Component[0]);
     }
 
@@ -122,7 +126,6 @@ public final class CmdListTricks extends Command {
             }
 
             int current = Integer.parseInt(idParts[1]);
-
             if (idParts[2].equals("next")) {
                 event
                     .editMessageEmbeds(List.of(getTrickList(current + TRICKS_PER_PAGE)))

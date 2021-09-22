@@ -26,6 +26,8 @@ import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
+import java.util.EnumSet;
+
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.MUTING;
@@ -37,14 +39,20 @@ import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.MUTING;
  */
 public final class CmdUnmute extends Command {
 
+    private static final EnumSet<Permission> REQUIRED_PERMISSIONS = EnumSet.of(Permission.MANAGE_ROLES);
+
     /**
      * Instantiates a new Cmd unmute.
      */
     public CmdUnmute() {
         super();
         name = "unmute";
-        help = "Un-mutes a user. Usage: !mmd-unmute <userID/mention>";
-        hidden = true;
+        help = "Un-mutes a user.";
+        category = new Category("Moderation");
+        arguments = "<userID/mention";
+        requiredRole = "Moderators";
+        guildOnly = true;
+        botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
     }
 
     /**
@@ -57,33 +65,31 @@ public final class CmdUnmute extends Command {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
+
         final var guild = event.getGuild();
         final var author = guild.getMember(event.getAuthor());
         if (author == null) {
             return;
         }
+
         final MessageChannel channel = event.getChannel();
         final String[] args = event.getArgs().split(" ");
         final var member = Utils.getMemberFromString(args[0], event.getGuild());
-        final long mutedRoleID = getConfig().getRole("muted");
+        final var mutedRoleID = getConfig().getRole("muted");
         final var mutedRole = guild.getRoleById(mutedRoleID);
 
-        if (author.hasPermission(Permission.KICK_MEMBERS)) {
-            if (member == null) {
-                channel.sendMessage(String.format("User %s not found.", event.getArgs())).queue();
-                return;
-            }
-
-            if (mutedRole == null) {
-                LOGGER.error(MUTING, "Unable to find muted role {}", mutedRoleID);
-                return;
-            }
-
-            guild.removeRoleFromMember(member, mutedRole).queue();
-            channel.sendMessageFormat("Un-muted user %s.", member.getAsMention()).queue();
-            LOGGER.info(MUTING, "User {} was un-muted by {}", member, author);
-        } else {
-            channel.sendMessage("You do not have permission to use this command.").queue();
+        if (member == null) {
+            channel.sendMessage(String.format("User %s not found.", event.getArgs())).queue();
+            return;
         }
+
+        if (mutedRole == null) {
+            LOGGER.error(MUTING, "Unable to find muted role {}", mutedRoleID);
+            return;
+        }
+
+        guild.removeRoleFromMember(member, mutedRole).queue();
+        channel.sendMessageFormat("Un-muted user %s.", member.getAsMention()).queue();
+        LOGGER.info(MUTING, "User {} was un-muted by {}", member, author);
     }
 }

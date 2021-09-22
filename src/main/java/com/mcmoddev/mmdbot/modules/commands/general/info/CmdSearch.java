@@ -54,8 +54,11 @@ public final class CmdSearch extends Command {
         super();
         this.name = name.toLowerCase(Locale.ROOT);
         this.aliases = aliases;
-        this.help = "Search for something using " + name + ".";
+        help = "Search for something using " + name + ".";
+        category = new Category("Info");
+        arguments = "<search query required>";
         this.baseUrl = baseUrlIn;
+        guildOnly = true;
     }
 
     /**
@@ -67,18 +70,18 @@ public final class CmdSearch extends Command {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
-        final MessageChannel channel = event.getChannel();
+        final var channel = event.getMessage();
         if (event.getArgs().isEmpty()) {
-            channel.sendMessage("No arguments given!").queue();
+            channel.reply("No arguments given!").mentionRepliedUser(false).queue();
             return;
         }
 
         try {
             final String query = URLEncoder.encode(event.getArgs(), StandardCharsets.UTF_8.toString());
-            channel.sendMessage(baseUrl + query).queue();
+            channel.reply(baseUrl + query).mentionRepliedUser(false).queue();
         } catch (UnsupportedEncodingException ex) {
             MMDBot.LOGGER.error("Error processing search query {}: {}", event.getArgs(), ex);
-            channel.sendMessage("There was an error processing your command.").queue();
+            channel.reply("There was an error processing your command.").mentionRepliedUser(false).queue();
         }
 
     }

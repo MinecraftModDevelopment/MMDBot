@@ -40,10 +40,10 @@ public final class CmdToggleEventPings extends Command {
      */
     public CmdToggleEventPings() {
         super();
-        name = "eventpings";
-        aliases = new String[]{"event-pings", "event-notifications", "eventnotifications",
-            "toggle-event-pings", "toggleeventpings"};
+        name = "event-pings";
         help = "Toggle the event notifications role on your user.";
+        category = new Category("Info");
+        aliases = new String[]{"eventpings", "event-notifications", "eventnotifications"};
         guildOnly = true;
     }
 
@@ -59,12 +59,12 @@ public final class CmdToggleEventPings extends Command {
         }
 
         final var guild = event.getGuild();
-        final var channel = event.getTextChannel();
-        // TODO: Get the per guild ID if enabled for the guild the command was run in.
+        final var channel = event.getMessage();
         final var role = guild.getRoleById(MMDBot.getConfig().getRole("pings.event-pings"));
 
         if (role == null) {
-            channel.sendMessage("The Event Notifications role doesn't exist! The config may be broken.").queue();
+            channel.reply("The Event Notifications role doesn't exist! Please contact one of the bot devs.")
+                .mentionRepliedUser(false).queue();
             return;
         }
 
@@ -79,7 +79,6 @@ public final class CmdToggleEventPings extends Command {
             added = true;
         }
 
-        channel.sendMessageFormat("%s, you %s have the Event Notifications role.", member.getAsMention(),
-            added ? "now" : "no longer").queue();
+        channel.replyFormat("You %s have the Event Notifications role.", added ? "now" : "no longer").queue();
     }
 }

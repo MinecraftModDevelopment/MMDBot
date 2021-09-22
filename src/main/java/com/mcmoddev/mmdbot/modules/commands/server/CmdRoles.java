@@ -42,8 +42,9 @@ public final class CmdRoles extends Command {
     public CmdRoles() {
         super();
         name = "roles";
-        aliases = new String[]{"roleinfo", "server-roles"};
         help = "Gives a count of users per role.";
+        category = new Category("Info");
+        guildOnly = true;
     }
 
     /**

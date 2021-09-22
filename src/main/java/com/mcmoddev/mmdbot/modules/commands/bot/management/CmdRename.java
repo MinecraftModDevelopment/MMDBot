@@ -38,10 +38,11 @@ public class CmdRename extends Command {
     public CmdRename() {
         super();
         name = "rename";
-        help = "Set the name of the bot. Name can only be used twice an hour, has a 35 min cooldown each time used.";
+        help = "Set the name of the bot. Name can only be used twice an hour, has a 35 min cool down each time used.";
+        category = new Category("Management");
+        arguments = "<username>";
         ownerCommand = true;
-        hidden = true;
-        guildOnly = false;
+        guildOnly = true;
         cooldown = 2100;
     }
 
@@ -52,26 +53,25 @@ public class CmdRename extends Command {
      */
     @Override
     protected void execute(final CommandEvent event) {
-        final var commandArgs = event.getArgs();
-        final var channel = event.getChannel();
-        final var trigger = event.getMessage();
+        final var channel = event.getMessage();
         final var newName = event.getArgs();
-        final var selfUser = MMDBot.getInstance().getSelfUser();
+        final var theBot = MMDBot.getInstance().getSelfUser();
 
-        if (commandArgs.isEmpty()) {
-            channel.sendMessage("No new name provided! Please provide me with a new name!")
-                .reference(trigger).queue();
+        if (newName.isEmpty()) {
+            channel.reply("No new name provided! Please provide me with a new name!")
+                .mentionRepliedUser(false).queue();
             return;
         }
 
-        //TODO Better handling of the twice an hour name change limit... -ProxyNeko
         try {
-            selfUser.getManager().setName(newName).queue();
+            theBot.getManager().setName(newName).queue();
             Utils.sleepTimer();
-            channel.sendMessage("I shall henceforth be known as... **" + selfUser.getAsMention() + "**!")
-                .reference(trigger).queue();
+            channel.reply("I shall henceforth be known as... **" + theBot.getAsMention() + "**!")
+                .mentionRepliedUser(false).queue();
         } catch (Exception exception) {
-            channel.sendMessage("Failed to set a new username... Please see logs for more info!").queue();
+            channel.reply("Failed to set a new username... Please see logs for more info! "
+                + "(You can only change the bots username twice an hour, please wait before trying again)")
+                .mentionRepliedUser(false).queue();
             MMDBot.LOGGER.error("Failed to set a new username... ", exception);
         }
     }

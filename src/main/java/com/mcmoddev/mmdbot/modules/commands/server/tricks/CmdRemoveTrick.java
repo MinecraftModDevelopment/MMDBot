@@ -38,9 +38,12 @@ public final class CmdRemoveTrick extends Command {
     public CmdRemoveTrick() {
         super();
         name = "removetrick";
-        aliases = new String[]{"remove-trick", "remtrick"};
         help = "Removes a trick";
+        category = new Category("Management");
+        arguments = "<trick_name>";
+        aliases = new String[]{"remove-trick", "remtrick"};
         requiredRole = "bot maintainer";
+        guildOnly = true;
     }
 
     /**

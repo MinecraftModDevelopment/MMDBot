@@ -22,9 +22,19 @@ package com.mcmoddev.mmdbot.modules.commands.server.tricks;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.internal.requests.Route.Roles;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author williambl
@@ -39,9 +49,14 @@ public final class CmdAddTrick extends Command {
     public CmdAddTrick() {
         super();
         name = "addtrick";
+        help = "Adds a new trick, either a string or an embed, if a string you only need the <names] and <body>.";
+        category = new Category("Info");
+        arguments = "<string> (or) <embed> <name1> [name2 name3] | <trick content body> (or) <title> "
+            + "| <description> | <colour-as-hex-code>";
         aliases = new String[]{"add-trick"};
-        help = "Adds a new trick";
+        //TODO Convert to a slash command and setup multiple role use.
         requiredRole = "bot maintainer";
+        guildOnly = true;
     }
 
     /**
@@ -54,17 +69,17 @@ public final class CmdAddTrick extends Command {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
-        final var channel = event.getTextChannel();
 
-        String args = event.getArgs();
-        int firstSpace = args.indexOf(" ");
+        final var channel = event.getMessage();
+        var args = event.getArgs();
+        var firstSpace = args.indexOf(" ");
 
         try {
             Tricks.addTrick(Tricks.getTrickType(args.substring(0, firstSpace))
                 .createFromArgs(args.substring(firstSpace + 1)));
-            channel.sendMessage("Added trick!").queue();
+            channel.reply("Added trick!").mentionRepliedUser(false).queue();
         } catch (IllegalArgumentException e) {
-            channel.sendMessage("A command with that name already exists!").queue();
+            channel.reply("A command with that name already exists!").mentionRepliedUser(false).queue();
             MMDBot.LOGGER.warn("Failure adding trick: {}", e.getMessage());
         }
     }

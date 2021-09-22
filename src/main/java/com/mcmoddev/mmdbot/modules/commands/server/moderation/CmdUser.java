@@ -24,6 +24,7 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 
 import java.awt.Color;
@@ -36,7 +37,9 @@ import java.util.Locale;
 /**
  * The type Cmd user.
  *
- * @author
+ * @author ProxyNeko
+ * @author WillBL
+ * @author sciwhiz12
  */
 public class CmdUser extends Command {
 
@@ -46,9 +49,11 @@ public class CmdUser extends Command {
     public CmdUser() {
         super();
         name = "user";
-        aliases = new String[]{"whois", "userinfo"};
-        help = "Get information about another user with their user ID.";
-        hidden = true;
+        help = "Get information about another user.";
+        category = new Category("Moderation");
+        arguments = "<userID/mention";
+        requiredRole = "Staff";
+        guildOnly = true;
     }
 
     /**
@@ -61,18 +66,20 @@ public class CmdUser extends Command {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
-        final var channel = event.getTextChannel();
+
+        final var channel = event.getMessage();
         final var member = Utils.getMemberFromString(event.getArgs(), event.getGuild());
         if (member == null) {
-            channel.sendMessage(String.format("User %s not found.", event.getArgs())).queue();
+            channel.reply(String.format("User %s not found.", event.getArgs())).mentionRepliedUser(false).queue();
             return;
         }
-        final EmbedBuilder embed = createMemberEmbed(member);
-        channel.sendMessageEmbeds(embed.build()).queue();
+
+        final var embed = createMemberEmbed(member);
+        channel.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
     }
 
     /**
-     * Create member embed embed builder.
+     * Create member embed builder.
      *
      * @param member the member
      * @return EmbedBuilder. embed builder
@@ -81,7 +88,7 @@ public class CmdUser extends Command {
         final var user = member.getUser();
         final var embed = new EmbedBuilder();
         final var dateJoinedDiscord = member.getTimeCreated().toInstant();
-        final Instant dateJoinedMMD = Utils.getMemberJoinTime(member);
+        final var dateJoinedMMD = Utils.getMemberJoinTime(member);
 
         embed.setTitle("User info");
         embed.setColor(Color.WHITE);
@@ -100,7 +107,7 @@ public class CmdUser extends Command {
         embed.addField("Joined Discord:", date.format(dateJoinedDiscord.toEpochMilli()), true);
         embed.addField("Joined MMD:", date.format(dateJoinedMMD.toEpochMilli()), true);
         embed.addField("Member for:", Utils.getTimeDifference(Utils.getTimeFromUTC(dateJoinedMMD),
-            OffsetDateTime.now(ZoneOffset.UTC)), true);
+                OffsetDateTime.now(ZoneOffset.UTC)), true);
         embed.setTimestamp(Instant.now());
 
         return embed;

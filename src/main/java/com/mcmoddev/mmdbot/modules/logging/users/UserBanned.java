@@ -46,7 +46,7 @@ public class UserBanned extends ListenerAdapter {
      */
     @Override
     public void onGuildBan(final GuildBanEvent event) {
-        final var guild = MMDBot.getInstance().getGuildById("229851088319283202");
+        final var guild = event.getGuild();
 
         if (MMDBot.getConfig().getGuildID() != event.getGuild().getIdLong()) {
             return; //Make sure not to log if it's not related to the main guild.
@@ -62,29 +62,32 @@ public class UserBanned extends ListenerAdapter {
                 .map(list -> list.get(0))
                 .flatMap(entry -> {
                     final var embed = new EmbedBuilder();
-                    final var target = event.getUser();
+                    final var bannedUser = event.getUser();
+                    final var bannedBy = entry.getUser();
 
                     embed.setColor(Color.RED);
                     embed.setTitle("User Banned.");
-                    embed.setThumbnail(target.getEffectiveAvatarUrl());
-                    embed.addField("**Name:**", target.getName(), false);
-                    embed.addField("**UserID:**", target.getId(), false);
-                    embed.addField("**Profile:**", target.getAsMention(), false);
+                    embed.setThumbnail(bannedUser.getEffectiveAvatarUrl());
+                    embed.addField("**Name:**", bannedUser.getName(), false);
+                    embed.addField("**UserID:**", bannedUser.getId(), false);
+                    embed.addField("**Profile:**", bannedUser.getAsMention(), false);
 
                     if (entry.getReason() == null) {
-                        embed.addField("**Ban reason:** ",
-                            "Reason for ban was not provided or could not be found!", false);
+                        embed.addField("**Ban reason:**",
+                            "Reason for ban was not provided or could not be found, please contact "
+                            + bannedBy.getAsMention(), false);
                     } else {
-                        embed.addField("**Details:** ", entry.getReason(), false);
+                        embed.addField("**Ban reason:**", entry.getReason(), false);
                     }
 
-                    if (entry.getTargetIdLong() != target.getIdLong()) {
+                    if (entry.getTargetIdLong() != bannedUser.getIdLong()) {
                         MMDBot.LOGGER.warn(MMDMarkers.EVENTS, "Inconsistency between target of retrieved audit log "
                                 + "entry and actual ban event target: retrieved is {}, but target is {}",
-                            entry.getUser(), target);
+                            entry.getUser(), bannedUser);
                     } else if (entry.getUser() != null) {
                         final var editor = entry.getUser();
-                        embed.setDescription("Banned By: " + editor.getName() + " (" + editor.getId() + ")");
+                        embed.addField("Banned By: ", editor.getAsMention()
+                            + " (" + editor.getAsTag() + ")", false);
                     }
 
                     embed.setTimestamp(Instant.now());

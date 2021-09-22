@@ -27,7 +27,6 @@ import com.mcmoddev.mmdbot.utilities.quotes.Quote;
 import com.mcmoddev.mmdbot.utilities.quotes.QuoteList;
 import com.mcmoddev.mmdbot.utilities.quotes.StringQuote;
 import com.mcmoddev.mmdbot.utilities.quotes.UserReference;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 /**
  * Add a quote to the list.
@@ -53,8 +52,11 @@ public final class CmdAddQuote extends Command {
     public CmdAddQuote() {
         super();
         name = "addquote";
+        help = "Adds a new Quote to the list.";
+        category = new Category("Fun");
+        arguments = "<the text of the thing being quoted> - <authorID/mention>";
         aliases = new String[]{"add-quote", "quoteadd", "quote-add"};
-        help = "Adds a new Quote to the list.\nAdd a quote like so: !addquote \"I said something funny\" - author";
+        guildOnly = true;
     }
 
     @Override
@@ -62,50 +64,53 @@ public final class CmdAddQuote extends Command {
         if (!Utils.checkCommand(this, event))
             return;
 
-        final TextChannel channel = event.getTextChannel();
-        String argsFull = event.getArgs();
+        final var channel = event.getMessage();
+        var argsFull = event.getArgs();
 
         String[] args = argsFull.split("-");
         // args = [ "text", <@ID> ]
 
         // Verify that there were any arguments
         if (!(args.length > 0)) {
-            channel.sendMessage("Invalid arguments. See the help for this command.").queue();
+            channel.reply("Invalid arguments. See the help for this command.")
+                .mentionRepliedUser(false).queue();
             return;
         }
 
-        if(args.length > 2) {
-            channel.sendMessage("A quote cannot contain a dash ( - ). This is being worked on.").queue();
+        if (args.length > 2) {
+            channel.reply("A quote cannot contain a dash ( - ). This is being worked on.")
+                .mentionRepliedUser(false).queue();
             return;
         }
 
         // Verify that there's a message being quoted.
         if (!(args[0].charAt(0) == '\"') || !(args[0].charAt(args[0].length() - 2) == '\"')) {
-            channel.sendMessage("Invalid arguments. See the help for this command.").queue();
+            channel.reply("Invalid arguments. See the help for this command.")
+                .mentionRepliedUser(false).queue();
             return;
         }
 
         // Remove the start and end quote.
         args[0] = args[0].trim();
-        String quote = args[0].substring(1, args[0].length() - 1);
+        var quote = args[0].substring(1, args[0].length() - 1);
 
         Quote finishedQuote;
         // Fetch the user who created the quote
-        UserReference author = new UserReference(event.getAuthor().getIdLong());
+        var author = new UserReference(event.getAuthor().getIdLong());
 
         // Check if there's any attribution
         if (args.length == 1) {
             // Anonymous quote.
-            UserReference quotee = new UserReference();
+            var quotee = new UserReference();
 
             finishedQuote = new StringQuote(quotee, quote, author);
         } else {
             // args.length == 2 by logical deduction.
 
-            String quotee = args[1].trim();
+            var quotee = args[1].trim();
 
-            final int mentionUsernameHeader = 3;
-            final int mentionStandardHeader = 2;
+            final var mentionUsernameHeader = 3;
+            final var mentionStandardHeader = 2;
 
             // Check if this is a mention
             if (quotee.charAt(0) == '<' && quotee.charAt(1) == '@')
@@ -115,22 +120,22 @@ public final class CmdAddQuote extends Command {
 
             // Check if there's a user ID here
             try {
-                long id = Long.parseLong(quotee);
-                UserReference quoteeUser = new UserReference(id);
+                var id = Long.parseLong(quotee);
+                var quoteeUser = new UserReference(id);
                 finishedQuote = new StringQuote(quoteeUser, quote, author);
             } catch (NumberFormatException exception) {
                 // No user ID. Must be a string assignment.
-                UserReference quoteeUser = new UserReference(quotee);
+                var quoteeUser = new UserReference(quotee);
                 finishedQuote = new StringQuote(quoteeUser, quote, author);
             }
         }
 
-        int quoteID = QuoteList.getQuoteSlot();
+        var quoteID = QuoteList.getQuoteSlot();
         finishedQuote.setID(quoteID);
 
         // All execution leads to here, where finishedQuote is valid.
         QuoteList.addQuote(finishedQuote);
 
-        channel.sendMessage("Added quote " + quoteID + "!").queue();
+        channel.reply("Added quote " + quoteID + "!").mentionRepliedUser(false).queue();
     }
 }

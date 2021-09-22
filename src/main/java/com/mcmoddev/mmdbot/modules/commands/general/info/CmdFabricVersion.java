@@ -42,9 +42,12 @@ public final class CmdFabricVersion extends Command {
      */
     public CmdFabricVersion() {
         super();
-        this.name = "fabric";
-        aliases = new String[]{"fabricv"};
+        name = "fabric";
         help = "Get the latest Fabric versions";
+        category = new Category("Info");
+        arguments = "<Minecraft Version>";
+        aliases = new String[]{"fabricv"};
+        guildOnly = true;
     }
 
     /**
@@ -58,17 +61,17 @@ public final class CmdFabricVersion extends Command {
             return;
         }
 
-        String mcVersion = event.getArgs().trim();
+        var mcVersion = event.getArgs().trim();
         if (mcVersion.isEmpty()) {
             mcVersion = MinecraftVersionHelper.getLatest();
         }
 
-        String yarnVersion = FabricVersionHelper.getLatestYarn(mcVersion);
+        var yarnVersion = FabricVersionHelper.getLatestYarn(mcVersion);
         if (yarnVersion == null) {
             yarnVersion = "None";
         }
         final var embed = new EmbedBuilder();
-        final var channel = event.getTextChannel();
+        final var channel = event.getMessage();
 
         embed.setTitle("Fabric Versions for Minecraft " + mcVersion);
         embed.addField("Latest Yarn", yarnVersion, true);
@@ -76,6 +79,6 @@ public final class CmdFabricVersion extends Command {
         embed.addField("Latest Loader", FabricVersionHelper.getLatestLoader(), true);
         embed.setColor(Color.WHITE);
         embed.setTimestamp(Instant.now());
-        channel.sendMessageEmbeds(embed.build()).queue();
+        channel.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
     }
 }

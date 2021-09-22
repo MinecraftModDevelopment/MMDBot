@@ -40,10 +40,10 @@ public final class CmdToggleMcServerPings extends Command {
      */
     public CmdToggleMcServerPings() {
         super();
-        name = "serverpings";
-        aliases = new String[]{"server-pings", "mc-pings", "mcpings", "toggle-mc-pings", "togglemcpings",
-            "mc-server-pings", "mcserverpings"};
+        name = "server-pings";
         help = "Add or remove the public server player role from your user.";
+        category = new Category("Info");
+        aliases = new String[]{"serverpings", "mc-pings", "mc-server-pings", "mcserverpings"};
         guildOnly = true;
     }
 
@@ -59,12 +59,13 @@ public final class CmdToggleMcServerPings extends Command {
         }
 
         final var guild = event.getGuild();
-        final var channel = event.getTextChannel();
+        final var channel = event.getMessage();
         // TODO: Get the per guild ID if enabled for the guild the command was run in.
         final var role = guild.getRoleById(MMDBot.getConfig().getRole("pings.toggle-mc-server-pings"));
 
         if (role == null) {
-            channel.sendMessage("The Server Players role doesn't exist! The config may be broken.").queue();
+            channel.reply("The Server Players role doesn't exist! The config may be broken, "
+                + "please contact one of the bot maintainers...").mentionRepliedUser(false).queue();
             return;
         }
 
@@ -79,7 +80,6 @@ public final class CmdToggleMcServerPings extends Command {
             added = true;
         }
 
-        channel.sendMessageFormat("%s, you %s have the MMD Public Server Players role.", member.getAsMention(),
-            added ? "now" : "no longer").queue();
+        channel.replyFormat("You %s have the MMD Public Server Players role.", added ? "now" : "no longer").queue();
     }
 }

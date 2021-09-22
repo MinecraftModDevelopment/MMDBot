@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  *
- * @author
+ * @author Poke
  *
  */
 class ForgeVersionHelperTest {

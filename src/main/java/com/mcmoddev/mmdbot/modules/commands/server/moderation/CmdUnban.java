@@ -24,7 +24,8 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.MessageChannel;
+
+import java.util.EnumSet;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
@@ -33,9 +34,14 @@ import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.BANNING;
 /**
  * The type Cmd unban.
  *
- * @author
+ * @author Jriwanek
  */
 public final class CmdUnban extends Command {
+
+    /**
+     * The constant REQUIRED_PERMISSIONS.
+     */
+    private static final EnumSet<Permission> REQUIRED_PERMISSIONS = EnumSet.of(Permission.BAN_MEMBERS);
 
     /**
      * Instantiates a new Cmd unban.
@@ -43,8 +49,12 @@ public final class CmdUnban extends Command {
     public CmdUnban() {
         super();
         name = "unban";
-        help = "Unbans a user. Usage: !mmd-unban <userID/mention>";
-        hidden = true;
+        help = "Unbans a user.";
+        category = new Category("Moderators");
+        arguments = "<userID/mention>";
+        requiredRole = "Moderators";
+        guildOnly = true;
+        botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
     }
 
     /**
@@ -57,33 +67,31 @@ public final class CmdUnban extends Command {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
+
         final var guild = event.getGuild();
         final var author = guild.getMember(event.getAuthor());
         if (author == null) {
             return;
         }
-        final MessageChannel channel = event.getChannel();
+
+        final var channel = event.getChannel();
         final String[] args = event.getArgs().split(" ");
         final var member = Utils.getMemberFromString(args[0], event.getGuild());
-        final long bannedRoleID = getConfig().getRole("banned");
+        final var bannedRoleID = getConfig().getRole("banned");
         final var bannedRole = guild.getRoleById(bannedRoleID);
 
-        if (author.hasPermission(Permission.BAN_MEMBERS)) {
-            if (member == null) {
-                channel.sendMessage(String.format("User %s not found.", event.getArgs())).queue();
-                return;
-            }
-
-            if (bannedRole == null) {
-                LOGGER.error(BANNING, "Unable to find banned role {}", bannedRoleID);
-                return;
-            }
-
-            guild.removeRoleFromMember(member, bannedRole).queue();
-            channel.sendMessageFormat("Unbanned user %s.", member.getAsMention()).queue();
-            LOGGER.info(BANNING, "User {} was unbanned by {}", member, author);
-        } else {
-            channel.sendMessage("You do not have permission to use this command.").queue();
+        if (member == null) {
+            channel.sendMessage(String.format("User %s not found.", event.getArgs())).queue();
+            return;
         }
+
+        if (bannedRole == null) {
+            LOGGER.error(BANNING, "Unable to find banned role {}", bannedRoleID);
+            return;
+        }
+
+        guild.removeRoleFromMember(member, bannedRole).queue();
+        channel.sendMessageFormat("Unbanned user %s.", member.getAsMention()).queue();
+        LOGGER.info("User {} was unbanned by {}", member, author);
     }
 }

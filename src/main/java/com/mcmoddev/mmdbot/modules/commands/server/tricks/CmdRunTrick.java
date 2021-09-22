@@ -51,7 +51,8 @@ public final class CmdRunTrick extends Command {
         name = trickNames.get(0);
         aliases = trickNames.size() > 1 ? trickNames.subList(1, trickNames.size())
             .toArray(new String[0]) : new String[0];
-        hidden = true;
+        category = new Category("Fun");
+        guildOnly = true;
     }
 
     /**

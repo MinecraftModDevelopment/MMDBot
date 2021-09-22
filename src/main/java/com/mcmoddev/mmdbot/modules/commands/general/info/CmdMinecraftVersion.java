@@ -32,7 +32,7 @@ import java.time.Instant;
 /**
  * The type Cmd minecraft version.
  *
- * @author
+ * @author Poke
  */
 public final class CmdMinecraftVersion extends Command {
 
@@ -41,9 +41,11 @@ public final class CmdMinecraftVersion extends Command {
      */
     public CmdMinecraftVersion() {
         super();
-        this.name = "minecraft";
-        aliases = new String[]{"minecraftv", "mcv"};
+        name = "minecraft";
         help = "Get the latest Minecraft versions";
+        category = new Category("Info");
+        aliases = new String[]{"minecraftv", "mcv"};
+        guildOnly = true;
     }
 
     /**
@@ -56,14 +58,14 @@ public final class CmdMinecraftVersion extends Command {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
-        final var embed = new EmbedBuilder();
-        final var channel = event.getTextChannel();
 
+        final var embed = new EmbedBuilder();
+        final var channel = event.getMessage();
         embed.setTitle("Minecraft Versions");
         embed.addField("Latest", MinecraftVersionHelper.getLatest(), true);
         embed.addField("Latest Stable", MinecraftVersionHelper.getLatestStable(), true);
         embed.setColor(Color.GREEN);
         embed.setTimestamp(Instant.now());
-        channel.sendMessageEmbeds(embed.build()).queue();
+        channel.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
     }
 }

@@ -25,20 +25,19 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.quotes.Quote;
 import com.mcmoddev.mmdbot.utilities.quotes.QuoteList;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.Random;
 
 /**
  * Get a quote from the list.
  * Allows an int argument, otherwise random is chosen.
- *
+ * <p>
  * Possible forms:
  * !quote
  * !quote 111
- *
+ * <p>
  * Can be used by anyone.
- *
+ * <p>
  * TODO: Prepare for more Quote implementations.
  *
  * @author Curle
@@ -52,21 +51,24 @@ public final class CmdGetQuote extends Command {
     public CmdGetQuote() {
         super();
         name = "getquote";
-        aliases = new String[]{"quote", "get-quote", "quoteget", "viewquote"};
         help = "Get a quote. Specify a number if you like, otherwise a random is chosen.";
+        category = new Category("Fun");
+        arguments = "[quote number]";
+        guildOnly = true;
+        aliases = new String[]{"quote", "get-quote", "quoteget", "viewquote"};
     }
 
     @Override
     protected void execute(final CommandEvent event) {
-        if (!Utils.checkCommand(this, event))
+        if (!Utils.checkCommand(this, event)) {
             return;
+        }
 
-        final TextChannel channel = event.getTextChannel();
-        String argsFull = event.getArgs();
-
+        final var channel = event.getMessage();
+        var argsFull = event.getArgs();
         // If there are no quotes, exit early.
         if (QuoteList.getQuoteSlot() == 0) {
-            channel.sendMessageEmbeds(QuoteList.getQuoteNotPresent()).queue();
+            channel.replyEmbeds(QuoteList.getQuoteNotPresent()).mentionRepliedUser(false).queue();
             return;
         }
 
@@ -76,22 +78,21 @@ public final class CmdGetQuote extends Command {
             try {
                 int index = Integer.parseInt(argsFull.trim());
                 if (index >= QuoteList.getQuoteSlot()) {
-                    channel.sendMessageEmbeds(QuoteList.getQuoteNotPresent()).queue();
+                    channel.replyEmbeds(QuoteList.getQuoteNotPresent()).mentionRepliedUser(false).queue();
                     return;
                 }
 
-                Quote fetched = QuoteList.getQuote(index);
-
+                var fetched = QuoteList.getQuote(index);
                 // Check if the quote exists.
                 if (fetched == QuoteList.NULL) {
                     // Send the standard message
-                    channel.sendMessageEmbeds(QuoteList.getQuoteNotPresent()).queue();
+                    channel.replyEmbeds(QuoteList.getQuoteNotPresent()).mentionRepliedUser(false).queue();
                     return;
                 }
 
                 // It exists, so get the content and send it.
                 assert fetched != null;
-                channel.sendMessageEmbeds(fetched.getQuoteMessage()).queue();
+                channel.replyEmbeds(fetched.getQuoteMessage()).mentionRepliedUser(false).queue();
                 return;
             } catch (NumberFormatException ignored) {
                 // Fall through to the code below. No number found, so pick a random one.
@@ -106,7 +107,6 @@ public final class CmdGetQuote extends Command {
         } while (fetched == null);
 
         // It exists, so get the content and send it.
-        channel.sendMessageEmbeds(fetched.getQuoteMessage()).queue();
-
+        channel.replyEmbeds(fetched.getQuoteMessage()).mentionRepliedUser(false).queue();
     }
 }

@@ -67,8 +67,11 @@ public class CmdListQuotes extends Command {
     public CmdListQuotes() {
         super();
         name = "listquotes";
-        aliases = new String[]{"quotes", "list-quotes", "quoteslist"};
         help = "Get all quotes. Specify a starting number if you like, otherwise starts from 0.";
+        category = new Category("Fun");
+        arguments = "[starting number for list]";
+        aliases = new String[]{"quotes", "list-quotes", "quoteslist"};
+        guildOnly = true;
     }
 
 

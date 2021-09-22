@@ -37,6 +37,7 @@ public class CmdRestart extends Command {
         super();
         name = "restart";
         help = "Restarts the bot.";
+        category = new Category("Management");
         ownerCommand = true;
         hidden = true;
         guildOnly = false;

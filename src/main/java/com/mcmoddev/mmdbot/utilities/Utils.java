@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -162,6 +163,25 @@ public final class Utils {
             return guild.getMemberByTag(memberString);
         } else {
             return guild.getMemberById(memberString);
+        }
+    }
+
+    /**
+     * Gets user from string.
+     *
+     * @param userString The members string name or ID.
+     * @param guild        The guild we are currently in.
+     * @return The guild member.
+     */
+    @Nullable
+    public static User getUserFromString(final String userString, final Guild guild) {
+        final var matcher = Message.MentionType.USER.getPattern().matcher(userString);
+        if (matcher.matches()) {
+            return guild.getJDA().getUserById(matcher.group(1));
+        } else if (userString.contains("#")) {
+            return guild.getJDA().getUserByTag(userString);
+        } else {
+            return guild.getJDA().getUserById(userString);
         }
     }
 

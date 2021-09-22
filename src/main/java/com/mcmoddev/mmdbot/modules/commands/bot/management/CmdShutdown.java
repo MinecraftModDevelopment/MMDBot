@@ -41,9 +41,9 @@ public class CmdShutdown extends Command {
         super();
         name = "shutdown";
         help = "Shuts the bot down without restarting it.";
+        category = new Category("Management");
         ownerCommand = true;
-        hidden = true;
-        guildOnly = false;
+        guildOnly = true;
     }
 
     /**
@@ -53,7 +53,7 @@ public class CmdShutdown extends Command {
      */
     @Override
     protected void execute(final CommandEvent event) {
-        event.reply("Shutting down the bot! " + event.getAuthor().getAsMention());
+        event.getMessage().reply("Shutting down the bot!").queue();
         //Shut down the JDA instance gracefully.
         event.getJDA().shutdown();
         MMDBot.LOGGER.warn("Shutting down the bot by request of " + event.getAuthor().getName() + " via Discord!");

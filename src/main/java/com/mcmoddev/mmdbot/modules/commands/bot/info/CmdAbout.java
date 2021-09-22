@@ -46,6 +46,8 @@ public final class CmdAbout extends Command {
         name = "about";
         aliases = new String[]{"build"};
         help = "Gives info about this bot.";
+        category = new Category("Info");
+        guildOnly = true;
     }
 
     /**
@@ -59,7 +61,7 @@ public final class CmdAbout extends Command {
             return;
         }
         final var embed = new EmbedBuilder();
-        final var channel = event.getTextChannel();
+        final var channel = event.getMessage();
 
         embed.setTitle("Bot Build info");
         embed.setColor(Color.GREEN);
@@ -73,6 +75,6 @@ public final class CmdAbout extends Command {
         embed.addField("Current maintainers:", "jriwanek, WillBL, ProxyNeko, sciwhiz12, Poke, Curle",
             true);
         embed.setTimestamp(Instant.now());
-        channel.sendMessageEmbeds(embed.build()).queue();
+        channel.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
     }
 }

@@ -54,7 +54,10 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
      * @param event The [CommandEvent] that triggered this Command.
      */
     override fun execute(event: CommandEvent) {
-        if (!Utils.checkCommand(this, event)) return
+        if (!Utils.checkCommand(this, event)) {
+            return
+        }
+
         if (event.args.isEmpty()) {
             event.channel.sendMessage("No arguments given!").queue()
             return
@@ -63,7 +66,9 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
         val args = event.args.split(' ')
 
         val queryString = args[0]
-        val version = args.getOrElse(1) { namespace.getDefaultVersion() }
+        val version = args.getOrElse(1) {
+            namespace.getDefaultVersion()
+        }
 
         scope.launch {
             val provider = namespace.getProvider(version)
