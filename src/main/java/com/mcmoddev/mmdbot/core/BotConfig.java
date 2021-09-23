@@ -31,7 +31,7 @@ import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
 import com.mcmoddev.mmdbot.MMDBot;
 import net.dv8tion.jda.api.Permission;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -110,7 +110,7 @@ public final class BotConfig {
      *
      * @return The configured bot token, or {@code ""}
      */
-    @Nonnull
+    @NotNull
     public String getToken() {
         return config.<String>getOptional("bot.token")
             .filter(string -> string.indexOf('!') == -1 || string.isEmpty())

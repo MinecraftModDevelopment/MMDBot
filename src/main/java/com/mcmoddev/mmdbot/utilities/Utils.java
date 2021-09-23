@@ -35,8 +35,8 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -225,7 +225,7 @@ public final class Utils {
      * @param userID The users ID.
      * @return A list of the roles the user had to save to a file for when they return.
      */
-    @Nonnull
+    @NotNull
     public static List<Role> getOldUserRoles(final Guild guild, final Long userID) {
         return MMDBot.database().withExtension(PersistedRoles.class, roles -> roles.getRoles(userID))
             .stream()

@@ -17,6 +17,7 @@ module MMDBot {
     requires org.flywaydb.core;
     requires org.jdbi.v3.core;
     requires org.jdbi.v3.sqlobject;
+    requires org.jetbrains.annotations;
     requires org.slf4j;
     requires org.xerial.sqlitejdbc;
     requires pw.chew.jdautilities.command;
