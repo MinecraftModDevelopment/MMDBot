@@ -12,6 +12,7 @@ plugins {
   id 'org.flywaydb.flyway' version '7.15.0'
   id 'org.jetbrains.kotlin.jvm' version '1.5.31'
   id "org.cadixdev.licenser" version "0.6.1"
+  id 'org.cadixdev.licenser' version '0.6.1'
 }
 
 mainClassName = 'com.mcmoddev.mmdbot.MMDBot'
@@ -92,11 +93,11 @@ jar {
       'Maven-Artifact': "${project.group}:${archivesBaseName}:${project.bot_version}",
       'Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
       'Specification-Title': archivesBaseName,
-      'Specification-Vendor': "MinecraftModDevs",
-      'Specification-Version': "1",
+      'Specification-Vendor': 'Minecraft Mod Development',
+      'Specification-Version': '1',
       'Implementation-Title': archivesBaseName,
       'Implementation-Version': "${project.bot_version}",
-      'Implementation-Vendor': "MinecraftModDevs",
+      'Implementation-Vendor': 'Minecraft Mod Development',
       'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
       'Built-On-Java': "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
       'Built-On': "${project.jda_version}-${project.jda_chewtils_version}",
@@ -107,10 +108,11 @@ jar {
 }
 
 license {
-  header = project.file("LicenseHeader.md")
+  header = project.file('LicenseHeader.md')
   include '**/*.java'
   include '**/*.kt'
   exclude '**/package-info.java'
+  exclude '**/module-info.java'
   newLine = false
   properties {
     year = currentCopyrightYear()
@@ -118,8 +120,8 @@ license {
 }
 
 def currentCopyrightYear() {
-  def dateFormat = new SimpleDateFormat("yyyy")
-  dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
+  def dateFormat = new SimpleDateFormat('yyyy')
+  dateFormat.setTimeZone(TimeZone.getTimeZone('UTC'))
   return dateFormat.format(new Date())
 }
 
