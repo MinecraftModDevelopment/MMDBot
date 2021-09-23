@@ -174,7 +174,7 @@ task generatePom {
 spotbugs {
   ignoreFailures = true
   showStackTraces = false
-  toolVersion = '4.3.0'
+  toolVersion = '4.4.1'
   effort = 'max'
   reportLevel = 'low'
   //includeFilter = file("$rootProject.projectDir/config/spotbugs-filter.xml")
@@ -189,7 +189,7 @@ tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
 
 checkstyle {
   ignoreFailures = true
-  toolVersion = '8.45'
+  toolVersion = '8.45.1'
   showViolations = false
 }
 
@@ -245,6 +245,6 @@ pmd {
     'java-unusedcode'
 */
   ]
-  toolVersion = '6.37.0'
+  toolVersion = '6.38.0'
   incrementalAnalysis = true
 }
