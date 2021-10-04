@@ -88,6 +88,7 @@ public class UserBanned extends ListenerAdapter {
                         final var editor = entry.getUser();
                         embed.addField("Banned By: ", editor.getAsMention()
                             + " (" + editor.getAsTag() + ")", false);
+                        embed.addField("Banner ID: ", editor.getId(), false);
                     }
 
                     embed.setTimestamp(Instant.now());
