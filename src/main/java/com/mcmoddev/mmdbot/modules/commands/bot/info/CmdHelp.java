@@ -93,7 +93,7 @@ public class CmdHelp {
                         embed.addField(commandList.get(i).getName(), commandList.get(i).getHelp(), true);
             }
 
-            embed.setFooter("Camelot").setTimestamp(Instant.now());
+            embed.setFooter(References.NAME).setTimestamp(Instant.now());
 
             return embed;
         }
