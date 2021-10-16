@@ -56,7 +56,6 @@ import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRemoveTrick;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import me.shedaniel.linkie.Namespaces;
-import net.dv8tion.jda.internal.utils.Helpers;
 
 /**
  * This is the main class for setting up commands before they are loaded in by the bot,
