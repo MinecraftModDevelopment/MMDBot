@@ -25,6 +25,7 @@ import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
+import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdHelp;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdUptime;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
@@ -88,6 +89,7 @@ public class CommandModule {
             .setOwnerId(MMDBot.getConfig().getOwnerID())
             .setPrefix(MMDBot.getConfig().getMainPrefix())
             .setAlternativePrefix(MMDBot.getConfig().getAlternativePrefix())
+            .setHelpConsumer(CmdHelp::execute)
             .addCommand(new CmdGuild())
             .addCommand(new CmdAbout())
             .addCommand(new CmdMe())
@@ -131,6 +133,7 @@ public class CommandModule {
             MMDBot.getInstance().addEventListener(CmdTranslateMappings.ButtonListener.INSTANCE);
             MMDBot.getInstance().addEventListener(new CmdListTricks.ButtonListener());
             MMDBot.getInstance().addEventListener(new CmdListQuotes.ButtonListener());
+            MMDBot.getInstance().addEventListener(new CmdHelp.ButtonListener());
             MMDBot.LOGGER.warn("Command module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");
