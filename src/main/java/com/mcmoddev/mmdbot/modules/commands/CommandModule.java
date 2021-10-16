@@ -89,7 +89,8 @@ public class CommandModule {
             .setOwnerId(MMDBot.getConfig().getOwnerID())
             .setPrefix(MMDBot.getConfig().getMainPrefix())
             .setAlternativePrefix(MMDBot.getConfig().getAlternativePrefix())
-            .setHelpConsumer(CmdHelp::execute)
+            .useHelpBuilder(false) // We want help to show as a command, so add it as one.
+            .addCommand(new CmdHelp())
             .addCommand(new CmdGuild())
             .addCommand(new CmdAbout())
             .addCommand(new CmdMe())
