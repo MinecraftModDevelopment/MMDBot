@@ -49,7 +49,7 @@ public final class CmdAddTrick extends Command {
     public CmdAddTrick() {
         super();
         name = "addtrick";
-        help = "Adds a new trick, either a string or an embed, if a string you only need the <names] and <body>.";
+        help = "Adds a new trick, either a string or an embed, if a string you only need the <names> and <body>.";
         category = new Category("Info");
         arguments = "<string> (or) <embed> <name1> [name2 name3] | <trick content body> (or) <title> "
             + "| <description> | <colour-as-hex-code>";
