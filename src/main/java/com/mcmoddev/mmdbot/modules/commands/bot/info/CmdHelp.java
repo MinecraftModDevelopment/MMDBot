@@ -72,8 +72,8 @@ public class CmdHelp {
          * Currently, this just creates a left and right arrow.
          * Left arrow scrolls back a page. Right arrow scrolls forward a page.
          *
-         * @param start The quote number at the start of the current page.
-         * @return A row of buttons to go back and forth by one page in a quote list.
+         * @param start The command at the start of the current page.
+         * @return A row of buttons to go back and forth by one page in the command list.
          */
         private static Component[] createScrollButtons(int start) {
             List<Component> components = new ArrayList<>();

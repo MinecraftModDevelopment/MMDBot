@@ -139,7 +139,7 @@ public final class EventUserLeft extends ListenerAdapter {
                                 builder.setAuthor(leavingUser.getAsTag(), leavingUser.getEffectiveAvatarUrl());
                                 builder.appendDescription("Deleted request from ")
                                     .appendDescription(leavingUser.getAsMention())
-                                    .appendDescription(" as the user left the user.");
+                                    .appendDescription(" as the user left the server.");
                                 builder.addField("Message Creation Time",
                                     TimeFormat.DATE_TIME_SHORT.format(message.getTimeCreated()), true);
                                 builder.addField("Auto-Deletion on Leave Duration", deletionTime + " hour(s)", true);
