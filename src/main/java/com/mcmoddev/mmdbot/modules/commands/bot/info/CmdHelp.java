@@ -39,31 +39,69 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This command doesn't use the normal syntax.
- * Instead, it provides a single Consumer<CommandEvent> that the CommandClient can use.
+ * Show every registered command, or information on a single command.
  *
- * This should not be turned into a normal Command.
+ * Possible forms:
+ *  !help
+ *  !help help
+ *  !help addquote
+ *  !help [command]
  *
  * @author Curle
  */
-public class CmdHelp {
+public class CmdHelp extends Command {
 
         private static final int COMMANDS_PER_PAGE = 25;
+
+        public CmdHelp() {
+            super();
+            name = "help";
+            help = "Show all commands, or detailed information about a particular command.";
+
+            arguments = "[command]";
+        }
 
         /**
          * Prepare the potential scrolling buttons for a help command,
          *  and send the message with the proper embeds.
          *
          * See {@link #getHelpStartingAt(int)} for the implementation.
-         * @param e
          */
-        public static void execute(CommandEvent e) {
-            MessageAction reply = e.getChannel().sendMessageEmbeds(getHelpStartingAt(0).build());
-            Component[] buttons = createScrollButtons(0);
-            if (buttons.length > 0)
-                reply.setActionRow(buttons);
+        public void execute(CommandEvent e) {
+            String[] args = e.getArgs().split(" ");
 
-            reply.queue();
+            // If no command specified, show all.
+            if(args[0].isEmpty()) {
+                MessageAction reply = e.getChannel().sendMessageEmbeds(getHelpStartingAt(0).build());
+                Component[] buttons = createScrollButtons(0);
+                if (buttons.length > 0)
+                    reply.setActionRow(buttons);
+
+                reply.queue();
+            } else {
+                // if there's potentially a command..
+                String commandNameStr = args[0];
+                // Get the command from the CommandClient.
+                Command command = CommandModule.getCommandClient().getCommands().stream()
+                    .filter(com -> com.getName().equals(commandNameStr)) // Find the command with the matching name
+                    .findFirst() // Get the first (should be only) entry
+                    .orElseGet(CmdHelp::new); // And return it as Command.
+
+                // Build the embed that summarises the command.
+                EmbedBuilder embed = new EmbedBuilder();
+                embed.setAuthor(References.NAME, References.ISSUE_TRACKER, MMDBot.getInstance().getSelfUser().getAvatarUrl());
+                embed.setDescription("Command help:");
+
+                embed.addField(command.getName(), command.getHelp(), false);
+
+                // If we have arguments defined and there's content, add it to the embed
+                if(command.getArguments() != null && command.getArguments().length() > 0)
+                    embed.addField("Arguments", command.getArguments(), false);
+
+                embed.setFooter(References.NAME).setTimestamp(Instant.now());
+
+                e.getChannel().sendMessageEmbeds(embed.build()).queue();
+            }
         }
 
         /**

@@ -56,6 +56,7 @@ import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRemoveTrick;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import me.shedaniel.linkie.Namespaces;
+import net.dv8tion.jda.internal.utils.Helpers;
 
 /**
  * This is the main class for setting up commands before they are loaded in by the bot,
@@ -89,7 +90,8 @@ public class CommandModule {
             .setOwnerId(MMDBot.getConfig().getOwnerID())
             .setPrefix(MMDBot.getConfig().getMainPrefix())
             .setAlternativePrefix(MMDBot.getConfig().getAlternativePrefix())
-            .setHelpConsumer(CmdHelp::execute)
+            .useHelpBuilder(false) // We want help to show as a command, so add it as one.
+            .addCommand(new CmdHelp())
             .addCommand(new CmdGuild())
             .addCommand(new CmdAbout())
             .addCommand(new CmdMe())
