@@ -54,7 +54,7 @@ import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdRemoveQuote;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdAddTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRemoveTrick;
-import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
+import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrick;
 import me.shedaniel.linkie.Namespaces;
 
 /**
@@ -125,10 +125,10 @@ public class CommandModule {
             .addSlashCommand(new CmdRename())
             .addSlashCommand(new CmdUptime())
             //TODO Setup DB storage for tricks and polish them off/add permission restrictions for when needed.
-            .addCommand(new CmdAddTrick())
-            .addCommand(new CmdListTricks())
-            .addCommand(new CmdRemoveTrick())
-            .addCommands(Tricks.createTrickCommands().toArray(new Command[0]))
+            .addSlashCommand(new CmdAddTrick())
+            .addSlashCommand(new CmdListTricks())
+            .addSlashCommand(new CmdRemoveTrick())
+            .addSlashCommand(new CmdRunTrick())
             .addCommand(new CmdShutdown())
             .addCommands(CmdMappings.createCommands())
             .addCommands(CmdTranslateMappings.createCommands())
@@ -144,7 +144,7 @@ public class CommandModule {
             MMDBot.getInstance().addEventListener(CmdTranslateMappings.ButtonListener.INSTANCE);
             MMDBot.getInstance().addEventListener(CmdRoles.getListener());
             MMDBot.getInstance().addEventListener(CmdHelp.getListener());
-            MMDBot.getInstance().addEventListener(new CmdListTricks.ButtonListener());
+            MMDBot.getInstance().addEventListener(CmdListTricks.getListener());
             MMDBot.getInstance().addEventListener(new CmdListQuotes.ButtonListener());
             MMDBot.LOGGER.warn("Command module enabled and loaded.");
         } else {
