@@ -20,28 +20,39 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.server.moderation;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
-import com.mcmoddev.mmdbot.MMDBot;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.oldchannels.OldChannelsHelper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Locale;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
- * The type Cmd old channels.
+ * Shows a list of channels that haven't been used in a given time period, optionally restricted
+ * to specific categories.
+ * <p>
+ * Optionally takes a days parameter and a category restriction.
+ * <p>
+ * Takes the form:
+ * /old-channels
+ * /old-channels 7
+ * /old-channels 7 899011928091918388
+ * /old-channels [days] [category]
+ * <p>
+ * // TODO: This seems to be skipping channels for a reason i can't pin down.
+ *
+ * @author Curle
  */
-public final class CmdOldChannels extends Command {
+public final class CmdOldChannels extends SlashCommand {
 
     /**
      * The constant REQUIRED_PERMISSIONS.
@@ -60,6 +71,14 @@ public final class CmdOldChannels extends Command {
         requiredRole = "Moderators";
         guildOnly = true;
         botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
+
+        OptionData days = new OptionData(OptionType.NUMBER, "days", "The minimum amount of days for a channel to show up in the list.").setRequired(false);
+        OptionData category = new OptionData(OptionType.CHANNEL, "category", "The category to search for channels in.").setRequired(false);
+        List<OptionData> dataList = new ArrayList<>();
+        dataList.add(days);
+        dataList.add(category);
+        this.options = dataList;
+
     }
 
     /**
@@ -68,33 +87,36 @@ public final class CmdOldChannels extends Command {
      * @param event the event
      */
     @Override
-    protected void execute(final CommandEvent event) {
+    protected void execute(final SlashCommandEvent event) {
         final var guild = event.getGuild();
         final var embed = new EmbedBuilder();
-        final var outputChannel = event.getTextChannel();
-        // I have to do this, so we can use `remove` later. williambl
-        final List<String> args = new ArrayList<>(Arrays.asList(event.getArgs().split(" ")));
+
         if (!Utils.checkCommand(this, event)) {
-            outputChannel.sendMessage("This command is channel locked.").queue();
+            event.reply("This command is channel locked.").setEphemeral(true).queue();
             return;
         }
 
         if (!OldChannelsHelper.isReady()) {
-            outputChannel.sendMessage("Command is still setting up. Please try again in a few moments.").queue();
+            event.reply("Command is still setting up. Please try again in a few moments.").setEphemeral(true).queue();
             return;
         }
 
-        final var dayThreshold = args.size() > 0 && args.get(0).matches("-?\\d+")
-            ? Integer.parseInt(args.remove(0)) : 60;
+        OptionMapping days = event.getOption("days");
+        OptionMapping category = event.getOption("category");
 
-        List<String> toCheck = args.stream().map(it -> it.toLowerCase(Locale.ROOT)).collect(Collectors.toList());
+        if(category != null && event.getGuild().getCategoryById(category.getAsLong()) == null) {
+            event.reply("That category doesn't exist.").setEphemeral(true).queue();
+            return;
+        }
+
+        final var dayThreshold = days == null ? 60 : days.getAsDouble();
 
         embed.setTitle("Days since last message in channels:");
         embed.setColor(Color.YELLOW);
 
         guild.getTextChannels().stream()
             .distinct()
-            .filter(channelIsAllowedByList(toCheck))
+            .filter(c -> category == null || c.getParent() != null && c.getParent().getIdLong() == category.getAsLong())
             .map(channel -> new ChannelData(channel, OldChannelsHelper.getLastMessageTime(channel)))
             .forEach(channelData -> {
                 if (channelData.days > dayThreshold) {
@@ -105,19 +127,7 @@ public final class CmdOldChannels extends Command {
                 }
             });
 
-        outputChannel.sendMessageEmbeds(embed.build()).queue();
-    }
-
-    /**
-     * Channel is allowed by list predicate.
-     *
-     * @param list the list
-     * @return the predicate
-     */
-    private Predicate<TextChannel> channelIsAllowedByList(final List<String> list) {
-        return (channel) -> list.isEmpty() || (channel.getParent() != null
-            && list.contains(channel.getParent().getName().toLowerCase(Locale.ROOT)
-            .replace(' ', '-'))) || list.contains(channel.getName().toLowerCase(Locale.ROOT));
+        event.replyEmbeds(embed.build()).setEphemeral(true).queue();
     }
 
     /**

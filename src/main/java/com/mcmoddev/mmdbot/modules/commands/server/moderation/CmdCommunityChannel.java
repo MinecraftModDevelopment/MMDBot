@@ -23,12 +23,17 @@ package com.mcmoddev.mmdbot.modules.commands.server.moderation;
 import com.google.common.collect.Sets;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -38,11 +43,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * The type Cmd community channel.
+ * Create a community channel owned by the specified user.
+ * Takes a user parameter and a string parameter.
  *
- * @author
+ * Takes the form:
+ *  /community-channel ProxyNeko Proxy's Trinkets
+ *  /community-channel SomebodyElse Another Channel With A Very Long Name That Discord Will Reject
+ *  /community-channel [user] [name]
+ *
+ * @author Unknown
+ * @author Curle
  */
-public final class CmdCommunityChannel extends Command {
+public final class CmdCommunityChannel extends SlashCommand {
 
     /**
      * The constant REQUIRED_PERMISSIONS.
@@ -55,7 +67,7 @@ public final class CmdCommunityChannel extends Command {
      */
     public CmdCommunityChannel() {
         super();
-        name = "create-community-channel";
+        name = "community-channel";
         help = "Creates a new community channel for the given user.";
         category = new Category("Moderation");
         arguments = "<user ID/mention> <channel name>";
@@ -63,51 +75,55 @@ public final class CmdCommunityChannel extends Command {
         aliases = new String[]{"community-channel", "comm-ch"};
         guildOnly = true;
         botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
+
+
+        OptionData user = new OptionData(OptionType.USER, "user", "The user to create the channel for.").setRequired(true);
+        OptionData channelName = new OptionData(OptionType.STRING, "channel", "The name of the channel to create.").setRequired(true);
+        List<OptionData> dataList = new ArrayList<>();
+        dataList.add(user);
+        dataList.add(channelName);
+        this.options = dataList;
     }
 
     /**
      * Execute.
      *
-     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
+     * @param event The {@link SlashCommandEvent CommandEvent} that triggered this Command.
      */
     @Override
-    protected void execute(final CommandEvent event) {
+    protected void execute(final SlashCommandEvent event) {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
         final var guild = event.getGuild();
-        final var author = guild.getMember(event.getAuthor());
+        final var author = guild.getMember(event.getUser());
         if (author == null) {
             return;
         }
 
-        final String[] args = event.getArgs().split(" ");
-        final var newOwner = Utils.getMemberFromString(args[0], event.getGuild());
-        if (newOwner == null) {
-            event.reply("Invalid user!");
-            return;
-        }
+        Member user = event.getOption("user").getAsMember();
+        String channel = event.getOption("channel").getAsString();
 
         final var categoryID = MMDBot.getConfig().getCommunityChannelCategory();
         final var category = guild.getCategoryById(categoryID);
         if (categoryID == 0 || category == null) {
             MMDBot.LOGGER.warn("Community channel category is incorrectly configured");
-            event.reply("Community channel category is incorrectly configured. Please contact the bot maintainers.");
+            event.reply("Community channel category is incorrectly configured. Please contact the bot maintainers.").setEphemeral(true).queue();
             return;
         }
 
         final Set<Permission> ownerPermissions = MMDBot.getConfig().getCommunityChannelOwnerPermissions();
         if (ownerPermissions.isEmpty()) {
             MMDBot.LOGGER.warn("Community channel owner permissions is incorrectly configured");
-            event.reply("Channel owner permissions is incorrectly configured. Please contact the bot maintainers.");
+            event.reply("Channel owner permissions is incorrectly configured. Please contact the bot maintainers.").setEphemeral(true).queue();
             return;
         }
 
-        final Set<Permission> diff = Sets.difference(ownerPermissions, event.getSelfMember().getPermissions());
+        final Set<Permission> diff = Sets.difference(ownerPermissions, event.getGuild().getSelfMember().getPermissions());
         if (!diff.isEmpty()) {
             MMDBot.LOGGER.warn("Cannot assign permissions to channel owner due to insufficient permissions: {}", diff);
             event.reply("Cannot assign certain permissions to channel owner due to insufficient permissions; "
-                + "continuing anyway...");
+                + "continuing anyway...").setEphemeral(true).queue();
             ownerPermissions.removeIf(diff::contains);
         }
 
@@ -122,16 +138,15 @@ public final class CmdCommunityChannel extends Command {
             .collect(Collectors.joining()) : "";
         final var flavorText = emoteText.isEmpty() ? "MMD" : emoteText;
 
-        final var channelName = args[1];
-        MMDBot.LOGGER.info("Creating new community channel for {}, named \"{}\" (command issued by {})",
-            newOwner, channelName, author);
-        category.createTextChannel(channelName)
+        MMDBot.LOGGER.info("Creating new community channel for {} ({}), named \"{}\" (command issued by {} ({}))",
+            user.getEffectiveName(), user.getUser().getName(), channel, author.getEffectiveName(), author.getUser().getName());
+        category.createTextChannel(channel)
             .flatMap(ch -> category.modifyTextChannelPositions()
                 .sortOrder(Comparator.comparing(GuildChannel::getName))
                 .map($ -> ch))
-            .flatMap(ch -> ch.putPermissionOverride(newOwner).setAllow(ownerPermissions).map($ -> ch))
+            .flatMap(ch -> ch.putPermissionOverride(user).setAllow(ownerPermissions).map($ -> ch))
             .flatMap(ch -> ch.sendMessage(new MessageBuilder()
-                    .appendFormat("Welcome %s to your new community channel, %s!%n", newOwner.getAsMention(),
+                    .appendFormat("Welcome %s to your new community channel, %s!%n", user.getAsMention(),
                         ch.getAsMention())
                     .append('\n')
                     .append("Please adhere to the Code of Conduct of the server")
@@ -143,6 +158,6 @@ public final class CmdCommunityChannel extends Command {
                     .build())
                 .map($ -> ch)
             )
-            .queue(c -> event.reply("Successfully created community channel at " + c.getAsMention() + "!"));
+            .queue(c -> event.reply("Successfully created community channel at " + c.getAsMention() + "!").setEphemeral(true).queue());
     }
 }

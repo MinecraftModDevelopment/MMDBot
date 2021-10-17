@@ -89,9 +89,8 @@ public class CommandModule {
             .setOwnerId(MMDBot.getConfig().getOwnerID())
             .setPrefix(MMDBot.getConfig().getMainPrefix())
             .setAlternativePrefix(MMDBot.getConfig().getAlternativePrefix())
-            .useHelpBuilder(false) // We want help to show as a command, so add it as one.
+            .useHelpBuilder(false)
             .addSlashCommand(new CmdHelp())
-
 
 
             // TODO: REMOVE!!
@@ -119,12 +118,12 @@ public class CommandModule {
             .addSlashCommand(new CmdMinecraftVersion())
             .addSlashCommand(new CmdFabricVersion())
             .addSlashCommand(new CmdMute())
-            .addCommand(new CmdUnmute())
-            .addCommand(new CmdCommunityChannel())
-            .addCommand(new CmdOldChannels())
-            .addCommand(new CmdAvatar())
-            .addCommand(new CmdRename())
-            .addCommand(new CmdUptime())
+            .addSlashCommand(new CmdUnmute())
+            .addSlashCommand(new CmdCommunityChannel())
+            .addSlashCommand(new CmdOldChannels())
+            .addSlashCommand(new CmdAvatar())
+            .addSlashCommand(new CmdRename())
+            .addSlashCommand(new CmdUptime())
             //TODO Setup DB storage for tricks and polish them off/add permission restrictions for when needed.
             .addCommand(new CmdAddTrick())
             .addCommand(new CmdListTricks())
@@ -137,7 +136,6 @@ public class CommandModule {
             .addCommand(new CmdGetQuote())
             .addCommand(new CmdRemoveQuote())
             .addCommand(new CmdListQuotes())
-            .setHelpWord("help")
             .build();
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
@@ -145,9 +143,9 @@ public class CommandModule {
             MMDBot.getInstance().addEventListener(CmdMappings.ButtonListener.INSTANCE);
             MMDBot.getInstance().addEventListener(CmdTranslateMappings.ButtonListener.INSTANCE);
             MMDBot.getInstance().addEventListener(CmdRoles.getListener());
+            MMDBot.getInstance().addEventListener(CmdHelp.getListener());
             MMDBot.getInstance().addEventListener(new CmdListTricks.ButtonListener());
             MMDBot.getInstance().addEventListener(new CmdListQuotes.ButtonListener());
-            MMDBot.getInstance().addEventListener(new CmdHelp.ButtonListener());
             MMDBot.LOGGER.warn("Command module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");
