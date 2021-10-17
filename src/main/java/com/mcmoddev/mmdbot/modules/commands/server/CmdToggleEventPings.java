@@ -22,25 +22,27 @@ package com.mcmoddev.mmdbot.modules.commands.server;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.util.List;
 
 /**
- * The type Cmd toggle event pings.
+ * Toggles whether the user has the Event Pings role.
  *
  * @author
  */
-public final class CmdToggleEventPings extends Command {
+public final class CmdToggleEventPings extends SlashCommand {
 
     /**
      * Instantiates a new Cmd toggle event pings.
      */
     public CmdToggleEventPings() {
         super();
-        name = "event-pings";
+        name = "eventpings";
         help = "Toggle the event notifications role on your user.";
         category = new Category("Info");
         aliases = new String[]{"eventpings", "event-notifications", "eventnotifications"};
@@ -50,21 +52,20 @@ public final class CmdToggleEventPings extends Command {
     /**
      * Execute.
      *
-     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
+     * @param event The {@link SlashCommandEvent CommandEvent} that triggered this Command.
      */
     @Override
-    protected void execute(final CommandEvent event) {
+    protected void execute(final SlashCommandEvent event) {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
 
         final var guild = event.getGuild();
-        final var channel = event.getMessage();
         final var role = guild.getRoleById(MMDBot.getConfig().getRole("pings.event-pings"));
 
         if (role == null) {
-            channel.reply("The Event Notifications role doesn't exist! Please contact one of the bot devs.")
-                .mentionRepliedUser(false).queue();
+            event.reply("The Event Notifications role doesn't exist! Please contact one of the bot devs.")
+                .mentionRepliedUser(false).setEphemeral(true).queue();
             return;
         }
 
@@ -79,6 +80,6 @@ public final class CmdToggleEventPings extends Command {
             added = true;
         }
 
-        channel.replyFormat("You %s have the Event Notifications role.", added ? "now" : "no longer").queue();
+        event.replyFormat("You %s have the Event Notifications role.", added ? "now" : "no longer").setEphemeral(true).queue();
     }
 }

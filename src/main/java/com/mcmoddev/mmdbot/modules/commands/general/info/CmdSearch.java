@@ -20,23 +20,28 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.general.info;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
  * The bulk of the Search commands functions live here to be shared between all other commands.
  *
- * @author
+ * @author Unknown
+ * @author Curle
  */
-public final class CmdSearch extends Command {
+public final class CmdSearch extends SlashCommand {
 
     /**
      * The search provider we want to generate a URL for.
@@ -59,6 +64,11 @@ public final class CmdSearch extends Command {
         arguments = "<search query required>";
         this.baseUrl = baseUrlIn;
         guildOnly = true;
+
+        OptionData data = new OptionData(OptionType.STRING, "text", "The text to search").setRequired(true);
+        List<OptionData> dataList = new ArrayList<>();
+        dataList.add(data);
+        this.options = dataList;
     }
 
     /**
@@ -66,22 +76,17 @@ public final class CmdSearch extends Command {
      *
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
-    protected void execute(final CommandEvent event) {
+    protected void execute(final SlashCommandEvent event) {
         if (!Utils.checkCommand(this, event)) {
-            return;
-        }
-        final var channel = event.getMessage();
-        if (event.getArgs().isEmpty()) {
-            channel.reply("No arguments given!").mentionRepliedUser(false).queue();
             return;
         }
 
         try {
-            final String query = URLEncoder.encode(event.getArgs(), StandardCharsets.UTF_8.toString());
-            channel.reply(baseUrl + query).mentionRepliedUser(false).queue();
+            final String query = URLEncoder.encode(event.getOption("text").getAsString(), StandardCharsets.UTF_8.toString());
+            event.reply(baseUrl + query).mentionRepliedUser(false).queue();
         } catch (UnsupportedEncodingException ex) {
-            MMDBot.LOGGER.error("Error processing search query {}: {}", event.getArgs(), ex);
-            channel.reply("There was an error processing your command.").mentionRepliedUser(false).queue();
+            MMDBot.LOGGER.error("Error processing search query {}: {}", event.getOption("text").getAsString(), ex);
+            event.reply("There was an error processing your command.").mentionRepliedUser(false).setEphemeral(true).queue();
         }
 
     }

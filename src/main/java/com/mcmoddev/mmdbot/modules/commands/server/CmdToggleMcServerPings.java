@@ -20,27 +20,28 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.server;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.util.List;
 
 /**
- * The type Cmd toggle mc server pings.
+ * Toggles whether the user has the Public Server role.
  *
- * @author
+ * @author Unknown
+ * @author Curle
  */
-public final class CmdToggleMcServerPings extends Command {
+public final class CmdToggleMcServerPings extends SlashCommand {
 
     /**
      * Instantiates a new Cmd toggle mc server pings.
      */
     public CmdToggleMcServerPings() {
         super();
-        name = "server-pings";
+        name = "serverpings";
         help = "Add or remove the public server player role from your user.";
         category = new Category("Info");
         aliases = new String[]{"serverpings", "mc-pings", "mc-server-pings", "mcserverpings"};
@@ -50,22 +51,21 @@ public final class CmdToggleMcServerPings extends Command {
     /**
      * Execute.
      *
-     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
+     * @param event The {@link SlashCommandEvent CommandEvent} that triggered this Command.
      */
     @Override
-    protected void execute(final CommandEvent event) {
+    protected void execute(final SlashCommandEvent event) {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
 
         final var guild = event.getGuild();
-        final var channel = event.getMessage();
         // TODO: Get the per guild ID if enabled for the guild the command was run in.
         final var role = guild.getRoleById(MMDBot.getConfig().getRole("pings.toggle-mc-server-pings"));
 
         if (role == null) {
-            channel.reply("The Server Players role doesn't exist! The config may be broken, "
-                + "please contact one of the bot maintainers...").mentionRepliedUser(false).queue();
+            event.reply("The Server Players role doesn't exist! The config may be broken, "
+                + "please contact one of the bot maintainers...").mentionRepliedUser(false).setEphemeral(true).queue();
             return;
         }
 
@@ -80,6 +80,6 @@ public final class CmdToggleMcServerPings extends Command {
             added = true;
         }
 
-        channel.replyFormat("You %s have the MMD Public Server Players role.", added ? "now" : "no longer").queue();
+        event.replyFormat("You %s have the MMD Public Server Players role.", added ? "now" : "no longer").setEphemeral(true).queue();
     }
 }
