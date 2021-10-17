@@ -129,9 +129,9 @@ public class CommandModule {
             .addSlashCommand(new CmdListTricks())
             .addSlashCommand(new CmdRemoveTrick())
             .addSlashCommand(new CmdRunTrick())
-            .addCommand(new CmdShutdown())
-            .addCommands(CmdMappings.createCommands())
-            .addCommands(CmdTranslateMappings.createCommands())
+            .addSlashCommand(new CmdShutdown())
+            .addSlashCommands(CmdMappings.createCommands()) // TODO: This is broken beyond belief. Consider moving away from linkie. - Curle
+            .addSlashCommands(CmdTranslateMappings.createCommands())
             .addCommand(new CmdAddQuote())
             .addCommand(new CmdGetQuote())
             .addCommand(new CmdRemoveQuote())

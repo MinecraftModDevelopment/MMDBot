@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.modules.commands.general.mappings
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
+import com.jagrosh.jdautilities.command.SlashCommand
 import com.mcmoddev.mmdbot.utilities.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +37,10 @@ import me.shedaniel.linkie.utils.tryToVersion
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.interactions.commands.OptionType
+import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.components.Button
 import java.awt.Color
 import java.util.*
@@ -55,31 +59,28 @@ class CmdTranslateMappings(
     private val namespace1: Namespace,
     private val namespace2: Namespace,
     vararg aliases: String?
-) : Command() {
+) : SlashCommand() {
     init {
-        this.name = name.lowercase(Locale.ROOT)
+        this.name = name.toLowerCase(Locale.ROOT)
         this.aliases = aliases
         help = "Map a name from $namespace1 to $namespace2"
+
+        options = arrayListOf(
+                OptionData(OptionType.STRING, "query", "A mapping to query.").setRequired(true),
+                OptionData(OptionType.STRING, "version", "The version of Minecraft to check.").setRequired(false)
+        )
     }
 
     /**
-     * @param event The [CommandEvent] that triggered this Command.
+     * @param event The [SlashCommandEvent] that triggered this Command.
      */
-    override fun execute(event: CommandEvent) {
+    override fun execute(event: SlashCommandEvent) {
         if (!Utils.checkCommand(this, event)) return
-        if (event.args.isEmpty()) {
-            event.channel.sendMessage("No arguments given!").queue()
-            return
-        }
 
-        val args = event.args.split(' ')
-
-        val query = args[0]
-        val version = args.getOrElse(1) {
-            val namespace2Versions = namespace2.getAllVersions().toSet()
-            namespace1.getAllVersions().filter { version -> namespace2Versions.contains(version) }
+        val query = event.getOption("query")?.asString ?: ""
+        val version = event.getOption("version")?.asString ?: namespace1.getAllVersions()
+                .filter { version -> namespace2.getAllVersions().toSet().contains(version) }
                 .maxWithOrNull(nullsFirst(compareBy { it.tryToVersion() }))!!
-        }
 
         scope.launch {
             val originProvider = namespace1.getProvider(version)
@@ -148,18 +149,19 @@ class CmdTranslateMappings(
                 ).iterator()
             }
 
-            val msg = event.channel.sendMessageEmbeds(embeds.next()).apply {
+            val msg = event.replyEmbeds(embeds.next()).apply {
                 if (embeds.hasNext()) {
-                    setActionRow(Button.primary("mappings-trans-next", "Next"))
+                    addActionRow(Button.primary("mappings-trans-next", "Next"))
                 }
+                setEphemeral(true)
             }.complete()
 
-            ButtonListener.embedsForMessage[msg.idLong] = embeds
+            ButtonListener.embedsForMessage[msg.interaction.idLong] = embeds
 
             delay(180000L)
 
-            ButtonListener.embedsForMessage.remove(msg.idLong)
-            event.channel.editMessageById(msg.id, msg).setActionRows().complete()
+            ButtonListener.embedsForMessage.remove(msg.interaction.idLong)
+            msg.editOriginalComponents().complete()
         }
     }
 
