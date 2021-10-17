@@ -20,16 +20,25 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.general.info;
 
-import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
- * The type Cmd me.
+ * Get information about the user who initiated the command.
  *
  * @author ProxyNeko
  * @author sciwhiz12
+ * @author Curle
  */
 public final class CmdMe extends CmdUser {
 
@@ -43,21 +52,22 @@ public final class CmdMe extends CmdUser {
         category = new Category("Info");
         aliases = new String[]{"whoami", "myinfo"};
         guildOnly = true;
+
+        options = new ArrayList<>();
     }
 
     /**
      * Execute.
      *
-     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
+     * @param event The {@link SlashCommandEvent CommandEvent} that triggered this Command.
      */
     @Override
-    protected void execute(final CommandEvent event) {
+    protected void execute(final SlashCommandEvent event) {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
 
-        final var channel = event.getMessage();
         final EmbedBuilder embed = createMemberEmbed(event.getMember());
-        channel.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
+        event.replyEmbeds(embed.build()).mentionRepliedUser(false).setEphemeral(true).queue();
     }
 }

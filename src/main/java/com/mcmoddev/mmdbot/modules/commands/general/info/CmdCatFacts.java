@@ -21,11 +21,11 @@
 package com.mcmoddev.mmdbot.modules.commands.general.info;
 
 import com.google.gson.JsonParser;
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -35,11 +35,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 /**
- * The type Cmd cat facts.
+ * Displays a random cat fact, fetched from https://catfact.ninja/fact
  *
- * @author proxyneko
+ * @author ProxyNeko
+ * @author Curle
  */
-public final class CmdCatFacts extends Command {
+public final class CmdCatFacts extends SlashCommand {
 
     /**
      * The constant random.
@@ -87,10 +88,10 @@ public final class CmdCatFacts extends Command {
     /**
      * Execute.
      *
-     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
+     * @param event The {@link SlashCommandEvent CommandEvent} that triggered this Command.
      */
     @Override
-    protected void execute(final CommandEvent event) {
+    protected void execute(final SlashCommandEvent event) {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
@@ -101,7 +102,7 @@ public final class CmdCatFacts extends Command {
             embed.appendDescription(fact);
             embed.setFooter("Purrwered by https://catfact.ninja");
 
-            event.getMessage().replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
+            event.replyEmbeds(embed.build()).mentionRepliedUser(false).setEphemeral(true).queue();
         }
     }
 }

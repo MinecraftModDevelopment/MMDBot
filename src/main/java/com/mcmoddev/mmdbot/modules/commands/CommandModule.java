@@ -90,23 +90,35 @@ public class CommandModule {
             .setPrefix(MMDBot.getConfig().getMainPrefix())
             .setAlternativePrefix(MMDBot.getConfig().getAlternativePrefix())
             .useHelpBuilder(false) // We want help to show as a command, so add it as one.
-            .addCommand(new CmdHelp())
-            .addCommand(new CmdGuild())
-            .addCommand(new CmdAbout())
-            .addCommand(new CmdMe())
-            .addCommand(new CmdUser())
-            .addCommand(new CmdRoles())
-            .addCommand(new CmdCatFacts())
-            .addCommand(new CmdSearch("google", "https://www.google.com/search?q=", "goog"))
-            .addCommand(new CmdSearch("bing", "https://www.bing.com/search?q="))
-            .addCommand(new CmdSearch("duckduckgo", "https://duckduckgo.com/?q=", "ddg"))
-            .addCommand(new CmdSearch("lmgtfy", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"))
-            .addCommand(new CmdToggleMcServerPings())
-            .addCommand(new CmdToggleEventPings())
-            .addCommand(new CmdForgeVersion())
-            .addCommand(new CmdMinecraftVersion())
-            .addCommand(new CmdFabricVersion())
-            .addCommand(new CmdMute())
+            .addSlashCommand(new CmdHelp())
+
+
+
+            // TODO: REMOVE!!
+            // TODO: THIS IS IMPORTANT
+            // TODO: MAKE SURE THIS IS GONE
+            // TODO: THIS MUST GO
+            .forceGuildOnly(String.valueOf(MMDBot.getConfig().getGuildID()))
+
+
+
+
+            .addSlashCommand(new CmdGuild())
+            .addSlashCommand(new CmdAbout())
+            .addSlashCommand(new CmdMe())
+            .addSlashCommand(new CmdUser())
+            .addSlashCommand(new CmdRoles())
+            .addSlashCommand(new CmdCatFacts())
+            .addSlashCommand(new CmdSearch("google", "https://www.google.com/search?q=", "goog"))
+            .addSlashCommand(new CmdSearch("bing", "https://www.bing.com/search?q="))
+            .addSlashCommand(new CmdSearch("duckduckgo", "https://duckduckgo.com/?q=", "ddg"))
+            .addSlashCommand(new CmdSearch("lmgtfy", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"))
+            .addSlashCommand(new CmdToggleMcServerPings())
+            .addSlashCommand(new CmdToggleEventPings())
+            .addSlashCommand(new CmdForgeVersion())
+            .addSlashCommand(new CmdMinecraftVersion())
+            .addSlashCommand(new CmdFabricVersion())
+            .addSlashCommand(new CmdMute())
             .addCommand(new CmdUnmute())
             .addCommand(new CmdCommunityChannel())
             .addCommand(new CmdOldChannels())
@@ -132,6 +144,7 @@ public class CommandModule {
             MMDBot.getInstance().addEventListener(commandClient);
             MMDBot.getInstance().addEventListener(CmdMappings.ButtonListener.INSTANCE);
             MMDBot.getInstance().addEventListener(CmdTranslateMappings.ButtonListener.INSTANCE);
+            MMDBot.getInstance().addEventListener(CmdRoles.getListener());
             MMDBot.getInstance().addEventListener(new CmdListTricks.ButtonListener());
             MMDBot.getInstance().addEventListener(new CmdListQuotes.ButtonListener());
             MMDBot.getInstance().addEventListener(new CmdHelp.ButtonListener());
