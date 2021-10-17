@@ -88,7 +88,7 @@ public abstract class PaginatedCommand extends SlashCommand {
     private Component[] createScrollButtons(int start) {
         List<Component> components = new ArrayList<>();
         if (start != 0) {
-            components.add(Button.secondary(getName() + "-" + start + "-prev",
+            components.add(Button.primary(getName() + "-" + start + "-prev",
                 Emoji.fromUnicode("◀️")));
         }
         if (start + items_per_page < maximum) {
