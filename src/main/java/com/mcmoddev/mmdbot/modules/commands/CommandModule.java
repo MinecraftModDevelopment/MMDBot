@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.modules.commands;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.MMDBot;
@@ -47,10 +46,7 @@ import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdMute;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdOldChannels;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUnmute;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
-import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdAddQuote;
-import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdGetQuote;
-import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdListQuotes;
-import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdRemoveQuote;
+import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdQuote;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdAddTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRemoveTrick;
@@ -91,17 +87,6 @@ public class CommandModule {
             .setAlternativePrefix(MMDBot.getConfig().getAlternativePrefix())
             .useHelpBuilder(false)
             .addSlashCommand(new CmdHelp())
-
-
-            // TODO: REMOVE!!
-            // TODO: THIS IS IMPORTANT
-            // TODO: MAKE SURE THIS IS GONE
-            // TODO: THIS MUST GO
-            .forceGuildOnly(String.valueOf(MMDBot.getConfig().getGuildID()))
-
-
-
-
             .addSlashCommand(new CmdGuild())
             .addSlashCommand(new CmdAbout())
             .addSlashCommand(new CmdMe())
@@ -132,10 +117,7 @@ public class CommandModule {
             .addSlashCommand(new CmdShutdown())
             .addSlashCommands(CmdMappings.createCommands()) // TODO: This is broken beyond belief. Consider moving away from linkie. - Curle
             .addSlashCommands(CmdTranslateMappings.createCommands())
-            .addCommand(new CmdAddQuote())
-            .addCommand(new CmdGetQuote())
-            .addCommand(new CmdRemoveQuote())
-            .addCommand(new CmdListQuotes())
+            .addSlashCommand(new CmdQuote())
             .build();
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
@@ -145,7 +127,7 @@ public class CommandModule {
             MMDBot.getInstance().addEventListener(CmdRoles.getListener());
             MMDBot.getInstance().addEventListener(CmdHelp.getListener());
             MMDBot.getInstance().addEventListener(CmdListTricks.getListener());
-            MMDBot.getInstance().addEventListener(new CmdListQuotes.ButtonListener());
+            MMDBot.getInstance().addEventListener(CmdQuote.ListQuotes.getListener());
             MMDBot.LOGGER.warn("Command module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");

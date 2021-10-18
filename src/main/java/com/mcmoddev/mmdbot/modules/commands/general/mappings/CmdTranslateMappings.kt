@@ -61,7 +61,7 @@ class CmdTranslateMappings(
     vararg aliases: String?
 ) : SlashCommand() {
     init {
-        this.name = name.toLowerCase(Locale.ROOT)
+        this.name = name.lowercase(Locale.ROOT)
         this.aliases = aliases
         help = "Map a name from $namespace1 to $namespace2"
 

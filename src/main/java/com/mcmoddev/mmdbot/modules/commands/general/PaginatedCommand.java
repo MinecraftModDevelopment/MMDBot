@@ -86,16 +86,18 @@ public abstract class PaginatedCommand extends SlashCommand {
      * @return A row of buttons to go back and forth by one page.
      */
     private Component[] createScrollButtons(int start) {
-        List<Component> components = new ArrayList<>();
-        if (start != 0) {
-            components.add(Button.primary(getName() + "-" + start + "-prev",
-                Emoji.fromUnicode("◀️")));
-        }
-        if (start + items_per_page < maximum) {
-            components.add(Button.primary(getName() + "-" + start + "-next",
-                Emoji.fromUnicode("▶️")));
-        }
-        return components.toArray(new Component[0]);
+        Button backward = Button.primary(getName() + "-" + start + "-prev",
+            Emoji.fromUnicode("◀️")).asDisabled();
+        Button forward = Button.primary(getName() + "-" + start + "-next",
+            Emoji.fromUnicode("▶️")).asDisabled();
+
+        if (start != 0)
+            backward = backward.asEnabled();
+
+        if (start + items_per_page < maximum)
+            forward = forward.asEnabled();
+
+        return new Component[] {backward, forward};
     }
 
 
