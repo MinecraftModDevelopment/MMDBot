@@ -27,6 +27,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.audit.ActionType;
 import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.utils.TimeFormat;
+import net.dv8tion.jda.api.utils.Timestamp;
 
 import java.awt.Color;
 import java.text.SimpleDateFormat;
@@ -66,7 +68,6 @@ public class UserBanned extends ListenerAdapter {
                     final var embed = new EmbedBuilder();
                     final var bannedUser = event.getUser();
                     final var bannedBy = entry.getUser();
-                    final var date = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH);
 
                     embed.setColor(Color.RED);
                     embed.setTitle("User Banned.");
@@ -74,7 +75,7 @@ public class UserBanned extends ListenerAdapter {
                     embed.addField("**Name:**", bannedUser.getName(), false);
                     embed.addField("**UserID:**", bannedUser.getId(), false);
                     embed.addField("**Profile:**", bannedUser.getAsMention(), false);
-                    embed.addField("**Profile Age**", date.format(bannedUser.getTimeCreated().toInstant()), false);
+                    embed.addField("**Profile Age**", TimeFormat.RELATIVE.format(bannedUser.getTimeCreated().toInstant()), false);
 
                     if (entry.getReason() == null) {
                         embed.addField("**Ban reason:**",
