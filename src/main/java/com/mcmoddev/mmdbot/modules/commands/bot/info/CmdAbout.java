@@ -56,8 +56,6 @@ public final class CmdAbout extends SlashCommand {
         help = "Gives info about this bot.";
         category = new Category("Info");
         guildOnly = true;
-        // TODO: REMOVE BEFORE PUSHING
-        guildId = String.valueOf(MMDBot.getConfig().getGuildID());
     }
 
     /**
