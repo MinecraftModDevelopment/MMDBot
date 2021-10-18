@@ -20,22 +20,36 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.general.info;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.fabric.FabricVersionHelper;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.minecraft.MinecraftVersionHelper;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.awt.Color;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * The type Cmd fabric version.
+ * Get the latest Fabric, API and Yarn versions.
+ * Optionally takes a version parameter.
+ * <p>
+ * Takes the form:
+ * /fabric
+ * /fabric 1.16.5
+ * /fabric 1.12.2
+ * /fabric [version]
  *
  * @author williambl
+ * @author Curle
  */
-public final class CmdFabricVersion extends Command {
+public final class CmdFabricVersion extends SlashCommand {
 
     /**
      * Instantiates a new Cmd fabric version.
@@ -48,6 +62,11 @@ public final class CmdFabricVersion extends Command {
         arguments = "<Minecraft Version>";
         aliases = new String[]{"fabricv"};
         guildOnly = true;
+
+        OptionData data = new OptionData(OptionType.STRING, "version", "The version of Minecraft to check for.").setRequired(false);
+        List<OptionData> dataList = new ArrayList<>();
+        dataList.add(data);
+        this.options = dataList;
     }
 
     /**
@@ -56,29 +75,28 @@ public final class CmdFabricVersion extends Command {
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     @Override
-    protected void execute(final CommandEvent event) {
+    protected void execute(final SlashCommandEvent event) {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
 
-        var mcVersion = event.getArgs().trim();
-        if (mcVersion.isEmpty()) {
-            mcVersion = MinecraftVersionHelper.getLatest();
-        }
+        String minecraft = MinecraftVersionHelper.getLatest();
+        OptionMapping version = event.getOption("version");
+        if (version != null)
+            minecraft = version.getAsString();
 
-        var yarnVersion = FabricVersionHelper.getLatestYarn(mcVersion);
+        var yarnVersion = FabricVersionHelper.getLatestYarn(minecraft);
         if (yarnVersion == null) {
             yarnVersion = "None";
         }
         final var embed = new EmbedBuilder();
-        final var channel = event.getMessage();
 
-        embed.setTitle("Fabric Versions for Minecraft " + mcVersion);
+        embed.setTitle("Fabric Versions for Minecraft " + minecraft);
         embed.addField("Latest Yarn", yarnVersion, true);
         embed.addField("Latest API", FabricVersionHelper.getLatestApi(), true);
         embed.addField("Latest Loader", FabricVersionHelper.getLatestLoader(), true);
         embed.setColor(Color.WHITE);
         embed.setTimestamp(Instant.now());
-        channel.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
+        event.replyEmbeds(embed.build()).mentionRepliedUser(false).setEphemeral(true).queue();
     }
 }

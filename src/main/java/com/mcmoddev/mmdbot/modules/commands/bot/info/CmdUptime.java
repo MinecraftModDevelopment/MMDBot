@@ -20,11 +20,11 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.bot.info;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -33,11 +33,12 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
 /**
- * The type Cmd uptime.
+ * Shows how long the bot has been online.
  *
  * @author ProxyNeko
+ * @author Curle
  */
-public class CmdUptime extends Command {
+public class CmdUptime extends SlashCommand {
 
     /**
      * Instantiates a new Cmd uptime.
@@ -53,20 +54,19 @@ public class CmdUptime extends Command {
     /**
      * Execute.
      *
-     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
+     * @param event The {@link SlashCommandEvent CommandEvent} that triggered this Command.
      */
     @Override
-    protected void execute(final CommandEvent event) {
+    protected void execute(final SlashCommandEvent event) {
         final var embed = new EmbedBuilder();
-        final var channel = event.getMessage();
 
         embed.setTitle("Time spent online.");
         embed.setColor(Color.GREEN);
         embed.addField("I've been online for: ", Utils.getTimeDifference(Utils.getTimeFromUTC(
-                    References.STARTUP_TIME), OffsetDateTime.now(ZoneOffset.UTC),
-                ChronoUnit.YEARS, ChronoUnit.MONTHS, ChronoUnit.DAYS, ChronoUnit.HOURS, ChronoUnit.HOURS, ChronoUnit.SECONDS)
+            References.STARTUP_TIME), OffsetDateTime.now(ZoneOffset.UTC),
+            ChronoUnit.YEARS, ChronoUnit.MONTHS, ChronoUnit.DAYS, ChronoUnit.HOURS, ChronoUnit.HOURS, ChronoUnit.SECONDS)
             , false);
         embed.setTimestamp(Instant.now());
-        channel.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
+        event.replyEmbeds(embed.build()).mentionRepliedUser(false).setEphemeral(true).queue();
     }
 }

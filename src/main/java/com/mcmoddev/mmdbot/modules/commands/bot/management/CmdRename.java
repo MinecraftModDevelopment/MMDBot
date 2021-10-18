@@ -20,17 +20,29 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.bot.management;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+
+import java.util.Collections;
 
 /**
- * Rename the bot, not a nickname, but it's actual name.
+ * Rename the bot's User.
+ * Takes a name parameter.
+ * <p>
+ * Takes the form:
+ * /rename NewUsername
+ * /rename [name]
+ * <p>
+ * TODO: Figure out the cooldown system.
  *
  * @author ProxyNeko
+ * @author Curle
  */
-public class CmdRename extends Command {
+public class CmdRename extends SlashCommand {
 
     /**
      * Instantiates a new Cmd avatar.
@@ -44,6 +56,8 @@ public class CmdRename extends Command {
         ownerCommand = true;
         guildOnly = true;
         cooldown = 2100;
+
+        options = Collections.singletonList(new OptionData(OptionType.STRING, "name", "The new name to set.").setRequired(true));
     }
 
     /**
@@ -52,26 +66,18 @@ public class CmdRename extends Command {
      * @param event The event
      */
     @Override
-    protected void execute(final CommandEvent event) {
-        final var channel = event.getMessage();
-        final var newName = event.getArgs();
+    protected void execute(final SlashCommandEvent event) {
         final var theBot = MMDBot.getInstance().getSelfUser();
 
-        if (newName.isEmpty()) {
-            channel.reply("No new name provided! Please provide me with a new name!")
-                .mentionRepliedUser(false).queue();
-            return;
-        }
-
         try {
-            theBot.getManager().setName(newName).queue();
+            theBot.getManager().setName(event.getOption("name").getAsString()).queue();
             Utils.sleepTimer();
-            channel.reply("I shall henceforth be known as... **" + theBot.getAsMention() + "**!")
-                .mentionRepliedUser(false).queue();
+            event.reply("I shall henceforth be known as... **" + theBot.getAsMention() + "**!")
+                .mentionRepliedUser(false).setEphemeral(true).queue();
         } catch (Exception exception) {
-            channel.reply("Failed to set a new username... Please see logs for more info! "
+            event.reply("Failed to set a new username... Please see logs for more info! "
                 + "(You can only change the bots username twice an hour, please wait before trying again)")
-                .mentionRepliedUser(false).queue();
+                .mentionRepliedUser(false).setEphemeral(true).queue();
             MMDBot.LOGGER.error("Failed to set a new username... ", exception);
         }
     }

@@ -90,15 +90,6 @@ public final class Tricks {
     }
 
     /**
-     * Create trick commands list.
-     *
-     * @return the list
-     */
-    public static List<CmdRunTrick> createTrickCommands() {
-        return getTricks().stream().map(CmdRunTrick::new).collect(Collectors.toList());
-    }
-
-    /**
      * Gets tricks.
      *
      * @return the tricks
@@ -154,12 +145,8 @@ public final class Tricks {
      * Add a trick.
      *
      * @param trick the trick to add.
-     * @throws IllegalArgumentException propagated from
-     *                                  {@link com.jagrosh.jdautilities.command.CommandClient#addCommand(Command)} if a command with the name or alias
-     *                                  of the given trick already exists.
      */
     public static void addTrick(final Trick trick) {
-        CommandModule.getCommandClient().addCommand(new CmdRunTrick(trick));
         getTricks().add(trick);
         write();
     }
@@ -171,7 +158,6 @@ public final class Tricks {
      */
     public static void removeTrick(final Trick trick) {
         getTricks().remove(trick);
-        CommandModule.getCommandClient().removeCommand(trick.getNames().get(0));
         write();
     }
 

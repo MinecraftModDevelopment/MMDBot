@@ -25,7 +25,9 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.database.dao.PersistedRoles;
 import com.mcmoddev.mmdbot.utilities.database.dao.UserFirstJoins;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
@@ -35,12 +37,14 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -167,6 +171,23 @@ public final class Utils {
     }
 
     /**
+     * Get a Role instance from the default configured guild, with a given name.
+     * This is primarily used for the advanced checks as part of the new SlashCommand system.
+     * @param roleName the name of the role to fetch
+     * @return the Role found if exists, null otherwise.
+     */
+    public static Role getRoleInHomeGuild(final String roleName) {
+        JDA bot = MMDBot.getInstance();
+        Guild homeGuild = bot.getGuildById(MMDBot.getConfig().getGuildID());
+        if(homeGuild == null)
+            return null;
+        List<Role> roles = homeGuild.getRolesByName(roleName, false);
+        if(roles.size() == 0)
+            return null;
+        return roles.get(0);
+    }
+
+    /**
      * Gets user from string.
      *
      * @param userString The members string name or ID.
@@ -193,12 +214,16 @@ public final class Utils {
      * @return The matching reactions.
      */
     public static List<MessageReaction> getMatchingReactions(final Message message, final LongPredicate predicate) {
-        return message
-            .getReactions()
-            .stream()
-            .filter(messageReaction -> messageReaction.getReactionEmote().isEmote())
-            .filter(messageReaction -> predicate.test(messageReaction.getReactionEmote().getIdLong()))
-            .collect(Collectors.toList());
+        List<MessageReaction> reactions = message.getReactions();
+        List<MessageReaction> matches = new ArrayList<>();
+        for(MessageReaction react : reactions) {
+            Emote emote = react.getReactionEmote().isEmote() ? react.getReactionEmote().getEmote() : null;
+            if (emote != null)
+                if(predicate.test(emote.getIdLong()))
+                    matches.add(react);
+        }
+
+        return matches;
     }
 
     /**
@@ -330,8 +355,96 @@ public final class Utils {
         return true;
     }
 
+
+    /**
+     * Checks if the command can run in the given context, and returns if it should continue running.
+     * <p>
+     * This does the following checks in order (checks prefixed with GUILD will only take effect when ran from a
+     * {@linkplain TextChannel guild channel}):
+     * <ul>
+     *     <li>GUILD; checks if the command is enabled in the guild.</li>
+     *     <li>not in GUILD; checks if the command is enabled globally.</li>
+     *     <li>GUILD: checks if the command is blocked in the channel/category.</li>
+     *     <li>GUILD: checks if the command is allowed in the channel/category.</li>
+     * </ul>
+     *
+     * For Slash commands only.
+     *
+     * @param command The command
+     * @param event   The command event
+     * @return If the command can run in that context
+     */
+    public static boolean checkCommand(final Command command, final SlashCommandEvent event) {
+
+        if (!isEnabled(command, event)) {
+            //Could also send an informational message.
+            return false;
+        }
+
+        if (event.isFromGuild()) {
+            final List<Long> exemptRoles = getConfig().getChannelExemptRoles();
+            if (event.getMember().getRoles().stream()
+                .map(ISnowflake::getIdLong)
+                .anyMatch(exemptRoles::contains)) {
+                //The member has a channel-checking-exempt role, bypass checking and allow the command.
+                return true;
+            }
+        }
+
+        if (isBlocked(command, event)) {
+            event.reply("This command is blocked from running in this channel!")
+                .setEphemeral(true)
+                .queue();
+            return false;
+        }
+
+        //Sent from a guild.
+        if (event.isFromGuild()) {
+            final List<Long> allowedChannels = getConfig().getAllowedChannels(command.getName(),
+                event.getGuild().getIdLong());
+
+            //If the allowlist is empty, default allowed.
+            if (allowedChannels.isEmpty()) {
+                return true;
+            }
+
+            final var channelID = event.getChannel().getIdLong();
+            @Nullable final var category = event.getTextChannel().getParent();
+            boolean allowed;
+            if (category == null) {
+                allowed = allowedChannels.stream().anyMatch(id -> id == channelID);
+            } else { // If there's a category, also check that
+                final var categoryID = category.getIdLong();
+                allowed = allowedChannels.stream()
+                    .anyMatch(id -> id == channelID || id == categoryID);
+            }
+
+            if (!allowed) {
+                final List<Long> hiddenChannels = getConfig().getHiddenChannels();
+                final String allowedChannelStr = allowedChannels.stream()
+                    .filter(id -> !hiddenChannels.contains(id))
+                    .map(id -> "<#" + id + ">")
+                    .collect(Collectors.joining(", "));
+
+                final StringBuilder str = new StringBuilder(84)
+                    .append("This command cannot be run in this channel");
+                if (!allowedChannelStr.isEmpty()) {
+                    str.append(", only in ")
+                        .append(allowedChannelStr);
+                }
+                event.reply(str.append("!").toString())
+                    .setEphemeral(true)
+                    .queue();
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Is enabled boolean.
+     * For textual commands only.
      *
      * @param command the command
      * @param event   the event
@@ -345,7 +458,23 @@ public final class Utils {
     }
 
     /**
+     * Is enabled boolean.
+     * For Slash commands only.
+     *
+     * @param command the command
+     * @param event   the event
+     * @return boolean. boolean
+     */
+    private static boolean isEnabled(final Command command, final SlashCommandEvent event) {
+        if (event.isFromGuild()) { // Sent from a guild
+            return getConfig().isEnabled(command.getName(), event.getGuild().getIdLong());
+        }
+        return getConfig().isEnabled(command.getName());
+    }
+
+    /**
      * Is blocked boolean.
+     * For textual commands only.
      *
      * @param command the command
      * @param event   the event
@@ -353,6 +482,30 @@ public final class Utils {
      */
     private static boolean isBlocked(final Command command, final CommandEvent event) {
         if (event.isFromType(ChannelType.TEXT)) { // Sent from a guild
+            final var channelID = event.getChannel().getIdLong();
+            final List<Long> blockedChannels = getConfig().getBlockedChannels(command.getName(),
+                event.getGuild().getIdLong());
+            @Nullable final var category = event.getTextChannel().getParent();
+            if (category != null) {
+                final var categoryID = category.getIdLong();
+                return blockedChannels.stream()
+                    .anyMatch(id -> id == channelID || id == categoryID);
+            }
+            return blockedChannels.stream().anyMatch(id -> id == channelID);
+        }
+        return false; // If not from a guild, default not blocked
+    }
+
+    /**
+     * Is blocked boolean.
+     * For Slash commands only.
+     *
+     * @param command the command
+     * @param event   the event
+     * @return boolean. boolean
+     */
+    private static boolean isBlocked(final Command command, final SlashCommandEvent event) {
+        if (event.isFromGuild()) { // Sent from a guild
             final var channelID = event.getChannel().getIdLong();
             final List<Long> blockedChannels = getConfig().getBlockedChannels(command.getName(),
                 event.getGuild().getIdLong());

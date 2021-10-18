@@ -20,17 +20,27 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.server.tricks;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+
+import java.util.Collections;
 
 /**
- * @author williambl
+ * Remove a trick, if present.
+ * Takes one parameter, the trick name.
  *
- * The type Cmd remove trick.
+ * Takes the form:
+ *  /removetrick test
+ *  /removetrick [trick]
+ *
+ * @author williambl
+ * @author Curle
  */
-public final class CmdRemoveTrick extends Command {
+public final class CmdRemoveTrick extends SlashCommand {
 
     /**
      * Instantiates a new Cmd remove trick.
@@ -44,6 +54,8 @@ public final class CmdRemoveTrick extends Command {
         aliases = new String[]{"remove-trick", "remtrick"};
         requiredRole = "bot maintainer";
         guildOnly = true;
+
+        options = Collections.singletonList(new OptionData(OptionType.STRING, "trick", "The trick to delete.").setRequired(true));
     }
 
     /**
@@ -52,13 +64,12 @@ public final class CmdRemoveTrick extends Command {
      * @param event the event
      */
     @Override
-    protected void execute(final CommandEvent event) {
+    protected void execute(final SlashCommandEvent event) {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
-        final var channel = event.getTextChannel();
 
-        Tricks.getTrick(event.getArgs().split(" ")[0]).ifPresent(Tricks::removeTrick);
-        channel.sendMessage("Removed trick!").queue();
+        Tricks.getTrick(event.getOption("trick").getAsString()).ifPresent(Tricks::removeTrick);
+        event.reply("Removed trick!").setEphemeral(true).queue();
     }
 }

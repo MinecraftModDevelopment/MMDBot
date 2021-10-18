@@ -20,21 +20,22 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.general.info;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.minecraft.MinecraftVersionHelper;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.awt.Color;
 import java.time.Instant;
 
 /**
- * The type Cmd minecraft version.
+ * Returns the latest Minecraft release and snapshot version.
  *
  * @author Poke
+ * @author Curle
  */
-public final class CmdMinecraftVersion extends Command {
+public final class CmdMinecraftVersion extends SlashCommand {
 
     /**
      * Instantiates a new Cmd minecraft version.
@@ -51,21 +52,20 @@ public final class CmdMinecraftVersion extends Command {
     /**
      * Execute.
      *
-     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
+     * @param event The {@link SlashCommandEvent CommandEvent} that triggered this Command.
      */
     @Override
-    protected void execute(final CommandEvent event) {
+    protected void execute(final SlashCommandEvent event) {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
 
         final var embed = new EmbedBuilder();
-        final var channel = event.getMessage();
         embed.setTitle("Minecraft Versions");
         embed.addField("Latest", MinecraftVersionHelper.getLatest(), true);
         embed.addField("Latest Stable", MinecraftVersionHelper.getLatestStable(), true);
         embed.setColor(Color.GREEN);
         embed.setTimestamp(Instant.now());
-        channel.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
+        event.replyEmbeds(embed.build()).mentionRepliedUser(false).setEphemeral(true).queue();
     }
 }

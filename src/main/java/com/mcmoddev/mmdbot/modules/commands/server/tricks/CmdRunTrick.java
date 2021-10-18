@@ -20,39 +20,39 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.server.tricks;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
-import com.mcmoddev.mmdbot.utilities.tricks.Trick;
+import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.util.List;
+import java.util.Collections;
 
 /**
- * @author williambl
+ * Fetch and execute a given trick.
+ * Takes one parameter, the trick name.
+ * <p>
+ * Takes the form:
+ * /trick test
+ * /trick [name]
  *
- * The type Cmd run trick.
+ * @author williambl
+ * @author Curle
  */
-public final class CmdRunTrick extends Command {
-
-    /**
-     * The Trick.
-     */
-    private final Trick trick;
+public final class CmdRunTrick extends SlashCommand {
 
     /**
      * Instantiates a new Cmd run trick.
-     *
-     * @param trick the trick
      */
-    public CmdRunTrick(final Trick trick) {
+    public CmdRunTrick() {
         super();
-        this.trick = trick;
-        List<String> trickNames = trick.getNames();
-        name = trickNames.get(0);
-        aliases = trickNames.size() > 1 ? trickNames.subList(1, trickNames.size())
-            .toArray(new String[0]) : new String[0];
+        name = "trick";
+        help = "Invoke a specific trick by name.";
         category = new Category("Fun");
         guildOnly = true;
+
+        options = Collections.singletonList(new OptionData(OptionType.STRING, "name", "The name of the trick to run").setRequired(true));
     }
 
     /**
@@ -61,12 +61,14 @@ public final class CmdRunTrick extends Command {
      * @param event the event
      */
     @Override
-    protected void execute(final CommandEvent event) {
+    protected void execute(final SlashCommandEvent event) {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
-        final var channel = event.getTextChannel();
 
-        channel.sendMessage(trick.getMessage(event.getArgs().split(" "))).queue();
+        Tricks.getTrick(event.getOption("name").getAsString()).ifPresentOrElse(
+            trick -> event.reply(trick.getMessage(new String[]{})).setEphemeral(false).queue(),
+            () -> event.reply("No trick with that name was found.").setEphemeral(true).queue()
+        );
     }
 }

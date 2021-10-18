@@ -20,28 +20,40 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.server.moderation;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.awt.Color;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
- * The type Cmd user.
+ * Shows information about a particular user.
+ * Includes:
+ *  - Username
+ *  - Discriminator
+ *  - ID
+ *  - Nickname, if applied
+ *  - Discord join date
+ *  - Guild join date
+ *  - Account age
  *
  * @author ProxyNeko
  * @author WillBL
  * @author sciwhiz12
+ * @author Curle
  */
-public class CmdUser extends Command {
+public class CmdUser extends SlashCommand {
 
     /**
      * Instantiates a new Cmd user.
@@ -52,30 +64,35 @@ public class CmdUser extends Command {
         help = "Get information about another user.";
         category = new Category("Moderation");
         arguments = "<userID/mention";
+
         requiredRole = "Staff";
         guildOnly = true;
+
+        OptionData data = new OptionData(OptionType.USER, "user", "The user to check.").setRequired(false);
+        List<OptionData> dataList = new ArrayList<>();
+        dataList.add(data);
+        this.options = dataList;
     }
 
     /**
      * Execute.
      *
-     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
+     * @param event The {@link SlashCommandEvent CommandEvent} that triggered this Command.
      */
     @Override
-    protected void execute(final CommandEvent event) {
+    protected void execute(final SlashCommandEvent event) {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
 
-        final var channel = event.getMessage();
-        final var member = Utils.getMemberFromString(event.getArgs(), event.getGuild());
+        final var member = event.getOption("user");
         if (member == null) {
-            channel.reply(String.format("User %s not found.", event.getArgs())).mentionRepliedUser(false).queue();
+            event.reply(String.format("User %s not found.", event.getOption("user").getAsString())).mentionRepliedUser(false).queue();
             return;
         }
 
-        final var embed = createMemberEmbed(member);
-        channel.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
+        final var embed = createMemberEmbed(member.getAsMember());
+        event.replyEmbeds(embed.build()).mentionRepliedUser(false).setEphemeral(true).queue();
     }
 
     /**

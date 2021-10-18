@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.modules.commands;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.MMDBot;
@@ -47,14 +46,11 @@ import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdMute;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdOldChannels;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUnmute;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
-import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdAddQuote;
-import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdGetQuote;
-import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdListQuotes;
-import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdRemoveQuote;
+import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdQuote;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdAddTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRemoveTrick;
-import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
+import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrick;
 import me.shedaniel.linkie.Namespaces;
 
 /**
@@ -89,52 +85,49 @@ public class CommandModule {
             .setOwnerId(MMDBot.getConfig().getOwnerID())
             .setPrefix(MMDBot.getConfig().getMainPrefix())
             .setAlternativePrefix(MMDBot.getConfig().getAlternativePrefix())
-            .useHelpBuilder(false) // We want help to show as a command, so add it as one.
-            .addCommand(new CmdHelp())
-            .addCommand(new CmdGuild())
-            .addCommand(new CmdAbout())
-            .addCommand(new CmdMe())
-            .addCommand(new CmdUser())
-            .addCommand(new CmdRoles())
-            .addCommand(new CmdCatFacts())
-            .addCommand(new CmdSearch("google", "https://www.google.com/search?q=", "goog"))
-            .addCommand(new CmdSearch("bing", "https://www.bing.com/search?q="))
-            .addCommand(new CmdSearch("duckduckgo", "https://duckduckgo.com/?q=", "ddg"))
-            .addCommand(new CmdSearch("lmgtfy", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"))
-            .addCommand(new CmdToggleMcServerPings())
-            .addCommand(new CmdToggleEventPings())
-            .addCommand(new CmdForgeVersion())
-            .addCommand(new CmdMinecraftVersion())
-            .addCommand(new CmdFabricVersion())
-            .addCommand(new CmdMute())
-            .addCommand(new CmdUnmute())
-            .addCommand(new CmdCommunityChannel())
-            .addCommand(new CmdOldChannels())
-            .addCommand(new CmdAvatar())
-            .addCommand(new CmdRename())
-            .addCommand(new CmdUptime())
+            .useHelpBuilder(false)
+            .addSlashCommand(new CmdHelp())
+            .addSlashCommand(new CmdGuild())
+            .addSlashCommand(new CmdAbout())
+            .addSlashCommand(new CmdMe())
+            .addSlashCommand(new CmdUser())
+            .addSlashCommand(new CmdRoles())
+            .addSlashCommand(new CmdCatFacts())
+            .addSlashCommand(new CmdSearch("google", "https://www.google.com/search?q=", "goog"))
+            .addSlashCommand(new CmdSearch("bing", "https://www.bing.com/search?q="))
+            .addSlashCommand(new CmdSearch("duckduckgo", "https://duckduckgo.com/?q=", "ddg"))
+            .addSlashCommand(new CmdSearch("lmgtfy", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"))
+            .addSlashCommand(new CmdToggleMcServerPings())
+            .addSlashCommand(new CmdToggleEventPings())
+            .addSlashCommand(new CmdForgeVersion())
+            .addSlashCommand(new CmdMinecraftVersion())
+            .addSlashCommand(new CmdFabricVersion())
+            .addSlashCommand(new CmdMute())
+            .addSlashCommand(new CmdUnmute())
+            .addSlashCommand(new CmdCommunityChannel())
+            .addSlashCommand(new CmdOldChannels())
+            .addSlashCommand(new CmdAvatar())
+            .addSlashCommand(new CmdRename())
+            .addSlashCommand(new CmdUptime())
             //TODO Setup DB storage for tricks and polish them off/add permission restrictions for when needed.
-            .addCommand(new CmdAddTrick())
-            .addCommand(new CmdListTricks())
-            .addCommand(new CmdRemoveTrick())
-            .addCommands(Tricks.createTrickCommands().toArray(new Command[0]))
-            .addCommand(new CmdShutdown())
-            .addCommands(CmdMappings.createCommands())
-            .addCommands(CmdTranslateMappings.createCommands())
-            .addCommand(new CmdAddQuote())
-            .addCommand(new CmdGetQuote())
-            .addCommand(new CmdRemoveQuote())
-            .addCommand(new CmdListQuotes())
-            .setHelpWord("help")
+            .addSlashCommand(new CmdAddTrick())
+            .addSlashCommand(new CmdListTricks())
+            .addSlashCommand(new CmdRemoveTrick())
+            .addSlashCommand(new CmdRunTrick())
+            .addSlashCommand(new CmdShutdown())
+            .addSlashCommands(CmdMappings.createCommands()) // TODO: This is broken beyond belief. Consider moving away from linkie. - Curle
+            .addSlashCommands(CmdTranslateMappings.createCommands())
+            .addSlashCommand(new CmdQuote())
             .build();
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
             MMDBot.getInstance().addEventListener(commandClient);
             MMDBot.getInstance().addEventListener(CmdMappings.ButtonListener.INSTANCE);
             MMDBot.getInstance().addEventListener(CmdTranslateMappings.ButtonListener.INSTANCE);
-            MMDBot.getInstance().addEventListener(new CmdListTricks.ButtonListener());
-            MMDBot.getInstance().addEventListener(new CmdListQuotes.ButtonListener());
-            MMDBot.getInstance().addEventListener(new CmdHelp.ButtonListener());
+            MMDBot.getInstance().addEventListener(CmdRoles.getListener());
+            MMDBot.getInstance().addEventListener(CmdHelp.getListener());
+            MMDBot.getInstance().addEventListener(CmdListTricks.getListener());
+            MMDBot.getInstance().addEventListener(CmdQuote.ListQuotes.getListener());
             MMDBot.LOGGER.warn("Command module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");

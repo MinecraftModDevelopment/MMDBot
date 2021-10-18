@@ -20,23 +20,35 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.general.info;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.forge.ForgeVersionHelper;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.forge.MinecraftForgeVersion;
-import com.mcmoddev.mmdbot.utilities.updatenotifiers.minecraft.MinecraftVersionHelper;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.awt.Color;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * The type Cmd forge version.
+ * Retrieve the current latest and recommended builds for Forge.
+ * Takes an optional version parameter.
  *
- * @author @Poke
+ * Takes the forms:
+ *  /forge
+ *  /forge 1.16.5
+ *  /forge 1.12.2
+ *  /forge [version]
+ *
+ * @author Poke
+ * @author Curle
  */
-public final class CmdForgeVersion extends Command {
+public final class CmdForgeVersion extends SlashCommand {
 
     /**
      * Instantiates a new Cmd forge version.
@@ -46,54 +58,62 @@ public final class CmdForgeVersion extends Command {
         name = "forge";
         help = "Get forge versions for latest Minecraft version";
         category = new Category("Info");
-        arguments = "<Minecraft Version>";
+        arguments = "[Minecraft Version]";
         aliases = new String[]{"forgev"};
         guildOnly = true;
+
+
+        OptionData data = new OptionData(OptionType.STRING, "version", "The version of Minecraft to check for.").setRequired(false);
+        List<OptionData> dataList = new ArrayList<>();
+        dataList.add(data);
+        this.options = dataList;
     }
 
     /**
      * Execute.
      *
-     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
+     * @param event The {@link SlashCommandEvent CommandEvent} that triggered this Command.
      */
     @Override
-    protected void execute(final CommandEvent event) {
+    protected void execute(final SlashCommandEvent event) {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
 
-        //final var args = event.getArgs().trim();
-        final var channel = event.getTextChannel();
         MinecraftForgeVersion latest;
+        OptionMapping version = event.getOption("version");
         try {
-            //if (args.isEmpty()) {
+            if(version != null)
+                latest = new MinecraftForgeVersion(version.getAsString(), ForgeVersionHelper.getForgeVersionsForMcVersion(version.getAsString()));
+            else
                 latest = ForgeVersionHelper.getLatestMcVersionForgeVersions();
-            //} else {
-                //latest = ForgeVersionHelper.getForgeVersionsForMcVersion(args);
-            //}
         } catch (Exception ex) {
-            channel.sendMessage("Unable to get forge versions.").queue();
+            event.reply("Unable to get forge versions.").setEphemeral(true).queue();
             ex.printStackTrace();
             return;
         }
 
-        final var latestForgeVersion = latest.getForgeVersion();
-        final var latestForge = latestForgeVersion.getLatest();
-        var recommendedForge = latestForgeVersion.getRecommended();
-        if (recommendedForge == null) {
-            recommendedForge = "none";
-        }
-        final var changelogLink = Utils.makeHyperlink("Changelog", String.format(
-            "https://files.minecraftforge.net/maven/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt",
+        try {
+            final var latestForgeVersion = latest.getForgeVersion();
+            final var latestForge = latestForgeVersion.getLatest();
+            var recommendedForge = latestForgeVersion.getRecommended();
+            if (recommendedForge == null) {
+                recommendedForge = "none";
+            }
+            final var changelogLink = Utils.makeHyperlink("Changelog", String.format(
+                "https://files.minecraftforge.net/maven/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt",
                 latest.getMcVersion(), latest.getForgeVersion().getLatest()));
-        final var embed = new EmbedBuilder();
+            final var embed = new EmbedBuilder();
 
-        embed.setTitle(String.format("Forge Versions for MC %s", latest.getMcVersion()));
-        embed.addField("Latest", latestForge, true);
-        embed.addField("Recommended", recommendedForge, true);
-        embed.setDescription(changelogLink);
-        embed.setColor(Color.ORANGE);
-        embed.setTimestamp(Instant.now());
-        channel.sendMessageEmbeds(embed.build()).mentionRepliedUser(false).queue();
+            embed.setTitle(String.format("Forge Versions for MC %s", latest.getMcVersion()));
+            embed.addField("Latest", latestForge, true);
+            embed.addField("Recommended", recommendedForge, true);
+            embed.setDescription(changelogLink);
+            embed.setColor(Color.ORANGE);
+            embed.setTimestamp(Instant.now());
+            event.replyEmbeds(embed.build()).mentionRepliedUser(false).setEphemeral(true).queue();
+        } catch (NullPointerException e) {
+            event.reply("The given Minecraft version " + version.getAsString() + " is invalid.").setEphemeral(true).queue();
+        }
     }
 }

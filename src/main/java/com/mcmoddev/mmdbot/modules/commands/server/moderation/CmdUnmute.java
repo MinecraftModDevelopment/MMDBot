@@ -20,24 +20,33 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.server.moderation;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.MUTING;
 
 /**
- * The type Cmd unmute.
+ * Mute the given user, by removing the designated muted role.
+ * Takes a user parameter.
+ * <p>
+ * Takes the form:
+ * /unmute ProxyNeko
  *
- * @author
+ * @author ProxyNeko
+ * @author Curle
  */
-public final class CmdUnmute extends Command {
+public final class CmdUnmute extends SlashCommand {
 
     private static final EnumSet<Permission> REQUIRED_PERMISSIONS = EnumSet.of(Permission.MANAGE_ROLES);
 
@@ -53,43 +62,42 @@ public final class CmdUnmute extends Command {
         requiredRole = "Moderators";
         guildOnly = true;
         botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
+
+        OptionData data = new OptionData(OptionType.USER, "user", "The user to unmute.").setRequired(true);
+        List<OptionData> dataList = new ArrayList<>();
+        dataList.add(data);
+        this.options = dataList;
     }
 
     /**
      * Execute.
      *
-     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
+     * @param event The {@link SlashCommandEvent CommandEvent} that triggered this Command.
      */
     @Override
-    protected void execute(final CommandEvent event) {
+    protected void execute(final SlashCommandEvent event) {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
 
         final var guild = event.getGuild();
-        final var author = guild.getMember(event.getAuthor());
+        final var author = guild.getMember(event.getUser());
         if (author == null) {
             return;
         }
 
-        final MessageChannel channel = event.getChannel();
-        final String[] args = event.getArgs().split(" ");
-        final var member = Utils.getMemberFromString(args[0], event.getGuild());
+        Member user = event.getOption("user").getAsMember();
+
         final var mutedRoleID = getConfig().getRole("muted");
         final var mutedRole = guild.getRoleById(mutedRoleID);
-
-        if (member == null) {
-            channel.sendMessage(String.format("User %s not found.", event.getArgs())).queue();
-            return;
-        }
 
         if (mutedRole == null) {
             LOGGER.error(MUTING, "Unable to find muted role {}", mutedRoleID);
             return;
         }
 
-        guild.removeRoleFromMember(member, mutedRole).queue();
-        channel.sendMessageFormat("Un-muted user %s.", member.getAsMention()).queue();
-        LOGGER.info(MUTING, "User {} was un-muted by {}", member, author);
+        guild.removeRoleFromMember(user, mutedRole).queue();
+        event.replyFormat("Un-muted user %s.", user.getAsMention()).setEphemeral(true).queue();
+        LOGGER.info(MUTING, "User {} was un-muted by {}", user, author);
     }
 }

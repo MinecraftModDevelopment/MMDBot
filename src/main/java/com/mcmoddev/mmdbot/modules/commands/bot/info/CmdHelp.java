@@ -22,13 +22,20 @@ package com.mcmoddev.mmdbot.modules.commands.bot.info;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
+import com.mcmoddev.mmdbot.modules.commands.general.PaginatedCommand;
+import com.mcmoddev.mmdbot.modules.commands.server.CmdRoles;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
@@ -36,6 +43,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -49,41 +57,48 @@ import java.util.List;
  *
  * @author Curle
  */
-public class CmdHelp extends Command {
-
-        private static final int COMMANDS_PER_PAGE = 25;
+public class CmdHelp extends PaginatedCommand {
+        private List<Command> commands;
+        private static CmdHelp.HelpListener listener;
 
         public CmdHelp() {
-            super();
-            name = "help";
-            help = "Show all commands, or detailed information about a particular command.";
+            super("help",
+                "Show all commands, or detailed information about a particular command.",
+                false,
+                Collections.singletonList(new OptionData(OptionType.STRING, "command", "A command to get detailed information on").setRequired(false)),
+                25);
 
             arguments = "[command]";
+            listener = new CmdHelp.HelpListener();
         }
+
+        /**
+         * Returns the instance of our button listener.
+         * Used for handling the pagination buttons.
+         */
+        public static PaginatedCommand.ButtonListener getListener() {
+        return listener;
+    }
 
         /**
          * Prepare the potential scrolling buttons for a help command,
          *  and send the message with the proper embeds.
          *
-         * See {@link #getHelpStartingAt(int)} for the implementation.
+         * See {@link #getEmbed(int)} for the implementation.
          */
-        public void execute(CommandEvent e) {
-            String[] args = e.getArgs().split(" ");
+        public void execute(SlashCommandEvent e) {
+            OptionMapping commandName = e.getOption("command");
+
+            commands = CommandModule.getCommandClient().getCommands();
+            commands.addAll(CommandModule.getCommandClient().getSlashCommands());
+            updateMaximum(commands.size());
 
             // If no command specified, show all.
-            if(args[0].isEmpty()) {
-                MessageAction reply = e.getChannel().sendMessageEmbeds(getHelpStartingAt(0).build());
-                Component[] buttons = createScrollButtons(0);
-                if (buttons.length > 0)
-                    reply.setActionRow(buttons);
-
-                reply.queue();
+            if(commandName == null) {
+                sendPaginatedMessage(e);
             } else {
-                // if there's potentially a command..
-                String commandNameStr = args[0];
-                // Get the command from the CommandClient.
                 Command command = CommandModule.getCommandClient().getCommands().stream()
-                    .filter(com -> com.getName().equals(commandNameStr)) // Find the command with the matching name
+                    .filter(com -> com.getName().equals(commandName.getAsString())) // Find the command with the matching name
                     .findFirst() // Get the first (should be only) entry
                     .orElseGet(CmdHelp::new); // And return it as Command.
 
@@ -100,30 +115,8 @@ public class CmdHelp extends Command {
 
                 embed.setFooter(References.NAME).setTimestamp(Instant.now());
 
-                e.getChannel().sendMessageEmbeds(embed.build()).queue();
+                e.replyEmbeds(embed.build()).setEphemeral(true).queue();
             }
-        }
-
-        /**
-         * Create the row of Component interaction buttons.
-         * <p>
-         * Currently, this just creates a left and right arrow.
-         * Left arrow scrolls back a page. Right arrow scrolls forward a page.
-         *
-         * @param start The command at the start of the current page.
-         * @return A row of buttons to go back and forth by one page in the command list.
-         */
-        private static Component[] createScrollButtons(int start) {
-            List<Component> components = new ArrayList<>();
-            if (start != 0) {
-                components.add(Button.secondary(ButtonListener.BUTTON_ID_PREFIX + "-" + start + "-prev",
-                    Emoji.fromUnicode("◀️")));
-            }
-            if (start + COMMANDS_PER_PAGE < CommandModule.getCommandClient().getCommands().size() + CommandModule.getCommandClient().getSlashCommands().size()) {
-                components.add(Button.primary(ButtonListener.BUTTON_ID_PREFIX + "-" + start + "-next",
-                    Emoji.fromUnicode("▶️")));
-            }
-            return components.toArray(new Component[0]);
         }
 
         /**
@@ -131,23 +124,21 @@ public class CmdHelp extends Command {
          *  to summarise all available commands.
          * Intended to be used with pagination in the case of servers with LOTS of commands.
          */
-        private static EmbedBuilder getHelpStartingAt(int index) {
+        @Override
+        protected EmbedBuilder getEmbed(int index) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setAuthor(References.NAME, References.ISSUE_TRACKER, MMDBot.getInstance().getSelfUser().getAvatarUrl());
             embed.setDescription("All registered commands:");
 
-            List<Command> commandList = CommandModule.getCommandClient().getCommands();
-            commandList.addAll(CommandModule.getCommandClient().getSlashCommands());
-
             // Embeds have a 25 field limit. We need to make sure we don't exceed that.
-            if(commandList.size() < 25) {
-                for (Command c : commandList)
+            if(commands.size() < items_per_page) {
+                for (Command c : commands)
                     embed.addField(c.getName(), c.getHelp(), true);
             } else {
                 // Make sure we only go up to the limit.
-                for (int i = index; i < index + 25; i++)
-                    if (i < commandList.size())
-                        embed.addField(commandList.get(i).getName(), commandList.get(i).getHelp(), true);
+                for (int i = index; i < index + items_per_page; i++)
+                    if (i < commands.size())
+                        embed.addField(commands.get(i).getName(), commands.get(i).getHelp(), true);
             }
 
             embed.setFooter(References.NAME).setTimestamp(Instant.now());
@@ -155,40 +146,10 @@ public class CmdHelp extends Command {
             return embed;
         }
 
-        public static class ButtonListener extends ListenerAdapter {
-            private static final String BUTTON_ID_PREFIX = "help";
-
+        public class HelpListener extends PaginatedCommand.ButtonListener {
             @Override
-            public void onButtonClick(@NotNull final ButtonClickEvent event) {
-                var button = event.getButton();
-                if (button == null || button.getId() == null) {
-                    return;
-                }
-
-                String[] idParts = button.getId().split("-");
-                if (idParts.length != 3) {
-                    return;
-                }
-
-                if (!idParts[0].equals(BUTTON_ID_PREFIX)) {
-                    return;
-                }
-
-                int current = Integer.parseInt(idParts[1]);
-
-                if (idParts[2].equals("next")) {
-                    event
-                        .editMessageEmbeds(getHelpStartingAt(current + COMMANDS_PER_PAGE).build())
-                        .setActionRow(createScrollButtons(current + COMMANDS_PER_PAGE))
-                        .queue();
-                } else {
-                    if (idParts[2].equals("prev")) {
-                        event
-                            .editMessageEmbeds(getHelpStartingAt(current - COMMANDS_PER_PAGE).build())
-                            .setActionRow(createScrollButtons(current - COMMANDS_PER_PAGE))
-                            .queue();
-                    }
-                }
+            public String getButtonID() {
+                return "help";
             }
         }
     }

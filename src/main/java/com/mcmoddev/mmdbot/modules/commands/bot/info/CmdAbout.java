@@ -20,23 +20,31 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.bot.info;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.awt.Color;
 import java.time.Instant;
 
 /**
- * The type Cmd about.
+ * Shows information about the bot.
+ * Includes:
+ *  - Short description
+ *  - Build information
+ *  - Issue tracker link
+ *  - List of maintainers
+ *
+ * Takes no parameters.
  *
  * @author ProxyNeko
  * @author Jriwanek
+ * @author Curle
  */
-public final class CmdAbout extends Command {
+public final class CmdAbout extends SlashCommand {
 
     /**
      * Instantiates a new Cmd about.
@@ -53,15 +61,14 @@ public final class CmdAbout extends Command {
     /**
      * Execute.
      *
-     * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
+     * @param event The {@link SlashCommandEvent event} that triggered this Command.
      */
     @Override
-    protected void execute(final CommandEvent event) {
+    protected void execute(final SlashCommandEvent event) {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
         final var embed = new EmbedBuilder();
-        final var channel = event.getMessage();
 
         embed.setTitle("Bot Build info");
         embed.setColor(Color.GREEN);
@@ -75,6 +82,6 @@ public final class CmdAbout extends Command {
         embed.addField("Current maintainers:", "jriwanek, WillBL, ProxyNeko, sciwhiz12, Poke, Curle",
             true);
         embed.setTimestamp(Instant.now());
-        channel.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
+        event.replyEmbeds(embed.build()).mentionRepliedUser(false).setEphemeral(true).queue();
     }
 }

@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.exceptions.HierarchyException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.awt.Color;
 import java.text.SimpleDateFormat;
@@ -64,7 +65,6 @@ public final class EventUserJoined extends ListenerAdapter {
         final var user = event.getUser();
         final var member = guild.getMember(user);
         final var dateJoinedDiscord = member.getTimeCreated().toInstant();
-        final var date = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH);
 
         final var guildId = guild.getIdLong();
         if (getConfig().getGuildID() == guildId) {
@@ -91,7 +91,8 @@ public final class EventUserJoined extends ListenerAdapter {
                 embed.addField("Roles:", roles.stream().map(IMentionable::getAsMention)
                     .collect(Collectors.joining()), true);
             }
-            embed.addField("Joined Discord:", date.format(dateJoinedDiscord.toEpochMilli()), true);
+
+            embed.addField("Joined Discord:", TimeFormat.RELATIVE.format(dateJoinedDiscord), true);
             embed.setFooter("User ID: " + user.getId());
             embed.setTimestamp(Instant.now());
 

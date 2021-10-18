@@ -20,28 +20,29 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.server.tricks;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.internal.requests.Route.Roles;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
- * @author williambl
+ * Adds a trick to the list.
  * <p>
- * The type Cmd add trick.
+ * Has two subcommands;
+ *  - string;
+ *      - Takes one parameter - the content of the string trick.
+ *  - embed;
+ *      - Takes three parameters; name, description and color. All used for constructing the embed.
+ *
+ * @author williambl
+ * @author Curle
  */
-public final class CmdAddTrick extends Command {
+public final class CmdAddTrick extends SlashCommand {
 
     /**
      * Instantiates a new Cmd add trick.
@@ -51,12 +52,22 @@ public final class CmdAddTrick extends Command {
         name = "addtrick";
         help = "Adds a new trick, either a string or an embed, if a string you only need the <names> and <body>.";
         category = new Category("Info");
-        arguments = "<string> (or) <embed> <name1> [name2 name3] | <trick content body> (or) <title> "
-            + "| <description> | <colour-as-hex-code>";
+        arguments = "(<string> <trick content body> (or) <embed> <title> "
+            + "<description> <colour-as-hex-code>";
         aliases = new String[]{"add-trick"};
-        //TODO Convert to a slash command and setup multiple role use.
         requiredRole = "bot maintainer";
         guildOnly = true;
+
+        children = new SlashCommand[] {
+            new AddStringTrick("string", "Create a string-type Trick.", true,
+                new OptionData(OptionType.STRING, "names", "Name(s) for the trick. Separate with spaces.").setRequired(true),
+                new OptionData(OptionType.STRING, "content", "The content of the string-type Trick.").setRequired(true)),
+            new AddEmbedTrick("embed", "Create an embed-type Trick.", true,
+                new OptionData(OptionType.STRING, "names", "Name(s) for the trick. Separate with spaces.").setRequired(true),
+                new OptionData(OptionType.STRING, "title", "Title of the embed.").setRequired(true),
+                new OptionData(OptionType.STRING, "description", "Description of the embed.").setRequired(true),
+                new OptionData(OptionType.STRING, "color", "Hex color string in #AABBCC format, used for the embed.").setRequired(true))
+        };
     }
 
     /**
@@ -65,22 +76,97 @@ public final class CmdAddTrick extends Command {
      * @param event the event
      */
     @Override
-    protected void execute(final CommandEvent event) {
+    protected void execute(final SlashCommandEvent event) {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
 
-        final var channel = event.getMessage();
-        var args = event.getArgs();
-        var firstSpace = args.indexOf(" ");
+        String command = event.getSubcommandName();
+        String arguments = command.equals("string") ?
+            event.getOption("names").getAsString() + " | " + event.getOption("content").getAsString() :
+            event.getOption("names").getAsString() + " | " + event.getOption("title").getAsString() + " | " + event.getOption("description").getAsString() + " | " + event.getOption("color").getAsString();
+
 
         try {
-            Tricks.addTrick(Tricks.getTrickType(args.substring(0, firstSpace))
-                .createFromArgs(args.substring(firstSpace + 1)));
-            channel.reply("Added trick!").mentionRepliedUser(false).queue();
+            Tricks.addTrick(Tricks.getTrickType(command).createFromArgs(arguments));
+            event.reply("Added trick!").mentionRepliedUser(false).setEphemeral(true).queue();
         } catch (IllegalArgumentException e) {
-            channel.reply("A command with that name already exists!").mentionRepliedUser(false).queue();
+            event.reply("A command with that name already exists!").mentionRepliedUser(false).setEphemeral(true).queue();
             MMDBot.LOGGER.warn("Failure adding trick: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * A child command of AddTrick.
+     * Handles adding string tricks.
+     *
+     * Takes the form:
+     *  /addtrick string name1 name2 test something
+     *  /addtrick string [name <name...> ] [content]
+     *
+     * @author Curle
+     */
+    private class AddStringTrick extends SlashCommand {
+        public AddStringTrick(String name, String help, boolean guildOnly, OptionData... options) {
+            this.name = name;
+            this.help = help;
+            this.guildOnly = guildOnly;
+            this.options = List.of(options);
+        }
+
+        @Override
+        protected void execute(final SlashCommandEvent event) {
+            if (!Utils.checkCommand(this, event)) {
+                return;
+            }
+
+            String arguments = event.getOption("names").getAsString() + " | " + event.getOption("content").getAsString();
+
+            try {
+                Tricks.addTrick(Tricks.getTrickType("string").createFromArgs(arguments));
+                event.reply("Added trick!").mentionRepliedUser(false).setEphemeral(true).queue();
+            } catch (IllegalArgumentException e) {
+                event.reply("A command with that name already exists!").mentionRepliedUser(false).setEphemeral(true).queue();
+                MMDBot.LOGGER.warn("Failure adding trick: {}", e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * A child command of AddTrick.
+     * Handles adding embed tricks.
+     *
+     * Takes the form:
+     *  /addtrick embed name1 name2 test something #AABBCC
+     *  /addtrick embed [name <name...> ] [title] [description] [color]
+     *
+     * TODO: Fields.
+     *
+     * @author Curle
+     */
+    private class AddEmbedTrick extends SlashCommand {
+        public AddEmbedTrick(String name, String help, boolean guildOnly, OptionData... options) {
+            this.name = name;
+            this.help = help;
+            this.guildOnly = guildOnly;
+            this.options = List.of(options);
+        }
+
+        @Override
+        protected void execute(final SlashCommandEvent event) {
+            if (!Utils.checkCommand(this, event)) {
+                return;
+            }
+
+            String arguments = event.getOption("names").getAsString() + " | " + event.getOption("title").getAsString() + " | " + event.getOption("description").getAsString() + " | " + event.getOption("color").getAsString();
+
+            try {
+                Tricks.addTrick(Tricks.getTrickType("embed").createFromArgs(arguments));
+                event.reply("Added trick!").mentionRepliedUser(false).setEphemeral(true).queue();
+            } catch (IllegalArgumentException e) {
+                event.reply("A command with that name already exists!").mentionRepliedUser(false).setEphemeral(true).queue();
+                MMDBot.LOGGER.warn("Failure adding trick: {}", e.getMessage());
+            }
         }
     }
 }

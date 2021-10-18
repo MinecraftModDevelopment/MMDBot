@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.modules.commands.general.mappings
 
 import com.jagrosh.jdautilities.command.Command
 import com.jagrosh.jdautilities.command.CommandEvent
+import com.jagrosh.jdautilities.command.SlashCommand
 import com.mcmoddev.mmdbot.utilities.Utils
 import kotlinx.coroutines.*
 import me.shedaniel.linkie.*
@@ -35,40 +36,45 @@ import me.shedaniel.linkie.utils.ResultHolder
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.interactions.commands.OptionType
+import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.components.Button
 import java.awt.Color
 import java.util.*
 
 /**
+ * Service a request for mappings.
+ * Handles MCP, Yarn and Mojang Mapping types via abstraction.
+ *
+ *
  * @author Will BL
+ * @author Curle
  */
-class CmdMappings(name: String, private val namespace: Namespace, vararg aliases: String?) : Command() {
+class CmdMappings(name: String, private val namespace: Namespace, vararg aliases: String?) : SlashCommand() {
     init {
         this.name = name.lowercase(Locale.ROOT)
         this.aliases = aliases
         help = "Search for a mapping with $name."
+
+        options = arrayListOf(
+                OptionData(OptionType.STRING, "query", "A mapping to query.").setRequired(true),
+                OptionData(OptionType.STRING, "version", "The version of Minecraft to check.").setRequired(false)
+        )
     }
 
     /**
-     * @param event The [CommandEvent] that triggered this Command.
+     * @param event The [SlashCommandEvent] that triggered this Command.
      */
-    override fun execute(event: CommandEvent) {
+    override fun execute(event: SlashCommandEvent) {
         if (!Utils.checkCommand(this, event)) {
             return
         }
 
-        if (event.args.isEmpty()) {
-            event.channel.sendMessage("No arguments given!").queue()
-            return
-        }
 
-        val args = event.args.split(' ')
-
-        val queryString = args[0]
-        val version = args.getOrElse(1) {
-            namespace.getDefaultVersion()
-        }
+        val queryString = event.getOption("query")?.asString ?: ""
+        val version = event.getOption("version")?.asString ?: namespace.getDefaultVersion()
 
         scope.launch {
             val provider = namespace.getProvider(version)
@@ -146,18 +152,19 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
                 }).iterator()
             }
 
-            val msg = event.channel.sendMessageEmbeds(embeds.next().await()).apply {
+            val msg = event.replyEmbeds(embeds.next().await()).apply {
                 if (embeds.hasNext()) {
-                    setActionRow(Button.primary("mappings-next", "Next"))
+                    addActionRow(Button.primary("mappings-next", "Next"))
                 }
+                setEphemeral(true)
             }.complete()
 
-            ButtonListener.embedsForMessage[msg.idLong] = embeds
+            ButtonListener.embedsForMessage[msg.interaction.idLong] = embeds
 
             delay(180000L)
 
-            ButtonListener.embedsForMessage.remove(msg.idLong)
-            event.channel.editMessageById(msg.id, msg).setActionRows().complete()
+            ButtonListener.embedsForMessage.remove(msg.interaction.idLong)
+            msg.editOriginalComponents().complete()
         }
     }
 

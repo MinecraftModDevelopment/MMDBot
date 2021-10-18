@@ -20,9 +20,9 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.bot.management;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -31,8 +31,9 @@ import java.util.TimerTask;
  * Shut down the bot and the JDA instance gracefully.
  *
  * @author ProxyNeko
+ * @author Curle
  */
-public class CmdShutdown extends Command {
+public class CmdShutdown extends SlashCommand {
 
     /**
      * Instantiates a new Cmd.
@@ -52,11 +53,11 @@ public class CmdShutdown extends Command {
      * @param event The event.
      */
     @Override
-    protected void execute(final CommandEvent event) {
-        event.getMessage().reply("Shutting down the bot!").queue();
+    protected void execute(final SlashCommandEvent event) {
+        event.reply("Shutting down the bot!").setEphemeral(true).queue();
         //Shut down the JDA instance gracefully.
         event.getJDA().shutdown();
-        MMDBot.LOGGER.warn("Shutting down the bot by request of " + event.getAuthor().getName() + " via Discord!");
+        MMDBot.LOGGER.warn("Shutting down the bot by request of " + event.getUser().getName() + " via Discord!");
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {

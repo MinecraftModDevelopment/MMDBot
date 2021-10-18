@@ -20,19 +20,32 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.bot.management;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import net.dv8tion.jda.api.entities.Icon;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collections;
 
 /**
- * @author ProxyNeko
+ * Set the avatar of the bot.
+ * Requires bot admin permissions.
+ * <p>
+ * Takes a single parameter of the URL of the image to use.
  *
- * Set the avatar of the bot, requires bot admin permissions.
+ * Takes the form:
+ *  /avatar https://media.discordapp.net/attachments/899012022006579220/899281929629728788/guineverebolb.png
+ *  /avatar [image]
+ *
+ * @author ProxyNeko
+ * @author Curle
  */
-public class CmdAvatar extends Command {
+public class CmdAvatar extends SlashCommand {
 
     /**
      * Instantiates a new Cmd avatar.
@@ -42,9 +55,11 @@ public class CmdAvatar extends Command {
         name = "avatar";
         help = "Set the avatar of the bot.";
         category = new Category("Management");
-        arguments = "(No args required, just upload a suitable square .png image that can be used as an avatar)";
+        arguments = "<Image URL>";
         ownerCommand = true;
         guildOnly = true;
+
+        options = Collections.singletonList(new OptionData(OptionType.STRING, "image", "The URL to download the new avatar image from.").setRequired(true));
     }
 
     /**
@@ -53,36 +68,23 @@ public class CmdAvatar extends Command {
      * @param event the event
      */
     @Override
-    protected void execute(final CommandEvent event) {
-        final var commandArgs = event.getArgs();
-        final var channel = event.getMessage();
-        final var attachment = event.getMessage().getAttachments();
-        final var newAvatar = attachment.get(0);
+    protected void execute(final SlashCommandEvent event) {
+        URL link;
+        try {
+            link = new URL(event.getOption("image").getAsString());
+        } catch (MalformedURLException e) {
+            event.reply("That's not a valid URL.").setEphemeral(true).queue();
+            return;
+        }
 
-        if (commandArgs.length() <= 1) {
-            if (attachment.isEmpty()) {
-                channel.reply("No image attachment provided, I need a new avatar!")
-                    .mentionRepliedUser(false).queue();
-                return;
-            }
-
-            if (!newAvatar.isImage()) {
-                channel.reply("This attachment is not an image! "
-                        + "Please provide a valid image to use as my avatar!")
-                    .mentionRepliedUser(false).queue();
-                return;
-            }
-
-            newAvatar.retrieveInputStream().thenAccept(setIcon -> {
-                try {
-                    MMDBot.getInstance().getSelfUser().getManager().setAvatar(Icon.from(setIcon)).queue();
-                    channel.reply("New avatar set, how do I look?").mentionRepliedUser(false).queue();
-                } catch (IOException exception) {
-                    channel.reply("Failed to set a new avatar... Please see logs for more info!")
-                        .mentionRepliedUser(false).queue();
-                    MMDBot.LOGGER.error("Failed to set a new avatar... ", exception);
-                }
-            });
+        try {
+            MMDBot.getInstance().getSelfUser().getManager().setAvatar(Icon.from(link.openStream())).queue();
+            event.reply("New avatar set, how do I look?").mentionRepliedUser(false).setEphemeral(true).queue();
+        } catch (IOException exception) {
+            event.reply("Failed to set a new avatar... Please see logs for more info!")
+                .mentionRepliedUser(false).setEphemeral(true).queue();
+            MMDBot.LOGGER.error("Failed to set a new avatar... ", exception);
         }
     }
+
 }
