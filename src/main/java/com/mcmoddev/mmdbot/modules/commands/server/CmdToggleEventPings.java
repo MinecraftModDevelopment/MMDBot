@@ -20,8 +20,6 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.server;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
@@ -33,7 +31,8 @@ import java.util.List;
 /**
  * Toggles whether the user has the Event Pings role.
  *
- * @author
+ * @author Unknown
+ * @author Curle
  */
 public final class CmdToggleEventPings extends SlashCommand {
 

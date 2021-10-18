@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.general.info;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
@@ -40,12 +39,12 @@ import java.util.List;
 /**
  * Get the latest Fabric, API and Yarn versions.
  * Optionally takes a version parameter.
- *
+ * <p>
  * Takes the form:
- *  /fabric
- *  /fabric 1.16.5
- *  /fabric 1.12.2
- *  /fabric [version]
+ * /fabric
+ * /fabric 1.16.5
+ * /fabric 1.12.2
+ * /fabric [version]
  *
  * @author williambl
  * @author Curle

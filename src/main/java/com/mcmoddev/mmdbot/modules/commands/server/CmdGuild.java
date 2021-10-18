@@ -21,7 +21,6 @@
 package com.mcmoddev.mmdbot.modules.commands.server;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
-import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -36,14 +35,14 @@ import java.util.Locale;
 /**
  * Shows information about a guild.
  * Includes:
- *  - Name
- *  - Number of members
- *  - Number of emotes
- *  - Number of categories
- *  - Number of channels
- *  - Number of roles
- *  - Date created
- *  - Age of guild
+ * - Name
+ * - Number of members
+ * - Number of emotes
+ * - Number of categories
+ * - Number of channels
+ * - Number of roles
+ * - Date created
+ * - Age of guild
  *
  * @author ProxyNeko
  * @author Curle
@@ -73,7 +72,7 @@ public final class CmdGuild extends SlashCommand {
             return;
         }
 
-        if(event.isFromGuild()) {
+        if (event.isFromGuild()) {
             final var guild = event.getGuild();
             final var embed = new EmbedBuilder();
             final var dateGuildCreated = guild.getTimeCreated().toInstant();

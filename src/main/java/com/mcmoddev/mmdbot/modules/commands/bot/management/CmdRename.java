@@ -20,8 +20,6 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.bot.management;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
@@ -34,11 +32,11 @@ import java.util.Collections;
 /**
  * Rename the bot's User.
  * Takes a name parameter.
- *
+ * <p>
  * Takes the form:
- *  /rename NewUsername
- *  /rename [name]
- *
+ * /rename NewUsername
+ * /rename [name]
+ * <p>
  * TODO: Figure out the cooldown system.
  *
  * @author ProxyNeko
