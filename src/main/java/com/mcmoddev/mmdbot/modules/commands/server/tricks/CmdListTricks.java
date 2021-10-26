@@ -35,7 +35,7 @@ import java.util.ArrayList;
  *
  * Takes no parameters.
  *
- * @author williambl
+ * @author Will BL
  * @author Curle
  */
 public final class CmdListTricks extends PaginatedCommand {

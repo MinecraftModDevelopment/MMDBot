@@ -36,7 +36,7 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
  *  - embed;
  *      - Takes three parameters; name, description and color. All used for constructing the embed.
  *
- * @author williambl
+ * @author Will BL
  * @author Curle
  */
 public final class CmdAddTrick extends SlashCommand {
@@ -58,22 +58,14 @@ public final class CmdAddTrick extends SlashCommand {
         children = Tricks.getTrickTypes().entrySet().stream().map(entry -> new SubCommand(entry.getKey(), entry.getValue())).toArray(SlashCommand[]::new);
     }
 
-    /**
-     * Execute.
-     *
-     * @param event the event
-     */
     @Override
-    protected void execute(final SlashCommandEvent event) {
-        if (!Utils.checkCommand(this, event)) {
-            return;
-        }
-    }
+    protected void execute(final SlashCommandEvent event) {}
 
     /**
      * A child command of AddTrick, handles adding a particular type of trick.
      *
-     * @author Curle, Will BL
+     * @author Curle
+     * @author Will BL
      */
     private static class SubCommand extends SlashCommand {
         private final Trick.TrickType<?> trickType;

@@ -536,10 +536,23 @@ public final class Utils {
         }
     }
 
+    /**
+     * Get a non-null string from an OptionMapping.
+     *
+     * @param option an OptionMapping to get as a string - may be null
+     * @return the option mapping as a string, or an empty string if the mapping was null
+     */
     public static String getOrEmpty(@Nullable OptionMapping option) {
         return Optional.ofNullable(option).map(OptionMapping::getAsString).orElse("");
     }
 
+    /**
+     * Gets an argument from a slash command as a string.
+     *
+     * @param event the slash command event
+     * @param name the name of the option
+     * @return the option's value as a string, or an empty string if the option had no value
+     */
     public static String getOrEmpty(SlashCommandEvent event, String name) {
         return getOrEmpty(event.getOption(name));
     }

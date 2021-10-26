@@ -37,7 +37,7 @@ import java.util.Collections;
  *  /removetrick test
  *  /removetrick [trick]
  *
- * @author williambl
+ * @author Will BL
  * @author Curle
  */
 public final class CmdRemoveTrick extends SlashCommand {
@@ -69,7 +69,7 @@ public final class CmdRemoveTrick extends SlashCommand {
             return;
         }
 
-        Tricks.getTrick(event.getOption("trick").getAsString()).ifPresent(Tricks::removeTrick);
+        Tricks.getTrick(Utils.getOrEmpty(event, "trick")).ifPresent(Tricks::removeTrick);
         event.reply("Removed trick!").setEphemeral(true).queue();
     }
 }
