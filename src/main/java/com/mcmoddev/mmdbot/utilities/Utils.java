@@ -36,10 +36,11 @@ import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -47,6 +48,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -532,5 +534,13 @@ public final class Utils {
         if (channel != null) {
             consumer.accept(channel);
         }
+    }
+
+    public static String getOrEmpty(@Nullable OptionMapping option) {
+        return Optional.ofNullable(option).map(OptionMapping::getAsString).orElse("");
+    }
+
+    public static String getOrEmpty(SlashCommandEvent event, String name) {
+        return getOrEmpty(event.getOption(name));
     }
 }

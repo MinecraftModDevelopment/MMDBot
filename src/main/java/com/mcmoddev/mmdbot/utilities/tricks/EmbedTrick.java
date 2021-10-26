@@ -25,10 +25,15 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+
+import static com.mcmoddev.mmdbot.utilities.Utils.getOrEmpty;
 
 /**
  * The type Embed trick.
@@ -183,6 +188,26 @@ public class EmbedTrick implements Trick {
                 argsArray[1],
                 argsArray[2],
                 Integer.parseInt(argsArray[3].replace("#", ""), 16)
+            );
+        }
+
+        @Override
+        public List<OptionData> getArgs() {
+            return List.of(
+                new OptionData(OptionType.STRING, "names", "Name(s) for the trick. Separate with spaces.").setRequired(true),
+                new OptionData(OptionType.STRING, "title", "Title of the embed.").setRequired(true),
+                new OptionData(OptionType.STRING, "description", "Description of the embed.").setRequired(true),
+                new OptionData(OptionType.STRING, "color", "Hex color string in #AABBCC format, used for the embed.").setRequired(true)
+            );
+        }
+
+        @Override
+        public EmbedTrick createFromCommand(final SlashCommandEvent event) {
+            return new EmbedTrick(
+                Arrays.asList(getOrEmpty(event, "names").split(" ")),
+                getOrEmpty(event, "title"),
+                getOrEmpty(event, "description"),
+                Integer.parseInt(getOrEmpty(event, "color").replaceAll("#", ""), 16)
             );
         }
     }

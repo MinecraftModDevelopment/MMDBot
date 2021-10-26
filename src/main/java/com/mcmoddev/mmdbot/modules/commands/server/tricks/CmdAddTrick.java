@@ -23,12 +23,9 @@ package com.mcmoddev.mmdbot.modules.commands.server.tricks;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.utilities.tricks.Trick;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-
-import java.util.List;
 
 /**
  * Adds a trick to the list.
@@ -58,16 +55,7 @@ public final class CmdAddTrick extends SlashCommand {
         requiredRole = "bot maintainer";
         guildOnly = true;
 
-        children = new SlashCommand[] {
-            new AddStringTrick("string", "Create a string-type Trick.", true,
-                new OptionData(OptionType.STRING, "names", "Name(s) for the trick. Separate with spaces.").setRequired(true),
-                new OptionData(OptionType.STRING, "content", "The content of the string-type Trick.").setRequired(true)),
-            new AddEmbedTrick("embed", "Create an embed-type Trick.", true,
-                new OptionData(OptionType.STRING, "names", "Name(s) for the trick. Separate with spaces.").setRequired(true),
-                new OptionData(OptionType.STRING, "title", "Title of the embed.").setRequired(true),
-                new OptionData(OptionType.STRING, "description", "Description of the embed.").setRequired(true),
-                new OptionData(OptionType.STRING, "color", "Hex color string in #AABBCC format, used for the embed.").setRequired(true))
-        };
+        children = Tricks.getTrickTypes().entrySet().stream().map(entry -> new SubCommand(entry.getKey(), entry.getValue())).toArray(SlashCommand[]::new);
     }
 
     /**
@@ -80,38 +68,22 @@ public final class CmdAddTrick extends SlashCommand {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
-
-        String command = event.getSubcommandName();
-        String arguments = command.equals("string") ?
-            event.getOption("names").getAsString() + " | " + event.getOption("content").getAsString() :
-            event.getOption("names").getAsString() + " | " + event.getOption("title").getAsString() + " | " + event.getOption("description").getAsString() + " | " + event.getOption("color").getAsString();
-
-
-        try {
-            Tricks.addTrick(Tricks.getTrickType(command).createFromArgs(arguments));
-            event.reply("Added trick!").mentionRepliedUser(false).setEphemeral(true).queue();
-        } catch (IllegalArgumentException e) {
-            event.reply("A command with that name already exists!").mentionRepliedUser(false).setEphemeral(true).queue();
-            MMDBot.LOGGER.warn("Failure adding trick: {}", e.getMessage());
-        }
     }
 
     /**
-     * A child command of AddTrick.
-     * Handles adding string tricks.
+     * A child command of AddTrick, handles adding a particular type of trick.
      *
-     * Takes the form:
-     *  /addtrick string name1 name2 test something
-     *  /addtrick string [name <name...> ] [content]
-     *
-     * @author Curle
+     * @author Curle, Will BL
      */
-    private class AddStringTrick extends SlashCommand {
-        public AddStringTrick(String name, String help, boolean guildOnly, OptionData... options) {
+    private static class SubCommand extends SlashCommand {
+        private final Trick.TrickType<?> trickType;
+
+        public SubCommand(String name, Trick.TrickType<?> trickType) {
+            this.trickType = trickType;
             this.name = name;
-            this.help = help;
-            this.guildOnly = guildOnly;
-            this.options = List.of(options);
+            this.help = "Create a "+name+"-type trick.";
+            this.guildOnly = true;
+            this.options = trickType.getArgs();
         }
 
         @Override
@@ -120,48 +92,8 @@ public final class CmdAddTrick extends SlashCommand {
                 return;
             }
 
-            String arguments = event.getOption("names").getAsString() + " | " + event.getOption("content").getAsString();
-
             try {
-                Tricks.addTrick(Tricks.getTrickType("string").createFromArgs(arguments));
-                event.reply("Added trick!").mentionRepliedUser(false).setEphemeral(true).queue();
-            } catch (IllegalArgumentException e) {
-                event.reply("A command with that name already exists!").mentionRepliedUser(false).setEphemeral(true).queue();
-                MMDBot.LOGGER.warn("Failure adding trick: {}", e.getMessage());
-            }
-        }
-    }
-
-    /**
-     * A child command of AddTrick.
-     * Handles adding embed tricks.
-     *
-     * Takes the form:
-     *  /addtrick embed name1 name2 test something #AABBCC
-     *  /addtrick embed [name <name...> ] [title] [description] [color]
-     *
-     * TODO: Fields.
-     *
-     * @author Curle
-     */
-    private class AddEmbedTrick extends SlashCommand {
-        public AddEmbedTrick(String name, String help, boolean guildOnly, OptionData... options) {
-            this.name = name;
-            this.help = help;
-            this.guildOnly = guildOnly;
-            this.options = List.of(options);
-        }
-
-        @Override
-        protected void execute(final SlashCommandEvent event) {
-            if (!Utils.checkCommand(this, event)) {
-                return;
-            }
-
-            String arguments = event.getOption("names").getAsString() + " | " + event.getOption("title").getAsString() + " | " + event.getOption("description").getAsString() + " | " + event.getOption("color").getAsString();
-
-            try {
-                Tricks.addTrick(Tricks.getTrickType("embed").createFromArgs(arguments));
+                Tricks.addTrick(trickType.createFromCommand(event));
                 event.reply("Added trick!").mentionRepliedUser(false).setEphemeral(true).queue();
             } catch (IllegalArgumentException e) {
                 event.reply("A command with that name already exists!").mentionRepliedUser(false).setEphemeral(true).queue();
