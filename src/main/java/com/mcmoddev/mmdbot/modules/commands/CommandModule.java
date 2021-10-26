@@ -49,6 +49,7 @@ import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUnmute;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
 import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdQuote;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdAddTrick;
+import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdEditTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRemoveTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrick;
@@ -115,6 +116,7 @@ public class CommandModule {
             .addSlashCommand(new CmdUptime())
             //TODO Setup DB storage for tricks and polish them off/add permission restrictions for when needed.
             .addSlashCommand(new CmdAddTrick())
+            .addSlashCommand(new CmdEditTrick())
             .addSlashCommand(new CmdListTricks())
             .addSlashCommand(new CmdRemoveTrick())
             .addSlashCommand(new CmdRunTrickExplicitly())
