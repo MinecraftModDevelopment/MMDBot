@@ -22,48 +22,47 @@ package com.mcmoddev.mmdbot.modules.commands.server.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
-import com.mcmoddev.mmdbot.utilities.tricks.Trick;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.Collections;
+import java.util.List;
 
 /**
- * Runs a certain trick.
- * Takes zero or one parameters, the argument string to be passed to the trick.
+ * Fetch and execute a given trick.
+ * Takes one or two parameters: the trick name, and optionally any arguments to be passed to the trick.
  * <p>
  * Takes the form:
- * /test
- * /[trickname] [args]
+ * /trick test
+ * /trick [name] [args]
  *
  * @author Will BL
  * @author Curle
  */
-public final class CmdRunTrick extends SlashCommand {
-
-    private final Trick trick;
+public final class CmdRunTrickExplicitly extends SlashCommand {
 
     /**
-     * Instantiates a new command for a certain trick.
+     * Instantiates a new trick-running command
      */
-    public CmdRunTrick(Trick trick) {
+    public CmdRunTrickExplicitly() {
         super();
-        this.trick = trick;
-        name = trick.getNames().get(0);
-        aliases = trick.getNames().toArray(new String[0]);
-        help = "Invoke the trick "+trick.getNames().get(0);
+        name = "trick";
+        help = "Invoke a specific trick by name.";
         category = new Category("Fun");
         guildOnly = true;
 
-        options = Collections.singletonList(new OptionData(OptionType.STRING, "args", "The arguments for the trick, if any").setRequired(false));
+        options = List.of(
+            new OptionData(OptionType.STRING, "name", "The name of the trick to run").setRequired(true),
+            new OptionData(OptionType.STRING, "args", "The arguments for the trick, if any").setRequired(false)
+        );
     }
 
     /**
-     * Execute.
+     * Executes the command.
      *
-     * @param event the event
+     * @param event the slash command event
      */
     @Override
     protected void execute(final SlashCommandEvent event) {
@@ -71,6 +70,9 @@ public final class CmdRunTrick extends SlashCommand {
             return;
         }
 
-        event.reply(trick.getMessage(Utils.getOrEmpty(event, "args").split(" "))).setEphemeral(false).queue();
+        Tricks.getTrick(Utils.getOrEmpty(event, "name")).ifPresentOrElse(
+            trick -> event.reply(trick.getMessage(Utils.getOrEmpty(event, "args").split(" "))).setEphemeral(false).queue(),
+            () -> event.reply("No trick with that name was found.").setEphemeral(true).queue()
+        );
     }
 }

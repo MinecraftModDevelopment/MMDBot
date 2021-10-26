@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.modules.commands;
 
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdHelp;
@@ -51,6 +52,8 @@ import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdAddTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRemoveTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrick;
+import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrickExplicitly;
+import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import me.shedaniel.linkie.Namespaces;
 
 /**
@@ -86,6 +89,7 @@ public class CommandModule {
             .setPrefix(MMDBot.getConfig().getMainPrefix())
             .setAlternativePrefix(MMDBot.getConfig().getAlternativePrefix())
             .useHelpBuilder(false)
+            .forceGuildOnly("619287233551138846")
             .addSlashCommand(new CmdHelp())
             .addSlashCommand(new CmdGuild())
             .addSlashCommand(new CmdAbout())
@@ -113,7 +117,8 @@ public class CommandModule {
             .addSlashCommand(new CmdAddTrick())
             .addSlashCommand(new CmdListTricks())
             .addSlashCommand(new CmdRemoveTrick())
-            .addSlashCommand(new CmdRunTrick())
+            .addSlashCommand(new CmdRunTrickExplicitly())
+            .addSlashCommands(Tricks.getTricks().stream().map(CmdRunTrick::new).toArray(SlashCommand[]::new))
             .addSlashCommand(new CmdShutdown())
             .addSlashCommands(CmdMappings.createCommands()) // TODO: This is broken beyond belief. Consider moving away from linkie. - Curle
             .addSlashCommands(CmdTranslateMappings.createCommands())

@@ -27,11 +27,10 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.jagrosh.jdautilities.command.Command;
 import com.mcmoddev.mmdbot.MMDBot;
+
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrick;
-
 import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,14 +46,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 //TODO: Migrate to a SQLite DB with PR #45
 
 /**
  * The type Tricks.
  *
- * @author williambl
+ * @author Will BL
  */
 public final class Tricks {
 
@@ -147,6 +145,7 @@ public final class Tricks {
      * @param trick the trick to add.
      */
     public static void addTrick(final Trick trick) {
+        CommandModule.getCommandClient().addSlashCommand(new CmdRunTrick(trick));
         getTricks().add(trick);
         write();
     }
@@ -157,6 +156,7 @@ public final class Tricks {
      * @param trick the trick
      */
     public static void removeTrick(final Trick trick) {
+        CommandModule.getCommandClient().removeCommand(trick.getNames().get(0));
         getTricks().remove(trick);
         write();
     }
