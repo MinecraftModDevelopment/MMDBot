@@ -141,7 +141,13 @@ public class CommandModule {
         }
     }
 
-    public static void removeCommand(String name) {
+    /**
+     * Removes a slash command. If the command is a {@link DeletableCommand}, this also marks it as deleted so that if
+     * somehow it is run (which should be impossible) nothing will happen.
+     *
+     * @param name the name of the command to remove
+     */
+    public static void removeCommand(final String name) {
         var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
         if (guild == null) {
             throw new NullPointerException("No Guild found!");
@@ -158,12 +164,22 @@ public class CommandModule {
             .queue();
     }
 
-    public static void addSlashCommand(SlashCommand cmd) {
+    /**
+     * Adds and upserts a slash command.
+     *
+     * @param cmd the command
+     */
+    public static void addSlashCommand(final SlashCommand cmd) {
         commandClient.addSlashCommand(cmd);
         upsertCommand(cmd);
     }
 
-    public static void upsertCommand(SlashCommand cmd) {
+    /**
+     * Upserts a slash command.
+     *
+     * @param cmd the command
+     */
+    public static void upsertCommand(final SlashCommand cmd) {
         if (cmd.isGuildOnly()) {
             var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
             if (guild == null) {
