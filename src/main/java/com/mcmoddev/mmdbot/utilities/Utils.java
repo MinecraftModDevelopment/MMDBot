@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.utilities;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.modules.commands.server.DeletableCommand;
 import com.mcmoddev.mmdbot.utilities.database.dao.PersistedRoles;
 import com.mcmoddev.mmdbot.utilities.database.dao.UserFirstJoins;
 import net.dv8tion.jda.api.JDA;
@@ -36,10 +37,11 @@ import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -47,6 +49,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -439,6 +442,10 @@ public final class Utils {
             }
         }
 
+        if (command instanceof DeletableCommand && ((DeletableCommand) command).isDeleted()) {
+            return false;
+        }
+
         return true;
     }
 
@@ -533,4 +540,26 @@ public final class Utils {
             consumer.accept(channel);
         }
     }
+
+    /**
+     * Get a non-null string from an OptionMapping.
+     *
+     * @param option an OptionMapping to get as a string - may be null
+     * @return the option mapping as a string, or an empty string if the mapping was null
+     */
+    public static String getOrEmpty(@Nullable OptionMapping option) {
+        return Optional.ofNullable(option).map(OptionMapping::getAsString).orElse("");
+    }
+
+    /**
+     * Gets an argument from a slash command as a string.
+     *
+     * @param event the slash command event
+     * @param name the name of the option
+     * @return the option's value as a string, or an empty string if the option had no value
+     */
+    public static String getOrEmpty(SlashCommandEvent event, String name) {
+        return getOrEmpty(event.getOption(name));
+    }
+
 }

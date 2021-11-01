@@ -21,8 +21,11 @@
 package com.mcmoddev.mmdbot.modules.commands.server.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.modules.commands.CommandModule;
+import com.mcmoddev.mmdbot.modules.commands.server.DeletableCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
-import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
+import com.mcmoddev.mmdbot.utilities.tricks.Trick;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -30,29 +33,37 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import java.util.Collections;
 
 /**
- * Fetch and execute a given trick.
- * Takes one parameter, the trick name.
+ * Runs a certain trick.
+ * Takes zero or one parameters, the argument string to be passed to the trick.
  * <p>
  * Takes the form:
- * /trick test
- * /trick [name]
+ * /test
+ * /[trickname] [args]
  *
- * @author williambl
+ * @author Will BL
  * @author Curle
  */
-public final class CmdRunTrick extends SlashCommand {
+public final class CmdRunTrick extends SlashCommand implements DeletableCommand {
+
+    private final Trick trick;
+    private boolean deleted = false;
 
     /**
-     * Instantiates a new Cmd run trick.
+     * Instantiates a new command for a certain trick.
      */
-    public CmdRunTrick() {
+    public CmdRunTrick(Trick trick) {
         super();
-        name = "trick";
-        help = "Invoke a specific trick by name.";
+        this.trick = trick;
+        name = trick.getNames().get(0);
+        aliases = trick.getNames().toArray(new String[0]);
+        help = "Invoke the trick "+trick.getNames().get(0);
         category = new Category("Fun");
         guildOnly = true;
+        // we need to use this unfortunately :( can't create more than one commandclient
+        //noinspection deprecation
+        guildId = Long.toString(MMDBot.getConfig().getGuildID());
 
-        options = Collections.singletonList(new OptionData(OptionType.STRING, "name", "The name of the trick to run").setRequired(true));
+        options = Collections.singletonList(new OptionData(OptionType.STRING, "args", "The arguments for the trick, if any").setRequired(false));
     }
 
     /**
@@ -66,9 +77,22 @@ public final class CmdRunTrick extends SlashCommand {
             return;
         }
 
-        Tricks.getTrick(event.getOption("name").getAsString()).ifPresentOrElse(
-            trick -> event.reply(trick.getMessage(new String[]{})).setEphemeral(false).queue(),
-            () -> event.reply("No trick with that name was found.").setEphemeral(true).queue()
-        );
+        event.reply(trick.getMessage(Utils.getOrEmpty(event, "args").split(" "))).setEphemeral(false).queue();
+    }
+
+    @Override
+    public void delete() {
+        deleted = true;
+    }
+
+    @Override
+    public void restore() {
+        deleted = false;
+        CommandModule.upsertCommand(this);
+    }
+
+    @Override
+    public boolean isDeleted() {
+        return deleted;
     }
 }

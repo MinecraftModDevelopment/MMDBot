@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.modules.commands;
 
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdHelp;
@@ -41,6 +42,7 @@ import com.mcmoddev.mmdbot.modules.commands.server.CmdGuild;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdRoles;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdToggleEventPings;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdToggleMcServerPings;
+import com.mcmoddev.mmdbot.modules.commands.server.DeletableCommand;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdMute;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdOldChannels;
@@ -48,9 +50,12 @@ import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUnmute;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
 import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdQuote;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdAddTrick;
+import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdEditTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRemoveTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrick;
+import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrickExplicitly;
+import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import me.shedaniel.linkie.Namespaces;
 
 /**
@@ -111,9 +116,11 @@ public class CommandModule {
             .addSlashCommand(new CmdUptime())
             //TODO Setup DB storage for tricks and polish them off/add permission restrictions for when needed.
             .addSlashCommand(new CmdAddTrick())
+            .addSlashCommand(new CmdEditTrick())
             .addSlashCommand(new CmdListTricks())
             .addSlashCommand(new CmdRemoveTrick())
-            .addSlashCommand(new CmdRunTrick())
+            .addSlashCommand(new CmdRunTrickExplicitly())
+            .addSlashCommands(Tricks.getTricks().stream().map(CmdRunTrick::new).toArray(SlashCommand[]::new))
             .addSlashCommand(new CmdShutdown())
             .addSlashCommands(CmdMappings.createCommands()) // TODO: This is broken beyond belief. Consider moving away from linkie. - Curle
             .addSlashCommands(CmdTranslateMappings.createCommands())
@@ -131,6 +138,57 @@ public class CommandModule {
             MMDBot.LOGGER.warn("Command module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");
+        }
+    }
+
+    /**
+     * Removes a slash command. If the command is a {@link DeletableCommand}, this also marks it as deleted so that if
+     * somehow it is run (which should be impossible) nothing will happen.
+     *
+     * @param name the name of the command to remove
+     */
+    public static void removeCommand(final String name) {
+        var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
+        if (guild == null) {
+            throw new NullPointerException("No Guild found!");
+        }
+
+        commandClient.getSlashCommands().stream()
+            .filter(cmd -> cmd.getName().equals(name))
+            .filter(cmd -> cmd instanceof DeletableCommand)
+            .map(cmd -> (DeletableCommand) cmd)
+            .forEach(DeletableCommand::delete);
+
+        guild.retrieveCommands()
+            .flatMap(list -> list.stream().filter(cmd -> cmd.getName().equals(name)).findAny().map(cmd -> guild.deleteCommandById(cmd.getId())).orElseThrow())
+            .queue();
+    }
+
+    /**
+     * Adds and upserts a slash command.
+     *
+     * @param cmd the command
+     */
+    public static void addSlashCommand(final SlashCommand cmd) {
+        commandClient.addSlashCommand(cmd);
+        upsertCommand(cmd);
+    }
+
+    /**
+     * Upserts a slash command.
+     *
+     * @param cmd the command
+     */
+    public static void upsertCommand(final SlashCommand cmd) {
+        if (cmd.isGuildOnly()) {
+            var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
+            if (guild == null) {
+                throw new NullPointerException("No Guild found!");
+            }
+
+            guild.upsertCommand(cmd.buildCommandData()).queue(cmd1 -> cmd1.updatePrivileges(guild, cmd.buildPrivileges(commandClient)).queue());
+        } else {
+            MMDBot.getInstance().upsertCommand(cmd.buildCommandData()).queue();
         }
     }
 }

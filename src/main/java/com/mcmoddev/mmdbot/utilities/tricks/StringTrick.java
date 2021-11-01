@@ -20,13 +20,17 @@
  */
 package com.mcmoddev.mmdbot.utilities.tricks;
 
-import com.google.common.collect.Lists;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+
+import static com.mcmoddev.mmdbot.utilities.Utils.getOrEmpty;
 
 /**
  * The type String trick.
@@ -102,16 +106,6 @@ public class StringTrick implements Trick {
         }
 
         /**
-         * Gets arg names.
-         *
-         * @return arg names
-         */
-        @Override
-        public List<String> getArgNames() {
-            return Lists.newArrayList("names", "body");
-        }
-
-        /**
          * Create from args string trick.
          *
          * @param args the args
@@ -121,6 +115,19 @@ public class StringTrick implements Trick {
         public StringTrick createFromArgs(final String args) {
             String[] argsArray = args.split(" \\| ");
             return new StringTrick(Arrays.asList(argsArray[0].split(" ")), argsArray[1]);
+        }
+
+        @Override
+        public List<OptionData> getArgs() {
+            return List.of(
+                new OptionData(OptionType.STRING, "names", "Name(s) for the trick. Separate with spaces.").setRequired(true),
+                new OptionData(OptionType.STRING, "content", "The content of the trick.").setRequired(true)
+            );
+        }
+
+        @Override
+        public StringTrick createFromCommand(final SlashCommandEvent event) {
+            return new StringTrick(Arrays.asList(getOrEmpty(event, "names").split(" ")), getOrEmpty(event, "content"));
         }
     }
 }

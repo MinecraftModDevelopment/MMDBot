@@ -21,6 +21,8 @@
 package com.mcmoddev.mmdbot.utilities.tricks;
 
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.List;
 
@@ -47,32 +49,55 @@ public interface Trick {
     Message getMessage(String[] args);
 
     /**
-     * The interface Trick type.
+     * The TrickType interface. Every trick requires a trick type to be registered
      *
-     * @param <T> the type parameter
+     * @param <T> the trick
      */
     interface TrickType<T extends Trick> {
 
         /**
-         * Gets clazz.
+         * Gets the trick class.
          *
-         * @return clazz clazz
+         * @return the trick class
          */
         Class<T> getClazz();
 
         /**
-         * Gets arg names.
+         * Gets argument names for creating from command.
          *
          * @return arg names
+         *
+         * @deprecated use slash commands where possible
          */
-        List<String> getArgNames();
+        @Deprecated
+        default List<String> getArgNames() {
+            return getArgs().stream().map(OptionData::getName).toList();
+        }
+
+        /**
+         * Create a trick from string arguments.
+         *
+         * @param args the args as a single string
+         * @return the trick
+         *
+         * @deprecated use slash commands when possible
+         */
+        @Deprecated
+        T createFromArgs(String args);
+
+        /**
+         * Get arguments for slash commands
+         *
+         * @return a list of arguments as OptionData
+         */
+        List<OptionData> getArgs();
 
         /**
          * Create from args t.
          *
-         * @param args the args
-         * @return t t
+         * @param event the command event
+         * @return the trick
          */
-        T createFromArgs(String args);
+        T createFromCommand(SlashCommandEvent event);
     }
 }

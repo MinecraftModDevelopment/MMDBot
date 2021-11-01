@@ -28,44 +28,46 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.util.Collections;
+import java.util.List;
 
 /**
- * Remove a trick, if present.
- * Takes one parameter, the trick name.
- *
+ * Fetch and execute a given trick.
+ * Takes one or two parameters: the trick name, and optionally any arguments to be passed to the trick.
+ * <p>
  * Takes the form:
- *  /removetrick test
- *  /removetrick [trick]
+ * /trick test
+ * /trick [name] [args]
  *
  * @author Will BL
  * @author Curle
  */
-public final class CmdRemoveTrick extends SlashCommand {
+public final class CmdRunTrickExplicitly extends SlashCommand {
+
+    private static final String NAME = "trick";
 
     /**
-     * Instantiates a new Cmd remove trick.
+     * Instantiates a new trick-running command
      */
-    public CmdRemoveTrick() {
+    public CmdRunTrickExplicitly() {
         super();
-        name = "removetrick";
-        help = "Removes a trick";
-        category = new Category("Management");
-        arguments = "<trick_name>";
-        aliases = new String[]{"remove-trick", "remtrick"};
-        enabledRoles = new String[]{Long.toString(MMDBot.getConfig().getRole("bot_maintainer"))};
+        name = NAME;
+        help = "Invoke a specific trick by name.";
+        category = new Category("Fun");
         guildOnly = true;
         // we need to use this unfortunately :( can't create more than one commandclient
         //noinspection deprecation
         guildId = Long.toString(MMDBot.getConfig().getGuildID());
 
-        options = Collections.singletonList(new OptionData(OptionType.STRING, "trick", "The trick to delete.").setRequired(true));
+        options = List.of(
+            new OptionData(OptionType.STRING, "name", "The name of the trick to run").setRequired(true),
+            new OptionData(OptionType.STRING, "args", "The arguments for the trick, if any").setRequired(false)
+        );
     }
 
     /**
-     * Execute.
+     * Executes the command.
      *
-     * @param event the event
+     * @param event the slash command event
      */
     @Override
     protected void execute(final SlashCommandEvent event) {
@@ -73,7 +75,9 @@ public final class CmdRemoveTrick extends SlashCommand {
             return;
         }
 
-        Tricks.getTrick(Utils.getOrEmpty(event, "trick")).ifPresent(Tricks::removeTrick);
-        event.reply("Removed trick!").setEphemeral(true).queue();
+        Tricks.getTrick(Utils.getOrEmpty(event, "name")).ifPresentOrElse(
+            trick -> event.reply(trick.getMessage(Utils.getOrEmpty(event, "args").split(" "))).setEphemeral(false).queue(),
+            () -> event.reply("No trick with that name was found.").setEphemeral(true).queue()
+        );
     }
 }

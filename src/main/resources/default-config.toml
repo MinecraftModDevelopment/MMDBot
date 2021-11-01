@@ -88,6 +88,9 @@
     # The snowflake ID of the role affected by the `mute` and `unmute` commands
     muted = ""
 
+    # The snowflake ID of the bot maintainer role
+    bot_maintainer = ""
+
     # Configuration of pingable and user-requestable roles
     [roles.pings]
         # The snowflake ID of the role for the `event-pings` command

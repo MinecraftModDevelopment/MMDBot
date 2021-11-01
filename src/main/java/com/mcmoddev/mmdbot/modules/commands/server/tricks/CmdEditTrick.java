@@ -27,8 +27,10 @@ import com.mcmoddev.mmdbot.utilities.tricks.Trick;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
+import java.util.Optional;
+
 /**
- * Adds a trick to the list.
+ * Edits an already-existing trick.
  * <p>
  * Has two subcommands;
  *  - string;
@@ -39,19 +41,19 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
  * @author Will BL
  * @author Curle
  */
-public final class CmdAddTrick extends SlashCommand {
+public final class CmdEditTrick extends SlashCommand {
 
     /**
-     * Instantiates a new Cmd add trick.
+     * Instantiates a new edit trick command.
      */
-    public CmdAddTrick() {
+    public CmdEditTrick() {
         super();
-        name = "addtrick";
-        help = "Adds a new trick, either a string or an embed, if a string you only need the <names> and <body>.";
+        name = "edittrick";
+        help = "Edits/replaces a trick. Similar in usage to /addtrick.";
         category = new Category("Info");
         arguments = "(<string> <trick content body> (or) <embed> <title> "
             + "<description> <colour-as-hex-code>";
-        aliases = new String[]{"add-trick"};
+        aliases = new String[]{"edit-trick"};
         enabledRoles = new String[]{Long.toString(MMDBot.getConfig().getRole("bot_maintainer"))};
         guildOnly = true;
         // we need to use this unfortunately :( can't create more than one commandclient
@@ -65,9 +67,8 @@ public final class CmdAddTrick extends SlashCommand {
     protected void execute(final SlashCommandEvent event) {}
 
     /**
-     * A child command of AddTrick, handles adding a particular type of trick.
+     * A child command of EditTrick, handles adding a particular type of trick.
      *
-     * @author Curle
      * @author Will BL
      */
     private static class SubCommand extends SlashCommand {
@@ -88,10 +89,21 @@ public final class CmdAddTrick extends SlashCommand {
             }
 
             try {
-                Tricks.addTrick(trickType.createFromCommand(event));
-                event.reply("Added trick!").mentionRepliedUser(false).setEphemeral(true).queue();
+                Trick trick = trickType.createFromCommand(event);
+                Optional<Trick> originalTrick = Tricks.getTricks().stream()
+                    .filter(t -> t.getNames().stream().anyMatch(n -> trick.getNames().contains(n))).findAny();
+
+                originalTrick.ifPresentOrElse(
+                    original -> {
+                        Tricks.removeTrick(original);
+                        Tricks.addTrick(trick);
+                        event.reply("Updated trick!").mentionRepliedUser(false).setEphemeral(true).queue();
+                    },
+                    () ->
+                        event.reply("No command with that name exists!").mentionRepliedUser(false).setEphemeral(true).queue()
+                );
+
             } catch (IllegalArgumentException e) {
-                event.reply("A command with that name already exists!").mentionRepliedUser(false).setEphemeral(true).queue();
                 MMDBot.LOGGER.warn("Failure adding trick: {}", e.getMessage());
             }
         }
