@@ -42,6 +42,7 @@ import com.mcmoddev.mmdbot.modules.commands.server.CmdGuild;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdRoles;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdToggleEventPings;
 import com.mcmoddev.mmdbot.modules.commands.server.CmdToggleMcServerPings;
+import com.mcmoddev.mmdbot.modules.commands.server.DeletableCommand;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdMute;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdOldChannels;
@@ -90,7 +91,6 @@ public class CommandModule {
             .setPrefix(MMDBot.getConfig().getMainPrefix())
             .setAlternativePrefix(MMDBot.getConfig().getAlternativePrefix())
             .useHelpBuilder(false)
-            .forceGuildOnly("619287233551138846")
             .addSlashCommand(new CmdHelp())
             .addSlashCommand(new CmdGuild())
             .addSlashCommand(new CmdAbout())
@@ -138,6 +138,41 @@ public class CommandModule {
             MMDBot.LOGGER.warn("Command module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");
+        }
+    }
+
+    public static void removeCommand(String name) {
+        var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
+        if (guild == null) {
+            throw new NullPointerException("No Guild found!");
+        }
+
+        commandClient.getSlashCommands().stream()
+            .filter(cmd -> cmd.getName().equals(name))
+            .filter(cmd -> cmd instanceof DeletableCommand)
+            .map(cmd -> (DeletableCommand) cmd)
+            .forEach(DeletableCommand::delete);
+
+        guild.retrieveCommands()
+            .flatMap(list -> list.stream().filter(cmd -> cmd.getName().equals(name)).findAny().map(cmd -> guild.deleteCommandById(cmd.getId())).orElseThrow())
+            .queue();
+    }
+
+    public static void addSlashCommand(SlashCommand cmd) {
+        commandClient.addSlashCommand(cmd);
+        upsertCommand(cmd);
+    }
+
+    public static void upsertCommand(SlashCommand cmd) {
+        if (cmd.isGuildOnly()) {
+            var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
+            if (guild == null) {
+                throw new NullPointerException("No Guild found!");
+            }
+
+            guild.upsertCommand(cmd.buildCommandData()).queue(cmd1 -> cmd1.updatePrivileges(guild, cmd.buildPrivileges(commandClient)).queue());
+        } else {
+            MMDBot.getInstance().upsertCommand(cmd.buildCommandData()).queue();
         }
     }
 }

@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.utilities.tricks;
 
-import com.google.common.collect.Lists;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -162,16 +161,6 @@ public class EmbedTrick implements Trick {
         @Override
         public Class<EmbedTrick> getClazz() {
             return EmbedTrick.class;
-        }
-
-        /**
-         * Gets arg names.
-         *
-         * @return arg names
-         */
-        @Override
-        public List<String> getArgNames() {
-            return Lists.newArrayList("names", "title", "description", "color", "fields");
         }
 
         /**

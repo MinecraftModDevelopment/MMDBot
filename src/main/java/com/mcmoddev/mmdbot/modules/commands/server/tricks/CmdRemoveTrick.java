@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.modules.commands.server.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -52,8 +53,11 @@ public final class CmdRemoveTrick extends SlashCommand {
         category = new Category("Management");
         arguments = "<trick_name>";
         aliases = new String[]{"remove-trick", "remtrick"};
-        requiredRole = "bot maintainer";
+        enabledRoles = new String[]{Long.toString(MMDBot.getConfig().getRole("bot_maintainer"))};
         guildOnly = true;
+        // we need to use this unfortunately :( can't create more than one commandclient
+        //noinspection deprecation
+        guildId = Long.toString(MMDBot.getConfig().getGuildID());
 
         options = Collections.singletonList(new OptionData(OptionType.STRING, "trick", "The trick to delete.").setRequired(true));
     }

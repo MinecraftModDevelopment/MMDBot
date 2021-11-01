@@ -21,13 +21,13 @@
 package com.mcmoddev.mmdbot.modules.commands.server.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -43,15 +43,20 @@ import java.util.List;
  */
 public final class CmdRunTrickExplicitly extends SlashCommand {
 
+    private static final String NAME = "trick";
+
     /**
      * Instantiates a new trick-running command
      */
     public CmdRunTrickExplicitly() {
         super();
-        name = "trick";
+        name = NAME;
         help = "Invoke a specific trick by name.";
         category = new Category("Fun");
         guildOnly = true;
+        // we need to use this unfortunately :( can't create more than one commandclient
+        //noinspection deprecation
+        guildId = Long.toString(MMDBot.getConfig().getGuildID());
 
         options = List.of(
             new OptionData(OptionType.STRING, "name", "The name of the trick to run").setRequired(true),

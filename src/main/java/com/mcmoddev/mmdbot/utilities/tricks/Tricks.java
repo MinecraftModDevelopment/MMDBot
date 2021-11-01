@@ -28,10 +28,12 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.mcmoddev.mmdbot.MMDBot;
-
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
+import com.mcmoddev.mmdbot.modules.commands.server.DeletableCommand;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrick;
+import com.mcmoddev.mmdbot.utilities.tricks.Trick.TrickType;
 import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -50,7 +52,7 @@ import java.util.Optional;
 //TODO: Migrate to a SQLite DB with PR #45
 
 /**
- * The type Tricks.
+ * The Tricks Module.
  *
  * @author Will BL
  */
@@ -62,35 +64,34 @@ public final class Tricks {
     private static final String TRICK_STORAGE_PATH = "mmdbot_tricks.json";
 
     /**
-     * The constant GSON.
+     * The GSON instance.
      */
     private static final Gson GSON;
 
     /**
-     * The constant trickTypes.
+     * All registered {@link TrickType}s.
      */
     private static final Map<String, Trick.TrickType<?>> TRICK_TYPES = new HashMap<>();
 
     /**
-     * The Tricks.
+     * All registered tricks.
      */
-    private static @Nullable
-    List<Trick> tricks = null;
+    private static @Nullable List<Trick> tricks = null;
 
     /**
-     * Gets trick.
+     * Gets a trick by name.
      *
-     * @param name the name
-     * @return the trick
+     * @param name the name of the trick
+     * @return an optional of the trick, or empty if no such trick exists
      */
     public static Optional<Trick> getTrick(final String name) {
         return getTricks().stream().filter(trick -> trick.getNames().contains(name)).findAny();
     }
 
     /**
-     * Gets tricks.
+     * Gets all tricks.
      *
-     * @return the tricks
+     * @return a list of the tricks
      */
     public static List<Trick> getTricks() {
         if (tricks == null) {
@@ -111,9 +112,9 @@ public final class Tricks {
     }
 
     /**
-     * Register trick type.
+     * Register a new {@link TrickType}.
      *
-     * @param name the name
+     * @param name the name to register the type under
      * @param type the type
      */
     public static void registerTrickType(final String name, final Trick.TrickType<?> type) {
@@ -121,48 +122,48 @@ public final class Tricks {
     }
 
     /**
-     * Gets trick types.
+     * Gets all trick types.
      *
-     * @return the trick types
+     * @return a map where the values are the trick types and the keys are their names
      */
     public static Map<String, Trick.TrickType<?>> getTrickTypes() {
         return new HashMap<>(TRICK_TYPES);
     }
 
     /**
-     * Gets trick type.
+     * Gets a trick type by name.
      *
      * @param name the name
-     * @return the trick type
+     * @return the trick type, or null if no such type exists
      */
-    public static Trick.TrickType<?> getTrickType(final String name) {
+    public static @Nullable Trick.TrickType<?> getTrickType(final String name) {
         return TRICK_TYPES.get(name);
     }
 
     /**
-     * Add a trick.
+     * Adds a trick.
      *
      * @param trick the trick to add.
      */
     public static void addTrick(final Trick trick) {
-        CommandModule.getCommandClient().addSlashCommand(new CmdRunTrick(trick));
         getTricks().add(trick);
         write();
+        addOrRestoreCommand(trick);
     }
 
     /**
-     * Remove trick.
+     * Removes a trick.
      *
      * @param trick the trick
      */
     public static void removeTrick(final Trick trick) {
-        CommandModule.getCommandClient().removeCommand(trick.getNames().get(0));
         getTricks().remove(trick);
         write();
+        CommandModule.removeCommand(trick.getNames().get(0));
     }
 
     /**
-     * Write.
+     * Write tricks to disk.
      */
     private static void write() {
         final var tricksFile = new File(TRICK_STORAGE_PATH);
@@ -176,6 +177,22 @@ public final class Tricks {
         }
     }
 
+    /**
+     * Adds or restores the command for a trick.
+     *
+     * @param trick the trick
+     */
+    private static void addOrRestoreCommand(final Trick trick) {
+        CommandModule.getCommandClient().getSlashCommands().stream()
+            .filter(cmd -> cmd.getName().equals(trick.getNames().get(0)))
+            .filter(cmd -> cmd instanceof DeletableCommand)
+            .map(cmd -> (DeletableCommand) cmd)
+            .findFirst().ifPresentOrElse(
+                DeletableCommand::restore,
+                () -> CommandModule.addSlashCommand(new CmdRunTrick(trick))
+            );
+    }
+
     static {
         Tricks.registerTrickType("string", new StringTrick.Type());
         Tricks.registerTrickType("embed", new EmbedTrick.Type());
@@ -186,7 +203,7 @@ public final class Tricks {
     }
 
     /**
-     * The type Trick serializer.
+     * Handles serializing tricks to JSON.
      */
     static final class TrickSerializer implements TypeAdapterFactory {
         /**

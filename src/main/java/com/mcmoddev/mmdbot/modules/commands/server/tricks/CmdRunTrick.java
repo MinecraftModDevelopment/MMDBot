@@ -21,9 +21,11 @@
 package com.mcmoddev.mmdbot.modules.commands.server.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.modules.commands.CommandModule;
+import com.mcmoddev.mmdbot.modules.commands.server.DeletableCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Trick;
-import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -41,9 +43,10 @@ import java.util.Collections;
  * @author Will BL
  * @author Curle
  */
-public final class CmdRunTrick extends SlashCommand {
+public final class CmdRunTrick extends SlashCommand implements DeletableCommand {
 
     private final Trick trick;
+    private boolean deleted = false;
 
     /**
      * Instantiates a new command for a certain trick.
@@ -56,6 +59,9 @@ public final class CmdRunTrick extends SlashCommand {
         help = "Invoke the trick "+trick.getNames().get(0);
         category = new Category("Fun");
         guildOnly = true;
+        // we need to use this unfortunately :( can't create more than one commandclient
+        //noinspection deprecation
+        guildId = Long.toString(MMDBot.getConfig().getGuildID());
 
         options = Collections.singletonList(new OptionData(OptionType.STRING, "args", "The arguments for the trick, if any").setRequired(false));
     }
@@ -72,5 +78,21 @@ public final class CmdRunTrick extends SlashCommand {
         }
 
         event.reply(trick.getMessage(Utils.getOrEmpty(event, "args").split(" "))).setEphemeral(false).queue();
+    }
+
+    @Override
+    public void delete() {
+        deleted = true;
+    }
+
+    @Override
+    public void restore() {
+        deleted = false;
+        CommandModule.upsertCommand(this);
+    }
+
+    @Override
+    public boolean isDeleted() {
+        return deleted;
     }
 }

@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.utilities.tricks;
 
-import com.google.common.collect.Lists;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -104,16 +103,6 @@ public class StringTrick implements Trick {
         @Override
         public Class<StringTrick> getClazz() {
             return StringTrick.class;
-        }
-
-        /**
-         * Gets arg names.
-         *
-         * @return arg names
-         */
-        @Override
-        public List<String> getArgNames() {
-            return Lists.newArrayList("names", "body");
         }
 
         /**

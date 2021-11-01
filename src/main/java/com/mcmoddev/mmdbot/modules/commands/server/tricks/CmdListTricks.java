@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.server.tricks;
 
+import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.general.PaginatedCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
@@ -49,6 +50,9 @@ public final class CmdListTricks extends PaginatedCommand {
         category = new Category("Fun");
         aliases = new String[]{"list-tricks", "tricks"};
         guildOnly = true;
+        // we need to use this unfortunately :( can't create more than one commandclient
+        //noinspection deprecation
+        guildId = Long.toString(MMDBot.getConfig().getGuildID());
         listener = new TrickListListener();
     }
 
