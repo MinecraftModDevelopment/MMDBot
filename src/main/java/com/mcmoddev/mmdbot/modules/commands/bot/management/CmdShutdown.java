@@ -41,7 +41,7 @@ public class CmdShutdown extends SlashCommand {
     public CmdShutdown() {
         super();
         name = "shutdown";
-        help = "Shuts the bot down without restarting it.";
+        help = "Shuts the bot down without restarting it. (Only usable by KiriCattus)";
         category = new Category("Management");
         ownerCommand = true;
         guildOnly = true;

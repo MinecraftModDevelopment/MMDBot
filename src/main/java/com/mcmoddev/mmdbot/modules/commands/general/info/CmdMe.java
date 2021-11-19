@@ -20,18 +20,13 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.general.info;
 
+import com.jagrosh.jdautilities.command.Command;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
 
 /**
  * Get information about the user who initiated the command.
@@ -52,6 +47,7 @@ public final class CmdMe extends CmdUser {
         category = new Category("Info");
         aliases = new String[]{"whoami", "myinfo"};
         guildOnly = true;
+        requiredRole = null;
 
         options = new ArrayList<>();
     }

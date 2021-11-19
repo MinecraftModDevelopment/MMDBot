@@ -40,13 +40,13 @@ import java.util.Locale;
 /**
  * Shows information about a particular user.
  * Includes:
- *  - Username
- *  - Discriminator
- *  - ID
- *  - Nickname, if applied
- *  - Discord join date
- *  - Guild join date
- *  - Account age
+ * - Username
+ * - Discriminator
+ * - ID
+ * - Nickname, if applied
+ * - Discord join date
+ * - Guild join date
+ * - Account age
  *
  * @author ProxyNeko
  * @author WillBL
@@ -65,7 +65,7 @@ public class CmdUser extends SlashCommand {
         category = new Category("Moderation");
         arguments = "<userID/mention";
 
-        requiredRole = "Staff";
+        enabledRoles = new String[]{"Staf"};
         guildOnly = true;
 
         OptionData data = new OptionData(OptionType.USER, "user", "The user to check.").setRequired(false);
@@ -124,7 +124,7 @@ public class CmdUser extends SlashCommand {
         embed.addField("Joined Discord:", date.format(dateJoinedDiscord.toEpochMilli()), true);
         embed.addField("Joined MMD:", date.format(dateJoinedMMD.toEpochMilli()), true);
         embed.addField("Member for:", Utils.getTimeDifference(Utils.getTimeFromUTC(dateJoinedMMD),
-                OffsetDateTime.now(ZoneOffset.UTC)), true);
+            OffsetDateTime.now(ZoneOffset.UTC)), true);
         embed.setTimestamp(Instant.now());
 
         return embed;

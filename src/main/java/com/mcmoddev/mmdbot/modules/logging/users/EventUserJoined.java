@@ -32,10 +32,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.awt.Color;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;

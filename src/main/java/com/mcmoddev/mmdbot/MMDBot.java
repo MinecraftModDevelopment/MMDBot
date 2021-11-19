@@ -153,7 +153,7 @@ public final class MMDBot {
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
                 .addEventListeners(new MiscEvents())
-                .setActivity(Activity.watching("you from the mist..."))
+                .setActivity(Activity.watching("through the mist..."))
                 .build();
             CommandModule.setupCommandModule();
             LoggingModule.setupLoggingModule();

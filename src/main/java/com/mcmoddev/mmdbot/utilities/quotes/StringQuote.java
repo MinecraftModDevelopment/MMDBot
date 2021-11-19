@@ -28,11 +28,11 @@ import java.time.Instant;
 
 /**
  * A Quote implementation that encodes a String as the thing being quoted.
- *
+ * <p>
  * A StringQuote is serialized as such:
- *   {
- *       DATA
- *   }
+ * {
+ * DATA
+ * }
  *
  * @author Curle
  */

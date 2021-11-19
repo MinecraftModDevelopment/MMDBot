@@ -32,19 +32,18 @@ import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * A wrapper for Slash Commands which require a paginated embed.
  * It handles the buttons and interactions for you.
- *
+ * <p>
  * To use this, the developer needs to:
- *  - implement {@link #getEmbed(int)} as per the javadoc.
- *  - implement {@link ButtonListener} in the child class, along with the {@link ButtonListener#getButtonID()} method.
- *  - register their implementation of {@link ButtonListener} to the {@link com.jagrosh.jdautilities.command.CommandClient}.
- *  - call {@link #updateMaximum(int)} as required - usually once per invocation
- *  - call {@link #sendPaginatedMessage(SlashCommandEvent)} in the execute method when a paginated embed is wanted.
+ * - implement {@link #getEmbed(int)} as per the javadoc.
+ * - implement {@link ButtonListener} in the child class, along with the {@link ButtonListener#getButtonID()} method.
+ * - register their implementation of {@link ButtonListener} to the {@link com.jagrosh.jdautilities.command.CommandClient}.
+ * - call {@link #updateMaximum(int)} as required - usually once per invocation
+ * - call {@link #sendPaginatedMessage(SlashCommandEvent)} in the execute method when a paginated embed is wanted.
  *
  * @author Curle
  */
@@ -70,6 +69,7 @@ public abstract class PaginatedCommand extends SlashCommand {
     /**
      * Given the index of the start of the embed, get the next ITEMS_PER_PAGE items.
      * This is where the implementation of the paginated command steps in.
+     *
      * @param startingIndex the index of the first item in the list.
      * @return an unbuilt embed that can be sent.
      */
@@ -85,6 +85,7 @@ public abstract class PaginatedCommand extends SlashCommand {
 
     /**
      * Create and queue a ReplyAction which, if the number of items requires, also contains buttons for scrolling.
+     *
      * @param event the active SlashCommandEvent.
      */
     protected void sendPaginatedMessage(SlashCommandEvent event) {
@@ -117,14 +118,14 @@ public abstract class PaginatedCommand extends SlashCommand {
         if (start + items_per_page < maximum)
             forward = forward.asEnabled();
 
-        return new Component[] {backward, forward};
+        return new Component[]{backward, forward};
     }
 
 
     /**
      * Listens for interactions with the scroll buttons on the paginated message.
      * Extend and implement as a child class of the Paginated Message.
-     *
+     * <p>
      * Implement the {@link #getButtonID()} function in any way you like.
      * Make sure that this listener is registered to the {@link com.jagrosh.jdautilities.command.CommandClient}.
      */

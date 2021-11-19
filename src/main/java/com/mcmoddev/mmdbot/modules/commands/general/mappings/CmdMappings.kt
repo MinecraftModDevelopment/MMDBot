@@ -20,8 +20,6 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.general.mappings
 
-import com.jagrosh.jdautilities.command.Command
-import com.jagrosh.jdautilities.command.CommandEvent
 import com.jagrosh.jdautilities.command.SlashCommand
 import com.mcmoddev.mmdbot.utilities.Utils
 import kotlinx.coroutines.*
@@ -59,8 +57,8 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
         help = "Search for a mapping with $name."
 
         options = arrayListOf(
-                OptionData(OptionType.STRING, "query", "A mapping to query.").setRequired(true),
-                OptionData(OptionType.STRING, "version", "The version of Minecraft to check.").setRequired(false)
+            OptionData(OptionType.STRING, "query", "A mapping to query.").setRequired(true),
+            OptionData(OptionType.STRING, "version", "The version of Minecraft to check.").setRequired(false)
         )
     }
 

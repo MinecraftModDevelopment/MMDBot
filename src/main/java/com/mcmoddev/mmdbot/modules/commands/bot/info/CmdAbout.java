@@ -33,11 +33,11 @@ import java.time.Instant;
 /**
  * Shows information about the bot.
  * Includes:
- *  - Short description
- *  - Build information
- *  - Issue tracker link
- *  - List of maintainers
- *
+ * - Short description
+ * - Build information
+ * - Issue tracker link
+ * - List of maintainers
+ * <p>
  * Takes no parameters.
  *
  * @author ProxyNeko
@@ -74,12 +74,11 @@ public final class CmdAbout extends SlashCommand {
         embed.setColor(Color.GREEN);
         embed.setThumbnail(MMDBot.getInstance().getSelfUser().getAvatarUrl());
         embed.setDescription("An in house bot to assists staff with daily tasks and provide fun and useful commands "
-            + "for the community, please try ``" + MMDBot.getConfig().getMainPrefix()
-            + "help`` for a list of commands!");
+            + "for the community, please try ``/help`` for a list of commands!");
         embed.addField("Version:", References.VERSION, true);
         embed.addField("Issue Tracker:", Utils.makeHyperlink("MMDBot's Github", References.ISSUE_TRACKER),
             true);
-        embed.addField("Current maintainers:", "jriwanek, WillBL, ProxyNeko, sciwhiz12, Poke, Curle",
+        embed.addField("Current maintainers:", "jriwanek, WillBL, KiriCattus, sciwhiz12, Poke, Curle",
             true);
         embed.setTimestamp(Instant.now());
         event.replyEmbeds(embed.build()).mentionRepliedUser(false).setEphemeral(true).queue();

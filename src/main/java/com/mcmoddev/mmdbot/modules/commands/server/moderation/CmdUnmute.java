@@ -59,7 +59,7 @@ public final class CmdUnmute extends SlashCommand {
         help = "Un-mutes a user.";
         category = new Category("Moderation");
         arguments = "<userID/mention";
-        requiredRole = "Moderators";
+        enabledRoles = new String[]{"Moderators", "Admins"};
         guildOnly = true;
         botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
 

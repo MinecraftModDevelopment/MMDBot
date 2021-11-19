@@ -21,8 +21,6 @@
 package com.mcmoddev.mmdbot.modules.commands.server.moderation;
 
 import com.google.common.collect.Sets;
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
@@ -45,11 +43,11 @@ import java.util.stream.Collectors;
 /**
  * Create a community channel owned by the specified user.
  * Takes a user parameter and a string parameter.
- *
+ * <p>
  * Takes the form:
- *  /community-channel ProxyNeko Proxy's Trinkets
- *  /community-channel SomebodyElse Another Channel With A Very Long Name That Discord Will Reject
- *  /community-channel [user] [name]
+ * /community-channel ProxyNeko Proxy's Trinkets
+ * /community-channel SomebodyElse Another Channel With A Very Long Name That Discord Will Reject
+ * /community-channel [user] [name]
  *
  * @author Unknown
  * @author Curle
@@ -71,7 +69,7 @@ public final class CmdCommunityChannel extends SlashCommand {
         help = "Creates a new community channel for the given user.";
         category = new Category("Moderation");
         arguments = "<user ID/mention> <channel name>";
-        requiredRole = "Moderators";
+        enabledRoles = new String[]{"Moderators"};
         aliases = new String[]{"community-channel", "comm-ch"};
         guildOnly = true;
         botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);

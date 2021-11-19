@@ -75,7 +75,7 @@ public final class CmdMute extends SlashCommand {
         help = "Mute a user either indefinitely or for a set amount of time.";
         category = new Category("Moderation");
         arguments = "<userID/Mention> [time, otherwise forever] [unit, otherwise minutes]";
-        requiredRole = "Staff";
+        enabledRoles = new String[]{"Staff"};
         guildOnly = true;
         botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
 

@@ -48,11 +48,11 @@ import java.util.List;
 
 /**
  * The storage container and manager for Quotes.
- *
+ * <p>
  * Contains the logic needed to add, remove, read and write the quotes contained within.
- *
+ * <p>
  * Most of this code is taken from willbl's Tricks.class file.
- *
+ * <p>
  * TODO: Migrate to SQLite.
  * TODO: Fix the mess i made trying to get subclasses to serialize and deserialize.
  *
@@ -114,7 +114,7 @@ public final class QuoteList {
 
     /**
      * Load quotes from file.
-     *
+     * <p>
      * Has minimal error handling.
      */
     public static void loadQuotes() {
@@ -139,7 +139,7 @@ public final class QuoteList {
 
     /**
      * Write quotes to disk.
-     *
+     * <p>
      * Has minimal error handling.
      */
     private static void syncQuotes() {

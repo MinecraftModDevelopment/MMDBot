@@ -33,7 +33,7 @@ import java.util.ArrayList;
 /**
  * List all registered tricks.
  * All aliases will appear after the name, as `name / name [/ name]`.
- *
+ * <p>
  * Takes no parameters.
  *
  * @author Will BL
@@ -51,12 +51,13 @@ public final class CmdListTricks extends PaginatedCommand {
         aliases = new String[]{"list-tricks", "tricks"};
         guildOnly = true;
         // we need to use this unfortunately :( can't create more than one commandclient
-        //noinspection deprecation
         guildId = Long.toString(MMDBot.getConfig().getGuildID());
         listener = new TrickListListener();
     }
 
-    public static TrickListListener getListener() { return listener; }
+    public static TrickListListener getListener() {
+        return listener;
+    }
 
     /**
      * Execute.

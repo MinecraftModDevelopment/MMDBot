@@ -56,11 +56,10 @@ public final class CmdRunTrick extends SlashCommand implements DeletableCommand 
         this.trick = trick;
         name = trick.getNames().get(0);
         aliases = trick.getNames().toArray(new String[0]);
-        help = "Invoke the trick "+trick.getNames().get(0);
+        help = "Invoke the trick " + trick.getNames().get(0);
         category = new Category("Fun");
         guildOnly = true;
         // we need to use this unfortunately :( can't create more than one commandclient
-        //noinspection deprecation
         guildId = Long.toString(MMDBot.getConfig().getGuildID());
 
         options = Collections.singletonList(new OptionData(OptionType.STRING, "args", "The arguments for the trick, if any").setRequired(false));

@@ -37,10 +37,10 @@ import java.util.Collections;
  * Requires bot admin permissions.
  * <p>
  * Takes a single parameter of the URL of the image to use.
- *
+ * <p>
  * Takes the form:
- *  /avatar https://media.discordapp.net/attachments/899012022006579220/899281929629728788/guineverebolb.png
- *  /avatar [image]
+ * /avatar https://media.discordapp.net/attachments/899012022006579220/899281929629728788/guineverebolb.png
+ * /avatar [image]
  *
  * @author ProxyNeko
  * @author Curle
@@ -53,7 +53,7 @@ public class CmdAvatar extends SlashCommand {
     public CmdAvatar() {
         super();
         name = "avatar";
-        help = "Set the avatar of the bot.";
+        help = "Set the avatar of the bot. (Only usable by KiriCattus)";
         category = new Category("Management");
         arguments = "<Image URL>";
         ownerCommand = true;

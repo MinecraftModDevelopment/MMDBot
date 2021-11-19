@@ -50,7 +50,7 @@ public class CmdRename extends SlashCommand {
     public CmdRename() {
         super();
         name = "rename";
-        help = "Set the name of the bot. Name can only be used twice an hour, has a 35 min cool down each time used.";
+        help = "Only usable twice an hour, has a 35 min cool down each time used. (Locked to KiriCattus)";
         category = new Category("Management");
         arguments = "<username>";
         ownerCommand = true;
@@ -76,7 +76,7 @@ public class CmdRename extends SlashCommand {
                 .mentionRepliedUser(false).setEphemeral(true).queue();
         } catch (Exception exception) {
             event.reply("Failed to set a new username... Please see logs for more info! "
-                + "(You can only change the bots username twice an hour, please wait before trying again)")
+                    + "(You can only change the bots username twice an hour, please wait before trying again)")
                 .mentionRepliedUser(false).setEphemeral(true).queue();
             MMDBot.LOGGER.error("Failed to set a new username... ", exception);
         }

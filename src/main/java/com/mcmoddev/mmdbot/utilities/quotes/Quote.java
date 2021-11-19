@@ -22,10 +22,10 @@ package com.mcmoddev.mmdbot.utilities.quotes;
 
 /**
  * Handles the attribution aspect of a Quote.
- *
+ * <p>
  * Exists to be the superclass to implementations that hold data.
  * As such, it is abstract so that the data and thus getQuoteMessage() function may be undefined.
- *
+ * <p>
  * A quote is serialized as such:
  * <pre>{@code {
  *      "ID": DATA,

@@ -26,7 +26,7 @@ import net.dv8tion.jda.api.entities.User;
 /**
  * The information containing "who" or "what" a quote is referencing.
  * Can be for either the thing being quoted, or the thing that created the quote.
- *
+ * <p>
  * Designed to only be directly read by the Quotes utility class.
  * Some design decisions are implemented to take advantage of that while maintaining flexibility.
  *
@@ -41,21 +41,21 @@ public final class UserReference {
 
     /**
      * The data for a SNOWFLAKE reference.
-     *
+     * <p>
      * Encodes a Discord User ID as a Snowflake.
      */
     private long snowflakeData;
 
     /**
      * The data for a STRING reference.
-     *
+     * <p>
      * Encodes an arbitrary source that can be appended to the output.
      */
     private String stringData;
 
     /**
      * The data for an ANONYMOUS reference.
-     *
+     * <p>
      * Encodes the string "Anonymous" which is always returned as the source.
      */
     private static final String anonymousData = "Anonymous";
@@ -80,7 +80,7 @@ public final class UserReference {
 
     /**
      * The data for a SNOWFLAKE reference.
-     *
+     * <p>
      * Encodes a Discord User ID as a Snowflake.
      *
      * @return The encoded user ID as a long form snowflake.
@@ -100,7 +100,7 @@ public final class UserReference {
 
     /**
      * The data for a STRING reference.
-     *
+     * <p>
      * Encodes an arbitrary source that can be appended to the output.
      *
      * @return The encoded String reference,
@@ -120,7 +120,7 @@ public final class UserReference {
 
     /**
      * The data for an ANONYMOUS reference.
-     *
+     * <p>
      * Encodes the string "Anonymous" which is always returned as the source.
      *
      * @return The string "Anonymous".
@@ -131,6 +131,7 @@ public final class UserReference {
 
     /**
      * Convert the Reference to its closest String representation.
+     *
      * @return A mention if the user is a Snowflake and is in the current guild,
      * An ID if the user is a snowflake and is not in the current guild,
      * A message if the user is anonymous or String.
@@ -160,7 +161,7 @@ public final class UserReference {
      * - A Discord user
      * - An external source
      * - An anonymous source.
-     *
+     * <p>
      * The String name is encoded into this enum to facilitate de/serialization.
      * TODO: this can probably be replaced with a two-way map.
      */

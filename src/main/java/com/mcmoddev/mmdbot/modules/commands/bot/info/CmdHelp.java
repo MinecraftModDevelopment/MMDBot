@@ -21,136 +21,126 @@
 package com.mcmoddev.mmdbot.modules.commands.bot.info;
 
 import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
-import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.commands.general.PaginatedCommand;
-import com.mcmoddev.mmdbot.modules.commands.server.CmdRoles;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Emoji;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.Component;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
-import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * Show every registered command, or information on a single command.
- *
+ * <p>
  * Possible forms:
- *  !help
- *  !help help
- *  !help addquote
- *  !help [command]
+ * !help
+ * !help help
+ * !help addquote
+ * !help [command]
  *
  * @author Curle
  */
 public class CmdHelp extends PaginatedCommand {
-        private List<Command> commands;
-        private static CmdHelp.HelpListener listener;
 
-        public CmdHelp() {
-            super("help",
-                "Show all commands, or detailed information about a particular command.",
-                false,
-                Collections.singletonList(new OptionData(OptionType.STRING, "command", "A command to get detailed information on").setRequired(false)),
-                25);
+    private List<Command> commands;
+    private static CmdHelp.HelpListener listener;
 
-            arguments = "[command]";
-            listener = new CmdHelp.HelpListener();
-        }
+    public CmdHelp() {
+        super("help",
+            "Show all commands, or detailed information about a particular command.",
+            false,
+            Collections.singletonList(new OptionData(OptionType.STRING, "command", "A command to get detailed information on").setRequired(false)),
+            25);
 
-        /**
-         * Returns the instance of our button listener.
-         * Used for handling the pagination buttons.
-         */
-        public static PaginatedCommand.ButtonListener getListener() {
+        arguments = "[command]";
+        listener = new CmdHelp.HelpListener();
+    }
+
+    /**
+     * Returns the instance of our button listener.
+     * Used for handling the pagination buttons.
+     */
+    public static PaginatedCommand.ButtonListener getListener() {
         return listener;
     }
 
-        /**
-         * Prepare the potential scrolling buttons for a help command,
-         *  and send the message with the proper embeds.
-         *
-         * See {@link #getEmbed(int)} for the implementation.
-         */
-        public void execute(SlashCommandEvent e) {
-            OptionMapping commandName = e.getOption("command");
+    /**
+     * Prepare the potential scrolling buttons for a help command,
+     * and send the message with the proper embeds.
+     * <p>
+     * See {@link #getEmbed(int)} for the implementation.
+     */
+    public void execute(SlashCommandEvent e) {
+        OptionMapping commandName = e.getOption("command");
 
-            commands = CommandModule.getCommandClient().getCommands();
-            commands.addAll(CommandModule.getCommandClient().getSlashCommands());
-            updateMaximum(commands.size());
+        commands = CommandModule.getCommandClient().getCommands();
+        commands.addAll(CommandModule.getCommandClient().getSlashCommands());
+        updateMaximum(commands.size());
 
-            // If no command specified, show all.
-            if(commandName == null) {
-                sendPaginatedMessage(e);
-            } else {
-                Command command = CommandModule.getCommandClient().getCommands().stream()
-                    .filter(com -> com.getName().equals(commandName.getAsString())) // Find the command with the matching name
-                    .findFirst() // Get the first (should be only) entry
-                    .orElseGet(CmdHelp::new); // And return it as Command.
+        // If no command specified, show all.
+        if (commandName == null) {
+            sendPaginatedMessage(e);
+        } else {
+            Command command = CommandModule.getCommandClient().getCommands().stream()
+                .filter(com -> com.getName().equals(commandName.getAsString())) // Find the command with the matching name
+                .findFirst() // Get the first (should be only) entry
+                .orElseGet(CmdHelp::new); // And return it as Command.
 
-                // Build the embed that summarises the command.
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setAuthor(References.NAME, References.ISSUE_TRACKER, MMDBot.getInstance().getSelfUser().getAvatarUrl());
-                embed.setDescription("Command help:");
-
-                embed.addField(command.getName(), command.getHelp(), false);
-
-                // If we have arguments defined and there's content, add it to the embed
-                if(command.getArguments() != null && command.getArguments().length() > 0)
-                    embed.addField("Arguments", command.getArguments(), false);
-
-                embed.setFooter(References.NAME).setTimestamp(Instant.now());
-
-                e.replyEmbeds(embed.build()).setEphemeral(true).queue();
-            }
-        }
-
-        /**
-         * Given a starting index, build an embed that we can display for users
-         *  to summarise all available commands.
-         * Intended to be used with pagination in the case of servers with LOTS of commands.
-         */
-        @Override
-        protected EmbedBuilder getEmbed(int index) {
+            // Build the embed that summarises the command.
             EmbedBuilder embed = new EmbedBuilder();
             embed.setAuthor(References.NAME, References.ISSUE_TRACKER, MMDBot.getInstance().getSelfUser().getAvatarUrl());
-            embed.setDescription("All registered commands:");
+            embed.setDescription("Command help:");
 
-            // Embeds have a 25 field limit. We need to make sure we don't exceed that.
-            if(commands.size() < items_per_page) {
-                for (Command c : commands)
-                    embed.addField(c.getName(), c.getHelp(), true);
-            } else {
-                // Make sure we only go up to the limit.
-                for (int i = index; i < index + items_per_page; i++)
-                    if (i < commands.size())
-                        embed.addField(commands.get(i).getName(), commands.get(i).getHelp(), true);
-            }
+            embed.addField(command.getName(), command.getHelp(), false);
+
+            // If we have arguments defined and there's content, add it to the embed
+            if (command.getArguments() != null && command.getArguments().length() > 0)
+                embed.addField("Arguments", command.getArguments(), false);
 
             embed.setFooter(References.NAME).setTimestamp(Instant.now());
 
-            return embed;
-        }
-
-        public class HelpListener extends PaginatedCommand.ButtonListener {
-            @Override
-            public String getButtonID() {
-                return "help";
-            }
+            e.replyEmbeds(embed.build()).setEphemeral(true).queue();
         }
     }
+
+    /**
+     * Given a starting index, build an embed that we can display for users
+     * to summarise all available commands.
+     * Intended to be used with pagination in the case of servers with LOTS of commands.
+     */
+    @Override
+    protected EmbedBuilder getEmbed(int index) {
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setAuthor(References.NAME, References.ISSUE_TRACKER, MMDBot.getInstance().getSelfUser().getAvatarUrl());
+        embed.setDescription("All registered commands:");
+
+        // Embeds have a 25 field limit. We need to make sure we don't exceed that.
+        if (commands.size() < items_per_page) {
+            for (Command c : commands)
+                embed.addField(c.getName(), c.getHelp(), true);
+        } else {
+            // Make sure we only go up to the limit.
+            for (int i = index; i < index + items_per_page; i++)
+                if (i < commands.size())
+                    embed.addField(commands.get(i).getName(), commands.get(i).getHelp(), true);
+        }
+
+        embed.setFooter(References.NAME).setTimestamp(Instant.now());
+
+        return embed;
+    }
+
+    public class HelpListener extends PaginatedCommand.ButtonListener {
+        @Override
+        public String getButtonID() {
+            return "help";
+        }
+    }
+}
 

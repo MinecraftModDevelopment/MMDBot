@@ -68,7 +68,7 @@ public final class CmdOldChannels extends SlashCommand {
         help = "Gives channels which haven't been used in an amount of days given as an argument (default 60).";
         category = new Category("Moderation");
         arguments = "[threshold] [channel or category list, separated by spaces]";
-        requiredRole = "Moderators";
+        enabledRoles = new String[]{"Moderators", "Admins"};
         guildOnly = true;
         botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
 
@@ -104,7 +104,7 @@ public final class CmdOldChannels extends SlashCommand {
         OptionMapping days = event.getOption("days");
         OptionMapping category = event.getOption("category");
 
-        if(category != null && event.getGuild().getCategoryById(category.getAsLong()) == null) {
+        if (category != null && event.getGuild().getCategoryById(category.getAsLong()) == null) {
             event.reply("That category doesn't exist.").setEphemeral(true).queue();
             return;
         }

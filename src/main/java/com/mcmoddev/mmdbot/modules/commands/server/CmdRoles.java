@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 
 /**
  * Shows how many users are in each role in the current Guild.
- *
+ * <p>
  * This is the first usage of the Paginated Command.
  *
  * @author ProxyNeko
@@ -71,17 +71,16 @@ public final class CmdRoles extends PaginatedCommand {
      * <p>
      * Sends a message with a listing of all roles in the guild, along with a count of how many members have the role.
      * The message is sent in the same channel where the command was sent from.
-     *
+     * <p>
      * As a recap of the control flow due to the new Paginated Command system:
      * - Pre checks
      * - Populate the role list, in case it updated
      * - Set the maximum index with the size of the list
      * - Hand off to the Paginated Message handler, which will
-     *  - Call the {@link #getEmbed(int)} function
-     *  - Build it
-     *  - Compare the entries against the saved maximum
-     *  - Add buttons to scroll if necessary.
-     *
+     * - Call the {@link #getEmbed(int)} function
+     * - Build it
+     * - Compare the entries against the saved maximum
+     * - Add buttons to scroll if necessary.
      *
      * @param event The {@link SlashCommandEvent event} that triggered this Command.
      */

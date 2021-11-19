@@ -176,16 +176,17 @@ public final class Utils {
     /**
      * Get a Role instance from the default configured guild, with a given name.
      * This is primarily used for the advanced checks as part of the new SlashCommand system.
+     *
      * @param roleName the name of the role to fetch
      * @return the Role found if exists, null otherwise.
      */
     public static Role getRoleInHomeGuild(final String roleName) {
         JDA bot = MMDBot.getInstance();
         Guild homeGuild = bot.getGuildById(MMDBot.getConfig().getGuildID());
-        if(homeGuild == null)
+        if (homeGuild == null)
             return null;
         List<Role> roles = homeGuild.getRolesByName(roleName, false);
-        if(roles.size() == 0)
+        if (roles.size() == 0)
             return null;
         return roles.get(0);
     }
@@ -194,7 +195,7 @@ public final class Utils {
      * Gets user from string.
      *
      * @param userString The members string name or ID.
-     * @param guild        The guild we are currently in.
+     * @param guild      The guild we are currently in.
      * @return The guild member.
      */
     @Nullable
@@ -219,10 +220,10 @@ public final class Utils {
     public static List<MessageReaction> getMatchingReactions(final Message message, final LongPredicate predicate) {
         List<MessageReaction> reactions = message.getReactions();
         List<MessageReaction> matches = new ArrayList<>();
-        for(MessageReaction react : reactions) {
+        for (MessageReaction react : reactions) {
             Emote emote = react.getReactionEmote().isEmote() ? react.getReactionEmote().getEmote() : null;
             if (emote != null)
-                if(predicate.test(emote.getIdLong()))
+                if (predicate.test(emote.getIdLong()))
                     matches.add(react);
         }
 
@@ -370,7 +371,7 @@ public final class Utils {
      *     <li>GUILD: checks if the command is blocked in the channel/category.</li>
      *     <li>GUILD: checks if the command is allowed in the channel/category.</li>
      * </ul>
-     *
+     * <p>
      * For Slash commands only.
      *
      * @param command The command
@@ -555,7 +556,7 @@ public final class Utils {
      * Gets an argument from a slash command as a string.
      *
      * @param event the slash command event
-     * @param name the name of the option
+     * @param name  the name of the option
      * @return the option's value as a string, or an empty string if the option had no value
      */
     public static String getOrEmpty(SlashCommandEvent event, String name) {

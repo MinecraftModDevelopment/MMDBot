@@ -28,12 +28,9 @@ import net.dv8tion.jda.api.audit.ActionType;
 import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.utils.TimeFormat;
-import net.dv8tion.jda.api.utils.Timestamp;
 
 import java.awt.Color;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Locale;
 
 /**
  * Log the bans of users to a set channel to alert other staff members and to keep a record in case the user deletes
@@ -80,7 +77,7 @@ public class UserBanned extends ListenerAdapter {
                     if (entry.getReason() == null) {
                         embed.addField("**Ban reason:**",
                             "Reason for ban was not provided or could not be found, please contact "
-                            + bannedBy.getAsMention(), false);
+                                + bannedBy.getAsMention(), false);
                     } else {
                         embed.addField("**Ban reason:**", entry.getReason(), false);
                     }

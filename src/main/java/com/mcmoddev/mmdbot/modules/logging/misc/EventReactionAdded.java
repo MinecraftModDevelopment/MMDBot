@@ -143,13 +143,13 @@ public final class EventReactionAdded extends ListenerAdapter {
                         builder.setAuthor(messageAuthor.getAsTag(), messageAuthor.getEffectiveAvatarUrl());
                         builder.setTitle("Request awaiting moderator approval");
                         builder.appendDescription("Request from ")
-                                .appendDescription(messageAuthor.getAsMention())
+                            .appendDescription(messageAuthor.getAsMention())
                             .appendDescription(" has a score of " + requestScore)
                             .appendDescription(", reaching removal threshold of " + removalThreshold)
                             .appendDescription(" and is now awaiting moderator approval before deletion.");
                         builder.addField("Jump to Message",
                             MarkdownUtil.maskedLink("Message in " + message.getTextChannel().getAsMention(),
-                            message.getJumpUrl()), true);
+                                message.getJumpUrl()), true);
                         builder.setTimestamp(Instant.now());
                         builder.setColor(Color.YELLOW);
                         builder.setFooter("User ID: " + messageAuthor.getId());

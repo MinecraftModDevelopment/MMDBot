@@ -26,7 +26,7 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 /**
  * Restart the bot on command rather than via console.
  *
- * @author ProxyNeko
+ * @author KiriCattus
  */
 public class CmdRestart extends Command {
 
@@ -36,7 +36,7 @@ public class CmdRestart extends Command {
     public CmdRestart() {
         super();
         name = "restart";
-        help = "Restarts the bot.";
+        help = "Restarts the bot. (Only usable by KiriCattus)";
         category = new Category("Management");
         ownerCommand = true;
         hidden = true;
@@ -50,6 +50,6 @@ public class CmdRestart extends Command {
      */
     @Override
     protected void execute(final CommandEvent event) {
-        //TODO Work on restart code, attempt to make it platform agnostic. -Proxy
+        //TODO Work on restart code, attempt to make it platform agnostic. -KiriCattus
     }
 }

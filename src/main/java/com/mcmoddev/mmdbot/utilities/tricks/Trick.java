@@ -66,7 +66,6 @@ public interface Trick {
          * Gets argument names for creating from command.
          *
          * @return arg names
-         *
          * @deprecated use slash commands where possible
          */
         @Deprecated
@@ -79,7 +78,6 @@ public interface Trick {
          *
          * @param args the args as a single string
          * @return the trick
-         *
          * @deprecated use slash commands when possible
          */
         @Deprecated

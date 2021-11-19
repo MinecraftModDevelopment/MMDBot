@@ -20,8 +20,6 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.general.mappings
 
-import com.jagrosh.jdautilities.command.Command
-import com.jagrosh.jdautilities.command.CommandEvent
 import com.jagrosh.jdautilities.command.SlashCommand
 import com.mcmoddev.mmdbot.utilities.Utils
 import kotlinx.coroutines.CoroutineScope
@@ -44,11 +42,6 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.components.Button
 import java.awt.Color
 import java.util.*
-import kotlin.collections.Iterator
-import kotlin.collections.MutableMap
-import kotlin.collections.getOrElse
-import kotlin.collections.listOf
-import kotlin.collections.mutableMapOf
 import kotlin.collections.set
 
 /**
@@ -66,8 +59,8 @@ class CmdTranslateMappings(
         help = "Map a name from $namespace1 to $namespace2"
 
         options = arrayListOf(
-                OptionData(OptionType.STRING, "query", "A mapping to query.").setRequired(true),
-                OptionData(OptionType.STRING, "version", "The version of Minecraft to check.").setRequired(false)
+            OptionData(OptionType.STRING, "query", "A mapping to query.").setRequired(true),
+            OptionData(OptionType.STRING, "version", "The version of Minecraft to check.").setRequired(false)
         )
     }
 
@@ -79,8 +72,8 @@ class CmdTranslateMappings(
 
         val query = event.getOption("query")?.asString ?: ""
         val version = event.getOption("version")?.asString ?: namespace1.getAllVersions()
-                .filter { version -> namespace2.getAllVersions().toSet().contains(version) }
-                .maxWithOrNull(nullsFirst(compareBy { it.tryToVersion() }))!!
+            .filter { version -> namespace2.getAllVersions().toSet().contains(version) }
+            .maxWithOrNull(nullsFirst(compareBy { it.tryToVersion() }))!!
 
         scope.launch {
             val originProvider = namespace1.getProvider(version)

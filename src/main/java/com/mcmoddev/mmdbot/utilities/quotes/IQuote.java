@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 /**
  * The interface which all Quote types implement.
  * Provides an interface for retrieving quote metadata.
- *
+ * <p>
  * Quote metadata consists of:
  * - Quotee; One of:
  * - Discord User ID

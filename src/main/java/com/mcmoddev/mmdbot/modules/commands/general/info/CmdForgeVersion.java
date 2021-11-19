@@ -38,12 +38,12 @@ import java.util.List;
 /**
  * Retrieve the current latest and recommended builds for Forge.
  * Takes an optional version parameter.
- *
+ * <p>
  * Takes the forms:
- *  /forge
- *  /forge 1.16.5
- *  /forge 1.12.2
- *  /forge [version]
+ * /forge
+ * /forge 1.16.5
+ * /forge 1.12.2
+ * /forge [version]
  *
  * @author Poke
  * @author Curle
@@ -83,7 +83,7 @@ public final class CmdForgeVersion extends SlashCommand {
         MinecraftForgeVersion latest;
         OptionMapping version = event.getOption("version");
         try {
-            if(version != null)
+            if (version != null)
                 latest = new MinecraftForgeVersion(version.getAsString(), ForgeVersionHelper.getForgeVersionsForMcVersion(version.getAsString()));
             else
                 latest = ForgeVersionHelper.getLatestMcVersionForgeVersions();

@@ -31,10 +31,10 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
  * Adds a trick to the list.
  * <p>
  * Has two subcommands;
- *  - string;
- *      - Takes one parameter - the content of the string trick.
- *  - embed;
- *      - Takes three parameters; name, description and color. All used for constructing the embed.
+ * - string;
+ * - Takes one parameter - the content of the string trick.
+ * - embed;
+ * - Takes three parameters; name, description and color. All used for constructing the embed.
  *
  * @author Will BL
  * @author Curle
@@ -55,14 +55,14 @@ public final class CmdAddTrick extends SlashCommand {
         enabledRoles = new String[]{Long.toString(MMDBot.getConfig().getRole("bot_maintainer"))};
         guildOnly = true;
         // we need to use this unfortunately :( can't create more than one commandclient
-        //noinspection deprecation
         guildId = Long.toString(MMDBot.getConfig().getGuildID());
 
         children = Tricks.getTrickTypes().entrySet().stream().map(entry -> new SubCommand(entry.getKey(), entry.getValue())).toArray(SlashCommand[]::new);
     }
 
     @Override
-    protected void execute(final SlashCommandEvent event) {}
+    protected void execute(final SlashCommandEvent event) {
+    }
 
     /**
      * A child command of AddTrick, handles adding a particular type of trick.
@@ -76,7 +76,7 @@ public final class CmdAddTrick extends SlashCommand {
         public SubCommand(String name, Trick.TrickType<?> trickType) {
             this.trickType = trickType;
             this.name = name;
-            this.help = "Create a "+name+"-type trick.";
+            this.help = "Create a " + name + "-type trick.";
             this.guildOnly = true;
             this.options = trickType.getArgs();
         }

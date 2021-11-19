@@ -33,10 +33,10 @@ import java.util.Collections;
 /**
  * Remove a trick, if present.
  * Takes one parameter, the trick name.
- *
+ * <p>
  * Takes the form:
- *  /removetrick test
- *  /removetrick [trick]
+ * /removetrick test
+ * /removetrick [trick]
  *
  * @author Will BL
  * @author Curle
@@ -56,7 +56,6 @@ public final class CmdRemoveTrick extends SlashCommand {
         enabledRoles = new String[]{Long.toString(MMDBot.getConfig().getRole("bot_maintainer"))};
         guildOnly = true;
         // we need to use this unfortunately :( can't create more than one commandclient
-        //noinspection deprecation
         guildId = Long.toString(MMDBot.getConfig().getGuildID());
 
         options = Collections.singletonList(new OptionData(OptionType.STRING, "trick", "The trick to delete.").setRequired(true));

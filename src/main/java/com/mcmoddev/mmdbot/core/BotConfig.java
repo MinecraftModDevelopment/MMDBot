@@ -30,8 +30,8 @@ import com.google.common.io.Resources;
 import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
 import com.mcmoddev.mmdbot.MMDBot;
 import net.dv8tion.jda.api.Permission;
-
 import org.jetbrains.annotations.NotNull;
+
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.EnumSet;
