@@ -21,7 +21,9 @@
 package com.mcmoddev.mmdbot.modules.commands.server.moderation;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -34,10 +36,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
-
-import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
-import static com.mcmoddev.mmdbot.MMDBot.getConfig;
-import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.MUTING;
 
 /**
  * Mute the given user, by giving the designated muted role.
@@ -75,7 +73,7 @@ public final class CmdMute extends SlashCommand {
         help = "Mute a user either indefinitely or for a set amount of time.";
         category = new Category("Moderation");
         arguments = "<userID/Mention> [time, otherwise forever] [unit, otherwise minutes]";
-        enabledRoles = new String[]{"Staff"};
+        requiredRole = "Staff";
         guildOnly = true;
         botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
 
@@ -114,7 +112,7 @@ public final class CmdMute extends SlashCommand {
         OptionMapping time = event.getOption("time");
         OptionMapping unit = event.getOption("time");
 
-        final var mutedRoleID = getConfig().getRole("muted");
+        final var mutedRoleID = MMDBot.getConfig().getRole("muted");
         final var mutedRole = event.getGuild().getRoleById(mutedRoleID);
 
         if (user == null) {
@@ -123,7 +121,7 @@ public final class CmdMute extends SlashCommand {
         }
 
         if (mutedRole == null) {
-            LOGGER.error(MUTING, "Unable to find muted role {}", mutedRoleID);
+            MMDBot.LOGGER.error(MMDMarkers.MUTING, "Unable to find muted role {}", mutedRoleID);
             return;
         }
 
@@ -140,8 +138,8 @@ public final class CmdMute extends SlashCommand {
             timeString = "ever";
         }
 
-        event.replyFormat("Muted user %s for%s.", user.getAsMention(), timeString).setEphemeral(true).queue();
-        LOGGER.info(MUTING, "User {} was muted by {} for{}", user, author, timeString);
+        event.replyFormat("Muted user %s for%s.", user.getAsMention(), timeString).queue();
+        MMDBot.LOGGER.info(MMDMarkers.MUTING, "User {} was muted by {} for{}", user, author, timeString);
 
     }
 

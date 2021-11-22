@@ -81,6 +81,6 @@ public final class CmdAbout extends SlashCommand {
         embed.addField("Current maintainers:", "jriwanek, WillBL, KiriCattus, sciwhiz12, Poke, Curle",
             true);
         embed.setTimestamp(Instant.now());
-        event.replyEmbeds(embed.build()).mentionRepliedUser(false).setEphemeral(true).queue();
+        event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
     }
 }

@@ -89,11 +89,11 @@ public abstract class PaginatedCommand extends SlashCommand {
      * @param event the active SlashCommandEvent.
      */
     protected void sendPaginatedMessage(SlashCommandEvent event) {
-        ReplyAction reply = event.replyEmbeds(getEmbed(0).build()).setEphemeral(true);
+        ReplyAction reply = event.replyEmbeds(getEmbed(0).build());
         Component[] buttons = createScrollButtons(0);
-        if (buttons.length > 0)
+        if (buttons.length > 0) {
             reply.addActionRow(buttons);
-
+        }
         reply.queue();
     }
 
@@ -112,11 +112,13 @@ public abstract class PaginatedCommand extends SlashCommand {
         Button forward = Button.primary(getName() + "-" + start + "-next",
             Emoji.fromUnicode("▶️")).asDisabled();
 
-        if (start != 0)
+        if (start != 0) {
             backward = backward.asEnabled();
+        }
 
-        if (start + items_per_page < maximum)
+        if (start + items_per_page < maximum) {
             forward = forward.asEnabled();
+        }
 
         return new Component[]{backward, forward};
     }

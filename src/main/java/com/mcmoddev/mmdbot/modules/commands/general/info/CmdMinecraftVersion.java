@@ -66,6 +66,6 @@ public final class CmdMinecraftVersion extends SlashCommand {
         embed.addField("Latest Stable", MinecraftVersionHelper.getLatestStable(), true);
         embed.setColor(Color.GREEN);
         embed.setTimestamp(Instant.now());
-        event.replyEmbeds(embed.build()).mentionRepliedUser(false).setEphemeral(true).queue();
+        event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
     }
 }

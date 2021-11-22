@@ -102,7 +102,7 @@ public final class CmdCatFacts extends SlashCommand {
             embed.appendDescription(fact);
             embed.setFooter("Purrwered by https://catfact.ninja");
 
-            event.replyEmbeds(embed.build()).mentionRepliedUser(false).setEphemeral(true).queue();
+            event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
         }
     }
 }

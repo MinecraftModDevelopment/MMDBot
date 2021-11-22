@@ -86,7 +86,7 @@ public final class CmdSearch extends SlashCommand {
             event.reply(baseUrl + query).mentionRepliedUser(false).queue();
         } catch (UnsupportedEncodingException ex) {
             MMDBot.LOGGER.error("Error processing search query {}: {}", event.getOption("text").getAsString(), ex);
-            event.reply("There was an error processing your command.").mentionRepliedUser(false).setEphemeral(true).queue();
+            event.reply("There was an error processing your command.").mentionRepliedUser(false).queue();
         }
 
     }

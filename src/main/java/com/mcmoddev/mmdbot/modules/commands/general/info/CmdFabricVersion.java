@@ -97,6 +97,6 @@ public final class CmdFabricVersion extends SlashCommand {
         embed.addField("Latest Loader", FabricVersionHelper.getLatestLoader(), true);
         embed.setColor(Color.WHITE);
         embed.setTimestamp(Instant.now());
-        event.replyEmbeds(embed.build()).mentionRepliedUser(false).setEphemeral(true).queue();
+        event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
     }
 }

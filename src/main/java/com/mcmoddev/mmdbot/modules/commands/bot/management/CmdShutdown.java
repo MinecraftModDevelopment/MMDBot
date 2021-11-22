@@ -54,7 +54,7 @@ public class CmdShutdown extends SlashCommand {
      */
     @Override
     protected void execute(final SlashCommandEvent event) {
-        event.reply("Shutting down the bot!").setEphemeral(true).queue();
+        event.reply("Shutting down the bot!").queue();
         //Shut down the JDA instance gracefully.
         event.getJDA().shutdown();
         MMDBot.LOGGER.warn("Shutting down the bot by request of " + event.getUser().getName() + " via Discord!");

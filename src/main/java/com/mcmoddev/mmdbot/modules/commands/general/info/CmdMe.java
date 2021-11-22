@@ -64,6 +64,6 @@ public final class CmdMe extends CmdUser {
         }
 
         final EmbedBuilder embed = createMemberEmbed(event.getMember());
-        event.replyEmbeds(embed.build()).mentionRepliedUser(false).setEphemeral(true).queue();
+        event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
     }
 }

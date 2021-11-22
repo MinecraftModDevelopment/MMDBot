@@ -20,9 +20,12 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.server.quotes;
 
+import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.general.PaginatedCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
 import com.mcmoddev.mmdbot.utilities.quotes.Quote;
 import com.mcmoddev.mmdbot.utilities.quotes.QuoteList;
 import com.mcmoddev.mmdbot.utilities.quotes.StringQuote;
@@ -124,7 +127,7 @@ public class CmdQuote extends SlashCommand {
 
             // Verify that there's a message being quoted.
             if (quoteeText != null && quoteeUser != null) {
-                event.reply("Cannot add a quote with a quoted user and quoted text. Choose one.").setEphemeral(true).queue();
+                event.reply("Cannot add a quote with a quoted user and quoted text. Choose one.").queue();
                 return;
             }
 
@@ -156,7 +159,7 @@ public class CmdQuote extends SlashCommand {
             // All execution leads to here, where finishedQuote is valid.
             QuoteList.addQuote(finishedQuote);
 
-            event.reply("Added quote " + quoteID + "!").mentionRepliedUser(false).setEphemeral(true).queue();
+            event.reply("Added quote " + quoteID + "!").mentionRepliedUser(false).queue();
         }
 
     }
@@ -204,7 +207,7 @@ public class CmdQuote extends SlashCommand {
             if (index != null) {
                 // We have something to parse.
                 if (index.getAsLong() >= QuoteList.getQuoteSlot()) {
-                    event.replyEmbeds(QuoteList.getQuoteNotPresent()).mentionRepliedUser(false).setEphemeral(true).queue();
+                    event.replyEmbeds(QuoteList.getQuoteNotPresent()).mentionRepliedUser(false).queue();
                     return;
                 }
 
@@ -212,13 +215,13 @@ public class CmdQuote extends SlashCommand {
                 // Check if the quote exists.
                 if (fetched == QuoteList.NULL) {
                     // Send the standard message
-                    event.replyEmbeds(QuoteList.getQuoteNotPresent()).mentionRepliedUser(false).setEphemeral(true).queue();
+                    event.replyEmbeds(QuoteList.getQuoteNotPresent()).mentionRepliedUser(false).queue();
                     return;
                 }
 
                 // It exists, so get the content and send it.
                 assert fetched != null;
-                event.replyEmbeds(fetched.getQuoteMessage()).mentionRepliedUser(false).setEphemeral(true).queue();
+                event.replyEmbeds(fetched.getQuoteMessage()).mentionRepliedUser(false).queue();
                 return;
             }
 
@@ -230,7 +233,7 @@ public class CmdQuote extends SlashCommand {
             } while (fetched == null);
 
             // It exists, so get the content and send it.
-            event.replyEmbeds(fetched.getQuoteMessage()).mentionRepliedUser(false).setEphemeral(true).queue();
+            event.replyEmbeds(fetched.getQuoteMessage()).mentionRepliedUser(false).queue();
         }
     }
 
@@ -257,7 +260,7 @@ public class CmdQuote extends SlashCommand {
             name = "remove";
             help = "Remove a quote from the list.";
             arguments = "<the quotes numerical ID>";
-            enabledRoles = new String[]{"bot maintainer", "Moderators", "Admins"};
+            requiredRole = "bot maintainer";
             guildOnly = true;
 
             options = Collections.singletonList(new OptionData(OptionType.INTEGER, "index", "The index of the quote to delete.").setRequired(true));

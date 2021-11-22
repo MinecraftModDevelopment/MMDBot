@@ -59,7 +59,7 @@ public final class CmdUnmute extends SlashCommand {
         help = "Un-mutes a user.";
         category = new Category("Moderation");
         arguments = "<userID/mention";
-        enabledRoles = new String[]{"Moderators", "Admins"};
+        requiredRole = "Staff";
         guildOnly = true;
         botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
 
@@ -92,6 +92,7 @@ public final class CmdUnmute extends SlashCommand {
         final var mutedRole = guild.getRoleById(mutedRoleID);
 
         if (mutedRole == null) {
+            event.reply("An error occurred, please check console for more info...").setEphemeral(true).queue();
             LOGGER.error(MUTING, "Unable to find muted role {}", mutedRoleID);
             return;
         }

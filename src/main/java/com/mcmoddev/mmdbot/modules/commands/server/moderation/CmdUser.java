@@ -65,7 +65,7 @@ public class CmdUser extends SlashCommand {
         category = new Category("Moderation");
         arguments = "<userID/mention";
 
-        enabledRoles = new String[]{"Staf"};
+        requiredRole = "Staff";
         guildOnly = true;
 
         OptionData data = new OptionData(OptionType.USER, "user", "The user to check.").setRequired(false);
@@ -92,7 +92,7 @@ public class CmdUser extends SlashCommand {
         }
 
         final var embed = createMemberEmbed(member.getAsMember());
-        event.replyEmbeds(embed.build()).mentionRepliedUser(false).setEphemeral(true).queue();
+        event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
     }
 
     /**
@@ -122,9 +122,11 @@ public class CmdUser extends SlashCommand {
 
         final var date = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH);
         embed.addField("Joined Discord:", date.format(dateJoinedDiscord.toEpochMilli()), true);
-        embed.addField("Joined MMD:", date.format(dateJoinedMMD.toEpochMilli()), true);
-        embed.addField("Member for:", Utils.getTimeDifference(Utils.getTimeFromUTC(dateJoinedMMD),
-            OffsetDateTime.now(ZoneOffset.UTC)), true);
+        if (dateJoinedMMD == null) {
+            embed.addField("Joined MMD:", date.format(dateJoinedMMD.toEpochMilli()), true);
+            embed.addField("Member for:", Utils.getTimeDifference(Utils.getTimeFromUTC(dateJoinedMMD),
+                OffsetDateTime.now(ZoneOffset.UTC)), true);
+        }
         embed.setTimestamp(Instant.now());
 
         return embed;

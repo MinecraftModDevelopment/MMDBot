@@ -60,7 +60,6 @@ public final class CmdToggleMcServerPings extends SlashCommand {
         }
 
         final var guild = event.getGuild();
-        // TODO: Get the per guild ID if enabled for the guild the command was run in.
         final var role = guild.getRoleById(MMDBot.getConfig().getRole("pings.toggle-mc-server-pings"));
 
         if (role == null) {

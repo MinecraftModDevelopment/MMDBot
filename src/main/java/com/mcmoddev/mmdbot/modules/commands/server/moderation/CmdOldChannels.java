@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.server.moderation;
 
+import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.oldchannels.OldChannelsHelper;
@@ -68,7 +69,7 @@ public final class CmdOldChannels extends SlashCommand {
         help = "Gives channels which haven't been used in an amount of days given as an argument (default 60).";
         category = new Category("Moderation");
         arguments = "[threshold] [channel or category list, separated by spaces]";
-        enabledRoles = new String[]{"Moderators", "Admins"};
+        requiredRole = "Moderators";
         guildOnly = true;
         botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
 
@@ -127,7 +128,7 @@ public final class CmdOldChannels extends SlashCommand {
                 }
             });
 
-        event.replyEmbeds(embed.build()).setEphemeral(true).queue();
+        event.replyEmbeds(embed.build()).queue();
     }
 
     /**

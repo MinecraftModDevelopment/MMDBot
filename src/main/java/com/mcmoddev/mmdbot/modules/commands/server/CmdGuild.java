@@ -91,9 +91,9 @@ public final class CmdGuild extends SlashCommand {
             embed.addField("Guilds age:", Utils.getTimeDifference(Utils.getTimeFromUTC(dateGuildCreated),
                 OffsetDateTime.now(ZoneOffset.UTC)), true);
             embed.setTimestamp(Instant.now());
-            event.replyEmbeds(embed.build()).setEphemeral(true).queue();
+            event.replyEmbeds(embed.build()).queue();
         } else {
-            event.reply("This command should not be possible from a DM.").setEphemeral(true).queue();
+            event.reply("This command should not be possible from a DM.").queue();
         }
     }
 }

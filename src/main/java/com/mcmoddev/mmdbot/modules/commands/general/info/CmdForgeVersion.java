@@ -111,7 +111,7 @@ public final class CmdForgeVersion extends SlashCommand {
             embed.setDescription(changelogLink);
             embed.setColor(Color.ORANGE);
             embed.setTimestamp(Instant.now());
-            event.replyEmbeds(embed.build()).mentionRepliedUser(false).setEphemeral(true).queue();
+            event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
         } catch (NullPointerException e) {
             event.reply("The given Minecraft version " + version.getAsString() + " is invalid.").setEphemeral(true).queue();
         }

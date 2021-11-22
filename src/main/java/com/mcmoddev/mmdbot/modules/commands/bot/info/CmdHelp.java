@@ -100,12 +100,13 @@ public class CmdHelp extends PaginatedCommand {
             embed.addField(command.getName(), command.getHelp(), false);
 
             // If we have arguments defined and there's content, add it to the embed
-            if (command.getArguments() != null && command.getArguments().length() > 0)
+            if (command.getArguments() != null && command.getArguments().length() > 0) {
                 embed.addField("Arguments", command.getArguments(), false);
+            }
 
             embed.setFooter(References.NAME).setTimestamp(Instant.now());
 
-            e.replyEmbeds(embed.build()).setEphemeral(true).queue();
+            e.replyEmbeds(embed.build()).queue();
         }
     }
 

@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.modules.commands.server.moderation;
 
 import com.google.common.collect.Sets;
+import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
@@ -69,7 +70,7 @@ public final class CmdCommunityChannel extends SlashCommand {
         help = "Creates a new community channel for the given user.";
         category = new Category("Moderation");
         arguments = "<user ID/mention> <channel name>";
-        enabledRoles = new String[]{"Moderators"};
+        requiredRole = "Moderators";
         aliases = new String[]{"community-channel", "comm-ch"};
         guildOnly = true;
         botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
@@ -106,14 +107,14 @@ public final class CmdCommunityChannel extends SlashCommand {
         final var category = guild.getCategoryById(categoryID);
         if (categoryID == 0 || category == null) {
             MMDBot.LOGGER.warn("Community channel category is incorrectly configured");
-            event.reply("Community channel category is incorrectly configured. Please contact the bot maintainers.").setEphemeral(true).queue();
+            event.reply("Community channel category is incorrectly configured. Please contact the bot maintainers.").queue();
             return;
         }
 
         final Set<Permission> ownerPermissions = MMDBot.getConfig().getCommunityChannelOwnerPermissions();
         if (ownerPermissions.isEmpty()) {
             MMDBot.LOGGER.warn("Community channel owner permissions is incorrectly configured");
-            event.reply("Channel owner permissions is incorrectly configured. Please contact the bot maintainers.").setEphemeral(true).queue();
+            event.reply("Channel owner permissions is incorrectly configured. Please contact the bot maintainers.").queue();
             return;
         }
 
@@ -121,7 +122,7 @@ public final class CmdCommunityChannel extends SlashCommand {
         if (!diff.isEmpty()) {
             MMDBot.LOGGER.warn("Cannot assign permissions to channel owner due to insufficient permissions: {}", diff);
             event.reply("Cannot assign certain permissions to channel owner due to insufficient permissions; "
-                + "continuing anyway...").setEphemeral(true).queue();
+                + "continuing anyway...").queue();
             ownerPermissions.removeIf(diff::contains);
         }
 
@@ -156,6 +157,6 @@ public final class CmdCommunityChannel extends SlashCommand {
                     .build())
                 .map($ -> ch)
             )
-            .queue(c -> event.reply("Successfully created community channel at " + c.getAsMention() + "!").setEphemeral(true).queue());
+            .queue(c -> event.reply("Successfully created community channel at " + c.getAsMention() + "!").queue());
     }
 }
