@@ -6,7 +6,7 @@ plugins {
 //id 'maven'
   id 'eclipse'
   id 'idea'
-  id 'com.github.spotbugs' version '4.7.10'
+  id 'com.github.spotbugs' version '5.0.2'
   id 'checkstyle'
   id 'pmd'
   id 'org.flywaydb.flyway' version '8.0.5'
