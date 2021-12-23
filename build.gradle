@@ -9,7 +9,7 @@ plugins {
   id 'com.github.spotbugs' version '5.0.3'
   id 'checkstyle'
   id 'pmd'
-  id 'org.flywaydb.flyway' version '8.2.3'
+  id 'org.flywaydb.flyway' version '8.3.0'
   id 'org.jetbrains.kotlin.jvm' version '1.6.10'
   id 'org.cadixdev.licenser' version '0.6.1'
 }
