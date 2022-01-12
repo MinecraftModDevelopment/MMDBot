@@ -1,21 +1,17 @@
 import java.text.SimpleDateFormat
 
-buildscript {
-  apply from: 'dependencies.gradle'
-}
-
 plugins {
   id 'application'
-  id 'com.github.johnrengelman.shadow' version "${shadow}"
+  id 'com.github.johnrengelman.shadow' version '6.1.0'
 //id 'maven'
   id 'eclipse'
   id 'idea'
-  id 'com.github.spotbugs' version "${spotbugs}"
+  id 'com.github.spotbugs' version '5.0.3'
   id 'checkstyle'
   id 'pmd'
-  id 'org.flywaydb.flyway' version "${flywaydb}"
-  id 'org.jetbrains.kotlin.jvm' version "${kotlinjvm}"
-  id 'org.cadixdev.licenser' version "${licenser}"
+  id 'org.flywaydb.flyway' version '8.2.3'
+  id 'org.jetbrains.kotlin.jvm' version '1.6.10'
+  id 'org.cadixdev.licenser' version '0.6.1'
 }
 
 mainClassName = 'com.mcmoddev.mmdbot.MMDBot'
@@ -63,31 +59,27 @@ repositories {
     url 'https://maven.fabricmc.net'
   }
   maven {
-    name 'quilt'
-    url 'https://maven.quiltmc.org/repository/snapshot'
-  }
-  maven {
     name 'jitpack'
     url 'https://jitpack.io'
   }
 }
 
 dependencies {
-  implementation supportDependencies.jda
-  implementation supportDependencies.jdaChewtils
-  implementation supportDependencies.guava
-  implementation supportDependencies.gson
-  implementation supportDependencies.logbackClassic
-  implementation supportDependencies.nightConfig
-  implementation supportDependencies.sqliteJdbc
-  implementation supportDependencies.linkieCore
-  implementation supportDependencies.flywayCore
-  compileOnly supportDependencies.jetbrainsAnnotations
-
+  implementation group: 'pw.chew', name: 'jda-chewtils', version: "${project.jda_chewtils_version}"
+  //implementation group: 'com.jagrosh', name: 'jda-utilities', version: "${project.jdautils_version}"
+  implementation group: 'net.dv8tion', name: 'JDA', version: "${project.jda_version}"
+  implementation group: 'com.google.guava', name: 'guava', version: "${project.guava_version}"
+  implementation group: 'com.google.code.gson', name: 'gson', version: "${project.gson_version}"
+  implementation group: 'ch.qos.logback', name: 'logback-classic', version: "${project.logback_classic_version}"
+  implementation group: 'com.electronwill.night-config', name: 'toml', version: "${project.nightconfig_version}"
+  implementation group: 'org.xerial', name: 'sqlite-jdbc', version: "${project.sqlite_jdbc_version}"
+  implementation group: 'me.shedaniel', name: 'linkie-core', version: "${project.linkie_version}"
   implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: "${project.ktx_coroutines_version}"
   implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-jdk8', version: "${project.ktx_coroutines_version}"
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: "${project.flyway_version}"
   implementation group: 'org.jdbi', name: 'jdbi3-core', version: "${project.jdbi_version}"
   implementation group: 'org.jdbi', name: 'jdbi3-sqlobject', version: "${project.jdbi_version}"
+  compileOnly group: 'org.jetbrains', name: 'annotations', version: "${project.jb_annotations_version}"
 
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: "${project.junit_version}"
 
@@ -107,7 +99,7 @@ jar {
       'Implementation-Vendor': 'Minecraft Mod Development',
       'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
       'Built-On-Java': "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
-      'Built-On': "${jdaVersion}-${jdaChewtilsVersion}",
+      'Built-On': "${project.jda_version}-${project.jda_chewtils_version}",
       'Class-Path': configurations.compileClasspath.collect { it.getName() }.join(' '),
       'Main-Class': 'com.mcmoddev.bot.MMDBot'
     )
@@ -182,7 +174,7 @@ task generatePom {
 spotbugs {
   ignoreFailures = true
   showStackTraces = false
-  toolVersion = '5.0.4'
+  toolVersion = '4.4.1'
   effort = 'max'
   reportLevel = 'low'
   //includeFilter = file("$rootProject.projectDir/config/spotbugs-filter.xml")

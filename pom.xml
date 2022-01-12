@@ -16,8 +16,14 @@
   <dependencies>
     <dependency>
       <groupId>pw.chew</groupId>
-      <artifactId>jda-chewtils</artifactId>
-      <version>1.24.1</version>
+      <artifactId>jda-chewutils</artifactId>
+      <version>1.23.0</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.jagrosh</groupId>
+      <artifactId>jda-utilities</artifactId>
+      <version>3.0.5</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -41,13 +47,13 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.2.10</version>
+      <version>1.2.6</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>com.electronwill.night-config</groupId>
       <artifactId>toml</artifactId>
-      <version>3.6.5</version>
+      <version>3.6.4</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -59,37 +65,37 @@
     <dependency>
       <groupId>me.shedaniel</groupId>
       <artifactId>linkie-core</artifactId>
-      <version>1.0.92</version>
+      <version>1.0.81</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlinx</groupId>
       <artifactId>kotlinx-coroutines-core</artifactId>
-      <version>1.6.0</version>
+      <version>1.5.2</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlinx</groupId>
       <artifactId>kotlinx-coroutines-jdk8</artifactId>
-      <version>1.6.0</version>
+      <version>1.5.2</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
-      <version>8.4.1</version>
+      <version>7.15.0</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.jdbi</groupId>
       <artifactId>jdbi3-core</artifactId>
-      <version>3.27.0</version>
+      <version>3.24.1</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.jdbi</groupId>
       <artifactId>jdbi3-sqlobject</artifactId>
-      <version>3.27.0</version>
+      <version>3.22.0</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
