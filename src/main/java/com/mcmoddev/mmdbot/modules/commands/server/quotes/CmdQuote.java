@@ -20,12 +20,9 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.server.quotes;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.SlashCommand;
-import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.general.PaginatedCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
-import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
 import com.mcmoddev.mmdbot.utilities.quotes.Quote;
 import com.mcmoddev.mmdbot.utilities.quotes.QuoteList;
 import com.mcmoddev.mmdbot.utilities.quotes.StringQuote;
