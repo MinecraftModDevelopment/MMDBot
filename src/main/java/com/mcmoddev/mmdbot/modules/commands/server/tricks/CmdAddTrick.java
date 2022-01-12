@@ -55,7 +55,7 @@ public final class CmdAddTrick extends SlashCommand {
         enabledRoles = new String[]{Long.toString(MMDBot.getConfig().getRole("bot_maintainer"))};
         guildOnly = true;
         // we need to use this unfortunately :( can't create more than one commandclient
-        //guildId = Long.toString(MMDBot.getConfig().getGuildID());
+        guildId = Long.toString(MMDBot.getConfig().getGuildID());
 
         children = Tricks.getTrickTypes().entrySet().stream().map(entry -> new SubCommand(entry.getKey(), entry.getValue())).toArray(SlashCommand[]::new);
     }

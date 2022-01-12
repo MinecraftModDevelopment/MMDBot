@@ -51,7 +51,7 @@ public abstract class PaginatedCommand extends SlashCommand {
 
     // How many items should be sent per individual page. Defaults to the maximum field count for an Embed, 25.
     protected int items_per_page = 25;
-    // The maximum number of items in the list. Update with #updateMaximum
+    // The maxmimum number of items in the list. Update with #updateMaximum
     protected int maximum = 0;
 
     public PaginatedCommand(String name, String help, boolean guildOnly, List<OptionData> options, int items) {

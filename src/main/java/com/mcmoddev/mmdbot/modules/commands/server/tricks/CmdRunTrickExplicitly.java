@@ -55,7 +55,7 @@ public final class CmdRunTrickExplicitly extends SlashCommand {
         category = new Category("Fun");
         guildOnly = true;
         // we need to use this unfortunately :( can't create more than one commandclient
-        //guildId = Long.toString(MMDBot.getConfig().getGuildID());
+        guildId = Long.toString(MMDBot.getConfig().getGuildID());
 
         options = List.of(
             new OptionData(OptionType.STRING, "name", "The name of the trick to run").setRequired(true),

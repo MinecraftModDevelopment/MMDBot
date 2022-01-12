@@ -51,7 +51,7 @@ public final class CmdListTricks extends PaginatedCommand {
         aliases = new String[]{"list-tricks", "tricks"};
         guildOnly = true;
         // we need to use this unfortunately :( can't create more than one commandclient
-        //guildId = Long.toString(MMDBot.getConfig().getGuildID());
+        guildId = Long.toString(MMDBot.getConfig().getGuildID());
         listener = new TrickListListener();
     }
 

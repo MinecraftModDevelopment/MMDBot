@@ -56,7 +56,7 @@ public final class CmdRemoveTrick extends SlashCommand {
         enabledRoles = new String[]{Long.toString(MMDBot.getConfig().getRole("bot_maintainer"))};
         guildOnly = true;
         // we need to use this unfortunately :( can't create more than one commandclient
-        //guildId = Long.toString(MMDBot.getConfig().getGuildID());
+        guildId = Long.toString(MMDBot.getConfig().getGuildID());
 
         options = Collections.singletonList(new OptionData(OptionType.STRING, "trick", "The trick to delete.").setRequired(true));
     }

@@ -72,7 +72,7 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
 
 
         val queryString = event.getOption("query")?.asString ?: ""
-        val version = event.getOption("version")?.asString ?: namespace.defaultVersion
+        val version = event.getOption("version")?.asString ?: namespace.getDefaultVersion()
 
         scope.launch {
             val provider = namespace.getProvider(version)
