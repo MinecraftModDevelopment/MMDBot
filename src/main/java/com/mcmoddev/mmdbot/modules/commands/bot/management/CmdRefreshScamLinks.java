@@ -23,7 +23,7 @@ public class CmdRefreshScamLinks extends Command {
 
     @Override
     protected void execute(final CommandEvent event) {
-        event.getMessage().reply("Refreshing scam links...").queue(msg -> {
+        event.getMessage().reply("Refreshing scam links...").mentionRepliedUser(false).queue(msg -> {
             new Thread(() -> {
                 ScamDetector.setupScamLinks();
                 msg.editMessage("Scam links successfully refreshed!").queue();
