@@ -23,15 +23,20 @@ package com.mcmoddev.mmdbot.modules.logging.misc;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.utils.MarkdownUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
@@ -42,6 +47,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.function.Consumer;
+import java.util.stream.StreamSupport;
 
 /**
  * Scam detection system
@@ -64,12 +72,10 @@ public class ScamDetector extends ListenerAdapter {
         if (containsScam(msg)) {
             final var member = msg.getMember();
             final var guild = msg.getGuild();
-            final var mutedRoleID = MMDBot.getConfig().getRole("muted");
             final var embed = getLoggingEmbed(msg, "");
             msg.delete().queue($ -> {
-                getLoggingChannel(guild).sendMessageEmbeds(embed).queue();
-                // TODO once JDA is updated, maybe timeout the user. It seems a better idea
-                guild.addRoleToMember(member, guild.getRoleById(mutedRoleID)).queue();
+                executeInLoggingChannel(channel -> channel.sendMessageEmbeds(embed).queue());
+                mute(guild, member);
             });
         }
     }
@@ -79,36 +85,44 @@ public class ScamDetector extends ListenerAdapter {
         final var msg = event.getMessage();
         if (containsScam(msg)) {
             final var member = msg.getMember();
-            final var msgChannel = msg.getTextChannel();
             final var guild = msg.getGuild();
-            final var mutedRoleID = MMDBot.getConfig().getRole("muted");
             final var embed = getLoggingEmbed(msg, ", by editing an old message");
             msg.delete().queue($ -> {
-                getLoggingChannel(guild).sendMessageEmbeds(embed).queue();
-                // TODO once JDA is updated, maybe timeout the user. It seems a better idea
-                guild.addRoleToMember(member, guild.getRoleById(mutedRoleID)).queue();
+                executeInLoggingChannel(channel -> channel.sendMessageEmbeds(embed).queue());
+                mute(guild, member);
             });
         }
+    }
+
+    private static void mute(final Guild guild, final Member member) {
+        final var mutedRoleID = MMDBot.getConfig().getRole("muted");
+        // TODO once JDA is updated, maybe timeout the user. It seems a better idea
+        final var mutedRole = guild.getRoleById(mutedRoleID);
+        if (mutedRole == null) {
+            MMDBot.LOGGER.error(MMDMarkers.MUTING, "Unable to find muted role {}", mutedRoleID);
+            return;
+        }
+        guild.addRoleToMember(member, mutedRole).queue();
     }
 
     private static MessageEmbed getLoggingEmbed(final Message message, final String extraDescription) {
         final var member = message.getMember();
         return new EmbedBuilder().setTitle("Scam link detected!")
-            .setDescription(String.format("User %s sent a scam link in %s%s! Their message was deleted, and they were muted!", member.getAsMention(),
+            .setDescription(String.format("User %s sent a scam link in %s%s. Their message was deleted, and they were muted.", member.getUser().getAsTag(),
                 message.getTextChannel().getAsMention(), extraDescription))
-            .addField("Message Content", "> " + message.getContentRaw(), false)
+            .addField("Message Content", MarkdownUtil.codeblock(message.getContentRaw()), false)
             .setColor(Color.RED)
             .setTimestamp(Instant.now())
             .setFooter("User ID: " + member.getIdLong())
             .setThumbnail(member.getEffectiveAvatarUrl()).build();
     }
 
-    private static TextChannel getLoggingChannel(final Guild guild) {
-        return guild.getTextChannelById(MMDBot.getConfig().getChannel("events.requests_deletion"));
+    private static void executeInLoggingChannel(Consumer<TextChannel> channel) {
+        Utils.getChannelIfPresent(MMDBot.getConfig().getChannel("events.requests_deletion"), channel);
     }
 
     public static boolean containsScam(final Message message) {
-        final String msgContent = message.getContentRaw().toLowerCase();
+        final String msgContent = message.getContentRaw().toLowerCase(Locale.ROOT);
         for (final var link : SCAM_LINKS) {
             if (msgContent.contains(link)) {
                 return true;
@@ -117,12 +131,13 @@ public class ScamDetector extends ListenerAdapter {
         return false;
     }
 
-    private static void setupScamLinks() {
+    public static void setupScamLinks() {
+        SCAM_LINKS.clear();
         MMDBot.LOGGER.debug("Setting up scam links! Receiving data from {}.", SCAM_LINKS_DATA_URL);
         try (var is = new URL(SCAM_LINKS_DATA_URL).openStream()) {
             final String result = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-            GSON.fromJson(result, JsonArray.class)
-                .forEach(link -> SCAM_LINKS.add(link.getAsString()));
+            SCAM_LINKS.addAll(StreamSupport.stream(GSON.fromJson(result, JsonArray.class).spliterator(), false)
+                .map(JsonElement::getAsString).toList());
         } catch (final IOException e) {
             MMDBot.LOGGER.error("Error while setting up scam links!", e);
         }

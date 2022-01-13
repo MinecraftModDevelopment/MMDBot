@@ -28,6 +28,7 @@ import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdHelp;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdUptime;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
+import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRefreshScamLinks;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdCatFacts;
@@ -125,6 +126,7 @@ public class CommandModule {
             .addSlashCommands(CmdMappings.createCommands()) // TODO: This is broken beyond belief. Consider moving away from linkie. - Curle
             .addSlashCommands(CmdTranslateMappings.createCommands())
             .addSlashCommand(new CmdQuote())
+            .addCommand(new CmdRefreshScamLinks())
             .build();
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
