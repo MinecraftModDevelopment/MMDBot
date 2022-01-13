@@ -104,7 +104,7 @@ public class ScamDetector extends ListenerAdapter {
     }
 
     private static TextChannel getLoggingChannel(final Guild guild) {
-        return guild.getTextChannelById(MMDBot.getConfig().getChannel("events.important"));
+        return guild.getTextChannelById(MMDBot.getConfig().getChannel("events.requests_deletion"));
     }
 
     public static boolean containsScam(final Message message) {
