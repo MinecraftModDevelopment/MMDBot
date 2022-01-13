@@ -78,7 +78,7 @@ public class ScamDetector extends ListenerAdapter {
         if (containsScam(msg)) {
             final var guild = msg.getGuild();
             final var embed = getLoggingEmbed(msg, "");
-            msg.delete().queue($ -> {
+            msg.delete().reason("Scam link").queue($ -> {
                 executeInLoggingChannel(channel -> channel.sendMessageEmbeds(embed).queue());
                 mute(guild, member);
             });
@@ -96,7 +96,7 @@ public class ScamDetector extends ListenerAdapter {
         if (containsScam(msg)) {
             final var guild = msg.getGuild();
             final var embed = getLoggingEmbed(msg, ", by editing an old message");
-            msg.delete().queue($ -> {
+            msg.delete().reason("Scam link").queue($ -> {
                 executeInLoggingChannel(channel -> channel.sendMessageEmbeds(embed).queue());
                 mute(guild, member);
             });
