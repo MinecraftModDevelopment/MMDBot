@@ -27,6 +27,7 @@ import com.mcmoddev.mmdbot.MMDBot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
@@ -42,6 +43,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Scam detection system
+ * @author matyrobbrt
+ */
 public class ScamDetector extends ListenerAdapter {
 
     public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
@@ -58,20 +63,12 @@ public class ScamDetector extends ListenerAdapter {
         final var msg = event.getMessage();
         if (containsScam(msg)) {
             final var member = msg.getMember();
-            final var msgChannel = msg.getTextChannel();
             final var guild = msg.getGuild();
             final var mutedRoleID = MMDBot.getConfig().getRole("muted");
+            final var embed = getLoggingEmbed(msg, "");
             msg.delete().queue($ -> {
-                final var embed = new EmbedBuilder()
-                    .setTitle("Scam link detected!")
-                    .setDescription(String.format("User %s sent a scam link in %s! Their message was deleted, and they were muted!", member.getAsMention(),
-                        msgChannel.getAsMention()))
-                    .setColor(Color.RED)
-                    .setTimestamp(Instant.now())
-                    .setFooter("User ID: " + member.getIdLong())
-                    .setThumbnail(member.getEffectiveAvatarUrl());
-                getLoggingChannel(guild).sendMessageEmbeds(embed.build()).queue();
-                msgChannel.sendMessage(String.format("%s did you *really* think that would work?", member.getAsMention())).queue();
+                getLoggingChannel(guild).sendMessageEmbeds(embed).queue();
+                // TODO once JDA is updated, maybe timeout the user. It seems a better idea
                 guild.addRoleToMember(member, guild.getRoleById(mutedRoleID)).queue();
             });
         }
@@ -85,20 +82,25 @@ public class ScamDetector extends ListenerAdapter {
             final var msgChannel = msg.getTextChannel();
             final var guild = msg.getGuild();
             final var mutedRoleID = MMDBot.getConfig().getRole("muted");
+            final var embed = getLoggingEmbed(msg, ", by editing an old message");
             msg.delete().queue($ -> {
-                final var embed = new EmbedBuilder()
-                    .setTitle("Scam link detected!")
-                    .setDescription(String.format("User %s sent a scam link in %s, by editing an old message! Their message was deleted, and they were muted!", member.getAsMention(),
-                        msgChannel.getAsMention()))
-                    .setColor(Color.RED)
-                    .setTimestamp(Instant.now())
-                    .setFooter("User ID: " + member.getIdLong())
-                    .setThumbnail(member.getEffectiveAvatarUrl());
-                getLoggingChannel(guild).sendMessageEmbeds(embed.build()).queue();
-                msgChannel.sendMessage(String.format("%s did you *really* think that would work?", member.getAsMention())).queue();
+                getLoggingChannel(guild).sendMessageEmbeds(embed).queue();
+                // TODO once JDA is updated, maybe timeout the user. It seems a better idea
                 guild.addRoleToMember(member, guild.getRoleById(mutedRoleID)).queue();
             });
         }
+    }
+
+    private static MessageEmbed getLoggingEmbed(final Message message, final String extraDescription) {
+        final var member = message.getMember();
+        return new EmbedBuilder().setTitle("Scam link detected!")
+            .setDescription(String.format("User %s sent a scam link in %s%s! Their message was deleted, and they were muted!", member.getAsMention(),
+                message.getTextChannel().getAsMention(), extraDescription))
+            .addField("Message Content", "> " + message.getContentRaw(), false)
+            .setColor(Color.RED)
+            .setTimestamp(Instant.now())
+            .setFooter("User ID: " + member.getIdLong())
+            .setThumbnail(member.getEffectiveAvatarUrl()).build();
     }
 
     private static TextChannel getLoggingChannel(final Guild guild) {
