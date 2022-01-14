@@ -148,7 +148,7 @@ public class ScamDetector extends ListenerAdapter {
         try (var is = new URL(SCAM_LINKS_DATA_URL).openStream()) {
             final String result = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             SCAM_LINKS.addAll(StreamSupport.stream(GSON.fromJson(result, JsonArray.class).spliterator(), false)
-                .map(JsonElement::getAsString).toList());
+                .map(JsonElement::getAsString).filter(s -> !s.contains("discordapp.co")).toList());
         } catch (final IOException e) {
             MMDBot.LOGGER.error("Error while setting up scam links!", e);
         }
