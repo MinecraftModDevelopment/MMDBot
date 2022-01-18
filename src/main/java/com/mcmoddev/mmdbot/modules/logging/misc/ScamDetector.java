@@ -34,12 +34,13 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.awt.Color;
 import java.io.IOException;
 import java.net.URL;
@@ -68,26 +69,16 @@ public class ScamDetector extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildMessageReceived(@NotNull final GuildMessageReceivedEvent event) {
-        final var msg = event.getMessage();
-        final var member = msg.getMember();
-        if (member == null || msg.getAuthor().isBot() || msg.getAuthor().isSystem() ||
-            member.hasPermission(Permission.MANAGE_CHANNEL)) {
-            return;
-        }
-        if (containsScam(msg)) {
-            final var guild = msg.getGuild();
-            final var embed = getLoggingEmbed(msg, "");
-            msg.delete().reason("Scam link").queue($ -> {
-                executeInLoggingChannel(channel -> channel.sendMessageEmbeds(embed).queue());
-                mute(guild, member);
-            });
-        }
+    public void onGuildMessageReceived(@Nonnull final GuildMessageReceivedEvent event) {
+        takeActionIfScam(event.getMessage(), "");
     }
 
     @Override
-    public void onGuildMessageUpdate(@NotNull final GuildMessageUpdateEvent event) {
-        final var msg = event.getMessage();
+    public void onGuildMessageUpdate(@Nonnull final GuildMessageUpdateEvent event) {
+        takeActionIfScam(event.getMessage(), ", by editing an old message");
+    }
+
+    public static void takeActionIfScam(@Nonnull final Message msg, @Nonnull final String loggingReason) {
         final var member = msg.getMember();
         if (member == null || msg.getAuthor().isBot() || msg.getAuthor().isSystem() ||
             member.hasPermission(Permission.MANAGE_CHANNEL)) {
@@ -95,7 +86,7 @@ public class ScamDetector extends ListenerAdapter {
         }
         if (containsScam(msg)) {
             final var guild = msg.getGuild();
-            final var embed = getLoggingEmbed(msg, ", by editing an old message");
+            final var embed = getLoggingEmbed(msg, loggingReason);
             msg.delete().reason("Scam link").queue($ -> {
                 executeInLoggingChannel(channel -> channel.sendMessageEmbeds(embed).queue());
                 mute(guild, member);
@@ -142,15 +133,17 @@ public class ScamDetector extends ListenerAdapter {
         return false;
     }
 
-    public static void setupScamLinks() {
-        SCAM_LINKS.clear();
+    public static boolean setupScamLinks() {
         MMDBot.LOGGER.debug("Setting up scam links! Receiving data from {}.", SCAM_LINKS_DATA_URL);
         try (var is = new URL(SCAM_LINKS_DATA_URL).openStream()) {
             final String result = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            SCAM_LINKS.clear();
             SCAM_LINKS.addAll(StreamSupport.stream(GSON.fromJson(result, JsonArray.class).spliterator(), false)
                 .map(JsonElement::getAsString).filter(s -> !s.contains("discordapp.co")).toList());
+            return true;
         } catch (final IOException e) {
             MMDBot.LOGGER.error("Error while setting up scam links!", e);
         }
+        return false;
     }
 }

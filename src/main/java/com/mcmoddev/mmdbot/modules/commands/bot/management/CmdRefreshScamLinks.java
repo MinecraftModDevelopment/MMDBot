@@ -25,9 +25,12 @@ public class CmdRefreshScamLinks extends Command {
     protected void execute(final CommandEvent event) {
         event.getMessage().reply("Refreshing scam links...").mentionRepliedUser(false).queue(msg -> {
             new Thread(() -> {
-                ScamDetector.setupScamLinks();
-                msg.editMessage("Scam links successfully refreshed!").queue();
-            }, "Refreshing scam links").start();
+                if (ScamDetector.setupScamLinks()) {
+                    msg.editMessage("Scam links successfully refreshed!").queue();
+                } else {
+                    msg.editMessage("Scam links could not be refreshed! This is most likely caused by a connection issue.").queue();
+                }
+            }, "RefreshingScamLinks").start();
         });
     }
 }
