@@ -21,12 +21,14 @@
 package com.mcmoddev.mmdbot.core;
 
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.modules.logging.misc.ScamDetector;
 import com.mcmoddev.mmdbot.utilities.oldchannels.ChannelMessageChecker;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.fabric.FabricApiUpdateNotifier;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.forge.ForgeUpdateNotifier;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.minecraft.MinecraftUpdateNotifier;
 
 import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * The type Task scheduler.
@@ -63,5 +65,15 @@ public final class TaskScheduler {
         TIMER.scheduleAtFixedRate(new MinecraftUpdateNotifier(), 0, fifteenMinutes);
         TIMER.scheduleAtFixedRate(new FabricApiUpdateNotifier(), 0, fifteenMinutes);
         TIMER.scheduleAtFixedRate(new ChannelMessageChecker(), 0, 1000 * 60 * 60 * 24);
+        TIMER.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (ScamDetector.setupScamLinks()) {
+                    MMDBot.LOGGER.info("Successfully refreshed scam links");
+                } else {
+                    MMDBot.LOGGER.warn("Scam links could not be automatically refreshed");
+                }
+            }
+        }, 0, 1000 * 60 * 60 * 24 * 7);
     }
 }
