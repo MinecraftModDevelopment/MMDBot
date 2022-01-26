@@ -182,7 +182,7 @@ task generatePom {
 spotbugs {
   ignoreFailures = true
   showStackTraces = false
-  toolVersion = '4.4.1'
+  toolVersion = '4.5.3'
   effort = 'max'
   reportLevel = 'low'
   //includeFilter = file("$rootProject.projectDir/config/spotbugs-filter.xml")
