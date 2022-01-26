@@ -34,11 +34,11 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.message.guild.GenericGuildMessageEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.awt.Color;
@@ -50,8 +50,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
@@ -71,13 +70,17 @@ public class ScamDetector extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildMessageReceived(@Nonnull final GuildMessageReceivedEvent event) {
-        takeActionIfScam(event.getMessage(), "");
+    public void onMessageReceived(@NotNull final MessageReceivedEvent event) {
+        if (event.isFromGuild()) {
+            takeActionIfScam(event.getMessage(), "");
+        }
     }
 
     @Override
-    public void onGuildMessageUpdate(@Nonnull final GuildMessageUpdateEvent event) {
-        takeActionIfScam(event.getMessage(), ", by editing an old message");
+    public void onMessageUpdate(@NotNull final MessageUpdateEvent event) {
+        if (event.isFromGuild()) {
+            takeActionIfScam(event.getMessage(), ", by editing an old message");
+        }
     }
 
     public static void takeActionIfScam(@Nonnull final Message msg, @Nonnull final String loggingReason) {
@@ -97,14 +100,7 @@ public class ScamDetector extends ListenerAdapter {
     }
 
     private static void mute(final Guild guild, final Member member) {
-        final var mutedRoleID = MMDBot.getConfig().getRole("muted");
-        // TODO once JDA is updated, maybe timeout the user. It seems a better idea
-        final var mutedRole = guild.getRoleById(mutedRoleID);
-        if (mutedRole == null) {
-            MMDBot.LOGGER.error(MMDMarkers.MUTING, "Unable to find muted role {}", mutedRoleID);
-            return;
-        }
-        guild.addRoleToMember(member, mutedRole).queue();
+        guild.timeoutFor(member, 14, TimeUnit.DAYS).reason("Sent a scam link").queue(); // 2 weeks timeout
     }
 
     private static MessageEmbed getLoggingEmbed(final Message message, final String extraDescription) {

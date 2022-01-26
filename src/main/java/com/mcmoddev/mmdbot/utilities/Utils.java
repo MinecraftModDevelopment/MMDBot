@@ -27,9 +27,11 @@ import com.mcmoddev.mmdbot.modules.commands.server.DeletableCommand;
 import com.mcmoddev.mmdbot.utilities.database.dao.PersistedRoles;
 import com.mcmoddev.mmdbot.utilities.database.dao.UserFirstJoins;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Channel;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -189,6 +191,19 @@ public final class Utils {
         if (roles.size() == 0)
             return null;
         return roles.get(0);
+    }
+
+    /**
+     * Gets a role with the specified {@code roleId} from the specifed {@code guild}
+     * @param guild the guild to get the role from
+     * @param roleId the id of the role to get
+     * @param ifPresent a consumer accepting the role, if it exists
+     */
+    public static void getRoleIfPresent(final Guild guild, final long roleId, final Consumer<Role> ifPresent) {
+        final var role = guild.getRoleById(roleId);
+        if (role != null) {
+            ifPresent.accept(role);
+        }
     }
 
     /**
@@ -563,4 +578,14 @@ public final class Utils {
         return getOrEmpty(event.getOption(name));
     }
 
+    /**
+     * Creates a discord link pointing to the specified message
+     * @param guildId the ID of the guild of the message
+     * @param channelId the ID of the channel of the message
+     * @param messageId the message ID
+     * @return the message link
+     */
+    public static String makeMessageLink(final long guildId, final long channelId, final long messageId) {
+        return "https://discord.com/channels/%s/%s/%s".formatted(guildId, channelId, messageId);
+    }
 }

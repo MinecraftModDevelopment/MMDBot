@@ -47,6 +47,8 @@ import com.mcmoddev.mmdbot.modules.commands.server.DeletableCommand;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdMute;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdOldChannels;
+import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdReact;
+import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdRolePanel;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUnmute;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
 import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdQuote;
@@ -126,7 +128,9 @@ public class CommandModule {
             .addSlashCommands(CmdMappings.createCommands()) // TODO: This is broken beyond belief. Consider moving away from linkie. - Curle
             .addSlashCommands(CmdTranslateMappings.createCommands())
             .addSlashCommand(new CmdQuote())
+            .addSlashCommand(new CmdRolePanel())
             .addCommand(new CmdRefreshScamLinks())
+            .addCommand(new CmdReact())
             .build();
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
