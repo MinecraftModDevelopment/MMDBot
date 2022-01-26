@@ -325,7 +325,7 @@ public final class Utils {
             }
 
             final var channelID = event.getChannel().getIdLong();
-            @Nullable final var category = event.getTextChannel().getParent();
+            @Nullable final var category = event.getTextChannel().getParentCategory();
             boolean allowed;
             if (category == null) {
                 allowed = allowedChannels.stream().anyMatch(id -> id == channelID);
@@ -413,7 +413,7 @@ public final class Utils {
             }
 
             final var channelID = event.getChannel().getIdLong();
-            @Nullable final var category = event.getTextChannel().getParent();
+            @Nullable final var category = event.getTextChannel().getParentCategory();
             boolean allowed;
             if (category == null) {
                 allowed = allowedChannels.stream().anyMatch(id -> id == channelID);
@@ -493,7 +493,7 @@ public final class Utils {
             final var channelID = event.getChannel().getIdLong();
             final List<Long> blockedChannels = getConfig().getBlockedChannels(command.getName(),
                 event.getGuild().getIdLong());
-            @Nullable final var category = event.getTextChannel().getParent();
+            @Nullable final var category = event.getTextChannel().getParentCategory();
             if (category != null) {
                 final var categoryID = category.getIdLong();
                 return blockedChannels.stream()
@@ -517,7 +517,7 @@ public final class Utils {
             final var channelID = event.getChannel().getIdLong();
             final List<Long> blockedChannels = getConfig().getBlockedChannels(command.getName(),
                 event.getGuild().getIdLong());
-            @Nullable final var category = event.getTextChannel().getParent();
+            @Nullable final var category = event.getTextChannel().getParentCategory();
             if (category != null) {
                 final var categoryID = category.getIdLong();
                 return blockedChannels.stream()

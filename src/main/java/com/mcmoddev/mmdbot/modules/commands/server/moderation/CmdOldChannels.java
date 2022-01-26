@@ -117,7 +117,7 @@ public final class CmdOldChannels extends SlashCommand {
 
         guild.getTextChannels().stream()
             .distinct()
-            .filter(c -> category == null || c.getParent() != null && c.getParent().getIdLong() == category.getAsLong())
+            .filter(c -> category == null || c.getParentCategory() != null && c.getParentCategoryIdLong() == category.getAsLong())
             .map(channel -> new ChannelData(channel, OldChannelsHelper.getLastMessageTime(channel)))
             .forEach(channelData -> {
                 if (channelData.days > dayThreshold) {

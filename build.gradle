@@ -52,7 +52,7 @@ repositories {
   }
   maven {
     name 'jda-chewtils'
-    url 'https://m2.chew.pro/releases'
+    url 'https://m2.chew.pro/snapshots'
   }
   maven {
     name 'linkie'
@@ -77,7 +77,7 @@ dependencies {
   implementation supportDependencies.jdaChewtils
   implementation supportDependencies.guava
   implementation supportDependencies.gson
-  implementation supportDependencies.logbackClassic
+  // implementation supportDependencies.logbackClassic
   implementation supportDependencies.nightConfig
   implementation supportDependencies.sqliteJdbc
   implementation supportDependencies.linkieCore
