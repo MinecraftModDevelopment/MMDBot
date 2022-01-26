@@ -30,6 +30,7 @@ import com.google.common.io.Resources;
 import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
 import com.mcmoddev.mmdbot.MMDBot;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Message;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -470,5 +471,25 @@ public final class BotConfig {
      */
     public boolean isEventLoggingModuleEnabled() {
         return config.<Boolean>getOrElse("modules.event_logging_module_enabled", true);
+    }
+
+    /**
+     * Gets the role associated with the {@code emote} from the specified role panel
+     * @param channelId the channel ID of the role panel
+     * @param messageId the message ID of the role panel
+     * @param emote the emote
+     * @return
+     */
+    public long getRoleForRolePanel(final long channelId, final long messageId, final String emote) {
+        return config.<Long>getOrElse("role_panels.%s-%s.%s".formatted(channelId, messageId, emote), 0l);
+    }
+
+    public long getRoleForRolePanel(final Message message, final String emote) {
+        return getRoleForRolePanel(message.getChannel().getIdLong(), message.getIdLong(), emote);
+    }
+
+    public void addRolePanel(final long channelId, final long messageId, final String emote, final long roleId) {
+        config.set("role_panels.%s-%s.%s".formatted(channelId, messageId, emote), roleId);
+        config.save();
     }
 }
