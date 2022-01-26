@@ -77,22 +77,28 @@ public final class CmdRolePanel extends SlashCommand {
                 var channel = event.getChannel();
                 var msgIdStr = Utils.getOrEmpty(event.getOption("message_id"));
                 if (msgIdStr.contains("-")) {
-                    channel = event.getGuild().getTextChannelById(msgIdStr.substring(0, msgIdStr.indexOf('-')));
+                    // Accept the `channelID-messageID` format Discord gives when using the Copy ID button
+                    final var newChannel = event.getGuild().getTextChannelById(msgIdStr.substring(0, msgIdStr.indexOf('-')));
+                    if (newChannel != null) {
+                        channel = newChannel;
+                    }
                     msgIdStr = msgIdStr.substring(msgIdStr.indexOf('-') + 1);
                 }
-                final var channelId = channel.getIdLong();
+                final var channelId = channel.getIdLong(); // Field must be final for lambda usage
                 final long messageId = Long.parseLong(msgIdStr);
                 final var role = event.getOption("role").getAsRole();
                 final var emote = Emoji.fromMarkdown(Utils.getOrEmpty(event.getOption("emote")));
                 final var emoteStr = getEmoteAsString(emote);
 
                 channel.addReactionById(messageId, emoteStr).queue($ -> {
+                    // The config expects emote IDs, but the emoteStr is also prefixed with :emojiName:
                     MMDBot.getConfig().addRolePanel(channelId, messageId, emote.isCustom() ? emote.getId() : emoteStr, role.getIdLong());
                     event.deferReply(true).addEmbeds(new EmbedBuilder().setColor(Color.GREEN).setDescription("Action successful. [Jump to message.](%s)"
                         .formatted(Utils.makeMessageLink(event.getGuild().getIdLong(), channelId, messageId))).build()).mentionRepliedUser(false).queue();
                 }, e -> event.deferReply(true).setContent("There was an exception while trying to execute that command: **%s**"
                     .formatted(e.getLocalizedMessage())).mentionRepliedUser(false).queue());
             } catch (Exception e) {
+                // Usually a NumberFormattingException, but in case something else throws
                 event.deferReply(true).setContent("There was an exception while trying to execute that command: **%s**"
                     .formatted(e.getLocalizedMessage())).mentionRepliedUser(false).queue();
                 MMDBot.LOGGER.error("There was an error running the `/role-panel add-role` command", e);
@@ -101,7 +107,9 @@ public final class CmdRolePanel extends SlashCommand {
     }
 
     public static String getEmoteAsString(final Emoji emoji) {
-        return emoji.isCustom() ? emoji.getAsMention().replaceAll("<", "").replaceAll(">", "") : EncodingUtil.encodeCodepoints(emoji.getName());
+        return emoji.isCustom() ? emoji.getAsMention().replaceAll("[<>]*", "")
+            /* this will give the emoji in the format emojiName:emojiId */ :
+            EncodingUtil.encodeCodepoints(emoji.getName());
     }
 
 }

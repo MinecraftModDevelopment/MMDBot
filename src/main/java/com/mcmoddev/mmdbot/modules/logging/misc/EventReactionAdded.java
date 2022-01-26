@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -81,9 +82,6 @@ public final class EventReactionAdded extends ListenerAdapter {
      */
     @Override
     public void onMessageReactionAdd(final MessageReactionAddEvent event) {
-        if (!event.isFromGuild() || event.getUser().isBot() || event.getUser().isSystem()) {
-            return;
-        }
         handleRolePanels(event);
         final var channel = event.getTextChannel();
         final MessageHistory history = MessageHistory.getHistoryAround(channel,
@@ -254,26 +252,29 @@ public final class EventReactionAdded extends ListenerAdapter {
     }
 
     private void handleRolePanels(@Nonnull final MessageReactionAddEvent event) {
-        final var emote = getEmoteAsString(event.getReactionEmote());
-        final var roleId = MMDBot.getConfig().getRoleForRolePanel(event.getChannel().getIdLong(), event.getMessageIdLong(), emote);
-        Utils.getRoleIfPresent(event.getGuild(), roleId, role -> {
-            final var member = event.getMember();
-            if (!member.getRoles().contains(role)) {
-                event.getGuild().addRoleToMember(member, role).reason("Reaction Roles").queue();
-            }
-        });
+        doRolePanelStuff(event, false);
     }
 
     @Override
     public void onMessageReactionRemove(@Nonnull final MessageReactionRemoveEvent event) {
-        if (!event.isFromGuild() || event.getUser().isBot() || event.getUser().isSystem()) {
+        doRolePanelStuff(event, true);
+    }
+
+    private void doRolePanelStuff(final GenericMessageReactionEvent event, final boolean isRemove) {
+        if (!event.isFromGuild() || event.getUser() != null && event.getUser().isBot() || event.getUser().isSystem()) {
             return;
         }
         final var emote = getEmoteAsString(event.getReactionEmote());
         Utils.getRoleIfPresent(event.getGuild(), MMDBot.getConfig().getRoleForRolePanel(event.getChannel().getIdLong(), event.getMessageIdLong(), emote), role -> {
             final var member = event.getMember();
-            if (member.getRoles().contains(role)) {
-                event.getGuild().removeRoleFromMember(member, role).reason("Reaction Roles").queue();
+            if (isRemove) {
+                if (member.getRoles().contains(role)) {
+                    event.getGuild().removeRoleFromMember(member, role).reason("Reaction Roles").queue();
+                }
+            } else {
+                if (!member.getRoles().contains(role)) {
+                    event.getGuild().addRoleToMember(member, role).reason("Reaction Roles").queue();
+                }
             }
         });
     }
