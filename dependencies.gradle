@@ -2,7 +2,7 @@
 ext {
     // -- PLUGINS
     shadow = "7.1.2"
-    spotbugs = "5.0.4"
+    spotbugs = "5.0.5"
     flywaydb = "8.4.1"
     kotlinjvm = "1.6.10"
     licenser = "0.6.1"
