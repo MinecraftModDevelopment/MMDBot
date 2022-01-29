@@ -20,12 +20,11 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.server.tricks;
 
-import com.mcmoddev.mmdbot.MMDBot;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.modules.commands.general.PaginatedCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.time.Instant;
 import java.util.ArrayList;

@@ -22,7 +22,7 @@ package com.mcmoddev.mmdbot.modules.commands.bot.management;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 
 import java.util.Timer;
 import java.util.TimerTask;
