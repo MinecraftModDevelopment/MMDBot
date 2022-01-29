@@ -134,7 +134,7 @@ public class CommandModule {
             .addCommand(new CmdRefreshScamLinks())
             .addCommand(new CmdReact())
             // Context menus
-            .addContextMenu(new ContextMenuAddQuote()) // TODO currently this does not work due to a bug with chewtils, where it tries to find the menu name, LOWERCASED
+            .addContextMenu(new ContextMenuAddQuote())
             .build();
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
