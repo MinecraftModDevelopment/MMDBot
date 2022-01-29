@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.modules.commands;
 
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import com.jagrosh.jdautilities.command.ContextMenu;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
@@ -31,6 +32,7 @@ import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRefreshScamLinks;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
+import com.mcmoddev.mmdbot.modules.commands.contextmenu.message.ContextMenuAddQuote;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdCatFacts;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdFabricVersion;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdForgeVersion;
@@ -131,6 +133,8 @@ public class CommandModule {
             .addSlashCommand(new CmdRolePanel())
             .addCommand(new CmdRefreshScamLinks())
             .addCommand(new CmdReact())
+            // Context menus
+            .addContextMenu(new ContextMenuAddQuote()) // TODO currently this does not work due to a bug with chewtils, where it tries to find the menu name, LOWERCASED
             .build();
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
@@ -196,5 +200,14 @@ public class CommandModule {
         } else {
             MMDBot.getInstance().upsertCommand(cmd.buildCommandData()).queue();
         }
+    }
+
+    /**
+     * Upserts a context menu.
+     *
+     * @param cmd the command
+     */
+    public static void upsertContextMenu(final ContextMenu cmd) {
+        MMDBot.getInstance().upsertCommand(cmd.buildCommandData()).queue();
     }
 }
