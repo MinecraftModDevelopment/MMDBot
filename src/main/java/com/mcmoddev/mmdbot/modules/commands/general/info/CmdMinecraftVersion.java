@@ -21,10 +21,10 @@
 package com.mcmoddev.mmdbot.modules.commands.general.info;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.minecraft.MinecraftVersionHelper;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -46,7 +46,7 @@ public final class CmdMinecraftVersion extends SlashCommand {
         help = "Get the latest Minecraft versions";
         category = new Category("Info");
         aliases = new String[]{"minecraftv", "mcv"};
-        guildOnly = true;
+        guildOnly = false;
     }
 
     /**

@@ -8,6 +8,10 @@
     # A value with the character '!' will be considered as being empty or unconfigured.
     token = "!!! Insert token here !!!"
 
+    # The PAT (Personal Access Token) used for connecting to GitHub for creating Gists
+    # A value with the character '!' will be considered as being empty or unconfigured.
+    githubToken = ""
+
     # The snowflake ID of a user, to be the owner of this bot.
     # The owner has access to owner-only bot commands.
     owner = ""
@@ -30,6 +34,10 @@
     # This channel will receive different bot messages
     # Currently receives: failures to reapply roles on user rejoin, muting a user, unmuting a user
     console = ""
+
+    # The snowflake ID (or alias) of the free mod ideas channel
+    # This channel will have a thread created for every message, intended to be the place where the idea should be discussed
+    free_mod_ideas = ""
 
     # Configuration of event logging channels
     # These channels will receive messages for different events within the guild
@@ -146,6 +154,15 @@
     # Note: the bot can only assign permissions to channel owners if the bot has those permissions
     # Example: ["Manage Messages", "MANAGE_PERMISSIONS"]
     owner_permissions = []
+
+# This controls role panels. One role panel can be setup like this:
+# [role_panels.channelID-messageID]
+#     emoteIDOrName = roleID
+# Unicode codes have to be prefixed by an U+ AND any letters inside them have to be lowercase
+# Exmaple:
+# [role_panels.935833185072316506-935833199953707079]
+#        "U+1f54b" = 930844449838350486
+[role_panels]
 
 # Enable or disable modules of the bot for both development and to stop problmatic modules when live should API's break.
 [modules]

@@ -21,10 +21,10 @@
 package com.mcmoddev.mmdbot.modules.commands.server.moderation;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -101,7 +101,7 @@ public class CmdUser extends SlashCommand {
      * @param member the member
      * @return EmbedBuilder. embed builder
      */
-    protected EmbedBuilder createMemberEmbed(final Member member) {
+    public static EmbedBuilder createMemberEmbed(final Member member) {
         final var user = member.getUser();
         final var embed = new EmbedBuilder();
         final var dateJoinedDiscord = member.getTimeCreated().toInstant();
@@ -122,7 +122,7 @@ public class CmdUser extends SlashCommand {
 
         final var date = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH);
         embed.addField("Joined Discord:", date.format(dateJoinedDiscord.toEpochMilli()), true);
-        if (dateJoinedMMD == null) {
+        if (dateJoinedMMD != null) {
             embed.addField("Joined MMD:", date.format(dateJoinedMMD.toEpochMilli()), true);
             embed.addField("Member for:", Utils.getTimeDifference(Utils.getTimeFromUTC(dateJoinedMMD),
                 OffsetDateTime.now(ZoneOffset.UTC)), true);

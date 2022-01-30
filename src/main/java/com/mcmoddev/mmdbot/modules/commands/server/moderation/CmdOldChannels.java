@@ -20,14 +20,13 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.server.moderation;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.oldchannels.OldChannelsHelper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -117,7 +116,7 @@ public final class CmdOldChannels extends SlashCommand {
 
         guild.getTextChannels().stream()
             .distinct()
-            .filter(c -> category == null || c.getParent() != null && c.getParent().getIdLong() == category.getAsLong())
+            .filter(c -> category == null || c.getParentCategory() != null && c.getParentCategoryIdLong() == category.getAsLong())
             .map(channel -> new ChannelData(channel, OldChannelsHelper.getLastMessageTime(channel)))
             .forEach(channelData -> {
                 if (channelData.days > dayThreshold) {

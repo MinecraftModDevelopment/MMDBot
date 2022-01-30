@@ -23,7 +23,7 @@ package com.mcmoddev.mmdbot.modules.commands.bot.management;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -54,7 +54,7 @@ public class CmdRename extends SlashCommand {
         category = new Category("Management");
         arguments = "<username>";
         ownerCommand = true;
-        guildOnly = true;
+        guildOnly = false;
         cooldown = 2100;
 
         options = Collections.singletonList(new OptionData(OptionType.STRING, "name", "The new name to set.").setRequired(true));

@@ -126,6 +126,7 @@ public final class MMDBot {
      * @param args Arguments provided to the program.
      */
     public static void main(final String[] args) {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> LOGGER.warn("The bot is shutting down!")));
         final var configPath = Paths.get("mmdbot_config.toml");
         MMDBot.config = new BotConfig(configPath);
         if (MMDBot.config.isNewlyGenerated()) {

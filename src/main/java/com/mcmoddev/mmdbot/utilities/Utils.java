@@ -20,8 +20,10 @@
  */
 package com.mcmoddev.mmdbot.utilities;
 
+import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.server.DeletableCommand;
 import com.mcmoddev.mmdbot.utilities.database.dao.PersistedRoles;
@@ -34,10 +36,10 @@ import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
+import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,6 +50,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -55,8 +58,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.LongPredicate;
 import java.util.stream.Collectors;
-
-import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 
 /**
  * The type Utils.
@@ -189,6 +190,19 @@ public final class Utils {
         if (roles.size() == 0)
             return null;
         return roles.get(0);
+    }
+
+    /**
+     * Gets a role with the specified {@code roleId} from the specifed {@code guild}
+     * @param guild the guild to get the role from
+     * @param roleId the id of the role to get
+     * @param ifPresent a consumer accepting the role, if it exists
+     */
+    public static void getRoleIfPresent(final Guild guild, final long roleId, final Consumer<Role> ifPresent) {
+        final var role = guild.getRoleById(roleId);
+        if (role != null) {
+            ifPresent.accept(role);
+        }
     }
 
     /**
@@ -325,7 +339,7 @@ public final class Utils {
             }
 
             final var channelID = event.getChannel().getIdLong();
-            @Nullable final var category = event.getTextChannel().getParent();
+            @Nullable final var category = event.getTextChannel().getParentCategory();
             boolean allowed;
             if (category == null) {
                 allowed = allowedChannels.stream().anyMatch(id -> id == channelID);
@@ -413,7 +427,7 @@ public final class Utils {
             }
 
             final var channelID = event.getChannel().getIdLong();
-            @Nullable final var category = event.getTextChannel().getParent();
+            @Nullable final var category = event.getTextChannel().getParentCategory();
             boolean allowed;
             if (category == null) {
                 allowed = allowedChannels.stream().anyMatch(id -> id == channelID);
@@ -493,7 +507,7 @@ public final class Utils {
             final var channelID = event.getChannel().getIdLong();
             final List<Long> blockedChannels = getConfig().getBlockedChannels(command.getName(),
                 event.getGuild().getIdLong());
-            @Nullable final var category = event.getTextChannel().getParent();
+            @Nullable final var category = event.getTextChannel().getParentCategory();
             if (category != null) {
                 final var categoryID = category.getIdLong();
                 return blockedChannels.stream()
@@ -517,7 +531,7 @@ public final class Utils {
             final var channelID = event.getChannel().getIdLong();
             final List<Long> blockedChannels = getConfig().getBlockedChannels(command.getName(),
                 event.getGuild().getIdLong());
-            @Nullable final var category = event.getTextChannel().getParent();
+            @Nullable final var category = event.getTextChannel().getParentCategory();
             if (category != null) {
                 final var categoryID = category.getIdLong();
                 return blockedChannels.stream()
@@ -563,4 +577,36 @@ public final class Utils {
         return getOrEmpty(event.getOption(name));
     }
 
+    /**
+     * Creates a discord link pointing to the specified message
+     * @param guildId the ID of the guild of the message
+     * @param channelId the ID of the channel of the message
+     * @param messageId the message ID
+     * @return the message link
+     */
+    public static String makeMessageLink(final long guildId, final long channelId, final long messageId) {
+        return "https://discord.com/channels/%s/%s/%s".formatted(guildId, channelId, messageId);
+    }
+
+    /**
+     * Sets the thread's daemon property to the specified {@code isDaemon} and returns it
+     * @param thread the thread to modify
+     * @param isDaemon if the thread should be daemon
+     * @return the modified thread
+     */
+    public static Thread setThreadDaemon(final Thread thread, final boolean isDaemon) {
+        thread.setDaemon(isDaemon);
+        return thread;
+    }
+
+    public static void executeInDMs(final long userId, Consumer<PrivateChannel> consumer) {
+        final var user = MMDBot.getInstance().getUserById(userId);
+        if (user != null) {
+            user.openPrivateChannel().queue(consumer::accept, e -> {});
+        }
+    }
+
+    public static String uppercaseFirstLetter(final String string) {
+        return string.substring(0, 1).toUpperCase(Locale.ROOT) + string.substring(1);
+    }
 }

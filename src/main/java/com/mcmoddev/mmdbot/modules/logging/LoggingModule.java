@@ -23,12 +23,19 @@ package com.mcmoddev.mmdbot.modules.logging;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.logging.misc.EventReactionAdded;
 import com.mcmoddev.mmdbot.modules.logging.misc.ScamDetector;
+import com.mcmoddev.mmdbot.modules.logging.misc.ThreadChannelCreatorEvents;
 import com.mcmoddev.mmdbot.modules.logging.users.EventNicknameChanged;
 import com.mcmoddev.mmdbot.modules.logging.users.EventRoleAdded;
 import com.mcmoddev.mmdbot.modules.logging.users.EventRoleRemoved;
 import com.mcmoddev.mmdbot.modules.logging.users.EventUserJoined;
 import com.mcmoddev.mmdbot.modules.logging.users.EventUserLeft;
 import com.mcmoddev.mmdbot.modules.logging.users.UserBanned;
+import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
+import com.mcmoddev.mmdbot.utilities.Utils;
+import net.dv8tion.jda.api.entities.TextChannel;
+
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 /**
  * Splits off event logging so we can disable it if the API ever breaks or if we are in dev,
@@ -52,10 +59,31 @@ public class LoggingModule {
                     new EventRoleRemoved(),
                     new EventReactionAdded(),
                     new UserBanned(),
-                    new ScamDetector());
+                    new ThreadedEventListener(new ScamDetector(), Executors.newSingleThreadExecutor(r -> Utils.setThreadDaemon(new Thread(r, "ScamDetector"), true))),
+                    ThreadChannelCreatorEvents.create());
             MMDBot.LOGGER.warn("Event logging module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Event logging module disabled via config, Discord event logging won't work right now!");
+        }
+    }
+
+    public static void executeInLoggingChannel(LoggingType loggingType, Consumer<TextChannel> channel) {
+        Utils.getChannelIfPresent(MMDBot.getConfig().getChannel("events." + loggingType.toString()), channel);
+    }
+
+    public enum LoggingType {
+        IMPORTANT("important"),
+        REQUESTS_DELETION("requests_deletion");
+
+        private final String string;
+
+        LoggingType(String string) {
+            this.string = string;
+        }
+
+        @Override
+        public String toString() {
+            return string;
         }
     }
 }

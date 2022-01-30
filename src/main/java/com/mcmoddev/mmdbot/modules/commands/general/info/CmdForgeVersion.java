@@ -25,7 +25,7 @@ import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.forge.ForgeVersionHelper;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.forge.MinecraftForgeVersion;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -60,7 +60,7 @@ public final class CmdForgeVersion extends SlashCommand {
         category = new Category("Info");
         arguments = "[Minecraft Version]";
         aliases = new String[]{"forgev"};
-        guildOnly = true;
+        guildOnly = false;
 
 
         OptionData data = new OptionData(OptionType.STRING, "version", "The version of Minecraft to check for.").setRequired(false);

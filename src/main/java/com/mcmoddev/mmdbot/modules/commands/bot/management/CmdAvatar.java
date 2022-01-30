@@ -21,9 +21,9 @@
 package com.mcmoddev.mmdbot.modules.commands.bot.management;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import net.dv8tion.jda.api.entities.Icon;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -57,7 +57,7 @@ public class CmdAvatar extends SlashCommand {
         category = new Category("Management");
         arguments = "<Image URL>";
         ownerCommand = true;
-        guildOnly = true;
+        guildOnly = false;
 
         options = Collections.singletonList(new OptionData(OptionType.STRING, "image", "The URL to download the new avatar image from.").setRequired(true));
     }

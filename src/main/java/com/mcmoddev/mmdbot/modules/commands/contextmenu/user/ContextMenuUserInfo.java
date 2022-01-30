@@ -18,51 +18,21 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.modules.commands.general.info;
+package com.mcmoddev.mmdbot.modules.commands.contextmenu.user;
 
-import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.jagrosh.jdautilities.command.UserContextMenu;
+import com.jagrosh.jdautilities.command.UserContextMenuEvent;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
-import com.mcmoddev.mmdbot.utilities.Utils;
-import net.dv8tion.jda.api.EmbedBuilder;
 
-import java.util.ArrayList;
+public class ContextMenuUserInfo extends UserContextMenu {
 
-/**
- * Get information about the user who initiated the command.
- *
- * @author KiriCattus
- * @author sciwhiz12
- * @author Curle
- */
-public final class CmdMe extends CmdUser {
-
-    /**
-     * Instantiates a new Cmd me.
-     */
-    public CmdMe() {
-        super();
-        name = "me";
-        help = "Get information about your own user.";
-        category = new Category("Info");
-        aliases = new String[]{"whoami", "myinfo"};
-        guildOnly = true;
-        requiredRole = null;
-
-        options = new ArrayList<>();
+    public ContextMenuUserInfo() {
+        name = "User Info";
     }
 
-    /**
-     * Execute.
-     *
-     * @param event The {@link SlashCommandEvent CommandEvent} that triggered this Command.
-     */
     @Override
-    protected void execute(final SlashCommandEvent event) {
-        if (!Utils.checkCommand(this, event)) {
-            return;
-        }
-
-        final EmbedBuilder embed = createMemberEmbed(event.getMember());
+    protected void execute(final UserContextMenuEvent event) {
+        final var embed = CmdUser.createMemberEmbed(event.getTargetMember());
         event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
     }
 }

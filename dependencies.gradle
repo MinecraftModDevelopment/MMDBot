@@ -8,8 +8,8 @@ ext {
     licenser = "0.6.1"
 
     //-- DEPENDENCY VERSIONS
-    jdaVersion = "4.4.0_351"
-    jdaChewtilsVersion = "1.24.1"
+    jdaVersion = "5.0.0-alpha.5"
+    jdaChewtilsVersion = "2.0-interactions-SNAPSHOT"
     guavaVersion = "31.0.1-jre"
     gsonVersion = "2.8.9"
     logbackClassicVersion = "1.2.10"

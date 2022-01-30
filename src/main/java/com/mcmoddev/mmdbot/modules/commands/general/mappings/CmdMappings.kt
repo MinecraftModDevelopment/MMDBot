@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.modules.commands.general.mappings
 
 import com.jagrosh.jdautilities.command.SlashCommand
+import com.jagrosh.jdautilities.command.SlashCommandEvent
 import com.mcmoddev.mmdbot.utilities.Utils
 import kotlinx.coroutines.*
 import me.shedaniel.linkie.*
@@ -33,12 +34,11 @@ import me.shedaniel.linkie.utils.QueryContext
 import me.shedaniel.linkie.utils.ResultHolder
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
-import net.dv8tion.jda.api.interactions.components.Button
+import net.dv8tion.jda.api.interactions.components.buttons.Button
 import java.awt.Color
 import java.util.*
 
@@ -200,7 +200,7 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
     object ButtonListener : ListenerAdapter() {
         val embedsForMessage: MutableMap<Long, Iterator<Deferred<MessageEmbed>>> = mutableMapOf()
 
-        override fun onButtonClick(event: ButtonClickEvent) {
+        override fun onButtonInteraction(event: ButtonInteractionEvent) {
             scope.launch {
                 if (event.componentId == "mappings-next") {
                     embedsForMessage[event.messageIdLong]?.let {

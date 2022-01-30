@@ -52,7 +52,7 @@ repositories {
   }
   maven {
     name 'jda-chewtils'
-    url 'https://m2.chew.pro/releases'
+    url 'https://m2.chew.pro/snapshots'
   }
   maven {
     name 'linkie'

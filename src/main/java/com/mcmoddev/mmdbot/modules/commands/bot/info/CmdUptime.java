@@ -24,7 +24,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -48,7 +48,7 @@ public class CmdUptime extends SlashCommand {
         name = "uptime";
         help = "State how long the current instance of the bot has been running, can also be used as a ping test.";
         category = new Category("Info");
-        guildOnly = true;
+        guildOnly = false;
     }
 
     /**

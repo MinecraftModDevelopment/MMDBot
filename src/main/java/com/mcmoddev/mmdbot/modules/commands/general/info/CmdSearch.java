@@ -24,7 +24,7 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -63,12 +63,12 @@ public final class CmdSearch extends SlashCommand {
         category = new Category("Info");
         arguments = "<search query required>";
         this.baseUrl = baseUrlIn;
-        guildOnly = true;
 
         OptionData data = new OptionData(OptionType.STRING, "text", "The text to search").setRequired(true);
         List<OptionData> dataList = new ArrayList<>();
         dataList.add(data);
         this.options = dataList;
+        guildOnly = false;
     }
 
     /**

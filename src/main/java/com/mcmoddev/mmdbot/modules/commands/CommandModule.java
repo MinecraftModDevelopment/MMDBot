@@ -20,10 +20,13 @@
  */
 package com.mcmoddev.mmdbot.modules.commands;
 
+import com.google.common.collect.ImmutableMap;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import com.jagrosh.jdautilities.command.ContextMenu;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdHelp;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdUptime;
@@ -31,6 +34,9 @@ import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRefreshScamLinks;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
+import com.mcmoddev.mmdbot.modules.commands.contextmenu.message.ContextMenuAddQuote;
+import com.mcmoddev.mmdbot.modules.commands.contextmenu.message.ContextMenuGist;
+import com.mcmoddev.mmdbot.modules.commands.contextmenu.user.ContextMenuUserInfo;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdCatFacts;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdFabricVersion;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdForgeVersion;
@@ -47,8 +53,11 @@ import com.mcmoddev.mmdbot.modules.commands.server.DeletableCommand;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdMute;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdOldChannels;
+import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdReact;
+import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdRolePanel;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUnmute;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
+import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdWarning;
 import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdQuote;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdAddTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdEditTrick;
@@ -56,8 +65,24 @@ import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRemoveTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrickExplicitly;
+import com.mcmoddev.mmdbot.modules.logging.misc.MiscEvents;
+import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
+import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import me.shedaniel.linkie.Namespaces;
+import net.dv8tion.jda.api.hooks.EventListener;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * This is the main class for setting up commands before they are loaded in by the bot,
@@ -81,6 +106,9 @@ public class CommandModule {
         return commandClient;
     }
 
+    public static final Executor COMMAND_LISTENER_THREAD_POOL = Executors.newFixedThreadPool(2, r -> Utils.setThreadDaemon(new Thread(r, "CommandListener"), true));
+    public static final Executor BUTTON_LISTENER_THREAD_POOL = Executors.newSingleThreadExecutor(r -> Utils.setThreadDaemon(new Thread(r, "ButtonListener"), true));
+
     /**
      * Setup and load the bots command module.
      */
@@ -91,56 +119,73 @@ public class CommandModule {
             .setOwnerId(MMDBot.getConfig().getOwnerID())
             .setPrefix(MMDBot.getConfig().getMainPrefix())
             .setAlternativePrefix(MMDBot.getConfig().getAlternativePrefix())
-            .useHelpBuilder(false)
-            .addSlashCommand(new CmdHelp())
-            .addSlashCommand(new CmdGuild())
-            .addSlashCommand(new CmdAbout())
-            .addSlashCommand(new CmdMe())
-            .addSlashCommand(new CmdUser())
-            .addSlashCommand(new CmdRoles())
-            .addSlashCommand(new CmdCatFacts())
-            .addSlashCommand(new CmdSearch("google", "https://www.google.com/search?q=", "goog"))
-            .addSlashCommand(new CmdSearch("bing", "https://www.bing.com/search?q="))
-            .addSlashCommand(new CmdSearch("duckduckgo", "https://duckduckgo.com/?q=", "ddg"))
-            .addSlashCommand(new CmdSearch("lmgtfy", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"))
-            .addSlashCommand(new CmdToggleMcServerPings())
-            .addSlashCommand(new CmdToggleEventPings())
-            .addSlashCommand(new CmdForgeVersion())
-            .addSlashCommand(new CmdMinecraftVersion())
-            .addSlashCommand(new CmdFabricVersion())
-            .addSlashCommand(new CmdMute())
-            .addSlashCommand(new CmdUnmute())
-            .addSlashCommand(new CmdCommunityChannel())
-            .addSlashCommand(new CmdOldChannels())
-            .addSlashCommand(new CmdAvatar())
-            .addSlashCommand(new CmdRename())
-            .addSlashCommand(new CmdUptime())
+            .useHelpBuilder(false).setManualUpsert(true).build();
+
+        addSlashCommand(new CmdHelp(),
+            new CmdGuild(),
+            new CmdAbout(),
+            new CmdMe(),
+            new CmdUser(),
+            new CmdRoles(),
+            new CmdCatFacts(),
+            new CmdSearch("google", "https://www.google.com/search?q=", "goog"),
+            new CmdSearch("bing", "https://www.bing.com/search?q="),
+            new CmdSearch("duckduckgo", "https://duckduckgo.com/?q=", "ddg"),
+            new CmdSearch("lmgtfy", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"),
+            new CmdToggleMcServerPings(),
+            new CmdToggleEventPings(),
+            new CmdForgeVersion(),
+            new CmdMinecraftVersion(),
+            new CmdFabricVersion(),
+            new CmdMute(),
+            new CmdUnmute(),
+            new CmdCommunityChannel(),
+            new CmdOldChannels(),
+            new CmdAvatar(),
+            new CmdRename(),
+            new CmdUptime(),
             //TODO Setup DB storage for tricks and polish them off/add permission restrictions for when needed.
-            .addSlashCommand(new CmdAddTrick())
-            .addSlashCommand(new CmdEditTrick())
-            .addSlashCommand(new CmdListTricks())
-            .addSlashCommand(new CmdRemoveTrick())
-            .addSlashCommand(new CmdRunTrickExplicitly())
-            .addSlashCommands(Tricks.getTricks().stream().map(CmdRunTrick::new).toArray(SlashCommand[]::new))
-            .addSlashCommand(new CmdShutdown())
-            .addSlashCommands(CmdMappings.createCommands()) // TODO: This is broken beyond belief. Consider moving away from linkie. - Curle
-            .addSlashCommands(CmdTranslateMappings.createCommands())
-            .addSlashCommand(new CmdQuote())
-            .addCommand(new CmdRefreshScamLinks())
-            .build();
+            new CmdAddTrick(),
+            new CmdEditTrick(),
+            new CmdListTricks(),
+            new CmdRemoveTrick(),
+            new CmdRunTrickExplicitly(),
+            new CmdShutdown(),
+            new CmdQuote(),
+            new CmdRolePanel(),
+            new CmdWarning());
+
+        addSlashCommand(CmdTranslateMappings.createCommands());
+        addSlashCommand(CmdMappings.createCommands()); // TODO: This is broken beyond belief. Consider moving away from linkie. - Curle
+        final var tricks = Tricks.getTricks();
+        addSlashCommand(Tricks.getTricks().stream().map(CmdRunTrick::new).toArray(SlashCommand[]::new));
+
+        commandClient.addCommand(new CmdRefreshScamLinks());
+        commandClient.addCommand(new CmdReact());
+
+        addContextMenu(new ContextMenuGist());
+        addContextMenu(new ContextMenuAddQuote());
+        addContextMenu(new ContextMenuUserInfo());
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
-            MMDBot.getInstance().addEventListener(commandClient);
-            MMDBot.getInstance().addEventListener(CmdMappings.ButtonListener.INSTANCE);
-            MMDBot.getInstance().addEventListener(CmdTranslateMappings.ButtonListener.INSTANCE);
-            MMDBot.getInstance().addEventListener(CmdRoles.getListener());
-            MMDBot.getInstance().addEventListener(CmdHelp.getListener());
-            MMDBot.getInstance().addEventListener(CmdListTricks.getListener());
-            MMDBot.getInstance().addEventListener(CmdQuote.ListQuotes.getListener());
+            // Wrap the command and button listener in another thread, so that if a runtime exception
+            // occurs while executing a command, the event thread will not be stopped
+            // Commands and buttons are separated so that they do not interfere with each other
+            MMDBot.getInstance().addEventListener(new ThreadedEventListener((EventListener) commandClient, COMMAND_LISTENER_THREAD_POOL));
+            MMDBot.getInstance().addEventListener(buttonListener(CmdMappings.ButtonListener.INSTANCE));
+            MMDBot.getInstance().addEventListener(buttonListener(CmdTranslateMappings.ButtonListener.INSTANCE));
+            MMDBot.getInstance().addEventListener(buttonListener(CmdRoles.getListener()));
+            MMDBot.getInstance().addEventListener(buttonListener(CmdHelp.getListener()));
+            MMDBot.getInstance().addEventListener(buttonListener(CmdListTricks.getListener()));
+            MMDBot.getInstance().addEventListener(buttonListener(CmdQuote.ListQuotes.getListener()));
             MMDBot.LOGGER.warn("Command module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");
         }
+    }
+
+    private static EventListener buttonListener(final EventListener listener) {
+        return new ThreadedEventListener(listener, BUTTON_LISTENER_THREAD_POOL);
     }
 
     /**
@@ -166,14 +211,37 @@ public class CommandModule {
             .queue();
     }
 
+    // This is a temporary fix for something broken in chewtils, whose fix is not yet published
+    private static final Map<String, ContextMenu> MENUS = Collections.synchronizedMap(new HashMap<>());
+
+    public static ContextMenu getMenu(final String name) {
+        return MENUS.get(name);
+    }
+
+    public static final List<CommandData> GUILD_CMDS = new ArrayList<>();
+    public static final List<CommandData> GLOBAL_CMDS = new ArrayList<>();
+    public static final Map<String, SlashCommand> SLASH_COMMANDS = new HashMap<>();
+
+    public static void addContextMenu(final ContextMenu menu) {
+        commandClient.addContextMenu(menu);
+        MENUS.put(menu.getName(), menu);
+    }
+
     /**
      * Adds and upserts a slash command.
      *
-     * @param cmd the command
+     * @param cmds the command(s) to upsert
      */
-    public static void addSlashCommand(final SlashCommand cmd) {
-        commandClient.addSlashCommand(cmd);
-        upsertCommand(cmd);
+    public static void addSlashCommand(final SlashCommand... cmds) {
+        for (final var cmd : cmds) {
+            SLASH_COMMANDS.put(cmd.getName(), cmd);
+            commandClient.addSlashCommand(cmd);
+            if (cmd.isGuildOnly()) {
+                GLOBAL_CMDS.add(cmd.buildCommandData());
+            } else {
+                GUILD_CMDS.add(cmd.buildCommandData());
+            }
+        }
     }
 
     /**
@@ -188,9 +256,29 @@ public class CommandModule {
                 throw new NullPointerException("No Guild found!");
             }
 
-            guild.upsertCommand(cmd.buildCommandData()).queue(cmd1 -> cmd1.updatePrivileges(guild, cmd.buildPrivileges(commandClient)).queue());
+            guild.updateCommands().addCommands(cmd.buildCommandData()).queue(commands -> {
+                commands.get(0).updatePrivileges(guild, cmd.buildPrivileges(commandClient)).queue();
+            });
         } else {
-            MMDBot.getInstance().upsertCommand(cmd.buildCommandData()).queue();
+            MMDBot.getInstance().updateCommands().addCommands(cmd.buildCommandData()).queue();
+        }
+    }
+
+    /**
+     * Upserts a context menu.
+     *
+     * @param menu the menu
+     */
+    public static void upsertContextMenu(final ContextMenu menu, final boolean guildOnly) {
+        if (guildOnly) {
+            var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
+            if (guild == null) {
+                throw new NullPointerException("No Guild found!");
+            }
+
+            guild.upsertCommand(menu.buildCommandData()).queue(cmd1 -> cmd1.updatePrivileges(guild, menu.buildPrivileges(commandClient)).queue());
+        } else {
+            MMDBot.getInstance().upsertCommand(menu.buildCommandData()).queue();
         }
     }
 }

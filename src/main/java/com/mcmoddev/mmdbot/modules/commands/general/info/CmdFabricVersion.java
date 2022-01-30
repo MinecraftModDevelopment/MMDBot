@@ -22,11 +22,11 @@ package com.mcmoddev.mmdbot.modules.commands.general.info;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.fabric.FabricVersionHelper;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.minecraft.MinecraftVersionHelper;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -61,12 +61,12 @@ public final class CmdFabricVersion extends SlashCommand {
         category = new Category("Info");
         arguments = "<Minecraft Version>";
         aliases = new String[]{"fabricv"};
-        guildOnly = true;
 
         OptionData data = new OptionData(OptionType.STRING, "version", "The version of Minecraft to check for.").setRequired(false);
         List<OptionData> dataList = new ArrayList<>();
         dataList.add(data);
         this.options = dataList;
+        guildOnly = false;
     }
 
     /**
