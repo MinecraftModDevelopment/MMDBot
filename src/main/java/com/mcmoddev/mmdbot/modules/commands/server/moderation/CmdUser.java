@@ -48,7 +48,7 @@ import java.util.Locale;
  * - Guild join date
  * - Account age
  *
- * @author ProxyNeko
+ * @author KiriCattus
  * @author WillBL
  * @author sciwhiz12
  * @author Curle

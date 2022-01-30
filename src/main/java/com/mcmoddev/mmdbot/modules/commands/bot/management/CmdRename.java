@@ -39,7 +39,7 @@ import java.util.Collections;
  * <p>
  * TODO: Figure out the cooldown system.
  *
- * @author ProxyNeko
+ * @author KiriCattus
  * @author Curle
  */
 public class CmdRename extends SlashCommand {

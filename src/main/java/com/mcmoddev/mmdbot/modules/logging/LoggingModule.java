@@ -34,7 +34,7 @@ import com.mcmoddev.mmdbot.modules.logging.users.UserBanned;
  * Splits off event logging so we can disable it if the API ever breaks or if we are in dev,
  * this way we can avoid spamming errors or duplicate logging of events.
  *
- * @author ProxyNeko
+ * @author KiriCattus
  */
 public class LoggingModule {
 

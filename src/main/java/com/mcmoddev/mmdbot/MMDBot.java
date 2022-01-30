@@ -47,7 +47,7 @@ import java.util.Set;
  * @author Antoine Gagnon
  * @author williambl
  * @author sciwhiz12
- * @author ProxyNeko
+ * @author KiriCattus
  * @author jriwanek
  */
 public final class MMDBot {

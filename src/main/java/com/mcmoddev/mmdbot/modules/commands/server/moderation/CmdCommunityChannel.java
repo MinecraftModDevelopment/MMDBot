@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  * Takes a user parameter and a string parameter.
  * <p>
  * Takes the form:
- * /community-channel ProxyNeko Proxy's Trinkets
+ * /community-channel KiriCattus Proxy's Trinkets
  * /community-channel SomebodyElse Another Channel With A Very Long Name That Discord Will Reject
  * /community-channel [user] [name]
  *

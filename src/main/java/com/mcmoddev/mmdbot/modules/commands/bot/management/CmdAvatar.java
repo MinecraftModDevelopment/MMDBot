@@ -42,7 +42,7 @@ import java.util.Collections;
  * /avatar https://media.discordapp.net/attachments/899012022006579220/899281929629728788/guineverebolb.png
  * /avatar [image]
  *
- * @author ProxyNeko
+ * @author KiriCattus
  * @author Curle
  */
 public class CmdAvatar extends SlashCommand {

@@ -37,7 +37,7 @@ import java.util.Random;
 /**
  * Displays a random cat fact, fetched from https://catfact.ninja/fact
  *
- * @author ProxyNeko
+ * @author KiriCattus
  * @author Curle
  */
 public final class CmdCatFacts extends SlashCommand {

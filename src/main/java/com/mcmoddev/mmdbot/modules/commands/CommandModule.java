@@ -63,7 +63,7 @@ import me.shedaniel.linkie.Namespaces;
  * This is the main class for setting up commands before they are loaded in by the bot,
  * this way we can disable and enable them at will. Or at least that is the hope.
  *
- * @author ProxyNeko
+ * @author KiriCattus
  */
 public class CommandModule {
 

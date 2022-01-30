@@ -44,7 +44,7 @@ import java.util.Locale;
  * - Date created
  * - Age of guild
  *
- * @author ProxyNeko
+ * @author KiriCattus
  * @author Curle
  */
 public final class CmdGuild extends SlashCommand {

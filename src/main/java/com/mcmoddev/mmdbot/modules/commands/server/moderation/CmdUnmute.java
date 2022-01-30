@@ -41,9 +41,9 @@ import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.MUTING;
  * Takes a user parameter.
  * <p>
  * Takes the form:
- * /unmute ProxyNeko
+ * /unmute KiriCattus
  *
- * @author ProxyNeko
+ * @author KiriCattus
  * @author Curle
  */
 public final class CmdUnmute extends SlashCommand {

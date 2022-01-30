@@ -35,7 +35,7 @@ import java.time.temporal.ChronoUnit;
 /**
  * Shows how long the bot has been online.
  *
- * @author ProxyNeko
+ * @author KiriCattus
  * @author Curle
  */
 public class CmdUptime extends SlashCommand {

@@ -30,7 +30,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * Store settings that don't really change in here.
  *
- * @author ProxyNeko
+ * @author KiriCattus
  */
 public class References {
 

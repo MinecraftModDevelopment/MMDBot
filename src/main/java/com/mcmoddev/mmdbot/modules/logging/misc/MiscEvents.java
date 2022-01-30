@@ -36,7 +36,7 @@ import java.time.Instant;
 /**
  * The type Misc events.
  *
- * @author ProxyNeko
+ * @author KiriCattus
  */
 public final class MiscEvents extends ListenerAdapter {
 

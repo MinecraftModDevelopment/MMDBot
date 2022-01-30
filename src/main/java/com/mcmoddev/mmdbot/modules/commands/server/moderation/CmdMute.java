@@ -47,14 +47,14 @@ import java.util.concurrent.TimeUnit;
  * - week
  * <p>
  * Takes the form:
- * /mute ProxyNeko
- * /mute ProxyNeko 2 minutes
- * /mute ProxyNeko 2 hours
- * /mute ProxyNeko 2 days
- * /mute ProxyNeko 2 weeks
+ * /mute KiriCattus
+ * /mute KiriCattus 2 minutes
+ * /mute KiriCattus 2 hours
+ * /mute KiriCattus 2 days
+ * /mute KiriCattus 2 weeks
  * /mute [user] [time] [unit]
  *
- * @author ProxyNeko
+ * @author KiriCattus
  * @author Curle
  */
 public final class CmdMute extends SlashCommand {

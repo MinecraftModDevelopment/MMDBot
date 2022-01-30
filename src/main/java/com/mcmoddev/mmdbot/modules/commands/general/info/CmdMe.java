@@ -31,7 +31,7 @@ import java.util.ArrayList;
 /**
  * Get information about the user who initiated the command.
  *
- * @author ProxyNeko
+ * @author KiriCattus
  * @author sciwhiz12
  * @author Curle
  */

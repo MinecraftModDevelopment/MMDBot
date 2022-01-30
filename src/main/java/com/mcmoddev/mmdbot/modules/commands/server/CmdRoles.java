@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  * <p>
  * This is the first usage of the Paginated Command.
  *
- * @author ProxyNeko
+ * @author KiriCattus
  * @author Curle
  */
 public final class CmdRoles extends PaginatedCommand {

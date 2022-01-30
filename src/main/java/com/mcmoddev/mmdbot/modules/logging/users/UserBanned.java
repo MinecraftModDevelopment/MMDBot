@@ -36,7 +36,7 @@ import java.time.Instant;
  * Log the bans of users to a set channel to alert other staff members and to keep a record in case the user deletes
  * the account leaving us without a name for a banned user.
  *
- * @author ProxyNeko
+ * @author KiriCattus
  */
 public class UserBanned extends ListenerAdapter {
 

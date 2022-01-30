@@ -34,7 +34,7 @@ import java.time.Instant;
 /**
  * Log the kicks of users to a set channel to alert other staff members and to keep a record.
  *
- * @author ProxyNeko
+ * @author KiriCattus
  */
 public class UserKicked extends ListenerAdapter {
 

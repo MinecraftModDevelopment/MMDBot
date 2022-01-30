@@ -30,7 +30,7 @@ import java.util.TimerTask;
 /**
  * Shut down the bot and the JDA instance gracefully.
  *
- * @author ProxyNeko
+ * @author KiriCattus
  * @author Curle
  */
 public class CmdShutdown extends SlashCommand {

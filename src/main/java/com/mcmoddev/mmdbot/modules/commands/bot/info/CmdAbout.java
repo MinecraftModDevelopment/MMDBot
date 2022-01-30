@@ -40,7 +40,7 @@ import java.time.Instant;
  * <p>
  * Takes no parameters.
  *
- * @author ProxyNeko
+ * @author KiriCattus
  * @author Jriwanek
  * @author Curle
  */
@@ -78,7 +78,7 @@ public final class CmdAbout extends SlashCommand {
         embed.addField("Version:", References.VERSION, true);
         embed.addField("Issue Tracker:", Utils.makeHyperlink("MMDBot's Github", References.ISSUE_TRACKER),
             true);
-        embed.addField("Current maintainers:", "jriwanek, WillBL, KiriCattus, sciwhiz12, Poke, Curle",
+        embed.addField("Current maintainers:", "jriwanek, WillBL, KiriCattus, sciwhiz12, Curle",
             true);
         embed.setTimestamp(Instant.now());
         event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
