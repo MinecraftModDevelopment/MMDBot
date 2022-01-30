@@ -62,8 +62,14 @@ import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRemoveTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrickExplicitly;
+import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
+import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import me.shedaniel.linkie.Namespaces;
+import net.dv8tion.jda.api.hooks.EventListener;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * This is the main class for setting up commands before they are loaded in by the bot,
@@ -86,6 +92,8 @@ public class CommandModule {
     public static CommandClient getCommandClient() {
         return commandClient;
     }
+
+    public static final Executor COMMAND_LISTENER_THREAD_POOL = Executors.newFixedThreadPool(2, r -> Utils.setThreadDaemon(new Thread(r, "CommandListener"), true));
 
     /**
      * Setup and load the bots command module.
@@ -142,7 +150,7 @@ public class CommandModule {
             .build();
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
-            MMDBot.getInstance().addEventListener(commandClient);
+            MMDBot.getInstance().addEventListener(new ThreadedEventListener((EventListener) commandClient, COMMAND_LISTENER_THREAD_POOL));
             MMDBot.getInstance().addEventListener(CmdMappings.ButtonListener.INSTANCE);
             MMDBot.getInstance().addEventListener(CmdTranslateMappings.ButtonListener.INSTANCE);
             MMDBot.getInstance().addEventListener(CmdRoles.getListener());

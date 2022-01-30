@@ -122,7 +122,7 @@ public class CmdUser extends SlashCommand {
 
         final var date = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH);
         embed.addField("Joined Discord:", date.format(dateJoinedDiscord.toEpochMilli()), true);
-        if (dateJoinedMMD == null) {
+        if (dateJoinedMMD != null) {
             embed.addField("Joined MMD:", date.format(dateJoinedMMD.toEpochMilli()), true);
             embed.addField("Member for:", Utils.getTimeDifference(Utils.getTimeFromUTC(dateJoinedMMD),
                 OffsetDateTime.now(ZoneOffset.UTC)), true);
