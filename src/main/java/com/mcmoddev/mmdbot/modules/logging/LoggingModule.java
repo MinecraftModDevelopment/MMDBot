@@ -29,9 +29,11 @@ import com.mcmoddev.mmdbot.modules.logging.users.EventRoleRemoved;
 import com.mcmoddev.mmdbot.modules.logging.users.EventUserJoined;
 import com.mcmoddev.mmdbot.modules.logging.users.EventUserLeft;
 import com.mcmoddev.mmdbot.modules.logging.users.UserBanned;
+import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.entities.TextChannel;
 
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 /**
@@ -56,7 +58,7 @@ public class LoggingModule {
                     new EventRoleRemoved(),
                     new EventReactionAdded(),
                     new UserBanned(),
-                    new ScamDetector());
+                    new ThreadedEventListener(new ScamDetector(), Executors.newSingleThreadExecutor(r -> Utils.setThreadDaemon(new Thread(r, "ScamDetector"), true))));
             MMDBot.LOGGER.warn("Event logging module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Event logging module disabled via config, Discord event logging won't work right now!");
