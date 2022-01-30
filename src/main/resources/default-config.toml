@@ -8,6 +8,10 @@
     # A value with the character '!' will be considered as being empty or unconfigured.
     token = "!!! Insert token here !!!"
 
+    # The PAT (Personal Access Token) used for connecting to GitHub for creating Gists
+    # A value with the character '!' will be considered as being empty or unconfigured.
+    githubToken = ""
+
     # The snowflake ID of a user, to be the owner of this bot.
     # The owner has access to owner-only bot commands.
     owner = ""

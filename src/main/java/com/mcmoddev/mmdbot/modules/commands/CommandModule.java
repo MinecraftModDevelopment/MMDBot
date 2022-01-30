@@ -33,6 +33,7 @@ import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRefreshScamLinks;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
 import com.mcmoddev.mmdbot.modules.commands.contextmenu.message.ContextMenuAddQuote;
+import com.mcmoddev.mmdbot.modules.commands.contextmenu.message.ContextMenuGist;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdCatFacts;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdFabricVersion;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdForgeVersion;
@@ -53,6 +54,7 @@ import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdReact;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdRolePanel;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUnmute;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
+import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdWarning;
 import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdQuote;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdAddTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdEditTrick;
@@ -131,10 +133,12 @@ public class CommandModule {
             .addSlashCommands(CmdTranslateMappings.createCommands())
             .addSlashCommand(new CmdQuote())
             .addSlashCommand(new CmdRolePanel())
+            .addSlashCommand(new CmdWarning())
             .addCommand(new CmdRefreshScamLinks())
             .addCommand(new CmdReact())
             // Context menus
             .addContextMenu(new ContextMenuAddQuote())
+            .addContextMenu(new ContextMenuGist())
             .build();
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
@@ -205,9 +209,18 @@ public class CommandModule {
     /**
      * Upserts a context menu.
      *
-     * @param cmd the command
+     * @param menu the menu
      */
-    public static void upsertContextMenu(final ContextMenu cmd) {
-        MMDBot.getInstance().upsertCommand(cmd.buildCommandData()).queue();
+    public static void upsertContextMenu(final ContextMenu menu, final boolean guildOnly) {
+        if (guildOnly) {
+            var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
+            if (guild == null) {
+                throw new NullPointerException("No Guild found!");
+            }
+
+            guild.upsertCommand(menu.buildCommandData()).queue(cmd1 -> cmd1.updatePrivileges(guild, menu.buildPrivileges(commandClient)).queue());
+        } else {
+            MMDBot.getInstance().upsertCommand(menu.buildCommandData()).queue();
+        }
     }
 }

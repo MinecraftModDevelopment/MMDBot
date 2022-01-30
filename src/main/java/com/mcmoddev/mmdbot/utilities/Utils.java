@@ -20,8 +20,10 @@
  */
 package com.mcmoddev.mmdbot.utilities;
 
+import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.server.DeletableCommand;
 import com.mcmoddev.mmdbot.utilities.database.dao.PersistedRoles;
@@ -34,10 +36,10 @@ import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
+import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -55,8 +57,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.LongPredicate;
 import java.util.stream.Collectors;
-
-import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 
 /**
  * The type Utils.
@@ -585,5 +585,23 @@ public final class Utils {
      */
     public static String makeMessageLink(final long guildId, final long channelId, final long messageId) {
         return "https://discord.com/channels/%s/%s/%s".formatted(guildId, channelId, messageId);
+    }
+
+    /**
+     * Sets the thread's daemon property to the specified {@code isDaemon} and returns it
+     * @param thread the thread to modify
+     * @param isDaemon if the thread should be daemon
+     * @return the modified thread
+     */
+    public static Thread setThreadDaemon(final Thread thread, final boolean isDaemon) {
+        thread.setDaemon(isDaemon);
+        return thread;
+    }
+
+    public static void executeInDMs(final long userId, Consumer<PrivateChannel> consumer) {
+        final var user = MMDBot.getInstance().getUserById(userId);
+        if (user != null) {
+            user.openPrivateChannel().queue(consumer::accept, e -> {});
+        }
     }
 }
