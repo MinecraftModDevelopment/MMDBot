@@ -25,6 +25,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -116,7 +117,7 @@ public class ScamDetector extends ListenerAdapter {
     }
 
     private static void executeInLoggingChannel(Consumer<TextChannel> channel) {
-        Utils.getChannelIfPresent(MMDBot.getConfig().getChannel("events.requests_deletion"), channel);
+        LoggingModule.executeInLoggingChannel(LoggingModule.LoggingType.REQUESTS_DELETION, channel);
     }
 
     public static boolean containsScam(final Message message) {

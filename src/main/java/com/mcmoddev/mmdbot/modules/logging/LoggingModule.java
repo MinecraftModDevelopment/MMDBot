@@ -70,9 +70,11 @@ public class LoggingModule {
     }
 
     public enum LoggingType {
-        IMPORTANT("important");
+        IMPORTANT("important"),
+        REQUESTS_DELETION("requests_deletion");
 
         private final String string;
+
         LoggingType(String string) {
             this.string = string;
         }
