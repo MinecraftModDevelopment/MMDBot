@@ -24,10 +24,10 @@ import com.jagrosh.jdautilities.command.UserContextMenu;
 import com.jagrosh.jdautilities.command.UserContextMenuEvent;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
 
-public class ContextMenuUser extends UserContextMenu {
+public class ContextMenuUserInfo extends UserContextMenu {
 
-    public ContextMenuUser() {
-        name = "User";
+    public ContextMenuUserInfo() {
+        name = "User Info";
     }
 
     @Override
