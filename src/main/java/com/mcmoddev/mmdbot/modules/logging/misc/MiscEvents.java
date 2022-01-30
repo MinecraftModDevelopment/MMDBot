@@ -20,14 +20,22 @@
  */
 package com.mcmoddev.mmdbot.modules.logging.misc;
 
+import com.jagrosh.jdautilities.command.MessageContextMenu;
+import com.jagrosh.jdautilities.command.MessageContextMenuEvent;
+import com.jagrosh.jdautilities.command.UserContextMenu;
+import com.jagrosh.jdautilities.command.UserContextMenuEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.core.TaskScheduler;
+import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.events.DisconnectEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ReconnectedEvent;
 import net.dv8tion.jda.api.events.ResumedEvent;
+import net.dv8tion.jda.api.events.interaction.command.GenericContextInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
@@ -109,6 +117,22 @@ public final class MiscEvents extends ListenerAdapter {
                     "Reconnection to Discord took a longer time than expected (took {}s, threshold of {}s)",
                     disconnectTime / 1000.0D, DISCONNECT_WARN_THRESHOLD_MILLIS / 1000.0D);
             }
+        }
+    }
+
+    @Override
+    public void onMessageContextInteraction(@NotNull final MessageContextInteractionEvent event) {
+        final var menu = CommandModule.getMenu(event.getName());
+        if (menu instanceof MessageContextMenu messageContextMenu) {
+            messageContextMenu.run(new MessageContextMenuEvent(event.getJDA(), event.getResponseNumber(), event.getInteraction(), CommandModule.getCommandClient()));
+        }
+    }
+
+    @Override
+    public void onUserContextInteraction(@NotNull final UserContextInteractionEvent event) {
+        final var menu = CommandModule.getMenu(event.getName());
+        if (menu instanceof UserContextMenu userContextMenu) {
+            userContextMenu.run(new UserContextMenuEvent(event.getJDA(), event.getResponseNumber(), event.getInteraction(), CommandModule.getCommandClient()));
         }
     }
 }

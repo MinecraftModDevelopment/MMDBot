@@ -69,6 +69,9 @@ import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import me.shedaniel.linkie.Namespaces;
 import net.dv8tion.jda.api.hooks.EventListener;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -146,11 +149,11 @@ public class CommandModule {
             .addSlashCommand(new CmdWarning())
             .addCommand(new CmdRefreshScamLinks())
             .addCommand(new CmdReact())
-            // Context menus
-            .addContextMenu(new ContextMenuAddQuote())
-            .addContextMenu(new ContextMenuGist())
-            .addContextMenu(new ContextMenuUserInfo())
             .build();
+
+        addContextMenu(new ContextMenuGist());
+        addContextMenu(new ContextMenuAddQuote());
+        addContextMenu(new ContextMenuUserInfo());
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
             // Wrap the command and button listener in another thread, so that if a runtime exception
@@ -194,6 +197,18 @@ public class CommandModule {
         guild.retrieveCommands()
             .flatMap(list -> list.stream().filter(cmd -> cmd.getName().equals(name)).findAny().map(cmd -> guild.deleteCommandById(cmd.getId())).orElseThrow())
             .queue();
+    }
+
+    // This is a temporary fix for something broken in chewtils, whose fix is not yet published
+    private static final Map<String, ContextMenu> MENUS = Collections.synchronizedMap(new HashMap<>());
+
+    public static ContextMenu getMenu(final String name) {
+        return MENUS.get(name);
+    }
+
+    public static void addContextMenu(final ContextMenu menu) {
+        commandClient.addContextMenu(menu);
+        MENUS.put(menu.getName(), menu);
     }
 
     /**
