@@ -48,7 +48,7 @@ public class CmdUptime extends SlashCommand {
         name = "uptime";
         help = "State how long the current instance of the bot has been running, can also be used as a ping test.";
         category = new Category("Info");
-        guildOnly = true;
+        guildOnly = false;
     }
 
     /**

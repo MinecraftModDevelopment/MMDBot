@@ -55,7 +55,7 @@ public final class CmdAbout extends SlashCommand {
         aliases = new String[]{"build"};
         help = "Gives info about this bot.";
         category = new Category("Info");
-        guildOnly = true;
+        guildOnly = false;
     }
 
     /**

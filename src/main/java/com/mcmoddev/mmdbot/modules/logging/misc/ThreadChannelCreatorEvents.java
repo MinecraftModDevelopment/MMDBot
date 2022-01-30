@@ -47,7 +47,7 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(@NotNull final MessageReceivedEvent event) {
-        if (!event.isFromGuild() || event.isFromThread()) {
+        if (!event.isFromGuild() || event.isFromThread() || event.isWebhookMessage() || event.getAuthor().isBot() || event.getAuthor().isSystem()) {
             return;
         }
         final var author = event.getMember();

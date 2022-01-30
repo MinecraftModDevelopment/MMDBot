@@ -46,7 +46,7 @@ public final class CmdMinecraftVersion extends SlashCommand {
         help = "Get the latest Minecraft versions";
         category = new Category("Info");
         aliases = new String[]{"minecraftv", "mcv"};
-        guildOnly = true;
+        guildOnly = false;
     }
 
     /**

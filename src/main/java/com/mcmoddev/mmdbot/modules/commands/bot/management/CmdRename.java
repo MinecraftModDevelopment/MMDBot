@@ -54,7 +54,7 @@ public class CmdRename extends SlashCommand {
         category = new Category("Management");
         arguments = "<username>";
         ownerCommand = true;
-        guildOnly = true;
+        guildOnly = false;
         cooldown = 2100;
 
         options = Collections.singletonList(new OptionData(OptionType.STRING, "name", "The new name to set.").setRequired(true));

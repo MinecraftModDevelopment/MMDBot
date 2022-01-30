@@ -20,8 +20,10 @@
  */
 package com.mcmoddev.mmdbot.modules.logging.misc;
 
+import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.MessageContextMenu;
 import com.jagrosh.jdautilities.command.MessageContextMenuEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.UserContextMenu;
 import com.jagrosh.jdautilities.command.UserContextMenuEvent;
 import com.mcmoddev.mmdbot.MMDBot;
@@ -37,9 +39,16 @@ import net.dv8tion.jda.api.events.interaction.command.GenericContextInteractionE
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The type Misc events.
@@ -69,6 +78,21 @@ public final class MiscEvents extends ListenerAdapter {
         MMDBot.LOGGER.warn("Bot is online and ready.");
         TaskScheduler.init();
         References.STARTUP_TIME = Instant.now();
+
+        References.BOT_READY = true;
+        event.getJDA().updateCommands().addCommands(CommandModule.GLOBAL_CMDS).queue();
+        event.getJDA().getGuilds().forEach(guild -> {
+            guild.updateCommands().addCommands(CommandModule.GUILD_CMDS).queue(commands -> {
+                Map<String, Collection<CommandPrivilege>> priviligies = new HashMap<>();
+                for (var cmd : commands) {
+                    SlashCommand command = CommandModule.SLASH_COMMANDS.get(cmd.getName());
+                    if (command != null) {
+                        priviligies.put(cmd.getId(), command.buildPrivileges(CommandModule.getCommandClient()));
+                    }
+                    guild.updateCommandPrivileges(priviligies).queue();
+                }
+            });
+        });
     }
 
     /**

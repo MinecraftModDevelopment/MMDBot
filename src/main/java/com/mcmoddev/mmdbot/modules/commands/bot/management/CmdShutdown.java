@@ -44,7 +44,6 @@ public class CmdShutdown extends SlashCommand {
         help = "Shuts the bot down without restarting it. (Only usable by KiriCattus)";
         category = new Category("Management");
         ownerCommand = true;
-        guildOnly = true;
     }
 
     /**

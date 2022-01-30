@@ -57,7 +57,7 @@ public class CmdAvatar extends SlashCommand {
         category = new Category("Management");
         arguments = "<Image URL>";
         ownerCommand = true;
-        guildOnly = true;
+        guildOnly = false;
 
         options = Collections.singletonList(new OptionData(OptionType.STRING, "image", "The URL to download the new avatar image from.").setRequired(true));
     }

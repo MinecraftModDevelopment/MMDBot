@@ -63,12 +63,12 @@ public final class CmdSearch extends SlashCommand {
         category = new Category("Info");
         arguments = "<search query required>";
         this.baseUrl = baseUrlIn;
-        guildOnly = true;
 
         OptionData data = new OptionData(OptionType.STRING, "text", "The text to search").setRequired(true);
         List<OptionData> dataList = new ArrayList<>();
         dataList.add(data);
         this.options = dataList;
+        guildOnly = false;
     }
 
     /**

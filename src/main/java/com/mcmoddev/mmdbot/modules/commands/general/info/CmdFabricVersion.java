@@ -61,12 +61,12 @@ public final class CmdFabricVersion extends SlashCommand {
         category = new Category("Info");
         arguments = "<Minecraft Version>";
         aliases = new String[]{"fabricv"};
-        guildOnly = true;
 
         OptionData data = new OptionData(OptionType.STRING, "version", "The version of Minecraft to check for.").setRequired(false);
         List<OptionData> dataList = new ArrayList<>();
         dataList.add(data);
         this.options = dataList;
+        guildOnly = false;
     }
 
     /**

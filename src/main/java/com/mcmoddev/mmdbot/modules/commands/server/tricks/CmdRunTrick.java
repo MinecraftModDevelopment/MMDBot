@@ -26,9 +26,11 @@ import com.mcmoddev.mmdbot.modules.commands.server.DeletableCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Trick;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 /**
@@ -44,24 +46,25 @@ import java.util.Collections;
  */
 public final class CmdRunTrick extends SlashCommand implements DeletableCommand {
 
-    private final Trick trick;
+    private final String trickName;
     private boolean deleted = false;
 
     /**
      * Instantiates a new command for a certain trick.
      */
-    public CmdRunTrick(Trick trick) {
+    public CmdRunTrick(String trickName) {
         super();
-        this.trick = trick;
-        name = trick.getNames().get(0);
-        aliases = trick.getNames().toArray(new String[0]);
-        help = "Invoke the trick " + trick.getNames().get(0);
+        this.trickName = trickName;
+        name = trickName;
+        aliases = Tricks.getTrick(trickName).map(t -> t.getNames()).orElse(new ArrayList<>()).toArray(String[]::new);
+        help = "Invoke the trick " + trickName;
         category = new Category("Fun");
         guildOnly = true;
-        // we need to use this unfortunately :( can't create more than one commandclient
-        //guildId = Long.toString(MMDBot.getConfig().getGuildID());
-
         options = Collections.singletonList(new OptionData(OptionType.STRING, "args", "The arguments for the trick, if any").setRequired(false));
+    }
+
+    public CmdRunTrick(Trick trick) {
+        this(trick.getNames().get(0));
     }
 
     /**
@@ -75,7 +78,8 @@ public final class CmdRunTrick extends SlashCommand implements DeletableCommand 
             return;
         }
 
-        event.reply(trick.getMessage(Utils.getOrEmpty(event, "args").split(" "))).setEphemeral(false).queue();
+        Tricks.getTrick(trickName).ifPresentOrElse(trick -> event.reply(trick.getMessage(Utils.getOrEmpty(event, "args").split(" "))).setEphemeral(false).queue(),
+            () -> event.deferReply(true).setContent("This trick does not exist anymore!").queue());
     }
 
     @Override

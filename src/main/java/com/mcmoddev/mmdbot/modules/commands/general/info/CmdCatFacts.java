@@ -56,7 +56,7 @@ public final class CmdCatFacts extends SlashCommand {
         help = "Get a random fact about cats, you learn something new every day!";
         category = new Category("Info");
         aliases = new String[]{"catfact", "cat-fact", "cat-facts"};
-        guildOnly = true;
+        guildOnly = false;
     }
 
     /**

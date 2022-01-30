@@ -60,7 +60,7 @@ public final class CmdForgeVersion extends SlashCommand {
         category = new Category("Info");
         arguments = "[Minecraft Version]";
         aliases = new String[]{"forgev"};
-        guildOnly = true;
+        guildOnly = false;
 
 
         OptionData data = new OptionData(OptionType.STRING, "version", "The version of Minecraft to check for.").setRequired(false);
