@@ -37,7 +37,9 @@ public record ThreadedEventListener(EventListener listener, Executor threadPool)
     @Override
     public void onEvent(GenericEvent event) {
         try {
-            threadPool.execute(() -> listener.onEvent(event));
+            if (listener != null) {
+                threadPool.execute(() -> listener.onEvent(event));
+            }
         } catch (Exception e) {
             MMDBot.LOGGER.error("Error while executing threaded event!", e);
         }

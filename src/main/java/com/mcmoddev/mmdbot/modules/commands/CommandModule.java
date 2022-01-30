@@ -94,6 +94,7 @@ public class CommandModule {
     }
 
     public static final Executor COMMAND_LISTENER_THREAD_POOL = Executors.newFixedThreadPool(2, r -> Utils.setThreadDaemon(new Thread(r, "CommandListener"), true));
+    public static final Executor BUTTON_LISTENER_THREAD_POOL = Executors.newSingleThreadExecutor(r -> Utils.setThreadDaemon(new Thread(r, "ButtonListener"), true));
 
     /**
      * Setup and load the bots command module.
@@ -150,17 +151,24 @@ public class CommandModule {
             .build();
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
+            // Wrap the command and button listener in another thread, so that if a runtime exception
+            // occurs while executing a command, the event thread will not be stopped
+            // Commands and buttons are separated so that they do not interfere with each other
             MMDBot.getInstance().addEventListener(new ThreadedEventListener((EventListener) commandClient, COMMAND_LISTENER_THREAD_POOL));
-            MMDBot.getInstance().addEventListener(CmdMappings.ButtonListener.INSTANCE);
-            MMDBot.getInstance().addEventListener(CmdTranslateMappings.ButtonListener.INSTANCE);
-            MMDBot.getInstance().addEventListener(CmdRoles.getListener());
-            MMDBot.getInstance().addEventListener(CmdHelp.getListener());
-            MMDBot.getInstance().addEventListener(CmdListTricks.getListener());
-            MMDBot.getInstance().addEventListener(CmdQuote.ListQuotes.getListener());
+            MMDBot.getInstance().addEventListener(buttonListener(CmdMappings.ButtonListener.INSTANCE));
+            MMDBot.getInstance().addEventListener(buttonListener(CmdTranslateMappings.ButtonListener.INSTANCE));
+            MMDBot.getInstance().addEventListener(buttonListener(CmdRoles.getListener()));
+            MMDBot.getInstance().addEventListener(buttonListener(CmdHelp.getListener()));
+            MMDBot.getInstance().addEventListener(buttonListener(CmdListTricks.getListener()));
+            MMDBot.getInstance().addEventListener(buttonListener(CmdQuote.ListQuotes.getListener()));
             MMDBot.LOGGER.warn("Command module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");
         }
+    }
+
+    private static EventListener buttonListener(final EventListener listener) {
+        return new ThreadedEventListener(listener, BUTTON_LISTENER_THREAD_POOL);
     }
 
     /**
