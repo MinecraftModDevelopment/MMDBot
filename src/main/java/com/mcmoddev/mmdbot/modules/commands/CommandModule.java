@@ -34,6 +34,7 @@ import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
 import com.mcmoddev.mmdbot.modules.commands.contextmenu.message.ContextMenuAddQuote;
 import com.mcmoddev.mmdbot.modules.commands.contextmenu.message.ContextMenuGist;
+import com.mcmoddev.mmdbot.modules.commands.contextmenu.user.ContextMenuUser;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdCatFacts;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdFabricVersion;
 import com.mcmoddev.mmdbot.modules.commands.general.info.CmdForgeVersion;
@@ -148,6 +149,7 @@ public class CommandModule {
             // Context menus
             .addContextMenu(new ContextMenuAddQuote())
             .addContextMenu(new ContextMenuGist())
+            .addContextMenu(new ContextMenuUser())
             .build();
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {

@@ -101,7 +101,7 @@ public class CmdUser extends SlashCommand {
      * @param member the member
      * @return EmbedBuilder. embed builder
      */
-    protected EmbedBuilder createMemberEmbed(final Member member) {
+    public static EmbedBuilder createMemberEmbed(final Member member) {
         final var user = member.getUser();
         final var embed = new EmbedBuilder();
         final var dateJoinedDiscord = member.getTimeCreated().toInstant();
