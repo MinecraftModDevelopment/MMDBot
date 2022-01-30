@@ -50,6 +50,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -603,5 +604,9 @@ public final class Utils {
         if (user != null) {
             user.openPrivateChannel().queue(consumer::accept, e -> {});
         }
+    }
+
+    public static String uppercaseFirstLetter(final String string) {
+        return string.substring(0, 1).toUpperCase(Locale.ROOT) + string.substring(1);
     }
 }

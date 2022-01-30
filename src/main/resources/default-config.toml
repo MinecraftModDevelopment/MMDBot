@@ -35,6 +35,10 @@
     # Currently receives: failures to reapply roles on user rejoin, muting a user, unmuting a user
     console = ""
 
+    # The snowflake ID (or alias) of the free mod ideas channel
+    # This channel will have a thread created for every message, intended to be the place where the idea should be discussed
+    free_mod_ideas = ""
+
     # Configuration of event logging channels
     # These channels will receive messages for different events within the guild
     [channels.events]

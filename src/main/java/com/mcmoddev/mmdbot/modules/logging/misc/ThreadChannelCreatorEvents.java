@@ -52,15 +52,39 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
         }
         final var author = event.getMember();
         if (event.getChannel().getIdLong() == MMDBot.getConfig().getChannel("requests.main")) {
-            event.getMessage().createThreadChannel("Discussion of %s’s request".formatted(author.getUser().getName())).queue(thread -> {
-                thread.addThreadMember(author).queue($ -> {
-                    thread.sendMessageEmbeds(new EmbedBuilder().setTitle("Request discussion thread")
-                        .setColor(Color.CYAN).setDescription("""
-                            **This thread is intended for discussing %s's request. The request:**
+            createThread(event, Type.REQUEST);
+        }
+        if (event.getChannel().getIdLong() == MMDBot.getConfig().getChannel("free_mod_ideas")) {
+            createThread(event, Type.IDEA);
+        }
+    }
 
-                            %s""".formatted(author.getAsMention(), event.getMessage().getContentRaw())).build()).queue();
-                });
+    private void createThread(final MessageReceivedEvent event, final Type threadType) {
+        final var author = event.getMember();
+        final var threadTypeStr = threadType.toString();
+        event.getMessage().createThreadChannel("Discussion of %s’s %s".formatted(author.getUser().getName(), threadTypeStr)).queue(thread -> {
+            thread.addThreadMember(author).queue($ -> {
+                thread.sendMessageEmbeds(new EmbedBuilder().setTitle("%s discussion thread".formatted(Utils.uppercaseFirstLetter(threadTypeStr)))
+                    .setColor(Color.CYAN).setDescription("""
+                            **This thread is intended for discussing %s's %s. The %s:**
+                            %s""".formatted(author.getAsMention(), threadTypeStr, threadTypeStr, event.getMessage().getContentRaw())).build()).queue();
             });
+        });
+    }
+
+    public enum Type {
+        REQUEST("request"),
+        IDEA("idea");
+
+        private final String name;
+
+        Type(final String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
         }
     }
 }
