@@ -23,9 +23,17 @@ package com.mcmoddev.mmdbot.modules.commands.bot.management;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.utilities.Utils;
+import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Shut down the bot and the JDA instance gracefully.
@@ -44,6 +52,9 @@ public class CmdShutdown extends SlashCommand {
         help = "Shuts the bot down without restarting it. (Only usable by KiriCattus)";
         category = new Category("Management");
         ownerCommand = true;
+        guildOnly = false;
+        options = List.of(new OptionData(OptionType.BOOLEAN, "clear_global", "If the shutdown should clear global commands."),
+            new OptionData(OptionType.BOOLEAN, "clear_guild", "If the shutdown should clear guild commands."));
     }
 
     /**
@@ -54,8 +65,56 @@ public class CmdShutdown extends SlashCommand {
     @Override
     protected void execute(final SlashCommandEvent event) {
         event.reply("Shutting down the bot!").queue();
+        final var clearGlobal = Utils.getArgumentOr(event, "clear_global", OptionMapping::getAsBoolean, false);
+        final var clearGuild = Utils.getArgumentOr(event, "clear_guild", OptionMapping::getAsBoolean, false);
+        if (clearGuild && !event.isFromGuild()) {
+            event.reply("You cannot clear guild commands if you are not in a guild!").queue();
+            return;
+        }
+        if (clearGuild) {
+            try {
+                AtomicReference<InteractionHook> msg = new AtomicReference<>(
+                    event.getInteraction().reply("Waiting for command deletion...").submit().get());
+                MMDBot.LOGGER.warn(
+                    "Deleting the guild commands of the guild with the id {} at the request of {} via Discord!",
+                    event.getGuild().getIdLong(), event.getUser().getName());
+                new Thread(() -> {
+                    Utils.clearGuildCommands(event.getGuild(), () -> {
+                        msg.get().editOriginal("Shutting down the bot!").queue();
+                        executeShutdown(event);
+                    });
+                }, "GuildCommandClearing").start();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                event.getInteraction().reply("Error! Shutdown cancelled!").queue();
+            }
+            return;
+        }
+        if (clearGlobal) {
+            try {
+                AtomicReference<InteractionHook> msg = new AtomicReference<>(
+                    event.getInteraction().reply("Waiting for command deletion...").submit().get());
+                MMDBot.LOGGER.warn(
+                    "Deleting the global commands at the request of {} via Discord!", event.getUser().getName());
+                new Thread(() -> {
+                    Utils.clearGlobalCommands(() -> {
+                        msg.get().editOriginal("Shutting down the bot!").queue();
+                        executeShutdown(event);
+                    });
+                }, "GlobalCommandClearing").start();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                event.getInteraction().reply("Error! Shutdown cancelled!").queue();
+            }
+            return;
+        }
+        event.deferReply().setContent("Shutting down the bot!").mentionRepliedUser(false).queue();
+        executeShutdown(event);
+    }
+
+    private void executeShutdown(final SlashCommandEvent event) {
         //Shut down the JDA instance gracefully.
-        event.getJDA().shutdown();
+        MMDBot.getInstance().shutdown();
         MMDBot.LOGGER.warn("Shutting down the bot by request of " + event.getUser().getName() + " via Discord!");
         new Timer().schedule(new TimerTask() {
             @Override
