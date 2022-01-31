@@ -65,10 +65,6 @@
         # This channel will be monitored by the bot for bad reactions, according to the bad reaction thresholds
         main = ""
 
-        # The snowflake (or alias) ID of the requests discussion channel
-        # This channel will be used to alert users when their requests reaches the bad reaction thresholds
-        discussion = ""
-
     # Configuration of channels used in informative bot commands
     [channels.info]
         # The snowflake ID (or alias) of the readme channel
