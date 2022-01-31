@@ -83,6 +83,7 @@ public class CmdWarning extends SlashCommand {
             User userToWarn = event.getOption("user").getAsUser();
             Member member = event.getMember();
 
+            // TODO make it display the warning ID
             MMDBot.database().useExtension(Warnings.class, doc -> doc.insert(userToWarn.getIdLong(), event.getGuild().getIdLong(), reason, member.getIdLong(), Instant.now()));
 
             userToWarn.openPrivateChannel().queue(channel -> {
@@ -154,7 +155,7 @@ public class CmdWarning extends SlashCommand {
                 new OptionData(OptionType.USER, "user", "The user to remove the warn from").setRequired(true),
                 new OptionData(OptionType.STRING, "id",
                     "The ID of the warn to remove. Do not provide it if you want to clean all warnings of that user."),
-                new OptionData(OptionType.BOOLEAN, "public", "If the warning clearing is public is public"));
+                new OptionData(OptionType.BOOLEAN, "public", "If the warning clearing is public"));
         }
 
         @Override
