@@ -88,7 +88,7 @@ public final class CmdListTricks extends PaginatedCommand {
     public class TrickListListener extends ButtonListener {
         @Override
         public String getButtonID() {
-            return "tricklist";
+            return CmdListTricks.this.getName();
         }
     }
 
