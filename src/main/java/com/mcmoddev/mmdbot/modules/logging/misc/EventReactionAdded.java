@@ -238,9 +238,9 @@ public final class EventReactionAdded extends ListenerAdapter {
 
                 RestAction<Message> action = messageAuthor.openPrivateChannel()
                     .flatMap(privateChannel -> privateChannel.sendMessage(response));
-                //If we can't DM the user, send it in the discussions channel instead.
+                //If we can't DM the user, send it in the thread.
                 if (discussionChannel != null) {
-                    action = action.onErrorFlatMap(throwable -> discussionChannel.sendMessage(response));
+                    action = action.onErrorFlatMap(throwable -> event.getGuild().getThreadChannelById(event.getMessageIdLong()).sendMessage(response));
                 }
                 action.queue();
             }
