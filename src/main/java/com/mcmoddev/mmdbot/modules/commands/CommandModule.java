@@ -225,6 +225,7 @@ public class CommandModule {
     public static void addContextMenu(final ContextMenu menu) {
         commandClient.addContextMenu(menu);
         MENUS.put(menu.getName(), menu);
+        GUILD_CMDS.add(menu.buildCommandData());
     }
 
     /**
