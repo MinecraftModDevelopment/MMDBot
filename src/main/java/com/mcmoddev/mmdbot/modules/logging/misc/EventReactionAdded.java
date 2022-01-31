@@ -82,6 +82,7 @@ public final class EventReactionAdded extends ListenerAdapter {
      */
     @Override
     public void onMessageReactionAdd(final MessageReactionAddEvent event) {
+        if (!event.isFromGuild()) return;
         handleRolePanels(event);
         final var channel = event.getTextChannel();
         final MessageHistory history = MessageHistory.getHistoryAround(channel,
