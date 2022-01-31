@@ -140,6 +140,8 @@ public class GistUtils {
 
     public static final class GistException extends Exception {
 
+        private static final long serialVersionUID = -129081029829039102L;
+
         private final String error;
         private final int errorCode;
 
