@@ -21,13 +21,17 @@
 package com.mcmoddev.mmdbot.modules.commands.server.moderation;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
 import com.mcmoddev.mmdbot.utilities.Utils;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
+import java.awt.Color;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -88,16 +92,26 @@ public final class CmdUnmute extends SlashCommand {
 
         Member user = event.getOption("user").getAsMember();
 
-        final var mutedRoleID = getConfig().getRole("muted");
-        final var mutedRole = guild.getRoleById(mutedRoleID);
-
-        if (mutedRole == null) {
-            event.reply("An error occurred, please check console for more info...").setEphemeral(true).queue();
-            LOGGER.error(MUTING, "Unable to find muted role {}", mutedRoleID);
+        if (user == null) {
+            event.reply(String.format("User %s not found.", event.getOption("user").getAsUser().getName())).setEphemeral(true).queue();
             return;
         }
 
-        guild.removeRoleFromMember(user, mutedRole).queue();
+        guild.removeTimeout(user).reason("Timeout removed at the request of " + event.getUser().getAsTag()).queue();
+
+        final var muteEmbed = new EmbedBuilder().setColor(Color.DARK_GRAY)
+            .setTitle(user.getEffectiveName() + " has been un-muted!").setTimestamp(Instant.now())
+            .addField("Un-muted User", "%s (%s)".formatted(user.getAsMention(), user.getIdLong()), false)
+            .setFooter("Moderator ID: " + author.getIdLong(), author.getEffectiveAvatarUrl());
+
+        Utils.executeInDMs(user.getIdLong(), dm -> {
+            final var embed = new EmbedBuilder().setColor(Color.RED).setTitle("You have been unmuted!")
+                .setDescription("You have been un-muted in **" + guild.getName() + "**").setTimestamp(Instant.now())
+                .setFooter("Moderator ID: " + author.getIdLong(), author.getEffectiveAvatarUrl());
+            dm.sendMessageEmbeds(embed.build()).queue();
+        });
+        LoggingModule.executeInLoggingChannel(LoggingModule.LoggingType.IMPORTANT, c -> c.sendMessageEmbeds(muteEmbed.build()).queue());
+
         event.replyFormat("Un-muted user %s.", user.getAsMention()).setEphemeral(true).queue();
         LOGGER.info(MUTING, "User {} was un-muted by {}", user, author);
     }

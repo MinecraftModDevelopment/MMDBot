@@ -89,9 +89,6 @@
 
 # Configuration of roles
 [roles]
-    # The snowflake ID of the role affected by the `mute` and `unmute` commands
-    muted = ""
-
     # The snowflake ID of the bot maintainer role
     bot_maintainer = ""
 

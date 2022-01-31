@@ -22,20 +22,27 @@ package com.mcmoddev.mmdbot.modules.commands.server.moderation;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
+import java.awt.Color;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Mute the given user, by giving the designated muted role.
@@ -72,24 +79,18 @@ public final class CmdMute extends SlashCommand {
         name = "mute";
         help = "Mute a user either indefinitely or for a set amount of time.";
         category = new Category("Moderation");
-        arguments = "<userID/Mention> [time, otherwise forever] [unit, otherwise minutes]";
+        arguments = "<userID/Mention> [time, otherwise 28] [unit, otherwise days]";
         requiredRole = "Staff";
         guildOnly = true;
         botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
 
-        OptionData user = new OptionData(OptionType.USER, "user", "The user to mute.").setRequired(true);
-        OptionData time = new OptionData(OptionType.NUMBER, "time", "The amount of time to mute for. Forever if not specified.").setRequired(false);
-        OptionData unit = new OptionData(OptionType.STRING, "unit", "The unit of the time specifier.")
-            .setRequired(false)
-            .addChoice("minute", "minute")
-            .addChoice("hour", "hour")
-            .addChoice("day", "day")
-            .addChoice("week", "week");
-        List<OptionData> dataList = new ArrayList<>();
-        dataList.add(user);
-        dataList.add(time);
-        dataList.add(unit);
-        this.options = dataList;
+        OptionData time = new OptionData(OptionType.INTEGER, "time",
+            "The amount of time to mute for. 28 if not specified.").setRequired(false);
+        OptionData unit = new OptionData(OptionType.STRING, "unit", "The unit of the time specifier. Days if not specified")
+            .setRequired(false).addChoice("seconds", "seconds").addChoice("minutes", "minutes")
+            .addChoice("hours", "hours").addChoice("days", "days");
+        options = List.of(new OptionData(OptionType.USER, "user", "User to mute", true),
+            new OptionData(OptionType.STRING, "reason", "The reason to mute for").setRequired(true), time, unit);
     }
 
     /**
@@ -103,44 +104,71 @@ public final class CmdMute extends SlashCommand {
             return;
         }
 
+        final Member toMute = event.getOption("user").getAsMember();
+        if (toMute.getIdLong() == event.getMember().getIdLong()) {
+            event.deferReply(true).setContent("You cannot mute yourself!").mentionRepliedUser(false).queue();
+            return;
+        }
+
+        if (!event.getMember().canInteract(toMute)) {
+            event.deferReply(true).setContent("You do not have permission to mute this user!").mentionRepliedUser(false)
+                .queue();
+            return;
+        }
+
+        final var botUser = event.getGuild().getMember(event.getJDA().getSelfUser());
+        if (!botUser.canInteract(toMute)) {
+            event.deferReply(true).setContent("I cannot mute this member!").mentionRepliedUser(false).queue();
+            return;
+        }
+
+        if (toMute.isTimedOut()) {
+            event.deferReply(true).setContent("This user is already muted!").mentionRepliedUser(false).queue();
+            return;
+        }
+
+        long time = event.getOption("time") == null ? 28 : event.getOption("time").getAsLong();
+        TimeUnit unit = event.getOption("unit") == null ? TimeUnit.DAYS
+            : parseTimeUnit(event.getOption("unit").getAsString());
+
+        final String reason = event.getOption("reason").getAsString();
+
+
         final var author = event.getGuild().getMember(event.getUser());
         if (author == null) {
             return;
         }
 
-        Member user = event.getOption("user").getAsMember();
-        OptionMapping time = event.getOption("time");
-        OptionMapping unit = event.getOption("time");
+        event.deferReply(false)
+            .addEmbeds(muteMember(event.getGuild(), event.getMember(), toMute, reason, time, unit))
+            .mentionRepliedUser(false).queue();
+        MMDBot.LOGGER.info(MMDMarkers.MUTING, "User {} was muted by {} for {}", toMute, author, time + " " + unit.toString());
+    }
 
-        final var mutedRoleID = MMDBot.getConfig().getRole("muted");
-        final var mutedRole = event.getGuild().getRoleById(mutedRoleID);
+    public static MessageEmbed muteMember(final Guild guild, final Member muter, final Member member,
+                                          final String reason, final long time, final TimeUnit timeUnit) {
+        AtomicReference<String> muteTimeStr = new AtomicReference<>(" for " + time + " " + timeUnit);
 
-        if (user == null) {
-            event.reply(String.format("User %s not found.", user.getEffectiveName())).setEphemeral(true).queue();
-            return;
-        }
+        guild.timeoutFor(member, time, timeUnit).reason(reason).queue();
 
-        if (mutedRole == null) {
-            MMDBot.LOGGER.error(MMDMarkers.MUTING, "Unable to find muted role {}", mutedRoleID);
-            return;
-        }
+        final var muteEmbed = new EmbedBuilder().setColor(Color.DARK_GRAY)
+            .setTitle(member.getEffectiveName() + " has been muted" + muteTimeStr.get())
+            .addField("Muted User", "%s (%s)".formatted(member.getAsMention(), member.getIdLong()), false)
+            .setDescription("**Reason**: " + reason + "\n**Muted By**: " + muter.getAsMention())
+            .setTimestamp(Instant.now()).setFooter("Moderator ID: " + muter.getIdLong(), muter.getEffectiveAvatarUrl());
 
-        event.getGuild().addRoleToMember(user, mutedRole).queue();
+        Utils.executeInDMs(member.getIdLong(), dm -> {
+            final var embed = new EmbedBuilder().setColor(Color.RED).setTitle("You have been muted!")
+                .setDescription("You have been muted in **" + guild.getName() + "** by " + muter.getAsMention()
+                    + muteTimeStr.get())
+                .addField("Reason", reason, false).setTimestamp(Instant.now())
+                .setFooter("Moderator ID: " + muter.getIdLong(), muter.getEffectiveAvatarUrl());
+            dm.sendMessageEmbeds(embed.build()).queue();
+        });
 
-        if (time != null) {
-            event.getGuild().removeRoleFromMember(user, mutedRole).queueAfter((long) time.getAsDouble(), parseTimeUnit(unit.getAsString()));
-        }
+        LoggingModule.executeInLoggingChannel(LoggingModule.LoggingType.IMPORTANT, c -> c.sendMessageEmbeds(muteEmbed.build()).queue());
 
-        final String timeString;
-        if (time != null) {
-            timeString = " " + time.getAsString() + " " + parseTimeUnit(unit.getAsString()).toString().toLowerCase(Locale.ROOT);
-        } else {
-            timeString = "ever";
-        }
-
-        event.replyFormat("Muted user %s for%s.", user.getAsMention(), timeString).queue();
-        MMDBot.LOGGER.info(MMDMarkers.MUTING, "User {} was muted by {} for{}", user, author, timeString);
-
+        return muteEmbed.build();
     }
 
     /**
