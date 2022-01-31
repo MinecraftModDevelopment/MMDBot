@@ -26,8 +26,11 @@ import ch.qos.logback.core.Layout;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.BotConfig;
 import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
 import java.util.Collections;
+import java.util.UUID;
 
 /**
  * A custom {@link ch.qos.logback.core.Appender} for logging to a Discord channel.
@@ -86,12 +89,26 @@ public class ConsoleChannelAppender extends AppenderBase<ILoggingEvent> {
             if (channel == null) {
                 return;
             }
-            final var builder = new MessageBuilder();
-            builder.append(layout != null ? layout.doLayout(event) : event.getFormattedMessage());
-            if (!allowMentions) {
-                builder.setAllowedMentions(Collections.emptyList());
+            if (event.getMarker() != MMDMarkers.CAUGHT_THREADED_EVENT_EXCEPTIONS) {
+                final var builder = new MessageBuilder();
+                builder.append(layout != null ? layout.doLayout(event) : event.getFormattedMessage());
+                if (!allowMentions) {
+                    builder.setAllowedMentions(Collections.emptyList());
+                }
+                channel.sendMessage(builder.build()).queue();
+            } else {
+                final var builder = new MessageBuilder();
+                final var id = (UUID) event.getArgumentArray()[0];
+                final var exception = event.getThrowableProxy();
+                builder.append(ConsoleChannelLayout.LEVEL_TO_EMOTE.get(event.getLevel()))
+                    .append(" ");
+                builder.append(event.getFormattedMessage());
+                builder.append(exception.getMessage());
+                if (!allowMentions) {
+                    builder.setAllowedMentions(Collections.emptyList());
+                }
+                channel.sendMessage(builder.build()).setActionRow(Button.of(ButtonStyle.PRIMARY,  "show_stacktrace_" + id, "Show Stacktrace")).queue();
             }
-            channel.sendMessage(builder.build()).queue();
         }
     }
 }

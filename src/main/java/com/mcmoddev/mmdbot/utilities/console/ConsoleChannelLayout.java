@@ -61,7 +61,7 @@ public class ConsoleChannelLayout extends LayoutBase<ILoggingEvent> {
      * <p>
      * Used for visual distinction of log messages within the Discord console channel.
      */
-    private static final ImmutableMap<Level, String> LEVEL_TO_EMOTE = ImmutableMap.<Level, String>builder()
+    public static final ImmutableMap<Level, String> LEVEL_TO_EMOTE = ImmutableMap.<Level, String>builder()
         .put(Level.ERROR, ":red_square:")
         .put(Level.WARN, ":yellow_circle:")
         .put(Level.INFO, ":white_medium_small_square:")

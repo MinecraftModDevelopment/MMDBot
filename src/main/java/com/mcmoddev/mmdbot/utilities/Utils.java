@@ -44,6 +44,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -54,8 +55,10 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.LongPredicate;
 import java.util.stream.Collectors;
 
@@ -577,6 +580,15 @@ public final class Utils {
         return getOrEmpty(event.getOption(name));
     }
 
+    public static <T> T getArgumentOr(SlashCommandEvent event, String name, Function<OptionMapping, T> getter, T orElse) {
+        final var option = event.getOption(name);
+        if (option != null) {
+            return getter.apply(option);
+        } else {
+            return orElse;
+        }
+    }
+
     /**
      * Creates a discord link pointing to the specified message
      * @param guildId the ID of the guild of the message
@@ -608,5 +620,35 @@ public final class Utils {
 
     public static String uppercaseFirstLetter(final String string) {
         return string.substring(0, 1).toUpperCase(Locale.ROOT) + string.substring(1);
+    }
+
+    public static void clearGuildCommands(final @Nonnull Guild guild, final Runnable... after) {
+        guild.retrieveCommands().queue(cmds -> {
+            for (int i = 0; i < cmds.size(); i++) {
+                try {
+                    guild.deleteCommandById(cmds.get(i).getIdLong()).submit().get();
+                } catch (InterruptedException | ExecutionException e) {
+                    MMDBot.LOGGER.error("Error while trying to clear the commands of the guild {}", guild, e);
+                }
+            }
+            for (var toRun : after) {
+                toRun.run();
+            }
+        });
+    }
+
+    public static void clearGlobalCommands(final Runnable... after) {
+        MMDBot.getInstance().retrieveCommands().queue(cmds -> {
+            for (int i = 0; i < cmds.size(); i++) {
+                try {
+                    MMDBot.getInstance().deleteCommandById(cmds.get(i).getIdLong()).submit().get();
+                } catch (InterruptedException | ExecutionException e) {
+                    MMDBot.LOGGER.error("Error while trying to clear the global commands", e);
+                }
+            }
+            for (var toRun : after) {
+                toRun.run();
+            }
+        });
     }
 }
