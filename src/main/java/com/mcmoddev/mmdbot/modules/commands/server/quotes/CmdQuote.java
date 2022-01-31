@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.modules.commands.server.quotes;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.modules.commands.general.PaginatedCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.utilities.quotes.NullQuote;
 import com.mcmoddev.mmdbot.utilities.quotes.Quote;
 import com.mcmoddev.mmdbot.utilities.quotes.QuoteList;
 import com.mcmoddev.mmdbot.utilities.quotes.StringQuote;
@@ -347,10 +348,14 @@ public class CmdQuote extends SlashCommand {
                 // Get the current Quote
                 Quote fetchedQuote = QuoteList.getQuote(x);
 
-                // Put it in the description.
-                // message - author
-                embed.addField(String.valueOf(fetchedQuote.getID()), fetchedQuote == null ? "Quote does not exist." :
-                    fetchedQuote.getQuoteText() + " - " + fetchedQuote.getQuotee().resolveReference(), false);
+                if (fetchedQuote instanceof NullQuote || fetchedQuote == null) {
+                    embed.addField(String.valueOf(x), "Quote does not exist.", false);
+                } else {
+                    // Put it in the description.
+                    // message - author
+                    embed.addField(String.valueOf(fetchedQuote.getID()), 
+                        fetchedQuote.getQuoteText() + " - " + fetchedQuote.getQuotee().resolveReference(), false);
+                }
             }
 
             return embed;
