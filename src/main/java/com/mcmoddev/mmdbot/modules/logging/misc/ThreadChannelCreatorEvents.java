@@ -35,16 +35,6 @@ import java.util.concurrent.Executors;
 
 public class ThreadChannelCreatorEvents extends ListenerAdapter {
 
-    private static final Executor THREAD_POOL = Executors.newSingleThreadExecutor(r -> Utils.setThreadDaemon(new Thread(r, "ThreadCreator"), true));
-
-    public static EventListener create() {
-        return new ThreadedEventListener(new ThreadChannelCreatorEvents(), THREAD_POOL);
-    }
-
-    private ThreadChannelCreatorEvents() {
-
-    }
-
     @Override
     public void onMessageReceived(@NotNull final MessageReceivedEvent event) {
         if (!event.isFromGuild() || event.isFromThread() || event.isWebhookMessage() || event.getAuthor().isBot() || event.getAuthor().isSystem()) {
