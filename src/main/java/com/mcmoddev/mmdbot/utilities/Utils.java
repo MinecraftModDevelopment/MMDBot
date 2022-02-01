@@ -622,6 +622,16 @@ public final class Utils {
         return string.substring(0, 1).toUpperCase(Locale.ROOT) + string.substring(1);
     }
 
+    /**
+     * Checks if the given member has the given role
+     * @param member the member to check
+     * @param roleId the id of the role to search for
+     * @return if the member has the role
+     */
+    public static boolean memberHasRole(final Member member, final long roleId) {
+        return member.getRoles().stream().anyMatch(r -> r.getIdLong() == roleId);
+    }
+
     public static void clearGuildCommands(final @Nonnull Guild guild, final Runnable... after) {
         guild.retrieveCommands().queue(cmds -> {
             for (int i = 0; i < cmds.size(); i++) {

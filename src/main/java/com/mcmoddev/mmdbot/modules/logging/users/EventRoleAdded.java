@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.modules.logging.users;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.mcmoddev.mmdbot.modules.logging.misc.EventReactionAdded;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -69,6 +70,10 @@ public final class EventRoleAdded extends ListenerAdapter {
 
         if (getConfig().getGuildID() != guild.getIdLong()) {
             return; // Make sure that we don't post if it's not related to 'our' guild
+        }
+
+        if (event.getRoles().stream().anyMatch(r -> EventReactionAdded.REACTION_ROLES.contains(r.getIdLong()))) {
+            return; // If this was a reaction role, don't log it
         }
 
         final List<Role> previousRoles = new ArrayList<>(event.getMember().getRoles());

@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.utilities.console;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.Layout;
 import com.mcmoddev.mmdbot.MMDBot;
@@ -30,6 +31,8 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -71,6 +74,16 @@ public class ConsoleChannelAppender extends AppenderBase<ILoggingEvent> {
         this.layout = layoutIn;
     }
 
+    public static final Map<UUID, IThrowableProxy> EXCEPTIONS = Collections.synchronizedMap(new HashMap<>() {
+        @Override
+        public IThrowableProxy put(final UUID key, final IThrowableProxy value) {
+            if (size() < 150) {
+                return super.put(key, value);
+            }
+            return get(key);
+        }
+    });
+
     /**
      * {@inheritDoc}
      *
@@ -89,26 +102,19 @@ public class ConsoleChannelAppender extends AppenderBase<ILoggingEvent> {
             if (channel == null) {
                 return;
             }
-            if (event.getMarker() != MMDMarkers.CAUGHT_THREADED_EVENT_EXCEPTIONS) {
-                final var builder = new MessageBuilder();
-                builder.append(layout != null ? layout.doLayout(event) : event.getFormattedMessage());
-                if (!allowMentions) {
-                    builder.setAllowedMentions(Collections.emptyList());
-                }
-                channel.sendMessage(builder.build()).queue();
-            } else {
-                final var builder = new MessageBuilder();
-                final var id = (UUID) event.getArgumentArray()[0];
-                final var exception = event.getThrowableProxy();
-                builder.append(ConsoleChannelLayout.LEVEL_TO_EMOTE.get(event.getLevel()))
-                    .append(" ");
-                builder.append(event.getFormattedMessage());
-                builder.append(exception.getMessage());
-                if (!allowMentions) {
-                    builder.setAllowedMentions(Collections.emptyList());
-                }
-                channel.sendMessage(builder.build()).setActionRow(Button.of(ButtonStyle.PRIMARY,  "show_stacktrace_" + id, "Show Stacktrace")).queue();
+            final var builder = new MessageBuilder();
+            builder.append(layout != null ? layout.doLayout(event) : event.getFormattedMessage());
+            if (!allowMentions) {
+                builder.setAllowedMentions(Collections.emptyList());
             }
+            var action = channel.sendMessage(builder.build());
+            if (event.getThrowableProxy() != null) {
+                builder.appendCodeBlock(event.getThrowableProxy().getClassName() + ": " + event.getThrowableProxy().getMessage(), "ini");
+                final var exceptionId = UUID.randomUUID();
+                EXCEPTIONS.put(exceptionId, event.getThrowableProxy());
+                action = channel.sendMessage(builder.build()).setActionRow(Button.of(ButtonStyle.PRIMARY, "show_stacktrace_" + exceptionId, "Show Stacktrace"));
+            }
+            action.queue();
         }
     }
 }

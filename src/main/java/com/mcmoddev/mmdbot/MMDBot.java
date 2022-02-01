@@ -25,6 +25,8 @@ import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
 import com.mcmoddev.mmdbot.modules.logging.misc.MiscEvents;
+import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
+import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.database.DatabaseManager;
 import com.mcmoddev.mmdbot.utilities.database.JSONDataMigrator;
 import net.dv8tion.jda.api.JDA;
@@ -40,6 +42,8 @@ import javax.security.auth.login.LoginException;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Our Main class.
@@ -56,6 +60,8 @@ public final class MMDBot {
      * Where needed for events being fired, errors and other misc stuff, log things to console using this.
      */
     public static final Logger LOGGER = LoggerFactory.getLogger(References.NAME);
+
+    public static final Executor GENERAL_EVENT_THREAD_POOL = Executors.newFixedThreadPool(2, r -> Utils.setThreadDaemon(new Thread(r, "GeneralEventListener"), true));
 
     /**
      * The Constant INTENTS.
@@ -153,7 +159,7 @@ public final class MMDBot {
                 .disableCache(CacheFlag.ACTIVITY)
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
-                .addEventListeners(new MiscEvents())
+                .addEventListeners(new ThreadedEventListener(new MiscEvents(), GENERAL_EVENT_THREAD_POOL))
                 .setActivity(Activity.watching("through the mist..."))
                 .build();
             CommandModule.setupCommandModule();

@@ -155,6 +155,10 @@
 # Exmaple:
 # [role_panels.935833185072316506-935833199953707079]
 #        "U+1f54b" = 930844449838350486
+#
+# If you want the roles granted by the panel being permanent, you can toggle that on by using the permanent property
+# [role_panels.935833185072316506-935833199953707079]
+#        permanent = true
 [role_panels]
 
 # Enable or disable modules of the bot for both development and to stop problmatic modules when live should API's break.

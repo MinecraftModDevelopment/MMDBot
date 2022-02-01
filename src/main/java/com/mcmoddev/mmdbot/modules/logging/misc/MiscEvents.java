@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.modules.logging.misc;
 
-import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.MessageContextMenu;
 import com.jagrosh.jdautilities.command.MessageContextMenuEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
@@ -35,7 +34,6 @@ import net.dv8tion.jda.api.events.DisconnectEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ReconnectedEvent;
 import net.dv8tion.jda.api.events.ResumedEvent;
-import net.dv8tion.jda.api.events.interaction.command.GenericContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -44,10 +42,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 /**

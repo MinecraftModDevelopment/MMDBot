@@ -38,6 +38,7 @@ import net.dv8tion.jda.api.utils.Timestamp;
 import java.awt.Color;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Function;
 
 public class CmdWarning extends SlashCommand {
@@ -83,8 +84,7 @@ public class CmdWarning extends SlashCommand {
             User userToWarn = event.getOption("user").getAsUser();
             Member member = event.getMember();
 
-            // TODO make it display the warning ID
-            MMDBot.database().useExtension(Warnings.class, doc -> doc.insert(userToWarn.getIdLong(), event.getGuild().getIdLong(), reason, member.getIdLong(), Instant.now()));
+            final UUID warnId = withExtension(doc -> doc.insert(userToWarn.getIdLong(), event.getGuild().getIdLong(), reason, member.getIdLong(), Instant.now()));
 
             userToWarn.openPrivateChannel().queue(channel -> {
                 final var dmEmbed = new EmbedBuilder()
@@ -104,6 +104,7 @@ public class CmdWarning extends SlashCommand {
                 .setDescription("%s warned %s".formatted(mentionAndID(member.getIdLong()), mentionAndID(userToWarn.getIdLong())))
                 .setThumbnail(userToWarn.getEffectiveAvatarUrl())
                 .addField("Reason:", reason, false)
+                .addField("Warning ID", warnId.toString(), false)
                 .setTimestamp(Instant.now())
                 .setFooter("Warner ID: " + member.getId(), member.getEffectiveAvatarUrl());
             if (publicPunishment) {

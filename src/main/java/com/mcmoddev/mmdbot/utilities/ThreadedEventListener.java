@@ -21,31 +21,16 @@
 package com.mcmoddev.mmdbot.utilities;
 
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public record ThreadedEventListener(EventListener listener, Executor threadPool) implements EventListener {
-
-    public static final Map<UUID, Exception> CAUGHT_EXCEPTIONS = Collections.synchronizedMap(new HashMap<>() {
-        @Override
-        public Exception put(final UUID key, final Exception value) {
-            if (size() < 100) {
-                return super.put(key, value);
-            }
-            return get(key);
-        }
-    });
 
     public ThreadedEventListener(@Nonnull final EventListener listener) {
         this(listener, Executors.newSingleThreadExecutor(r -> Utils.setThreadDaemon(new Thread(r), true)));
@@ -58,14 +43,11 @@ public record ThreadedEventListener(EventListener listener, Executor threadPool)
                 try {
                     listener.onEvent(event);
                 } catch (Exception e) {
-                    final var id= UUID.randomUUID();
-                    // We need the ID argument for console channel logging!
-                    MMDBot.LOGGER.error(MMDMarkers.CAUGHT_THREADED_EVENT_EXCEPTIONS, "Error while executing threaded event! Error: ", id, e);
+                    MMDBot.LOGGER.error("Error while executing threaded event!", e);
                     // Reply to the user in order to inform them
                     if (event instanceof IReplyCallback replyCallback) {
                         replyCallback.deferReply(true).addEmbeds(new EmbedBuilder().setTitle("This interaction failed due to an exception.").setDescription(e.toString()).build()).queue();
                     }
-                    CAUGHT_EXCEPTIONS.put(id, e);
                 }
             });
         }

@@ -65,7 +65,7 @@ public class LoggingModule {
                     loggingEvent(new EventReactionAdded()),
                     loggingEvent(new UserBanned()),
                     loggingEvent(new ConsoleChannelButtonListener()),
-                    new ThreadedEventListener(new ScamDetector(), Executors.newSingleThreadExecutor(r -> Utils.setThreadDaemon(new Thread(r, "ScamDetector"), true))),
+                    loggingEvent(new ScamDetector()),
                     loggingEvent(new ThreadChannelCreatorEvents()));
             MMDBot.LOGGER.warn("Event logging module enabled and loaded.");
         } else {

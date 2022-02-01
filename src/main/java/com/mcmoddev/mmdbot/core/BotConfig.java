@@ -499,4 +499,8 @@ public final class BotConfig {
         config.set("role_panels.%s-%s.%s".formatted(channelId, messageId, emote), roleId);
         config.save();
     }
+
+    public boolean isRolePanelPermanent(final long channelId, final long messageId) {
+        return config.<Boolean>getOrElse("role_panels.%s-%s.permanent".formatted(channelId, messageId), false);
+    }
 }
