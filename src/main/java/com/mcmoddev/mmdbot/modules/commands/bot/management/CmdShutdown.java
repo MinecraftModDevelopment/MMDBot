@@ -64,7 +64,6 @@ public class CmdShutdown extends SlashCommand {
      */
     @Override
     protected void execute(final SlashCommandEvent event) {
-        event.reply("Shutting down the bot!").queue();
         final var clearGlobal = Utils.getArgumentOr(event, "clear_global", OptionMapping::getAsBoolean, false);
         final var clearGuild = Utils.getArgumentOr(event, "clear_guild", OptionMapping::getAsBoolean, false);
         if (clearGuild && !event.isFromGuild()) {
