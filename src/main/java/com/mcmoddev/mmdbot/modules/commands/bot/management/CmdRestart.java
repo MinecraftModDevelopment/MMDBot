@@ -22,13 +22,20 @@ package com.mcmoddev.mmdbot.modules.commands.bot.management;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.core.TaskScheduler;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Restart the bot on command rather than via console.
  *
  * @author KiriCattus
+ * @author matyrobbrt
  */
-public class CmdRestart extends Command {
+public class CmdRestart extends SlashCommand {
 
     /**
      * Instantiates a new Cmd.
@@ -43,13 +50,14 @@ public class CmdRestart extends Command {
         guildOnly = false;
     }
 
-    /**
-     * Try to restart the command from Discord rather than having to get someone with actual console access.
-     *
-     * @param event The event.
-     */
     @Override
-    protected void execute(final CommandEvent event) {
-        //TODO Work on restart code, attempt to make it platform agnostic. -KiriCattus
+    protected void execute(final SlashCommandEvent event) {
+        event.reply("Restarting the bot!").queue();
+        event.getJDA().shutdown();
+        MMDBot.LOGGER.warn("Restarting the bot by request of {} via Discord!", event.getUser().getName());
+        TaskScheduler.scheduleTask(() -> {
+            // TODO some other things may need to be nullified for this to restart with no exceptions!
+            MMDBot.main(new String[]{});
+        }, 3, TimeUnit.SECONDS);
     }
 }

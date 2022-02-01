@@ -73,4 +73,8 @@ public final class TaskScheduler {
             }
         }, 0, 14, TimeUnit.DAYS);
     }
+
+    public static void scheduleTask(Runnable toRun, long delay, TimeUnit unit) {
+        TIMER.schedule(toRun, delay, unit);
+    }
 }

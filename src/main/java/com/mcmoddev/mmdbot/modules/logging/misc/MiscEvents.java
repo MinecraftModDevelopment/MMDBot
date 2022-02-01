@@ -76,7 +76,7 @@ public final class MiscEvents extends ListenerAdapter {
         References.STARTUP_TIME = Instant.now();
 
         References.BOT_READY = true;
-        event.getJDA().updateCommands().addCommands(CommandModule.GLOBAL_CMDS).queue();
+        event.getJDA().updateCommands().addCommands(CommandModule.GLOBAL_CMDS).queue($ -> {}, e -> {});
         event.getJDA().getGuilds().forEach(guild -> guild.updateCommands().addCommands(CommandModule.GUILD_CMDS
             .computeIfAbsent(guild.getIdLong(), k -> new ArrayList<>())).queue(commands -> {
                 // TODO privileges should work

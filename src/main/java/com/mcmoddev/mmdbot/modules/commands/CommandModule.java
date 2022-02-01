@@ -32,6 +32,7 @@ import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdUptime;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRefreshScamLinks;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
+import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRestart;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
 import com.mcmoddev.mmdbot.modules.commands.contextmenu.GuildOnlyMenu;
 import com.mcmoddev.mmdbot.modules.commands.contextmenu.message.ContextMenuAddQuote;
@@ -62,12 +63,10 @@ import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdQuote;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdAddTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdEditTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
-import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrickSeparated;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdTrick;
 import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
-import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import me.shedaniel.linkie.Namespaces;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -145,6 +144,7 @@ public class CommandModule {
             new CmdListTricks(),
             new CmdRunTrick(),
             new CmdShutdown(),
+            new CmdRestart(),
             new CmdQuote(),
             new CmdRolePanel(),
             new CmdWarning(),
