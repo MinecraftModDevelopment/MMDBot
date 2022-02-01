@@ -42,7 +42,7 @@ import java.util.concurrent.Executors;
 
 public class ContextMenuGist extends MessageContextMenu {
 
-    private static final Executor THREAD_POOL = Executors.newSingleThreadExecutor(r -> Utils.setThreadDaemon(new Thread(r, "GistCreator"), true));
+    public static final Executor THREAD_POOL = Executors.newSingleThreadExecutor(r -> Utils.setThreadDaemon(new Thread(r, "GistCreator"), true));
 
     public ContextMenuGist() {
         name = "Gist";
@@ -55,7 +55,13 @@ public class ContextMenuGist extends MessageContextMenu {
         if (!GistUtils.hasToken()) {
             event.deferReply(true).setContent("I cannot create a gist! I have not been configured to do so.");
         }
-        THREAD_POOL.execute(() -> run(MMDBot.getConfig().getGithubToken(), event));
+        THREAD_POOL.execute(() -> {
+            if (event.isFromGuild() && Utils.memberHasRole(event.getMember(), MMDBot.getConfig().getRole("bot_maintainer"))) {
+                // Remove the cooldown from bot maintainers, for testing purposes
+                event.getClient().applyCooldown(getCooldownKey(event), 1);
+            }
+            run(MMDBot.getConfig().getGithubToken(), event);
+        });
     }
 
     private static void run(final String token, final MessageContextMenuEvent event) {

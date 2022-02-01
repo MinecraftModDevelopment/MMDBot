@@ -27,7 +27,6 @@ import net.dv8tion.jda.api.entities.Member;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -35,7 +34,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author williambl
  */
-public class ChannelMessageChecker extends TimerTask {
+public class ChannelMessageChecker implements Runnable {
 
     /**
      * The Guild id.

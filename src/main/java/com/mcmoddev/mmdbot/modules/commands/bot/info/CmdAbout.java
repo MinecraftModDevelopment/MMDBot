@@ -68,6 +68,7 @@ public final class CmdAbout extends SlashCommand {
         if (!Utils.checkCommand(this, event)) {
             return;
         }
+
         final var embed = new EmbedBuilder();
 
         embed.setTitle("Bot Build info");
@@ -81,6 +82,16 @@ public final class CmdAbout extends SlashCommand {
         embed.addField("Current maintainers:", "jriwanek, WillBL, KiriCattus, sciwhiz12, Curle, matyrobbrt",
             true);
         embed.setTimestamp(Instant.now());
-        event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
+
+        if (event.isFromGuild() && Utils.memberHasRole(event.getMember(), MMDBot.getConfig().getRole("bot_maintainer"))) {
+            event.deferReply(false).queue(hook -> {
+                event.getJDA().retrieveCommands().queue(commands -> {
+                    embed.addField("Globally registered commands", String.valueOf(commands.size()), false);
+                    hook.editOriginalEmbeds(embed.build()).queue();
+                });
+            });
+        } else {
+            event.replyEmbeds(embed.build()).queue();
+        }
     }
 }

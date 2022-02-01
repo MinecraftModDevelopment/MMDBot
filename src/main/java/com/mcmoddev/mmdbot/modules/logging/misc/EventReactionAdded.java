@@ -25,6 +25,7 @@ import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
@@ -61,6 +62,11 @@ import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.REQUESTS;
 public final class EventReactionAdded extends ListenerAdapter {
 
     /**
+     * A cache containing all the roles that have been used as reaction roles
+     */
+    public static final Set<Long> REACTION_ROLES = Collections.synchronizedSet(new HashSet<>());
+
+    /**
      * The Warned messages.
      */
     private final Set<Message> warnedMessages = new HashSet<>();
@@ -82,8 +88,8 @@ public final class EventReactionAdded extends ListenerAdapter {
      */
     @Override
     public void onMessageReactionAdd(final MessageReactionAddEvent event) {
-        if (!event.isFromGuild()) return;
         handleRolePanels(event);
+        if (!event.isFromGuild() || !event.isFromType(ChannelType.TEXT)) return;
         final var channel = event.getTextChannel();
         final MessageHistory history = MessageHistory.getHistoryAround(channel,
             event.getMessageId()).limit(1).complete();
@@ -267,12 +273,13 @@ public final class EventReactionAdded extends ListenerAdapter {
         }
         final var emote = getEmoteAsString(event.getReactionEmote());
         Utils.getRoleIfPresent(event.getGuild(), MMDBot.getConfig().getRoleForRolePanel(event.getChannel().getIdLong(), event.getMessageIdLong(), emote), role -> {
+            REACTION_ROLES.add(role.getIdLong());
             final var member = event.getMember();
-            if (isRemove) {
+            if (isRemove && !MMDBot.getConfig().isRolePanelPermanent(event.getChannel().getIdLong(), event.getMessageIdLong())) {
                 if (member.getRoles().contains(role)) {
                     event.getGuild().removeRoleFromMember(member, role).reason("Reaction Roles").queue();
                 }
-            } else {
+            } else if (!isRemove) {
                 if (!member.getRoles().contains(role)) {
                     event.getGuild().addRoleToMember(member, role).reason("Reaction Roles").queue();
                 }

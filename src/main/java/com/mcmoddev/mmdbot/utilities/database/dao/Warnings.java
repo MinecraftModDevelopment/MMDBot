@@ -46,8 +46,19 @@ public interface Warnings extends Transactional<Warnings> {
     @SqlUpdate("insert or ignore into warnings values (:user, :guild, :warn_id, :reason, :moderator, :timestamp)")
     void insert(@Bind("user") long user, @Bind("guild") long guild, @Bind("warn_id") String warnId, @Bind("reason") String reason, @Bind("moderator") long moderator, @Bind("timestamp") Instant timestamp);
 
-    default void insert(long user, long guild, String reason, long moderator, Instant timestamp) {
-        insert(user, guild, UUID.randomUUID().toString(), reason, moderator, timestamp);
+    /**
+     * Inserts a new warning in the database
+     * @param user the user to warn
+     * @param guild the guild in which to warn
+     * @param reason the reason to warn
+     * @param moderator the moderator who warned
+     * @param timestamp the time at which the warning "happened"
+     * @return the warning UUID
+     */
+    default UUID insert(long user, long guild, String reason, long moderator, Instant timestamp) {
+        final var id = UUID.randomUUID();
+        insert(user, guild, id.toString(), reason, moderator, timestamp);
+        return id;
     }
 
     /// Query methods ///

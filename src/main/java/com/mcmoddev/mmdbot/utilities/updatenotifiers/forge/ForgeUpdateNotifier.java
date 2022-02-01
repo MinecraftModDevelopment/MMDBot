@@ -20,24 +20,23 @@
  */
 package com.mcmoddev.mmdbot.utilities.updatenotifiers.forge;
 
+import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
+import static com.mcmoddev.mmdbot.MMDBot.getConfig;
+import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.NOTIFIER_FORGE;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.ChannelType;
 
 import java.awt.Color;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.TimerTask;
-
-import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
-import static com.mcmoddev.mmdbot.MMDBot.getConfig;
-import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.NOTIFIER_FORGE;
 
 /**
  * The type Forge update notifier.
  *
  * @author Antoine Gagnon
  */
-public final class ForgeUpdateNotifier extends TimerTask {
+public final class ForgeUpdateNotifier implements Runnable {
 
     /**
      * The constant CHANGELOG.
@@ -136,7 +135,11 @@ public final class ForgeUpdateNotifier extends TimerTask {
                 lastForgeVersions = latest;
 
                 Utils.getChannelIfPresent(getConfig().getChannel("notifications.forge"),
-                    channel -> channel.sendMessageEmbeds(embed.build()).queue());
+                    channel -> channel.sendMessageEmbeds(embed.build()).queue(msg -> {
+                        if (channel.getType() == ChannelType.NEWS) {
+                            msg.crosspost().queue();
+                        }
+                    }));
             } else {
                 LOGGER.debug(NOTIFIER_FORGE, "No new Forge version found");
             }

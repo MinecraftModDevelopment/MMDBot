@@ -18,22 +18,8 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.modules.commands.contextmenu.user;
+package com.mcmoddev.mmdbot.modules.commands.contextmenu;
 
-import com.jagrosh.jdautilities.command.UserContextMenu;
-import com.jagrosh.jdautilities.command.UserContextMenuEvent;
-import com.mcmoddev.mmdbot.modules.commands.contextmenu.GuildOnlyMenu;
-import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
+public interface GuildOnlyMenu {
 
-public class ContextMenuUserInfo extends UserContextMenu implements GuildOnlyMenu {
-
-    public ContextMenuUserInfo() {
-        name = "User Info";
-    }
-
-    @Override
-    protected void execute(final UserContextMenuEvent event) {
-        final var embed = CmdUser.createMemberEmbed(event.getTargetMember());
-        event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
-    }
 }

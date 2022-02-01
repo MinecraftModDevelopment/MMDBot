@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.modules.commands.server;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
@@ -91,7 +92,17 @@ public final class CmdGuild extends SlashCommand {
             embed.addField("Guilds age:", Utils.getTimeDifference(Utils.getTimeFromUTC(dateGuildCreated),
                 OffsetDateTime.now(ZoneOffset.UTC)), true);
             embed.setTimestamp(Instant.now());
-            event.replyEmbeds(embed.build()).queue();
+
+            if (event.isFromGuild() && Utils.memberHasRole(event.getMember(), MMDBot.getConfig().getRole("bot_maintainer"))) {
+                event.deferReply(false).queue(hook -> {
+                    event.getGuild().retrieveCommands().queue(commands -> {
+                        embed.addField("Guild registered commands", String.valueOf(commands.size()), false);
+                        hook.editOriginalEmbeds(embed.build()).queue();
+                    });
+                });
+            } else {
+                event.replyEmbeds(embed.build()).queue();
+            }
         } else {
             event.reply("This command should not be possible from a DM.").queue();
         }

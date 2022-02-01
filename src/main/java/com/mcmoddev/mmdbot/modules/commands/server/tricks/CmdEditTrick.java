@@ -20,6 +20,8 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.server.tricks;
 
+import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
@@ -95,8 +97,7 @@ public final class CmdEditTrick extends SlashCommand {
 
                 originalTrick.ifPresentOrElse(
                     original -> {
-                        Tricks.removeTrick(original);
-                        Tricks.addTrick(trick);
+                        Tricks.replaceTrick(original, trick);
                         event.reply("Updated trick!").mentionRepliedUser(false).setEphemeral(true).queue();
                     },
                     () ->
@@ -106,6 +107,52 @@ public final class CmdEditTrick extends SlashCommand {
             } catch (IllegalArgumentException e) {
                 MMDBot.LOGGER.warn("Failure adding trick: {}", e.getMessage());
             }
+        }
+    }
+
+    public static final class Prefix extends Command {
+        public Prefix() {
+            super();
+            name = "edittrick";
+            help = "Edits/replaces a trick. Similar in usage to !addtrick.";
+            category = new Category("Info");
+            arguments = "(<string> <trick content body> (or) <embed> <title> "
+                + "<description> <colour-as-hex-code>";
+            aliases = new String[]{"edit-trick"};
+            guildOnly = true;
+            children = Tricks.getTrickTypes().entrySet().stream().map(entry -> new SubCommand(entry.getKey(), entry.getValue())).toArray(SlashCommand[]::new);
+        }
+
+        @Override
+        protected void execute(final CommandEvent event) {
+
+        }
+    }
+
+    private static final class PrefixSubCmd extends Command {
+        private final Trick.TrickType<?> trickType;
+
+        public PrefixSubCmd(String name, Trick.TrickType<?> trickType) {
+            this.trickType = trickType;
+            this.name = name;
+            this.help = "Create a " + name + "-type trick.";
+            this.guildOnly = true;
+        }
+
+        @Override
+        protected void execute(final CommandEvent event) {
+            if (!Utils.checkCommand(this, event)) {
+                return;
+            }
+
+            Trick trick = trickType.createFromArgs(event.getArgs());
+            Optional<Trick> originalTrick = Tricks.getTricks().stream()
+                .filter(t -> t.getNames().stream().anyMatch(n -> trick.getNames().contains(n))).findAny();
+
+            originalTrick.ifPresentOrElse(original -> {
+                Tricks.replaceTrick(original, trick);
+                event.getMessage().reply("Updated trick!").mentionRepliedUser(false).queue();
+            }, () -> event.getMessage().reply("No command with that name exists!").mentionRepliedUser(false).queue());
         }
     }
 }

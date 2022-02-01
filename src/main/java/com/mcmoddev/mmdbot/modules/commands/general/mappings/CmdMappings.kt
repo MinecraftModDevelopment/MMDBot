@@ -55,6 +55,7 @@ class CmdMappings(name: String, private val namespace: Namespace, vararg aliases
         this.name = name.lowercase(Locale.ROOT)
         this.aliases = aliases
         help = "Search for a mapping with $name."
+        this.guildOnly = false
 
         options = arrayListOf(
             OptionData(OptionType.STRING, "query", "A mapping to query.").setRequired(true),

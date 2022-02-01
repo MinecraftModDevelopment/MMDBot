@@ -159,7 +159,13 @@ public final class Tricks {
     public static void removeTrick(final Trick trick) {
         getTricks().remove(trick);
         write();
-        CommandModule.removeCommand(trick.getNames().get(0));
+        CommandModule.removeCommand(trick.getNames().get(0), true);
+    }
+
+    public static void replaceTrick(final Trick oldTrick, final Trick newTrick) {
+        getTricks().remove(oldTrick);
+        getTricks().add(newTrick);
+        write();
     }
 
     /**
@@ -189,8 +195,11 @@ public final class Tricks {
             .map(cmd -> (DeletableCommand) cmd)
             .findFirst().ifPresentOrElse(
                 DeletableCommand::restore,
-                () -> CommandModule.addSlashCommand(new CmdRunTrick(trick))
-            );
+                () -> {
+                    final var cmd = new CmdRunTrick(trick);
+                    CommandModule.getCommandClient().addSlashCommand(cmd);
+                    CommandModule.upsertCommand(cmd);
+                });
     }
 
     static {

@@ -24,16 +24,17 @@ import com.google.gson.JsonObject;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.References;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 
 public class GistUtils {
@@ -41,10 +42,13 @@ public class GistUtils {
     private static int lastCode = 0;
     private static String lastErrorMessage = "";
 
+    private static final HttpClient CLIENT = HttpClient.newHttpClient();
+
     /**
      * Creates a new Gist
+     *
      * @param token the token of the account to create a gist for
-     * @param gist the gist to create
+     * @param gist  the gist to create
      * @return the created gist
      * @throws GistException any exception that occurred while creating the gist (usually, and IO one)
      */
@@ -52,7 +56,7 @@ public class GistUtils {
         String newGist;
         try {
             newGist = post(token, "", gist.toString());
-        } catch (IOException ioe) {
+        } catch (IOException | InterruptedException ioe) {
             int code = lastCode;
             if (code == 404) {
                 return null;
@@ -65,46 +69,24 @@ public class GistUtils {
 
     /**
      * Posts a request to GitHub
-     * @param token a token for accessing GitHub
-     * @param operation the operation to execute
+     *
+     * @param token       a token for accessing GitHub
+     * @param operation   the operation to execute
      * @param postMessage the message to post
      * @return the response
      */
-    private static String post(final String token, final String operation, final String postMessage) throws IOException {
+    private static String post(final String token, final String operation, final String postMessage) throws InterruptedException, IOException {
         final URL target = new URL("https://api.github.com/gists" + operation);
-        final HttpsURLConnection connection = (HttpsURLConnection) target.openConnection();
 
-        connection.setDoOutput(true);
-        connection.setDoInput(true);
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setRequestProperty("Authorization", "token " + token);
+        var request = HttpRequest.newBuilder(URI.create(target.toString()))
+            .header("Content-Type", "application/json")
+            .header("Authorization", "token " + token)
+            .POST(HttpRequest.BodyPublishers.ofString(postMessage))
+            .build();
 
-        try (OutputStream output = connection.getOutputStream(); final DataOutputStream requestBody = new DataOutputStream(output)) {
-            requestBody.writeBytes(postMessage);
-        }
-
-        String respone;
-        try {
-            respone = getResponse(connection.getInputStream());
-        } finally {
-            assignLastCode(connection);
-        }
-
-        return respone;
-    }
-
-    private static String getResponse(final InputStream stream) throws IOException {
-        StringBuilder full = new StringBuilder();
-        String line;
-
-        try (stream; InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8); BufferedReader streamBuf = new BufferedReader(reader)) {
-            while ((line = streamBuf.readLine()) != null) {
-                full.append(line);
-            }
-        }
-
-        return full.toString();
+        var response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+        assignLastCode(response);
+        return response.body();
     }
 
     public static String readFile(File f) throws IOException {
@@ -124,14 +106,9 @@ public class GistUtils {
         return content.toString();
     }
 
-    private static void assignLastCode(HttpsURLConnection conn) {
-        try {
-            lastCode = conn.getResponseCode();
-            lastErrorMessage = conn.getResponseMessage();
-        } catch (IOException e) {
-            lastCode = -1;
-            lastErrorMessage = "Unknown";
-        }
+    private static void assignLastCode(HttpResponse<String> response) {
+        lastCode = response.statusCode();
+        lastErrorMessage = response.body();
     }
 
     public static boolean hasToken() {

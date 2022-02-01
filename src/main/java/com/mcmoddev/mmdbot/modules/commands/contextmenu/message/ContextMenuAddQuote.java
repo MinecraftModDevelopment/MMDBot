@@ -22,12 +22,13 @@ package com.mcmoddev.mmdbot.modules.commands.contextmenu.message;
 
 import com.jagrosh.jdautilities.command.MessageContextMenu;
 import com.jagrosh.jdautilities.command.MessageContextMenuEvent;
+import com.mcmoddev.mmdbot.modules.commands.contextmenu.GuildOnlyMenu;
 import com.mcmoddev.mmdbot.utilities.quotes.Quote;
 import com.mcmoddev.mmdbot.utilities.quotes.QuoteList;
 import com.mcmoddev.mmdbot.utilities.quotes.StringQuote;
 import com.mcmoddev.mmdbot.utilities.quotes.UserReference;
 
-public class ContextMenuAddQuote extends MessageContextMenu {
+public class ContextMenuAddQuote extends MessageContextMenu implements GuildOnlyMenu {
 
     public ContextMenuAddQuote() {
         name = "Add Quote";

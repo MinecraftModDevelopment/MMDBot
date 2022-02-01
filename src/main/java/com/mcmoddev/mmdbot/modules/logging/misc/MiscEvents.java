@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.modules.logging.misc;
 
-import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.MessageContextMenu;
 import com.jagrosh.jdautilities.command.MessageContextMenuEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
@@ -35,7 +34,6 @@ import net.dv8tion.jda.api.events.DisconnectEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ReconnectedEvent;
 import net.dv8tion.jda.api.events.ResumedEvent;
-import net.dv8tion.jda.api.events.interaction.command.GenericContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -43,11 +41,9 @@ import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -81,18 +77,17 @@ public final class MiscEvents extends ListenerAdapter {
 
         References.BOT_READY = true;
         event.getJDA().updateCommands().addCommands(CommandModule.GLOBAL_CMDS).queue();
-        event.getJDA().getGuilds().forEach(guild -> {
-            guild.updateCommands().addCommands(CommandModule.GUILD_CMDS).queue(commands -> {
-                Map<String, Collection<CommandPrivilege>> privileges = new HashMap<>();
-                for (var cmd : commands) {
-                    SlashCommand command = CommandModule.SLASH_COMMANDS.get(cmd.getName());
-                    if (command != null) {
-                        privileges.put(cmd.getId(), command.buildPrivileges(CommandModule.getCommandClient()));
-                    }
-                    guild.updateCommandPrivileges(privileges).queue();
+        event.getJDA().getGuilds().forEach(guild -> guild.updateCommands().addCommands(CommandModule.GUILD_CMDS
+            .computeIfAbsent(guild.getIdLong(), k -> new ArrayList<>())).queue(commands -> {
+            Map<String, Collection<CommandPrivilege>> privileges = new HashMap<>();
+            for (var cmd : commands) {
+                SlashCommand command = CommandModule.SLASH_COMMANDS.get(cmd.getName());
+                if (command != null) {
+                    privileges.put(cmd.getId(), command.buildPrivileges(CommandModule.getCommandClient()));
                 }
-            });
-        });
+                guild.updateCommandPrivileges(privileges).queue();
+            }
+        }));
     }
 
     /**

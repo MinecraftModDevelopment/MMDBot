@@ -88,13 +88,6 @@ public final class MMDMarkers {
     public static final Marker MUTING = MarkerFactory.getMarker("Muting");
 
     /**
-     * The {@link Marker} for printing exceptions caught in {@link com.mcmoddev.mmdbot.utilities.ThreadedEventListener}
-     *
-     * @see com.mcmoddev.mmdbot.utilities.ThreadedEventListener
-     */
-    public static final Marker CAUGHT_THREADED_EVENT_EXCEPTIONS = MarkerFactory.getMarker("CaughtThreadedEventExceptions");
-
-    /**
      * Instantiates a new Mmd markers.
      */
     private MMDMarkers() {

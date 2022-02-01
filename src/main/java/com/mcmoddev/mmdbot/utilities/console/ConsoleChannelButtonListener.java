@@ -21,7 +21,6 @@
 package com.mcmoddev.mmdbot.utilities.console;
 
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -37,20 +36,23 @@ public class ConsoleChannelButtonListener extends ListenerAdapter {
             return;
         }
         final var exceptionId = UUID.fromString(event.getButton().getId().replaceAll("show_stacktrace_", ""));
-        if (!ThreadedEventListener.CAUGHT_EXCEPTIONS.containsKey(exceptionId)) {
+        if (!ConsoleChannelAppender.EXCEPTIONS.containsKey(exceptionId)) {
             event.deferReply(true).setContent("I do not know anything about this exception anymore, but you can always check the logs. Sorry!");
             return;
         }
-        final var exception = ThreadedEventListener.CAUGHT_EXCEPTIONS.get(exceptionId);
+        final var exception = ConsoleChannelAppender.EXCEPTIONS.get(exceptionId);
         final var newContent = new StringBuilder();
         newContent.append(event.getMessage().getContentRaw())
-                .append(System.lineSeparator())
-                .append("Stacktrace:")
-                .append(System.lineSeparator());
-        for (int i = 0; i < exception.getStackTrace().length; i++) {
-            newContent.append("     at ").append(exception.getStackTrace()[i].toString())
+            .append(System.lineSeparator())
+            .append("Stacktrace:")
+            .append(System.lineSeparator())
+            .append("```ini")
+            .append(System.lineSeparator());
+        for (int i = 0; i < exception.getStackTraceElementProxyArray().length; i++) {
+            newContent.append("     ").append(exception.getStackTraceElementProxyArray()[i].toString())
                 .append(System.lineSeparator());
         }
-        event.getMessage().editMessage(newContent).setActionRows(Collections.emptyList()).queue($ -> ThreadedEventListener.CAUGHT_EXCEPTIONS.remove(exceptionId));
+        newContent.append("```");
+        event.getMessage().editMessage(newContent).setActionRows(Collections.emptyList()).queue($ -> ConsoleChannelAppender.EXCEPTIONS.remove(exceptionId));
     }
 }

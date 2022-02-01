@@ -20,20 +20,20 @@
  */
 package com.mcmoddev.mmdbot.modules.commands;
 
-import com.google.common.collect.ImmutableMap;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.command.ContextMenu;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
+import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdGist;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdHelp;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdUptime;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRefreshScamLinks;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
+import com.mcmoddev.mmdbot.modules.commands.contextmenu.GuildOnlyMenu;
 import com.mcmoddev.mmdbot.modules.commands.contextmenu.message.ContextMenuAddQuote;
 import com.mcmoddev.mmdbot.modules.commands.contextmenu.message.ContextMenuGist;
 import com.mcmoddev.mmdbot.modules.commands.contextmenu.user.ContextMenuUserInfo;
@@ -65,20 +65,17 @@ import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRemoveTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrickExplicitly;
-import com.mcmoddev.mmdbot.modules.logging.misc.MiscEvents;
 import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import me.shedaniel.linkie.Namespaces;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -157,11 +154,14 @@ public class CommandModule {
 
         addSlashCommand(CmdTranslateMappings.createCommands());
         addSlashCommand(CmdMappings.createCommands()); // TODO: This is broken beyond belief. Consider moving away from linkie. - Curle
-        final var tricks = Tricks.getTricks();
         addSlashCommand(Tricks.getTricks().stream().map(CmdRunTrick::new).toArray(SlashCommand[]::new));
 
         commandClient.addCommand(new CmdRefreshScamLinks());
         commandClient.addCommand(new CmdReact());
+        commandClient.addCommand(new CmdGist());
+
+        commandClient.addCommand(new CmdAddTrick.Prefix());
+        commandClient.addCommand(new CmdEditTrick.Prefix());
 
         addContextMenu(new ContextMenuGist());
         addContextMenu(new ContextMenuAddQuote());
@@ -194,21 +194,33 @@ public class CommandModule {
      *
      * @param name the name of the command to remove
      */
-    public static void removeCommand(final String name) {
-        var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
-        if (guild == null) {
-            throw new NullPointerException("No Guild found!");
+    public static void removeCommand(final String name, final boolean guildOnly) {
+        if (guildOnly) {
+            var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
+            if (guild == null) {
+                throw new NullPointerException("No Guild found!");
+            }
+
+            commandClient.getSlashCommands().stream()
+                .filter(cmd -> cmd.getName().equals(name))
+                .filter(cmd -> cmd instanceof DeletableCommand && cmd.isGuildOnly())
+                .map(cmd -> (DeletableCommand) cmd)
+                .forEach(DeletableCommand::delete);
+
+            guild.retrieveCommands()
+                .flatMap(list -> list.stream().filter(cmd -> cmd.getName().equals(name)).findAny().map(cmd -> guild.deleteCommandById(cmd.getId())).orElseThrow())
+                .queue();
+        } else {
+            commandClient.getSlashCommands().stream()
+                .filter(cmd -> cmd.getName().equals(name))
+                .filter(cmd -> cmd instanceof DeletableCommand && !cmd.isGuildOnly())
+                .map(cmd -> (DeletableCommand) cmd)
+                .forEach(DeletableCommand::delete);
+
+            MMDBot.getInstance().retrieveCommands()
+                .flatMap(list -> list.stream().filter(cmd -> cmd.getName().equals(name)).findAny().map(cmd ->
+                    MMDBot.getInstance().deleteCommandById(cmd.getId())).orElseThrow()).queue();
         }
-
-        commandClient.getSlashCommands().stream()
-            .filter(cmd -> cmd.getName().equals(name))
-            .filter(cmd -> cmd instanceof DeletableCommand)
-            .map(cmd -> (DeletableCommand) cmd)
-            .forEach(DeletableCommand::delete);
-
-        guild.retrieveCommands()
-            .flatMap(list -> list.stream().filter(cmd -> cmd.getName().equals(name)).findAny().map(cmd -> guild.deleteCommandById(cmd.getId())).orElseThrow())
-            .queue();
     }
 
     // This is a temporary fix for something broken in chewtils, whose fix is not yet published
@@ -218,14 +230,19 @@ public class CommandModule {
         return MENUS.get(name);
     }
 
-    public static final List<CommandData> GUILD_CMDS = new ArrayList<>();
+    public static final Map<Long, List<CommandData>> GUILD_CMDS = new HashMap<>();
     public static final List<CommandData> GLOBAL_CMDS = new ArrayList<>();
     public static final Map<String, SlashCommand> SLASH_COMMANDS = new HashMap<>();
 
     public static void addContextMenu(final ContextMenu menu) {
         commandClient.addContextMenu(menu);
         MENUS.put(menu.getName(), menu);
-        GUILD_CMDS.add(menu.buildCommandData());
+        if (menu instanceof GuildOnlyMenu) {
+            GUILD_CMDS.computeIfAbsent(MMDBot.getConfig().getGuildID(), k -> new ArrayList<>())
+                    .add(menu.buildCommandData());
+        } else {
+            GLOBAL_CMDS.add(menu.buildCommandData());
+        }
     }
 
     /**
@@ -240,7 +257,7 @@ public class CommandModule {
             if (cmd.isGuildOnly()) {
                 GLOBAL_CMDS.add(cmd.buildCommandData());
             } else {
-                GUILD_CMDS.add(cmd.buildCommandData());
+                GUILD_CMDS.computeIfAbsent(MMDBot.getConfig().getGuildID(), k -> new ArrayList<>()).add(cmd.buildCommandData());
             }
         }
     }
@@ -270,8 +287,8 @@ public class CommandModule {
      *
      * @param menu the menu
      */
-    public static void upsertContextMenu(final ContextMenu menu, final boolean guildOnly) {
-        if (guildOnly) {
+    public static void upsertContextMenu(final ContextMenu menu) {
+        if (menu instanceof GuildOnlyMenu) {
             var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
             if (guild == null) {
                 throw new NullPointerException("No Guild found!");

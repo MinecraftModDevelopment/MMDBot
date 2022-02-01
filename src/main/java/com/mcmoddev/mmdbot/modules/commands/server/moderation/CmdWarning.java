@@ -38,6 +38,7 @@ import net.dv8tion.jda.api.utils.Timestamp;
 import java.awt.Color;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Function;
 
 public class CmdWarning extends SlashCommand {
@@ -83,8 +84,11 @@ public class CmdWarning extends SlashCommand {
             User userToWarn = event.getOption("user").getAsUser();
             Member member = event.getMember();
 
-            // TODO make it display the warning ID
-            MMDBot.database().useExtension(Warnings.class, doc -> doc.insert(userToWarn.getIdLong(), event.getGuild().getIdLong(), reason, member.getIdLong(), Instant.now()));
+            if (!canInteract(event, event.getGuild().getMember(userToWarn))) {
+                return;
+            }
+
+            final UUID warnId = withExtension(doc -> doc.insert(userToWarn.getIdLong(), event.getGuild().getIdLong(), reason, member.getIdLong(), Instant.now()));
 
             userToWarn.openPrivateChannel().queue(channel -> {
                 final var dmEmbed = new EmbedBuilder()
@@ -104,6 +108,7 @@ public class CmdWarning extends SlashCommand {
                 .setDescription("%s warned %s".formatted(mentionAndID(member.getIdLong()), mentionAndID(userToWarn.getIdLong())))
                 .setThumbnail(userToWarn.getEffectiveAvatarUrl())
                 .addField("Reason:", reason, false)
+                .addField("Warning ID", warnId.toString(), false)
                 .setTimestamp(Instant.now())
                 .setFooter("Warner ID: " + member.getId(), member.getEffectiveAvatarUrl());
             if (publicPunishment) {
@@ -164,6 +169,10 @@ public class CmdWarning extends SlashCommand {
             User userToWarn = event.getOption("user").getAsUser();
             String warnId = Utils.getOrEmpty(event, "id");
             Member member = event.getMember();
+
+            if (!canInteract(event, event.getGuild().getMember(userToWarn))) {
+                return;
+            }
 
             if (warnId.isBlank()) {
                 MMDBot.database().useExtension(Warnings.class, db -> db.clearAll(userToWarn.getIdLong(), event.getGuild().getIdLong()));
@@ -232,6 +241,26 @@ public class CmdWarning extends SlashCommand {
             }
 
         }
+    }
+
+    public static boolean canInteract(final SlashCommandEvent event, final Member target) {
+        if (target == null) {
+            event.deferReply(true).setContent("Unknown user!").queue();
+            return false;
+        }
+
+        if (target.getIdLong() == event.getMember().getIdLong()) {
+            event.deferReply(true).setContent("You cannot interact with yourself!").mentionRepliedUser(false).queue();
+            return false;
+        }
+
+        if (!event.getMember().canInteract(target)) {
+            event.deferReply(true).setContent("You do not have permission to warn this user!").mentionRepliedUser(false)
+                .queue();
+            return false;
+        }
+
+        return true;
     }
 
     public static <R> R withExtension(Function<Warnings, R> callback) {

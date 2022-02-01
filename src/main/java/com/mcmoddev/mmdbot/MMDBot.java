@@ -20,11 +20,14 @@
  */
 package com.mcmoddev.mmdbot;
 
+import com.google.common.collect.ImmutableSet;
 import com.mcmoddev.mmdbot.core.BotConfig;
 import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
 import com.mcmoddev.mmdbot.modules.logging.misc.MiscEvents;
+import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
+import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.database.DatabaseManager;
 import com.mcmoddev.mmdbot.utilities.database.JSONDataMigrator;
 import net.dv8tion.jda.api.JDA;
@@ -38,8 +41,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Our Main class.
@@ -57,10 +63,18 @@ public final class MMDBot {
      */
     public static final Logger LOGGER = LoggerFactory.getLogger(References.NAME);
 
+    public static final Executor GENERAL_EVENT_THREAD_POOL = Executors.newFixedThreadPool(2, r -> Utils.setThreadDaemon(new Thread(r, "GeneralEventListener"), true));
+
     /**
      * The Constant INTENTS.
      */
-    private static final Set<GatewayIntent> INTENTS = new HashSet<>();
+    private static final Set<GatewayIntent> INTENTS = Set.of(
+        GatewayIntent.DIRECT_MESSAGES,
+        GatewayIntent.GUILD_BANS,
+        GatewayIntent.GUILD_EMOJIS,
+        GatewayIntent.GUILD_MESSAGE_REACTIONS,
+        GatewayIntent.GUILD_MESSAGES,
+        GatewayIntent.GUILD_MEMBERS);
 
     /**
      * The config.
@@ -76,15 +90,6 @@ public final class MMDBot {
      * The database manager.
      */
     private static DatabaseManager database;
-
-    static {
-        MMDBot.INTENTS.add(GatewayIntent.DIRECT_MESSAGES);
-        MMDBot.INTENTS.add(GatewayIntent.GUILD_BANS);
-        MMDBot.INTENTS.add(GatewayIntent.GUILD_EMOJIS);
-        MMDBot.INTENTS.add(GatewayIntent.GUILD_MESSAGE_REACTIONS);
-        MMDBot.INTENTS.add(GatewayIntent.GUILD_MESSAGES);
-        MMDBot.INTENTS.add(GatewayIntent.GUILD_MEMBERS);
-    }
 
     /**
      * Returns the configuration of this bot.
@@ -153,7 +158,7 @@ public final class MMDBot {
                 .disableCache(CacheFlag.ACTIVITY)
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
-                .addEventListeners(new MiscEvents())
+                .addEventListeners(new ThreadedEventListener(new MiscEvents(), GENERAL_EVENT_THREAD_POOL))
                 .setActivity(Activity.watching("through the mist..."))
                 .build();
             CommandModule.setupCommandModule();

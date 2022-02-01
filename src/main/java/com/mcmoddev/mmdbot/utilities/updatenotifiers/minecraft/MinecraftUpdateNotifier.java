@@ -20,23 +20,22 @@
  */
 package com.mcmoddev.mmdbot.utilities.updatenotifiers.minecraft;
 
+import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
+import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.ChannelType;
 
 import java.awt.Color;
 import java.time.Instant;
-import java.util.TimerTask;
-
-import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
-import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 
 /**
  * The type Minecraft update notifier.
  *
  * @author
  */
-public final class MinecraftUpdateNotifier extends TimerTask {
+public final class MinecraftUpdateNotifier implements Runnable {
 
     /**
      * The Last latest.
@@ -76,7 +75,11 @@ public final class MinecraftUpdateNotifier extends TimerTask {
                 embed.setDescription(latest);
                 embed.setColor(Color.GREEN);
                 embed.setTimestamp(Instant.now());
-                channel.sendMessageEmbeds(embed.build()).queue();
+                channel.sendMessageEmbeds(embed.build()).queue(msg -> {
+                    if (channel.getType() == ChannelType.NEWS) {
+                        msg.crosspost().queue();
+                    }
+                });
             });
         } else if (!lastLatest.equals(latest)) {
             LOGGER.info(MMDMarkers.NOTIFIER_MC, "New Minecraft snapshot found, from {} to {}", lastLatest, latest);
@@ -87,7 +90,11 @@ public final class MinecraftUpdateNotifier extends TimerTask {
                 embed.setDescription(latest);
                 embed.setColor(Color.ORANGE);
                 embed.setTimestamp(Instant.now());
-                channel.sendMessageEmbeds(embed.build()).queue();
+                channel.sendMessageEmbeds(embed.build()).queue(msg -> {
+                    if (channel.getType() == ChannelType.NEWS) {
+                        msg.crosspost().queue();
+                    }
+                });
             });
         } else {
             LOGGER.debug(MMDMarkers.NOTIFIER_MC, "No new Minecraft version found");

@@ -20,23 +20,22 @@
  */
 package com.mcmoddev.mmdbot.utilities.updatenotifiers.fabric;
 
-import com.mcmoddev.mmdbot.utilities.Utils;
-import net.dv8tion.jda.api.EmbedBuilder;
-
-import java.awt.Color;
-import java.time.Instant;
-import java.util.TimerTask;
-
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.NOTIFIER_FABRIC;
+import com.mcmoddev.mmdbot.utilities.Utils;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.ChannelType;
+
+import java.awt.Color;
+import java.time.Instant;
 
 /**
  * The type Fabric api update notifier.
  *
  * @author williambl
  */
-public final class FabricApiUpdateNotifier extends TimerTask {
+public final class FabricApiUpdateNotifier implements Runnable {
 
     /**
      * The Last latest.
@@ -70,7 +69,11 @@ public final class FabricApiUpdateNotifier extends TimerTask {
                 embed.setDescription(latest);
                 embed.setColor(Color.WHITE);
                 embed.setTimestamp(Instant.now());
-                channel.sendMessageEmbeds(embed.build()).queue();
+                channel.sendMessageEmbeds(embed.build()).queue(msg -> {
+                    if (channel.getType() == ChannelType.NEWS) {
+                        msg.crosspost().queue();
+                    }
+                });
             });
         } else {
             LOGGER.debug(NOTIFIER_FABRIC, "No new Fabric API version found");

@@ -138,10 +138,6 @@ public class CmdHelp extends PaginatedCommand {
     }
 
     public class HelpListener extends PaginatedCommand.ButtonListener {
-        @Override
-        public String getButtonID() {
-            return "help";
-        }
     }
 }
 
