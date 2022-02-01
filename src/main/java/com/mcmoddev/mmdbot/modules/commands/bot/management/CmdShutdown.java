@@ -85,7 +85,7 @@ public class CmdShutdown extends SlashCommand {
                 }, "GuildCommandClearing").start();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
-                msg.get().editOriginal("Error! Shutdown cancelled!").queue();
+                event.reply("Error! Shutdown cancelled!").queue();
             }
             return;
         }
@@ -103,7 +103,7 @@ public class CmdShutdown extends SlashCommand {
                 }, "GlobalCommandClearing").start();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
-                msg.get().editOriginal("Error! Shutdown cancelled!").queue();
+                event.reply("Error! Shutdown cancelled!").queue();
             }
             return;
         }

@@ -52,6 +52,7 @@ public abstract class PaginatedCommand extends SlashCommand {
     protected int items_per_page = 25;
     // The maximum number of items in the list. Update with #updateMaximum
     protected int maximum = 0;
+    protected PaginatedCommand.ButtonListener listener = new ButtonListener();
 
     public PaginatedCommand(String name, String help, boolean guildOnly, List<OptionData> options, int items) {
         super();
@@ -106,9 +107,9 @@ public abstract class PaginatedCommand extends SlashCommand {
      * @return A row of buttons to go back and forth by one page.
      */
     private ItemComponent[] createScrollButtons(int start) {
-        Button backward = Button.primary(getName() + "-" + start + "-prev",
+        Button backward = Button.primary(listener.getButtonID() + "-" + start + "-prev",
             Emoji.fromUnicode("◀️")).asDisabled();
-        Button forward = Button.primary(getName() + "-" + start + "-next",
+        Button forward = Button.primary(listener.getButtonID() + "-" + start + "-next",
             Emoji.fromUnicode("▶️")).asDisabled();
 
         if (start != 0) {
@@ -130,7 +131,7 @@ public abstract class PaginatedCommand extends SlashCommand {
      * Implement the {@link #getButtonID()} function in any way you like.
      * Make sure that this listener is registered to the {@link com.jagrosh.jdautilities.command.CommandClient}.
      */
-    public abstract class ButtonListener extends ListenerAdapter {
+    public class ButtonListener extends ListenerAdapter {
 
         public String getButtonID() {
             return PaginatedCommand.this.getName();

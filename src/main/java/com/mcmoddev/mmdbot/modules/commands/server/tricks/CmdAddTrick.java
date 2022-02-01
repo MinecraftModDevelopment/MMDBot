@@ -23,11 +23,13 @@ package com.mcmoddev.mmdbot.modules.commands.server.tricks;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Trick;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
-import com.jagrosh.jdautilities.command.SlashCommandEvent;
+
+import java.util.Optional;
 
 /**
  * Adds a trick to the list.
@@ -40,63 +42,43 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
  *
  * @author Will BL
  * @author Curle
+ * @author matyrobbrt
  */
 public final class CmdAddTrick extends SlashCommand {
 
-    /**
-     * Instantiates a new Cmd add trick.
-     */
-    public CmdAddTrick() {
-        super();
-        name = "addtrick";
-        help = "Adds a new trick, either a string or an embed, if a string you only need the <names> and <body>.";
-        category = new Category("Info");
-        arguments = "(<string> <trick content body> (or) <embed> <title> "
-            + "<description> <colour-as-hex-code>";
-        aliases = new String[]{"add-trick"};
-        enabledRoles = new String[]{Long.toString(MMDBot.getConfig().getRole("bot_maintainer"))};
-        guildOnly = true;
-        // we need to use this unfortunately :( can't create more than one commandclient
-        //guildId = Long.toString(MMDBot.getConfig().getGuildID());
+    private final Trick.TrickType<?> trickType;
 
-        children = Tricks.getTrickTypes().entrySet().stream().map(entry -> new SubCommand(entry.getKey(), entry.getValue())).toArray(SlashCommand[]::new);
+    public CmdAddTrick(String name, Trick.TrickType<?> trickType) {
+        this.trickType = trickType;
+        this.name = "create-" + name;
+        this.help = "Add or create a " + name + "-type trick.";
+        this.guildOnly = true;
+        this.options = trickType.getArgs();
+        enabledRoles = new String[]{Long.toString(MMDBot.getConfig().getRole(""))};
     }
 
     @Override
     protected void execute(final SlashCommandEvent event) {
-    }
-
-    /**
-     * A child command of AddTrick, handles adding a particular type of trick.
-     *
-     * @author Curle
-     * @author Will BL
-     */
-    private static class SubCommand extends SlashCommand {
-        private final Trick.TrickType<?> trickType;
-
-        public SubCommand(String name, Trick.TrickType<?> trickType) {
-            this.trickType = trickType;
-            this.name = name;
-            this.help = "Create a " + name + "-type trick.";
-            this.guildOnly = true;
-            this.options = trickType.getArgs();
+        if (!Utils.checkCommand(this, event)) {
+            return;
         }
 
-        @Override
-        protected void execute(final SlashCommandEvent event) {
-            if (!Utils.checkCommand(this, event)) {
-                return;
-            }
-
-            try {
-                Tricks.addTrick(trickType.createFromCommand(event));
-                event.reply("Added trick!").mentionRepliedUser(false).setEphemeral(true).queue();
-            } catch (IllegalArgumentException e) {
-                event.reply("A command with that name already exists!").mentionRepliedUser(false).setEphemeral(true).queue();
-                MMDBot.LOGGER.warn("Failure adding trick: {}", e.getMessage());
-            }
+        if (!Utils.memberHasRole(event.getMember(), MMDBot.getConfig().getRole("bot_maintainer"))) {
+            event.deferReply(true).setContent("Only Bot Maintainers can use this command.").queue();
+            return;
         }
+
+        Trick trick = trickType.createFromCommand(event);
+        Optional<Trick> originalTrick = Tricks.getTricks().stream()
+            .filter(t -> t.getNames().stream().anyMatch(n -> trick.getNames().contains(n))).findAny();
+
+        originalTrick.ifPresentOrElse(original -> {
+            Tricks.replaceTrick(original, trick);
+            event.reply("Updated trick!").mentionRepliedUser(false).setEphemeral(true).queue();
+        }, () -> {
+            Tricks.addTrick(trick);
+            event.reply("Added trick!").mentionRepliedUser(false).setEphemeral(true).queue();
+        });
     }
 
     public static final class Prefix extends Command {

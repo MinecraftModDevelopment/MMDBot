@@ -30,7 +30,7 @@ import com.google.gson.stream.JsonWriter;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.commands.server.DeletableCommand;
-import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrick;
+import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrickSeparated;
 import com.mcmoddev.mmdbot.utilities.tricks.Trick.TrickType;
 import org.jetbrains.annotations.Nullable;
 
@@ -148,7 +148,7 @@ public final class Tricks {
     public static void addTrick(final Trick trick) {
         getTricks().add(trick);
         write();
-        addOrRestoreCommand(trick);
+        // addOrRestoreCommand(trick);
     }
 
     /**
@@ -159,7 +159,7 @@ public final class Tricks {
     public static void removeTrick(final Trick trick) {
         getTricks().remove(trick);
         write();
-        CommandModule.removeCommand(trick.getNames().get(0), true);
+        // CommandModule.removeCommand(trick.getNames().get(0), true);
     }
 
     public static void replaceTrick(final Trick oldTrick, final Trick newTrick) {
@@ -196,7 +196,7 @@ public final class Tricks {
             .findFirst().ifPresentOrElse(
                 DeletableCommand::restore,
                 () -> {
-                    final var cmd = new CmdRunTrick(trick);
+                    final var cmd = new CmdRunTrickSeparated(trick);
                     CommandModule.getCommandClient().addSlashCommand(cmd);
                     CommandModule.upsertCommand(cmd);
                 });

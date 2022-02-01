@@ -21,56 +21,50 @@
 package com.mcmoddev.mmdbot.modules.commands.server.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
-import com.mcmoddev.mmdbot.modules.commands.CommandModule;
-import com.mcmoddev.mmdbot.modules.commands.server.DeletableCommand;
-import com.mcmoddev.mmdbot.utilities.Utils;
-import com.mcmoddev.mmdbot.utilities.tricks.Trick;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
- * Runs a certain trick.
- * Takes zero or one parameters, the argument string to be passed to the trick.
+ * Fetch and execute a given trick.
+ * Takes one or two parameters: the trick name, and optionally any arguments to be passed to the trick.
  * <p>
  * Takes the form:
- * /test
- * /[trickname] [args]
+ * /trick test
+ * /trick [name] [args]
  *
  * @author Will BL
  * @author Curle
+ * @author matyrobbrt
  */
-public final class CmdRunTrick extends SlashCommand implements DeletableCommand {
-
-    private final String trickName;
-    private boolean deleted = false;
+public final class CmdRunTrick extends SlashCommand {
 
     /**
-     * Instantiates a new command for a certain trick.
+     * Instantiates a new trick-running command
      */
-    public CmdRunTrick(String trickName) {
+    public CmdRunTrick() {
         super();
-        this.trickName = trickName;
-        name = trickName;
-        aliases = Tricks.getTrick(trickName).map(t -> t.getNames()).orElse(new ArrayList<>()).toArray(String[]::new);
-        help = "Invoke the trick " + trickName;
-        category = new Category("Fun");
-        guildOnly = true;
-        options = Collections.singletonList(new OptionData(OptionType.STRING, "args", "The arguments for the trick, if any").setRequired(false));
-    }
+        name = "run";
+        help = "Invoke a specific trick by name.";
 
-    public CmdRunTrick(Trick trick) {
-        this(trick.getNames().get(0));
+        options = List.of(
+            new OptionData(OptionType.STRING, "name", "The name of the trick to run").setRequired(true).setAutoComplete(true),
+            new OptionData(OptionType.STRING, "args", "The arguments for the trick, if any").setRequired(false)
+        );
     }
 
     /**
-     * Execute.
+     * Executes the command.
      *
-     * @param event the event
+     * @param event the slash command event
      */
     @Override
     protected void execute(final SlashCommandEvent event) {
@@ -78,23 +72,14 @@ public final class CmdRunTrick extends SlashCommand implements DeletableCommand 
             return;
         }
 
-        Tricks.getTrick(trickName).ifPresentOrElse(trick -> event.reply(trick.getMessage(Utils.getOrEmpty(event, "args").split(" "))).setEphemeral(false).queue(),
-            () -> event.deferReply(true).setContent("This trick does not exist anymore!").queue());
+        Tricks.getTrick(Utils.getOrEmpty(event, "name")).ifPresentOrElse(
+            trick -> event.reply(trick.getMessage(Utils.getOrEmpty(event, "args").split(" "))).setEphemeral(false).queue(),
+            () -> event.reply("No trick with that name was found.").setEphemeral(true).queue()
+        );
     }
 
     @Override
-    public void delete() {
-        deleted = true;
-    }
-
-    @Override
-    public void restore() {
-        deleted = false;
-        CommandModule.upsertCommand(this);
-    }
-
-    @Override
-    public boolean isDeleted() {
-        return deleted;
+    public void onAutoComplete(final CommandAutoCompleteInteractionEvent event) {
+        event.replyChoiceStrings(Tricks.getTricks().stream().map(t -> t.getNames().get(0)).toList()).queue();
     }
 }

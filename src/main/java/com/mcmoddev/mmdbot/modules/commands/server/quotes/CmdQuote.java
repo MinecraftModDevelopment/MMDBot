@@ -288,7 +288,7 @@ public class CmdQuote extends SlashCommand {
      * @author Curle
      */
     public class ListQuotes extends PaginatedCommand {
-        private static QuoteListener listener;
+        private static ButtonListener quoteListener;
 
         /**
          * Create the command.
@@ -299,11 +299,12 @@ public class CmdQuote extends SlashCommand {
             category = new Category("Fun");
             guildOnly = true;
 
-            listener = new QuoteListener();
+            this.listener = new QuoteListener();
+            quoteListener = this.listener;
         }
 
-        public static QuoteListener getListener() {
-            return listener;
+        public static ButtonListener getQuoteListener() {
+            return quoteListener;
         }
 
         @Override
@@ -353,7 +354,7 @@ public class CmdQuote extends SlashCommand {
                 } else {
                     // Put it in the description.
                     // message - author
-                    embed.addField(String.valueOf(fetchedQuote.getID()), 
+                    embed.addField(String.valueOf(fetchedQuote.getID()),
                         fetchedQuote.getQuoteText() + " - " + fetchedQuote.getQuotee().resolveReference(), false);
                 }
             }
@@ -364,7 +365,7 @@ public class CmdQuote extends SlashCommand {
         public class QuoteListener extends PaginatedCommand.ButtonListener {
             @Override
             public String getButtonID() {
-                return "list";
+                return "quotelist";
             }
         }
     }

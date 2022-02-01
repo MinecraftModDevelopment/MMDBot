@@ -37,25 +37,24 @@ import java.util.ArrayList;
  *
  * @author Will BL
  * @author Curle
+ * @author matyrobbrt
  */
 public final class CmdListTricks extends PaginatedCommand {
-    private static TrickListListener listener;
+    private static ButtonListener listListener;
 
     /**
      * Instantiates a new Cmd list tricks.
      */
     public CmdListTricks() {
-        super("listtricks", "List all registered tricks.", true, new ArrayList<>(), 10);
+        super("list", "List all registered tricks.", true, new ArrayList<>(), 10);
         category = new Category("Fun");
-        aliases = new String[]{"list-tricks", "tricks"};
         guildOnly = true;
-        // we need to use this unfortunately :( can't create more than one commandclient
-        //guildId = Long.toString(MMDBot.getConfig().getGuildID());
-        listener = new TrickListListener();
+        this.listener = new TrickListListener();
+        listListener = this.listener;
     }
 
-    public static TrickListListener getListener() {
-        return listener;
+    public static ButtonListener getListListener() {
+        return listListener;
     }
 
     /**
@@ -88,7 +87,7 @@ public final class CmdListTricks extends PaginatedCommand {
     public class TrickListListener extends ButtonListener {
         @Override
         public String getButtonID() {
-            return CmdListTricks.this.getName();
+            return "listtricks";
         }
     }
 
