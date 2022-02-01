@@ -31,6 +31,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import javax.annotation.Nonnull;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -72,11 +73,6 @@ public final class CmdRunTrick extends SlashCommand {
             return;
         }
 
-        if (!event.isFromGuild()) {
-            event.deferReply(true).setContent("This command only works in a guild!").queue();
-            return;
-        }
-
         Tricks.getTrick(Utils.getOrEmpty(event, "name")).ifPresentOrElse(
             trick -> event.reply(trick.getMessage(Utils.getOrEmpty(event, "args").split(" "))).setEphemeral(false).queue(),
             () -> event.reply("No trick with that name was found.").setEphemeral(true).queue()
@@ -85,6 +81,8 @@ public final class CmdRunTrick extends SlashCommand {
 
     @Override
     public void onAutoComplete(final CommandAutoCompleteInteractionEvent event) {
-        event.replyChoiceStrings(Tricks.getTricks().stream().map(t -> t.getNames().get(0)).limit(OptionData.MAX_CHOICES).toList()).queue();
+        final var currentChoice = event.getInteraction().getFocusedOption().getValue();
+        event.replyChoices(Tricks.getTricks().parallelStream().filter(t -> t.getNames().get(0).startsWith(currentChoice))
+            .map(t -> new Command.Choice(t.getNames().get(0), t.getNames().get(0))).limit(5).toList()).queue();
     }
 }
