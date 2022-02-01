@@ -158,7 +158,6 @@ public class CommandModule {
 
         addSlashCommand(CmdTranslateMappings.createCommands());
         addSlashCommand(CmdMappings.createCommands()); // TODO: This is broken beyond belief. Consider moving away from linkie. - Curle
-        final var tricks = Tricks.getTricks();
         addSlashCommand(Tricks.getTricks().stream().map(CmdRunTrick::new).toArray(SlashCommand[]::new));
 
         commandClient.addCommand(new CmdRefreshScamLinks());
