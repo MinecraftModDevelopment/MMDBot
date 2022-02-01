@@ -27,17 +27,18 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 
 import javax.annotation.Nonnull;
+import java.awt.Color;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public record ThreadedEventListener(EventListener listener, Executor threadPool) implements EventListener {
 
-    public ThreadedEventListener(@Nonnull final EventListener listener) {
+    public ThreadedEventListener(final EventListener listener) {
         this(listener, Executors.newSingleThreadExecutor(r -> Utils.setThreadDaemon(new Thread(r), true)));
     }
 
     @Override
-    public void onEvent(GenericEvent event) {
+    public void onEvent(@Nonnull GenericEvent event) {
         if (listener != null) {
             threadPool.execute(() -> {
                 try {
@@ -46,7 +47,8 @@ public record ThreadedEventListener(EventListener listener, Executor threadPool)
                     MMDBot.LOGGER.error("Error while executing threaded event!", e);
                     // Reply to the user in order to inform them
                     if (event instanceof IReplyCallback replyCallback) {
-                        replyCallback.deferReply(true).addEmbeds(new EmbedBuilder().setTitle("This interaction failed due to an exception.").setDescription(e.toString()).build()).queue();
+                        replyCallback.deferReply(true).addEmbeds(new EmbedBuilder().setTitle("This interaction failed due to an exception.")
+                            .setColor(Color.RED).setDescription(e.toString()).build()).queue();
                     }
                 }
             });

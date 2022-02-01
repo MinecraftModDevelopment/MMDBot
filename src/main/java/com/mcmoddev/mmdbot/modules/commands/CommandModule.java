@@ -20,13 +20,11 @@
  */
 package com.mcmoddev.mmdbot.modules.commands;
 
-import com.google.common.collect.ImmutableMap;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.command.ContextMenu;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdGist;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdHelp;
@@ -35,6 +33,7 @@ import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRefreshScamLinks;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
+import com.mcmoddev.mmdbot.modules.commands.contextmenu.GuildOnlyMenu;
 import com.mcmoddev.mmdbot.modules.commands.contextmenu.message.ContextMenuAddQuote;
 import com.mcmoddev.mmdbot.modules.commands.contextmenu.message.ContextMenuGist;
 import com.mcmoddev.mmdbot.modules.commands.contextmenu.user.ContextMenuUserInfo;
@@ -66,20 +65,16 @@ import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRemoveTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrickExplicitly;
-import com.mcmoddev.mmdbot.modules.logging.misc.MiscEvents;
 import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import me.shedaniel.linkie.Namespaces;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -222,14 +217,19 @@ public class CommandModule {
         return MENUS.get(name);
     }
 
-    public static final List<CommandData> GUILD_CMDS = new ArrayList<>();
+    public static final Map<Long, List<CommandData>> GUILD_CMDS = new HashMap<>();
     public static final List<CommandData> GLOBAL_CMDS = new ArrayList<>();
     public static final Map<String, SlashCommand> SLASH_COMMANDS = new HashMap<>();
 
     public static void addContextMenu(final ContextMenu menu) {
         commandClient.addContextMenu(menu);
         MENUS.put(menu.getName(), menu);
-        GUILD_CMDS.add(menu.buildCommandData());
+        if (menu instanceof GuildOnlyMenu) {
+            GUILD_CMDS.computeIfAbsent(MMDBot.getConfig().getGuildID(), k -> new ArrayList<>())
+                    .add(menu.buildCommandData());
+        } else {
+            GLOBAL_CMDS.add(menu.buildCommandData());
+        }
     }
 
     /**
@@ -244,7 +244,7 @@ public class CommandModule {
             if (cmd.isGuildOnly()) {
                 GLOBAL_CMDS.add(cmd.buildCommandData());
             } else {
-                GUILD_CMDS.add(cmd.buildCommandData());
+                GUILD_CMDS.computeIfAbsent(MMDBot.getConfig().getGuildID(), k -> new ArrayList<>()).add(cmd.buildCommandData());
             }
         }
     }

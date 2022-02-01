@@ -57,6 +57,7 @@ class CmdTranslateMappings(
         this.name = name.lowercase(Locale.ROOT)
         this.aliases = aliases
         help = "Map a name from $namespace1 to $namespace2"
+        this.guildOnly = false
 
         options = arrayListOf(
             OptionData(OptionType.STRING, "query", "A mapping to query.").setRequired(true),

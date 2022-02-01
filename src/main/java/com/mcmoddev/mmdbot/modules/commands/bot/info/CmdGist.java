@@ -48,6 +48,7 @@ public final class CmdGist extends Command {
         help = "Creates a gist from the referenced message.";
         cooldown = 120;
         cooldownScope = CooldownScope.USER_GUILD;
+        guildOnly = false;
     }
 
     @Override

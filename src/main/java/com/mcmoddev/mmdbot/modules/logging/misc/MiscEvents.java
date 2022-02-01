@@ -41,6 +41,7 @@ import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,18 +77,17 @@ public final class MiscEvents extends ListenerAdapter {
 
         References.BOT_READY = true;
         event.getJDA().updateCommands().addCommands(CommandModule.GLOBAL_CMDS).queue();
-        event.getJDA().getGuilds().forEach(guild -> {
-            guild.updateCommands().addCommands(CommandModule.GUILD_CMDS).queue(commands -> {
-                Map<String, Collection<CommandPrivilege>> privileges = new HashMap<>();
-                for (var cmd : commands) {
-                    SlashCommand command = CommandModule.SLASH_COMMANDS.get(cmd.getName());
-                    if (command != null) {
-                        privileges.put(cmd.getId(), command.buildPrivileges(CommandModule.getCommandClient()));
-                    }
-                    guild.updateCommandPrivileges(privileges).queue();
+        event.getJDA().getGuilds().forEach(guild -> guild.updateCommands().addCommands(CommandModule.GUILD_CMDS
+            .computeIfAbsent(guild.getIdLong(), k -> new ArrayList<>())).queue(commands -> {
+            Map<String, Collection<CommandPrivilege>> privileges = new HashMap<>();
+            for (var cmd : commands) {
+                SlashCommand command = CommandModule.SLASH_COMMANDS.get(cmd.getName());
+                if (command != null) {
+                    privileges.put(cmd.getId(), command.buildPrivileges(CommandModule.getCommandClient()));
                 }
-            });
-        });
+                guild.updateCommandPrivileges(privileges).queue();
+            }
+        }));
     }
 
     /**

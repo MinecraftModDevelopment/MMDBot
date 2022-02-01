@@ -22,9 +22,10 @@ package com.mcmoddev.mmdbot.modules.commands.contextmenu.user;
 
 import com.jagrosh.jdautilities.command.UserContextMenu;
 import com.jagrosh.jdautilities.command.UserContextMenuEvent;
+import com.mcmoddev.mmdbot.modules.commands.contextmenu.GuildOnlyMenu;
 import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUser;
 
-public class ContextMenuUserInfo extends UserContextMenu {
+public class ContextMenuUserInfo extends UserContextMenu implements GuildOnlyMenu {
 
     public ContextMenuUserInfo() {
         name = "User Info";

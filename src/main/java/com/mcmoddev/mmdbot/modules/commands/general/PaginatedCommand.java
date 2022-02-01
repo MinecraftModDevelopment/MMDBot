@@ -132,7 +132,9 @@ public abstract class PaginatedCommand extends SlashCommand {
      */
     public abstract class ButtonListener extends ListenerAdapter {
 
-        public abstract String getButtonID();
+        public String getButtonID() {
+            return PaginatedCommand.this.getName();
+        }
 
         @Override
         public void onButtonInteraction(@NotNull final ButtonInteractionEvent event) {
