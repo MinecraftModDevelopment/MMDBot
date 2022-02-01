@@ -28,6 +28,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
+import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdGist;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdHelp;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdUptime;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
@@ -162,6 +163,7 @@ public class CommandModule {
 
         commandClient.addCommand(new CmdRefreshScamLinks());
         commandClient.addCommand(new CmdReact());
+        commandClient.addCommand(new CmdGist());
 
         addContextMenu(new ContextMenuGist());
         addContextMenu(new ContextMenuAddQuote());

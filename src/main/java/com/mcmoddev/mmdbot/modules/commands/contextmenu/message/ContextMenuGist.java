@@ -42,7 +42,7 @@ import java.util.concurrent.Executors;
 
 public class ContextMenuGist extends MessageContextMenu {
 
-    private static final Executor THREAD_POOL = Executors.newSingleThreadExecutor(r -> Utils.setThreadDaemon(new Thread(r, "GistCreator"), true));
+    public static final Executor THREAD_POOL = Executors.newSingleThreadExecutor(r -> Utils.setThreadDaemon(new Thread(r, "GistCreator"), true));
 
     public ContextMenuGist() {
         name = "Gist";
