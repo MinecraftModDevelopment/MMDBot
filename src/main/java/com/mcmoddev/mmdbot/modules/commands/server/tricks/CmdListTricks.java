@@ -68,6 +68,11 @@ public final class CmdListTricks extends PaginatedCommand {
             return;
         }
 
+        if (!event.isFromGuild()) {
+            event.deferReply(true).setContent("This command only works in a guild!").queue();
+            return;
+        }
+
         updateMaximum(Tricks.getTricks().size());
         sendPaginatedMessage(event);
     }

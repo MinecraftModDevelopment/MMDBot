@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.modules.logging.misc;
 
+import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.MessageContextMenu;
 import com.jagrosh.jdautilities.command.MessageContextMenuEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
@@ -76,19 +77,12 @@ public final class MiscEvents extends ListenerAdapter {
         References.STARTUP_TIME = Instant.now();
 
         References.BOT_READY = true;
-        event.getJDA().updateCommands().addCommands(CommandModule.GLOBAL_CMDS).queue($ -> {}, e -> {});
-        event.getJDA().getGuilds().forEach(guild -> guild.updateCommands().addCommands(CommandModule.GUILD_CMDS
-            .computeIfAbsent(guild.getIdLong(), k -> new ArrayList<>())).queue(commands -> {
-                // TODO privileges should work
-            /*Map<String, Collection<CommandPrivilege>> privileges = new HashMap<>();
-            for (var cmd : commands) {
-                SlashCommand command = CommandModule.SLASH_COMMANDS.get(cmd.getName());
-                if (command != null) {
-                    privileges.put(cmd.getId(), command.buildPrivileges(CommandModule.getCommandClient()));
-                }
-                guild.updateCommandPrivileges(privileges).queue();
-            }*/
-        }));
+        CommandModule.GLOBAL_CMDS.forEach(command -> event.getJDA().upsertCommand(command).queue($ -> {}, e -> {}));
+        event.getJDA().getGuilds().forEach(guild -> {
+            CommandModule.GUILD_CMDS
+                .computeIfAbsent(guild.getIdLong(), k -> new ArrayList<>()).forEach(cmd ->
+                    guild.upsertCommand(cmd).queue($ -> {}, e -> {}));
+        });
     }
 
     /**

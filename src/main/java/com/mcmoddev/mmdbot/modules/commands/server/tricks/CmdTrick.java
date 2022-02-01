@@ -38,7 +38,6 @@ public final class CmdTrick extends SlashCommand {
     public CmdTrick() {
         name = "trick";
         help = "Does stuff regarding tricks";
-        guildOnly = true;
 
         final List<SlashCommand> child = new ArrayList<>();
         child.add(new CmdRunTrick());

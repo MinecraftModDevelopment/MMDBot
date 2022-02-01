@@ -72,6 +72,11 @@ public final class CmdRunTrick extends SlashCommand {
             return;
         }
 
+        if (!event.isFromGuild()) {
+            event.deferReply(true).setContent("This command only works in a guild!").queue();
+            return;
+        }
+
         Tricks.getTrick(Utils.getOrEmpty(event, "name")).ifPresentOrElse(
             trick -> event.reply(trick.getMessage(Utils.getOrEmpty(event, "args").split(" "))).setEphemeral(false).queue(),
             () -> event.reply("No trick with that name was found.").setEphemeral(true).queue()
