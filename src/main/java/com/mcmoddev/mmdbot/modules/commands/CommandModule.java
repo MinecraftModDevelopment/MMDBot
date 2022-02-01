@@ -270,8 +270,8 @@ public class CommandModule {
                 throw new NullPointerException("No Guild found!");
             }
 
-            guild.updateCommands().addCommands(cmd.buildCommandData()).queue(commands -> {
-                commands.get(0).updatePrivileges(guild, cmd.buildPrivileges(commandClient)).queue();
+            guild.upsertCommand(cmd.buildCommandData()).queue(cmd1 -> {
+                cmd1.updatePrivileges(guild, cmd.buildPrivileges(commandClient)).queue();
             });
         } else {
             MMDBot.getInstance().updateCommands().addCommands(cmd.buildCommandData()).queue();

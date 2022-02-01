@@ -68,6 +68,11 @@ public final class CmdRemoveTrick extends SlashCommand {
             return;
         }
 
+        if (!event.isFromGuild()) {
+            event.deferReply(true).setContent("This command only works in a guild!").queue();
+            return;
+        }
+
         if (!Utils.memberHasRole(event.getMember(), MMDBot.getConfig().getRole("bot_maintainer"))) {
             event.deferReply(true).setContent("Only Bot Maintainers can use this command.").queue();
             return;
