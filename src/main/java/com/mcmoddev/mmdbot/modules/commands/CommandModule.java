@@ -255,9 +255,9 @@ public class CommandModule {
             SLASH_COMMANDS.put(cmd.getName(), cmd);
             commandClient.addSlashCommand(cmd);
             if (cmd.isGuildOnly()) {
-                GLOBAL_CMDS.add(cmd.buildCommandData());
-            } else {
                 GUILD_CMDS.computeIfAbsent(MMDBot.getConfig().getGuildID(), k -> new ArrayList<>()).add(cmd.buildCommandData());
+            } else {
+                GLOBAL_CMDS.add(cmd.buildCommandData());
             }
         }
     }
