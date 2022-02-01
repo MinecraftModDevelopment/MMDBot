@@ -62,10 +62,9 @@ public class CmdUser extends SlashCommand {
         super();
         name = "user";
         help = "Get information about another user.";
-        category = new Category("Moderation");
-        arguments = "<userID/mention";
-
-        requiredRole = "Staff";
+        aliases = new String[]{"whoami", "myinfo"};
+        category = new Category("Info");
+        arguments = "[userID/mention]";
         guildOnly = true;
 
         OptionData data = new OptionData(OptionType.USER, "user", "The user to check.").setRequired(false);
@@ -105,7 +104,7 @@ public class CmdUser extends SlashCommand {
         final var user = member.getUser();
         final var embed = new EmbedBuilder();
         final var dateJoinedDiscord = member.getTimeCreated().toInstant();
-        final var dateJoinedMMD = Utils.getMemberJoinTime(member);
+        final var dateJoinedServer = Utils.getMemberJoinTime(member);
 
         embed.setTitle("User info");
         embed.setColor(Color.WHITE);
@@ -122,9 +121,9 @@ public class CmdUser extends SlashCommand {
 
         final var date = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH);
         embed.addField("Joined Discord:", date.format(dateJoinedDiscord.toEpochMilli()), true);
-        if (dateJoinedMMD != null) {
-            embed.addField("Joined MMD:", date.format(dateJoinedMMD.toEpochMilli()), true);
-            embed.addField("Member for:", Utils.getTimeDifference(Utils.getTimeFromUTC(dateJoinedMMD),
+        if (dateJoinedServer != null) {
+            embed.addField("Joined MMD:", date.format(dateJoinedServer.toEpochMilli()), true);
+            embed.addField("Member for:", Utils.getTimeDifference(Utils.getTimeFromUTC(dateJoinedServer),
                 OffsetDateTime.now(ZoneOffset.UTC)), true);
         }
         embed.setTimestamp(Instant.now());
