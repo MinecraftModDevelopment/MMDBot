@@ -80,6 +80,6 @@ public final class CmdRunTrick extends SlashCommand {
 
     @Override
     public void onAutoComplete(final CommandAutoCompleteInteractionEvent event) {
-        event.replyChoiceStrings(Tricks.getTricks().stream().map(t -> t.getNames().get(0)).toList()).queue();
+        event.replyChoiceStrings(Tricks.getTricks().stream().map(t -> t.getNames().get(0)).limit(OptionData.MAX_CHOICES).toList()).queue();
     }
 }
