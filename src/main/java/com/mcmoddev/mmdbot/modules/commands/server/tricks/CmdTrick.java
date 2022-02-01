@@ -18,46 +18,46 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.modules.commands.bot.management;
+package com.mcmoddev.mmdbot.modules.commands.server.tricks;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.core.TaskScheduler;
+import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
- * Restart the bot on command rather than via console.
- *
- * @author KiriCattus
+ * This class is the parent of all the trick commands.
  * @author matyrobbrt
  */
-public class CmdRestart extends SlashCommand {
+public final class CmdTrick extends SlashCommand {
 
-    /**
-     * Instantiates a new Cmd.
-     */
-    public CmdRestart() {
-        super();
-        name = "restart";
-        help = "Restarts the bot. (Only usable by KiriCattus)";
-        category = new Category("Management");
-        ownerCommand = true;
-        hidden = true;
-        guildOnly = false;
+    public CmdTrick() {
+        name = "trick";
+        help = "Does stuff regarding tricks";
+        guildOnly = true;
+
+        final List<SlashCommand> child = new ArrayList<>();
+        child.add(new CmdRunTrick());
+        Tricks.getTrickTypes().entrySet().stream().map(entry -> new CmdAddTrick(entry.getKey(), entry.getValue())).forEach(child::add);
+        child.add(new CmdRemoveTrick());
+        child.add(new CmdListTricks());
+
+        children = child.toArray(SlashCommand[]::new);
     }
 
     @Override
     protected void execute(final SlashCommandEvent event) {
-        event.reply("Restarting the bot!").queue();
-        event.getJDA().shutdown();
-        MMDBot.LOGGER.warn("Restarting the bot by request of {} via Discord!", event.getUser().getName());
-        TaskScheduler.scheduleTask(() -> {
-            // TODO some other things may need to be nullified for this to restart with no exceptions!
-            MMDBot.main(new String[]{});
-        }, 3, TimeUnit.SECONDS);
+
+    }
+
+    @Override
+    public void onAutoComplete(final CommandAutoCompleteInteractionEvent event) {
+        if (Objects.equals(event.getSubcommandName(), "run")) {
+            children[0].onAutoComplete(event);
+        }
     }
 }

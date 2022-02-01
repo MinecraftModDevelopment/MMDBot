@@ -28,10 +28,10 @@ import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdGist;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdHelp;
-import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdUptime;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRefreshScamLinks;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
+import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRestart;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
 import com.mcmoddev.mmdbot.modules.commands.contextmenu.GuildOnlyMenu;
 import com.mcmoddev.mmdbot.modules.commands.contextmenu.message.ContextMenuAddQuote;
@@ -62,14 +62,11 @@ import com.mcmoddev.mmdbot.modules.commands.server.quotes.CmdQuote;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdAddTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdEditTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdListTricks;
-import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRemoveTrick;
 import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrick;
-import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrickExplicitly;
+import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdTrick;
 import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
-import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import me.shedaniel.linkie.Namespaces;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
@@ -140,21 +137,20 @@ public class CommandModule {
             new CmdOldChannels(),
             new CmdAvatar(),
             new CmdRename(),
-            new CmdUptime(),
             //TODO Setup DB storage for tricks and polish them off/add permission restrictions for when needed.
-            new CmdAddTrick(),
             new CmdEditTrick(),
             new CmdListTricks(),
-            new CmdRemoveTrick(),
-            new CmdRunTrickExplicitly(),
+            new CmdRunTrick(),
             new CmdShutdown(),
+            new CmdRestart(),
             new CmdQuote(),
             new CmdRolePanel(),
-            new CmdWarning());
+            new CmdWarning(),
+            new CmdTrick());
 
         addSlashCommand(CmdTranslateMappings.createCommands());
         addSlashCommand(CmdMappings.createCommands()); // TODO: This is broken beyond belief. Consider moving away from linkie. - Curle
-        addSlashCommand(Tricks.getTricks().stream().map(CmdRunTrick::new).toArray(SlashCommand[]::new));
+        // addSlashCommand(Tricks.getTricks().stream().map(CmdRunTrickSeparated::new).toArray(SlashCommand[]::new));
 
         commandClient.addCommand(new CmdRefreshScamLinks());
         commandClient.addCommand(new CmdReact());
@@ -176,8 +172,8 @@ public class CommandModule {
             MMDBot.getInstance().addEventListener(buttonListener(CmdTranslateMappings.ButtonListener.INSTANCE));
             MMDBot.getInstance().addEventListener(buttonListener(CmdRoles.getListener()));
             MMDBot.getInstance().addEventListener(buttonListener(CmdHelp.getListener()));
-            MMDBot.getInstance().addEventListener(buttonListener(CmdListTricks.getListener()));
-            MMDBot.getInstance().addEventListener(buttonListener(CmdQuote.ListQuotes.getListener()));
+            MMDBot.getInstance().addEventListener(buttonListener(CmdListTricks.getListListener()));
+            MMDBot.getInstance().addEventListener(buttonListener(CmdQuote.ListQuotes.getQuoteListener()));
             MMDBot.LOGGER.warn("Command module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");

@@ -57,7 +57,8 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
                 thread.sendMessageEmbeds(new EmbedBuilder().setTitle("%s discussion thread".formatted(Utils.uppercaseFirstLetter(threadTypeStr)))
                     .setColor(Color.CYAN).setDescription("""
                             **This thread is intended for discussing %s's %s. The %s:**
-                            %s""".formatted(author.getAsMention(), threadTypeStr, threadTypeStr, event.getMessage().getContentRaw())).build()).queue();
+                            %s""".formatted(author.getAsMention(), threadTypeStr, threadTypeStr, event.getMessage().getContentRaw())).build())
+                    .queue(msg -> msg.pin().queue());
             });
         });
     }

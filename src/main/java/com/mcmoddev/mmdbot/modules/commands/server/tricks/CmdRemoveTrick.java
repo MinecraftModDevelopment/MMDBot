@@ -40,6 +40,7 @@ import java.util.Collections;
  *
  * @author Will BL
  * @author Curle
+ * @author matyrobbrt
  */
 public final class CmdRemoveTrick extends SlashCommand {
 
@@ -48,16 +49,11 @@ public final class CmdRemoveTrick extends SlashCommand {
      */
     public CmdRemoveTrick() {
         super();
-        name = "removetrick";
+        name = "remove";
         help = "Removes a trick";
         category = new Category("Management");
         arguments = "<trick_name>";
-        aliases = new String[]{"remove-trick", "remtrick"};
-        enabledRoles = new String[]{Long.toString(MMDBot.getConfig().getRole("bot_maintainer"))};
         guildOnly = true;
-        // we need to use this unfortunately :( can't create more than one commandclient
-        //guildId = Long.toString(MMDBot.getConfig().getGuildID());
-
         options = Collections.singletonList(new OptionData(OptionType.STRING, "trick", "The trick to delete.").setRequired(true));
     }
 
@@ -69,6 +65,11 @@ public final class CmdRemoveTrick extends SlashCommand {
     @Override
     protected void execute(final SlashCommandEvent event) {
         if (!Utils.checkCommand(this, event)) {
+            return;
+        }
+
+        if (!Utils.memberHasRole(event.getMember(), MMDBot.getConfig().getRole("bot_maintainer"))) {
+            event.deferReply(true).setContent("Only Bot Maintainers can use this command.").queue();
             return;
         }
 

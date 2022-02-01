@@ -20,6 +20,13 @@
     # Event logging will be filtered to only receive from this guild
     guildId = ""
 
+    [bot.activity]
+        # The type of activity the bot has.
+        type = "PLAYING"
+
+        # The name of the activity the bot has.
+        name = "Type /help"
+
 # Configuration of aliases
 # Aliases may be used as substitutes in entries that require snowflake IDs, such as channel blocklists
 # This allows for more human-readable configuration of other settings

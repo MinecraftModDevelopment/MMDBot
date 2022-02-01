@@ -49,7 +49,7 @@ import java.util.List;
 public class CmdHelp extends PaginatedCommand {
 
     private List<Command> commands;
-    private static CmdHelp.HelpListener listener;
+    private static ButtonListener helpListener;
 
     public CmdHelp() {
         super("help",
@@ -59,15 +59,16 @@ public class CmdHelp extends PaginatedCommand {
             25);
 
         arguments = "[command]";
-        listener = new CmdHelp.HelpListener();
+        this.listener = new PaginatedCommand.ButtonListener();
+        helpListener = this.listener;
     }
 
     /**
      * Returns the instance of our button listener.
      * Used for handling the pagination buttons.
      */
-    public static PaginatedCommand.ButtonListener getListener() {
-        return listener;
+    public static ButtonListener getListener() {
+        return helpListener;
     }
 
     /**
@@ -135,9 +136,6 @@ public class CmdHelp extends PaginatedCommand {
         embed.setFooter(References.NAME).setTimestamp(Instant.now());
 
         return embed;
-    }
-
-    public class HelpListener extends PaginatedCommand.ButtonListener {
     }
 }
 
