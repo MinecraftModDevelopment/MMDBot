@@ -159,10 +159,11 @@ public final class MMDBot {
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
                 .addEventListeners(new ThreadedEventListener(new MiscEvents(), GENERAL_EVENT_THREAD_POOL))
-                .setActivity(Activity.watching("through the mist..."))
                 .build().awaitReady();
             CommandModule.setupCommandModule();
             LoggingModule.setupLoggingModule();
+
+            MMDBot.getInstance().getPresence().setActivity(Activity.of(config.getActivityType(), config.getActivityName()));
         } catch (final LoginException exception) {
             MMDBot.LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.",
                 exception);

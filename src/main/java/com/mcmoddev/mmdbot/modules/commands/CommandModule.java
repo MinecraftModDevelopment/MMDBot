@@ -28,7 +28,6 @@ import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdGist;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdHelp;
-import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdUptime;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRefreshScamLinks;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
@@ -138,7 +137,6 @@ public class CommandModule {
             new CmdOldChannels(),
             new CmdAvatar(),
             new CmdRename(),
-            new CmdUptime(),
             //TODO Setup DB storage for tricks and polish them off/add permission restrictions for when needed.
             new CmdEditTrick(),
             new CmdListTricks(),

@@ -30,6 +30,7 @@ import com.google.common.io.Resources;
 import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
 import com.mcmoddev.mmdbot.MMDBot;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import org.jetbrains.annotations.NotNull;
 
@@ -502,5 +503,13 @@ public final class BotConfig {
 
     public boolean isRolePanelPermanent(final long channelId, final long messageId) {
         return config.<Boolean>getOrElse("role_panels.%s-%s.permanent".formatted(channelId, messageId), false);
+    }
+
+    public Activity.ActivityType getActivityType() {
+        return Activity.ActivityType.valueOf(config.getOrElse("bot.activity.type", "PLAYING"));
+    }
+
+    public String getActivityName() {
+        return config.getOrElse("bot.activity.name", "");
     }
 }
