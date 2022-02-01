@@ -10,6 +10,7 @@ import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.gist.Gist;
 import com.mcmoddev.mmdbot.gist.GistUtils;
 import com.mcmoddev.mmdbot.modules.commands.contextmenu.message.ContextMenuGist;
+import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.Color;
@@ -34,7 +35,13 @@ public final class CmdGist extends Command {
         if (!GistUtils.hasToken()) {
             event.getMessage().reply("I cannot create a gist! I have not been configured to do so.").mentionRepliedUser(false).queue();
         }
-        ContextMenuGist.THREAD_POOL.execute(() -> run(MMDBot.getConfig().getGithubToken(), event));
+        ContextMenuGist.THREAD_POOL.execute(() -> {
+            if (event.getMessage().isFromGuild() && Utils.memberHasRole(event.getMember(), MMDBot.getConfig().getRole("bot_maintainer"))) {
+                // Remove the cooldown from bot maintainers, for testing purposes
+                event.getClient().applyCooldown(getCooldownKey(event), 1);
+            }
+            run(MMDBot.getConfig().getGithubToken(), event);
+        });
     }
 
     private static void run(final String token, final CommandEvent event) {

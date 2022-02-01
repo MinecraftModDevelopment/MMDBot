@@ -164,6 +164,9 @@ public class CommandModule {
         commandClient.addCommand(new CmdReact());
         commandClient.addCommand(new CmdGist());
 
+        commandClient.addCommand(new CmdAddTrick.Prefix());
+        commandClient.addCommand(new CmdEditTrick.Prefix());
+
         addContextMenu(new ContextMenuGist());
         addContextMenu(new ContextMenuAddQuote());
         addContextMenu(new ContextMenuUserInfo());

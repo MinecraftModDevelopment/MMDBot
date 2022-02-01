@@ -20,6 +20,8 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.server.tricks;
 
+import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
@@ -94,6 +96,44 @@ public final class CmdAddTrick extends SlashCommand {
                 event.reply("A command with that name already exists!").mentionRepliedUser(false).setEphemeral(true).queue();
                 MMDBot.LOGGER.warn("Failure adding trick: {}", e.getMessage());
             }
+        }
+    }
+
+    public static final class Prefix extends Command {
+
+        public Prefix() {
+            name = "addtrick";
+            arguments = "(<string> <trick content body> (or) <embed> <title> "
+                + "<description> <colour-as-hex-code>";
+            aliases = new String[]{"add-trick"};
+            requiredRole = "Bot Maintainer";
+            guildOnly = true;
+            children = Tricks.getTrickTypes().entrySet().stream().map(e -> new PrefixSubCmd(e.getKey(), e.getValue())).toArray(Command[]::new);
+        }
+
+        @Override
+        protected void execute(final CommandEvent event) {
+
+        }
+    }
+
+    private static final class PrefixSubCmd extends Command {
+
+        private final Trick.TrickType<?> trickType;
+
+        private PrefixSubCmd(final String name, final Trick.TrickType<?> trickType) {
+            this.trickType = trickType;
+            this.name = name;
+        }
+
+        @Override
+        protected void execute(final CommandEvent event) {
+            if (!Utils.checkCommand(this, event)) {
+                return;
+            }
+
+            Tricks.addTrick(trickType.createFromArgs(event.getArgs()));
+            event.getMessage().reply("Added trick!").mentionRepliedUser(false).queue();
         }
     }
 }
