@@ -79,14 +79,15 @@ public final class MiscEvents extends ListenerAdapter {
         event.getJDA().updateCommands().addCommands(CommandModule.GLOBAL_CMDS).queue();
         event.getJDA().getGuilds().forEach(guild -> guild.updateCommands().addCommands(CommandModule.GUILD_CMDS
             .computeIfAbsent(guild.getIdLong(), k -> new ArrayList<>())).queue(commands -> {
-            Map<String, Collection<CommandPrivilege>> privileges = new HashMap<>();
+                // TODO privileges should work
+            /*Map<String, Collection<CommandPrivilege>> privileges = new HashMap<>();
             for (var cmd : commands) {
                 SlashCommand command = CommandModule.SLASH_COMMANDS.get(cmd.getName());
                 if (command != null) {
                     privileges.put(cmd.getId(), command.buildPrivileges(CommandModule.getCommandClient()));
                 }
                 guild.updateCommandPrivileges(privileges).queue();
-            }
+            }*/
         }));
     }
 
