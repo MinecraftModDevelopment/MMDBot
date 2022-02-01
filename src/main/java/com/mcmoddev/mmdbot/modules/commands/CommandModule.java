@@ -69,6 +69,7 @@ import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import me.shedaniel.linkie.Namespaces;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
@@ -193,21 +194,33 @@ public class CommandModule {
      *
      * @param name the name of the command to remove
      */
-    public static void removeCommand(final String name) {
-        var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
-        if (guild == null) {
-            throw new NullPointerException("No Guild found!");
+    public static void removeCommand(final String name, final boolean guildOnly) {
+        if (guildOnly) {
+            var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
+            if (guild == null) {
+                throw new NullPointerException("No Guild found!");
+            }
+
+            commandClient.getSlashCommands().stream()
+                .filter(cmd -> cmd.getName().equals(name))
+                .filter(cmd -> cmd instanceof DeletableCommand && cmd.isGuildOnly())
+                .map(cmd -> (DeletableCommand) cmd)
+                .forEach(DeletableCommand::delete);
+
+            guild.retrieveCommands()
+                .flatMap(list -> list.stream().filter(cmd -> cmd.getName().equals(name)).findAny().map(cmd -> guild.deleteCommandById(cmd.getId())).orElseThrow())
+                .queue();
+        } else {
+            commandClient.getSlashCommands().stream()
+                .filter(cmd -> cmd.getName().equals(name))
+                .filter(cmd -> cmd instanceof DeletableCommand && !cmd.isGuildOnly())
+                .map(cmd -> (DeletableCommand) cmd)
+                .forEach(DeletableCommand::delete);
+
+            MMDBot.getInstance().retrieveCommands()
+                .flatMap(list -> list.stream().filter(cmd -> cmd.getName().equals(name)).findAny().map(cmd ->
+                    MMDBot.getInstance().deleteCommandById(cmd.getId())).orElseThrow()).queue();
         }
-
-        commandClient.getSlashCommands().stream()
-            .filter(cmd -> cmd.getName().equals(name))
-            .filter(cmd -> cmd instanceof DeletableCommand)
-            .map(cmd -> (DeletableCommand) cmd)
-            .forEach(DeletableCommand::delete);
-
-        guild.retrieveCommands()
-            .flatMap(list -> list.stream().filter(cmd -> cmd.getName().equals(name)).findAny().map(cmd -> guild.deleteCommandById(cmd.getId())).orElseThrow())
-            .queue();
     }
 
     // This is a temporary fix for something broken in chewtils, whose fix is not yet published
@@ -274,8 +287,8 @@ public class CommandModule {
      *
      * @param menu the menu
      */
-    public static void upsertContextMenu(final ContextMenu menu, final boolean guildOnly) {
-        if (guildOnly) {
+    public static void upsertContextMenu(final ContextMenu menu) {
+        if (menu instanceof GuildOnlyMenu) {
             var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
             if (guild == null) {
                 throw new NullPointerException("No Guild found!");

@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot;
 
+import com.google.common.collect.ImmutableSet;
 import com.mcmoddev.mmdbot.core.BotConfig;
 import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
@@ -40,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -66,7 +68,13 @@ public final class MMDBot {
     /**
      * The Constant INTENTS.
      */
-    private static final Set<GatewayIntent> INTENTS = new HashSet<>();
+    private static final Set<GatewayIntent> INTENTS = Set.of(
+        GatewayIntent.DIRECT_MESSAGES,
+        GatewayIntent.GUILD_BANS,
+        GatewayIntent.GUILD_EMOJIS,
+        GatewayIntent.GUILD_MESSAGE_REACTIONS,
+        GatewayIntent.GUILD_MESSAGES,
+        GatewayIntent.GUILD_MEMBERS);
 
     /**
      * The config.
@@ -82,15 +90,6 @@ public final class MMDBot {
      * The database manager.
      */
     private static DatabaseManager database;
-
-    static {
-        MMDBot.INTENTS.add(GatewayIntent.DIRECT_MESSAGES);
-        MMDBot.INTENTS.add(GatewayIntent.GUILD_BANS);
-        MMDBot.INTENTS.add(GatewayIntent.GUILD_EMOJIS);
-        MMDBot.INTENTS.add(GatewayIntent.GUILD_MESSAGE_REACTIONS);
-        MMDBot.INTENTS.add(GatewayIntent.GUILD_MESSAGES);
-        MMDBot.INTENTS.add(GatewayIntent.GUILD_MEMBERS);
-    }
 
     /**
      * Returns the configuration of this bot.

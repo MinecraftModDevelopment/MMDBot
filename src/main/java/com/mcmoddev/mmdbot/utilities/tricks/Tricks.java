@@ -159,7 +159,7 @@ public final class Tricks {
     public static void removeTrick(final Trick trick) {
         getTricks().remove(trick);
         write();
-        CommandModule.removeCommand(trick.getNames().get(0));
+        CommandModule.removeCommand(trick.getNames().get(0), true);
     }
 
     public static void replaceTrick(final Trick oldTrick, final Trick newTrick) {
