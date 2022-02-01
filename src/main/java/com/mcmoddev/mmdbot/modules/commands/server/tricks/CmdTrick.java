@@ -44,6 +44,7 @@ public final class CmdTrick extends SlashCommand {
         Tricks.getTrickTypes().entrySet().stream().map(entry -> new CmdAddTrick(entry.getKey(), entry.getValue())).forEach(child::add);
         child.add(new CmdRemoveTrick());
         child.add(new CmdListTricks());
+        guildOnly = false;
 
         children = child.toArray(SlashCommand[]::new);
     }
