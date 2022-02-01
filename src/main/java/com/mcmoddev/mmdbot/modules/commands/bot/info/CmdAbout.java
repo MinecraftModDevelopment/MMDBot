@@ -29,6 +29,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.Color;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Shows information about the bot.
@@ -81,6 +84,10 @@ public final class CmdAbout extends SlashCommand {
             true);
         embed.addField("Current maintainers:", "jriwanek, WillBL, KiriCattus, sciwhiz12, Curle, matyrobbrt",
             true);
+        embed.addField("I've been online for: ", Utils.getTimeDifference(Utils.getTimeFromUTC(
+                    References.STARTUP_TIME), OffsetDateTime.now(ZoneOffset.UTC),
+                ChronoUnit.YEARS, ChronoUnit.MONTHS, ChronoUnit.DAYS, ChronoUnit.HOURS, ChronoUnit.HOURS, ChronoUnit.SECONDS)
+            , false);
         embed.setTimestamp(Instant.now());
 
         if (event.isFromGuild() && Utils.memberHasRole(event.getMember(), MMDBot.getConfig().getRole("bot_maintainer"))) {

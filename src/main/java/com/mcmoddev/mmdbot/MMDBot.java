@@ -160,12 +160,15 @@ public final class MMDBot {
                 .disableCache(CacheFlag.ONLINE_STATUS)
                 .addEventListeners(new ThreadedEventListener(new MiscEvents(), GENERAL_EVENT_THREAD_POOL))
                 .setActivity(Activity.watching("through the mist..."))
-                .build();
+                .build().awaitReady();
             CommandModule.setupCommandModule();
             LoggingModule.setupLoggingModule();
         } catch (final LoginException exception) {
             MMDBot.LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.",
                 exception);
+            System.exit(1);
+        } catch (InterruptedException e) {
+            MMDBot.LOGGER.error("Error awaiting caching.", e);
             System.exit(1);
         }
     }
