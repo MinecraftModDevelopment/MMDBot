@@ -21,9 +21,9 @@
 package com.mcmoddev.mmdbot.modules.commands.bot.management;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
-import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 

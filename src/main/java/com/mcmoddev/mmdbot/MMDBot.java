@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot;
 
-import com.google.common.collect.ImmutableSet;
 import com.mcmoddev.mmdbot.core.BotConfig;
 import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
@@ -41,8 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;

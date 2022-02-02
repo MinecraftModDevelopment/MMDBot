@@ -20,9 +20,6 @@
  */
 package com.mcmoddev.mmdbot.utilities.updatenotifiers.forge;
 
-import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
-import static com.mcmoddev.mmdbot.MMDBot.getConfig;
-import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.NOTIFIER_FORGE;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -30,6 +27,10 @@ import net.dv8tion.jda.api.entities.ChannelType;
 import java.awt.Color;
 import java.io.IOException;
 import java.time.Instant;
+
+import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
+import static com.mcmoddev.mmdbot.MMDBot.getConfig;
+import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.NOTIFIER_FORGE;
 
 /**
  * The type Forge update notifier.

@@ -23,11 +23,11 @@ package com.mcmoddev.mmdbot.modules.commands.community.server.tricks;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Trick;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
-import com.jagrosh.jdautilities.command.SlashCommandEvent;
 
 import java.util.Optional;
 

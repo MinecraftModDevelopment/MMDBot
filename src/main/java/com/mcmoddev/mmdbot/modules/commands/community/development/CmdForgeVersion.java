@@ -21,11 +21,11 @@
 package com.mcmoddev.mmdbot.modules.commands.community.development;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.forge.ForgeVersionHelper;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.forge.MinecraftForgeVersion;
 import net.dv8tion.jda.api.EmbedBuilder;
-import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;

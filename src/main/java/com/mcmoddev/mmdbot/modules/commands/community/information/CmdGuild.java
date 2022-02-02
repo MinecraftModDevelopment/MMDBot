@@ -21,10 +21,10 @@
 package com.mcmoddev.mmdbot.modules.commands.community.information;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import com.jagrosh.jdautilities.command.SlashCommandEvent;
 
 import java.awt.Color;
 import java.text.SimpleDateFormat;

@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.utilities;
 
-import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
@@ -61,6 +60,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.LongPredicate;
 import java.util.stream.Collectors;
+
+import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 
 /**
  * The type Utils.
@@ -197,8 +198,9 @@ public final class Utils {
 
     /**
      * Gets a role with the specified {@code roleId} from the specifed {@code guild}
-     * @param guild the guild to get the role from
-     * @param roleId the id of the role to get
+     *
+     * @param guild     the guild to get the role from
+     * @param roleId    the id of the role to get
      * @param ifPresent a consumer accepting the role, if it exists
      */
     public static void getRoleIfPresent(final Guild guild, final long roleId, final Consumer<Role> ifPresent) {
@@ -592,7 +594,8 @@ public final class Utils {
 
     /**
      * Creates a discord link pointing to the specified message
-     * @param guildId the ID of the guild of the message
+     *
+     * @param guildId   the ID of the guild of the message
      * @param channelId the ID of the channel of the message
      * @param messageId the message ID
      * @return the message link
@@ -603,7 +606,8 @@ public final class Utils {
 
     /**
      * Sets the thread's daemon property to the specified {@code isDaemon} and returns it
-     * @param thread the thread to modify
+     *
+     * @param thread   the thread to modify
      * @param isDaemon if the thread should be daemon
      * @return the modified thread
      */
@@ -615,7 +619,8 @@ public final class Utils {
     public static void executeInDMs(final long userId, Consumer<PrivateChannel> consumer) {
         final var user = MMDBot.getInstance().getUserById(userId);
         if (user != null) {
-            user.openPrivateChannel().queue(consumer::accept, e -> {});
+            user.openPrivateChannel().queue(consumer::accept, e -> {
+            });
         }
     }
 
@@ -625,6 +630,7 @@ public final class Utils {
 
     /**
      * Checks if the given member has the given role
+     *
      * @param member the member to check
      * @param roleId the id of the role to search for
      * @return if the member has the role

@@ -20,15 +20,16 @@
  */
 package com.mcmoddev.mmdbot.utilities.updatenotifiers.fabric;
 
-import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
-import static com.mcmoddev.mmdbot.MMDBot.getConfig;
-import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.NOTIFIER_FABRIC;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 
 import java.awt.Color;
 import java.time.Instant;
+
+import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
+import static com.mcmoddev.mmdbot.MMDBot.getConfig;
+import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.NOTIFIER_FABRIC;
 
 /**
  * The type Fabric api update notifier.

@@ -21,10 +21,10 @@
 package com.mcmoddev.mmdbot.modules.commands.community.server;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.entities.Role;
-import com.jagrosh.jdautilities.command.SlashCommandEvent;
 
 import java.util.List;
 

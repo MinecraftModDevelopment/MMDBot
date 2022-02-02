@@ -20,10 +20,8 @@
  */
 package com.mcmoddev.mmdbot.modules.logging.misc;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.MessageContextMenu;
 import com.jagrosh.jdautilities.command.MessageContextMenuEvent;
-import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.UserContextMenu;
 import com.jagrosh.jdautilities.command.UserContextMenuEvent;
 import com.mcmoddev.mmdbot.MMDBot;
@@ -38,14 +36,9 @@ import net.dv8tion.jda.api.events.ResumedEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * The type Misc events.

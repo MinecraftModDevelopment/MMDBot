@@ -262,10 +262,10 @@ public class CmdWarning extends SlashCommand {
                     .stream().filter(id -> id.startsWith(currentChoice)).limit(5).map(id -> new Command.Choice(id, id)).toList()).queue();
             } else {*/
             event.replyChoices(withExtension(Warnings::getAllWarnings)
-                    .stream().filter(id -> id.startsWith(currentChoice)).limit(5).map(id -> {
-                        final var targetMember = event.getJDA().getUserById(CmdWarning.<Long>withExtension(db -> db.getUser(id)));
-                        return new Command.Choice(id + (targetMember == null ? "" : (" - " + targetMember.getAsTag())), id);
-                    }).toList()).queue();
+                .stream().filter(id -> id.startsWith(currentChoice)).limit(5).map(id -> {
+                    final var targetMember = event.getJDA().getUserById(CmdWarning.<Long>withExtension(db -> db.getUser(id)));
+                    return new Command.Choice(id + (targetMember == null ? "" : (" - " + targetMember.getAsTag())), id);
+                }).toList()).queue();
         }
     }
 

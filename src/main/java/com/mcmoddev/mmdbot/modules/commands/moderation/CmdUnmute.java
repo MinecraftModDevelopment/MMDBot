@@ -21,12 +21,12 @@
 package com.mcmoddev.mmdbot.modules.commands.moderation;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -37,7 +37,6 @@ import java.util.EnumSet;
 import java.util.List;
 
 import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
-import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.MUTING;
 
 /**

@@ -32,8 +32,6 @@ import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRefreshScamLinks;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRestart;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
-import com.mcmoddev.mmdbot.modules.commands.community.information.CmdDictionary;
-import com.mcmoddev.mmdbot.modules.commands.community.information.CmdInvite;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.GuildOnlyMenu;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuAddQuote;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuGist;
@@ -43,7 +41,9 @@ import com.mcmoddev.mmdbot.modules.commands.community.development.CmdForgeVersio
 import com.mcmoddev.mmdbot.modules.commands.community.development.CmdGist;
 import com.mcmoddev.mmdbot.modules.commands.community.development.CmdMinecraftVersion;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdCatFacts;
+import com.mcmoddev.mmdbot.modules.commands.community.information.CmdDictionary;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdGuild;
+import com.mcmoddev.mmdbot.modules.commands.community.information.CmdInvite;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdSearch;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdUser;
 import com.mcmoddev.mmdbot.modules.commands.community.server.CmdRoles;

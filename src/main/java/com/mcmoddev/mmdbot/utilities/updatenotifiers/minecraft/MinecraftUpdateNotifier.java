@@ -20,8 +20,6 @@
  */
 package com.mcmoddev.mmdbot.utilities.updatenotifiers.minecraft;
 
-import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
-import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -29,6 +27,9 @@ import net.dv8tion.jda.api.entities.ChannelType;
 
 import java.awt.Color;
 import java.time.Instant;
+
+import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
+import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 
 /**
  * The type Minecraft update notifier.

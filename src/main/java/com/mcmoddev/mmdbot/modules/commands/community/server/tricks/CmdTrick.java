@@ -31,6 +31,7 @@ import java.util.Objects;
 
 /**
  * This class is the parent of all the trick commands.
+ *
  * @author matyrobbrt
  */
 public final class CmdTrick extends SlashCommand {

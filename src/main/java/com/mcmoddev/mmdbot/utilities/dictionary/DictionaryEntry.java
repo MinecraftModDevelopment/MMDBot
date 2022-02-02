@@ -27,7 +27,8 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public record DictionaryEntry(@Nonnull String word, @Nullable String pronunciation, @Nonnull List<DictionaryDefinition> definitions) {
+public record DictionaryEntry(@Nonnull String word, @Nullable String pronunciation,
+                              @Nonnull List<DictionaryDefinition> definitions) {
 
     public static DictionaryEntry fromJson(@Nonnull final JsonObject json) {
         final var word = json.get("word").getAsString();

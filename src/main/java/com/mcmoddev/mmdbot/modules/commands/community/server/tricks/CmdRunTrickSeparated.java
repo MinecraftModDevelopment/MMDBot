@@ -21,11 +21,11 @@
 package com.mcmoddev.mmdbot.modules.commands.community.server.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.commands.community.server.DeletableCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Trick;
-import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -41,10 +41,9 @@ import java.util.Collections;
  * /test
  * /[trickname] [args]
  *
- * @deprecated This system is bad, and such I added autocomplete to `/trick run` - matyrobbrt
- *
  * @author Will BL
  * @author Curle
+ * @deprecated This system is bad, and such I added autocomplete to `/trick run` - matyrobbrt
  */
 @Deprecated(forRemoval = true)
 public final class CmdRunTrickSeparated extends SlashCommand implements DeletableCommand {

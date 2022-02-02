@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.modules.commands.community.server.quotes;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.modules.commands.community.PaginatedCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.quotes.NullQuote;
@@ -29,7 +30,6 @@ import com.mcmoddev.mmdbot.utilities.quotes.QuoteList;
 import com.mcmoddev.mmdbot.utilities.quotes.StringQuote;
 import com.mcmoddev.mmdbot.utilities.quotes.UserReference;
 import net.dv8tion.jda.api.EmbedBuilder;
-import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;

@@ -26,8 +26,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
-import com.mcmoddev.mmdbot.utilities.Utils;
-import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -57,6 +55,7 @@ import java.util.stream.StreamSupport;
 
 /**
  * Scam detection system
+ *
  * @author matyrobbrt
  */
 public class ScamDetector extends ListenerAdapter {

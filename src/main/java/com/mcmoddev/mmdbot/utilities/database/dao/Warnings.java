@@ -48,9 +48,10 @@ public interface Warnings extends Transactional<Warnings> {
 
     /**
      * Inserts a new warning in the database
-     * @param user the user to warn
-     * @param guild the guild in which to warn
-     * @param reason the reason to warn
+     *
+     * @param user      the user to warn
+     * @param guild     the guild in which to warn
+     * @param reason    the reason to warn
      * @param moderator the moderator who warned
      * @param timestamp the time at which the warning "happened"
      * @return the warning UUID

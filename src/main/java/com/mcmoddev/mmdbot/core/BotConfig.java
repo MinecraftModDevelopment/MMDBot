@@ -508,9 +508,10 @@ public final class BotConfig {
 
     /**
      * Gets the role associated with the {@code emote} from the specified role panel
+     *
      * @param channelId the channel ID of the role panel
      * @param messageId the message ID of the role panel
-     * @param emote the emote
+     * @param emote     the emote
      * @return
      */
     public long getRoleForRolePanel(final long channelId, final long messageId, final String emote) {

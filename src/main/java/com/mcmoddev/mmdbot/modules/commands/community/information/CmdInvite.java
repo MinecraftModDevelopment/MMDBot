@@ -46,7 +46,7 @@ public class CmdInvite extends SlashCommand {
         name = "invite";
         guildOnly = false;
         help = "Things regarding invites";
-        children = new SlashCommand[] {
+        children = new SlashCommand[]{
             new Get(), new Add(), new Remove(), new ListCmd()
         };
     }

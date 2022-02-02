@@ -21,17 +21,13 @@
 package com.mcmoddev.mmdbot.modules.logging.misc;
 
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public class ThreadChannelCreatorEvents extends ListenerAdapter {
 
@@ -55,7 +51,7 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
         event.getMessage().createThreadChannel("Discussion of %s’s %s".formatted(author.getUser().getName(), threadTypeStr)).queue(thread -> {
             thread.addThreadMember(author).queue($ -> {
                 thread.sendMessageEmbeds(new EmbedBuilder().setTitle("%s discussion thread".formatted(Utils.uppercaseFirstLetter(threadTypeStr)))
-                    .setColor(Color.CYAN).setDescription("""
+                        .setColor(Color.CYAN).setDescription("""
                             **This thread is intended for discussing %s's %s. The %s:**
                             %s""".formatted(author.getAsMention(), threadTypeStr, threadTypeStr, event.getMessage().getContentRaw())).build())
                     .queue(msg -> msg.pin().queue());
