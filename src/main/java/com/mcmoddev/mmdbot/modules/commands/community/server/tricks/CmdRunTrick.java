@@ -85,6 +85,6 @@ public final class CmdRunTrick extends SlashCommand {
 
     public static List<Command.Choice> getNamesStartingWith(final String currentChoice, final int limit) {
         return Tricks.getTricks().stream().filter(t -> t.getNames().get(0).startsWith(currentChoice))
-            .map(t -> new Command.Choice(t.getNames().get(0), t.getNames().get(0))).limit(limit).toList();
+            .limit(limit).map(t -> new Command.Choice(t.getNames().get(0), t.getNames().get(0))).toList();
     }
 }

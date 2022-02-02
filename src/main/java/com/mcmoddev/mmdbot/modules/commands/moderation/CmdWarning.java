@@ -30,6 +30,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.TimeFormat;
@@ -38,6 +40,7 @@ import net.dv8tion.jda.api.utils.Timestamp;
 import java.awt.Color;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -60,6 +63,13 @@ public class CmdWarning extends SlashCommand {
         children = new SlashCommand[]{
             new AddWarn(), new ListWarns(), new ClearWarn()
         };
+    }
+
+    @Override
+    public void onAutoComplete(final CommandAutoCompleteInteractionEvent event) {
+        if (Objects.equals(event.getSubcommandName(), "clear")) {
+            children[2].onAutoComplete(event);
+        }
     }
 
     @Override
@@ -134,7 +144,7 @@ public class CmdWarning extends SlashCommand {
             User userToSee = event.getOption("user").getAsUser();
             final long userID = userToSee.getIdLong();
 
-            final var warnings = MMDBot.database().withExtension(Warnings.class, db -> db.getWarnings(userID, event.getGuild().getIdLong()));
+            final var warnings = MMDBot.database().withExtension(Warnings.class, db -> db.getWarningsForUser(userID, event.getGuild().getIdLong()));
 
             final EmbedBuilder embed = new EmbedBuilder()
                 .setDescription("The warnings of " + mentionAndID(userID) + ":")
@@ -159,7 +169,7 @@ public class CmdWarning extends SlashCommand {
             options = List.of(
                 new OptionData(OptionType.USER, "user", "The user to remove the warn from").setRequired(true),
                 new OptionData(OptionType.STRING, "id",
-                    "The ID of the warn to remove. Do not provide it if you want to clean all warnings of that user."),
+                    "The ID of the warn to remove. Do not provide it if you want to clean all warnings of that user.").setAutoComplete(true),
                 new OptionData(OptionType.BOOLEAN, "public", "If the warning clearing is public"));
         }
 
@@ -183,7 +193,8 @@ public class CmdWarning extends SlashCommand {
                         .setTitle("Warnings Cleared")
                         .setDescription("All of your warnings from **" + event.getGuild().getName() + "** have been cleared!")
                         .setTimestamp(Instant.now())
-                        .setFooter("Un-Warner ID: " + member.getId(), member.getEffectiveAvatarUrl());;
+                        .setFooter("Un-Warner ID: " + member.getId(), member.getEffectiveAvatarUrl());
+                    ;
                     channel.sendMessageEmbeds(dmEmbed.build()).queue();
                 });
 
@@ -239,7 +250,22 @@ public class CmdWarning extends SlashCommand {
 
                 event.getInteraction().reply(new MessageBuilder().append("Warning cleared!").build()).setEphemeral(true).queue();
             }
+        }
 
+        @Override
+        public void onAutoComplete(final CommandAutoCompleteInteractionEvent event) {
+            final var currentChoice = event.getInteraction().getFocusedOption().getValue();
+            /*final var member = event.getInteraction().get.getOption("user") == null ? null : event
+                .getInteraction().getOption("user").getAsUser();
+            if (member != null) {
+                event.replyChoices(withExtension(db -> db.getWarningsForUser(member.getIdLong(), event.getGuild().getIdLong()))
+                    .stream().filter(id -> id.startsWith(currentChoice)).limit(5).map(id -> new Command.Choice(id, id)).toList()).queue();
+            } else {*/
+            event.replyChoices(withExtension(Warnings::getAllWarnings)
+                    .stream().filter(id -> id.startsWith(currentChoice)).limit(5).map(id -> {
+                        final var targetMember = event.getJDA().getUserById(CmdWarning.<Long>withExtension(db -> db.getUser(id)));
+                        return new Command.Choice(id + (targetMember == null ? "" : (" - " + targetMember.getAsTag())), id);
+                    }).toList()).queue();
         }
     }
 
