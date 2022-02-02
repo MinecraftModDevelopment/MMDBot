@@ -295,6 +295,24 @@ public final class BotConfig {
         return SafeIdUtil.safeConvert(getAliased("roles." + roleKey, getAliases()));
     }
 
+    public long getRole(final RoleType role) {
+        return getRole(role.toString());
+    }
+
+    public enum RoleType {
+        BOT_MAINTAINER("bot_maintainer");
+        private final String name;
+
+        RoleType(final String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
     /**
      * Returns the snowflake ID of the given channel based on the configuration, or {@code 0L} if none is configured.
      * <p>

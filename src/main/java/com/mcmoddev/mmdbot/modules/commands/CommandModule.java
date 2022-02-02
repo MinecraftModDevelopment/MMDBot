@@ -26,6 +26,7 @@ import com.jagrosh.jdautilities.command.ContextMenu;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
+import com.mcmoddev.mmdbot.modules.commands.community.CmdInvite;
 import com.mcmoddev.mmdbot.modules.commands.community.development.CmdGist;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdHelp;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
@@ -146,7 +147,8 @@ public class CommandModule {
             new CmdQuote(),
             new CmdRolePanel(),
             new CmdWarning(),
-            new CmdTrick());
+            new CmdTrick(),
+            new CmdInvite());
 
         addSlashCommand(CmdTranslateMappings.createCommands());
         addSlashCommand(CmdMappings.createCommands()); // TODO: This is broken beyond belief. Consider moving away from linkie. - Curle
@@ -174,6 +176,7 @@ public class CommandModule {
             MMDBot.getInstance().addEventListener(buttonListener(CmdHelp.getListener()));
             MMDBot.getInstance().addEventListener(buttonListener(CmdListTricks.getListListener()));
             MMDBot.getInstance().addEventListener(buttonListener(CmdQuote.ListQuotes.getQuoteListener()));
+            MMDBot.getInstance().addEventListener(buttonListener(CmdInvite.ListCmd.getButtonListener()));
             MMDBot.LOGGER.warn("Command module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");
