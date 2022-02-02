@@ -65,7 +65,7 @@ public class CmdUser extends SlashCommand {
         help = "Get information about another user.";
         aliases = new String[]{"whoami", "myinfo", "me"};
         category = new Category("Info");
-        arguments = "[userID/mention]";
+        arguments = "<userID/mention>";
         guildOnly = true;
 
         OptionData data = new OptionData(OptionType.USER, "user", "The user to check.").setRequired(false);
@@ -82,12 +82,6 @@ public class CmdUser extends SlashCommand {
     @Override
     protected void execute(final SlashCommandEvent event) {
         if (!Utils.checkCommand(this, event)) {
-            return;
-        }
-
-        final var member = event.getOption("user");
-        if (member == null) {
-            event.reply(String.format("User %s not found.", event.getOption("user").getAsString())).mentionRepliedUser(false).queue();
             return;
         }
 
