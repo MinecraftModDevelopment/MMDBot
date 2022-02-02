@@ -534,7 +534,8 @@ public final class Utils {
             final var channelID = event.getChannel().getIdLong();
             final List<Long> blockedChannels = getConfig().getBlockedChannels(command.getName(),
                 event.getGuild().getIdLong());
-            @Nullable final var category = event.getTextChannel().getParentCategory();
+            @Nullable final var category = event.getChannelType() == ChannelType.TEXT ?
+                event.getTextChannel().getParentCategory() : null;
             if (category != null) {
                 final var categoryID = category.getIdLong();
                 return blockedChannels.stream()

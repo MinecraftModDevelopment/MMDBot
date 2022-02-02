@@ -26,55 +26,52 @@ import com.jagrosh.jdautilities.command.ContextMenu;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
-import com.mcmoddev.mmdbot.modules.commands.community.CmdInvite;
-import com.mcmoddev.mmdbot.modules.commands.community.development.CmdGist;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdHelp;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRefreshScamLinks;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRestart;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
+import com.mcmoddev.mmdbot.modules.commands.community.CmdInvite;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.GuildOnlyMenu;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuAddQuote;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuGist;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.user.ContextMenuUserInfo;
-import com.mcmoddev.mmdbot.modules.commands.community.information.CmdCatFacts;
 import com.mcmoddev.mmdbot.modules.commands.community.development.CmdFabricVersion;
 import com.mcmoddev.mmdbot.modules.commands.community.development.CmdForgeVersion;
-import com.mcmoddev.mmdbot.modules.commands.community.information.CmdMe;
+import com.mcmoddev.mmdbot.modules.commands.community.development.CmdGist;
 import com.mcmoddev.mmdbot.modules.commands.community.development.CmdMinecraftVersion;
+import com.mcmoddev.mmdbot.modules.commands.community.information.CmdCatFacts;
+import com.mcmoddev.mmdbot.modules.commands.community.information.CmdGuild;
+import com.mcmoddev.mmdbot.modules.commands.community.information.CmdMe;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdSearch;
+import com.mcmoddev.mmdbot.modules.commands.community.information.CmdUser;
 import com.mcmoddev.mmdbot.modules.commands.community.mappings.CmdMappings;
 import com.mcmoddev.mmdbot.modules.commands.community.mappings.CmdTranslateMappings;
-import com.mcmoddev.mmdbot.modules.commands.community.information.CmdGuild;
 import com.mcmoddev.mmdbot.modules.commands.community.server.CmdRoles;
 import com.mcmoddev.mmdbot.modules.commands.community.server.CmdToggleEventPings;
 import com.mcmoddev.mmdbot.modules.commands.community.server.CmdToggleMcServerPings;
 import com.mcmoddev.mmdbot.modules.commands.community.server.DeletableCommand;
+import com.mcmoddev.mmdbot.modules.commands.community.server.quotes.CmdQuote;
+import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdAddTrick;
+import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdEditTrick;
+import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdListTricks;
+import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdTrick;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdMute;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdOldChannels;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdReact;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdRolePanel;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdUnmute;
-import com.mcmoddev.mmdbot.modules.commands.community.information.CmdUser;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdWarning;
-import com.mcmoddev.mmdbot.modules.commands.community.server.quotes.CmdQuote;
-import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdAddTrick;
-import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdEditTrick;
-import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdListTricks;
-import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdRunTrick;
-import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdTrick;
 import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import me.shedaniel.linkie.Namespaces;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -226,19 +223,10 @@ public class CommandModule {
         return MENUS.get(name);
     }
 
-    public static final Map<Long, List<CommandData>> GUILD_CMDS = new HashMap<>();
-    public static final List<CommandData> GLOBAL_CMDS = new ArrayList<>();
-    public static final Map<String, SlashCommand> SLASH_COMMANDS = new HashMap<>();
-
     public static void addContextMenu(final ContextMenu menu) {
         commandClient.addContextMenu(menu);
         MENUS.put(menu.getName(), menu);
-        if (menu instanceof GuildOnlyMenu) {
-            GUILD_CMDS.computeIfAbsent(MMDBot.getConfig().getGuildID(), k -> new ArrayList<>())
-                    .add(menu.buildCommandData());
-        } else {
-            GLOBAL_CMDS.add(menu.buildCommandData());
-        }
+        upsertCommand(menu.buildCommandData(), menu instanceof GuildOnlyMenu);
     }
 
     /**
@@ -248,13 +236,8 @@ public class CommandModule {
      */
     public static void addSlashCommand(final SlashCommand... cmds) {
         for (final var cmd : cmds) {
-            SLASH_COMMANDS.put(cmd.getName(), cmd);
             commandClient.addSlashCommand(cmd);
-            if (cmd.isGuildOnly()) {
-                GUILD_CMDS.computeIfAbsent(MMDBot.getConfig().getGuildID(), k -> new ArrayList<>()).add(cmd.buildCommandData());
-            } else {
-                GLOBAL_CMDS.add(cmd.buildCommandData());
-            }
+            upsertCommand(cmd.buildCommandData(), cmd.isGuildOnly());
         }
     }
 
@@ -275,6 +258,19 @@ public class CommandModule {
             });
         } else {
             MMDBot.getInstance().updateCommands().addCommands(cmd.buildCommandData()).queue();
+        }
+    }
+
+    public static void upsertCommand(final CommandData data, boolean guildOnly) {
+        if (guildOnly) {
+            var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
+            if (guild == null) {
+                throw new NullPointerException("No Guild found!");
+            }
+
+            guild.upsertCommand(data).queue();
+        } else {
+            MMDBot.getInstance().upsertCommand(data);
         }
     }
 

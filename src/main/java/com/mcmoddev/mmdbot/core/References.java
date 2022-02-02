@@ -84,6 +84,4 @@ public class References {
     public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
 
     public static final Random RANDOM = new Random();
-
-    public static boolean BOT_READY = false;
 }
