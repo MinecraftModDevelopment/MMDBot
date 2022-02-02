@@ -25,6 +25,7 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -78,7 +79,6 @@ public class CmdUser extends SlashCommand {
      *
      * @param event The {@link SlashCommandEvent CommandEvent} that triggered this Command.
      */
-    //TODO High priority! If no args are present then get the authors info.
     @Override
     protected void execute(final SlashCommandEvent event) {
         if (!Utils.checkCommand(this, event)) {
@@ -91,7 +91,7 @@ public class CmdUser extends SlashCommand {
             return;
         }
 
-        final var embed = createMemberEmbed(member.getAsMember());
+        final var embed = createMemberEmbed(Utils.getArgumentOr(event, "user", OptionMapping::getAsMember, event.getMember()));
         event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
     }
 
