@@ -41,8 +41,8 @@ public final class CmdTrick extends SlashCommand {
 
         final List<SlashCommand> child = new ArrayList<>();
         child.add(new CmdRunTrick());
-        Tricks.getTrickTypes().entrySet().stream().map(entry -> new CmdAddTrick(entry.getKey(), entry.getValue())).forEach(child::add);
         child.add(new CmdRemoveTrick());
+        Tricks.getTrickTypes().entrySet().stream().map(entry -> new CmdAddTrick(entry.getKey(), entry.getValue())).forEach(child::add);
         child.add(new CmdListTricks());
         guildOnly = false;
 
@@ -58,6 +58,9 @@ public final class CmdTrick extends SlashCommand {
     public void onAutoComplete(final CommandAutoCompleteInteractionEvent event) {
         if (Objects.equals(event.getSubcommandName(), "run")) {
             children[0].onAutoComplete(event);
+        }
+        if (Objects.equals(event.getSubcommandName(), "remove")) {
+            children[1].onAutoComplete(event);
         }
     }
 }

@@ -12,6 +12,9 @@
     # A value with the character '!' will be considered as being empty or unconfigured.
     githubToken = ""
 
+    # The token used for connecting to the OwnBot API for dictionary lookup
+    owlbotToken = ""
+
     # The snowflake ID of a user, to be the owner of this bot.
     # The owner has access to owner-only bot commands.
     owner = ""

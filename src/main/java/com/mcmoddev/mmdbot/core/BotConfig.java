@@ -126,6 +126,13 @@ public final class BotConfig {
             .orElse("");
     }
 
+    @NotNull
+    public String getOwlbotToken() {
+        return config.<String>getOptional("bot.owlbotToken")
+            .filter(string -> string.indexOf('!') == -1 || string.isEmpty())
+            .orElse("");
+    }
+
     /**
      * Returns the snowflake ID of the bot's owner.
      * <p>

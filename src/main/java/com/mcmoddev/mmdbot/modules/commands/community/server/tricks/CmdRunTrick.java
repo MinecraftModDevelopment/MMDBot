@@ -25,14 +25,12 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import javax.annotation.Nonnull;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Fetch and execute a given trick.
@@ -81,8 +79,12 @@ public final class CmdRunTrick extends SlashCommand {
 
     @Override
     public void onAutoComplete(final CommandAutoCompleteInteractionEvent event) {
-        final var currentChoice = event.getInteraction().getFocusedOption().getValue();
-        event.replyChoices(Tricks.getTricks().parallelStream().filter(t -> t.getNames().get(0).startsWith(currentChoice))
-            .map(t -> new Command.Choice(t.getNames().get(0), t.getNames().get(0))).limit(5).toList()).queue();
+        final var currentChoice = event.getInteraction().getFocusedOption().getValue().toLowerCase(Locale.ROOT);
+        event.replyChoices(getNamesStartingWith(currentChoice, 5)).queue();
+    }
+
+    public static List<Command.Choice> getNamesStartingWith(final String currentChoice, final int limit) {
+        return Tricks.getTricks().stream().filter(t -> t.getNames().get(0).startsWith(currentChoice))
+            .map(t -> new Command.Choice(t.getNames().get(0), t.getNames().get(0))).limit(limit).toList();
     }
 }

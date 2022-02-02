@@ -32,7 +32,8 @@ import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRefreshScamLinks;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRestart;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
-import com.mcmoddev.mmdbot.modules.commands.community.CmdInvite;
+import com.mcmoddev.mmdbot.modules.commands.community.information.CmdDictionary;
+import com.mcmoddev.mmdbot.modules.commands.community.information.CmdInvite;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.GuildOnlyMenu;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuAddQuote;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuGist;
@@ -142,7 +143,8 @@ public class CommandModule {
             new CmdRolePanel(),
             new CmdWarning(),
             new CmdTrick(),
-            new CmdInvite());
+            new CmdInvite(),
+            new CmdDictionary());
 
         addSlashCommand(CmdTranslateMappings.createCommands());
         addSlashCommand(CmdMappings.createCommands()); // TODO: This is broken beyond belief. Consider moving away from linkie. - Curle
@@ -171,6 +173,7 @@ public class CommandModule {
             MMDBot.getInstance().addEventListener(buttonListener(CmdListTricks.getListListener()));
             MMDBot.getInstance().addEventListener(buttonListener(CmdQuote.ListQuotes.getQuoteListener()));
             MMDBot.getInstance().addEventListener(buttonListener(CmdInvite.ListCmd.getButtonListener()));
+            MMDBot.getInstance().addEventListener(buttonListener(CmdDictionary.listener));
             MMDBot.LOGGER.warn("Command module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");
