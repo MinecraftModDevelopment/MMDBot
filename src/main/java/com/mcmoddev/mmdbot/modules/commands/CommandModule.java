@@ -139,9 +139,6 @@ public class CommandModule {
             new CmdAvatar(),
             new CmdRename(),
             //TODO Setup DB storage for tricks and polish them off/add permission restrictions for when needed.
-            new CmdEditTrick(),
-            new CmdListTricks(),
-            new CmdRunTrick(),
             new CmdShutdown(),
             new CmdRestart(),
             new CmdQuote(),
