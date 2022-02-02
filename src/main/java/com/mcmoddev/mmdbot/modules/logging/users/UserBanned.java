@@ -53,7 +53,7 @@ public class UserBanned extends ListenerAdapter {
             return; //Make sure not to log if it's not related to the main guild.
         }
 
-        final long banLogsChannel = MMDBot.getConfig().getChannel("events.ban-log-channel");
+        final long banLogsChannel = MMDBot.getConfig().getChannel("events.banlogchannel");
 
         Utils.getChannelIfPresent(banLogsChannel, channel ->
             guild.retrieveAuditLogs()

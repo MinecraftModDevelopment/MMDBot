@@ -25,10 +25,12 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.Collections;
+import java.util.Locale;
 
 /**
  * Remove a trick, if present.
@@ -80,5 +82,11 @@ public final class CmdRemoveTrick extends SlashCommand {
 
         Tricks.getTrick(Utils.getOrEmpty(event, "trick")).ifPresent(Tricks::removeTrick);
         event.reply("Removed trick!").setEphemeral(true).queue();
+    }
+
+    @Override
+    public void onAutoComplete(final CommandAutoCompleteInteractionEvent event) {
+        final var currentChoice = event.getInteraction().getFocusedOption().getValue().toLowerCase(Locale.ROOT);
+        event.replyChoices(CmdRunTrick.getNamesStartingWith(currentChoice, 5)).queue();
     }
 }

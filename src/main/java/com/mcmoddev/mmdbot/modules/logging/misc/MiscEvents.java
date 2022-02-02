@@ -75,14 +75,6 @@ public final class MiscEvents extends ListenerAdapter {
         MMDBot.LOGGER.warn("Bot is online and ready.");
         TaskScheduler.init();
         References.STARTUP_TIME = Instant.now();
-
-        References.BOT_READY = true;
-        CommandModule.GLOBAL_CMDS.forEach(command -> event.getJDA().upsertCommand(command).queue($ -> {}, e -> {}));
-        event.getJDA().getGuilds().forEach(guild -> {
-            CommandModule.GUILD_CMDS
-                .computeIfAbsent(guild.getIdLong(), k -> new ArrayList<>()).forEach(cmd ->
-                    guild.upsertCommand(cmd).queue($ -> {}, e -> {}));
-        });
     }
 
     /**

@@ -126,6 +126,13 @@ public final class BotConfig {
             .orElse("");
     }
 
+    @NotNull
+    public String getOwlbotToken() {
+        return config.<String>getOptional("bot.owlbotToken")
+            .filter(string -> string.indexOf('!') == -1 || string.isEmpty())
+            .orElse("");
+    }
+
     /**
      * Returns the snowflake ID of the bot's owner.
      * <p>
@@ -293,6 +300,24 @@ public final class BotConfig {
      */
     public long getRole(final String roleKey) {
         return SafeIdUtil.safeConvert(getAliased("roles." + roleKey, getAliases()));
+    }
+
+    public long getRole(final RoleType role) {
+        return getRole(role.toString());
+    }
+
+    public enum RoleType {
+        BOT_MAINTAINER("bot_maintainer");
+        private final String name;
+
+        RoleType(final String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
     /**

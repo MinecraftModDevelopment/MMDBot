@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -74,13 +75,10 @@ public class ConsoleChannelAppender extends AppenderBase<ILoggingEvent> {
         this.layout = layoutIn;
     }
 
-    public static final Map<UUID, IThrowableProxy> EXCEPTIONS = Collections.synchronizedMap(new HashMap<>() {
+    public static final Map<UUID, IThrowableProxy> EXCEPTIONS = Collections.synchronizedMap(new LinkedHashMap<>() {
         @Override
-        public IThrowableProxy put(final UUID key, final IThrowableProxy value) {
-            if (size() < 150) {
-                return super.put(key, value);
-            }
-            return get(key);
+        protected boolean removeEldestEntry(final Map.Entry<UUID, IThrowableProxy> eldest) {
+            return size() > 150;
         }
     });
 

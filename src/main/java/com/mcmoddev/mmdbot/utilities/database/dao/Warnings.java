@@ -64,7 +64,10 @@ public interface Warnings extends Transactional<Warnings> {
     /// Query methods ///
 
     @SqlQuery("select warn_id from warnings where user_id = :user and guild_id = :guild")
-    List<String> getWarnings(@Bind("user") long user, @Bind("guild") long guild);
+    List<String> getWarningsForUser(@Bind("user") long user, @Bind("guild") long guild);
+
+    @SqlQuery("select warn_id from warnings")
+    List<String> getAllWarnings();
 
     @SqlQuery("select user_id from warnings where warn_id = :id")
     long getUser(@Bind("id") String warnId);
