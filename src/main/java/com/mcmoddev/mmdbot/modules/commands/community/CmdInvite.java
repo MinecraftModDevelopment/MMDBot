@@ -71,14 +71,18 @@ public class CmdInvite extends SlashCommand {
             }
 
             final var name = event.getOption("name").getAsString().toLowerCase(Locale.ROOT);
-            final var link = event.getOption("link").getAsString();
+            var link = event.getOption("link").getAsString();
 
-            if (!link.startsWith("https://discord.gg/")) {
+            if (!link.startsWith("https://discord.gg/") || !link.startsWith("discord.gg/")) {
                 event.deferReply(true).setContent("Please provide a valid link, starting with `https://discord.gg/`").queue();
                 return;
             }
+            if (link.startsWith("discord.gg/")) {
+                link = "https://" + link;
+            }
 
-            useExtension(db -> db.insert(name, link));
+            final String finalLink = link;
+            useExtension(db -> db.insert(name, finalLink));
             event.reply("Invite added!").queue();
         }
     }
