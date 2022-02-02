@@ -4,7 +4,6 @@ ext {
     shadow = "7.1.2"
     spotbugs = "5.0.5"
     flywaydb = "8.4.1"
-    kotlinjvm = "1.6.10"
     licenser = "0.6.1"
 
     //-- DEPENDENCY VERSIONS
@@ -12,10 +11,9 @@ ext {
     jdaChewtilsVersion = "2.0-interactions-SNAPSHOT"
     guavaVersion = "31.0.1-jre"
     gsonVersion = "2.8.9"
-    logbackClassicVersion = "1.2.5"
+    logbackClassicVersion = "1.2.10"
     tomlVersion = "3.6.5"
     sqliteJdbcVersion = "3.36.0.3"
-    linkieCoreVersion = "1.0.92"
     flywayCoreVersion = "8.4.1"
     jetbrainsAnnotationsVersion = "23.0.0"
     //-- DEPENDENCIES
@@ -27,7 +25,6 @@ ext {
             logbackClassic                : "ch.qos.logback:logback-classic:$logbackClassicVersion",
             nightConfig                   : "com.electronwill.night-config:toml:$tomlVersion",
             sqliteJdbc                    : "org.xerial:sqlite-jdbc:$sqliteJdbcVersion",
-            linkieCore                    : "me.shedaniel:linkie-core:$linkieCoreVersion",
             flywayCore                    : "org.flywaydb:flyway-core:$flywayCoreVersion",
             jetbrainsAnnotations          : "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
     ]

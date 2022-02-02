@@ -44,11 +44,8 @@ import com.mcmoddev.mmdbot.modules.commands.community.development.CmdGist;
 import com.mcmoddev.mmdbot.modules.commands.community.development.CmdMinecraftVersion;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdCatFacts;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdGuild;
-import com.mcmoddev.mmdbot.modules.commands.community.information.CmdMe;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdSearch;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdUser;
-import com.mcmoddev.mmdbot.modules.commands.community.mappings.CmdMappings;
-import com.mcmoddev.mmdbot.modules.commands.community.mappings.CmdTranslateMappings;
 import com.mcmoddev.mmdbot.modules.commands.community.server.CmdRoles;
 import com.mcmoddev.mmdbot.modules.commands.community.server.CmdToggleEventPings;
 import com.mcmoddev.mmdbot.modules.commands.community.server.CmdToggleMcServerPings;
@@ -67,7 +64,6 @@ import com.mcmoddev.mmdbot.modules.commands.moderation.CmdUnmute;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdWarning;
 import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
-import me.shedaniel.linkie.Namespaces;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
@@ -106,7 +102,6 @@ public class CommandModule {
      * Setup and load the bots command module.
      */
     public static void setupCommandModule() {
-        Namespaces.INSTANCE.init(CmdMappings.Companion.getMappings());
 
         commandClient = new CommandClientBuilder()
             .setOwnerId(MMDBot.getConfig().getOwnerID())
@@ -117,7 +112,6 @@ public class CommandModule {
         addSlashCommand(new CmdHelp(),
             new CmdGuild(),
             new CmdAbout(),
-            new CmdMe(),
             new CmdUser(),
             new CmdRoles(),
             new CmdCatFacts(),
@@ -146,8 +140,6 @@ public class CommandModule {
             new CmdInvite(),
             new CmdDictionary());
 
-        addSlashCommand(CmdTranslateMappings.createCommands());
-        addSlashCommand(CmdMappings.createCommands()); // TODO: This is broken beyond belief. Consider moving away from linkie. - Curle
         // addSlashCommand(Tricks.getTricks().stream().map(CmdRunTrickSeparated::new).toArray(SlashCommand[]::new));
 
         commandClient.addCommand(new CmdRefreshScamLinks());
@@ -166,8 +158,6 @@ public class CommandModule {
             // occurs while executing a command, the event thread will not be stopped
             // Commands and buttons are separated so that they do not interfere with each other
             MMDBot.getInstance().addEventListener(new ThreadedEventListener((EventListener) commandClient, COMMAND_LISTENER_THREAD_POOL));
-            MMDBot.getInstance().addEventListener(buttonListener(CmdMappings.ButtonListener.INSTANCE));
-            MMDBot.getInstance().addEventListener(buttonListener(CmdTranslateMappings.ButtonListener.INSTANCE));
             MMDBot.getInstance().addEventListener(buttonListener(CmdRoles.getListener()));
             MMDBot.getInstance().addEventListener(buttonListener(CmdHelp.getListener()));
             MMDBot.getInstance().addEventListener(buttonListener(CmdListTricks.getListListener()));

@@ -14,7 +14,6 @@ plugins {
   id 'checkstyle'
   id 'pmd'
   id 'org.flywaydb.flyway' version "${flywaydb}"
-  id 'org.jetbrains.kotlin.jvm' version "${kotlinjvm}"
   id 'org.cadixdev.licenser' version "${licenser}"
 }
 
@@ -55,10 +54,6 @@ repositories {
     url 'https://m2.chew.pro/snapshots'
   }
   maven {
-    name 'linkie'
-    url 'https://maven.shedaniel.me/'
-  }
-  maven {
     name 'fabric'
     url 'https://maven.fabricmc.net'
   }
@@ -80,12 +75,9 @@ dependencies {
   implementation supportDependencies.logbackClassic
   implementation supportDependencies.nightConfig
   implementation supportDependencies.sqliteJdbc
-  implementation supportDependencies.linkieCore
   implementation supportDependencies.flywayCore
   compileOnly supportDependencies.jetbrainsAnnotations
 
-  implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: "${project.ktx_coroutines_version}"
-  implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-jdk8', version: "${project.ktx_coroutines_version}"
   implementation group: 'org.jdbi', name: 'jdbi3-core', version: "${project.jdbi_version}"
   implementation group: 'org.jdbi', name: 'jdbi3-sqlobject', version: "${project.jdbi_version}"
 

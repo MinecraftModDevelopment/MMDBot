@@ -21,9 +21,6 @@
 package com.mcmoddev.mmdbot.gist;
 
 import com.google.gson.JsonObject;
-import com.mcmoddev.mmdbot.core.References;
-import com.mcmoddev.mmdbot.utilities.Utils;
-import kotlinx.serialization.json.Json;
 
 import javax.annotation.Nullable;
 import java.util.LinkedHashMap;
