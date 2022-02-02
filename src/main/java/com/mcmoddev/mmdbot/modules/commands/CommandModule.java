@@ -263,7 +263,7 @@ public class CommandModule {
 
             guild.upsertCommand(data).queue();
         } else {
-            MMDBot.getInstance().upsertCommand(data);
+            MMDBot.getInstance().upsertCommand(data).queue();
         }
     }
 
