@@ -14,7 +14,7 @@ ext {
     logbackClassicVersion = "1.2.10"
     tomlVersion = "3.6.5"
     sqliteJdbcVersion = "3.36.0.3"
-    flywayCoreVersion = "8.4.1"
+    flywayCoreVersion = "8.4.4"
     jetbrainsAnnotationsVersion = "23.0.0"
     //-- DEPENDENCIES
     supportDependencies = [
