@@ -25,7 +25,7 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.modules.commands.server.DeletableCommand;
+import com.mcmoddev.mmdbot.modules.commands.community.server.DeletableCommand;
 import com.mcmoddev.mmdbot.utilities.database.dao.PersistedRoles;
 import com.mcmoddev.mmdbot.utilities.database.dao.UserFirstJoins;
 import net.dv8tion.jda.api.JDA;

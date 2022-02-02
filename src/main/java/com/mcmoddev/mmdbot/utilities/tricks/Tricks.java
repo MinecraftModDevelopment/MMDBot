@@ -29,8 +29,8 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
-import com.mcmoddev.mmdbot.modules.commands.server.DeletableCommand;
-import com.mcmoddev.mmdbot.modules.commands.server.tricks.CmdRunTrickSeparated;
+import com.mcmoddev.mmdbot.modules.commands.community.server.DeletableCommand;
+import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdRunTrickSeparated;
 import com.mcmoddev.mmdbot.utilities.tricks.Trick.TrickType;
 import org.jetbrains.annotations.Nullable;
 

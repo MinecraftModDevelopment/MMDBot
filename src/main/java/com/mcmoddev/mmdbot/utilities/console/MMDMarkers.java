@@ -20,11 +20,11 @@
  */
 package com.mcmoddev.mmdbot.utilities.console;
 
-import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdBan;
-import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdKick;
-import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdMute;
-import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUnban;
-import com.mcmoddev.mmdbot.modules.commands.server.moderation.CmdUnmute;
+import com.mcmoddev.mmdbot.modules.commands.moderation.CmdBan;
+import com.mcmoddev.mmdbot.modules.commands.moderation.CmdKick;
+import com.mcmoddev.mmdbot.modules.commands.moderation.CmdMute;
+import com.mcmoddev.mmdbot.modules.commands.moderation.CmdUnban;
+import com.mcmoddev.mmdbot.modules.commands.moderation.CmdUnmute;
 import com.mcmoddev.mmdbot.modules.logging.misc.EventReactionAdded;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.fabric.FabricApiUpdateNotifier;
 import com.mcmoddev.mmdbot.utilities.updatenotifiers.forge.ForgeUpdateNotifier;
