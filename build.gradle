@@ -15,6 +15,7 @@ plugins {
   id 'pmd'
   id 'org.flywaydb.flyway' version "${flywaydb}"
   id 'org.cadixdev.licenser' version "${licenser}"
+  id 'org.jetbrains.kotlin.jvm' version '1.6.10'
 }
 
 mainClassName = 'com.mcmoddev.mmdbot.MMDBot'
@@ -84,6 +85,10 @@ dependencies {
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: "${project.junit_version}"
 
   spotbugsPlugins "com.h3xstream.findsecbugs:findsecbugs-plugin:${project.findsecbugs_version}"
+
+  // TODO convert
+  implementation 'org.graalvm.js:js-scriptengine:21.2.0'
+  implementation 'org.graalvm.js:js:21.2.0'
 }
 
 jar {
@@ -247,4 +252,14 @@ pmd {
   ]
   toolVersion = '6.38.0'
   incrementalAnalysis = true
+}
+compileKotlin {
+  kotlinOptions {
+    jvmTarget = "1.8"
+  }
+}
+compileTestKotlin {
+  kotlinOptions {
+    jvmTarget = "1.8"
+  }
 }

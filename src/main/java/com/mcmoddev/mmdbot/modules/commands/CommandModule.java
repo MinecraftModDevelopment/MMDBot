@@ -32,6 +32,7 @@ import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRefreshScamLinks;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRestart;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
+import com.mcmoddev.mmdbot.modules.commands.community.CmdEvaluate;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.GuildOnlyMenu;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuAddQuote;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuGist;
@@ -138,13 +139,15 @@ public class CommandModule {
             new CmdWarning(),
             new CmdTrick(),
             new CmdInvite(),
-            new CmdDictionary());
+            new CmdDictionary(),
+            new CmdEvaluate());
 
         // addSlashCommand(Tricks.getTricks().stream().map(CmdRunTrickSeparated::new).toArray(SlashCommand[]::new));
 
         commandClient.addCommand(new CmdRefreshScamLinks());
         commandClient.addCommand(new CmdReact());
         commandClient.addCommand(new CmdGist());
+        commandClient.addCommand(new CmdEvaluate());
 
         commandClient.addCommand(new CmdAddTrick.Prefix());
         commandClient.addCommand(new CmdEditTrick.Prefix());

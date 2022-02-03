@@ -205,6 +205,7 @@ public final class Tricks {
     static {
         Tricks.registerTrickType("string", new StringTrick.Type());
         Tricks.registerTrickType("embed", new EmbedTrick.Type());
+        Tricks.registerTrickType("script", new ScriptTrick.Type());
 
         GSON = new GsonBuilder()
             .registerTypeAdapterFactory(new TrickSerializer())
