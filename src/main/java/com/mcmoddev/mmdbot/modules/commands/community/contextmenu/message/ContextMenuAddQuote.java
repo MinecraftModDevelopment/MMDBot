@@ -27,6 +27,7 @@ import com.mcmoddev.mmdbot.utilities.quotes.Quote;
 import com.mcmoddev.mmdbot.utilities.quotes.QuoteList;
 import com.mcmoddev.mmdbot.utilities.quotes.StringQuote;
 import com.mcmoddev.mmdbot.utilities.quotes.UserReference;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 public class ContextMenuAddQuote extends MessageContextMenu implements GuildOnlyMenu {
 
@@ -50,7 +51,7 @@ public class ContextMenuAddQuote extends MessageContextMenu implements GuildOnly
         // All execution leads to here, where finishedQuote is valid.
         QuoteList.addQuote(finishedQuote);
 
-        event.reply("Added quote " + quoteID + "!").mentionRepliedUser(false).queue();
+        event.replyEmbeds(new EmbedBuilder(finishedQuote.getQuoteMessage()).setTitle("Added quote " + quoteID).build()).mentionRepliedUser(false).queue();
     }
 
 }
