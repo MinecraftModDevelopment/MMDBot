@@ -5,6 +5,7 @@ buildscript {
 }
 
 plugins {
+  // id "io.freefair.lombok" version "${lombok_plugin}"
   id 'application'
   id 'com.github.johnrengelman.shadow' version "${shadow}"
 //id 'maven'
@@ -17,14 +18,13 @@ plugins {
   id 'org.cadixdev.licenser' version "${licenser}"
 }
 
-mainClassName = 'com.mcmoddev.mmdbot.MMDBot'
 group 'com.mcmoddev'
 version project.bot_version
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 application {
-    mainClass = 'com.mcmoddev.mmdbot.MMDBot'
+    // mainClass = 'com.mcmoddev.mmdbot.MMDBot'
 }
 
 compileJava {
@@ -40,6 +40,87 @@ tasks.withType(JavaCompile) {
     //'-Werror'
   ]
   compileJava.options.compilerArgs += '-proc:none'
+}
+
+configurations {
+  shade
+  implementation.extendsFrom(shade)
+
+  d4j
+  loggingImplementation.extendsFrom(d4j)
+
+  global
+  implementation.extendsFrom(global)
+
+  jda
+  watcherImplementation.extendsFrom(jda)
+  commanderImplementation.extendsFrom(jda)
+}
+
+sourceSets {
+  core {
+    java {
+      srcDirs = [
+              "$rootDir/src/core/java"
+      ]
+    }
+    resources {
+      srcDirs = [
+              "$rootDir/src/core/resources"
+      ]
+    }
+  }
+  logging {
+    java {
+      srcDirs = [
+              "$rootDir/src/logging/java"
+      ]
+    }
+    resources {
+      srcDirs = [
+              "$rootDir/src/logging/resources"
+      ]
+    }
+    compileClasspath += configurations.getByName("global")
+    runtimeClasspath += configurations.getByName("global")
+
+    compileClasspath += sourceSets.core.output
+    runtimeClasspath += sourceSets.core.output
+  }
+  commander {
+    java {
+      srcDirs = [
+              "$rootDir/src/commander/java"
+      ]
+    }
+    resources {
+      srcDirs = [
+              "$rootDir/src/commander/resources"
+      ]
+    }
+    compileClasspath += configurations.getByName("global")
+    runtimeClasspath += configurations.getByName("global")
+
+    compileClasspath += sourceSets.core.output
+    runtimeClasspath += sourceSets.core.output
+  }
+  watcher {
+    java {
+      srcDirs = [
+              "$rootDir/src/watcher/java"
+      ]
+    }
+    resources {
+      srcDirs = [
+              "$rootDir/src/watcher/resources"
+      ]
+    }
+    compileClasspath += configurations.getByName("global")
+    runtimeClasspath += configurations.getByName("global")
+
+    compileClasspath += sourceSets.core.output
+    runtimeClasspath += sourceSets.core.output
+  }
 }
 
 repositories {
@@ -68,20 +149,25 @@ repositories {
 }
 
 dependencies {
-  implementation supportDependencies.jda
-  implementation supportDependencies.jdaChewtils
-  implementation supportDependencies.guava
-  implementation supportDependencies.gson
-  implementation supportDependencies.logbackClassic
-  implementation supportDependencies.nightConfig
-  implementation supportDependencies.sqliteJdbc
-  implementation supportDependencies.flywayCore
+  compileOnly supportDependencies.lombok
+
+  jda supportDependencies.jda
+  jda supportDependencies.jdaChewtils
+
+  d4j supportDependencies.d4j
+
+  global supportDependencies.guava
+  global supportDependencies.gson
+  global supportDependencies.logbackClassic
+  global supportDependencies.nightConfig
+  global supportDependencies.sqliteJdbc
+  global supportDependencies.flywayCore
   compileOnly supportDependencies.jetbrainsAnnotations
 
-  implementation group: 'org.jdbi', name: 'jdbi3-core', version: "${project.jdbi_version}"
-  implementation group: 'org.jdbi', name: 'jdbi3-sqlobject', version: "${project.jdbi_version}"
+  global group: 'org.jdbi', name: 'jdbi3-core', version: "${project.jdbi_version}"
+  global group: 'org.jdbi', name: 'jdbi3-sqlobject', version: "${project.jdbi_version}"
 
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: "${project.junit_version}"
+  // testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: "${project.junit_version}"
 
   spotbugsPlugins "com.h3xstream.findsecbugs:findsecbugs-plugin:${project.findsecbugs_version}"
 }

@@ -5,6 +5,7 @@ ext {
     spotbugs = "5.0.5"
     flywaydb = "8.4.1"
     licenser = "0.6.1"
+    lombok_plugin = "6.3.0"
 
     //-- DEPENDENCY VERSIONS
     jdaVersion = "5.0.0-alpha.5"
@@ -16,6 +17,8 @@ ext {
     sqliteJdbcVersion = "3.36.0.3"
     flywayCoreVersion = "8.4.4"
     jetbrainsAnnotationsVersion = "23.0.0"
+    lombokVersion = "1.18.22"
+    d4jVersion = "3.2.1"
     //-- DEPENDENCIES
     supportDependencies = [
             jda                           : "net.dv8tion:JDA:$jdaVersion",
@@ -26,7 +29,9 @@ ext {
             nightConfig                   : "com.electronwill.night-config:toml:$tomlVersion",
             sqliteJdbc                    : "org.xerial:sqlite-jdbc:$sqliteJdbcVersion",
             flywayCore                    : "org.flywaydb:flyway-core:$flywayCoreVersion",
-            jetbrainsAnnotations          : "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
+            jetbrainsAnnotations          : "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
+            lombok                        : "org.projectlombok:lombok:$lombokVersion",
+            d4j                           : "com.discord4j:discord4j-core:$d4jVersion"
     ]
 }
 
