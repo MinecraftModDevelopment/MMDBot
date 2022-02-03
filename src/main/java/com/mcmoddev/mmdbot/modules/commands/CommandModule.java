@@ -164,6 +164,7 @@ public class CommandModule {
             MMDBot.getInstance().addEventListener(buttonListener(CmdQuote.ListQuotes.getQuoteListener()));
             MMDBot.getInstance().addEventListener(buttonListener(CmdInvite.ListCmd.getButtonListener()));
             MMDBot.getInstance().addEventListener(buttonListener(CmdDictionary.listener));
+            MMDBot.getInstance().addEventListener(buttonListener(new DismissListener()));
             MMDBot.LOGGER.warn("Command module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");

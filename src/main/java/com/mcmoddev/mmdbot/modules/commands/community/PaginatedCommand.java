@@ -27,10 +27,13 @@ import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -84,17 +87,27 @@ public abstract class PaginatedCommand extends SlashCommand {
     }
 
     /**
-     * Create and queue a ReplyAction which, if the number of items requires, also contains buttons for scrolling.
+     * Create and queue a {@link ReplyCallbackAction} which, if the number of items requires, also contains buttons for scrolling.
      *
      * @param event the active SlashCommandEvent.
      */
     protected void sendPaginatedMessage(SlashCommandEvent event) {
+        createPaginatedMessage(event).queue();
+    }
+
+    /**
+     * Create a {@link ReplyCallbackAction} which, if the number of items requires, also contains buttons for scrolling.
+     *
+     * @param event the active SlashCommandEvent.
+     * @return the ReplyAction
+     */
+    protected ReplyCallbackAction createPaginatedMessage(SlashCommandEvent event) {
         var reply = event.replyEmbeds(getEmbed(0).build());
         var buttons = createScrollButtons(0);
         if (buttons.length > 0) {
             reply.addActionRow(buttons);
         }
-        reply.queue();
+        return reply;
     }
 
     /**
@@ -155,18 +168,24 @@ public abstract class PaginatedCommand extends SlashCommand {
 
             int current = Integer.parseInt(idParts[1]);
 
+            // If it has action rows already, DON'T delete them
+
+            final var oldActionRowsSize = event.getMessage().getActionRows().size();
+            final var oldActionRows = oldActionRowsSize < 2 ? new ArrayList<ActionRow>() :
+                new ArrayList<>(event.getMessage().getActionRows().subList(1, oldActionRowsSize));
+
             if (idParts[2].equals("next")) {
+                oldActionRows.add(0, ActionRow.of(createScrollButtons(current + items_per_page)));
                 event
                     .editMessageEmbeds(getEmbed(current + items_per_page).build())
-                    .setActionRow(createScrollButtons(current + items_per_page))
+                    .setActionRows(oldActionRows)
                     .queue();
-            } else {
-                if (idParts[2].equals("prev")) {
-                    event
-                        .editMessageEmbeds(getEmbed(current - items_per_page).build())
-                        .setActionRow(createScrollButtons(current - items_per_page))
-                        .queue();
-                }
+            } else if (idParts[2].equals("prev")) {
+                oldActionRows.add(0, ActionRow.of(createScrollButtons(current - items_per_page)));
+                event
+                    .editMessageEmbeds(getEmbed(current - items_per_page).build())
+                    .setActionRows(oldActionRows)
+                    .queue();
             }
         }
     }

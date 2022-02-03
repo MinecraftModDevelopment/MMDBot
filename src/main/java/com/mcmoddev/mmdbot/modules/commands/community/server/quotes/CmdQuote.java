@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.modules.commands.community.server.quotes;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.modules.commands.DismissListener;
 import com.mcmoddev.mmdbot.modules.commands.community.PaginatedCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.quotes.NullQuote;
@@ -33,6 +34,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -314,7 +316,7 @@ public class CmdQuote extends SlashCommand {
             }
 
             updateMaximum(QuoteList.getQuoteSlot() - 1);
-            sendPaginatedMessage(event);
+            createPaginatedMessage(event).addActionRows(ActionRow.of(DismissListener.createDismissButton(event))).queue();
         }
 
         /**

@@ -21,10 +21,12 @@
 package com.mcmoddev.mmdbot.modules.commands.community.server.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.modules.commands.DismissListener;
 import com.mcmoddev.mmdbot.modules.commands.community.PaginatedCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -74,7 +76,7 @@ public final class CmdListTricks extends PaginatedCommand {
         }
 
         updateMaximum(Tricks.getTricks().size());
-        sendPaginatedMessage(event);
+        createPaginatedMessage(event).addActionRows(ActionRow.of(DismissListener.createDismissButton(event))).queue();
     }
 
     @Override

@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.modules.commands.community.contextmenu.user;
 
 import com.jagrosh.jdautilities.command.UserContextMenu;
 import com.jagrosh.jdautilities.command.UserContextMenuEvent;
+import com.mcmoddev.mmdbot.modules.commands.DismissListener;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.GuildOnlyMenu;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdUser;
 
@@ -33,7 +34,11 @@ public class ContextMenuUserInfo extends UserContextMenu implements GuildOnlyMen
 
     @Override
     protected void execute(final UserContextMenuEvent event) {
+        if (!event.isFromGuild()) {
+            event.deferReply(true).setContent("This command can only be used in a guild!");
+            return;
+        }
         final var embed = CmdUser.createMemberEmbed(event.getTargetMember());
-        event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
+        event.replyEmbeds(embed.build()).addActionRow(DismissListener.createDismissButton(event)).mentionRepliedUser(false).queue();
     }
 }

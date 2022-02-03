@@ -22,12 +22,14 @@ package com.mcmoddev.mmdbot.modules.commands.community.information;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.modules.commands.DismissListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 import java.awt.Color;
 import java.text.SimpleDateFormat;
@@ -86,7 +88,7 @@ public class CmdUser extends SlashCommand {
         }
 
         final var embed = createMemberEmbed(Utils.getArgumentOr(event, "user", OptionMapping::getAsMember, event.getMember()));
-        event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
+        event.replyEmbeds(embed.build()).addActionRow(DismissListener.createDismissButton(event)).mentionRepliedUser(false).queue();
     }
 
     /**
