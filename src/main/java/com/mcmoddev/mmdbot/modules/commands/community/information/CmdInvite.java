@@ -94,7 +94,7 @@ public class CmdInvite extends SlashCommand {
             final var name = event.getOption("name").getAsString().toLowerCase(Locale.ROOT);
             var link = event.getOption("link").getAsString();
 
-            if (!link.startsWith("https://discord.gg/") || !link.startsWith("discord.gg/")) {
+            if (!link.startsWith("https://discord.gg/")) {
                 event.deferReply(true).setContent("Please provide a valid link, starting with `https://discord.gg/`").queue();
                 return;
             }
