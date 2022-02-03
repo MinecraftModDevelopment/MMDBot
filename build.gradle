@@ -51,6 +51,7 @@ configurations {
 
   global
   implementation.extendsFrom(global)
+  coreImplementation.extendsFrom(global)
 
   jda
   watcherImplementation.extendsFrom(jda)
@@ -59,7 +60,8 @@ configurations {
   mainImplementation.extendsFrom(jda)
 
   globalCompile
-  compileOnly.extendsFrom(globalCompile)
+  loggingCompileOnly.extendsFrom(globalCompile)
+  coreCompileOnly.extendsFrom(globalCompile)
 }
 
 sourceSets {

@@ -18,13 +18,14 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.logging.util;
+package com.mcmoddev.mmdbot.core.util;
 
-import discord4j.core.event.domain.Event;
+import com.google.common.base.Joiner;
+import lombok.experimental.UtilityClass;
 
-@FunctionalInterface
-public interface EventListener {
+@UtilityClass
+public final class Constants {
 
-    void onEvent(Event event);
+    public static final Joiner LINE_JOINER = Joiner.on(System.lineSeparator());
 
 }

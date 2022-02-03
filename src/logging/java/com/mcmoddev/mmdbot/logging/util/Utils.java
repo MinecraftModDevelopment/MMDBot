@@ -25,12 +25,8 @@ import discord4j.core.event.domain.Event;
 
 public final class Utils {
 
-    public static void subscribe(final GatewayDiscordClient client, Object toSubscribe) {
-        if (toSubscribe instanceof EventListener eventListener) {
-            client.getEventDispatcher().on(Event.class).subscribe(eventListener::onEvent);
-        } else {
-            throw new IllegalArgumentException("The provided object to subscribe, is not an event listener!");
-        }
+    public static void subscribe(final GatewayDiscordClient client, EventListener toSubscribe) {
+        client.getEventDispatcher().on(Event.class).subscribe(toSubscribe::onEvent);
     }
 
     /**

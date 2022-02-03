@@ -23,13 +23,11 @@ package com.mcmoddev.mmdbot.logging;
 import com.mcmoddev.mmdbot.logging.util.ListenerAdapter;
 import com.mcmoddev.mmdbot.logging.util.Utils;
 import discord4j.core.DiscordClient;
-import discord4j.core.event.domain.Event;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.gateway.intent.Intent;
 import discord4j.gateway.intent.IntentSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Mono;
 
 public class LoggingBot {
 
@@ -47,13 +45,14 @@ public class LoggingBot {
         Utils.subscribe(gateway, new ListenerAdapter() {
             @Override
             public void onReady(final ReadyEvent event) {
-                LOGGER.warn("The D4J version of myself is ready to work! Logged in as {}",
+                LOGGER.warn("I am ready to work! Logged in as {}",
                     event.getSelf().getTag());
             }
         });
 
         new Thread(() -> {
             while (true) {
+                // Just need to do something, so the program doesn't stop
                 int i = 0;
                 i = i + 1;
                 i = i - 1;
