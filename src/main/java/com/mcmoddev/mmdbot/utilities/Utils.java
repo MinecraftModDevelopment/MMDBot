@@ -636,6 +636,9 @@ public final class Utils {
      * @return if the member has the role
      */
     public static boolean memberHasRole(final Member member, final long roleId) {
+        if (member == null) {
+            return false;
+        }
         return member.getRoles().stream().anyMatch(r -> r.getIdLong() == roleId);
     }
 
