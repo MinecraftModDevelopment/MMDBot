@@ -21,13 +21,19 @@
 package com.mcmoddev.mmdbot.modules.logging.misc;
 
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
+import java.time.Instant;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class ThreadChannelCreatorEvents extends ListenerAdapter {
 
@@ -36,12 +42,24 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
         if (!event.isFromGuild() || event.isFromThread() || event.isWebhookMessage() || event.getAuthor().isBot() || event.getAuthor().isSystem()) {
             return;
         }
-        final var author = event.getMember();
         if (event.getChannel().getIdLong() == MMDBot.getConfig().getChannel("requests.main")) {
             createThread(event, Type.REQUEST);
         }
         if (event.getChannel().getIdLong() == MMDBot.getConfig().getChannel("free_mod_ideas")) {
             createThread(event, Type.IDEA);
+        }
+    }
+
+    @Override
+    public void onMessageUpdate(@NotNull final MessageUpdateEvent event) {
+        if (!event.isFromGuild() || event.isFromThread() || event.getAuthor().isBot() || event.getAuthor().isSystem()) {
+            return;
+        }
+        if (event.getChannel().getIdLong() == MMDBot.getConfig().getChannel("requests.main")) {
+            notifyMessageDeleted(event, Type.REQUEST);
+        }
+        if (event.getChannel().getIdLong() == MMDBot.getConfig().getChannel("free_mod_ideas")) {
+            notifyMessageDeleted(event, Type.IDEA);
         }
     }
 
@@ -51,12 +69,26 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
         event.getMessage().createThreadChannel("Discussion of %s’s %s".formatted(author.getUser().getName(), threadTypeStr)).queue(thread -> {
             thread.addThreadMember(author).queue($ -> {
                 thread.sendMessageEmbeds(new EmbedBuilder().setTitle("%s discussion thread".formatted(Utils.uppercaseFirstLetter(threadTypeStr)))
-                        .setColor(Color.CYAN).setDescription("""
+                    .setTimestamp(Instant.now()).setColor(Color.CYAN).setDescription("""
                             **This thread is intended for discussing %s's %s. The %s:**
                             %s""".formatted(author.getAsMention(), threadTypeStr, threadTypeStr, event.getMessage().getContentRaw())).build())
                     .queue(msg -> msg.pin().queue());
             });
         });
+    }
+
+    private void notifyMessageDeleted(final MessageUpdateEvent event, final Type threadType) {
+        final var author = event.getMember();
+        final var threadTypeStr = threadType.toString();
+        final var thread = event.getGuild().getThreadChannelById(event.getMessageId());
+        if (thread != null) {
+            thread.sendMessageEmbeds(new EmbedBuilder()
+                    .setColor(Color.CYAN).setDescription("""
+                **%s's original %s has been edited. New content:**
+                %s""".formatted(author.getAsMention(), threadTypeStr, event.getMessage().getContentRaw()))
+                .setTitle(Utils.uppercaseFirstLetter(threadTypeStr) + " edited!").setTimestamp(Instant.now()).build())
+                .queue(ms -> ms.pin().queue());
+        }
     }
 
     public enum Type {
