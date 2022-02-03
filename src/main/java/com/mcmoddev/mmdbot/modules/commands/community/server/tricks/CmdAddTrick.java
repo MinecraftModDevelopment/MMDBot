@@ -119,6 +119,16 @@ public final class CmdAddTrick extends SlashCommand {
                 return;
             }
 
+            if (!event.getChannel().getType().isGuild()) {
+                event.reply("This command only works in guilds!");
+                return;
+            }
+
+            if (!Utils.memberHasRole(event.getMember(), MMDBot.getConfig().getRole("bot_maintainer"))) {
+                event.reply("Only Bot Maintainers can use this command.");
+                return;
+            }
+
             Tricks.addTrick(trickType.createFromArgs(event.getArgs()));
             event.getMessage().reply("Added trick!").mentionRepliedUser(false).queue();
         }

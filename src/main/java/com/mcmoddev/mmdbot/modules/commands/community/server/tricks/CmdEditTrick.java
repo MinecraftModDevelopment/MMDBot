@@ -145,6 +145,16 @@ public final class CmdEditTrick extends SlashCommand {
                 return;
             }
 
+            if (!event.getChannel().getType().isGuild()) {
+                event.reply("This command only works in guilds!");
+                return;
+            }
+
+            if (!Utils.memberHasRole(event.getMember(), MMDBot.getConfig().getRole("bot_maintainer"))) {
+                event.reply("Only Bot Maintainers can use this command.");
+                return;
+            }
+
             Trick trick = trickType.createFromArgs(event.getArgs());
             Optional<Trick> originalTrick = Tricks.getTricks().stream()
                 .filter(t -> t.getNames().stream().anyMatch(n -> trick.getNames().contains(n))).findAny();
