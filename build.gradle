@@ -55,6 +55,7 @@ configurations {
   jda
   watcherImplementation.extendsFrom(jda)
   commanderImplementation.extendsFrom(jda)
+  coreImplementation.extendsFrom(jda)
 }
 
 sourceSets {
