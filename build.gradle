@@ -56,9 +56,17 @@ configurations {
   watcherImplementation.extendsFrom(jda)
   commanderImplementation.extendsFrom(jda)
   coreImplementation.extendsFrom(jda)
+  mainImplementation.extendsFrom(jda)
+
+  globalCompile
+  compileOnly.extendsFrom(globalCompile)
 }
 
 sourceSets {
+  main {
+    compileClasspath += configurations.getByName("jda")
+    runtimeClasspath += configurations.getByName("jda")
+  }
   core {
     java {
       srcDirs = [
@@ -150,7 +158,7 @@ repositories {
 }
 
 dependencies {
-  compileOnly supportDependencies.lombok
+  globalCompile supportDependencies.lombok
 
   jda supportDependencies.jda
   jda supportDependencies.jdaChewtils
