@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.modules.commands.community.server.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.modules.commands.DismissListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
@@ -72,7 +73,7 @@ public final class CmdRunTrick extends SlashCommand {
         }
 
         Tricks.getTrick(Utils.getOrEmpty(event, "name")).ifPresentOrElse(
-            trick -> event.reply(trick.getMessage(Utils.getOrEmpty(event, "args").split(" "))).setEphemeral(false).queue(),
+            trick -> event.reply(trick.getMessage(Utils.getOrEmpty(event, "args").split(" "))).addActionRow(DismissListener.createDismissButton(event.getUser())).setEphemeral(false).queue(),
             () -> event.reply("No trick with that name was found.").setEphemeral(true).queue()
         );
     }
