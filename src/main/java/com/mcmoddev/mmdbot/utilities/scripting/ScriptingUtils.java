@@ -32,6 +32,7 @@ import org.graalvm.polyglot.proxy.ProxyExecutable;
 
 import javax.annotation.Nullable;
 import java.io.Serial;
+import java.rmi.UnexpectedException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -435,6 +436,13 @@ public final class ScriptingUtils {
             final var max = a.get(a.size() - 1).asInt();
             return Lists.newArrayList(IntStream.range(min, max + 1));
         }, 1, 2));
+
+        context.setFunction("format", executeIfArgsValid(args -> {
+             if (args.size() < 2) {
+                 throw new IllegalArgumentException("Invalid amount of arguments provided!");
+             }
+             return String.format(args.get(0).asString(), args.subList(1, args.size()).stream().map(Value::asString).toArray(Object[]::new));
+        }));
     });
 
     public static final ScriptingContext MATH_CLASS = makeContext("Math", context -> {

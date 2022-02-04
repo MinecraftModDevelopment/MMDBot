@@ -120,7 +120,7 @@ public final class CmdEditTrick extends SlashCommand {
                 + "<description> <colour-as-hex-code>";
             aliases = new String[]{"edit-trick"};
             guildOnly = true;
-            children = Tricks.getTrickTypes().entrySet().stream().map(entry -> new SubCommand(entry.getKey(), entry.getValue())).toArray(SlashCommand[]::new);
+            children = Tricks.getTrickTypes().entrySet().stream().map(entry -> new PrefixSubCmd(entry.getKey(), entry.getValue())).toArray(Command[]::new);
         }
 
         @Override
