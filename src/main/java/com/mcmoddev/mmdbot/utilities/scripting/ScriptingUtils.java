@@ -104,12 +104,9 @@ public final class ScriptingUtils {
     }
 
     public static ScriptingContext createMessageChannel(MessageChannel channel) {
-        final var context = ScriptingContext.of("MessageChannel");
-        context.set("id", channel.getId());
+        final var context = ScriptingContext.of("MessageChannel", channel);
         context.set("name", channel.getName());
         context.set("type", channel.getType().toString());
-        context.set("timeCreated", channel.getTimeCreated());
-        context.setFunction("asMention", a -> channel.getAsMention());
         context.setFunctionVoid("sendMessage", args -> {
             validateArgs(args, 1);
             channel.sendMessage(args.get(0).asString()).allowedMentions(ALLOWED_MENTIONS).queue();
@@ -141,9 +138,8 @@ public final class ScriptingUtils {
     }
 
     public static ScriptingContext createCategory(Category category) {
-        final var context = ScriptingContext.of("Category");
+        final var context = ScriptingContext.of("Category", category);
         context.set("name", category.getName());
-        context.set("id", category.getId());
         context.set("position", category.getPosition());
         context.setFunction("asMention", a -> category.getAsMention());
         context.setFunction("getGuild", a -> createGuild(category.getGuild()).toProxyObject());
@@ -193,8 +189,7 @@ public final class ScriptingUtils {
     }
 
     public static ScriptingContext createGuild(Guild guild) {
-        final var context = ScriptingContext.of("Guild");
-        context.set("id", guild.getId());
+        final var context = ScriptingContext.of("Guild", guild);
         context.set("name", guild.getName());
         context.set("icon", guild.getIconUrl());
         context.set("iconId", guild.getIconId());
@@ -261,14 +256,14 @@ public final class ScriptingUtils {
     }
 
     public static ScriptingContext createMember(Member member) {
-        final var context = ScriptingContext.of("Member");
+        final var context = ScriptingContext.of("Member", member);
         context.set("user", createUser(member.getUser()));
         context.set("nickname", member.getNickname());
         context.set("color", member.getColorRaw());
-        context.set("status", member.getOnlineStatus().getKey());
-        context.set("activities", member.getActivities().stream().map(a -> createActivity(a).toProxyObject()).toArray(ScriptingContext[]::new));
-        context.set("joinTime", Utils.getMemberJoinTime(member));
         context.set("timeBoosted", member.getTimeBoosted());
+        context.set("status", member.getOnlineStatus().getKey());
+        context.set("joinTime", Utils.getMemberJoinTime(member));
+        context.set("activities", member.getActivities().stream().map(a -> createActivity(a).toProxyObject()).toArray(ScriptingContext[]::new));
         context.setFunction("getGuild", a -> createGuild(member.getGuild()).toProxyObject());
         context.setFunction("getRoles", a -> member.getRoles().stream().sorted(Comparator.comparing(Role::getPositionRaw).reversed())
             .map(r -> createRole(r).toProxyObject()).toList());
@@ -276,16 +271,14 @@ public final class ScriptingUtils {
     }
 
     public static ScriptingContext createUser(User user) {
-        final var context = ScriptingContext.of("User");
+        final var context = ScriptingContext.of("User", user);
         context.set("name", user.getName());
         context.set("discriminator", user.getDiscriminator());
         context.set("avatarId", user.getAvatarId());
         context.set("avatarUrl", user.getAvatarUrl());
-        context.set("id", user.getId());
         context.set("isBot", user.isBot());
         context.set("hasPrivateChannel", user.hasPrivateChannel());
         context.setFunction("asTag", args -> user.getAsTag());
-        context.setFunction("asMention", args -> user.getAsMention());
         context.setFunction("openPrivateChannel", args -> {
             validateArgs(args, 0);
             final var privateChannel = user.openPrivateChannel().complete();
@@ -295,7 +288,7 @@ public final class ScriptingUtils {
     }
 
     public static ScriptingContext createRole(Role role) {
-        final var context = ScriptingContext.of("Role");
+        final var context = ScriptingContext.of("Role", role);
         context.set("name", role.getName());
         context.set("color", role.getColorRaw());
         context.set("timeCreated", role.getTimeCreated());
@@ -304,7 +297,6 @@ public final class ScriptingUtils {
         context.setFunction("isPublicRole", a -> role.isPublicRole());
         context.setFunction("isManaged", a -> role.isManaged());
         context.setFunction("isMentionable", a -> role.isMentionable());
-        context.setFunction("asMention", a -> role.getAsMention());
         context.setFunction("getRoleIcon", a -> role.getIcon() == null ? null : createRoleIcon(role.getIcon()));
         return context;
     }
@@ -326,16 +318,13 @@ public final class ScriptingUtils {
     }
 
     public static ScriptingContext createEmote(Emote emote) {
-        final var context = ScriptingContext.of("Emote");
-        context.set("id", emote.getId());
+        final var context = ScriptingContext.of("Emote", emote);
         context.set("name", emote.getName());
         context.set("url", emote.getImageUrl());
-        context.set("timeCreated", emote.getTimeCreated());
         context.setFunction("isAnimated", args -> emote.isAnimated());
         context.setFunction("canProvideRoles", args -> emote.canProvideRoles());
         context.setFunction("isAvailable", args -> emote.isAvailable());
         context.setFunction("getRoles", args -> emote.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList());
-        context.setFunction("asMention", args -> emote.getAsMention());
         context.setFunction("getGuild", args -> emote.getGuild() == null ? null : createGuild(emote.getGuild()));
         return context;
     }

@@ -1,5 +1,7 @@
 package com.mcmoddev.mmdbot.utilities.scripting;
 
+import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.proxy.ProxyExecutable;
 import org.graalvm.polyglot.proxy.ProxyObject;
@@ -23,6 +25,22 @@ public class ScriptingContext {
 
     public static ScriptingContext of(String name) {
         return new ScriptingContext(name, new LinkedHashMap<>());
+    }
+
+    public static ScriptingContext of(String name, ISnowflake snowflake) {
+        final var context = new ScriptingContext(name, new LinkedHashMap<>());
+        context.set("id", snowflake.getId());
+        context.set("timeCreated", snowflake.getTimeCreated());
+        return context;
+    }
+
+    public static ScriptingContext of(String name, IMentionable snowflake) {
+        final var context = of(name, (ISnowflake) snowflake);
+        context.setFunction("asMention", args -> {
+            ScriptingUtils.validateArgs(args, 0);
+            return snowflake.getAsMention();
+        });
+        return context;
     }
 
     public Object get(String key) {
