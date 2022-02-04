@@ -131,8 +131,8 @@ public final class ScriptingUtils {
         context.set("topic", channel.getTopic());
         context.set("isNSFW", channel.isNSFW());
         context.set("isSynced", channel.isSynced());
-        context.setFunction("getGuild", a -> createGuild(channel.getGuild()));
-        context.setFunction("getCategory", a -> channel.getParentCategory() == null ? null : createCategory(channel.getParentCategory()));
+        context.setFunction("getGuild", a -> createGuild(channel.getGuild()).toProxyObject());
+        context.setFunction("getCategory", a -> channel.getParentCategory() == null ? null : createCategory(channel.getParentCategory()).toProxyObject());
         return context;
     }
 
@@ -142,9 +142,9 @@ public final class ScriptingUtils {
         context.set("id", category.getId());
         context.set("position", category.getPosition());
         context.setFunction("asMention", a -> category.getAsMention());
-        context.setFunction("getGuild", a -> createGuild(category.getGuild()));
-        context.setFunction("getMembers", a -> category.getMembers().stream().map(ScriptingUtils::createMember).toList());
-        context.setFunction("getTextChannels", a -> category.getTextChannels().stream().map(ScriptingUtils::createTextChannel).toList());
+        context.setFunction("getGuild", a -> createGuild(category.getGuild()).toProxyObject());
+        context.setFunction("getMembers", a -> category.getMembers().stream().map(m -> createMember(m).toProxyObject()).toList());
+        context.setFunction("getTextChannels", a -> category.getTextChannels().stream().map(c -> createTextChannel(c).toProxyObject()).toList());
         return context;
     }
 
@@ -196,32 +196,32 @@ public final class ScriptingUtils {
         context.set("splash", guild.getSplashUrl());
         context.set("splashId", guild.getSplashId());
         context.set("memberCount", guild.getMemberCount());
-        context.setFunction("getOwner", a -> createMember(guild.getOwner()));
+        context.setFunction("getOwner", a -> guild.getOwner() == null ? null : createMember(guild.getOwner()).toProxyObject());
         context.setFunction("getMemberById", args -> {
             validateArgs(args, 1);
             final var member = guild.getMemberById(args.get(0).asLong());
-            return member == null ? null : createMember(member);
+            return member == null ? null : createMember(member).toProxyObject();
         });
         context.setFunction("getRoleById", args -> {
             validateArgs(args, 1);
             final var role = guild.getRoleById(args.get(0).asLong());
-            return role == null ? null : createRole(role);
+            return role == null ? null : createRole(role).toProxyObject();
         });
         context.setFunction("getTextChannelById", args -> {
             validateArgs(args, 1);
             final var channel = guild.getTextChannelById(args.get(0).asLong());
-            return channel == null ? null : createTextChannel(channel);
+            return channel == null ? null : createTextChannel(channel).toProxyObject();
         });
         context.setFunction("getQuotes", args -> {
             validateArgs(args, 0);
             return IntStream.range(0, QuoteList.getQuoteSlot()).mapToObj(i -> {
                 final var quote = QuoteList.getQuote(i);
-                return quote == null ? null : createQuote(quote);
+                return quote == null ? null : createQuote(quote).toProxyObject();
             }).toList();
         });
-        context.setFunction("getMembers", a -> guild.getMembers().stream().map(ScriptingUtils::createMember).toList());
-        context.setFunction("getRoles", a -> guild.getRoles().stream().map(ScriptingUtils::createRole).toList());
-        context.setFunction("getTextChannels", a -> guild.getTextChannels().stream().map(ScriptingUtils::createTextChannel).toList());
+        context.setFunction("getMembers", a -> guild.getMembers().stream().map(m -> createMember(m).toProxyObject()).toList());
+        context.setFunction("getRoles", a -> guild.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList());
+        context.setFunction("getTextChannels", a -> guild.getTextChannels().stream().map(c -> createTextChannel(c).toProxyObject()).toList());
         return context;
     }
 
@@ -232,7 +232,7 @@ public final class ScriptingUtils {
         context.set("type", activity.getType().toString());
         context.set("emoji", activity.getEmoji() == null ? null : activity.getEmoji().getAsMention());
         context.setFunction("isRich", i -> activity.isRich());
-        context.setFunction("asRich", i -> activity.isRich() ? createActivityRich(activity.asRichPresence()) : null);
+        context.setFunction("asRich", i -> activity.isRich() ? createActivityRich(activity.asRichPresence()).toProxyObject() : null);
         return context;
     }
 
@@ -252,11 +252,11 @@ public final class ScriptingUtils {
         context.set("nickname", member.getNickname());
         context.set("color", member.getColorRaw());
         context.set("status", member.getOnlineStatus().getKey());
-        context.set("activities", member.getActivities().stream().map(ScriptingUtils::createActivity).toArray(ScriptingContext[]::new));
+        context.set("activities", member.getActivities().stream().map(a -> createActivity(a).toProxyObject()).toArray(ScriptingContext[]::new));
         context.set("joinTime", Utils.getMemberJoinTime(member));
         context.set("timeBoosted", member.getTimeBoosted());
-        context.setFunction("getGuild", a -> createGuild(member.getGuild()));
-        context.setFunction("getRoles", a -> member.getRoles().stream().map(ScriptingUtils::createRole).toList());
+        context.setFunction("getGuild", a -> createGuild(member.getGuild()).toProxyObject());
+        context.setFunction("getRoles", a -> member.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList());
         return context;
     }
 
@@ -318,6 +318,16 @@ public final class ScriptingUtils {
                 final var any = function.apply(Arrays.asList(args));
                 if (any instanceof ScriptingContext context) {
                     return context.toProxyObject();
+                } else if (any instanceof List list) {
+                    final var objects = new ArrayList<>();
+                    for (var obj : list) {
+                        if (obj instanceof ScriptingContext context) {
+                            objects.add(context);
+                        } else {
+                            objects.add(obj);
+                        }
+                    }
+                    return objects;
                 }
                 return any;
             }

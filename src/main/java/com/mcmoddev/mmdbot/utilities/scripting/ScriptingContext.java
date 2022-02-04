@@ -4,6 +4,7 @@ import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.proxy.ProxyExecutable;
 import org.graalvm.polyglot.proxy.ProxyObject;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,16 @@ public class ScriptingContext {
     public void set(String key, Object value) {
         if (value instanceof ScriptingContext context) {
             map.put(key, context.toProxyObject());
+        } else if (value instanceof List list) {
+            final var objects = new ArrayList<>();
+            for (var obj : list ){
+                if (obj instanceof ScriptingContext context) {
+                    objects.add(context);
+                } else {
+                    objects.add(obj);
+                }
+            }
+            map.put(key, objects);
         } else {
             map.put(key, value);
         }
