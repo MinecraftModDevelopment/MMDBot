@@ -1,5 +1,6 @@
 package com.mcmoddev.mmdbot.utilities.scripting;
 
+import com.google.common.collect.Lists;
 import com.mcmoddev.mmdbot.modules.logging.misc.ScamDetector;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.quotes.Quote;
@@ -74,12 +75,22 @@ public final class ScriptingUtils {
             .option("js.load", "false")
             .option("log.level", "OFF")
             .build()) {
+
             final var bindings = engine.getBindings("js");
             bindings.removeMember("load");
             bindings.removeMember("loadWithNewGlobal");
             bindings.removeMember("eval");
             bindings.removeMember("exit");
             bindings.removeMember("quit");
+
+            context.set("Utils", UTILS_CLASS);
+            context.set("Math", MATH_CLASS);
+            context.set("System", SYSTEM_CLASS);
+
+            if (!bindings.hasMember("parseString")) {
+                context.setFunction("parseString", executeIfArgsValid(a -> a.get(0).toString(), 1));
+            }
+
             context.applyTo(bindings);
 
             engine.eval("js", script);
@@ -125,7 +136,6 @@ public final class ScriptingUtils {
 
     public static ScriptingContext createTrickContext(TrickContext trickContext) {
         final var context = ScriptingContext.of("TrickContext");
-        context.set("Utils", UTILS_CLASS);
         final var canSendEmbed = trickContext.getGuild() == null || trickContext.getMember().hasPermission(trickContext.getChannel(), Permission.MESSAGE_EMBED_LINKS);
         context.setFunction("createEmbed", a -> {
             if (a.size() == 2) {
@@ -307,6 +317,20 @@ public final class ScriptingUtils {
         }
     }
 
+    public static <T> Function<List<Value>, T> executeIfArgsValid(Function<List<Value>, T> function, int... size) {
+        return args -> {
+            final var list = new ArrayList<Integer>();
+            for (var s : size) {
+                list.add(s);
+            }
+            if (!list.contains(args.size())) {
+                throw new IllegalArgumentException("Invalid amount of arguments!");
+            } else {
+                return function.apply(args);
+            }
+        };
+    }
+
     public static final class ScriptingException extends RuntimeException {
 
         @Serial
@@ -329,6 +353,39 @@ public final class ScriptingUtils {
                 return new ScriptEmbed();
             }
         });
+
+        context.setFunction("parseInt", executeIfArgsValid(a -> Integer.parseInt(a.get(0).asString()), 1));
+        context.setFunction("parseString", executeIfArgsValid(a -> a.get(0).toString(), 1));
+
+        context.setFunction("equals", executeIfArgsValid(a -> a.get(0).equals(a.get(2)), 2));
+        context.setFunction("range", executeIfArgsValid(a -> {
+            final var min = a.size() == 1 ? 0 : a.get(0).asInt();
+            final var max = a.get(a.size() - 1).asInt();
+            return Lists.newArrayList(IntStream.range(min, max + 1));
+        }, 1, 2));
+    });
+
+    public static final ScriptingContext MATH_CLASS = makeContext("Math", context -> {
+        context.setFunction("random", executeIfArgsValid(a -> Math.random(), 0));
+        context.setFunction("sqrt", executeIfArgsValid(a -> Math.sqrt(a.get(0).asDouble()), 1));
+        context.setFunction("floor", executeIfArgsValid(a -> Math.floor(a.get(0).asDouble()), 1));
+        context.setFunction("ceil", executeIfArgsValid(a -> Math.ceil(a.get(0).asDouble()), 1));
+        context.setFunction("abs", executeIfArgsValid(a -> Math.abs(a.get(0).asDouble()), 1));
+        context.setFunction("sin", executeIfArgsValid(a -> Math.sin(a.get(0).asDouble()), 1));
+        context.setFunction("cos", executeIfArgsValid(a -> Math.cos(a.get(0).asDouble()), 1));
+        context.setFunction("tan", executeIfArgsValid(a -> Math.tan(a.get(0).asDouble()), 1));
+        context.setFunction("min", args -> args.stream().mapToDouble(Value::asDouble).min().orElse(0));
+        context.setFunction("max", args -> args.stream().mapToDouble(Value::asDouble).max().orElse(0));
+        context.setFunction("any", args -> args.stream().anyMatch(Value::asBoolean));
+        context.setFunction("all", args -> args.stream().allMatch(Value::asBoolean));
+
+        context.setFunction("ceil", executeIfArgsValid(a -> Math.pow(a.get(0).asDouble(), a.get(1).asDouble()), 2));
+    });
+
+    public static final ScriptingContext SYSTEM_CLASS = makeContext("System", context -> {
+        context.setFunction("currentTimeMillis", executeIfArgsValid(a -> System.currentTimeMillis(), 0));
+        context.setFunction("nanoTime", executeIfArgsValid(a -> System.nanoTime(), 0));
+        context.setFunction("lineSeparator", executeIfArgsValid(a -> System.lineSeparator(), 0));
     });
 
     @Nullable
