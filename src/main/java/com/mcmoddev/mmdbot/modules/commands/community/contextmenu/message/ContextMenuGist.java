@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import java.awt.Color;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -95,11 +96,16 @@ public class ContextMenuGist extends MessageContextMenu {
             .toString();
     }
 
+    public static final List<String> BLACKLISTED_ATTACHEMENTS = List.of("png", "jpg", "jpeg", "webm");
+
     public static Gist createGistFromMessage(final net.dv8tion.jda.api.entities.Message message)
         throws InterruptedException, ExecutionException {
         final var gist = new Gist(message.getContentRaw(), false);
         for (var attach : message.getAttachments()) {
             attach.retrieveInputStream().thenAccept(is -> {
+                if (BLACKLISTED_ATTACHEMENTS.contains(attach.getFileExtension())) {
+                    return;
+                }
                 final String fileName = generateName(10) + "." + attach.getFileExtension();
                 try {
                     gist.addFile(fileName, GistUtils.readInputStream(is));

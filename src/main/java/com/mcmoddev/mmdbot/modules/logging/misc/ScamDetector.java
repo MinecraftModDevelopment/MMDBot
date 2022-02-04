@@ -89,7 +89,7 @@ public class ScamDetector extends ListenerAdapter {
             member.hasPermission(Permission.MANAGE_CHANNEL)) {
             return;
         }
-        if (containsScam(msg)) {
+        if (containsScam(msg.getContentRaw().toLowerCase(Locale.ROOT))) {
             final var guild = msg.getGuild();
             final var embed = getLoggingEmbed(msg, loggingReason);
             msg.delete().reason("Scam link").queue($ -> {
@@ -119,11 +119,10 @@ public class ScamDetector extends ListenerAdapter {
         LoggingModule.executeInLoggingChannel(LoggingModule.LoggingType.REQUESTS_DELETION, channel);
     }
 
-    public static boolean containsScam(final Message message) {
-        final String msgContent = message.getContentRaw().toLowerCase(Locale.ROOT);
+    public static boolean containsScam(final String text) {
         synchronized (SCAM_LINKS) {
             for (final var link : SCAM_LINKS) {
-                if (msgContent.contains(link)) {
+                if (text.contains(link)) {
                     return true;
                 }
             }

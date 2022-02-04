@@ -253,6 +253,7 @@ public final class QuoteList {
 
                 // And when asked to read...
                 @Override
+                @SuppressWarnings("unchecked")
                 public T read(final JsonReader in) throws IOException {
                     if (in.peek() == JsonToken.NULL)
                         return null;

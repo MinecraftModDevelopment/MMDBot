@@ -4,6 +4,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.modules.commands.DismissListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.utilities.tricks.ScriptTrick;
 import com.mcmoddev.mmdbot.utilities.tricks.TrickContext;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -40,7 +41,7 @@ public final class CmdRawTrick extends SlashCommand {
 
         Tricks.getTrick(trickName).ifPresentOrElse(trick -> {
             event.replyEmbeds(new EmbedBuilder().setTitle("Raw contents of " + trickName)
-                .setDescription(MarkdownUtil.codeblock(trick.getRaw())).setColor(Color.GREEN)
+                .setDescription(MarkdownUtil.codeblock(trick instanceof ScriptTrick ? "js" : null, trick.getRaw())).setColor(Color.GREEN)
                 .addField("Trick Names", String.join(" ", trick.getNames()), false)
                 .setTimestamp(Instant.now()).setFooter("Requested by: " + event.getUser().getAsTag(),
                     event.getUser().getAvatarUrl()).build()).addActionRow(DismissListener.createDismissButton(event)).queue();

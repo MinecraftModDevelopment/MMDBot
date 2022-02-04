@@ -55,7 +55,12 @@ public final class ScriptTrick implements Trick {
         @Override
         public ScriptTrick createFromArgs(final String args) {
             String[] argsArray = args.split(" \\| ", 2);
-            return new ScriptTrick(Arrays.asList(argsArray[0].split(" ")), argsArray[1]);
+            var script = argsArray[1];
+            if (script.contains("```js") && script.endsWith("```")) {
+                script = script.substring(script.indexOf("```js") + 5);
+                script = script.substring(0, script.lastIndexOf("```"));
+            }
+            return new ScriptTrick(Arrays.asList(argsArray[0].split(" ")), script);
         }
 
         @Override

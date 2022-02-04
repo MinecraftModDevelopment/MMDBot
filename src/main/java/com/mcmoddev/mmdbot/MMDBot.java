@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.AllowedMentions;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.jdbi.v3.core.Jdbi;
 import org.slf4j.Logger;
@@ -72,6 +73,10 @@ public final class MMDBot {
         GatewayIntent.GUILD_MESSAGE_REACTIONS,
         GatewayIntent.GUILD_MESSAGES,
         GatewayIntent.GUILD_MEMBERS);
+
+    static {
+        AllowedMentions.setDefaultMentionRepliedUser(false);
+    }
 
     /**
      * The config.
