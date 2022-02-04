@@ -102,6 +102,9 @@
     # The snowflake ID of the bot maintainer role
     bot_maintainer = ""
 
+    # The snowflake ID of the regular role
+    regular = ""
+
     # Configuration of pingable and user-requestable roles
     [roles.pings]
         # The snowflake ID of the role for the `event-pings` command

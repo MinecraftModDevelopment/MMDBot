@@ -4,9 +4,11 @@ import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.proxy.ProxyExecutable;
+import org.graalvm.polyglot.proxy.ProxyInstantiable;
 import org.graalvm.polyglot.proxy.ProxyObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +78,30 @@ public class ScriptingContext {
         }));
     }
 
+    public void addInstantiatable(String name, Function<List<Value>, Object> factory) {
+        map.put(name, new NameableProxyInstantiable() {
+            @Override
+            public Object newInstance(final Value... arguments) {
+                final var any = factory.apply(Arrays.asList(arguments));
+                if (any instanceof ScriptingContext context) {
+                    return context.toProxyObject();
+                }
+                return any;
+            }
+
+            @Override
+            public String getName() {
+                return name;
+            }
+        });
+    }
+
+    public void addInstantiatable(String[] names, Function<List<Value>, Object> factory) {
+        for (var name : names) {
+            addInstantiatable(name, factory);
+        }
+    }
+
     public ScriptingContext flatAdd(ScriptingContext other) {
         other.map().keySet().forEach(key -> this.map().put(key, other.get(key)));
         return this;
@@ -128,6 +154,10 @@ public class ScriptingContext {
     }
 
     public interface NameableProxyExecutable extends ProxyExecutable {
+        String getName();
+    }
+
+    public interface NameableProxyInstantiable extends ProxyInstantiable {
         String getName();
     }
 }

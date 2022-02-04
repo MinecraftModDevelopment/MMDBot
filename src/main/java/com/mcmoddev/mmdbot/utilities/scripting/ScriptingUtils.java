@@ -87,6 +87,15 @@ public final class ScriptingUtils {
             bindings.removeMember("exit");
             bindings.removeMember("quit");
 
+            context.addInstantiatable(new String[] {"Embed", "EmbedBuilder"}, args -> {
+                validateArgs(args, 0, 2);
+                if (args.size() == 2) {
+                    return new ScriptEmbed(new EmbedBuilder().setTitle(args.get(0).asString())
+                        .setDescription(args.get(1).asString())).toProxyObject();
+                }
+                return new ScriptEmbed();
+            });
+
             context.set("Utils", UTILS_CLASS);
             context.set("Math", MATH_CLASS);
             context.set("System", SYSTEM_CLASS);
@@ -104,30 +113,36 @@ public final class ScriptingUtils {
     }
 
     public static ScriptingContext createMessageChannel(MessageChannel channel) {
+        return createMessageChannel(channel, false);
+    }
+
+    public static ScriptingContext createMessageChannel(MessageChannel channel, boolean canSendMessage) {
         final var context = ScriptingContext.of("MessageChannel", channel);
         context.set("name", channel.getName());
         context.set("type", channel.getType().toString());
-        context.setFunctionVoid("sendMessage", args -> {
-            validateArgs(args, 1);
-            channel.sendMessage(args.get(0).asString()).allowedMentions(ALLOWED_MENTIONS).queue();
-        });
-        context.setFunctionVoid("sendEmbed", args -> {
-            validateArgs(args, 1);
-            final var v = args.get(0);
-            final var embed = getEmbedFromValue(v);
-            if (embed != null) {
-                channel.sendMessageEmbeds(embed).allowedMentions(ALLOWED_MENTIONS).queue();
-            }
-        });
-        context.setFunctionVoid("sendEmbeds", args -> channel.sendMessageEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
-            .filter(Objects::nonNull).toList()).allowedMentions(ALLOWED_MENTIONS).queue());
-        context.setFunction("asMention", i -> channel.getAsMention());
+        context.setFunction("canBotTalk", args -> channel.canTalk());
+        if (canSendMessage) {
+            context.setFunctionVoid("sendMessage", args -> {
+                validateArgs(args, 1);
+                channel.sendMessage(args.get(0).asString()).allowedMentions(ALLOWED_MENTIONS).queue();
+            });
+            context.setFunctionVoid("sendEmbed", args -> {
+                validateArgs(args, 1);
+                final var v = args.get(0);
+                final var embed = getEmbedFromValue(v);
+                if (embed != null) {
+                    channel.sendMessageEmbeds(embed).allowedMentions(ALLOWED_MENTIONS).queue();
+                }
+            });
+            context.setFunctionVoid("sendEmbeds", args -> channel.sendMessageEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
+                .filter(Objects::nonNull).toList()).allowedMentions(ALLOWED_MENTIONS).queue());
+        }
         return context;
     }
 
-    public static ScriptingContext createTextChannel(TextChannel channel) {
+    public static ScriptingContext createTextChannel(TextChannel channel, boolean canSendMessage) {
         final var context = ScriptingContext.of("TextChannel");
-        context.flatAdd(createMessageChannel(channel));
+        context.flatAdd(createMessageChannel(channel, canSendMessage));
         context.set("slowmode", channel.getSlowmode());
         context.set("topic", channel.getTopic());
         context.set("isNSFW", channel.isNSFW());
@@ -135,6 +150,10 @@ public final class ScriptingUtils {
         context.setFunction("getGuild", a -> createGuild(channel.getGuild()).toProxyObject());
         context.setFunction("getCategory", a -> channel.getParentCategory() == null ? null : createCategory(channel.getParentCategory()).toProxyObject());
         return context;
+    }
+
+    public static ScriptingContext createTextChannel(TextChannel channel) {
+        return createTextChannel(channel, false);
     }
 
     public static ScriptingContext createCategory(Category category) {
@@ -162,7 +181,7 @@ public final class ScriptingUtils {
         context.set("member", trickContext.getMember() == null ? null : createMember(trickContext.getMember()));
         context.set("user", createUser(trickContext.getUser()));
         context.set("args", trickContext.getArgs());
-        context.set("channel", createTextChannel(trickContext.getChannel()));
+        context.set("channel", createTextChannel(trickContext.getChannel(), true));
         context.setFunctionVoid("reply", args -> {
             validateArgs(args, 1);
             trickContext.reply(args.get(0).asString());
@@ -261,8 +280,8 @@ public final class ScriptingUtils {
         context.set("nickname", member.getNickname());
         context.set("color", member.getColorRaw());
         context.set("timeBoosted", member.getTimeBoosted());
-        context.set("status", member.getOnlineStatus().getKey());
         context.set("joinTime", Utils.getMemberJoinTime(member));
+        context.setFunction("getStatus", a -> member.getOnlineStatus().getKey());
         context.set("activities", member.getActivities().stream().map(a -> createActivity(a).toProxyObject()).toArray(ScriptingContext[]::new));
         context.setFunction("getGuild", a -> createGuild(member.getGuild()).toProxyObject());
         context.setFunction("getRoles", a -> member.getRoles().stream().sorted(Comparator.comparing(Role::getPositionRaw).reversed())
@@ -282,7 +301,7 @@ public final class ScriptingUtils {
         context.setFunction("openPrivateChannel", args -> {
             validateArgs(args, 0);
             final var privateChannel = user.openPrivateChannel().complete();
-            return privateChannel == null ? null : createMessageChannel(privateChannel);
+            return privateChannel == null ? null : createMessageChannel(privateChannel, true);
         });
         return context;
     }
@@ -406,14 +425,6 @@ public final class ScriptingUtils {
     }
 
     public static final ScriptingContext UTILS_CLASS = makeContext("Utils", context -> {
-        context.setFunction("createEmbed", a -> {
-            if (a.size() == 2) {
-                return new ScriptEmbed(new EmbedBuilder().setTitle(a.get(0).asString()).setDescription(a.get(1).asString()));
-            } else {
-                return new ScriptEmbed();
-            }
-        });
-
         context.setFunction("parseInt", executeIfArgsValid(a -> Integer.parseInt(a.get(0).asString()), 1));
         context.setFunction("parseString", executeIfArgsValid(a -> a.get(0).toString(), 1));
         context.setFunction("parseLong", executeIfArgsValid(a -> Long.parseLong(a.get(0).asString()), 1));

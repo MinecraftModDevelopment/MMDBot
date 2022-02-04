@@ -178,8 +178,8 @@ public class CmdEvaluate extends SlashCommand {
         context.set("member", evalContext.getMember() == null ? null : createMember(evalContext.getMember()));
         context.set("user", createUser(evalContext.getUser()));
         final var canSendEmbed = evalContext.getGuild() == null || evalContext.getMember().hasPermission(evalContext.getTextChannel(), Permission.MESSAGE_EMBED_LINKS);
-        context.set("channel", createMessageChannel(evalContext.getMessageChannel()));
-        context.set("textChannel", createTextChannel(evalContext.getTextChannel()));
+        context.set("channel", createMessageChannel(evalContext.getMessageChannel(), true));
+        context.set("textChannel", createTextChannel(evalContext.getTextChannel(), true));
         context.setFunctionVoid("reply", args -> {
             validateArgs(args, 1);
             evalContext.reply(args.get(0).asString());
