@@ -10,6 +10,7 @@ import com.mcmoddev.mmdbot.utilities.tricks.TrickContext;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.Region;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Emote;
@@ -33,6 +34,7 @@ import javax.annotation.Nullable;
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -198,7 +200,10 @@ public final class ScriptingUtils {
         context.set("splash", guild.getSplashUrl());
         context.set("splashId", guild.getSplashId());
         context.set("memberCount", guild.getMemberCount());
-        context.setFunction("getOwner", a -> guild.getOwner() == null ? null : createMember(guild.getOwner()).toProxyObject());
+        context.setFunction("region", args -> guild.retrieveRegions().complete().stream()
+            .map(r -> createRegion(r).toProxyObject()).toList());
+        context.setFunction("getOwner", a -> guild.getOwner() == null ? null :
+            createMember(guild.getOwner()).toProxyObject());
         context.setFunction("getMemberById", args -> {
             validateArgs(args, 1);
             final var member = guild.getMemberById(args.get(0).asLong());
@@ -264,7 +269,8 @@ public final class ScriptingUtils {
         context.set("joinTime", Utils.getMemberJoinTime(member));
         context.set("timeBoosted", member.getTimeBoosted());
         context.setFunction("getGuild", a -> createGuild(member.getGuild()).toProxyObject());
-        context.setFunction("getRoles", a -> member.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList());
+        context.setFunction("getRoles", a -> member.getRoles().stream().sorted(Comparator.comparing(Role::getPositionRaw).reversed())
+            .map(r -> createRole(r).toProxyObject()).toList());
         return context;
     }
 
@@ -330,6 +336,15 @@ public final class ScriptingUtils {
         context.setFunction("getRoles", args -> emote.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList());
         context.setFunction("asMention", args -> emote.getAsMention());
         context.setFunction("getGuild", args -> emote.getGuild() == null ? null : createGuild(emote.getGuild()));
+        return context;
+    }
+
+    public static ScriptingContext createRegion(Region region) {
+        final var context = ScriptingContext.of("Region");
+        context.set("key", region.getKey());
+        context.set("name", region.getName());
+        context.set("emoji", region.getEmoji());
+        context.setFunction("isVip", a -> region.isVip());
         return context;
     }
 
