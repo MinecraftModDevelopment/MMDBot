@@ -126,7 +126,8 @@ public final class ScriptingUtils {
     }
 
     public static ScriptingContext createTextChannel(TextChannel channel) {
-        final var context = createMessageChannel(channel);
+        final var context = ScriptingContext.of("TextChannel");
+        context.flatAdd(createMessageChannel(channel));
         context.set("slowmode", channel.getSlowmode());
         context.set("topic", channel.getTopic());
         context.set("isNSFW", channel.isNSFW());
@@ -237,7 +238,7 @@ public final class ScriptingUtils {
     }
 
     public static ScriptingContext createActivityRich(RichPresence activity) {
-        final var context = ScriptingContext.of("Activity");
+        final var context = ScriptingContext.of("RichPresence");
         context.flatAdd(createActivity(activity));
         context.set("details", activity.getDetails());
         context.set("applicationId", activity.getApplicationId());
