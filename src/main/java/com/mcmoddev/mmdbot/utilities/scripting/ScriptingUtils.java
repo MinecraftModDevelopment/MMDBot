@@ -191,8 +191,11 @@ public final class ScriptingUtils {
     public static ScriptingContext createGuild(Guild guild) {
         final var context = ScriptingContext.of("Guild");
         context.set("name", guild.getName());
-        context.set("splashUrl", guild.getSplashUrl());
+        context.set("icon", guild.getIconUrl());
+        context.set("iconId", guild.getIconId());
+        context.set("splash", guild.getSplashUrl());
         context.set("splashId", guild.getSplashId());
+        context.set("memberCount", guild.getMemberCount());
         context.setFunction("getOwner", a -> createMember(guild.getOwner()));
         context.setFunction("getMemberById", args -> {
             validateArgs(args, 1);
