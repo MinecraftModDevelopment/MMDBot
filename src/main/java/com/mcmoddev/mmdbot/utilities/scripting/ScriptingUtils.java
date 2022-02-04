@@ -11,6 +11,7 @@ import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -126,11 +127,24 @@ public final class ScriptingUtils {
 
     public static ScriptingContext createTextChannel(TextChannel channel) {
         final var context = createMessageChannel(channel);
-        context.set("guild", createGuild(channel.getGuild()));
         context.set("slowmode", channel.getSlowmode());
         context.set("topic", channel.getTopic());
         context.set("isNSFW", channel.isNSFW());
         context.set("isSynced", channel.isSynced());
+        context.setFunction("getGuild", a -> createGuild(channel.getGuild()));
+        context.setFunction("getCategory", a -> channel.getParentCategory() == null ? null : createCategory(channel.getParentCategory()));
+        return context;
+    }
+
+    public static ScriptingContext createCategory(Category category) {
+        final var context = ScriptingContext.of("Category");
+        context.set("name", category.getName());
+        context.set("id", category.getId());
+        context.set("position", category.getPosition());
+        context.setFunction("asMention", a -> category.getAsMention());
+        context.setFunction("getGuild", a -> createGuild(category.getGuild()));
+        context.setFunction("getMembers", a -> category.getMembers().stream().map(ScriptingUtils::createMember).toList());
+        context.setFunction("getTextChannels", a -> category.getTextChannels().stream().map(ScriptingUtils::createTextChannel).toList());
         return context;
     }
 
@@ -179,6 +193,7 @@ public final class ScriptingUtils {
         context.set("name", guild.getName());
         context.set("splashUrl", guild.getSplashUrl());
         context.set("splashId", guild.getSplashId());
+        context.setFunction("getOwner", a -> createMember(guild.getOwner()));
         context.setFunction("getMemberById", args -> {
             validateArgs(args, 1);
             final var member = guild.getMemberById(args.get(0).asLong());
@@ -233,11 +248,11 @@ public final class ScriptingUtils {
         context.set("user", createUser(member.getUser()));
         context.set("nickname", member.getNickname());
         context.set("color", member.getColorRaw());
-        context.set("guild", createGuild(member.getGuild()));
         context.set("status", member.getOnlineStatus().getKey());
         context.set("activities", member.getActivities().stream().map(ScriptingUtils::createActivity).toArray(ScriptingContext[]::new));
         context.set("joinTime", Utils.getMemberJoinTime(member));
         context.set("timeBoosted", member.getTimeBoosted());
+        context.setFunction("getGuild", a -> createGuild(member.getGuild()));
         context.setFunction("getRoles", a -> member.getRoles().stream().map(ScriptingUtils::createRole).toList());
         return context;
     }
@@ -264,9 +279,13 @@ public final class ScriptingUtils {
     public static ScriptingContext createRole(Role role) {
         final var context = ScriptingContext.of("Role");
         context.set("name", role.getName());
-        context.set("guild", role.getGuild());
         context.set("color", role.getColorRaw());
         context.set("timeCreated", role.getTimeCreated());
+        context.setFunction("getGuild", a -> createGuild(role.getGuild()));
+        context.setFunction("isHoisted", a -> role.isHoisted());
+        context.setFunction("isPublicRole", a -> role.isPublicRole());
+        context.setFunction("isManaged", a -> role.isManaged());
+        context.setFunction("isMentionable", a -> role.isMentionable());
         context.setFunction("asMention", a -> role.getAsMention());
         context.setFunction("getRoleIcon", a -> role.getIcon() == null ? null : createRoleIcon(role.getIcon()));
         return context;
