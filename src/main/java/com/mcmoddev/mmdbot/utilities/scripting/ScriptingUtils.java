@@ -194,6 +194,7 @@ public final class ScriptingUtils {
 
     public static ScriptingContext createGuild(Guild guild) {
         final var context = ScriptingContext.of("Guild");
+        context.set("id", guild.getId());
         context.set("name", guild.getName());
         context.set("icon", guild.getIconUrl());
         context.set("iconId", guild.getIconId());
@@ -426,6 +427,7 @@ public final class ScriptingUtils {
 
         context.setFunction("parseInt", executeIfArgsValid(a -> Integer.parseInt(a.get(0).asString()), 1));
         context.setFunction("parseString", executeIfArgsValid(a -> a.get(0).toString(), 1));
+        context.setFunction("parseLong", executeIfArgsValid(a -> Long.parseLong(a.get(0).asString()), 1));
 
         context.setFunction("equals", executeIfArgsValid(a -> a.get(0).equals(a.get(2)), 2));
         context.setFunction("range", executeIfArgsValid(a -> {
