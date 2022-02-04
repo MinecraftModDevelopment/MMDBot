@@ -1,3 +1,23 @@
+/*
+ * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
+ * Copyright (C) 2016-2022 <MMD - MinecraftModDevelopment>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ */
 package com.mcmoddev.mmdbot.utilities.scripting;
 
 import com.google.common.collect.Lists;
@@ -25,6 +45,7 @@ import net.dv8tion.jda.api.entities.RoleIcon;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.EnvironmentAccess;
 import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.Value;
@@ -50,6 +71,16 @@ public final class ScriptingUtils {
     public static final EnumSet<Message.MentionType> ALLOWED_MENTIONS = EnumSet.of(Message.MentionType.EMOTE,
         Message.MentionType.CHANNEL);
 
+    public static final Engine ENGINE = Engine.newBuilder()
+        .allowExperimentalOptions(true)
+        .option("js.console", "false")
+        .option("js.nashorn-compat", "true")
+        .option("js.experimental-foreign-object-prototype", "true")
+        .option("js.disable-eval", "true")
+        .option("js.load", "false")
+        .option("log.level", "OFF")
+        .build();
+
     /**
      * Execute any script inside this thread pool if you think the script will be heavy. <br>
      * <b>BY DEFAULT, {@link #evaluate(String, ScriptingContext)} calls are NOT executed in another thread.</b>
@@ -61,7 +92,7 @@ public final class ScriptingUtils {
             throw new ScriptingException("This script contained a scam link!");
         }
         try (var engine = Context.newBuilder("js")
-            .allowExperimentalOptions(true)
+            .engine(ENGINE)
             .allowNativeAccess(false)
             .allowIO(false)
             .allowCreateProcess(false)
@@ -73,12 +104,6 @@ public final class ScriptingUtils {
                     .allowListAccess(true)
                     .build()
             )
-            .option("js.console", "false")
-            .option("js.nashorn-compat", "true")
-            .option("js.experimental-foreign-object-prototype", "true")
-            .option("js.disable-eval", "true")
-            .option("js.load", "false")
-            .option("log.level", "OFF")
             .build()) {
 
             final var bindings = engine.getBindings("js");
