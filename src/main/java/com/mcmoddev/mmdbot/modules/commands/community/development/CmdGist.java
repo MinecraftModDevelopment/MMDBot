@@ -64,6 +64,7 @@ public final class CmdGist extends Command {
         final var target = event.getMessage().getReferencedMessage();
         if (target == null || target.isWebhookMessage() || target.getAuthor().isSystem()) {
             event.getMessage().reply("Please reference a message to create a gist from its attachments.").mentionRepliedUser(false).queue();
+            return;
         }
         if (target.getAttachments().isEmpty()) {
             event.getMessage().reply("The message doesn't have any attachments!").mentionRepliedUser(false).queue();

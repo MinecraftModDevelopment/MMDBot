@@ -55,6 +55,7 @@ import com.mcmoddev.mmdbot.modules.commands.community.server.quotes.CmdQuote;
 import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdAddTrick;
 import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdEditTrick;
 import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdListTricks;
+import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdRawTrick;
 import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdTrick;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdMute;
@@ -140,7 +141,8 @@ public class CommandModule {
             new CmdTrick(),
             new CmdInvite(),
             new CmdDictionary(),
-            new CmdEvaluate());
+            new CmdEvaluate(),
+            new CmdRawTrick());
 
         // addSlashCommand(Tricks.getTricks().stream().map(CmdRunTrickSeparated::new).toArray(SlashCommand[]::new));
 

@@ -7,9 +7,18 @@ import org.graalvm.polyglot.proxy.ProxyObject;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
-public record ScriptingContext(String name, Map<String, Object> map) {
+public class ScriptingContext {
+
+    private final String name;
+    private final Map<String, Object> map;
+
+    public ScriptingContext(final String name, final Map<String, Object> map) {
+        this.map = map;
+        this.name = name;
+    }
 
     public static ScriptingContext of(String name) {
         return new ScriptingContext(name, new LinkedHashMap<>());
@@ -29,6 +38,13 @@ public record ScriptingContext(String name, Map<String, Object> map) {
 
     public void setFunction(String name, Function<List<Value>, Object> function) {
         map.put(name, ScriptingUtils.functionObject(function));
+    }
+
+    public void setFunctionVoid(String name, Consumer<List<Value>> consumer) {
+        map.put(name, ScriptingUtils.functionObject(args -> {
+            consumer.accept(args);
+            return null;
+        }));
     }
 
     public ScriptingContext flatAdd(ScriptingContext other) {
@@ -62,10 +78,24 @@ public record ScriptingContext(String name, Map<String, Object> map) {
             public void putMember(final String key, final Value value) {
                 delegate.putMember(key, value);
             }
+
+            @Override
+            public String getName() {
+                return name;
+            }
         };
     }
 
+    public String name() {
+        return name;
+    }
+
+    public Map<String, Object> map() {
+        return map;
+    }
+
     public interface NamedProxyObject extends ProxyObject {
+        String getName();
     }
 
     public interface NameableProxyExecutable extends ProxyExecutable {

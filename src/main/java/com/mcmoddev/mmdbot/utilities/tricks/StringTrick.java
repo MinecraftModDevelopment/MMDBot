@@ -70,24 +70,24 @@ public class StringTrick implements Trick {
         return names;
     }
 
-    /**
-     * Gets message.
-     *
-     * @param args the args
-     * @return message
-     */
     @Override
-    public Message getMessage(final String[] args) {
-        return new MessageBuilder(String.format(getBody(), (Object[]) args)).setAllowedMentions(Set.of(Message.MentionType.CHANNEL, Message.MentionType.EMOTE)).build();
+    public void execute(final TrickContext context) {
+        context.replyWithMessage(new MessageBuilder(String.format(getBody(), (Object[]) context.getArgs()))
+            .setAllowedMentions(Set.of(Message.MentionType.CHANNEL, Message.MentionType.EMOTE)).build());
     }
 
     /**
      * Gets body.
      *
-     * @return body body
+     * @return body
      */
     public String getBody() {
         return body;
+    }
+
+    @Override
+    public String getRaw() {
+        return getBody();
     }
 
     /**

@@ -41,12 +41,16 @@ public interface Trick {
     List<String> getNames();
 
     /**
-     * Gets message.
+     * Executes the trick
      *
-     * @param args the args
-     * @return message message
+     * @param context the context to execute the message in
      */
-    Message getMessage(String[] args);
+    void execute(TrickContext context);
+
+    /**
+     * @return the raw representation of this trick
+     */
+    String getRaw();
 
     /**
      * The TrickType interface. Every trick requires a trick type to be registered
