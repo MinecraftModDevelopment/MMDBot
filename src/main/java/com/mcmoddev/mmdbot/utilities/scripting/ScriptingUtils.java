@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Category;
+import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -213,6 +214,11 @@ public final class ScriptingUtils {
             final var channel = guild.getTextChannelById(args.get(0).asLong());
             return channel == null ? null : createTextChannel(channel).toProxyObject();
         });
+        context.setFunction("getEmoteById", args -> {
+            validateArgs(args, 1);
+            final var channel = guild.getEmoteById(args.get(0).asLong());
+            return channel == null ? null : createEmote(channel).toProxyObject();
+        });
         context.setFunction("getQuotes", args -> {
             validateArgs(args, 0);
             return IntStream.range(0, QuoteList.getQuoteSlot()).mapToObj(i -> {
@@ -223,6 +229,7 @@ public final class ScriptingUtils {
         context.setFunction("getMembers", a -> guild.getMembers().stream().map(m -> createMember(m).toProxyObject()).toList());
         context.setFunction("getRoles", a -> guild.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList());
         context.setFunction("getTextChannels", a -> guild.getTextChannels().stream().map(c -> createTextChannel(c).toProxyObject()).toList());
+        context.setFunction("getEmotes", a -> guild.getEmotes().stream().map(c -> createEmote(c).toProxyObject()).toList());
         return context;
     }
 
@@ -308,6 +315,21 @@ public final class ScriptingUtils {
         context.set("quote", quote.getQuoteText() == null ? null : quote.getQuoteText());
         context.set("quotee", quote.getQuotee() == null ? null : quote.getQuotee().resolveReference());
         context.set("quoteAuthor", quote.getQuoteAuthor() == null ? null : quote.getQuoteAuthor().resolveReference());
+        return context;
+    }
+
+    public static ScriptingContext createEmote(Emote emote) {
+        final var context = ScriptingContext.of("Emote");
+        context.set("id", emote.getId());
+        context.set("name", emote.getName());
+        context.set("url", emote.getImageUrl());
+        context.set("timeCreated", emote.getTimeCreated());
+        context.setFunction("isAnimated", args -> emote.isAnimated());
+        context.setFunction("canProvideRoles", args -> emote.canProvideRoles());
+        context.setFunction("isAvailable", args -> emote.isAvailable());
+        context.setFunction("getRoles", args -> emote.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList());
+        context.setFunction("asMention", args -> emote.getAsMention());
+        context.setFunction("getGuild", args -> emote.getGuild() == null ? null : createGuild(emote.getGuild()));
         return context;
     }
 
