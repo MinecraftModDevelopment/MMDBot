@@ -77,6 +77,8 @@ dependencies {
   implementation supportDependencies.nightConfig
   implementation supportDependencies.sqliteJdbc
   implementation supportDependencies.flywayCore
+  implementation supportDependencies.graal
+  implementation supportDependencies.graalScriptEngine
   compileOnly supportDependencies.jetbrainsAnnotations
 
   implementation group: 'org.jdbi', name: 'jdbi3-core', version: "${project.jdbi_version}"
@@ -85,10 +87,6 @@ dependencies {
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: "${project.junit_version}"
 
   spotbugsPlugins "com.h3xstream.findsecbugs:findsecbugs-plugin:${project.findsecbugs_version}"
-
-  // TODO convert
-  implementation 'org.graalvm.js:js-scriptengine:21.2.0'
-  implementation 'org.graalvm.js:js:21.2.0'
 }
 
 jar {

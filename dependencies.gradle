@@ -16,6 +16,7 @@ ext {
     sqliteJdbcVersion = "3.36.0.3"
     flywayCoreVersion = "8.4.1"
     jetbrainsAnnotationsVersion = "23.0.0"
+    graalVersion = "22.0.0"
     //-- DEPENDENCIES
     supportDependencies = [
             jda                           : "net.dv8tion:JDA:$jdaVersion",
@@ -26,7 +27,9 @@ ext {
             nightConfig                   : "com.electronwill.night-config:toml:$tomlVersion",
             sqliteJdbc                    : "org.xerial:sqlite-jdbc:$sqliteJdbcVersion",
             flywayCore                    : "org.flywaydb:flyway-core:$flywayCoreVersion",
-            jetbrainsAnnotations          : "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
+            jetbrainsAnnotations          : "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
+            graal                         : "org.graalvm.js:js:$graalVersion",
+            graalScriptEngine             : "org.graalvm.js:js-scriptengine:$graalVersion"
     ]
 }
 

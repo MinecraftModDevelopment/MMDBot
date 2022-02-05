@@ -98,6 +98,7 @@ public final class ScriptingUtils {
             .allowCreateProcess(false)
             .allowEnvironmentAccess(EnvironmentAccess.NONE)
             .allowHostClassLoading(false)
+            .allowValueSharing(true)
             .allowHostAccess(
                 HostAccess.newBuilder()
                     .allowArrayAccess(true)
