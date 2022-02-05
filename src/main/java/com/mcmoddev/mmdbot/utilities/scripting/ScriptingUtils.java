@@ -23,7 +23,6 @@ package com.mcmoddev.mmdbot.utilities.scripting;
 import com.google.common.collect.Lists;
 import com.mcmoddev.mmdbot.modules.logging.misc.ScamDetector;
 import com.mcmoddev.mmdbot.utilities.Utils;
-import com.mcmoddev.mmdbot.utilities.quotes.Quote;
 import com.mcmoddev.mmdbot.utilities.quotes.QuoteList;
 import com.mcmoddev.mmdbot.utilities.scripting.object.ScriptEmbed;
 import com.mcmoddev.mmdbot.utilities.scripting.object.ScriptRoleIcon;
@@ -42,7 +41,6 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.RichPresence;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.RoleIcon;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.graalvm.polyglot.Context;
@@ -54,7 +52,6 @@ import org.graalvm.polyglot.proxy.ProxyExecutable;
 
 import javax.annotation.Nullable;
 import java.io.Serial;
-import java.rmi.UnexpectedException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -117,7 +114,7 @@ public final class ScriptingUtils {
             bindings.removeMember("exit");
             bindings.removeMember("quit");
 
-            context.addInstantiatable(new String[] {"Embed", "EmbedBuilder"}, args -> {
+            context.addInstantiatable(new String[]{"Embed", "EmbedBuilder"}, args -> {
                 validateArgs(args, 0, 2);
                 if (args.size() == 2) {
                     return new ScriptEmbed(new EmbedBuilder().setTitle(args.get(0).asString())
@@ -171,15 +168,15 @@ public final class ScriptingUtils {
     }
 
     public static ScriptingContext createTextChannel(TextChannel channel, boolean canSendMessage) {
-        final var context = ScriptingContext.of("TextChannel");
-        context.flatAdd(createMessageChannel(channel, canSendMessage));
-        context.set("slowmode", channel.getSlowmode());
-        context.set("topic", channel.getTopic());
-        context.set("isNSFW", channel.isNSFW());
-        context.set("isSynced", channel.isSynced());
-        context.setFunction("getGuild", a -> createGuild(channel.getGuild()).toProxyObject());
-        context.setFunction("getCategory", a -> channel.getParentCategory() == null ? null : createCategory(channel.getParentCategory()).toProxyObject());
-        return context;
+        return ScriptingContext.of("TextChannel")
+            .flatAdd(createMessageChannel(channel, canSendMessage))
+            .set("slowmode", channel.getSlowmode())
+            .set("topic", channel.getTopic())
+            .set("isNSFW", channel.isNSFW())
+            .set("isSynced", channel.isSynced())
+            .setFunction("getGuild", a -> createGuild(channel.getGuild()).toProxyObject())
+            .setFunction("getCategory", a -> channel.getParentCategory() == null ? null :
+                createCategory(channel.getParentCategory()).toProxyObject());
     }
 
     public static ScriptingContext createTextChannel(TextChannel channel) {
@@ -187,14 +184,14 @@ public final class ScriptingUtils {
     }
 
     public static ScriptingContext createCategory(Category category) {
-        final var context = ScriptingContext.of("Category", category);
-        context.set("name", category.getName());
-        context.set("position", category.getPosition());
-        context.setFunction("asMention", a -> category.getAsMention());
-        context.setFunction("getGuild", a -> createGuild(category.getGuild()).toProxyObject());
-        context.setFunction("getMembers", a -> category.getMembers().stream().map(m -> createMember(m).toProxyObject()).toList());
-        context.setFunction("getTextChannels", a -> category.getTextChannels().stream().map(c -> createTextChannel(c).toProxyObject()).toList());
-        return context;
+        return ScriptingContext.of("Category", category).set("name", category.getName())
+            .set("position", category.getPosition())
+            .setFunction("asMention", a -> category.getAsMention())
+            .setFunction("getGuild", a -> createGuild(category.getGuild()).toProxyObject())
+            .setFunction("getMembers", a -> category.getMembers().stream().map(m ->
+                createMember(m).toProxyObject()).toList())
+            .setFunction("getTextChannels", a -> category.getTextChannels().stream().map(c ->
+                createTextChannel(c).toProxyObject()).toList());
     }
 
     public static ScriptingContext createTrickContext(TrickContext trickContext) {
@@ -245,8 +242,8 @@ public final class ScriptingUtils {
         context.set("splash", guild.getSplashUrl());
         context.set("splashId", guild.getSplashId());
         context.set("memberCount", guild.getMemberCount());
-        context.setFunction("region", args -> guild.retrieveRegions().complete().stream()
-            .map(r -> createRegion(r).toProxyObject()).toList());
+        context.setFunction("getRegions", args -> guild.retrieveRegions().complete()
+            .stream().map(r -> createRegion(r).toProxyObject()).toList());
         context.setFunction("getOwner", a -> guild.getOwner() == null ? null :
             createMember(guild.getOwner()).toProxyObject());
         context.setFunction("getMemberById", args -> {
@@ -448,10 +445,10 @@ public final class ScriptingUtils {
         }, 1, 2));
 
         context.setFunction("format", executeIfArgsValid(args -> {
-             if (args.size() < 2) {
-                 throw new IllegalArgumentException("Invalid amount of arguments provided!");
-             }
-             return String.format(args.get(0).asString(), args.subList(1, args.size()).stream().map(Value::asString).toArray(Object[]::new));
+            if (args.size() < 2) {
+                throw new IllegalArgumentException("Invalid amount of arguments provided!");
+            }
+            return String.format(args.get(0).asString(), args.subList(1, args.size()).stream().map(Value::asString).toArray(Object[]::new));
         }));
     });
 

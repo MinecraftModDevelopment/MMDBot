@@ -69,7 +69,7 @@ public class ScriptingContext {
         return map.get(key);
     }
 
-    public void set(String key, Object value) {
+    public ScriptingContext set(String key, Object value) {
         if (value instanceof ScriptingContext context) {
             map.put(key, context.toProxyObject());
         } else if (value instanceof List list) {
@@ -85,20 +85,23 @@ public class ScriptingContext {
         } else {
             map.put(key, value);
         }
+        return this;
     }
 
-    public void setFunction(String name, Function<List<Value>, Object> function) {
+    public ScriptingContext setFunction(String name, Function<List<Value>, Object> function) {
         map.put(name, ScriptingUtils.functionObject(function));
+        return this;
     }
 
-    public void setFunctionVoid(String name, Consumer<List<Value>> consumer) {
+    public ScriptingContext setFunctionVoid(String name, Consumer<List<Value>> consumer) {
         map.put(name, ScriptingUtils.functionObject(args -> {
             consumer.accept(args);
             return null;
         }));
+        return this;
     }
 
-    public void addInstantiatable(String name, Function<List<Value>, Object> factory) {
+    public ScriptingContext addInstantiatable(String name, Function<List<Value>, Object> factory) {
         map.put(name, new NameableProxyInstantiable() {
             @Override
             public Object newInstance(final Value... arguments) {
@@ -114,12 +117,14 @@ public class ScriptingContext {
                 return name;
             }
         });
+        return this;
     }
 
-    public void addInstantiatable(String[] names, Function<List<Value>, Object> factory) {
+    public ScriptingContext addInstantiatable(String[] names, Function<List<Value>, Object> factory) {
         for (var name : names) {
             addInstantiatable(name, factory);
         }
+        return this;
     }
 
     public ScriptingContext flatAdd(ScriptingContext other) {
