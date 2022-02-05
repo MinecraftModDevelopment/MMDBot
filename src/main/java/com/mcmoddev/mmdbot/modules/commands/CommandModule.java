@@ -56,6 +56,7 @@ import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdAddTrick;
 import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdEditTrick;
 import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdListTricks;
 import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdRawTrick;
+import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdRunTrick;
 import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdTrick;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdMute;
@@ -66,6 +67,7 @@ import com.mcmoddev.mmdbot.modules.commands.moderation.CmdUnmute;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdWarning;
 import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
@@ -157,6 +159,10 @@ public class CommandModule {
         addContextMenu(new ContextMenuGist());
         addContextMenu(new ContextMenuAddQuote());
         addContextMenu(new ContextMenuUserInfo());
+
+        if (MMDBot.getConfig().prefixTricksEnabled()) {
+            Tricks.getTricks().stream().map(CmdRunTrick.Prefix::new).forEach(commandClient::addCommand);
+        }
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
             // Wrap the command and button listener in another thread, so that if a runtime exception

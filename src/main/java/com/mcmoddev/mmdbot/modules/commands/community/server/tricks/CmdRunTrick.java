@@ -20,10 +20,12 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.community.server.tricks;
 
+import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.modules.commands.DismissListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.utilities.tricks.Trick;
 import com.mcmoddev.mmdbot.utilities.tricks.TrickContext;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
@@ -90,5 +92,23 @@ public final class CmdRunTrick extends SlashCommand {
     public static List<Command.Choice> getNamesStartingWith(final String currentChoice, final int limit) {
         return Tricks.getTricks().stream().filter(t -> t.getNames().get(0).startsWith(currentChoice))
             .limit(limit).map(t -> new Command.Choice(t.getNames().get(0), t.getNames().get(0))).toList();
+    }
+
+    public static final class Prefix extends com.jagrosh.jdautilities.command.Command {
+
+        private final String trickName;
+
+        public Prefix(Trick trick) {
+            this.name = trick.getNames().get(0);
+            this.trickName = name;
+            this.aliases = trick.getNames().toArray(String[]::new);
+            help = "Invokes the trick " + trickName;
+        }
+
+        @Override
+        protected void execute(final CommandEvent event) {
+            Tricks.getTrick(trickName).ifPresentOrElse(trick -> trick.execute(new TrickContext.Normal(event, event.getArgs().split(" "))),
+                () -> event.getMessage().reply("This trick does not exist anymore!").queue());
+        }
     }
 }

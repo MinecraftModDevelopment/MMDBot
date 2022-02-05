@@ -82,7 +82,8 @@ public final class CmdRunTrickSeparated extends SlashCommand implements Deletabl
         }
 
         event.deferReply().queue(hook -> {
-            Tricks.getTrick(trickName).ifPresentOrElse(trick -> trick.execute(new TrickContext.Slash(event, null, Utils.getOrEmpty(event, "args").split(" "))),
+            Tricks.getTrick(trickName).ifPresentOrElse(trick -> trick.execute(new TrickContext.Slash(event, hook,
+                    Utils.getOrEmpty(event, "args").split(" "))),
                 () -> hook.editOriginal("This trick does not exist anymore!").queue());
         });
     }
