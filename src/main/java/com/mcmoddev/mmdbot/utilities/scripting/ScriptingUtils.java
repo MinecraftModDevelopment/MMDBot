@@ -102,6 +102,7 @@ public final class ScriptingUtils {
                 HostAccess.newBuilder()
                     .allowArrayAccess(true)
                     .allowListAccess(true)
+                    .allowMapAccess(true)
                     .build()
             )
             .build()) {
