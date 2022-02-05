@@ -26,6 +26,7 @@ import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.quotes.Quote;
 import com.mcmoddev.mmdbot.utilities.quotes.QuoteList;
 import com.mcmoddev.mmdbot.utilities.scripting.object.ScriptEmbed;
+import com.mcmoddev.mmdbot.utilities.scripting.object.ScriptRoleIcon;
 import com.mcmoddev.mmdbot.utilities.tricks.TrickContext;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -104,6 +105,7 @@ public final class ScriptingUtils {
                     .allowArrayAccess(true)
                     .allowListAccess(true)
                     .allowMapAccess(true)
+                    .allowAccessAnnotatedBy(ExposeScripting.class)
                     .build()
             )
             .build()) {
@@ -269,10 +271,7 @@ public final class ScriptingUtils {
         });
         context.setFunction("getQuotes", args -> {
             validateArgs(args, 0);
-            return IntStream.range(0, QuoteList.getQuoteSlot()).mapToObj(i -> {
-                final var quote = QuoteList.getQuote(i);
-                return quote == null ? null : createQuote(quote).toProxyObject();
-            }).toList();
+            return IntStream.range(0, QuoteList.getQuoteSlot()).mapToObj(QuoteList::getQuote).toList();
         });
         context.setFunction("getMembers", a -> guild.getMembers().stream().map(m -> createMember(m).toProxyObject()).toList());
         context.setFunction("getRoles", a -> guild.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList());
@@ -344,23 +343,7 @@ public final class ScriptingUtils {
         context.setFunction("isPublicRole", a -> role.isPublicRole());
         context.setFunction("isManaged", a -> role.isManaged());
         context.setFunction("isMentionable", a -> role.isMentionable());
-        context.setFunction("getRoleIcon", a -> role.getIcon() == null ? null : createRoleIcon(role.getIcon()));
-        return context;
-    }
-
-    public static ScriptingContext createRoleIcon(RoleIcon icon) {
-        final var context = ScriptingContext.of("RoleIcon");
-        context.set("id", icon.getIconId());
-        context.set("url", icon.getIconUrl());
-        context.set("emoji", icon.getEmoji());
-        return context;
-    }
-
-    public static ScriptingContext createQuote(Quote quote) {
-        final var context = ScriptingContext.of("Quote");
-        context.set("quote", quote.getQuoteText() == null ? null : quote.getQuoteText());
-        context.set("quotee", quote.getQuotee() == null ? null : quote.getQuotee().resolveReference());
-        context.set("quoteAuthor", quote.getQuoteAuthor() == null ? null : quote.getQuoteAuthor().resolveReference());
+        context.setFunction("getRoleIcon", a -> role.getIcon() == null ? null : new ScriptRoleIcon(role.getIcon()));
         return context;
     }
 
