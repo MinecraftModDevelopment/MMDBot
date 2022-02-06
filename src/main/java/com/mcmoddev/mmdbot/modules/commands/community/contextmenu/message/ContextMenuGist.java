@@ -96,14 +96,14 @@ public class ContextMenuGist extends MessageContextMenu {
             .toString();
     }
 
-    public static final List<String> BLACKLISTED_ATTACHEMENTS = List.of("png", "jpg", "jpeg", "webm");
+    public static final List<String> BLACKLISTED_ATTACHMENTS = List.of("png", "jpg", "jpeg", "webm", "mp4", "hevc");
 
     public static Gist createGistFromMessage(final net.dv8tion.jda.api.entities.Message message)
         throws InterruptedException, ExecutionException {
         final var gist = new Gist(message.getContentRaw(), false);
         for (var attach : message.getAttachments()) {
             attach.retrieveInputStream().thenAccept(is -> {
-                if (BLACKLISTED_ATTACHEMENTS.contains(attach.getFileExtension())) {
+                if (BLACKLISTED_ATTACHMENTS.contains(attach.getFileExtension())) {
                     return;
                 }
                 final String fileName = generateName(10) + "." + attach.getFileExtension();

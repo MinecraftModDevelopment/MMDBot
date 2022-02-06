@@ -44,7 +44,7 @@ public final class DictionaryUtils {
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
 
     public static final DictionaryEntry CURLE_ENTRY = new DictionaryEntry("curle", "kəːle",
-        List.of(new DictionaryDefinition("noun", "A seemingly time travelling computer woman with a technological curse, a time-travelling penny, and no fucks to give whatsoever",
+        List.of(new DictionaryDefinition("noun", "A seemingly time travelling computer woman with a technological curse, a teleporting penny, and no fucks to give whatsoever",
             "Curle is unique in her own way.", "https://cdn.discordapp.com/attachments/797440750971387925/939094064605831199/bolbmas.png", "<:bolbmas:879868298584526880>")));
 
     public static final String TARGET_URL = "https://owlbot.info/api/v4/dictionary/%s";
