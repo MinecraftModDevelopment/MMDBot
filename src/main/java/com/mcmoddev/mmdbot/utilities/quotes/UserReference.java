@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.utilities.quotes;
 
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.utilities.scripting.ExposeScripting;
 import net.dv8tion.jda.api.entities.User;
 
 /**
@@ -65,6 +66,7 @@ public final class UserReference {
      *
      * @return The Reference Type of this User Reference.
      */
+    @ExposeScripting
     public ReferenceType getReferenceType() {
         return referenceType;
     }
@@ -85,6 +87,7 @@ public final class UserReference {
      *
      * @return The encoded user ID as a long form snowflake.
      */
+    @ExposeScripting
     public long getSnowflakeData() {
         return snowflakeData;
     }
@@ -105,6 +108,7 @@ public final class UserReference {
      *
      * @return The encoded String reference,
      */
+    @ExposeScripting
     public String getStringData() {
         return stringData;
     }
@@ -125,6 +129,7 @@ public final class UserReference {
      *
      * @return The string "Anonymous".
      */
+    @ExposeScripting
     public String getAnonymousData() {
         return anonymousData;
     }
@@ -136,6 +141,7 @@ public final class UserReference {
      * An ID if the user is a snowflake and is not in the current guild,
      * A message if the user is anonymous or String.
      */
+    @ExposeScripting
     public String resolveReference() {
         switch (getReferenceType()) {
             case SNOWFLAKE:
@@ -202,6 +208,7 @@ public final class UserReference {
          *
          * @return The name of this enum entry, as a String.
          */
+        @ExposeScripting
         public String getName() {
             return this.name;
         }

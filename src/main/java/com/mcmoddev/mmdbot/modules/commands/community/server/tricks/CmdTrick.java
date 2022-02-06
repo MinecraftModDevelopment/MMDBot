@@ -43,6 +43,7 @@ public final class CmdTrick extends SlashCommand {
         final List<SlashCommand> child = new ArrayList<>();
         child.add(new CmdRunTrick());
         child.add(new CmdRemoveTrick());
+        child.add(new CmdRawTrick());
         Tricks.getTrickTypes().entrySet().stream().map(entry -> new CmdAddTrick(entry.getKey(), entry.getValue())).forEach(child::add);
         child.add(new CmdListTricks());
         guildOnly = false;
@@ -62,6 +63,9 @@ public final class CmdTrick extends SlashCommand {
         }
         if (Objects.equals(event.getSubcommandName(), "remove")) {
             children[1].onAutoComplete(event);
+        }
+        if (Objects.equals(event.getSubcommandName(), "raw")) {
+            children[2].onAutoComplete(event);
         }
     }
 }

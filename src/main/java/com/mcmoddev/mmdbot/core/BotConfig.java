@@ -216,6 +216,13 @@ public final class BotConfig {
     }
 
     /**
+     * @return If tricks should be run using prefix commands
+     */
+    public boolean prefixTricksEnabled() {
+        return config.getOrElse("commands.prefix_tricks_enabled", false);
+    }
+
+    /**
      * Returns whether the given command is enabled for the given guild.
      * <p>
      * If there is no config entry for the command and guild, this will default to returning the result of

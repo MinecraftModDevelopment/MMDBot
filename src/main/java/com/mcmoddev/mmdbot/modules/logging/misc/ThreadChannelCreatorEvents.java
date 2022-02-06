@@ -21,9 +21,11 @@
 package com.mcmoddev.mmdbot.modules.logging.misc;
 
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.core.TaskScheduler;
 import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -32,10 +34,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class ThreadChannelCreatorEvents extends ListenerAdapter {
+
+    private final Map<Type, List<Long>> caches = new HashMap<>();
 
     @Override
     public void onMessageReceived(@NotNull final MessageReceivedEvent event) {
@@ -65,14 +74,19 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
 
     private void createThread(final MessageReceivedEvent event, final Type threadType) {
         final var author = event.getMember();
+        if (caches.computeIfAbsent(threadType, k -> new ArrayList<>()).contains(author.getIdLong())) {
+            return;
+        }
         final var threadTypeStr = threadType.toString();
         event.getMessage().createThreadChannel("Discussion of %s’s %s".formatted(author.getUser().getName(), threadTypeStr)).queue(thread -> {
             thread.addThreadMember(author).queue($ -> {
                 thread.sendMessageEmbeds(new EmbedBuilder().setTitle("%s discussion thread".formatted(Utils.uppercaseFirstLetter(threadTypeStr)))
-                    .setTimestamp(Instant.now()).setColor(Color.CYAN).setDescription("""
+                        .setTimestamp(Instant.now()).setColor(Color.CYAN).setDescription("""
                             **This thread is intended for discussing %s's %s. The %s:**
                             %s""".formatted(author.getAsMention(), threadTypeStr, threadTypeStr, event.getMessage().getContentRaw())).build())
                     .queue(msg -> msg.pin().queue());
+                caches.computeIfAbsent(threadType, k -> new ArrayList<>()).add(author.getIdLong());
+                TaskScheduler.scheduleTask(() -> caches.get(threadType).remove(author.getIdLong()), 100, TimeUnit.MINUTES);
             });
         });
     }
@@ -84,9 +98,9 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
         if (thread != null) {
             thread.sendMessageEmbeds(new EmbedBuilder()
                     .setColor(Color.CYAN).setDescription("""
-                **%s's original %s has been edited. New content:**
-                %s""".formatted(author.getAsMention(), threadTypeStr, event.getMessage().getContentRaw()))
-                .setTitle(Utils.uppercaseFirstLetter(threadTypeStr) + " edited!").setTimestamp(Instant.now()).build())
+                        **%s's original %s has been edited. New content:**
+                        %s""".formatted(author.getAsMention(), threadTypeStr, event.getMessage().getContentRaw()))
+                    .setTitle(Utils.uppercaseFirstLetter(threadTypeStr) + " edited!").setTimestamp(Instant.now()).build())
                 .queue(ms -> ms.pin().queue());
         }
     }
