@@ -73,6 +73,7 @@ public final class StringQuote extends Quote {
     }
 
     @Override
+    @ExposeScripting
     public String getQuoteText() {
         return data;
     }

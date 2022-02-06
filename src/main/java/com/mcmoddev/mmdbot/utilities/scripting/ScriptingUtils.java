@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.utilities.scripting;
 import com.google.common.collect.Lists;
 import com.mcmoddev.mmdbot.modules.logging.misc.ScamDetector;
 import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.utilities.quotes.IQuote;
 import com.mcmoddev.mmdbot.utilities.quotes.QuoteList;
 import com.mcmoddev.mmdbot.utilities.scripting.object.ScriptEmbed;
 import com.mcmoddev.mmdbot.utilities.scripting.object.ScriptRegion;
@@ -88,7 +89,8 @@ public final class ScriptingUtils {
             .allowAccessAnnotatedBy(ExposeScripting.class)
             .allowArrayAccess(true)
             .allowListAccess(true)
-            .allowMapAccess(true);
+            .allowMapAccess(true)
+            .allowImplementationsAnnotatedBy(ExposeScripting.class);
 
         HOST_ACCESS = hostAccess.build();
     }
@@ -282,7 +284,7 @@ public final class ScriptingUtils {
         });
         context.setFunction("getQuotes", args -> {
             validateArgs(args, 0);
-            return IntStream.range(0, QuoteList.getQuoteSlot()).mapToObj(QuoteList::getQuote).toList();
+            return IntStream.range(0, QuoteList.getQuoteSlot()).mapToObj(i -> (IQuote) QuoteList.getQuote(i)).toList();
         });
         context.setFunction("getMembers", a -> guild.getMembers().stream().map(m -> createMember(m).toProxyObject()).toList());
         context.setFunction("getRoles", a -> guild.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList());
