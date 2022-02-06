@@ -31,6 +31,7 @@ import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.validateArg
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.core.TaskScheduler;
 import com.mcmoddev.mmdbot.modules.commands.DismissListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.scripting.ScriptingContext;
@@ -51,6 +52,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class CmdEvaluate extends SlashCommand {
 
@@ -66,7 +68,7 @@ public class CmdEvaluate extends SlashCommand {
     protected void execute(final SlashCommandEvent event) {
         event.deferReply().queue(hook -> {
             try {
-                ScriptingUtils.evaluate(Utils.getOrEmpty(event, "script"), createContext(new EvaluationContext() {
+                final var context = createContext(new EvaluationContext() {
                     @Override
                     public Guild getGuild() {
                         return event.getGuild();
@@ -103,7 +105,17 @@ public class CmdEvaluate extends SlashCommand {
                         hook.editOriginal(new MessageBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
                             .setActionRow(DismissListener.createDismissButton(getUser())).queue();
                     }
-                }));
+                });
+
+                final var evalThread = new Thread(() -> ScriptingUtils.evaluate(Utils.getOrEmpty(event, "script"), context), "ScriptEvaluation");
+                evalThread.setDaemon(true);
+                evalThread.start();
+                TaskScheduler.scheduleTask(() -> {
+                    if (evalThread.isAlive()) {
+                        evalThread.interrupt();
+                        hook.editOriginal("Evaluation was timed out!").queue();
+                    }
+                }, 4, TimeUnit.SECONDS);
             } catch (ScriptingUtils.ScriptingException e) {
                 hook.editOriginal("There was an exception evaluating: " + e.getLocalizedMessage()).queue();
             }
@@ -186,7 +198,16 @@ public class CmdEvaluate extends SlashCommand {
                     event.getTextChannel().editMessageEmbedsById(msgId, embeds).queue();
                 });
             }
-            ScriptingUtils.evaluate(script, context);
+            final String finalScript = script;
+            final var evalThread = new Thread(() -> ScriptingUtils.evaluate(finalScript, context), "ScriptEvaluation");
+            evalThread.setDaemon(true);
+            evalThread.start();
+            TaskScheduler.scheduleTask(() -> {
+                if (evalThread.isAlive()) {
+                    evalThread.interrupt();
+                    event.getMessage().reply("Evaluation was timed out!").queue();
+                }
+            }, 4, TimeUnit.SECONDS);
         } catch (ScriptingUtils.ScriptingException e) {
             event.getMessage().reply("There was an exception evaluating: " + e.getLocalizedMessage()).queue();
         }
