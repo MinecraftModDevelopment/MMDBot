@@ -18,20 +18,36 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.utilities.scripting;
+package com.mcmoddev.mmdbot.utilities.scripting.object;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.mcmoddev.mmdbot.utilities.scripting.ExposeScripting;
+import net.dv8tion.jda.api.Region;
 
-/**
- * Annotate a member with this annotation in order to expose it to a scripting context, if the object
- * gets into one.
- */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD, ElementType.CONSTRUCTOR})
-public @interface ExposeScripting {
+public final class ScriptRegion {
+
+    @ExposeScripting
+    public final String key;
+    @ExposeScripting
+    public final String name;
+    @ExposeScripting
+    public final String emoji;
+
+    private final boolean isVip;
+
+    public ScriptRegion(Region region) {
+        this.key = region.getKey();
+        this.name = region.getName();
+        this.emoji = region.getEmoji();
+        this.isVip = region.isVip();
+    }
+
+    @ExposeScripting
+    public boolean isVip() {
+        return isVip;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

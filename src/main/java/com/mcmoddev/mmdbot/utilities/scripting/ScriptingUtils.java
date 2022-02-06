@@ -25,6 +25,7 @@ import com.mcmoddev.mmdbot.modules.logging.misc.ScamDetector;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.quotes.QuoteList;
 import com.mcmoddev.mmdbot.utilities.scripting.object.ScriptEmbed;
+import com.mcmoddev.mmdbot.utilities.scripting.object.ScriptRegion;
 import com.mcmoddev.mmdbot.utilities.scripting.object.ScriptRoleIcon;
 import com.mcmoddev.mmdbot.utilities.tricks.TrickContext;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
@@ -51,6 +52,7 @@ import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.proxy.ProxyExecutable;
 
 import javax.annotation.Nullable;
+import javax.script.ScriptException;
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,6 +81,18 @@ public final class ScriptingUtils {
         .option("log.level", "OFF")
         .build();
 
+    public static final HostAccess HOST_ACCESS;
+
+    static {
+        final var hostAccess = HostAccess.newBuilder()
+            .allowAccessAnnotatedBy(ExposeScripting.class)
+            .allowArrayAccess(true)
+            .allowListAccess(true)
+            .allowMapAccess(true);
+
+        HOST_ACCESS = hostAccess.build();
+    }
+
     /**
      * Execute any script inside this thread pool if you think the script will be heavy. <br>
      * <b>BY DEFAULT, {@link #evaluate(String, ScriptingContext)} calls are NOT executed in another thread.</b>
@@ -97,14 +111,7 @@ public final class ScriptingUtils {
             .allowEnvironmentAccess(EnvironmentAccess.NONE)
             .allowHostClassLoading(false)
             .allowValueSharing(true)
-            .allowHostAccess(
-                HostAccess.newBuilder()
-                    .allowArrayAccess(true)
-                    .allowListAccess(true)
-                    .allowMapAccess(true)
-                    .allowAccessAnnotatedBy(ExposeScripting.class)
-                    .build()
-            )
+            .allowHostAccess(HOST_ACCESS)
             .build()) {
 
             final var bindings = engine.getBindings("js");
@@ -113,6 +120,13 @@ public final class ScriptingUtils {
             bindings.removeMember("eval");
             bindings.removeMember("exit");
             bindings.removeMember("quit");
+
+            bindings.putMember("exit", functionObject(args -> {
+                throw new IllegalCallerException("GG! You tried stopping me!");
+            }));
+            bindings.putMember("quit", functionObject(args -> {
+                throw new IllegalCallerException("GG! You tried stopping me!");
+            }));
 
             context.addInstantiatable(new String[]{"Embed", "EmbedBuilder"}, args -> {
                 validateArgs(args, 0, 2);
@@ -243,7 +257,7 @@ public final class ScriptingUtils {
         context.set("splashId", guild.getSplashId());
         context.set("memberCount", guild.getMemberCount());
         context.setFunction("getRegions", args -> guild.retrieveRegions().complete()
-            .stream().map(r -> createRegion(r).toProxyObject()).toList());
+            .stream().map(ScriptRegion::new).toList());
         context.setFunction("getOwner", a -> guild.getOwner() == null ? null :
             createMember(guild.getOwner()).toProxyObject());
         context.setFunction("getMemberById", args -> {
@@ -278,24 +292,22 @@ public final class ScriptingUtils {
     }
 
     public static ScriptingContext createActivity(Activity activity) {
-        final var context = ScriptingContext.of("Activity");
-        context.set("name", activity.getName());
-        context.set("url", activity.getUrl());
-        context.set("type", activity.getType().toString());
-        context.set("emoji", activity.getEmoji() == null ? null : activity.getEmoji().getAsMention());
-        context.setFunction("isRich", i -> activity.isRich());
-        context.setFunction("asRich", i -> activity.isRich() ? createActivityRich(activity.asRichPresence()).toProxyObject() : null);
-        return context;
+        return ScriptingContext.of("Activity")
+            .set("name", activity.getName())
+            .set("url", activity.getUrl())
+            .set("type", activity.getType().toString())
+            .set("emoji", activity.getEmoji() == null ? null : activity.getEmoji().getAsMention())
+            .setFunction("isRich", i -> activity.isRich())
+            .setFunction("asRich", i -> activity.isRich() ? createActivityRich(activity.asRichPresence()).toProxyObject() : null);
     }
 
     public static ScriptingContext createActivityRich(RichPresence activity) {
-        final var context = ScriptingContext.of("RichPresence");
-        context.flatAdd(createActivity(activity));
-        context.set("details", activity.getDetails());
-        context.set("applicationId", activity.getApplicationId());
-        context.set("flags", activity.getFlags());
-        context.set("currentPartySize", activity.getParty() != null ? activity.getParty().getSize() : null);
-        return context;
+        return ScriptingContext.of("RichPresence")
+            .flatAdd(createActivity(activity))
+            .set("details", activity.getDetails())
+            .set("applicationId", activity.getApplicationId())
+            .set("flags", activity.getFlags())
+            .set("currentPartySize", activity.getParty() != null ? activity.getParty().getSize() : null);
     }
 
     public static ScriptingContext createMember(Member member) {
@@ -331,38 +343,27 @@ public final class ScriptingUtils {
     }
 
     public static ScriptingContext createRole(Role role) {
-        final var context = ScriptingContext.of("Role", role);
-        context.set("name", role.getName());
-        context.set("color", role.getColorRaw());
-        context.set("timeCreated", role.getTimeCreated());
-        context.setFunction("getGuild", a -> createGuild(role.getGuild()));
-        context.setFunction("isHoisted", a -> role.isHoisted());
-        context.setFunction("isPublicRole", a -> role.isPublicRole());
-        context.setFunction("isManaged", a -> role.isManaged());
-        context.setFunction("isMentionable", a -> role.isMentionable());
-        context.setFunction("getRoleIcon", a -> role.getIcon() == null ? null : new ScriptRoleIcon(role.getIcon()));
-        return context;
+        return ScriptingContext.of("Role", role)
+            .set("name", role.getName())
+            .set("color", role.getColorRaw())
+            .set("timeCreated", role.getTimeCreated())
+            .setFunction("getGuild", a -> createGuild(role.getGuild()))
+            .setFunction("isHoisted", a -> role.isHoisted())
+            .setFunction("isPublicRole", a -> role.isPublicRole())
+            .setFunction("isManaged", a -> role.isManaged())
+            .setFunction("isMentionable", a -> role.isMentionable())
+            .setFunction("getRoleIcon", a -> role.getIcon() == null ? null : new ScriptRoleIcon(role.getIcon()));
     }
 
     public static ScriptingContext createEmote(Emote emote) {
-        final var context = ScriptingContext.of("Emote", emote);
-        context.set("name", emote.getName());
-        context.set("url", emote.getImageUrl());
-        context.setFunction("isAnimated", args -> emote.isAnimated());
-        context.setFunction("canProvideRoles", args -> emote.canProvideRoles());
-        context.setFunction("isAvailable", args -> emote.isAvailable());
-        context.setFunction("getRoles", args -> emote.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList());
-        context.setFunction("getGuild", args -> emote.getGuild() == null ? null : createGuild(emote.getGuild()));
-        return context;
-    }
-
-    public static ScriptingContext createRegion(Region region) {
-        final var context = ScriptingContext.of("Region");
-        context.set("key", region.getKey());
-        context.set("name", region.getName());
-        context.set("emoji", region.getEmoji());
-        context.setFunction("isVip", a -> region.isVip());
-        return context;
+        return ScriptingContext.of("Emote", emote)
+            .set("name", emote.getName())
+            .set("url", emote.getImageUrl())
+            .setFunction("isAnimated", args -> emote.isAnimated())
+            .setFunction("canProvideRoles", args -> emote.canProvideRoles())
+            .setFunction("isAvailable", args -> emote.isAvailable())
+            .setFunction("getRoles", args -> emote.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList())
+            .setFunction("getGuild", args -> emote.getGuild() == null ? null : createGuild(emote.getGuild()));
     }
 
     public static ProxyExecutable functionObject(Function<List<Value>, Object> function) {
