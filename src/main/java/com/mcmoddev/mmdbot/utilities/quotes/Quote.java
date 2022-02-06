@@ -77,7 +77,6 @@ public abstract class Quote implements IQuote {
      * @return The person or object being quoted.
      */
     @Override
-    @ExposeScripting
     public UserReference getQuoteAuthor() {
         return creator;
     }
@@ -96,7 +95,6 @@ public abstract class Quote implements IQuote {
      * @return The person or object that created this quote.
      */
     @Override
-    @ExposeScripting
     public UserReference getQuotee() {
         return quotee;
     }
@@ -115,7 +113,6 @@ public abstract class Quote implements IQuote {
      * @return The integer representing where in the list the Quote is.
      */
     @Override
-    @ExposeScripting
     public int getID() {
         return id;
     }
