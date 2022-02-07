@@ -207,7 +207,9 @@ public class CmdInvite extends SlashCommand {
         protected EmbedBuilder getEmbed(final int from) {
             return new EmbedBuilder()
                 .setTitle("Invites")
-                .setDescription(withExtension(Invites::getAllNames)
+                .setDescription(withExtension(i -> i.getAllNames().stream()
+                    .map(n -> Utils.makeHyperlink(Utils.uppercaseFirstLetter(n),
+                        withExtension(db -> db.getLink(n)).get())).toList())
                     .subList(from, Math.min(from + items_per_page, maximum))
                     .stream()
                     .reduce("", (a, b) -> a + "\n" + b))

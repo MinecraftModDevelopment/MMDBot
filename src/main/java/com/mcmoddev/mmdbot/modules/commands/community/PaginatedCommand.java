@@ -102,7 +102,7 @@ public abstract class PaginatedCommand extends SlashCommand {
      * @return the ReplyAction
      */
     protected ReplyCallbackAction createPaginatedMessage(SlashCommandEvent event) {
-        var reply = event.replyEmbeds(getEmbed(0).build());
+        var reply = event.deferReply().addEmbeds(getEmbed(0).build());
         var buttons = createScrollButtons(0);
         if (buttons.length > 0) {
             reply.addActionRow(buttons);
