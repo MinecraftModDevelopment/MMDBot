@@ -57,7 +57,9 @@ public interface TrickContext {
     String[] getArgs();
 
     void reply(String content);
+
     void replyEmbeds(MessageEmbed... embeds);
+
     void replyWithMessage(Message message);
 
     record Slash(SlashCommandEvent event, InteractionHook hook, String[] args) implements TrickContext {

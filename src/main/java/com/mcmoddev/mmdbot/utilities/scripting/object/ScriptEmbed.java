@@ -20,12 +20,13 @@
  */
 package com.mcmoddev.mmdbot.utilities.scripting.object;
 
-import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.validateArgs;
 import com.mcmoddev.mmdbot.utilities.scripting.ScriptingContext;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.util.LinkedHashMap;
+
+import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.validateArgs;
 
 public class ScriptEmbed extends ScriptingContext {
 

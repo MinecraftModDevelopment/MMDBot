@@ -20,14 +20,6 @@
  */
 package com.mcmoddev.mmdbot.modules.commands.community;
 
-import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.ALLOWED_MENTIONS;
-import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.createGuild;
-import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.createMember;
-import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.createMessageChannel;
-import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.createTextChannel;
-import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.createUser;
-import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.getEmbedFromValue;
-import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.validateArgs;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
@@ -54,12 +46,21 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.ALLOWED_MENTIONS;
+import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.createGuild;
+import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.createMember;
+import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.createMessageChannel;
+import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.createTextChannel;
+import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.createUser;
+import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.getEmbedFromValue;
+import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.validateArgs;
+
 public class CmdEvaluate extends SlashCommand {
 
     public CmdEvaluate() {
         guildOnly = true;
         name = "evaluate";
-        aliases = new String[] {"eval"};
+        aliases = new String[]{"eval"};
         help = "Evaluates the given script";
         options = List.of(new OptionData(OptionType.STRING, "script", "The script to evaluate.").setRequired(true));
     }
@@ -245,16 +246,21 @@ public class CmdEvaluate extends SlashCommand {
     interface EvaluationContext {
         @Nullable
         Guild getGuild();
+
         @Nullable
         TextChannel getTextChannel();
+
         @Nonnull
         MessageChannel getMessageChannel();
+
         @Nullable
         Member getMember();
+
         @Nonnull
         User getUser();
 
         void reply(String content);
+
         void replyEmbeds(MessageEmbed... embeds);
     }
 }

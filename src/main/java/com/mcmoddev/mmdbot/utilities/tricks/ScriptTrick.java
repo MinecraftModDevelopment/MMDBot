@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.utilities.tricks;
 
-import static com.mcmoddev.mmdbot.utilities.Utils.getOrEmpty;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -28,6 +27,8 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static com.mcmoddev.mmdbot.utilities.Utils.getOrEmpty;
 
 public final class ScriptTrick implements Trick {
 

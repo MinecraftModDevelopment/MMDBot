@@ -74,7 +74,7 @@ public class ScriptingContext {
             map.put(key, context.toProxyObject());
         } else if (value instanceof List list) {
             final var objects = new ArrayList<>();
-            for (var obj : list ){
+            for (var obj : list) {
                 if (obj instanceof ScriptingContext context) {
                     objects.add(context);
                 } else {
