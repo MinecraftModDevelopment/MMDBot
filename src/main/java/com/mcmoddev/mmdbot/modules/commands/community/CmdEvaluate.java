@@ -68,69 +68,6 @@ public class CmdEvaluate extends SlashCommand {
     @Override
     protected void execute(final SlashCommandEvent event) {
         event.deferReply().queue(hook -> {
-            try {
-                final var context = createContext(new EvaluationContext() {
-                    @Override
-                    public Guild getGuild() {
-                        return event.getGuild();
-                    }
-
-                    @Override
-                    public TextChannel getTextChannel() {
-                        return event.getTextChannel();
-                    }
-
-                    @Override
-                    public @NotNull MessageChannel getMessageChannel() {
-                        return event.getChannel();
-                    }
-
-                    @Override
-                    public Member getMember() {
-                        return event.getMember();
-                    }
-
-                    @Override
-                    public @NotNull User getUser() {
-                        return event.getUser();
-                    }
-
-                    @Override
-                    public void reply(final String content) {
-                        hook.editOriginal(new MessageBuilder(content).setAllowedMentions(ALLOWED_MENTIONS).build())
-                            .setActionRow(DismissListener.createDismissButton(getUser())).queue();
-                    }
-
-                    @Override
-                    public void replyEmbeds(final MessageEmbed... embeds) {
-                        hook.editOriginal(new MessageBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
-                            .setActionRow(DismissListener.createDismissButton(getUser())).queue();
-                    }
-                });
-
-                final var evalThread = new Thread(() -> ScriptingUtils.evaluate(Utils.getOrEmpty(event, "script"), context), "ScriptEvaluation");
-                evalThread.setDaemon(true);
-                evalThread.start();
-                TaskScheduler.scheduleTask(() -> {
-                    if (evalThread.isAlive()) {
-                        evalThread.interrupt();
-                        hook.editOriginal("Evaluation was timed out!").queue();
-                    }
-                }, 4, TimeUnit.SECONDS);
-            } catch (ScriptingUtils.ScriptingException e) {
-                hook.editOriginal("There was an exception evaluating: " + e.getLocalizedMessage()).queue();
-            }
-        });
-    }
-
-    @Override
-    protected void execute(final CommandEvent event) {
-        var script = event.getArgs();
-        if (script.contains("```js") && script.endsWith("```")) {
-            script = script.substring(script.indexOf("```js") + 5);
-            script = script.substring(0, script.lastIndexOf("```"));
-        }
-        try {
             final var context = createContext(new EvaluationContext() {
                 @Override
                 public Guild getGuild() {
@@ -154,64 +91,133 @@ public class CmdEvaluate extends SlashCommand {
 
                 @Override
                 public @NotNull User getUser() {
-                    return event.getAuthor();
+                    return event.getUser();
                 }
 
                 @Override
                 public void reply(final String content) {
-                    event.getMessage().reply(new MessageBuilder(content).setAllowedMentions(ALLOWED_MENTIONS).build())
-                        .setActionRow(DismissListener.createDismissButton(getUser())).mentionRepliedUser(false).queue();
+                    hook.editOriginal(new MessageBuilder(content).setAllowedMentions(ALLOWED_MENTIONS).build())
+                        .setActionRow(DismissListener.createDismissButton(getUser())).queue();
                 }
 
                 @Override
                 public void replyEmbeds(final MessageEmbed... embeds) {
-                    event.getMessage().reply(new MessageBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
-                        .setActionRow(DismissListener.createDismissButton(getUser())).mentionRepliedUser(false).queue();
+                    hook.editOriginal(new MessageBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
+                        .setActionRow(DismissListener.createDismissButton(getUser())).queue();
                 }
             });
-            final var canEditMessage = event.getGuild() != null && event.getMember().hasPermission(Permission.MESSAGE_MANAGE);
-            final var hasMsgReference = event.getMessage().getMessageReference() != null;
-            if (canEditMessage && event.getTextChannel() != null) {
-                context.setFunctionVoid("editMessage", args -> {
-                    if (hasMsgReference) {
-                        validateArgs(args, 1);
-                    } else {
-                        validateArgs(args, 2);
-                    }
-                    final var msgId = hasMsgReference ? event.getMessage().getMessageReference().getMessageIdLong() :
-                        args.get(0).asLong();
-                    event.getTextChannel().editMessageById(msgId, args.get(hasMsgReference ? 0 : 1).asString()).queue();
-                });
-                context.setFunctionVoid("editMessageEmbeds", args -> {
-                    if (hasMsgReference) {
-                        if (args.size() < 1) {
-                            throw new IllegalArgumentException("Not enough arguments were provided!");
-                        }
-                    } else {
-                        if (args.size() < 2) {
-                            throw new IllegalArgumentException("Not enough arguments were provided!");
-                        }
-                    }
-                    final var msgId = hasMsgReference ? event.getMessage().getMessageReference().getMessageIdLong() :
-                        args.get(0).asLong();
-                    final var embeds = args.subList(hasMsgReference ? 0 : 1, args.size() - 1).stream().map(ScriptingUtils::getEmbedFromValue)
-                        .filter(Objects::nonNull).toArray(MessageEmbed[]::new);
-                    event.getTextChannel().editMessageEmbedsById(msgId, embeds).queue();
-                });
-            }
-            final String finalScript = script;
-            final var evalThread = new Thread(() -> ScriptingUtils.evaluate(finalScript, context), "ScriptEvaluation");
+
+            final var evalThread = new Thread(() -> {
+                try {
+                    ScriptingUtils.evaluate(Utils.getOrEmpty(event, "script"), context);
+                } catch (ScriptingUtils.ScriptingException exception) {
+                    hook.editOriginal("There was an exception evaluating "
+                        + exception.getLocalizedMessage()).queue();
+                }
+            }, "ScriptEvaluation");
             evalThread.setDaemon(true);
             evalThread.start();
             TaskScheduler.scheduleTask(() -> {
                 if (evalThread.isAlive()) {
                     evalThread.interrupt();
-                    event.getMessage().reply("Evaluation was timed out!").queue();
+                    hook.editOriginal("Evaluation was timed out!").queue();
                 }
             }, 4, TimeUnit.SECONDS);
-        } catch (ScriptingUtils.ScriptingException e) {
-            event.getMessage().reply("There was an exception evaluating: " + e.getLocalizedMessage()).queue();
+        });
+    }
+
+    @Override
+    protected void execute(final CommandEvent event) {
+        var script = event.getArgs();
+        if (script.contains("```js") && script.endsWith("```")) {
+            script = script.substring(script.indexOf("```js") + 5);
+            script = script.substring(0, script.lastIndexOf("```"));
         }
+        final var context = createContext(new EvaluationContext() {
+            @Override
+            public Guild getGuild() {
+                return event.getGuild();
+            }
+
+            @Override
+            public TextChannel getTextChannel() {
+                return event.getTextChannel();
+            }
+
+            @Override
+            public @NotNull MessageChannel getMessageChannel() {
+                return event.getChannel();
+            }
+
+            @Override
+            public Member getMember() {
+                return event.getMember();
+            }
+
+            @Override
+            public @NotNull User getUser() {
+                return event.getAuthor();
+            }
+
+            @Override
+            public void reply(final String content) {
+                event.getMessage().reply(new MessageBuilder(content).setAllowedMentions(ALLOWED_MENTIONS).build())
+                    .setActionRow(DismissListener.createDismissButton(getUser())).mentionRepliedUser(false).queue();
+            }
+
+            @Override
+            public void replyEmbeds(final MessageEmbed... embeds) {
+                event.getMessage().reply(new MessageBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
+                    .setActionRow(DismissListener.createDismissButton(getUser())).mentionRepliedUser(false).queue();
+            }
+        });
+        final var canEditMessage = event.getGuild() != null && event.getMember().hasPermission(Permission.MESSAGE_MANAGE);
+        final var hasMsgReference = event.getMessage().getMessageReference() != null;
+        if (canEditMessage && event.getTextChannel() != null) {
+            context.setFunctionVoid("editMessage", args -> {
+                if (hasMsgReference) {
+                    validateArgs(args, 1);
+                } else {
+                    validateArgs(args, 2);
+                }
+                final var msgId = hasMsgReference ? event.getMessage().getMessageReference().getMessageIdLong() :
+                    args.get(0).asLong();
+                event.getTextChannel().editMessageById(msgId, args.get(hasMsgReference ? 0 : 1).asString()).queue();
+            });
+            context.setFunctionVoid("editMessageEmbeds", args -> {
+                if (hasMsgReference) {
+                    if (args.size() < 1) {
+                        throw new IllegalArgumentException("Not enough arguments were provided!");
+                    }
+                } else {
+                    if (args.size() < 2) {
+                        throw new IllegalArgumentException("Not enough arguments were provided!");
+                    }
+                }
+                final var msgId = hasMsgReference ? event.getMessage().getMessageReference().getMessageIdLong() :
+                    args.get(0).asLong();
+                final var embeds = args.subList(hasMsgReference ? 0 : 1, args.size() - 1).stream().map(ScriptingUtils::getEmbedFromValue)
+                    .filter(Objects::nonNull).toArray(MessageEmbed[]::new);
+                event.getTextChannel().editMessageEmbedsById(msgId, embeds).queue();
+            });
+        }
+        final String finalScript = script;
+        final var evalThread = new Thread(() -> {
+            try {
+                ScriptingUtils.evaluate(finalScript, context);
+            } catch (ScriptingUtils.ScriptingException exception) {
+                event.getMessage().reply("There was an exception evaluating: "
+                    + exception.getLocalizedMessage()).queue();
+            }
+        }, "ScriptEvaluation");
+        evalThread.setDaemon(true);
+        evalThread.start();
+        TaskScheduler.scheduleTask(() -> {
+            if (evalThread.isAlive()) {
+                evalThread.interrupt();
+                event.getMessage().reply("Evaluation was timed out!").queue();
+            }
+        }, 4, TimeUnit.SECONDS);
     }
 
     public static ScriptingContext createContext(EvaluationContext evalContext) {

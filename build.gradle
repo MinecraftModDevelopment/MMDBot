@@ -192,7 +192,7 @@ tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
 
 checkstyle {
   ignoreFailures = true
-  toolVersion = '8.45.1'
+  toolVersion = '9.1'
   showViolations = false
 }
 
