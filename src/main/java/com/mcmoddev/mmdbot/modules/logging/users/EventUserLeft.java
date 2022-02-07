@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.modules.logging.users;
 
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.modules.logging.misc.EventReactionAdded;
 import com.mcmoddev.mmdbot.utilities.console.MMDMarkers;
 import com.mcmoddev.mmdbot.utilities.database.dao.PersistedRoles;
 import com.mcmoddev.mmdbot.utilities.database.dao.UserFirstJoins;
@@ -73,7 +74,9 @@ public final class EventUserLeft extends ListenerAdapter {
             List<Role> roles = null;
             if (member != null) {
                 roles = member.getRoles();
-                final List<Long> roleIds = roles.stream().map(ISnowflake::getIdLong).toList();
+                // Roles from a role panel should be ignored
+                final List<Long> roleIds = roles.stream().map(ISnowflake::getIdLong)
+                    .filter(id -> !EventReactionAdded.REACTION_ROLES.contains(id)).toList();
                 MMDBot.database().useExtension(PersistedRoles.class,
                     persist -> persist.insert(user.getIdLong(), roleIds));
             } else {
