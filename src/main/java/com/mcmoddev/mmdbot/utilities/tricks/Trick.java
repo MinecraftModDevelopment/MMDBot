@@ -71,7 +71,6 @@ public interface Trick {
          * @return arg names
          * @deprecated use slash commands where possible
          */
-        @Deprecated
         default List<String> getArgNames() {
             return getArgs().stream().map(OptionData::getName).toList();
         }
@@ -83,7 +82,6 @@ public interface Trick {
          * @return the trick
          * @deprecated use slash commands when possible
          */
-        @Deprecated
         T createFromArgs(String args);
 
         /**

@@ -24,6 +24,7 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.core.TaskScheduler;
+import com.mcmoddev.mmdbot.gist.GistUtils;
 import com.mcmoddev.mmdbot.modules.commands.DismissListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.scripting.ScriptingContext;
@@ -43,11 +44,13 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -139,6 +142,18 @@ public class CmdEvaluate extends SlashCommand {
         if (script.contains("```js") && script.endsWith("```")) {
             script = script.substring(script.indexOf("```js") + 5);
             script = script.substring(0, script.lastIndexOf("```"));
+        }
+        if (!event.getMessage().getAttachments().isEmpty()) {
+            for (var attach : event.getMessage().getAttachments()) {
+                if (Objects.equals(attach.getFileExtension(), "js")) {
+                    try {
+                        script = GistUtils.readInputStream(attach.retrieveInputStream().get());
+                        break;
+                    } catch (IOException | InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
         final var context = createContext(new EvaluationContext() {
             @Override

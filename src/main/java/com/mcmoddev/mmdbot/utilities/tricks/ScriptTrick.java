@@ -66,7 +66,7 @@ public final class ScriptTrick implements Trick {
         return script;
     }
 
-    static class Type implements TrickType<ScriptTrick> {
+    public static class Type implements TrickType<ScriptTrick> {
 
         @Override
         public Class<ScriptTrick> getClazz() {
