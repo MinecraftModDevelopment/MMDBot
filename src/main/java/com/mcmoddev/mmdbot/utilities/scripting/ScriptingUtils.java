@@ -468,7 +468,7 @@ public final class ScriptingUtils {
         context.setFunction("random", executeIfArgsValid(a -> Math.random(), 0));
         context.setFunction("sqrt", executeIfArgsValid(a -> Math.sqrt(a.get(0).asDouble()), 1));
         context.setFunction("floor", executeIfArgsValid(a -> Math.floor(a.get(0).asDouble()), 1));
-        context.setFunction("ceil", executeIfArgsValid(a -> Math.ceil(a.get(0).asDouble()), 1));
+        context.setFunction("ceil", a -> Math.ceil(a.get(0).asDouble()));
         context.setFunction("abs", executeIfArgsValid(a -> Math.abs(a.get(0).asDouble()), 1));
         context.setFunction("sin", executeIfArgsValid(a -> Math.sin(a.get(0).asDouble()), 1));
         context.setFunction("cos", executeIfArgsValid(a -> Math.cos(a.get(0).asDouble()), 1));
