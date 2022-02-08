@@ -176,7 +176,7 @@ public final class ScriptingUtils {
                 }
             });
             context.setFunctionVoid("sendEmbeds", args -> channel.sendMessageEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
-                .filter(Objects::nonNull).toList()).allowedMentions(ALLOWED_MENTIONS).queue());
+                .filter(Objects::nonNull).limit(3).toList()).allowedMentions(ALLOWED_MENTIONS).queue());
         }
         return context;
     }
@@ -230,7 +230,7 @@ public final class ScriptingUtils {
         if (canSendEmbed) {
             context.setFunctionVoid("replyEmbeds", args -> {
                 trickContext.replyEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
-                    .filter(Objects::nonNull).toArray(MessageEmbed[]::new));
+                    .filter(Objects::nonNull).limit(3).toArray(MessageEmbed[]::new));
             });
             context.setFunctionVoid("replyEmbed", args -> {
                 validateArgs(args, 1);

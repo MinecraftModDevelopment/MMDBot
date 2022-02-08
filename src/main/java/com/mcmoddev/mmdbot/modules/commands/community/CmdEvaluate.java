@@ -247,7 +247,7 @@ public class CmdEvaluate extends SlashCommand {
                 }
             })
             .setFunctionVoid("sendEmbeds", args -> executeAndAddColldown(evalContext.getMessageChannel(), c -> c.sendMessageEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
-                .filter(Objects::nonNull).toList()).allowedMentions(ALLOWED_MENTIONS).queue())));
+                .filter(Objects::nonNull).limit(3).toList()).allowedMentions(ALLOWED_MENTIONS).queue())));
         context.set("textChannel", createTextChannel(evalContext.getTextChannel(), true)
             .setFunctionVoid("sendMessage", args -> {
                 validateArgs(args, 1);
@@ -270,7 +270,7 @@ public class CmdEvaluate extends SlashCommand {
         if (canSendEmbed) {
             context.setFunctionVoid("replyEmbeds", args -> {
                 executeAndAddColldown(evalContext.getMessageChannel(), c -> evalContext.replyEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
-                    .filter(Objects::nonNull).toArray(MessageEmbed[]::new)));
+                    .filter(Objects::nonNull).limit(3).toArray(MessageEmbed[]::new)));
             });
             context.setFunctionVoid("replyEmbed", args -> {
                 validateArgs(args, 1);
