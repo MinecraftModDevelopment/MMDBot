@@ -245,8 +245,8 @@ public class CmdEvaluate extends SlashCommand {
     public static ScriptingContext createContext(EvaluationContext evalContext) {
         final var context = ScriptingContext.of("Evaluation");
         context.set("guild", evalContext.getGuild() == null ? null : createGuild(evalContext.getGuild()));
-        context.set("member", evalContext.getMember() == null ? null : createMember(evalContext.getMember()));
-        context.set("user", createUser(evalContext.getUser()));
+        context.set("member", evalContext.getMember() == null ? null : createMember(evalContext.getMember(), true));
+        context.set("user", createUser(evalContext.getUser(), true));
         final var canSendEmbed = evalContext.getGuild() == null || evalContext.getMember().hasPermission(evalContext.getTextChannel(), Permission.MESSAGE_EMBED_LINKS);
         context.set("channel", createMessageChannel(evalContext.getMessageChannel(), true)
             .setFunctionVoid("sendMessage", args -> {

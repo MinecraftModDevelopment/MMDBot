@@ -220,8 +220,8 @@ public final class ScriptingUtils {
             }
         });
         context.set("guild", trickContext.getGuild() == null ? null : createGuild(trickContext.getGuild()));
-        context.set("member", trickContext.getMember() == null ? null : createMember(trickContext.getMember()));
-        context.set("user", createUser(trickContext.getUser()));
+        context.set("member", trickContext.getMember() == null ? null : createMember(trickContext.getMember(), true));
+        context.set("user", createUser(trickContext.getUser(), true));
         context.set("args", trickContext.getArgs());
         context.set("channel", createTextChannel(trickContext.getChannel(), true));
         context.setFunctionVoid("reply", args -> {
@@ -310,8 +310,12 @@ public final class ScriptingUtils {
     }
 
     public static ScriptingContext createMember(Member member) {
+        return createMember(member, false);
+    }
+
+    public static ScriptingContext createMember(Member member, boolean canDm) {
         final var context = ScriptingContext.of("Member", member);
-        context.set("user", createUser(member.getUser()));
+        context.set("user", createUser(member.getUser(), canDm));
         context.set("nickname", member.getNickname());
         context.set("color", member.getColorRaw());
         context.set("timeBoosted", member.getTimeBoosted());
@@ -325,6 +329,10 @@ public final class ScriptingUtils {
     }
 
     public static ScriptingContext createUser(User user) {
+        return createUser(user, false);
+    }
+
+    public static ScriptingContext createUser(User user, boolean canDm) {
         final var context = ScriptingContext.of("User", user);
         context.set("name", user.getName());
         context.set("discriminator", user.getDiscriminator());
@@ -333,11 +341,11 @@ public final class ScriptingUtils {
         context.set("isBot", user.isBot());
         context.set("hasPrivateChannel", user.hasPrivateChannel());
         context.setFunction("asTag", args -> user.getAsTag());
-        /*context.setFunction("openPrivateChannel", args -> {
+        context.setFunction("openPrivateChannel", args -> {
             validateArgs(args, 0);
             final var privateChannel = user.openPrivateChannel().complete();
-            return privateChannel == null ? null : createMessageChannel(privateChannel, true);
-        });*/
+            return privateChannel == null ? null : createMessageChannel(privateChannel, canDm);
+        });
         return context;
     }
 
