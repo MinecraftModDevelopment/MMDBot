@@ -288,7 +288,7 @@ public class CmdEvaluate extends SlashCommand {
         if (!USED_CHANNELS.contains(channel.getIdLong())) {
             consumer.accept(channel);
             USED_CHANNELS.add(channel.getIdLong());
-            TaskScheduler.scheduleTask(() -> USED_CHANNELS.remove(channel.getIdLong()), 1, TimeUnit.SECONDS);
+            TaskScheduler.scheduleTask(() -> USED_CHANNELS.remove(channel.getIdLong()), 3, TimeUnit.SECONDS);
         }
     }
 
