@@ -458,7 +458,7 @@ public final class ScriptingUtils {
             validateArgs(a, 1);
             return Instant.ofEpochSecond(a.get(0).asLong());
         });
-        context.setFunction("ofMili", a -> {
+        context.setFunction("ofMilli", a -> {
             validateArgs(a, 1);
             return Instant.ofEpochMilli(a.get(0).asLong());
         });
