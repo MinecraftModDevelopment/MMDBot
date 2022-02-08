@@ -24,9 +24,11 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.modules.commands.DismissListener;
 import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -48,7 +50,10 @@ public interface TrickContext {
     User getUser();
 
     @Nonnull
-    TextChannel getChannel();
+    MessageChannel getChannel();
+
+    @Nullable
+    TextChannel getTextChannel();
 
     @Nullable
     Guild getGuild();
@@ -76,10 +81,16 @@ public interface TrickContext {
             return event.getUser();
         }
 
+        @Nullable
+        @Override
+        public TextChannel getTextChannel() {
+            return event.getChannel().getType() == ChannelType.TEXT ? event.getTextChannel() : null;
+        }
+
         @NotNull
         @Override
-        public TextChannel getChannel() {
-            return event.getTextChannel();
+        public MessageChannel getChannel() {
+            return event.getChannel();
         }
 
         @Nullable
@@ -126,10 +137,16 @@ public interface TrickContext {
             return event.getMessage().getAuthor();
         }
 
+        @Nullable
+        @Override
+        public TextChannel getTextChannel() {
+            return event.getChannelType() == ChannelType.TEXT ? event.getTextChannel() : null;
+        }
+
         @NotNull
         @Override
-        public TextChannel getChannel() {
-            return event.getTextChannel();
+        public MessageChannel getChannel() {
+            return event.getChannel();
         }
 
         @Nullable

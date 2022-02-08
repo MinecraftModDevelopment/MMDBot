@@ -223,7 +223,8 @@ public final class ScriptingUtils {
         context.set("member", trickContext.getMember() == null ? null : createMember(trickContext.getMember(), true));
         context.set("user", createUser(trickContext.getUser(), true));
         context.set("args", trickContext.getArgs());
-        context.set("channel", createTextChannel(trickContext.getChannel(), true));
+        context.set("channel", createMessageChannel(trickContext.getChannel(), true));
+        context.set("textChannel", trickContext.getTextChannel() == null ? null : createTextChannel(trickContext.getTextChannel(), true));
         context.setFunctionVoid("reply", args -> {
             validateArgs(args, 1);
             trickContext.reply(args.get(0).asString());
