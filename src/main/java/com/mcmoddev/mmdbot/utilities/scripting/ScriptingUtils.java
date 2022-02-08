@@ -141,6 +141,7 @@ public final class ScriptingUtils {
             context.set("Utils", UTILS_CLASS);
             context.set("Math", MATH_CLASS);
             context.set("System", SYSTEM_CLASS);
+            context.set("Instant", INSTANT_CLASS);
 
             if (!bindings.hasMember("parseString")) {
                 context.setFunction("parseString", executeIfArgsValid(a -> a.get(0).toString(), 1));
@@ -449,11 +450,17 @@ public final class ScriptingUtils {
             }
             return String.format(args.get(0).asString(), args.subList(1, args.size()).stream().map(Value::asString).toArray(Object[]::new));
         }));
+    });
 
-        context.setFunction("instantNow", a -> Instant.now());
-        context.setFunction("instantOfSecond", a -> {
+    public static final ScriptingContext INSTANT_CLASS = makeContext("Instant", context -> {
+        context.setFunction("now", a -> Instant.now());
+        context.setFunction("ofSeconds", a -> {
             validateArgs(a, 1);
             return Instant.ofEpochSecond(a.get(0).asLong());
+        });
+        context.setFunction("ofMili", a -> {
+            validateArgs(a, 1);
+            return Instant.ofEpochMilli(a.get(0).asLong());
         });
     });
 
