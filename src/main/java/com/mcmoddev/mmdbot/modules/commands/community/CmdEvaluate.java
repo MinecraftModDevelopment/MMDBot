@@ -30,6 +30,7 @@ import com.mcmoddev.mmdbot.utilities.scripting.ScriptingContext;
 import com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Channel;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -42,9 +43,13 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.ALLOWED_MENTIONS;
 import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.createGuild;
@@ -64,6 +69,8 @@ public class CmdEvaluate extends SlashCommand {
         help = "Evaluates the given script";
         options = List.of(new OptionData(OptionType.STRING, "script", "The script to evaluate.").setRequired(true));
     }
+
+    public static final Set<Long> USED_CHANNELS = Collections.synchronizedSet(new HashSet<>());
 
     @Override
     protected void execute(final SlashCommandEvent event) {
@@ -226,27 +233,63 @@ public class CmdEvaluate extends SlashCommand {
         context.set("member", evalContext.getMember() == null ? null : createMember(evalContext.getMember()));
         context.set("user", createUser(evalContext.getUser()));
         final var canSendEmbed = evalContext.getGuild() == null || evalContext.getMember().hasPermission(evalContext.getTextChannel(), Permission.MESSAGE_EMBED_LINKS);
-        context.set("channel", createMessageChannel(evalContext.getMessageChannel(), true));
-        context.set("textChannel", createTextChannel(evalContext.getTextChannel(), true));
+        context.set("channel", createMessageChannel(evalContext.getMessageChannel(), true)
+            .setFunctionVoid("sendMessage", args -> {
+                validateArgs(args, 1);
+                executeAndAddColldown(evalContext.getMessageChannel(), c -> c.sendMessage(args.get(0).asString()).allowedMentions(ALLOWED_MENTIONS).queue());
+            })
+            .setFunctionVoid("sendEmbed", args -> {
+                validateArgs(args, 1);
+                final var v = args.get(0);
+                final var embed = getEmbedFromValue(v);
+                if (embed != null) {
+                    executeAndAddColldown(evalContext.getMessageChannel(), c -> c.sendMessageEmbeds(embed).allowedMentions(ALLOWED_MENTIONS).queue());
+                }
+            })
+            .setFunctionVoid("sendEmbeds", args -> executeAndAddColldown(evalContext.getMessageChannel(), c -> c.sendMessageEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
+                .filter(Objects::nonNull).toList()).allowedMentions(ALLOWED_MENTIONS).queue())));
+        context.set("textChannel", createTextChannel(evalContext.getTextChannel(), true)
+            .setFunctionVoid("sendMessage", args -> {
+                validateArgs(args, 1);
+                executeAndAddColldown(evalContext.getTextChannel(), c -> c.sendMessage(args.get(0).asString()).allowedMentions(ALLOWED_MENTIONS).queue());
+            })
+            .setFunctionVoid("sendEmbed", args -> {
+                validateArgs(args, 1);
+                final var v = args.get(0);
+                final var embed = getEmbedFromValue(v);
+                if (embed != null) {
+                    executeAndAddColldown(evalContext.getTextChannel(), c -> c.sendMessageEmbeds(embed).allowedMentions(ALLOWED_MENTIONS).queue());
+                }
+            })
+            .setFunctionVoid("sendEmbeds", args -> executeAndAddColldown(evalContext.getTextChannel(), c -> c.sendMessageEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
+                .filter(Objects::nonNull).toList()).allowedMentions(ALLOWED_MENTIONS).queue())));
         context.setFunctionVoid("reply", args -> {
             validateArgs(args, 1);
-            evalContext.reply(args.get(0).asString());
+            executeAndAddColldown(evalContext.getMessageChannel(), c -> evalContext.reply(args.get(0).asString()));
         });
         if (canSendEmbed) {
             context.setFunctionVoid("replyEmbeds", args -> {
-                evalContext.replyEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
-                    .filter(Objects::nonNull).toArray(MessageEmbed[]::new));
+                executeAndAddColldown(evalContext.getMessageChannel(), c -> evalContext.replyEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
+                    .filter(Objects::nonNull).toArray(MessageEmbed[]::new)));
             });
             context.setFunctionVoid("replyEmbed", args -> {
                 validateArgs(args, 1);
                 final var v = args.get(0);
                 final var embed = getEmbedFromValue(v);
                 if (embed != null) {
-                    evalContext.replyEmbeds(embed);
+                    executeAndAddColldown(evalContext.getMessageChannel(), c -> evalContext.replyEmbeds(embed));
                 }
             });
         }
         return context;
+    }
+
+    public static void executeAndAddColldown(MessageChannel channel, Consumer<MessageChannel> consumer) {
+        if (!USED_CHANNELS.contains(channel.getIdLong())) {
+            consumer.accept(channel);
+            USED_CHANNELS.add(channel.getIdLong());
+            TaskScheduler.scheduleTask(() -> USED_CHANNELS.remove(channel.getIdLong()), 1, TimeUnit.SECONDS);
+        }
     }
 
     interface EvaluationContext {
