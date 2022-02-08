@@ -85,7 +85,6 @@ public interface IQuote {
      *
      * @return A fully formed Embed ready for sending.
      */
-    @ExposeScripting
     MessageEmbed getQuoteMessage();
 
     /**
