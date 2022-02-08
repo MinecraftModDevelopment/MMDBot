@@ -25,6 +25,7 @@ import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
 import com.mcmoddev.mmdbot.modules.logging.misc.MiscEvents;
+import com.mcmoddev.mmdbot.modules.logging.misc.ReferencingListener;
 import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.database.DatabaseManager;
@@ -160,7 +161,8 @@ public final class MMDBot {
                 .disableCache(CacheFlag.ACTIVITY)
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
-                .addEventListeners(new ThreadedEventListener(new MiscEvents(), GENERAL_EVENT_THREAD_POOL))
+                .addEventListeners(new ThreadedEventListener(new MiscEvents(), GENERAL_EVENT_THREAD_POOL),
+                    new ThreadedEventListener(new ReferencingListener(), GENERAL_EVENT_THREAD_POOL))
                 .build().awaitReady();
             CommandModule.setupCommandModule();
             LoggingModule.setupLoggingModule();
