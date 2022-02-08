@@ -210,7 +210,6 @@ public final class ScriptingUtils {
 
     public static ScriptingContext createTrickContext(TrickContext trickContext) {
         final var context = ScriptingContext.of("TrickContext");
-        final var canSendEmbed = trickContext.getGuild() == null || trickContext.getMember().hasPermission(trickContext.getChannel(), Permission.MESSAGE_EMBED_LINKS);
         context.setFunction("createEmbed", a -> {
             if (a.size() == 2) {
                 return new ScriptEmbed(new EmbedBuilder().setTitle(a.get(0).asString()).setDescription(a.get(1).asString()));
@@ -227,20 +226,18 @@ public final class ScriptingUtils {
             validateArgs(args, 1);
             trickContext.reply(args.get(0).asString());
         });
-        if (canSendEmbed) {
-            context.setFunctionVoid("replyEmbeds", args -> {
-                trickContext.replyEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
-                    .filter(Objects::nonNull).limit(3).toArray(MessageEmbed[]::new));
-            });
-            context.setFunctionVoid("replyEmbed", args -> {
-                validateArgs(args, 1);
-                final var v = args.get(0);
-                final var embed = getEmbedFromValue(v);
-                if (embed != null) {
-                    trickContext.replyEmbeds(embed);
-                }
-            });
-        }
+        context.setFunctionVoid("replyEmbeds", args -> {
+            trickContext.replyEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
+                .filter(Objects::nonNull).limit(3).toArray(MessageEmbed[]::new));
+        });
+        context.setFunctionVoid("replyEmbed", args -> {
+            validateArgs(args, 1);
+            final var v = args.get(0);
+            final var embed = getEmbedFromValue(v);
+            if (embed != null) {
+                trickContext.replyEmbeds(embed);
+            }
+        });
         context.setFunctionVoid("runTrick", args -> {
             validateArgs(args, 1);
             Tricks.getTrick(args.get(0).asString()).ifPresent(trick -> trick.execute(trickContext));
