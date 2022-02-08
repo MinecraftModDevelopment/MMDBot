@@ -53,6 +53,7 @@ import org.graalvm.polyglot.proxy.ProxyExecutable;
 
 import javax.annotation.Nullable;
 import java.io.Serial;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -448,6 +449,12 @@ public final class ScriptingUtils {
             }
             return String.format(args.get(0).asString(), args.subList(1, args.size()).stream().map(Value::asString).toArray(Object[]::new));
         }));
+
+        context.setFunction("instantNow", a -> Instant.now());
+        context.setFunction("instantOfSecond", a -> {
+            validateArgs(a, 1);
+            return Instant.ofEpochSecond(a.get(0).asLong());
+        });
     });
 
     public static final ScriptingContext MATH_CLASS = makeContext("Math", context -> {
