@@ -334,11 +334,11 @@ public final class ScriptingUtils {
         context.set("isBot", user.isBot());
         context.set("hasPrivateChannel", user.hasPrivateChannel());
         context.setFunction("asTag", args -> user.getAsTag());
-        context.setFunction("openPrivateChannel", args -> {
+        /*context.setFunction("openPrivateChannel", args -> {
             validateArgs(args, 0);
             final var privateChannel = user.openPrivateChannel().complete();
             return privateChannel == null ? null : createMessageChannel(privateChannel, true);
-        });
+        });*/
         return context;
     }
 
