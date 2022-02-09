@@ -18,18 +18,16 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.core.util;
+package com.mcmoddev.mmdbot.core.bot;
 
-import com.google.common.base.Joiner;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import org.slf4j.Logger;
 
-public final class Constants {
+import java.nio.file.Path;
 
-    public static final Joiner LINE_JOINER = Joiner.on(System.lineSeparator());
+public interface BotType<B extends Bot> {
 
-    public static final Gson GSON = new GsonBuilder()
-        .setPrettyPrinting()
-        .disableHtmlEscaping()
-        .create();
+    B createBot(Path runPath);
+
+    Logger getLogger();
+
 }

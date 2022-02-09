@@ -78,7 +78,7 @@ public class CmdAvatar extends SlashCommand {
         }
 
         try {
-            MMDBot.getInstance().getSelfUser().getManager().setAvatar(Icon.from(link.openStream())).queue();
+            MMDBot.getJDA().getSelfUser().getManager().setAvatar(Icon.from(link.openStream())).queue();
             event.reply("New avatar set, how do I look?").mentionRepliedUser(false).setEphemeral(true).queue();
         } catch (IOException exception) {
             event.reply("Failed to set a new avatar... Please see logs for more info!")

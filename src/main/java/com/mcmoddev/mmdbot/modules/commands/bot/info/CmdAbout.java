@@ -76,7 +76,7 @@ public final class CmdAbout extends SlashCommand {
 
         embed.setTitle("Bot Build info");
         embed.setColor(Color.GREEN);
-        embed.setThumbnail(MMDBot.getInstance().getSelfUser().getAvatarUrl());
+        embed.setThumbnail(MMDBot.getJDA().getSelfUser().getAvatarUrl());
         embed.setDescription("An in house bot to assists staff with daily tasks and provide fun and useful commands "
             + "for the community, please try ``/help`` for a list of commands!");
         embed.addField("Version:", References.VERSION, true);

@@ -20,16 +20,21 @@
  */
 package com.mcmoddev.mmdbot.core.util;
 
-import com.google.common.base.Joiner;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import static org.reflections.scanners.Scanners.FieldsAnnotated;
+import org.reflections.Reflections;
+import org.reflections.util.ConfigurationBuilder;
 
-public final class Constants {
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.util.Set;
 
-    public static final Joiner LINE_JOINER = Joiner.on(System.lineSeparator());
+public class ReflectionsUtils {
 
-    public static final Gson GSON = new GsonBuilder()
-        .setPrettyPrinting()
-        .disableHtmlEscaping()
-        .create();
+    public static final Reflections REFLECTIONS = new Reflections(new ConfigurationBuilder()
+        .forPackage("com.mcmoddev.mmdbot").setScanners(FieldsAnnotated));
+
+    public static Set<Field> getFieldsAnnotatedWith(Class<? extends Annotation> annotation) {
+        return REFLECTIONS.getFieldsAnnotatedWith(annotation);
+    }
+
 }

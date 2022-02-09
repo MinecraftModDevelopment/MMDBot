@@ -25,7 +25,7 @@ version project.bot_version
 java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 application {
-    // mainClass = 'com.mcmoddev.mmdbot.MMDBot'
+  mainClass = 'com.mcmoddev.mmdbot.core.RunBots'
 }
 
 compileJava {
@@ -52,7 +52,10 @@ configurations {
 
   global
   implementation.extendsFrom(global)
+  watcherImplementation.extendsFrom(global)
+  commanderImplementation.extendsFrom(global)
   coreImplementation.extendsFrom(global)
+  mainImplementation.extendsFrom(global)
 
   jda
   watcherImplementation.extendsFrom(jda)
@@ -61,15 +64,13 @@ configurations {
   mainImplementation.extendsFrom(jda)
 
   globalCompile
-  loggingCompileOnly.extendsFrom(globalCompile)
+  watcherCompileOnly.extendsFrom(globalCompile)
+  commanderCompileOnly.extendsFrom(globalCompile)
   coreCompileOnly.extendsFrom(globalCompile)
+  mainCompileOnly.extendsFrom(globalCompile)
 }
 
 sourceSets {
-  main {
-    compileClasspath += configurations.getByName("jda")
-    runtimeClasspath += configurations.getByName("jda")
-  }
   core {
     java {
       srcDirs = [
@@ -81,6 +82,14 @@ sourceSets {
               "$rootDir/src/core/resources"
       ]
     }
+    runtimeClasspath += sourceSets.core.output
+  }
+  main {
+    compileClasspath += configurations.getByName("jda")
+    runtimeClasspath += configurations.getByName("jda")
+
+    compileClasspath += sourceSets.core.output
+    runtimeClasspath += sourceSets.core.output
   }
   logging {
     java {
@@ -133,6 +142,13 @@ sourceSets {
     compileClasspath += sourceSets.core.output
     runtimeClasspath += sourceSets.core.output
   }
+  core {
+    runtimeClasspath += sourceSets.main.output
+    runtimeClasspath += sourceSets.logging.output
+    runtimeClasspath += sourceSets.watcher.output
+    runtimeClasspath += sourceSets.commander.output
+    runtimeClasspath += configurations.getByName("d4j")
+  }
 }
 
 repositories {
@@ -161,7 +177,7 @@ repositories {
 }
 
 dependencies {
-  globalCompile supportDependencies.lombok
+  // globalCompile supportDependencies.lombok
 
   jda supportDependencies.jda
   jda supportDependencies.jdaChewtils
@@ -174,11 +190,11 @@ dependencies {
   global supportDependencies.nightConfig
   global supportDependencies.sqliteJdbc
   global supportDependencies.flywayCore
+  global supportDependencies.graal
+  global supportDependencies.graalScriptEngine
+  global supportDependencies.reflections
 
-  implementation supportDependencies.graal
-  implementation supportDependencies.graalScriptEngine
-
-  compileOnly supportDependencies.jetbrainsAnnotations
+  globalCompile supportDependencies.jetbrainsAnnotations
 
   global group: 'org.jdbi', name: 'jdbi3-core', version: "${project.jdbi_version}"
   global group: 'org.jdbi', name: 'jdbi3-sqlobject', version: "${project.jdbi_version}"
@@ -188,7 +204,14 @@ dependencies {
   spotbugsPlugins "com.h3xstream.findsecbugs:findsecbugs-plugin:${project.findsecbugs_version}"
 }
 
+shadowJar {
+  from sourceSets.core.output
+  configurations = [project.configurations.jda, project.configurations.global]
+}
+
 jar {
+  from sourceSets.core.output
+
   manifest {
     mainAttributes(
       'Maven-Artifact': "${project.group}:${archivesBaseName}:${project.bot_version}",
@@ -203,7 +226,7 @@ jar {
       'Built-On-Java': "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
       'Built-On': "${jdaVersion}-${jdaChewtilsVersion}",
       'Class-Path': configurations.compileClasspath.collect { it.getName() }.join(' '),
-      'Main-Class': 'com.mcmoddev.bot.MMDBot'
+      'Main-Class': 'com.mcmoddev.mmdbot.core.RunBots'
     )
   }
 }

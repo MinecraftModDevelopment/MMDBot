@@ -67,7 +67,7 @@ public class CmdRename extends SlashCommand {
      */
     @Override
     protected void execute(final SlashCommandEvent event) {
-        final var theBot = MMDBot.getInstance().getSelfUser();
+        final var theBot = MMDBot.getJDA().getSelfUser();
 
         try {
             theBot.getManager().setName(event.getOption("name").getAsString()).queue();

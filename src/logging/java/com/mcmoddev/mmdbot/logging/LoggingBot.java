@@ -20,23 +20,46 @@
  */
 package com.mcmoddev.mmdbot.logging;
 
-import com.mcmoddev.mmdbot.logging.util.ListenerAdapter;
-import com.mcmoddev.mmdbot.logging.util.Utils;
+import com.mcmoddev.mmdbot.core.bot.Bot;
+import com.mcmoddev.mmdbot.core.bot.BotType;
+import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import discord4j.core.DiscordClient;
-import discord4j.core.event.domain.lifecycle.ReadyEvent;
-import discord4j.gateway.intent.Intent;
-import discord4j.gateway.intent.IntentSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LoggingBot {
+import java.nio.file.Path;
 
-    public static DiscordClient client;
+public final class LoggingBot implements Bot {
+
     public static final Logger LOGGER = LoggerFactory.getLogger("TheListener");
 
-    public static void main(String[] args) {
-        final var token = args[0]; // TODO config, yes
-        final var loggingChannel = 937720276613996594l;
+    @RegisterBotType(name = "logging")
+    public static final BotType<LoggingBot> BOT_TYPE = new BotType<>() {
+        @Override
+        public LoggingBot createBot(final Path runPath) {
+            return new LoggingBot(runPath);
+        }
+
+        @Override
+        public Logger getLogger() {
+            return LOGGER;
+        }
+    };
+
+    private static LoggingBot instance;
+
+    private DiscordClient client;
+    private final Path runPath;
+
+    public LoggingBot(final Path runPath) {
+        this.runPath = runPath;
+    }
+
+    @Override
+    public void start() {
+        instance = this;
+
+        /*final var token = ""; // TODO config, yes
 
         client = DiscordClient.create(token);
 
@@ -48,8 +71,9 @@ public class LoggingBot {
                 LOGGER.warn("I am ready to work! Logged in as {}",
                     event.getSelf().getTag());
             }
-        });
+        });*/
 
+        // TODO a proper thingy
         new Thread(() -> {
             while (true) {
                 // Just need to do something, so the program doesn't stop
@@ -58,6 +82,23 @@ public class LoggingBot {
                 i = i - 1;
             }
         }).start();
+    }
+
+    @Override
+    public BotType<?> getType() {
+        return BOT_TYPE;
+    }
+
+    public Path getRunPath() {
+        return runPath;
+    }
+
+    public static LoggingBot getInstance() {
+        return instance;
+    }
+
+    public static DiscordClient getClient() {
+        return instance.client;
     }
 
 }

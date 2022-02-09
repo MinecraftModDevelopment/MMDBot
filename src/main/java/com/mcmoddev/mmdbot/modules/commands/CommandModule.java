@@ -168,14 +168,14 @@ public class CommandModule {
             // Wrap the command and button listener in another thread, so that if a runtime exception
             // occurs while executing a command, the event thread will not be stopped
             // Commands and buttons are separated so that they do not interfere with each other
-            MMDBot.getInstance().addEventListener(new ThreadedEventListener((EventListener) commandClient, COMMAND_LISTENER_THREAD_POOL));
-            MMDBot.getInstance().addEventListener(buttonListener(CmdRoles.getListener()));
-            MMDBot.getInstance().addEventListener(buttonListener(CmdHelp.getListener()));
-            MMDBot.getInstance().addEventListener(buttonListener(CmdListTricks.getListListener()));
-            MMDBot.getInstance().addEventListener(buttonListener(CmdQuote.ListQuotes.getQuoteListener()));
-            MMDBot.getInstance().addEventListener(buttonListener(CmdInvite.ListCmd.getButtonListener()));
-            MMDBot.getInstance().addEventListener(buttonListener(CmdDictionary.listener));
-            MMDBot.getInstance().addEventListener(buttonListener(new DismissListener()));
+            MMDBot.getJDA().addEventListener(new ThreadedEventListener((EventListener) commandClient, COMMAND_LISTENER_THREAD_POOL));
+            MMDBot.getJDA().addEventListener(buttonListener(CmdRoles.getListener()));
+            MMDBot.getJDA().addEventListener(buttonListener(CmdHelp.getListener()));
+            MMDBot.getJDA().addEventListener(buttonListener(CmdListTricks.getListListener()));
+            MMDBot.getJDA().addEventListener(buttonListener(CmdQuote.ListQuotes.getQuoteListener()));
+            MMDBot.getJDA().addEventListener(buttonListener(CmdInvite.ListCmd.getButtonListener()));
+            MMDBot.getJDA().addEventListener(buttonListener(CmdDictionary.listener));
+            MMDBot.getJDA().addEventListener(buttonListener(new DismissListener()));
             MMDBot.LOGGER.warn("Command module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");
@@ -194,7 +194,7 @@ public class CommandModule {
      */
     public static void removeCommand(final String name, final boolean guildOnly) {
         if (guildOnly) {
-            var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
+            var guild = MMDBot.getJDA().getGuildById(MMDBot.getConfig().getGuildID());
             if (guild == null) {
                 throw new NullPointerException("No Guild found!");
             }
@@ -215,9 +215,9 @@ public class CommandModule {
                 .map(cmd -> (DeletableCommand) cmd)
                 .forEach(DeletableCommand::delete);
 
-            MMDBot.getInstance().retrieveCommands()
+            MMDBot.getJDA().retrieveCommands()
                 .flatMap(list -> list.stream().filter(cmd -> cmd.getName().equals(name)).findAny().map(cmd ->
-                    MMDBot.getInstance().deleteCommandById(cmd.getId())).orElseThrow()).queue();
+                    MMDBot.getJDA().deleteCommandById(cmd.getId())).orElseThrow()).queue();
         }
     }
 
@@ -253,7 +253,7 @@ public class CommandModule {
      */
     public static void upsertCommand(final SlashCommand cmd) {
         if (cmd.isGuildOnly()) {
-            var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
+            var guild = MMDBot.getJDA().getGuildById(MMDBot.getConfig().getGuildID());
             if (guild == null) {
                 throw new NullPointerException("No Guild found!");
             }
@@ -262,20 +262,20 @@ public class CommandModule {
                 cmd1.updatePrivileges(guild, cmd.buildPrivileges(commandClient)).queue();
             });
         } else {
-            MMDBot.getInstance().updateCommands().addCommands(cmd.buildCommandData()).queue();
+            MMDBot.getJDA().updateCommands().addCommands(cmd.buildCommandData()).queue();
         }
     }
 
     public static void upsertCommand(final CommandData data, boolean guildOnly) {
         if (guildOnly) {
-            var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
+            var guild = MMDBot.getJDA().getGuildById(MMDBot.getConfig().getGuildID());
             if (guild == null) {
                 throw new NullPointerException("No Guild found!");
             }
 
             guild.upsertCommand(data).queue();
         } else {
-            MMDBot.getInstance().upsertCommand(data).queue();
+            MMDBot.getJDA().upsertCommand(data).queue();
         }
     }
 
@@ -286,14 +286,14 @@ public class CommandModule {
      */
     public static void upsertContextMenu(final ContextMenu menu) {
         if (menu instanceof GuildOnlyMenu) {
-            var guild = MMDBot.getInstance().getGuildById(MMDBot.getConfig().getGuildID());
+            var guild = MMDBot.getJDA().getGuildById(MMDBot.getConfig().getGuildID());
             if (guild == null) {
                 throw new NullPointerException("No Guild found!");
             }
 
             guild.upsertCommand(menu.buildCommandData()).queue(cmd1 -> cmd1.updatePrivileges(guild, menu.buildPrivileges(commandClient)).queue());
         } else {
-            MMDBot.getInstance().upsertCommand(menu.buildCommandData()).queue();
+            MMDBot.getJDA().upsertCommand(menu.buildCommandData()).queue();
         }
     }
 }

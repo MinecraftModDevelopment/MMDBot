@@ -22,6 +22,9 @@ package com.mcmoddev.mmdbot;
 
 import com.mcmoddev.mmdbot.core.BotConfig;
 import com.mcmoddev.mmdbot.core.References;
+import com.mcmoddev.mmdbot.core.bot.Bot;
+import com.mcmoddev.mmdbot.core.bot.BotType;
+import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
 import com.mcmoddev.mmdbot.modules.logging.misc.MiscEvents;
@@ -41,7 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -54,8 +57,38 @@ import java.util.concurrent.Executors;
  * @author sciwhiz12
  * @author KiriCattus
  * @author jriwanek
+ * @author matyrobbrt
+ * @deprecated The bot is going to be split, one step at a time
  */
-public final class MMDBot {
+@Deprecated(forRemoval = false) // It is for removal, but IDEs complain so...
+public final class MMDBot implements Bot {
+
+    @RegisterBotType(name = "mmdbot")
+    public static final BotType<MMDBot> BOT_TYPE = new BotType<>() {
+        @Override
+        public MMDBot createBot(final Path runPath) {
+            final var configPath = runPath.resolve("mmdbot_config.toml");
+            final var config = new BotConfig(configPath);
+            final var db = DatabaseManager.connectSQLite("jdbc:sqlite:" + runPath.resolve("data.db"));
+            return new MMDBot(config, db, runPath);
+        }
+
+        @Override
+        public Logger getLogger() {
+            return LOGGER;
+        }
+    };
+
+    private JDA jda;
+    private final BotConfig config;
+    private final DatabaseManager database;
+    private final Path runPath;
+
+    private MMDBot(final BotConfig config, final DatabaseManager database, final Path runPath) {
+        this.config = config;
+        this.database = database;
+        this.runPath = runPath;
+    }
 
     /**
      * Where needed for events being fired, errors and other misc stuff, log things to console using this.
@@ -80,19 +113,9 @@ public final class MMDBot {
     }
 
     /**
-     * The config.
-     */
-    private static BotConfig config;
-
-    /**
      * The instance.
      */
-    private static JDA instance;
-
-    /**
-     * The database manager.
-     */
-    private static DatabaseManager database;
+    private static MMDBot instance;
 
     /**
      * Returns the configuration of this bot.
@@ -100,23 +123,30 @@ public final class MMDBot {
      * @return The configuration of this bot.
      */
     public static BotConfig getConfig() {
-        return MMDBot.config;
+        return instance.config;
     }
 
     /**
-     * Gets the single instance of MMDBot.
+     * Gets the single JDA instance of MMDBot.
      *
      * @return JDA. instance
      */
-    public static JDA getInstance() {
-        return MMDBot.instance;
+    public static JDA getJDA() {
+        return instance.jda;
+    }
+
+    /**
+     * @return the singleton bot instance
+     */
+    public static MMDBot getInstance() {
+        return instance;
     }
 
     /**
      * {@return the database manager}
      */
     public static DatabaseManager getDatabaseManager() {
-        return database;
+        return instance.database;
     }
 
     /**
@@ -125,38 +155,32 @@ public final class MMDBot {
      * @see DatabaseManager#jdbi()
      */
     public static Jdbi database() {
-        return database.jdbi();
+        return instance.database.jdbi();
     }
 
-    /**
-     * The main method.
-     *
-     * @param args Arguments provided to the program.
-     */
-    public static void main(final String[] args) {
+    @Override
+    public void start() {
+        instance = this;
         Runtime.getRuntime().addShutdownHook(new Thread(() -> LOGGER.warn("The bot is shutting down!")));
-        final var configPath = Paths.get("mmdbot_config.toml");
-        MMDBot.config = new BotConfig(configPath);
-        if (MMDBot.config.isNewlyGenerated()) {
-            MMDBot.LOGGER.warn("A new config file at {} has been generated. Please configure the bot and try again.",
-                configPath);
+        JSONDataMigrator.checkAndMigrate(database);
+
+        if (config.isNewlyGenerated()) {
+            MMDBot.LOGGER.warn("A new config file at {} has been generated. Please configure the bot and try again.", config.getConfig().getNioPath());
             System.exit(0);
-        } else if (MMDBot.config.getToken().isEmpty()) {
+        } else if (config.getToken().isEmpty()) {
             MMDBot.LOGGER.error("No token is specified in the config. Please configure the bot and try again");
             System.exit(0);
-        } else if (MMDBot.config.getOwnerID().isEmpty()) {
+        } else if (config.getOwnerID().isEmpty()) {
             MMDBot.LOGGER.error("No owner ID is specified in the config. Please configure the bot and try again");
             System.exit(0);
-        } else if (MMDBot.config.getGuildID() == 0L) {
+        } else if (config.getGuildID() == 0L) {
             MMDBot.LOGGER.error("No guild ID is configured. Please configure the bot and try again.");
             System.exit(0);
         }
 
         try {
-            MMDBot.database = DatabaseManager.connectSQLite("jdbc:sqlite:./data.db");
-            JSONDataMigrator.checkAndMigrate(MMDBot.database);
-            MMDBot.instance = JDABuilder
-                .create(MMDBot.config.getToken(), MMDBot.INTENTS)
+            jda = JDABuilder
+                .create(config.getToken(), MMDBot.INTENTS)
                 .disableCache(CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY)
                 .disableCache(CacheFlag.CLIENT_STATUS)
@@ -164,13 +188,13 @@ public final class MMDBot {
                 .addEventListeners(new ThreadedEventListener(new MiscEvents(), GENERAL_EVENT_THREAD_POOL),
                     new ThreadedEventListener(new ReferencingListener(), GENERAL_EVENT_THREAD_POOL))
                 .build().awaitReady();
+
             CommandModule.setupCommandModule();
             LoggingModule.setupLoggingModule();
 
-            MMDBot.getInstance().getPresence().setActivity(Activity.of(config.getActivityType(), config.getActivityName()));
+            jda.getPresence().setActivity(Activity.of(config.getActivityType(), config.getActivityName()));
         } catch (final LoginException exception) {
-            MMDBot.LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.",
-                exception);
+            MMDBot.LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.", exception);
             System.exit(1);
         } catch (InterruptedException e) {
             MMDBot.LOGGER.error("Error awaiting caching.", e);
@@ -178,9 +202,12 @@ public final class MMDBot {
         }
     }
 
-    /**
-     * Instantiates a new MMD bot.
-     */
-    private MMDBot() {
+    @Override
+    public BotType<?> getType() {
+        return BOT_TYPE;
+    }
+
+    public Path getRunPath() {
+        return runPath;
     }
 }

@@ -55,7 +55,7 @@ public class LoggingModule {
      */
     public static void setupLoggingModule() {
         if (MMDBot.getConfig().isEventLoggingModuleEnabled()) {
-            MMDBot.getInstance()
+            MMDBot.getJDA()
                 .addEventListener(
                     loggingEvent(new EventUserJoined()),
                     loggingEvent(new EventUserLeft()),

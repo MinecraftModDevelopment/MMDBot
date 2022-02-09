@@ -189,7 +189,7 @@ public final class Utils {
      * @return the Role found if exists, null otherwise.
      */
     public static Role getRoleInHomeGuild(final String roleName) {
-        JDA bot = MMDBot.getInstance();
+        JDA bot = MMDBot.getJDA();
         Guild homeGuild = bot.getGuildById(MMDBot.getConfig().getGuildID());
         if (homeGuild == null)
             return null;
@@ -559,7 +559,7 @@ public final class Utils {
      * @see net.dv8tion.jda.api.JDA#getTextChannelById(long)
      */
     public static void getChannelIfPresent(final long channelID, final Consumer<TextChannel> consumer) {
-        final var channel = MMDBot.getInstance().getTextChannelById(channelID);
+        final var channel = MMDBot.getJDA().getTextChannelById(channelID);
         if (channel != null) {
             consumer.accept(channel);
         }
@@ -620,7 +620,7 @@ public final class Utils {
     }
 
     public static void executeInDMs(final long userId, Consumer<PrivateChannel> consumer) {
-        final var user = MMDBot.getInstance().getUserById(userId);
+        final var user = MMDBot.getJDA().getUserById(userId);
         if (user != null) {
             user.openPrivateChannel().queue(consumer::accept, e -> {
             });
@@ -661,10 +661,10 @@ public final class Utils {
     }
 
     public static void clearGlobalCommands(final Runnable... after) {
-        MMDBot.getInstance().retrieveCommands().queue(cmds -> {
+        MMDBot.getJDA().retrieveCommands().queue(cmds -> {
             for (int i = 0; i < cmds.size(); i++) {
                 try {
-                    MMDBot.getInstance().deleteCommandById(cmds.get(i).getIdLong()).submit().get();
+                    MMDBot.getJDA().deleteCommandById(cmds.get(i).getIdLong()).submit().get();
                 } catch (InterruptedException | ExecutionException e) {
                     MMDBot.LOGGER.error("Error while trying to clear the global commands", e);
                 }
@@ -684,7 +684,7 @@ public final class Utils {
     public static Message getMessageByLink(final String link) throws MessageLinkException {
         final AtomicReference<Message> returnAtomic = new AtomicReference<>(null);
         decodeMessageLink(link, (guildId, channelId, messageId) -> {
-            final var guild = MMDBot.getInstance().getGuildById(guildId);
+            final var guild = MMDBot.getJDA().getGuildById(guildId);
             if (guild != null) {
                 final var channel = guild.getTextChannelById(channelId);
                 if (channel != null) {

@@ -42,9 +42,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * The storage container and manager for Quotes.
@@ -66,7 +68,7 @@ public final class QuoteList {
     /**
      * Location to the quote storage file.
      */
-    private static final String QUOTE_STORAGE = "quotes.json";
+    private static final Supplier<Path> QUOTE_STORAGE = () -> MMDBot.getInstance().getRunPath().resolve("quotes.json");
 
     /**
      * The Gson instance used for serialization and deserialization.
@@ -121,7 +123,7 @@ public final class QuoteList {
         if (quotes != null)
             return;
 
-        final File quoteFile = new File(QUOTE_STORAGE);
+        final File quoteFile = QUOTE_STORAGE.get().toFile();
         if (!quoteFile.exists())
             quotes = new ArrayList<>();
 
@@ -143,7 +145,7 @@ public final class QuoteList {
      * Has minimal error handling.
      */
     private static void syncQuotes() {
-        final File quoteFile = new File(QUOTE_STORAGE);
+        final File quoteFile = QUOTE_STORAGE.get().toFile();
         try (OutputStreamWriter writer =
                  new OutputStreamWriter(new FileOutputStream(quoteFile), StandardCharsets.UTF_8)) {
             GSON.toJson(quotes, writer);

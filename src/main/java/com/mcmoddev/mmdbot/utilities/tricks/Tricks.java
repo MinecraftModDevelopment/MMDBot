@@ -29,9 +29,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
-import com.mcmoddev.mmdbot.modules.commands.community.server.DeletableCommand;
 import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdRunTrick;
-import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdRunTrickSeparated;
 import com.mcmoddev.mmdbot.utilities.tricks.Trick.TrickType;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,11 +42,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 //TODO: Migrate to a SQLite DB with PR #45
 
@@ -62,7 +62,7 @@ public final class Tricks {
     /**
      * The storage location for the tricks file.
      */
-    private static final String TRICK_STORAGE_PATH = "mmdbot_tricks.json";
+    private static final Supplier<Path> TRICK_STORAGE_PATH = () -> MMDBot.getInstance().getRunPath().resolve("mmdbot_tricks.json");
 
     /**
      * The GSON instance.
@@ -96,7 +96,7 @@ public final class Tricks {
      */
     public static List<Trick> getTricks() {
         if (tricks == null) {
-            final File file = new File(TRICK_STORAGE_PATH);
+            final File file = TRICK_STORAGE_PATH.get().toFile();
             if (!file.exists()) {
                 tricks = new ArrayList<>();
             }
@@ -178,7 +178,7 @@ public final class Tricks {
      * Write tricks to disk.
      */
     private static void write() {
-        final var tricksFile = new File(TRICK_STORAGE_PATH);
+        final var tricksFile = TRICK_STORAGE_PATH.get().toFile();
         List<Trick> tricks = getTricks();
         try (var writer = new OutputStreamWriter(new FileOutputStream(tricksFile), StandardCharsets.UTF_8)) {
             GSON.toJson(tricks, writer);
@@ -187,25 +187,6 @@ public final class Tricks {
         } catch (final IOException exception) {
             MMDBot.LOGGER.error("An IOException occurred saving tricks...", exception);
         }
-    }
-
-    /**
-     * Adds or restores the command for a trick.
-     *
-     * @param trick the trick
-     */
-    private static void addOrRestoreCommand(final Trick trick) {
-        CommandModule.getCommandClient().getSlashCommands().stream()
-            .filter(cmd -> cmd.getName().equals(trick.getNames().get(0)))
-            .filter(cmd -> cmd instanceof DeletableCommand)
-            .map(cmd -> (DeletableCommand) cmd)
-            .findFirst().ifPresentOrElse(
-                DeletableCommand::restore,
-                () -> {
-                    final var cmd = new CmdRunTrickSeparated(trick);
-                    CommandModule.getCommandClient().addSlashCommand(cmd);
-                    CommandModule.upsertCommand(cmd);
-                });
     }
 
     static {

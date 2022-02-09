@@ -55,7 +55,7 @@ public class CmdRestart extends SlashCommand {
         MMDBot.LOGGER.warn("Restarting the bot by request of {} via Discord!", event.getUser().getName());
         TaskScheduler.scheduleTask(() -> {
             // TODO some other things may need to be nullified for this to restart with no exceptions!
-            MMDBot.main(new String[]{});
+            MMDBot.BOT_TYPE.createBot(MMDBot.getInstance().getRunPath()).start();
         }, 3, TimeUnit.SECONDS);
     }
 }

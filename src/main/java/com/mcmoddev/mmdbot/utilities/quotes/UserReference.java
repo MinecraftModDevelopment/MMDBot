@@ -146,7 +146,7 @@ public final class UserReference {
         switch (getReferenceType()) {
             case SNOWFLAKE:
                 // Try to find the user's data in a server
-                User user = MMDBot.getInstance().getUserById(getSnowflakeData());
+                User user = MMDBot.getJDA().getUserById(getSnowflakeData());
                 // If we have it...
                 if (user != null) {
                     return user.getAsTag();

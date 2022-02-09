@@ -88,7 +88,7 @@ public class ConsoleChannelAppender extends AppenderBase<ILoggingEvent> {
      */
     @Override
     protected void append(final ILoggingEvent event) {
-        final var jda = MMDBot.getInstance();
+        final var jda = MMDBot.getJDA();
         final BotConfig config = MMDBot.getConfig();
         if (jda != null && config != null) {
             final var guild = jda.getGuildById(config.getGuildID());

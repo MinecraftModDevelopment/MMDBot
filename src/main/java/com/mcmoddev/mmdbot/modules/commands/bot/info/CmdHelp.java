@@ -95,7 +95,7 @@ public class CmdHelp extends PaginatedCommand {
 
             // Build the embed that summarises the command.
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setAuthor(References.NAME, References.ISSUE_TRACKER, MMDBot.getInstance().getSelfUser().getAvatarUrl());
+            embed.setAuthor(References.NAME, References.ISSUE_TRACKER, MMDBot.getJDA().getSelfUser().getAvatarUrl());
             embed.setDescription("Command help:");
 
             embed.addField(command.getName(), command.getHelp(), false);
@@ -119,7 +119,7 @@ public class CmdHelp extends PaginatedCommand {
     @Override
     protected EmbedBuilder getEmbed(int index) {
         EmbedBuilder embed = new EmbedBuilder();
-        embed.setAuthor(References.NAME, References.ISSUE_TRACKER, MMDBot.getInstance().getSelfUser().getAvatarUrl());
+        embed.setAuthor(References.NAME, References.ISSUE_TRACKER, MMDBot.getJDA().getSelfUser().getAvatarUrl());
         embed.setDescription("All registered commands:");
 
         // Embeds have a 25 field limit. We need to make sure we don't exceed that.
