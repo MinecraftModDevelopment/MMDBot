@@ -32,6 +32,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -41,6 +42,10 @@ public final class DictionaryUtils {
     private static String lastErrorMessage = "";
 
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
+
+    public static final DictionaryEntry CURLE_ENTRY = new DictionaryEntry("curle", "kəːle",
+        List.of(new DictionaryDefinition("noun", "A seemingly time travelling computer woman with a technological curse, a teleporting penny, and no fucks to give whatsoever",
+            "Curle is unique in her own way.", "https://cdn.discordapp.com/attachments/797440750971387925/939094064605831199/bolbmas.png", "<:bolbmas:879868298584526880>")));
 
     public static final String TARGET_URL = "https://owlbot.info/api/v4/dictionary/%s";
     private static final Map<String, DictionaryEntry> CACHE = Collections.synchronizedMap(new LinkedHashMap<>() {
@@ -52,6 +57,10 @@ public final class DictionaryUtils {
 
     public static DictionaryEntry getDefinition(final String token, final String word) throws DictionaryException {
         final var wordLowercase = word.toLowerCase(Locale.ROOT);
+        if (wordLowercase.equals("curle")) {
+            return CURLE_ENTRY;
+        }
+
         if (CACHE.containsKey(wordLowercase)) {
             return CACHE.get(wordLowercase);
         }

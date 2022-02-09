@@ -102,6 +102,9 @@
     # The snowflake ID of the bot maintainer role
     bot_maintainer = ""
 
+    # The snowflake ID of the regular role
+    regular = ""
+
     # Configuration of pingable and user-requestable roles
     [roles.pings]
         # The snowflake ID of the role for the `event-pings` command
@@ -187,6 +190,9 @@
     # The snowflake IDs (or aliases) of 'hidden' channels or categories
     # These will be excluded from the error message when a command is sent from a non-allowed channel
     hidden_channels = []
+
+    # If tricks should be able to run using prefix commands
+    prefix_tricks_enabled = false
 
     # The snowflake IDs (or aliases) of roles exempted from the allowlist and blocklist checking
     # This means that members with these roles may run any (enabled) command in any channel

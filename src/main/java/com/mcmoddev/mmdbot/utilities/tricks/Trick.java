@@ -21,7 +21,6 @@
 package com.mcmoddev.mmdbot.utilities.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.List;
@@ -41,12 +40,16 @@ public interface Trick {
     List<String> getNames();
 
     /**
-     * Gets message.
+     * Executes the trick
      *
-     * @param args the args
-     * @return message message
+     * @param context the context to execute the message in
      */
-    Message getMessage(String[] args);
+    void execute(TrickContext context);
+
+    /**
+     * @return the raw representation of this trick
+     */
+    String getRaw();
 
     /**
      * The TrickType interface. Every trick requires a trick type to be registered
@@ -68,7 +71,6 @@ public interface Trick {
          * @return arg names
          * @deprecated use slash commands where possible
          */
-        @Deprecated
         default List<String> getArgNames() {
             return getArgs().stream().map(OptionData::getName).toList();
         }
@@ -80,7 +82,6 @@ public interface Trick {
          * @return the trick
          * @deprecated use slash commands when possible
          */
-        @Deprecated
         T createFromArgs(String args);
 
         /**

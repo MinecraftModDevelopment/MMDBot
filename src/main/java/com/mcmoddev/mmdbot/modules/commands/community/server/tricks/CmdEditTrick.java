@@ -25,11 +25,16 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.gist.GistUtils;
 import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.utilities.tricks.ScriptTrick;
 import com.mcmoddev.mmdbot.utilities.tricks.Trick;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 
+import java.io.IOException;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Edits an already-existing trick.
@@ -120,7 +125,7 @@ public final class CmdEditTrick extends SlashCommand {
                 + "<description> <colour-as-hex-code>";
             aliases = new String[]{"edit-trick"};
             guildOnly = true;
-            children = Tricks.getTrickTypes().entrySet().stream().map(entry -> new SubCommand(entry.getKey(), entry.getValue())).toArray(SlashCommand[]::new);
+            children = Tricks.getTrickTypes().entrySet().stream().map(entry -> new PrefixSubCmd(entry.getKey(), entry.getValue())).toArray(Command[]::new);
         }
 
         @Override
@@ -155,7 +160,22 @@ public final class CmdEditTrick extends SlashCommand {
                 return;
             }
 
-            Trick trick = trickType.createFromArgs(event.getArgs());
+            var args = event.getArgs();
+
+            if (trickType instanceof ScriptTrick.Type && !event.getMessage().getAttachments().isEmpty()) {
+                for (var attach : event.getMessage().getAttachments()) {
+                    if (Objects.equals(attach.getFileExtension(), "js")) {
+                        try {
+                            args = event.getArgs().split(" \\| ", 2)[0] + " | " + GistUtils.readInputStream(attach.retrieveInputStream().get());
+                            break;
+                        } catch (IOException | InterruptedException | ExecutionException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+
+            Trick trick = trickType.createFromArgs(args);
             Optional<Trick> originalTrick = Tricks.getTricks().stream()
                 .filter(t -> t.getNames().stream().anyMatch(n -> trick.getNames().contains(n))).findAny();
 

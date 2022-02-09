@@ -21,23 +21,16 @@
 package com.mcmoddev.mmdbot.utilities.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Message;
+import com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import static com.mcmoddev.mmdbot.utilities.Utils.getOrEmpty;
 
-/**
- * The type String trick.
- *
- * @author williambl
- */
-public class StringTrick implements Trick {
+public final class ScriptTrick implements Trick {
 
     /**
      * The Names.
@@ -47,24 +40,13 @@ public class StringTrick implements Trick {
     /**
      * The Body.
      */
-    private final String body;
+    private final String script;
 
-    /**
-     * Instantiates a new String trick.
-     *
-     * @param names the names
-     * @param body  the body
-     */
-    public StringTrick(final List<String> names, final String body) {
+    public ScriptTrick(final List<String> names, final String script) {
         this.names = names;
-        this.body = body;
+        this.script = script;
     }
 
-    /**
-     * Gets names.
-     *
-     * @return Name of the trick.
-     */
     @Override
     public List<String> getNames() {
         return names;
@@ -72,62 +54,47 @@ public class StringTrick implements Trick {
 
     @Override
     public void execute(final TrickContext context) {
-        context.replyWithMessage(new MessageBuilder(String.format(getBody(), (Object[]) context.getArgs()))
-            .setAllowedMentions(Set.of(Message.MentionType.CHANNEL, Message.MentionType.EMOTE)).build());
-    }
-
-    /**
-     * Gets body.
-     *
-     * @return body
-     */
-    public String getBody() {
-        return body;
+        try {
+            ScriptingUtils.evaluate(script, ScriptingUtils.createTrickContext(context));
+        } catch (ScriptingUtils.ScriptingException e) {
+            context.reply("There was an exception executing the script: %s".formatted(e.getLocalizedMessage()));
+        }
     }
 
     @Override
     public String getRaw() {
-        return getBody();
+        return script;
     }
 
-    /**
-     * The type Type.
-     */
-    static class Type implements TrickType<StringTrick> {
+    public static class Type implements TrickType<ScriptTrick> {
 
-        /**
-         * Gets clazz.
-         *
-         * @return clazz
-         */
         @Override
-        public Class<StringTrick> getClazz() {
-            return StringTrick.class;
+        public Class<ScriptTrick> getClazz() {
+            return ScriptTrick.class;
         }
 
-        /**
-         * Create from args string trick.
-         *
-         * @param args the args
-         * @return string trick
-         */
         @Override
-        public StringTrick createFromArgs(final String args) {
-            String[] argsArray = args.split(" \\| ");
-            return new StringTrick(Arrays.asList(argsArray[0].split(" ")), argsArray[1]);
+        public ScriptTrick createFromArgs(final String args) {
+            String[] argsArray = args.split(" \\| ", 2);
+            var script = argsArray[1];
+            if (script.contains("```js") && script.endsWith("```")) {
+                script = script.substring(script.indexOf("```js") + 5);
+                script = script.substring(0, script.lastIndexOf("```"));
+            }
+            return new ScriptTrick(Arrays.asList(argsArray[0].split(" ")), script);
         }
 
         @Override
         public List<OptionData> getArgs() {
             return List.of(
                 new OptionData(OptionType.STRING, "names", "Name(s) for the trick. Separate with spaces.").setRequired(true),
-                new OptionData(OptionType.STRING, "content", "The content of the trick.").setRequired(true)
+                new OptionData(OptionType.STRING, "script", "The script of the trick.").setRequired(true)
             );
         }
 
         @Override
-        public StringTrick createFromCommand(final SlashCommandEvent event) {
-            return new StringTrick(Arrays.asList(getOrEmpty(event, "names").split(" ")), getOrEmpty(event, "content"));
+        public ScriptTrick createFromCommand(final SlashCommandEvent event) {
+            return new ScriptTrick(Arrays.asList(getOrEmpty(event, "names").split(" ")), getOrEmpty(event, "script"));
         }
     }
 }

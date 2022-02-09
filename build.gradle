@@ -16,6 +16,7 @@ plugins {
   id 'pmd'
   id 'org.flywaydb.flyway' version "${flywaydb}"
   id 'org.cadixdev.licenser' version "${licenser}"
+  id 'org.jetbrains.kotlin.jvm' version '1.6.10'
 }
 
 group 'com.mcmoddev'
@@ -173,6 +174,10 @@ dependencies {
   global supportDependencies.nightConfig
   global supportDependencies.sqliteJdbc
   global supportDependencies.flywayCore
+
+  implementation supportDependencies.graal
+  implementation supportDependencies.graalScriptEngine
+
   compileOnly supportDependencies.jetbrainsAnnotations
 
   global group: 'org.jdbi', name: 'jdbi3-core', version: "${project.jdbi_version}"
@@ -286,7 +291,7 @@ tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
 
 checkstyle {
   ignoreFailures = true
-  toolVersion = '8.45.1'
+  toolVersion = '9.1'
   showViolations = false
 }
 
@@ -344,4 +349,14 @@ pmd {
   ]
   toolVersion = '6.38.0'
   incrementalAnalysis = true
+}
+compileKotlin {
+  kotlinOptions {
+    jvmTarget = "1.8"
+  }
+}
+compileTestKotlin {
+  kotlinOptions {
+    jvmTarget = "1.8"
+  }
 }

@@ -19,6 +19,7 @@ ext {
     jetbrainsAnnotationsVersion = "23.0.0"
     lombokVersion = "1.18.22"
     d4jVersion = "3.2.1"
+    graalVersion = "22.0.0"
     //-- DEPENDENCIES
     supportDependencies = [
             jda                           : "net.dv8tion:JDA:$jdaVersion",
@@ -31,7 +32,9 @@ ext {
             flywayCore                    : "org.flywaydb:flyway-core:$flywayCoreVersion",
             jetbrainsAnnotations          : "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
             lombok                        : "org.projectlombok:lombok:$lombokVersion",
-            d4j                           : "com.discord4j:discord4j-core:$d4jVersion"
+            d4j                           : "com.discord4j:discord4j-core:$d4jVersion",
+            graal                         : "org.graalvm.js:js:$graalVersion",
+            graalScriptEngine             : "org.graalvm.js:js-scriptengine:$graalVersion"
     ]
 }
 

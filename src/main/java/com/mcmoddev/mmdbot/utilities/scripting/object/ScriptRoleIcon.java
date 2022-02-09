@@ -18,34 +18,24 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.utilities.quotes;
+package com.mcmoddev.mmdbot.utilities.scripting.object;
 
 import com.mcmoddev.mmdbot.utilities.scripting.ExposeScripting;
-import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.RoleIcon;
 
-/**
- * Used in place of null in the serialized list of quotes.
- *
- * @author Curle
- */
-public final class NullQuote extends Quote {
+public class ScriptRoleIcon {
 
-    @Override
-    public MessageEmbed getQuoteMessage() {
-        return QuoteList.getQuoteNotPresent();
-    }
-
-    @Override
     @ExposeScripting
-    public String getQuoteText() {
-        return "Quote not found.";
+    public final String id;
+    @ExposeScripting
+    public final String url;
+    @ExposeScripting
+    public final String emoji;
+
+    public ScriptRoleIcon(RoleIcon roleIcon) {
+        this.id = roleIcon.getIconId();
+        this.url = roleIcon.getIconUrl();
+        this.emoji = roleIcon.getEmoji();
     }
 
-    /**
-     * Create a new NullQuote.
-     */
-    public NullQuote() {
-        this.setQuotee(null);
-        this.setQuoteAuthor(null);
-    }
 }

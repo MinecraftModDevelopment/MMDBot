@@ -26,6 +26,7 @@ import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.commands.community.server.DeletableCommand;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Trick;
+import com.mcmoddev.mmdbot.utilities.tricks.TrickContext;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -80,8 +81,11 @@ public final class CmdRunTrickSeparated extends SlashCommand implements Deletabl
             return;
         }
 
-        Tricks.getTrick(trickName).ifPresentOrElse(trick -> event.reply(trick.getMessage(Utils.getOrEmpty(event, "args").split(" "))).setEphemeral(false).queue(),
-            () -> event.deferReply(true).setContent("This trick does not exist anymore!").queue());
+        event.deferReply().queue(hook -> {
+            Tricks.getTrick(trickName).ifPresentOrElse(trick -> trick.execute(new TrickContext.Slash(event, hook,
+                    Utils.getOrEmpty(event, "args").split(" "))),
+                () -> hook.editOriginal("This trick does not exist anymore!").queue());
+        });
     }
 
     @Override

@@ -94,14 +94,8 @@ public class EmbedTrick implements Trick {
         return names;
     }
 
-    /**
-     * Gets message.
-     *
-     * @param args the args
-     * @return message
-     */
     @Override
-    public Message getMessage(final String[] args) {
+    public void execute(final TrickContext context) {
         EmbedBuilder builder = new EmbedBuilder()
             .setTitle(getTitle())
             .setDescription(getDescription())
@@ -109,7 +103,8 @@ public class EmbedTrick implements Trick {
         for (MessageEmbed.Field field : getFields()) {
             builder.addField(field);
         }
-        return new MessageBuilder(builder.build()).setAllowedMentions(Set.of(Message.MentionType.CHANNEL, Message.MentionType.EMOTE)).build();
+        context.replyWithMessage(new MessageBuilder(builder.build())
+            .setAllowedMentions(Set.of(Message.MentionType.CHANNEL, Message.MentionType.EMOTE)).build());
     }
 
     /**
@@ -137,6 +132,11 @@ public class EmbedTrick implements Trick {
      */
     public int getColor() {
         return color;
+    }
+
+    @Override
+    public String getRaw() {
+        return "%s | %s | %s".formatted(getTitle(), getDescription(), getColor());
     }
 
     /**

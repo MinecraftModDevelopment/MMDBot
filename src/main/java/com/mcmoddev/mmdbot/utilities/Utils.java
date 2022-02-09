@@ -44,6 +44,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import java.io.Serial;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -56,9 +57,11 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.LongPredicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
@@ -670,5 +673,79 @@ public final class Utils {
                 toRun.run();
             }
         });
+    }
+
+    /**
+     * Gets a message from a link
+     * @param link the link to decode
+     * @return the message
+     * @throws MessageLinkException if an exception occured in the meantime
+     */
+    public static Message getMessageByLink(final String link) throws MessageLinkException {
+        final AtomicReference<Message> returnAtomic = new AtomicReference<>(null);
+        decodeMessageLink(link, (guildId, channelId, messageId) -> {
+            final var guild = MMDBot.getInstance().getGuildById(guildId);
+            if (guild != null) {
+                final var channel = guild.getTextChannelById(channelId);
+                if (channel != null) {
+                    returnAtomic.set(channel.retrieveMessageById(messageId).complete());
+                }
+            }
+        });
+        return returnAtomic.get();
+    }
+
+    public static final Pattern MESSAGE_LINK_PATTERN = Pattern.compile("https://discord.com/channels/");
+
+    public static void decodeMessageLink(final String link, MessageInfo consumer)
+        throws MessageLinkException {
+        final var matcher = MESSAGE_LINK_PATTERN.matcher(link);
+        if (matcher.find()) {
+            try {
+                var originalWithoutLink = matcher.replaceAll("");
+                if (originalWithoutLink.indexOf('/') > -1) {
+                    final long guildId = Long
+                        .parseLong(originalWithoutLink.substring(0, originalWithoutLink.indexOf('/')));
+                    originalWithoutLink = originalWithoutLink.substring(originalWithoutLink.indexOf('/') + 1);
+                    if (originalWithoutLink.indexOf('/') > -1) {
+                        final long channelId = Long
+                            .parseLong(originalWithoutLink.substring(0, originalWithoutLink.indexOf('/')));
+                        originalWithoutLink = originalWithoutLink.substring(originalWithoutLink.indexOf('/') + 1);
+                        final long messageId = Long.parseLong(originalWithoutLink);
+                        consumer.accept(guildId, channelId, messageId);
+                    } else {
+                        throw new MessageLinkException("Invalid Link");
+                    }
+                } else {
+                    throw new MessageLinkException("Invalid Link");
+                }
+            } catch (NumberFormatException e) {
+                throw new MessageLinkException(e);
+            }
+        } else {
+            throw new MessageLinkException("Invalid Link");
+        }
+    }
+
+    public static class MessageLinkException extends Exception {
+
+        @Serial
+        private static final long serialVersionUID = -2805786147679905681L;
+
+        public MessageLinkException(Throwable e) {
+            super(e);
+        }
+
+        public MessageLinkException(String message) {
+            super(message);
+        }
+
+    }
+
+    @FunctionalInterface
+    public interface MessageInfo {
+
+        void accept(final long guildId, final long channelId, final long messageId);
+
     }
 }

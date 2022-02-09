@@ -50,12 +50,14 @@ public final class DismissListener extends ListenerAdapter {
 
         if (buttonOwner == event.getUser().getIdLong() && !event.getMessage().isEphemeral()) {
             event.getMessage().delete().reason("User dismissed the message").queue();
+        } else {
+            event.deferReply(true).setContent("You cannot dismiss this message!").queue();
         }
 
     }
 
     public static Button createDismissButton(final long buttonOwner) {
-        return Button.danger("dismiss-" + buttonOwner, "❌ Dismiss");
+        return Button.secondary("dismiss-" + buttonOwner, "✖ Dismiss");
     }
 
     public static Button createDismissButton(final Member buttonOwner) {

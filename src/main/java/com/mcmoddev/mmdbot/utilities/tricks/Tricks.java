@@ -30,6 +30,7 @@ import com.google.gson.stream.JsonWriter;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.commands.community.server.DeletableCommand;
+import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdRunTrick;
 import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdRunTrickSeparated;
 import com.mcmoddev.mmdbot.utilities.tricks.Trick.TrickType;
 import org.jetbrains.annotations.Nullable;
@@ -148,6 +149,9 @@ public final class Tricks {
     public static void addTrick(final Trick trick) {
         getTricks().add(trick);
         write();
+        if (MMDBot.getConfig().prefixTricksEnabled()) {
+            CommandModule.getCommandClient().addCommand(new CmdRunTrick.Prefix(trick));
+        }
         // addOrRestoreCommand(trick);
     }
 
@@ -159,7 +163,9 @@ public final class Tricks {
     public static void removeTrick(final Trick trick) {
         getTricks().remove(trick);
         write();
-        // CommandModule.removeCommand(trick.getNames().get(0), true);
+        if (MMDBot.getConfig().prefixTricksEnabled()) {
+            CommandModule.getCommandClient().removeCommand(trick.getNames().get(0));
+        }
     }
 
     public static void replaceTrick(final Trick oldTrick, final Trick newTrick) {
@@ -205,6 +211,7 @@ public final class Tricks {
     static {
         Tricks.registerTrickType("string", new StringTrick.Type());
         Tricks.registerTrickType("embed", new EmbedTrick.Type());
+        Tricks.registerTrickType("script", new ScriptTrick.Type());
 
         GSON = new GsonBuilder()
             .registerTypeAdapterFactory(new TrickSerializer())

@@ -25,11 +25,16 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.gist.GistUtils;
 import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.utilities.tricks.ScriptTrick;
 import com.mcmoddev.mmdbot.utilities.tricks.Trick;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 
+import java.io.IOException;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Adds a trick to the list.
@@ -129,7 +134,22 @@ public final class CmdAddTrick extends SlashCommand {
                 return;
             }
 
-            Tricks.addTrick(trickType.createFromArgs(event.getArgs()));
+            var args = event.getArgs();
+
+            if (trickType instanceof ScriptTrick.Type && !event.getMessage().getAttachments().isEmpty()) {
+                for (var attach : event.getMessage().getAttachments()) {
+                    if (Objects.equals(attach.getFileExtension(), "js")) {
+                        try {
+                            args = event.getArgs().split(" \\| ", 2)[0] + " | " + GistUtils.readInputStream(attach.retrieveInputStream().get());
+                            break;
+                        } catch (IOException | InterruptedException | ExecutionException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+
+            Tricks.addTrick(trickType.createFromArgs(args));
             event.getMessage().reply("Added trick!").mentionRepliedUser(false).queue();
         }
     }

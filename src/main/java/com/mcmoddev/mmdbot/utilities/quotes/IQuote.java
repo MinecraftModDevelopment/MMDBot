@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.utilities.quotes;
 
+import com.mcmoddev.mmdbot.utilities.scripting.ExposeScripting;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 /**
@@ -43,6 +44,7 @@ public interface IQuote {
     /**
      * @return The person or object being quoted.
      */
+    @ExposeScripting
     UserReference getQuotee();
 
     /**
@@ -55,6 +57,7 @@ public interface IQuote {
     /**
      * @return The person or object that created this quote.
      */
+    @ExposeScripting
     UserReference getQuoteAuthor();
 
     /**
@@ -67,6 +70,7 @@ public interface IQuote {
     /**
      * @return The integer ID of this quote.
      */
+    @ExposeScripting
     int getID();
 
     /**
@@ -88,6 +92,7 @@ public interface IQuote {
      *
      * @return Depends on the subclass.
      */
+    @ExposeScripting
     String getQuoteText();
 
 }

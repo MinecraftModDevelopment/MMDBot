@@ -18,34 +18,20 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.utilities.quotes;
+package com.mcmoddev.mmdbot.utilities.scripting;
 
-import com.mcmoddev.mmdbot.utilities.scripting.ExposeScripting;
-import net.dv8tion.jda.api.entities.MessageEmbed;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Used in place of null in the serialized list of quotes.
- *
- * @author Curle
+ * Annotate a member with this annotation in order to expose it to a scripting context, if the object
+ * gets into one.
  */
-public final class NullQuote extends Quote {
-
-    @Override
-    public MessageEmbed getQuoteMessage() {
-        return QuoteList.getQuoteNotPresent();
-    }
-
-    @Override
-    @ExposeScripting
-    public String getQuoteText() {
-        return "Quote not found.";
-    }
-
-    /**
-     * Create a new NullQuote.
-     */
-    public NullQuote() {
-        this.setQuotee(null);
-        this.setQuoteAuthor(null);
-    }
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.CONSTRUCTOR})
+public @interface ExposeScripting {
 }
