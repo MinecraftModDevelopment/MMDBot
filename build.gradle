@@ -47,64 +47,31 @@ configurations {
   loggingImplementation.extendsFrom(d4j)
 
   global
-  implementation.extendsFrom(global)
-  watcherImplementation.extendsFrom(global)
-  commanderImplementation.extendsFrom(global)
   coreImplementation.extendsFrom(global)
-  mainImplementation.extendsFrom(global)
+  implementation.extendsFrom(global)
+  commanderImplementation.extendsFrom(global)
+  watcherImplementation.extendsFrom(global)
 
   jda
-  watcherImplementation.extendsFrom(jda)
-  commanderImplementation.extendsFrom(jda)
   coreImplementation.extendsFrom(jda)
-  mainImplementation.extendsFrom(jda)
+  implementation.extendsFrom(jda)
+  commanderImplementation.extendsFrom(jda)
+  watcherImplementation.extendsFrom(jda)
 
   globalCompile
-  watcherCompileOnly.extendsFrom(globalCompile)
-  commanderCompileOnly.extendsFrom(globalCompile)
   coreCompileOnly.extendsFrom(globalCompile)
-  mainCompileOnly.extendsFrom(globalCompile)
+  compileOnly.extendsFrom(globalCompile)
+  commanderCompileOnly.extendsFrom(globalCompile)
+  watcherCompileOnly.extendsFrom(globalCompile)
+
+  coreRuntimeOnly.extendsFrom(d4j)
 }
 
 sourceSets {
-  core {
-    runtimeClasspath += sourceSets.core.output
-  }
-  main {
-    compileClasspath += configurations.getByName("jda")
-    runtimeClasspath += configurations.getByName("jda")
-
-    compileClasspath += sourceSets.core.output
-    runtimeClasspath += sourceSets.core.output
-  }
-  logging {
-    compileClasspath += configurations.getByName("global")
-    runtimeClasspath += configurations.getByName("global")
-
-    compileClasspath += sourceSets.core.output
-    runtimeClasspath += sourceSets.core.output
-  }
-  commander {
-    compileClasspath += configurations.getByName("global")
-    runtimeClasspath += configurations.getByName("global")
-
-    compileClasspath += sourceSets.core.output
-    runtimeClasspath += sourceSets.core.output
-  }
-  watcher {
-    compileClasspath += configurations.getByName("global")
-    runtimeClasspath += configurations.getByName("global")
-
-    compileClasspath += sourceSets.core.output
-    runtimeClasspath += sourceSets.core.output
-  }
-  core {
-    runtimeClasspath += sourceSets.main.output
-    runtimeClasspath += sourceSets.logging.output
-    runtimeClasspath += sourceSets.watcher.output
-    runtimeClasspath += sourceSets.commander.output
-    runtimeClasspath += configurations.getByName("d4j")
-  }
+  core {}
+  logging {}
+  commander {}
+  watcher {}
 }
 
 repositories {
@@ -133,6 +100,16 @@ repositories {
 }
 
 dependencies {
+  implementation sourceSets.core.output
+  loggingImplementation sourceSets.core.output
+  commanderImplementation sourceSets.core.output
+  watcherImplementation sourceSets.core.output
+
+  coreRuntimeOnly sourceSets.main.output
+  coreRuntimeOnly sourceSets.logging.output
+  coreRuntimeOnly sourceSets.commander.output
+  coreRuntimeOnly sourceSets.watcher.output
+
   // globalCompile libs.lombok
 
   jda libs.jda
