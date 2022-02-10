@@ -71,7 +71,7 @@ public final class LoggingBot implements Bot {
     static {
         WarningEvent.Add.addListener(event -> {
             final var doc = event.getDocument();
-            final var userData = Mono.zip(getClient().getUserById(Snowflake.of(doc.userId())).getData(),
+            Mono.zip(getClient().getUserById(Snowflake.of(doc.userId())).getData(),
                     getClient().getUserById(Snowflake.of(doc.moderatorId())).getData())
                 .subscribe(t -> {
                     final var user = t.getT1();
@@ -91,7 +91,7 @@ public final class LoggingBot implements Bot {
         });
         WarningEvent.Clear.addListener(event -> {
             final var warnDoc = event.getDocument();
-            final var userData = Mono.zip(getClient().getUserById(Snowflake.of(warnDoc.userId())).getData(),
+            Mono.zip(getClient().getUserById(Snowflake.of(warnDoc.userId())).getData(),
                     getClient().getUserById(Snowflake.of(event.getModeratorId())).getData())
                 .subscribe(t -> {
                     final var user = t.getT1();
