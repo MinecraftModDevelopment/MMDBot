@@ -23,7 +23,13 @@ package com.mcmoddev.mmdbot.logging;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
+import com.mcmoddev.mmdbot.logging.events.MessageEvents;
+import com.mcmoddev.mmdbot.logging.util.ListenerAdapter;
+import com.mcmoddev.mmdbot.logging.util.Utils;
 import discord4j.core.DiscordClient;
+import discord4j.core.event.domain.lifecycle.ReadyEvent;
+import discord4j.gateway.intent.Intent;
+import discord4j.gateway.intent.IntentSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +77,7 @@ public final class LoggingBot implements Bot {
                 LOGGER.warn("I am ready to work! Logged in as {}",
                     event.getSelf().getTag());
             }
-        });*/
+        }, new MessageEvents());*/
 
         // TODO a proper thingy
         new Thread(() -> {
@@ -98,7 +104,7 @@ public final class LoggingBot implements Bot {
     }
 
     public static DiscordClient getClient() {
-        return instance.client;
+        return instance == null ? null : instance.client;
     }
 
 }

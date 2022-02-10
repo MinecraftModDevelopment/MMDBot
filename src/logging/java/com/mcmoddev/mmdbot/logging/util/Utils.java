@@ -20,13 +20,23 @@
  */
 package com.mcmoddev.mmdbot.logging.util;
 
+import com.mcmoddev.mmdbot.logging.LoggingBot;
+import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Message;
+import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.rest.entity.RestChannel;
+
+import java.util.function.Consumer;
 
 public final class Utils {
 
-    public static void subscribe(final GatewayDiscordClient client, EventListener toSubscribe) {
-        client.getEventDispatcher().on(Event.class).subscribe(toSubscribe::onEvent);
+    public static void subscribe(final GatewayDiscordClient client, EventListener... toSubscribe) {
+        for (final var eventListener : toSubscribe) {
+            client.getEventDispatcher().on(Event.class).subscribe(eventListener::onEvent);
+        }
     }
 
     /**
@@ -39,6 +49,23 @@ public final class Utils {
     public static Thread setThreadDaemon(final Thread thread, final boolean isDaemon) {
         thread.setDaemon(isDaemon);
         return thread;
+    }
+
+    public static void executeInLoggingChannel(final Snowflake guild, LoggingType type, Consumer<RestChannel> consumer) {
+        if (LoggingBot.getClient() != null) {
+            // Hardcoded until configs
+            final var channels = type.getChannels(guild);
+            channels.forEach(channelId -> {
+                final var channel = LoggingBot.getClient().getChannelById(channelId);
+                consumer.accept(channel);
+            });
+        }
+    }
+
+    public static String createMessageURL(final Message message) {
+        return "https://discord.com/channels/" + message.getGuildId().map(Snowflake::asString)
+            .orElse("@me")+ "/" + message.getChannelId().asLong()
+            + "/" + message.getId().asLong();
     }
 
 }
