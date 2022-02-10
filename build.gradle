@@ -46,6 +46,7 @@ configurations {
   global
   coreImplementation.extendsFrom(global)
   implementation.extendsFrom(global)
+  loggingImplementation.extendsFrom(global)
   commanderImplementation.extendsFrom(global)
   watcherImplementation.extendsFrom(global)
 
@@ -58,6 +59,7 @@ configurations {
   globalCompile
   coreCompileOnly.extendsFrom(globalCompile)
   compileOnly.extendsFrom(globalCompile)
+  loggingCompileOnly.extendsFrom(globalCompile)
   commanderCompileOnly.extendsFrom(globalCompile)
   watcherCompileOnly.extendsFrom(globalCompile)
 
