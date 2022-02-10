@@ -1,18 +1,14 @@
 package com.mcmoddev.mmdbot.logging.events;
 
-import com.mcmoddev.mmdbot.logging.LoggingBot;
 import com.mcmoddev.mmdbot.logging.util.ListenerAdapter;
 import com.mcmoddev.mmdbot.logging.util.LoggingType;
 import com.mcmoddev.mmdbot.logging.util.Utils;
-import com.oracle.truffle.api.ArrayUtils;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.event.domain.guild.MemberLeaveEvent;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.PartialMember;
 import discord4j.core.object.entity.Role;
-import discord4j.core.object.entity.User;
 import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.core.util.ArrayUtil;
 import reactor.core.publisher.Flux;
 
 import java.time.Instant;
@@ -28,7 +24,8 @@ public final class LeaveJoinEvents extends ListenerAdapter {
             .footer("User ID: " + event.getMember().getId().asLong(), null)
             .addField("User:", event.getMember().getTag(), true)
             .thumbnail(event.getMember().getAvatarUrl())
-            // TODO add a discord join time if we find that
+            .addField("Joined Discord:", "<t:%s:f>".formatted(event.getMember().getId().getTimestamp()
+                .getEpochSecond()),true)
             .build();
 
         Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.LEAVE_JOIN_EVENTS, c ->

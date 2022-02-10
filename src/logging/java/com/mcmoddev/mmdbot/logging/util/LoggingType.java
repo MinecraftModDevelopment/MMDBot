@@ -8,7 +8,8 @@ public enum LoggingType {
 
     // TODO yes, config
     MESSAGE_EVENTS("message_events", s -> List.of(Snowflake.of(0L))),
-    LEAVE_JOIN_EVENTS("leave_join_events", s -> List.of(Snowflake.of(0L)));
+    LEAVE_JOIN_EVENTS("leave_join_events", s -> List.of(Snowflake.of(0L))),
+    MODERATION_EVENTS("moderation_events", s -> List.of(Snowflake.of(0L)));
 
     private final String name;
     private final ChannelGetter channelGetter;

@@ -25,6 +25,7 @@ import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import com.mcmoddev.mmdbot.logging.events.LeaveJoinEvents;
 import com.mcmoddev.mmdbot.logging.events.MessageEvents;
+import com.mcmoddev.mmdbot.logging.events.ModerationEvents;
 import com.mcmoddev.mmdbot.logging.util.EventListener;
 import com.mcmoddev.mmdbot.logging.util.ListenerAdapter;
 import com.mcmoddev.mmdbot.logging.util.ThreadedEventListener;
@@ -85,7 +86,8 @@ public final class LoggingBot implements Bot {
                 LOGGER.warn("I am ready to work! Logged in as {}",
                     event.getSelf().getTag());
             }
-        }, wrapListener(new MessageEvents()), wrapListener(new LeaveJoinEvents()));*/
+        }, wrapListener(new MessageEvents()), wrapListener(new LeaveJoinEvents()),
+            wrapListener(new ModerationEvents()));*/
 
         // TODO a proper thingy
         new Thread(() -> {
