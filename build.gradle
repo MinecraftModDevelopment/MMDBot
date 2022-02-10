@@ -1,4 +1,6 @@
-import java.text.SimpleDateFormat
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 plugins {
   id 'application'
@@ -142,20 +144,23 @@ shadowJar {
   configurations = [project.configurations.jda, project.configurations.global]
 }
 
+var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
+var currentDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(actualDateTime)
+
 jar {
   from sourceSets.core.output
 
   manifest {
     mainAttributes(
       'Maven-Artifact': "${project.group}:${archivesBaseName}:${project.bot_version}",
-      'Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+      'Timestamp': currentDateTime,
       'Specification-Title': archivesBaseName,
       'Specification-Vendor': 'Minecraft Mod Development',
       'Specification-Version': '1',
       'Implementation-Title': archivesBaseName,
       'Implementation-Version': "${project.bot_version}",
       'Implementation-Vendor': 'Minecraft Mod Development',
-      'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+      'Implementation-Timestamp': currentDateTime,
       'Built-On-Java': "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
       'Built-On': "${project.libs.versions.jda.get()}-${project.libs.versions.chewtils.get()}",
       'Class-Path': configurations.compileClasspath.collect { it.getName() }.join(' '),
@@ -172,14 +177,8 @@ license {
   exclude '**/module-info.java'
   newLine = false
   properties {
-    year = currentCopyrightYear()
+    year = actualDateTime.getYear()
   }
-}
-
-def currentCopyrightYear() {
-  def dateFormat = new SimpleDateFormat('yyyy')
-  dateFormat.setTimeZone(TimeZone.getTimeZone('UTC'))
-  return dateFormat.format(new Date())
 }
 
 eclipse.project {
