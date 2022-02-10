@@ -27,13 +27,9 @@ import com.mcmoddev.mmdbot.logging.events.LeaveJoinEvents;
 import com.mcmoddev.mmdbot.logging.events.MessageEvents;
 import com.mcmoddev.mmdbot.logging.events.ModerationEvents;
 import com.mcmoddev.mmdbot.logging.util.EventListener;
-import com.mcmoddev.mmdbot.logging.util.ListenerAdapter;
 import com.mcmoddev.mmdbot.logging.util.ThreadedEventListener;
 import com.mcmoddev.mmdbot.logging.util.Utils;
 import discord4j.core.DiscordClient;
-import discord4j.core.event.domain.lifecycle.ReadyEvent;
-import discord4j.gateway.intent.Intent;
-import discord4j.gateway.intent.IntentSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

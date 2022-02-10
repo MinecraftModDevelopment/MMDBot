@@ -1,22 +1,20 @@
-import java.text.SimpleDateFormat
-
-buildscript {
-  apply from: 'dependencies.gradle'
-}
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 plugins {
-  // id "io.freefair.lombok" version "${lombok_plugin}"
   id 'application'
-  id 'com.github.johnrengelman.shadow' version "${shadow}"
-//id 'maven'
+  // id 'maven'
   id 'eclipse'
   id 'idea'
-  id 'com.github.spotbugs' version "${spotbugs}"
   id 'checkstyle'
   id 'pmd'
-  id 'org.flywaydb.flyway' version "${flywaydb}"
-  id 'org.cadixdev.licenser' version "${licenser}"
-  id 'org.jetbrains.kotlin.jvm' version '1.6.10'
+  alias(libs.plugins.spotbugs)
+  alias(libs.plugins.shadow)
+  alias(libs.plugins.flyway)
+  alias(libs.plugins.licenser)
+  alias(libs.plugins.kotlin)
+  // alias(libs.plugins.lombok)
 }
 
 group 'com.mcmoddev'
@@ -28,12 +26,7 @@ application {
   mainClass = 'com.mcmoddev.mmdbot.core.RunBots'
 }
 
-compileJava {
-  sourceCompatibility = targetCompatibility = JavaVersion.VERSION_16
-  options.encoding = 'UTF-8'
-}
-
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
   options.encoding = 'UTF-8'
   options.compilerArgs = [
     '-Xlint:all', // deprecation, rawtypes, cast, unchecked, all
@@ -51,104 +44,33 @@ configurations {
   loggingImplementation.extendsFrom(d4j)
 
   global
-  implementation.extendsFrom(global)
-  watcherImplementation.extendsFrom(global)
-  commanderImplementation.extendsFrom(global)
   coreImplementation.extendsFrom(global)
-  mainImplementation.extendsFrom(global)
+  implementation.extendsFrom(global)
+  loggingImplementation.extendsFrom(global)
+  commanderImplementation.extendsFrom(global)
+  watcherImplementation.extendsFrom(global)
 
   jda
-  watcherImplementation.extendsFrom(jda)
-  commanderImplementation.extendsFrom(jda)
   coreImplementation.extendsFrom(jda)
-  mainImplementation.extendsFrom(jda)
+  implementation.extendsFrom(jda)
+  commanderImplementation.extendsFrom(jda)
+  watcherImplementation.extendsFrom(jda)
 
   globalCompile
-  watcherCompileOnly.extendsFrom(globalCompile)
-  commanderCompileOnly.extendsFrom(globalCompile)
   coreCompileOnly.extendsFrom(globalCompile)
-  mainCompileOnly.extendsFrom(globalCompile)
+  compileOnly.extendsFrom(globalCompile)
+  loggingCompileOnly.extendsFrom(globalCompile)
+  commanderCompileOnly.extendsFrom(globalCompile)
+  watcherCompileOnly.extendsFrom(globalCompile)
+
+  coreRuntimeOnly.extendsFrom(d4j)
 }
 
 sourceSets {
-  core {
-    java {
-      srcDirs = [
-              "$rootDir/src/core/java"
-      ]
-    }
-    resources {
-      srcDirs = [
-              "$rootDir/src/core/resources"
-      ]
-    }
-    runtimeClasspath += sourceSets.core.output
-  }
-  main {
-    compileClasspath += configurations.getByName("jda")
-    runtimeClasspath += configurations.getByName("jda")
-
-    compileClasspath += sourceSets.core.output
-    runtimeClasspath += sourceSets.core.output
-  }
-  logging {
-    java {
-      srcDirs = [
-              "$rootDir/src/logging/java"
-      ]
-    }
-    resources {
-      srcDirs = [
-              "$rootDir/src/logging/resources"
-      ]
-    }
-    compileClasspath += configurations.getByName("global")
-    runtimeClasspath += configurations.getByName("global")
-
-    compileClasspath += sourceSets.core.output
-    runtimeClasspath += sourceSets.core.output
-  }
-  commander {
-    java {
-      srcDirs = [
-              "$rootDir/src/commander/java"
-      ]
-    }
-    resources {
-      srcDirs = [
-              "$rootDir/src/commander/resources"
-      ]
-    }
-    compileClasspath += configurations.getByName("global")
-    runtimeClasspath += configurations.getByName("global")
-
-    compileClasspath += sourceSets.core.output
-    runtimeClasspath += sourceSets.core.output
-  }
-  watcher {
-    java {
-      srcDirs = [
-              "$rootDir/src/watcher/java"
-      ]
-    }
-    resources {
-      srcDirs = [
-              "$rootDir/src/watcher/resources"
-      ]
-    }
-    compileClasspath += configurations.getByName("global")
-    runtimeClasspath += configurations.getByName("global")
-
-    compileClasspath += sourceSets.core.output
-    runtimeClasspath += sourceSets.core.output
-  }
-  core {
-    runtimeClasspath += sourceSets.main.output
-    runtimeClasspath += sourceSets.logging.output
-    runtimeClasspath += sourceSets.watcher.output
-    runtimeClasspath += sourceSets.commander.output
-    runtimeClasspath += configurations.getByName("d4j")
-  }
+  core {}
+  logging {}
+  commander {}
+  watcher {}
 }
 
 repositories {
@@ -177,54 +99,67 @@ repositories {
 }
 
 dependencies {
-  // globalCompile supportDependencies.lombok
+  implementation sourceSets.core.output
+  loggingImplementation sourceSets.core.output
+  commanderImplementation sourceSets.core.output
+  watcherImplementation sourceSets.core.output
 
-  jda supportDependencies.jda
-  jda supportDependencies.jdaChewtils
+  coreRuntimeOnly sourceSets.main.output
+  coreRuntimeOnly sourceSets.logging.output
+  coreRuntimeOnly sourceSets.commander.output
+  coreRuntimeOnly sourceSets.watcher.output
 
-  d4j supportDependencies.d4j
+  // globalCompile libs.lombok
 
-  global supportDependencies.guava
-  global supportDependencies.gson
-  global supportDependencies.logbackClassic
-  global supportDependencies.nightConfig
-  global supportDependencies.sqliteJdbc
-  global supportDependencies.flywayCore
-  global supportDependencies.graal
-  global supportDependencies.graalScriptEngine
-  global supportDependencies.reflections
+  jda libs.jda
+  jda libs.chewtils
 
-  globalCompile supportDependencies.jetbrainsAnnotations
+  d4j libs.discord4j
 
-  global group: 'org.jdbi', name: 'jdbi3-core', version: "${project.jdbi_version}"
-  global group: 'org.jdbi', name: 'jdbi3-sqlobject', version: "${project.jdbi_version}"
+  global libs.guava
+  global libs.gson
+  global libs.logback
+  global libs.nightconfig
+  global libs.sqlite
+  global libs.flyway
+  global libs.graal
+  global libs.graal.scriptengine
+  global libs.reflections
 
-  // testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: "${project.junit_version}"
+  globalCompile libs.annotations
 
-  spotbugsPlugins "com.h3xstream.findsecbugs:findsecbugs-plugin:${project.findsecbugs_version}"
+  global libs.jdbi.core
+  global libs.jdbi.sqlobject
+
+  testImplementation libs.junit
+
+  spotbugsPlugins libs.findsecbugs
 }
 
-shadowJar {
+tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
   from sourceSets.core.output
   configurations = [project.configurations.jda, project.configurations.global]
 }
 
-jar {
+var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
+var currentDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(actualDateTime)
+
+tasks.named(JavaPlugin.JAR_TASK_NAME, Jar).configure {
   from sourceSets.core.output
 
   manifest {
     mainAttributes(
       'Maven-Artifact': "${project.group}:${archivesBaseName}:${project.bot_version}",
-      'Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+      'Timestamp': currentDateTime,
       'Specification-Title': archivesBaseName,
       'Specification-Vendor': 'Minecraft Mod Development',
       'Specification-Version': '1',
       'Implementation-Title': archivesBaseName,
       'Implementation-Version': "${project.bot_version}",
       'Implementation-Vendor': 'Minecraft Mod Development',
-      'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+      'Implementation-Timestamp': currentDateTime,
       'Built-On-Java': "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
-      'Built-On': "${jdaVersion}-${jdaChewtilsVersion}",
+      'Built-On': "${project.libs.versions.jda.get()}-${project.libs.versions.chewtils.get()}",
       'Class-Path': configurations.compileClasspath.collect { it.getName() }.join(' '),
       'Main-Class': 'com.mcmoddev.mmdbot.core.RunBots'
     )
@@ -239,14 +174,8 @@ license {
   exclude '**/module-info.java'
   newLine = false
   properties {
-    year = currentCopyrightYear()
+    year = actualDateTime.getYear()
   }
-}
-
-def currentCopyrightYear() {
-  def dateFormat = new SimpleDateFormat('yyyy')
-  dateFormat.setTimeZone(TimeZone.getTimeZone('UTC'))
-  return dateFormat.format(new Date())
 }
 
 eclipse.project {
@@ -259,7 +188,7 @@ idea.module {
   inheritOutputDirs = true
 }
 
-javadoc {
+tasks.withType(Javadoc).configureEach {
   failOnError = false
 }
 
@@ -275,7 +204,7 @@ flyway {
   user = 'sa'
 }
 
-task generatePom {
+tasks.register('generatePom') {
     doLast {
         pom {
             project {
@@ -305,7 +234,7 @@ spotbugs {
   //includeFilter = file("$rootProject.projectDir/config/spotbugs-filter.xml")
 }
 
-tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
   reports {
     xml.enabled = false
     html.enabled = true
@@ -318,7 +247,7 @@ checkstyle {
   showViolations = false
 }
 
-tasks.withType(Checkstyle) {
+tasks.withType(Checkstyle).configureEach {
   reports {
     xml.enabled true
     html.enabled true

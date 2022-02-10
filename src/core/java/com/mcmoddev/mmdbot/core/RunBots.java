@@ -21,9 +21,7 @@
 package com.mcmoddev.mmdbot.core;
 
 import com.google.gson.JsonObject;
-import com.google.gson.stream.JsonWriter;
 import com.ibm.icu.impl.Pair;
-import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import org.slf4j.Logger;

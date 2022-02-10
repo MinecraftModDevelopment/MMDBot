@@ -20,13 +20,14 @@
  */
 package com.mcmoddev.mmdbot.core.util;
 
-import static org.reflections.scanners.Scanners.FieldsAnnotated;
 import org.reflections.Reflections;
 import org.reflections.util.ConfigurationBuilder;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Set;
+
+import static org.reflections.scanners.Scanners.FieldsAnnotated;
 
 public class ReflectionsUtils {
 
