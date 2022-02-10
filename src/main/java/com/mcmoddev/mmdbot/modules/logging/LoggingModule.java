@@ -24,12 +24,6 @@ import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.logging.misc.EventReactionAdded;
 import com.mcmoddev.mmdbot.modules.logging.misc.ScamDetector;
 import com.mcmoddev.mmdbot.modules.logging.misc.ThreadChannelCreatorEvents;
-import com.mcmoddev.mmdbot.modules.logging.users.EventNicknameChanged;
-import com.mcmoddev.mmdbot.modules.logging.users.EventRoleAdded;
-import com.mcmoddev.mmdbot.modules.logging.users.EventRoleRemoved;
-import com.mcmoddev.mmdbot.modules.logging.users.EventUserJoined;
-import com.mcmoddev.mmdbot.modules.logging.users.EventUserLeft;
-import com.mcmoddev.mmdbot.modules.logging.users.UserBanned;
 import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.console.ConsoleChannelButtonListener;
@@ -41,7 +35,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 /**
- * Splits off event logging so we can disable it if the API ever breaks or if we are in dev,
+ * Splits off event logging, so we can disable it if the API ever breaks or if we are in dev,
  * this way we can avoid spamming errors or duplicate logging of events.
  *
  * @author KiriCattus
@@ -57,13 +51,7 @@ public class LoggingModule {
         if (MMDBot.getConfig().isEventLoggingModuleEnabled()) {
             MMDBot.getJDA()
                 .addEventListener(
-                    loggingEvent(new EventUserJoined()),
-                    loggingEvent(new EventUserLeft()),
-                    loggingEvent(new EventNicknameChanged()),
-                    loggingEvent(new EventRoleAdded()),
-                    loggingEvent(new EventRoleRemoved()),
                     loggingEvent(new EventReactionAdded()),
-                    loggingEvent(new UserBanned()),
                     loggingEvent(new ConsoleChannelButtonListener()),
                     loggingEvent(new ScamDetector()),
                     loggingEvent(new ThreadChannelCreatorEvents()));
