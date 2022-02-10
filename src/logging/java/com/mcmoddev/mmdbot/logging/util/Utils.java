@@ -26,6 +26,7 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
 import discord4j.core.object.entity.Message;
 import discord4j.rest.entity.RestChannel;
+import io.github.cdimascio.dotenv.Dotenv;
 
 import java.util.function.Consumer;
 

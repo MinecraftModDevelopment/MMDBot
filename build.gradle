@@ -125,6 +125,7 @@ dependencies {
   global libs.graal
   global libs.graal.scriptengine
   global libs.reflections
+  global libs.dotenv
 
   globalCompile libs.annotations
 

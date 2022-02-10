@@ -23,10 +23,18 @@ package com.mcmoddev.mmdbot.logging;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
+import com.mcmoddev.mmdbot.logging.events.LeaveJoinEvents;
+import com.mcmoddev.mmdbot.logging.events.MessageEvents;
+import com.mcmoddev.mmdbot.logging.events.ModerationEvents;
 import com.mcmoddev.mmdbot.logging.util.EventListener;
+import com.mcmoddev.mmdbot.logging.util.ListenerAdapter;
 import com.mcmoddev.mmdbot.logging.util.ThreadedEventListener;
 import com.mcmoddev.mmdbot.logging.util.Utils;
 import discord4j.core.DiscordClient;
+import discord4j.core.event.domain.lifecycle.ReadyEvent;
+import discord4j.gateway.intent.Intent;
+import discord4j.gateway.intent.IntentSet;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,28 +75,28 @@ public final class LoggingBot implements Bot {
     public void start() {
         instance = this;
 
-        /*final var token = ""; // TODO config, yes
+        final var dotenv = Dotenv.configure()
+            .directory(runPath.toString()).load();
+
+        final var token = dotenv.get("BOT_TOKEN", "");
 
         client = DiscordClient.create(token);
 
         final var gateway = client.gateway().setEnabledIntents(IntentSet.of(Intent.values())).login().block();
 
         Utils.subscribe(gateway, new ListenerAdapter() {
-            @Override
-            public void onReady(final ReadyEvent event) {
-                LOGGER.warn("I am ready to work! Logged in as {}",
-                    event.getSelf().getTag());
-            }
-        }, wrapListener(new MessageEvents()), wrapListener(new LeaveJoinEvents()),
-            wrapListener(new ModerationEvents()));*/
+                @Override
+                public void onReady(final ReadyEvent event) {
+                    LOGGER.warn("I am ready to work! Logged in as {}",
+                        event.getSelf().getTag());
+                }
+            }, wrapListener(new MessageEvents()), wrapListener(new LeaveJoinEvents()),
+            wrapListener(new ModerationEvents()));
 
         // TODO a proper thingy
         new Thread(() -> {
             while (true) {
-                // Just need to do something, so the program doesn't stop
-                int i = 0;
-                i = i + 1;
-                i = i - 1;
+              // Just so the JVM doesn't stop
             }
         }).start();
     }
