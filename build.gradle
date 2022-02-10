@@ -26,12 +26,7 @@ application {
   mainClass = 'com.mcmoddev.mmdbot.core.RunBots'
 }
 
-compileJava {
-  sourceCompatibility = targetCompatibility = JavaVersion.VERSION_16
-  options.encoding = 'UTF-8'
-}
-
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
   options.encoding = 'UTF-8'
   options.compilerArgs = [
     '-Xlint:all', // deprecation, rawtypes, cast, unchecked, all
@@ -139,7 +134,7 @@ dependencies {
   spotbugsPlugins libs.findsecbugs
 }
 
-shadowJar {
+tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
   from sourceSets.core.output
   configurations = [project.configurations.jda, project.configurations.global]
 }
@@ -147,7 +142,7 @@ shadowJar {
 var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
 var currentDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(actualDateTime)
 
-jar {
+tasks.named(JavaPlugin.JAR_TASK_NAME, Jar).configure {
   from sourceSets.core.output
 
   manifest {
@@ -191,7 +186,7 @@ idea.module {
   inheritOutputDirs = true
 }
 
-javadoc {
+tasks.withType(Javadoc).configureEach {
   failOnError = false
 }
 
@@ -207,7 +202,7 @@ flyway {
   user = 'sa'
 }
 
-task generatePom {
+tasks.register('generatePom') {
     doLast {
         pom {
             project {
@@ -237,7 +232,7 @@ spotbugs {
   //includeFilter = file("$rootProject.projectDir/config/spotbugs-filter.xml")
 }
 
-tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
   reports {
     xml.enabled = false
     html.enabled = true
@@ -250,7 +245,7 @@ checkstyle {
   showViolations = false
 }
 
-tasks.withType(Checkstyle) {
+tasks.withType(Checkstyle).configureEach {
   reports {
     xml.enabled true
     html.enabled true
