@@ -89,20 +89,22 @@ public final class LoggingBot implements Bot {
                         c -> c.createMessage(embed.build().asRequest()).subscribe());
                 });
         });
-        WarningEvent.Add.addListener(event -> {
+        WarningEvent.Clear.addListener(event -> {
             final var warnDoc = event.getDocument();
             final var userData = Mono.zip(getClient().getUserById(Snowflake.of(warnDoc.userId())).getData(),
-                    getClient().getUserById(Snowflake.of(warnDoc.moderatorId())).getData())
+                    getClient().getUserById(Snowflake.of(event.getModeratorId())).getData())
                 .subscribe(t -> {
                     final var user = t.getT1();
-                    final var warner = t.getT2();
+                    final var moderator = t.getT2();
                     final var embed = EmbedCreateSpec.builder()
                         .color(Color.GREEN)
                         .title("Warning Cleared")
                         .description("One of the warnings of " + mentionAndID(warnDoc.userId()) + " has been removed!")
+                        .thumbnail(user.avatar().map(Possible::of).orElse(Possible.absent()))
                         .addField("Old warning reason:", warnDoc.reason(), false)
                         .addField("Old warner:", mentionAndID(warnDoc.userId()), false)
-                        .timestamp(Instant.now());
+                        .timestamp(Instant.now())
+                        .footer("Moderator ID: " + event.getModeratorId(), moderator.avatar().orElse(null));
                     Utils.executeInLoggingChannel(Snowflake.of(warnDoc.guildId()), LoggingType.MODERATION_EVENTS,
                         c -> c.createMessage(embed.build().asRequest()).subscribe());
                 });
