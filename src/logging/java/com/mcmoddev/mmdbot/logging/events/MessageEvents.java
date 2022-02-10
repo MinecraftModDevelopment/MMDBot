@@ -21,7 +21,7 @@
 package com.mcmoddev.mmdbot.logging.events;
 
 import com.mcmoddev.mmdbot.core.util.Pair;
-import com.mcmoddev.mmdbot.logging.LoggingBot;
+import com.mcmoddev.mmdbot.logging.TheListener;
 import com.mcmoddev.mmdbot.logging.util.ListenerAdapter;
 import com.mcmoddev.mmdbot.logging.util.LoggingType;
 import com.mcmoddev.mmdbot.logging.util.Utils;
@@ -98,7 +98,7 @@ public final class MessageEvents extends ListenerAdapter {
                 channel -> channel.createMessage(MessageCreateRequest.builder()
                     .embed(embed.asRequest())
                     .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe());
-        }, e -> LoggingBot.LOGGER.error("Error while trying to log a message edit!", e));
+        }, e -> TheListener.LOGGER.error("Error while trying to log a message edit!", e));
     }
 
     @Override

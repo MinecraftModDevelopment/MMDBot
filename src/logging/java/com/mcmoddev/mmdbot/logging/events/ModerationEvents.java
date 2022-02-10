@@ -22,7 +22,7 @@ package com.mcmoddev.mmdbot.logging.events;
 
 import com.mcmoddev.mmdbot.core.util.DiscordTimestamp;
 import com.mcmoddev.mmdbot.core.util.Pair;
-import com.mcmoddev.mmdbot.logging.LoggingBot;
+import com.mcmoddev.mmdbot.logging.TheListener;
 import com.mcmoddev.mmdbot.logging.util.ListenerAdapter;
 import com.mcmoddev.mmdbot.logging.util.LoggingType;
 import com.mcmoddev.mmdbot.logging.util.Utils;
@@ -73,7 +73,7 @@ public final class ModerationEvents extends ListenerAdapter {
                     final var targetId = (long) log.getTargetId().map(Snowflake::asLong).orElse(0L);
 
                     if (targetId != bannedUser.getId().asLong()) {
-                        LoggingBot.LOGGER.warn("Inconsistency between target of retrieved audit log "
+                        TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
                                 + "entry and actual ban event target: retrieved is {}, but target is {}",
                             targetId, bannedUser);
                     } else {
@@ -117,7 +117,7 @@ public final class ModerationEvents extends ListenerAdapter {
                     final var targetId = (long) log.getTargetId().map(Snowflake::asLong).orElse(0L);
 
                     if (targetId != bannedUser.getId().asLong()) {
-                        LoggingBot.LOGGER.warn("Inconsistency between target of retrieved audit log "
+                        TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
                                 + "entry and actual unban event target: retrieved is {}, but target is {}",
                             targetId, bannedUser);
                     } else {
@@ -168,7 +168,7 @@ public final class ModerationEvents extends ListenerAdapter {
                     final var targetId = (long) entry.getTargetId().map(Snowflake::asLong).orElse(0L);
 
                     if (targetId != newMember.getId().asLong()) {
-                        LoggingBot.LOGGER.warn("Inconsistency between target of retrieved audit log "
+                        TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
                                 + "entry and actual nickname event target: retrieved is {}, but target is {}",
                             targetId, newMember);
                     } else {
@@ -214,7 +214,7 @@ public final class ModerationEvents extends ListenerAdapter {
                     final var targetId = (long) log.getTargetId().map(Snowflake::asLong).orElse(0L);
 
                     if (targetId != event.getUser().getId().asLong()) {
-                        LoggingBot.LOGGER.warn("Inconsistency between target of retrieved audit log "
+                        TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
                                 + "entry and actual kick event target: retrieved is {}, but target is {}",
                             targetId, event.getUser());
                     } else {

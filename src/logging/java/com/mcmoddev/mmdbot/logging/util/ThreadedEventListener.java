@@ -20,7 +20,7 @@
  */
 package com.mcmoddev.mmdbot.logging.util;
 
-import com.mcmoddev.mmdbot.logging.LoggingBot;
+import com.mcmoddev.mmdbot.logging.TheListener;
 import discord4j.core.event.domain.Event;
 
 import java.util.concurrent.Executor;
@@ -39,7 +39,7 @@ public record ThreadedEventListener(EventListener listener, Executor threadPool)
                 try {
                     listener.onEvent(event);
                 } catch (Exception e) {
-                    LoggingBot.LOGGER.error("Error while executing threaded event!", e);
+                    TheListener.LOGGER.error("Error while executing threaded event!", e);
                 }
             });
         }

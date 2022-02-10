@@ -21,9 +21,9 @@
 package com.mcmoddev.mmdbot.core;
 
 import com.google.gson.JsonObject;
-import com.ibm.icu.impl.Pair;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.util.Constants;
+import com.mcmoddev.mmdbot.core.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +33,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 
 public class RunBots {
 
@@ -48,17 +49,25 @@ public class RunBots {
             .map(entry -> {
                 final var botEntry = BotEntry.of(entry.getKey(),
                     config.has(entry.getKey()) ? config.get(entry.getKey()).getAsJsonObject() : new JsonObject());
-                return Pair.of(entry.getValue().createBot(createDirectory(Path.of(botEntry.runPath()))), botEntry);
+                return Pair.of(entry.getValue(), botEntry);
             })
+            .sorted(Comparator.comparing(p -> -p.first().priority()))
+            .map(entry -> entry.mapFirst(type -> type.botType().createBot(createDirectory(entry.second().runPath()))))
             .forEach(botPair -> {
-                if (botPair.second.isEnabled()) {
-                    botPair.first.start();
-                    botPair.first.getLogger().warn("Bot {} has been found, and it has been launched!", botPair.second.name());
+                final var botEntry = botPair.second();
+                final var bot = botPair.first();
+                if (botEntry.isEnabled()) {
+                    bot.start();
+                    bot.getLogger().warn("Bot {} has been found, and it has been launched!", botEntry.name());
                 } else {
-                    botPair.first.getLogger().warn("Bot {} is disabled! Its features will not work!", botPair.second.name());
+                    bot.getLogger().warn("Bot {} is disabled! Its features will not work!", botEntry.name());
                 }
             });
 
+    }
+
+    private static Path createDirectory(String path) {
+        return createDirectory(Path.of(path));
     }
 
     private static Path createDirectory(Path path) {

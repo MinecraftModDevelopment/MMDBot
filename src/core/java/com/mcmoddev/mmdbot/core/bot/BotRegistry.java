@@ -32,7 +32,7 @@ public class BotRegistry {
 
     public static final Logger LOG = LoggerFactory.getLogger(BotRegistry.class);
 
-    private static final Map<String, BotType<?>> BOT_TYPES;
+    private static final Map<String, BotRegistryEntry<?>> BOT_TYPES;
 
     static {
         BOT_TYPES = new ConcurrentHashMap<>();
@@ -45,7 +45,8 @@ public class BotRegistry {
                 try {
                     final var val = field.get(null);
                     if (val instanceof BotType<?> botType) {
-                        registerType(field.getAnnotation(RegisterBotType.class).name(), botType);
+                        final var ann = field.getAnnotation(RegisterBotType.class);
+                        registerType(ann.name(), botType, ann.priority());
                     } else {
                         LOG.warn("Found a field annotated with RegisterBotType ({}) but the underlying object is not a bot type!", field);
                     }
@@ -55,12 +56,24 @@ public class BotRegistry {
             });
     }
 
-    public static <B extends Bot> BotType<B> registerType(String name, BotType<B> type) {
-        BOT_TYPES.put(name, type);
+    /**
+     * Registers a {@link BotType}
+     * @param name the name of the bot
+     * @param type the bot type to register
+     * @param priority the priority. See {@link RegisterBotType#priority()}
+     * @param <B> the type of the bot
+     * @return the bot type ({@code type)}
+     */
+    public static <B extends Bot> BotType<B> registerType(String name, BotType<B> type, int priority) {
+        BOT_TYPES.put(name, new BotRegistryEntry<>(type, priority));
         return type;
     }
 
-    public static Map<String, BotType<?>> getBotTypes() {
+    public static Map<String, BotRegistryEntry<?>> getBotTypes() {
         return Map.copyOf(BOT_TYPES);
+    }
+
+    public record BotRegistryEntry<B extends Bot>(BotType<B> botType, Integer priority) {
+
     }
 }

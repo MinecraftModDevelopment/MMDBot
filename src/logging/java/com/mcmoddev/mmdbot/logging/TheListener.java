@@ -51,15 +51,15 @@ import java.time.Instant;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public final class LoggingBot implements Bot {
+public final class TheListener implements Bot {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("TheListener");
 
-    @RegisterBotType(name = "logging")
-    public static final BotType<LoggingBot> BOT_TYPE = new BotType<>() {
+    @RegisterBotType(name = "thelistener")
+    public static final BotType<TheListener> BOT_TYPE = new BotType<>() {
         @Override
-        public LoggingBot createBot(final Path runPath) {
-            return new LoggingBot(runPath);
+        public TheListener createBot(final Path runPath) {
+            return new TheListener(runPath);
         }
 
         @Override
@@ -119,12 +119,12 @@ public final class LoggingBot implements Bot {
         });
     }
 
-    private static LoggingBot instance;
+    private static TheListener instance;
 
     private DiscordClient client;
     private final Path runPath;
 
-    public LoggingBot(final Path runPath) {
+    public TheListener(final Path runPath) {
         this.runPath = runPath;
     }
 
@@ -175,7 +175,7 @@ public final class LoggingBot implements Bot {
         return runPath;
     }
 
-    public static LoggingBot getInstance() {
+    public static TheListener getInstance() {
         return instance;
     }
 

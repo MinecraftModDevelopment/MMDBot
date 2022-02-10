@@ -26,13 +26,28 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Registers a {@link BotType} to the {@link BotRegistry}, and loads the class in which the
+ * bot type field exists.
+ */
 @Documented
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RegisterBotType {
 
+    /**
+     * @return The name of the bot.
+     */
     String name();
 
+    /**
+     * The priority of the bot when it is loaded. <br>
+     * <ul>
+     *     <li>Greater priority: first loaded.</li>
+     *     <li>Lower priority: last loaded.</li>
+     * </ul>
+     * @return the loading priority
+     */
     int priority() default 0;
 
 }

@@ -20,13 +20,12 @@
  */
 package com.mcmoddev.mmdbot.logging.util;
 
-import com.mcmoddev.mmdbot.logging.LoggingBot;
+import com.mcmoddev.mmdbot.logging.TheListener;
 import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
 import discord4j.core.object.entity.Message;
 import discord4j.rest.entity.RestChannel;
-import io.github.cdimascio.dotenv.Dotenv;
 
 import java.util.function.Consumer;
 
@@ -51,11 +50,11 @@ public final class Utils {
     }
 
     public static void executeInLoggingChannel(final Snowflake guild, LoggingType type, Consumer<RestChannel> consumer) {
-        if (LoggingBot.getClient() != null) {
+        if (TheListener.getClient() != null) {
             // Hardcoded until configs
             final var channels = type.getChannels(guild);
             channels.forEach(channelId -> {
-                final var channel = LoggingBot.getClient().getChannelById(channelId);
+                final var channel = TheListener.getClient().getChannelById(channelId);
                 consumer.accept(channel);
             });
         }
