@@ -20,6 +20,11 @@
  */
 package com.mcmoddev.mmdbot.utilities.dictionary;
 
+import com.google.common.base.Throwables;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.util.concurrent.ExecutionError;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.gson.JsonObject;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.References;
@@ -30,11 +35,9 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public final class DictionaryUtils {
 
@@ -48,12 +51,12 @@ public final class DictionaryUtils {
             "Curle is unique in her own way.", "https://cdn.discordapp.com/attachments/797440750971387925/939094064605831199/bolbmas.png", "<:bolbmas:879868298584526880>")));
 
     public static final String TARGET_URL = "https://owlbot.info/api/v4/dictionary/%s";
-    private static final Map<String, DictionaryEntry> CACHE = Collections.synchronizedMap(new LinkedHashMap<>() {
-        @Override
-        protected boolean removeEldestEntry(final Map.Entry<String, DictionaryEntry> eldest) {
-            return size() > 50;
-        }
-    });
+
+    private static final Cache<String, DictionaryEntry> CACHE = CacheBuilder.newBuilder()
+        .initialCapacity(25)
+        .maximumSize(50)
+        .softValues()
+        .build();
 
     public static DictionaryEntry getDefinition(final String token, final String word) throws DictionaryException {
         final var wordLowercase = word.toLowerCase(Locale.ROOT);
@@ -61,23 +64,27 @@ public final class DictionaryUtils {
             return CURLE_ENTRY;
         }
 
-        if (CACHE.containsKey(wordLowercase)) {
-            return CACHE.get(wordLowercase);
-        }
-        String definition;
         try {
-            definition = post(token, word);
-        } catch (IOException | InterruptedException ioe) {
-            throw new DictionaryException(lastErrorMessage, lastCode);
-        }
+            return CACHE.get(wordLowercase, () -> {
+                String definition;
+                try {
+                    definition = post(token, word);
+                } catch (IOException | InterruptedException ioe) {
+                    throw new DictionaryException(lastErrorMessage, lastCode);
+                }
 
-        if (lastCode == 404) {
-            throw new DictionaryException("No definition", lastCode);
-        }
+                if (lastCode == 404) {
+                    throw new DictionaryException("No definition", lastCode);
+                }
 
-        final var entry = DictionaryEntry.fromJson(References.GSON.fromJson(definition, JsonObject.class));
-        CACHE.put(wordLowercase, entry);
-        return entry;
+                return DictionaryEntry.fromJson(References.GSON.fromJson(definition, JsonObject.class));
+            });
+        } catch (ExecutionException | UncheckedExecutionException | ExecutionError e) {
+            // The only checked exception we expect is this one, any others are unchecked ones
+            if (e.getCause() instanceof DictionaryException dictionaryEx) throw dictionaryEx;
+            Throwables.throwIfUnchecked(e.getCause());
+            throw new AssertionError(e); // See javadocs of throwIfUnchecked
+        }
     }
 
     public static DictionaryEntry getDefinition(final String word) throws DictionaryException {
