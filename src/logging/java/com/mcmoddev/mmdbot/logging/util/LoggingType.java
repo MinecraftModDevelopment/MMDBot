@@ -22,14 +22,15 @@ package com.mcmoddev.mmdbot.logging.util;
 
 import discord4j.common.util.Snowflake;
 
-import java.util.List;
+import java.util.Set;
 
 public enum LoggingType {
 
     // TODO yes, config
-    MESSAGE_EVENTS("message_events", s -> List.of(Snowflake.of(0L))),
-    LEAVE_JOIN_EVENTS("leave_join_events", s -> List.of(Snowflake.of(0L))),
-    MODERATION_EVENTS("moderation_events", s -> List.of(Snowflake.of(0L)));
+    MESSAGE_EVENTS("message_events", s -> Set.of()),
+    LEAVE_JOIN_EVENTS("leave_join_events", s -> Set.of()),
+    MODERATION_EVENTS("moderation_events", s -> Set.of()),
+    ROLE_EVENTS("role_events", s -> Set.of());
 
     private final String name;
     private final ChannelGetter channelGetter;
@@ -39,7 +40,7 @@ public enum LoggingType {
         this.channelGetter = channelGetter;
     }
 
-    public List<Snowflake> getChannels(Snowflake guild) {
+    public Set<Snowflake> getChannels(Snowflake guild) {
         return channelGetter.getChannels(guild);
     }
 
@@ -50,7 +51,7 @@ public enum LoggingType {
     @FunctionalInterface
     public interface ChannelGetter {
 
-        List<Snowflake> getChannels(Snowflake guild);
+        Set<Snowflake> getChannels(Snowflake guild);
 
     }
 }

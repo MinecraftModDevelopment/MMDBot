@@ -24,10 +24,16 @@ import com.mcmoddev.mmdbot.logging.TheListener;
 import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
+import discord4j.core.object.audit.AuditLogEntry;
+import discord4j.core.object.audit.AuditLogPart;
+import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Message;
+import discord4j.core.spec.AuditLogQueryFlux;
 import discord4j.rest.entity.RestChannel;
 
+import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 public final class Utils {
 
@@ -70,4 +76,10 @@ public final class Utils {
         return "<@" + id + "> (" + id + ")";
     }
 
+    public static void getAuditLog(final Guild guild, final long targetId, UnaryOperator<AuditLogQueryFlux> modifier, Consumer<AuditLogEntry> consumer) {
+        modifier.apply(guild.getAuditLog())
+            .map(l -> l.getEntries().stream().filter(log -> log.getTargetId().map(Snowflake::asLong).orElse(0L).equals(targetId)).findAny())
+            .filter(Optional::isPresent)
+            .map(Optional::get).subscribe(consumer);
+    }
 }

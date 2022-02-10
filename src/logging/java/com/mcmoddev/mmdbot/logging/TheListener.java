@@ -28,6 +28,7 @@ import com.mcmoddev.mmdbot.core.event.WarningEvent;
 import com.mcmoddev.mmdbot.logging.events.LeaveJoinEvents;
 import com.mcmoddev.mmdbot.logging.events.MessageEvents;
 import com.mcmoddev.mmdbot.logging.events.ModerationEvents;
+import com.mcmoddev.mmdbot.logging.events.RoleEvents;
 import com.mcmoddev.mmdbot.logging.util.EventListener;
 import com.mcmoddev.mmdbot.logging.util.ListenerAdapter;
 import com.mcmoddev.mmdbot.logging.util.LoggingType;
@@ -36,6 +37,7 @@ import com.mcmoddev.mmdbot.logging.util.Utils;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
+import discord4j.core.retriever.EntityRetrievalStrategy;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.possible.Possible;
 import discord4j.gateway.intent.Intent;
@@ -67,14 +69,6 @@ public final class TheListener implements Bot {
             return LOGGER;
         }
     };
-
-    public static final IntentSet INTENTS = IntentSet.of(
-        Intent.DIRECT_MESSAGES,
-        Intent.GUILD_BANS,
-        Intent.GUILD_EMOJIS,
-        Intent.GUILD_MESSAGE_REACTIONS,
-        Intent.GUILD_MESSAGES,
-        Intent.GUILD_MEMBERS);
 
     static {
         WarningEvent.Add.addListener(event -> {
@@ -143,16 +137,14 @@ public final class TheListener implements Bot {
         client = DiscordClient.create(token);
 
         final var gateway = client.gateway()
-            .setEnabledIntents(INTENTS).login().block();
+            .setEnabledIntents(IntentSet.of(Intent.values()))
+            .setEntityRetrievalStrategy(EntityRetrievalStrategy.REST).login().block();
 
-        Utils.subscribe(gateway, new ListenerAdapter() {
-                @Override
-                public void onReady(final ReadyEvent event) {
-                    LOGGER.warn("I am ready to work! Logged in as {}",
-                        event.getSelf().getTag());
-                }
-            }, wrapListener(new MessageEvents()), wrapListener(new LeaveJoinEvents()),
-            wrapListener(new ModerationEvents()));
+        gateway.getEventDispatcher().on(ReadyEvent.class)
+            .subscribe(event -> LOGGER.warn("I am ready to work! Logged in as {}", event.getSelf().getTag()));
+
+        Utils.subscribe(gateway, wrapListener(new MessageEvents()), wrapListener(new LeaveJoinEvents()),
+            wrapListener(new ModerationEvents()), wrapListener(new RoleEvents()));
 
         // TODO a proper thingy
         new Thread(() -> {
