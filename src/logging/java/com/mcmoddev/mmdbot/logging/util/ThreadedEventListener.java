@@ -22,9 +22,7 @@ package com.mcmoddev.mmdbot.logging.util;
 
 import com.mcmoddev.mmdbot.logging.LoggingBot;
 import discord4j.core.event.domain.Event;
-import discord4j.core.event.domain.interaction.DeferrableInteractionEvent;
 
-import java.awt.Color;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 

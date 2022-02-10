@@ -20,19 +20,15 @@
  */
 package com.mcmoddev.mmdbot.logging.events;
 
-import com.mcmoddev.mmdbot.logging.LoggingBot;
 import com.mcmoddev.mmdbot.logging.util.ListenerAdapter;
 import com.mcmoddev.mmdbot.logging.util.LoggingType;
 import com.mcmoddev.mmdbot.logging.util.Utils;
-import com.oracle.truffle.api.ArrayUtils;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.event.domain.guild.MemberLeaveEvent;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.PartialMember;
 import discord4j.core.object.entity.Role;
-import discord4j.core.object.entity.User;
 import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.core.util.ArrayUtil;
 import reactor.core.publisher.Flux;
 
 import java.time.Instant;

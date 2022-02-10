@@ -31,7 +31,6 @@ import com.mcmoddev.mmdbot.utilities.scripting.ScriptingContext;
 import com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Channel;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;

@@ -20,23 +20,20 @@
  */
 package com.mcmoddev.mmdbot.logging.events;
 
+import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.logging.LoggingBot;
 import com.mcmoddev.mmdbot.logging.util.ListenerAdapter;
 import com.mcmoddev.mmdbot.logging.util.LoggingType;
-import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.logging.util.Utils;
 import discord4j.core.event.domain.message.MessageBulkDeleteEvent;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
 import discord4j.core.event.domain.message.MessageUpdateEvent;
-import discord4j.core.object.entity.Message;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.AllowedMentionsData;
 import discord4j.discordjson.json.MessageCreateRequest;
 import discord4j.rest.util.Color;
-import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.Optional;
 
 public final class MessageEvents extends ListenerAdapter {
 

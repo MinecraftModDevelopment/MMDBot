@@ -24,9 +24,7 @@ import com.mcmoddev.mmdbot.logging.LoggingBot;
 import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
-import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Message;
-import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.entity.RestChannel;
 
 import java.util.function.Consumer;

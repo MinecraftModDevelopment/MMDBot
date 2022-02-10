@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.core.util;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.ConfigFormat;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
@@ -40,6 +39,8 @@ import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 public abstract class Config<T extends Config<T>> {
 
