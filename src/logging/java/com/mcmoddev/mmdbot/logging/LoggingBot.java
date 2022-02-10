@@ -20,25 +20,34 @@
  */
 package com.mcmoddev.mmdbot.logging;
 
+import static com.mcmoddev.mmdbot.logging.util.Utils.mentionAndID;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
+import com.mcmoddev.mmdbot.core.event.WarningEvent;
 import com.mcmoddev.mmdbot.logging.events.LeaveJoinEvents;
 import com.mcmoddev.mmdbot.logging.events.MessageEvents;
 import com.mcmoddev.mmdbot.logging.events.ModerationEvents;
 import com.mcmoddev.mmdbot.logging.util.EventListener;
 import com.mcmoddev.mmdbot.logging.util.ListenerAdapter;
+import com.mcmoddev.mmdbot.logging.util.LoggingType;
 import com.mcmoddev.mmdbot.logging.util.ThreadedEventListener;
 import com.mcmoddev.mmdbot.logging.util.Utils;
+import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
+import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.discordjson.possible.Possible;
 import discord4j.gateway.intent.Intent;
 import discord4j.gateway.intent.IntentSet;
+import discord4j.rest.util.Color;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Mono;
 
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -58,6 +67,47 @@ public final class LoggingBot implements Bot {
             return LOGGER;
         }
     };
+
+    static {
+        WarningEvent.Add.addListener(event -> {
+            final var doc = event.getDocument();
+            final var userData = Mono.zip(getClient().getUserById(Snowflake.of(doc.userId())).getData(),
+                    getClient().getUserById(Snowflake.of(doc.moderatorId())).getData())
+                .subscribe(t -> {
+                    final var user = t.getT1();
+                    final var warner = t.getT2();
+                    final var embed = EmbedCreateSpec.builder()
+                        .color(Color.RED)
+                        .title("New Warning")
+                        .description("%s warned %s".formatted(mentionAndID(doc.moderatorId()), mentionAndID(doc.userId())))
+                        .thumbnail(user.avatar().map(Possible::of).orElse(Possible.absent()))
+                        .addField("Reason:", doc.reason(), false)
+                        .addField("Warning ID", doc.warnId(), false)
+                        .timestamp(Instant.now())
+                        .footer("Warner ID: " + doc.moderatorId(), warner.avatar().orElse(null));
+                    Utils.executeInLoggingChannel(Snowflake.of(doc.guildId()), LoggingType.MODERATION_EVENTS,
+                        c -> c.createMessage(embed.build().asRequest()).subscribe());
+                });
+        });
+        WarningEvent.Add.addListener(event -> {
+            final var warnDoc = event.getDocument();
+            final var userData = Mono.zip(getClient().getUserById(Snowflake.of(warnDoc.userId())).getData(),
+                    getClient().getUserById(Snowflake.of(warnDoc.moderatorId())).getData())
+                .subscribe(t -> {
+                    final var user = t.getT1();
+                    final var warner = t.getT2();
+                    final var embed = EmbedCreateSpec.builder()
+                        .color(Color.GREEN)
+                        .title("Warning Cleared")
+                        .description("One of the warnings of " + mentionAndID(warnDoc.userId()) + " has been removed!")
+                        .addField("Old warning reason:", warnDoc.reason(), false)
+                        .addField("Old warner:", mentionAndID(warnDoc.userId()), false)
+                        .timestamp(Instant.now());
+                    Utils.executeInLoggingChannel(Snowflake.of(warnDoc.guildId()), LoggingType.MODERATION_EVENTS,
+                        c -> c.createMessage(embed.build().asRequest()).subscribe());
+                });
+        });
+    }
 
     private static LoggingBot instance;
 

@@ -67,4 +67,8 @@ public final class Utils {
             + "/" + message.getId().asLong();
     }
 
+    public static String mentionAndID(final long id) {
+        return "<@" + id + "> (" + id + ")";
+    }
+
 }
