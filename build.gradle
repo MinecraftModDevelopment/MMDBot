@@ -68,16 +68,6 @@ configurations {
 
 sourceSets {
   core {
-    java {
-      srcDirs = [
-              "$rootDir/src/core/java"
-      ]
-    }
-    resources {
-      srcDirs = [
-              "$rootDir/src/core/resources"
-      ]
-    }
     runtimeClasspath += sourceSets.core.output
   }
   main {
@@ -88,16 +78,6 @@ sourceSets {
     runtimeClasspath += sourceSets.core.output
   }
   logging {
-    java {
-      srcDirs = [
-              "$rootDir/src/logging/java"
-      ]
-    }
-    resources {
-      srcDirs = [
-              "$rootDir/src/logging/resources"
-      ]
-    }
     compileClasspath += configurations.getByName("global")
     runtimeClasspath += configurations.getByName("global")
 
@@ -105,16 +85,6 @@ sourceSets {
     runtimeClasspath += sourceSets.core.output
   }
   commander {
-    java {
-      srcDirs = [
-              "$rootDir/src/commander/java"
-      ]
-    }
-    resources {
-      srcDirs = [
-              "$rootDir/src/commander/resources"
-      ]
-    }
     compileClasspath += configurations.getByName("global")
     runtimeClasspath += configurations.getByName("global")
 
@@ -122,16 +92,6 @@ sourceSets {
     runtimeClasspath += sourceSets.core.output
   }
   watcher {
-    java {
-      srcDirs = [
-              "$rootDir/src/watcher/java"
-      ]
-    }
-    resources {
-      srcDirs = [
-              "$rootDir/src/watcher/resources"
-      ]
-    }
     compileClasspath += configurations.getByName("global")
     runtimeClasspath += configurations.getByName("global")
 
