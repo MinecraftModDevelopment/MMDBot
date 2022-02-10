@@ -1,22 +1,18 @@
 import java.text.SimpleDateFormat
 
-buildscript {
-  apply from: 'dependencies.gradle'
-}
-
 plugins {
-  // id "io.freefair.lombok" version "${lombok_plugin}"
   id 'application'
-  id 'com.github.johnrengelman.shadow' version "${shadow}"
-//id 'maven'
+  // id 'maven'
   id 'eclipse'
   id 'idea'
-  id 'com.github.spotbugs' version "${spotbugs}"
   id 'checkstyle'
   id 'pmd'
-  id 'org.flywaydb.flyway' version "${flywaydb}"
-  id 'org.cadixdev.licenser' version "${licenser}"
-  id 'org.jetbrains.kotlin.jvm' version '1.6.10'
+  alias(libs.plugins.spotbugs)
+  alias(libs.plugins.shadow)
+  alias(libs.plugins.flyway)
+  alias(libs.plugins.licenser)
+  alias(libs.plugins.kotlin)
+  // alias(libs.plugins.lombok)
 }
 
 group 'com.mcmoddev'
@@ -177,31 +173,31 @@ repositories {
 }
 
 dependencies {
-  // globalCompile supportDependencies.lombok
+  // globalCompile libs.lombok
 
-  jda supportDependencies.jda
-  jda supportDependencies.jdaChewtils
+  jda libs.jda
+  jda libs.chewtils
 
-  d4j supportDependencies.d4j
+  d4j libs.discord4j
 
-  global supportDependencies.guava
-  global supportDependencies.gson
-  global supportDependencies.logbackClassic
-  global supportDependencies.nightConfig
-  global supportDependencies.sqliteJdbc
-  global supportDependencies.flywayCore
-  global supportDependencies.graal
-  global supportDependencies.graalScriptEngine
-  global supportDependencies.reflections
+  global libs.guava
+  global libs.gson
+  global libs.logback
+  global libs.nightconfig
+  global libs.sqlite
+  global libs.flyway
+  global libs.graal
+  global libs.graal.scriptengine
+  global libs.reflections
 
-  globalCompile supportDependencies.jetbrainsAnnotations
+  globalCompile libs.annotations
 
-  global group: 'org.jdbi', name: 'jdbi3-core', version: "${project.jdbi_version}"
-  global group: 'org.jdbi', name: 'jdbi3-sqlobject', version: "${project.jdbi_version}"
+  global libs.jdbi.core
+  global libs.jdbi.sqlobject
 
-  // testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: "${project.junit_version}"
+  testImplementation libs.junit
 
-  spotbugsPlugins "com.h3xstream.findsecbugs:findsecbugs-plugin:${project.findsecbugs_version}"
+  spotbugsPlugins libs.findsecbugs
 }
 
 shadowJar {
@@ -224,7 +220,7 @@ jar {
       'Implementation-Vendor': 'Minecraft Mod Development',
       'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
       'Built-On-Java': "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
-      'Built-On': "${jdaVersion}-${jdaChewtilsVersion}",
+      'Built-On': "${project.libs.versions.jda.get()}-${project.libs.versions.chewtils.get()}",
       'Class-Path': configurations.compileClasspath.collect { it.getName() }.join(' '),
       'Main-Class': 'com.mcmoddev.mmdbot.core.RunBots'
     )
