@@ -22,7 +22,7 @@ jobs:
           distribution: 'temurin'
           java-version: '16'
           check-latest: true
-      - run: burrunan/gradle-cache-action@v1
+      - uses: burrunan/gradle-cache-action@v1
         with:
           arguments: clean build
           # Read-only cache if not on repo's default branch: https://stackoverflow.com/a/68414395
