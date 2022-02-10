@@ -68,6 +68,14 @@ public final class LoggingBot implements Bot {
         }
     };
 
+    public static final IntentSet INTENTS = IntentSet.of(
+        Intent.DIRECT_MESSAGES,
+        Intent.GUILD_BANS,
+        Intent.GUILD_EMOJIS,
+        Intent.GUILD_MESSAGE_REACTIONS,
+        Intent.GUILD_MESSAGES,
+        Intent.GUILD_MEMBERS);
+
     static {
         WarningEvent.Add.addListener(event -> {
             final var doc = event.getDocument();
@@ -134,7 +142,8 @@ public final class LoggingBot implements Bot {
 
         client = DiscordClient.create(token);
 
-        final var gateway = client.gateway().setEnabledIntents(IntentSet.of(Intent.values())).login().block();
+        final var gateway = client.gateway()
+            .setEnabledIntents(INTENTS).login().block();
 
         Utils.subscribe(gateway, new ListenerAdapter() {
                 @Override

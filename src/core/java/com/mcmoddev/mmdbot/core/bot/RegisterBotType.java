@@ -33,4 +33,6 @@ public @interface RegisterBotType {
 
     String name();
 
+    int priority() default 0;
+
 }
