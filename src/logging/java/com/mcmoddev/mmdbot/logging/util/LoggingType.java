@@ -7,7 +7,8 @@ import java.util.List;
 public enum LoggingType {
 
     // TODO yes, config
-    MESSAGE_EVENTS("message_events", s -> List.of(Snowflake.of(0L)));
+    MESSAGE_EVENTS("message_events", s -> List.of(Snowflake.of(0L))),
+    LEAVE_JOIN_EVENTS("leave_join_events", s -> List.of(Snowflake.of(0L)));
 
     private final String name;
     private final ChannelGetter channelGetter;
@@ -19,6 +20,10 @@ public enum LoggingType {
 
     public List<Snowflake> getChannels(Snowflake guild) {
         return channelGetter.getChannels(guild);
+    }
+
+    public String getName() {
+        return name;
     }
 
     @FunctionalInterface

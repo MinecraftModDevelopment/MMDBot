@@ -32,6 +32,7 @@ import discord4j.core.event.domain.guild.IntegrationsUpdateEvent;
 import discord4j.core.event.domain.guild.MemberChunkEvent;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.event.domain.guild.MemberLeaveEvent;
+import discord4j.core.event.domain.guild.MemberUpdateEvent;
 import discord4j.core.event.domain.guild.UnbanEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageBulkDeleteEvent;
@@ -73,7 +74,7 @@ public abstract class ListenerAdapter implements EventListener {
     public void onGuildUpdate(GuildUpdateEvent event) {}
     public void onMemberJoin(MemberJoinEvent event) {}
     public void onMemberLeave(MemberLeaveEvent event) {}
-    public void onMemberUpdate(MessageUpdateEvent event) {}
+    public void onMemberUpdate(MemberUpdateEvent event) {}
     public void onMemberChunk(MemberChunkEvent event) {}
     public void onEmojisUpdate(EmojisUpdateEvent event) {}
     public void onBan(BanEvent event) {}

@@ -23,8 +23,11 @@ package com.mcmoddev.mmdbot.logging;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
+import com.mcmoddev.mmdbot.logging.events.LeaveJoinEvents;
 import com.mcmoddev.mmdbot.logging.events.MessageEvents;
+import com.mcmoddev.mmdbot.logging.util.EventListener;
 import com.mcmoddev.mmdbot.logging.util.ListenerAdapter;
+import com.mcmoddev.mmdbot.logging.util.ThreadedEventListener;
 import com.mcmoddev.mmdbot.logging.util.Utils;
 import discord4j.core.DiscordClient;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
@@ -34,6 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public final class LoggingBot implements Bot {
 
@@ -61,6 +66,9 @@ public final class LoggingBot implements Bot {
         this.runPath = runPath;
     }
 
+    public static final Executor GENERAL_EVENT_THREAD_POOL = Executors.newFixedThreadPool(3,
+        r -> Utils.setThreadDaemon(new Thread(r, "GeneralD4JEvents"), true));
+
     @Override
     public void start() {
         instance = this;
@@ -77,7 +85,7 @@ public final class LoggingBot implements Bot {
                 LOGGER.warn("I am ready to work! Logged in as {}",
                     event.getSelf().getTag());
             }
-        }, new MessageEvents());*/
+        }, wrapListener(new MessageEvents()), wrapListener(new LeaveJoinEvents()));*/
 
         // TODO a proper thingy
         new Thread(() -> {
@@ -88,6 +96,10 @@ public final class LoggingBot implements Bot {
                 i = i - 1;
             }
         }).start();
+    }
+
+    public static EventListener wrapListener(EventListener listener) {
+        return new ThreadedEventListener(listener, GENERAL_EVENT_THREAD_POOL);
     }
 
     @Override
