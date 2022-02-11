@@ -20,6 +20,8 @@ configurations {
     commonImplementation.extendsFrom(global)
     clientImplementation.extendsFrom(global)
     serverImplementation.extendsFrom(global)
+
+    implementation.extendsFrom(commonImplementation, clientImplementation, serverImplementation)
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(16)
@@ -36,4 +38,7 @@ dependencies {
 
     serverImplementation sourceSets.common.output
     clientImplementation sourceSets.common.output
+
+    implementation sourceSets.server.output
+    implementation sourceSets.client.output
 }

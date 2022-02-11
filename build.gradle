@@ -108,6 +108,8 @@ dependencies {
   coreRuntimeOnly sourceSets.commander.output
   coreRuntimeOnly sourceSets.watcher.output
 
+  global project(':dashboard')
+
   // globalCompile libs.lombok
 
   jda libs.jda
