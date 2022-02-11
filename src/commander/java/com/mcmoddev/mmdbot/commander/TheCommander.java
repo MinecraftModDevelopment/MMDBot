@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.commander;
 
 import com.mcmoddev.mmdbot.core.bot.Bot;
+import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -40,7 +41,7 @@ public final class TheCommander implements Bot {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("TheCommander");
 
-    @RegisterBotType(name = "thecommander")
+    @RegisterBotType(name = BotRegistry.THE_COMMANDER_NAME)
     public static final BotType<TheCommander> BOT_TYPE = new BotType<>() {
         @Override
         public TheCommander createBot(final Path runPath) {

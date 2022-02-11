@@ -24,6 +24,9 @@ findsecbugs = "1.11.0"
 jdbi = "3.24.1"
 junit = "5.8.2"
 dotenv = "2.2.3"
+netty = "4.1.10.Final"
+slf4j = "1.7.32"
+fastutil = "8.5.6"
 
 [libraries]
 jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
@@ -45,3 +48,6 @@ jdbi-core = { module = "org.jdbi:jdbi3-core", version.ref = "jdbi" }
 jdbi-sqlobject = { module = "org.jdbi:jdbi3-sqlobject", version.ref = "jdbi" }
 junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 dotenv = {module = "io.github.cdimascio:dotenv-java", version.ref = "dotenv"}
+netty = {module = "io.netty:netty-all", version.ref = "netty"}
+slf4japi = {module = "org.slf4j:slf4j-api", version.ref = "slf4j"}
+fastutil = {module = "it.unimi.dsi:fastutil", version.ref = "fastutil"}

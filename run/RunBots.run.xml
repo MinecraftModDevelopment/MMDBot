@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="RunBots" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="com.mcmoddev.mmdbot.core.RunBots" />
-    <module name="MMDBot.core" />
+    <module name="mmdbot.core" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/run" />
     <extension name="coverage">
       <pattern>

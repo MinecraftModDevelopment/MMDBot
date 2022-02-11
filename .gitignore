@@ -1,11 +1,13 @@
 #Directories
 /build/
+/dashboard/build/
 /bin/
 /cursefiles/
 /logs/
 /downloads/
 /data/
 /backups/
+/run/
 
 #Hidden Directories
 .gradle/
@@ -48,4 +50,3 @@ mmdbot_user_join_times.json.old
 config.json
 bot_logs/*
 data.db
-run

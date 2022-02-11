@@ -28,7 +28,12 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class BotRegistry {
+public final class BotRegistry {
+
+    // Names
+    public static final String THE_COMMANDER_NAME = "thecommander";
+    public static final String THE_LISTENER_NAME = "thelistener";
+    public static final String THE_WATCHER_NAME = "thewatcher";
 
     public static final Logger LOG = LoggerFactory.getLogger(BotRegistry.class);
 
@@ -73,7 +78,5 @@ public class BotRegistry {
         return Map.copyOf(BOT_TYPES);
     }
 
-    public record BotRegistryEntry<B extends Bot>(BotType<B> botType, Integer priority) {
-
-    }
+    public record BotRegistryEntry<B extends Bot>(BotType<B> botType, Integer priority) {}
 }

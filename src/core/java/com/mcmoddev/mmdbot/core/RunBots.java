@@ -39,7 +39,7 @@ public class RunBots {
 
     private static final Logger LOG = LoggerFactory.getLogger(RunBots.class);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         final var config = getOrCreateConfig();
 
@@ -63,7 +63,6 @@ public class RunBots {
                     bot.getLogger().warn("Bot {} is disabled! Its features will not work!", botEntry.name());
                 }
             });
-
     }
 
     private static Path createDirectory(String path) {

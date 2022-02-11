@@ -13,7 +13,6 @@ plugins {
   alias(libs.plugins.shadow)
   alias(libs.plugins.flyway)
   alias(libs.plugins.licenser)
-  alias(libs.plugins.kotlin)
   // alias(libs.plugins.lombok)
 }
 
@@ -126,6 +125,7 @@ dependencies {
   global libs.graal.scriptengine
   global libs.reflections
   global libs.dotenv
+  global libs.netty
 
   globalCompile libs.annotations
 

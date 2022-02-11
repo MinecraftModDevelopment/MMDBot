@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.logging;
 
 import static com.mcmoddev.mmdbot.logging.util.Utils.mentionAndID;
 import com.mcmoddev.mmdbot.core.bot.Bot;
+import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import com.mcmoddev.mmdbot.core.event.WarningEvent;
@@ -57,7 +58,7 @@ public final class TheListener implements Bot {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("TheListener");
 
-    @RegisterBotType(name = "thelistener")
+    @RegisterBotType(name = BotRegistry.THE_LISTENER_NAME)
     public static final BotType<TheListener> BOT_TYPE = new BotType<>() {
         @Override
         public TheListener createBot(final Path runPath) {
