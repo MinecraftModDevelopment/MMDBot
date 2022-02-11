@@ -30,6 +30,10 @@ configurations {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
+application {
+    mainClass.set('com.mcmoddev.mmdbot.dashboard.server.DashboardSever')
+}
+
 repositories {
     mavenCentral()
 }
