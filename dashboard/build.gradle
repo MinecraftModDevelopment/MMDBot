@@ -22,8 +22,8 @@ configurations {
     clientImplementation.extendsFrom(global)
     serverImplementation.extendsFrom(global)
 
-    api.extendsFrom(commonApi, clientApi, serverApi)
-    implementation.extendsFrom(commonImplementation, clientImplementation, serverImplementation)
+    clientImplementation.extendsFrom(commonImplementation)
+    serverImplementation.extendsFrom(commonImplementation)
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(16)
@@ -38,9 +38,10 @@ dependencies {
     global libs.slf4japi
     global libs.fastutil
 
-    serverApi sourceSets.common.output
-    clientApi sourceSets.common.output
+    serverImplementation sourceSets.common.output
+    clientImplementation sourceSets.common.output
 
     api sourceSets.server.output
+    api sourceSets.common.output
     api sourceSets.client.output
 }
