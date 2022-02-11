@@ -142,33 +142,37 @@ public final class EventReactionAdded extends ListenerAdapter {
 
             final User messageAuthor = message.getAuthor();
             if (requestScore >= removalThreshold) {
-                // If the message has no staff signing off, and it hasn't yet been logged about, log it
-                if (!hasStaffSignoff && messagesAwaitingSignoff.add(message.getIdLong())) {
-                    LOGGER.info(REQUESTS, "Request from {} has a score of {}, reaching removal threshold {}, "
-                            + "awaiting moderation approval.",
-                        messageAuthor, requestScore, removalThreshold);
+                // If the message has no staff signing off, skip the rest of the code
+                if (!hasStaffSignoff) {
 
-                    final var logChannel = guild.getTextChannelById(getConfig()
-                        .getChannel("events.requests_deletion"));
-                    if (logChannel != null) {
-                        final EmbedBuilder builder = new EmbedBuilder();
-                        builder.setAuthor(messageAuthor.getAsTag(), messageAuthor.getEffectiveAvatarUrl());
-                        builder.setTitle("Request awaiting moderator approval");
-                        builder.appendDescription("Request from ")
-                            .appendDescription(messageAuthor.getAsMention())
-                            .appendDescription(" has a score of " + requestScore)
-                            .appendDescription(", reaching removal threshold of " + removalThreshold)
-                            .appendDescription(" and is now awaiting moderator approval before deletion.");
-                        builder.addField("Jump to Message",
-                            MarkdownUtil.maskedLink("Message in " + message.getTextChannel().getAsMention(),
-                                message.getJumpUrl()), true);
-                        builder.setTimestamp(Instant.now());
-                        builder.setColor(Color.YELLOW);
-                        builder.setFooter("User ID: " + messageAuthor.getId());
+                    // If it hasn't been logged about yet, log about it
+                    if (messagesAwaitingSignoff.add(message.getIdLong())) {
+                        LOGGER.info(REQUESTS, "Request from {} has a score of {}, reaching removal threshold {}, "
+                                + "awaiting moderation approval.",
+                            messageAuthor, requestScore, removalThreshold);
 
-                        logChannel.sendMessageEmbeds(builder.build())
-                            .allowedMentions(Collections.emptySet())
-                            .queue();
+                        final var logChannel = guild.getTextChannelById(getConfig()
+                            .getChannel("events.requests_deletion"));
+                        if (logChannel != null) {
+                            final EmbedBuilder builder = new EmbedBuilder();
+                            builder.setAuthor(messageAuthor.getAsTag(), messageAuthor.getEffectiveAvatarUrl());
+                            builder.setTitle("Request awaiting moderator approval");
+                            builder.appendDescription("Request from ")
+                                .appendDescription(messageAuthor.getAsMention())
+                                .appendDescription(" has a score of " + requestScore)
+                                .appendDescription(", reaching removal threshold of " + removalThreshold)
+                                .appendDescription(" and is now awaiting moderator approval before deletion.");
+                            builder.addField("Jump to Message",
+                                MarkdownUtil.maskedLink("Message in " + message.getTextChannel().getAsMention(),
+                                    message.getJumpUrl()), true);
+                            builder.setTimestamp(Instant.now());
+                            builder.setColor(Color.YELLOW);
+                            builder.setFooter("User ID: " + messageAuthor.getId());
+
+                            logChannel.sendMessageEmbeds(builder.build())
+                                .allowedMentions(Collections.emptySet())
+                                .queue();
+                        }
                     }
                     return;
                 }
