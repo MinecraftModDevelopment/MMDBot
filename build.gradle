@@ -73,10 +73,6 @@ sourceSets {
 repositories {
   mavenCentral()
   maven {
-    name 'm2-dv8tion'
-    url 'https://m2.dv8tion.net/releases'
-  }
-  maven {
     name 'jda-chewtils'
     url 'https://m2.chew.pro/snapshots'
   }
