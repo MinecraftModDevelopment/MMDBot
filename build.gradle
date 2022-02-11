@@ -72,7 +72,6 @@ sourceSets {
 
 repositories {
   mavenCentral()
-  //jcenter()
   maven {
     name 'm2-dv8tion'
     url 'https://m2.dv8tion.net/releases'
@@ -80,18 +79,6 @@ repositories {
   maven {
     name 'jda-chewtils'
     url 'https://m2.chew.pro/snapshots'
-  }
-  maven {
-    name 'fabric'
-    url 'https://maven.fabricmc.net'
-  }
-  maven {
-    name 'quilt'
-    url 'https://maven.quiltmc.org/repository/snapshot'
-  }
-  maven {
-    name 'jitpack'
-    url 'https://jitpack.io'
   }
 }
 
