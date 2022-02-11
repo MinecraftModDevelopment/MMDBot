@@ -1,3 +1,6 @@
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+
 plugins {
     id 'application'
     id 'java-library'
@@ -30,6 +33,18 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 repositories {
     mavenCentral()
+}
+
+license {
+    header = rootProject.file('LicenseHeader.md')
+    include '**/*.java'
+    include '**/*.kt'
+    exclude '**/package-info.java'
+    exclude '**/module-info.java'
+    newLine = false
+    properties {
+        year = OffsetDateTime.now(ZoneOffset.UTC).withNano(0).getYear()
+    }
 }
 
 dependencies {
