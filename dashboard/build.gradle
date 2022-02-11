@@ -1,5 +1,6 @@
 plugins {
     id 'application'
+    id 'java-library'
     // id 'maven'
     id 'eclipse'
     id 'idea'
@@ -21,6 +22,7 @@ configurations {
     clientImplementation.extendsFrom(global)
     serverImplementation.extendsFrom(global)
 
+    api.extendsFrom(commonApi, clientApi, serverApi)
     implementation.extendsFrom(commonImplementation, clientImplementation, serverImplementation)
 }
 
@@ -36,9 +38,9 @@ dependencies {
     global libs.slf4japi
     global libs.fastutil
 
-    serverImplementation sourceSets.common.output
-    clientImplementation sourceSets.common.output
+    serverApi sourceSets.common.output
+    clientApi sourceSets.common.output
 
-    implementation sourceSets.server.output
-    implementation sourceSets.client.output
+    api sourceSets.server.output
+    api sourceSets.client.output
 }
