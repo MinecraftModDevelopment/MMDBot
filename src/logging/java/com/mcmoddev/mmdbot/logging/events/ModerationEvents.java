@@ -20,13 +20,13 @@
  */
 package com.mcmoddev.mmdbot.logging.events;
 
-import com.mcmoddev.mmdbot.core.util.DiscordTimestamp;
 import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.logging.TheListener;
 import com.mcmoddev.mmdbot.logging.util.ListenerAdapter;
 import com.mcmoddev.mmdbot.logging.util.LoggingType;
 import com.mcmoddev.mmdbot.logging.util.Utils;
 import discord4j.common.util.Snowflake;
+import discord4j.common.util.TimestampFormat;
 import discord4j.core.event.domain.guild.BanEvent;
 import discord4j.core.event.domain.guild.MemberLeaveEvent;
 import discord4j.core.event.domain.guild.MemberUpdateEvent;
@@ -64,7 +64,7 @@ public final class ModerationEvents extends ListenerAdapter {
                     embed.addField("**Name:**", bannedUser.getUsername(), false);
                     embed.addField("**User ID:**", bannedUser.getId().asString(), false);
                     embed.addField("**Profile:**", bannedUser.getMention(), false);
-                    embed.addField("**Profile Age**", DiscordTimestamp.TimeFormat.RELATIVE
+                    embed.addField("**Profile Age**", TimestampFormat.RELATIVE_TIME
                         .format(bannedUser.getId().getTimestamp()), false);
 
                     embed.addField("**Ban reason:**", log.getReason().orElse("Reason for ban was not provided or could not be found, please contact "
@@ -111,7 +111,7 @@ public final class ModerationEvents extends ListenerAdapter {
                     embed.addField("**Name:**", bannedUser.getUsername(), false);
                     embed.addField("**User ID:**", bannedUser.getId().asString(), false);
                     embed.addField("**Profile:**", bannedUser.getMention(), false);
-                    embed.addField("**Profile Age**", DiscordTimestamp.TimeFormat.RELATIVE
+                    embed.addField("**Profile Age**", TimestampFormat.RELATIVE_TIME
                         .format(bannedUser.getId().getTimestamp()), false);
 
                     final var targetId = (long) log.getTargetId().map(Snowflake::asLong).orElse(0L);
@@ -202,7 +202,7 @@ public final class ModerationEvents extends ListenerAdapter {
                     embed.addField("**Name:**", kickedUser.getUsername(), false);
                     embed.addField("**User ID:**", kickedUser.getId().asString(), false);
                     embed.addField("**Profile:**", kickedUser.getMention(), false);
-                    embed.addField("**Profile Age**", DiscordTimestamp.TimeFormat.RELATIVE
+                    embed.addField("**Profile Age**", TimestampFormat.RELATIVE_TIME
                         .format(kickedUser.getId().getTimestamp()), false);
 
                     embed.addField("Guild Join Time:", event.getMember().flatMap(PartialMember::getJoinTime)
