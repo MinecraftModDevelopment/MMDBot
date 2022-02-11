@@ -65,7 +65,7 @@ public final class ReferencingListener extends ListenerAdapter {
 
     private static boolean isStringReference(final String string) {
         // The zero-width space
-        return string.equalsIgnoreCase(".") || string.equalsIgnoreCase("​");
+        return string.equalsIgnoreCase(".") || string.equalsIgnoreCase(EmbedBuilder.ZERO_WIDTH_SPACE);
     }
 
     public static MessageEmbed reference(final Message message, final Member quoter) {
