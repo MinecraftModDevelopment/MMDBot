@@ -18,12 +18,11 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.dashboard.common;
+package com.mcmoddev.mmdbot.dashboard.common.packet;
 
-public interface Packet {
+@FunctionalInterface
+public interface PacketReceiver {
 
-    void encode(ByteBuffer buffer);
-
-    void handle(PacketReceiver receiver);
+    void reply(Packet packet);
 
 }

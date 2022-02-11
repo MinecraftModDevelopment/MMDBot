@@ -20,7 +20,8 @@
  */
 package com.mcmoddev.mmdbot.dashboard.common.listener;
 
-import com.mcmoddev.mmdbot.dashboard.common.Packet;
+import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
+import com.mcmoddev.mmdbot.dashboard.common.packet.PacketReceiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +76,7 @@ public class PacketWaiter implements PacketListener {
     }
 
     @Override
-    public void onPacket(final Packet packet) {
+    public void onPacket(final Packet packet, PacketReceiver receiver) {
         Class<?> c = packet.getClass();
 
         while (c != null) {

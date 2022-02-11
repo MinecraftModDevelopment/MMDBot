@@ -20,7 +20,8 @@
  */
 package com.mcmoddev.mmdbot.dashboard.common.listener;
 
-import com.mcmoddev.mmdbot.dashboard.common.Packet;
+import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
+import com.mcmoddev.mmdbot.dashboard.common.packet.PacketReceiver;
 
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class MultiPacketListener implements PacketListener {
     }
 
     @Override
-    public void onPacket(final Packet packet) {
-        listeners.forEach(l -> l.onPacket(packet));
+    public void onPacket(final Packet packet, PacketReceiver receiver) {
+        listeners.forEach(l -> l.onPacket(packet, receiver));
     }
 }

@@ -20,15 +20,16 @@
  */
 package com.mcmoddev.mmdbot.dashboard.common;
 
-import io.netty.bootstrap.Bootstrap;
+import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
+import io.netty.bootstrap.AbstractBootstrap;
 import io.netty.channel.Channel;
 
 public class Connection {
 
-    private final Bootstrap bootstrap;
+    private final AbstractBootstrap<?, ?> bootstrap;
     private final Channel channel;
 
-    public Connection(final Bootstrap bootstrap) {
+    public Connection(final AbstractBootstrap<?, ?> bootstrap) {
         this.bootstrap = bootstrap;
         channel = bootstrap.bind().syncUninterruptibly().channel();
     }

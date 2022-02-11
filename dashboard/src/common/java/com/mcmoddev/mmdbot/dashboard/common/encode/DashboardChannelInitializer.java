@@ -20,8 +20,8 @@
  */
 package com.mcmoddev.mmdbot.dashboard.common.encode;
 
-import com.mcmoddev.mmdbot.dashboard.common.PacketReceiver;
-import com.mcmoddev.mmdbot.dashboard.common.PacketRegistry;
+import com.mcmoddev.mmdbot.dashboard.common.packet.PacketReceiver;
+import com.mcmoddev.mmdbot.dashboard.common.packet.PacketRegistry;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;

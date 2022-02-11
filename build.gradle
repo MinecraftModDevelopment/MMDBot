@@ -109,6 +109,7 @@ dependencies {
   global libs.reflections
   global libs.dotenv
   global libs.netty
+  global libs.fastutil
 
   globalCompile libs.annotations
 

@@ -9,6 +9,7 @@ plugins {
     id 'idea'
     alias(libs.plugins.shadow)
     alias(libs.plugins.licenser)
+    id 'org.openjfx.javafxplugin' version '0.0.11'
     // alias(libs.plugins.lombok)
 }
 
@@ -31,11 +32,17 @@ configurations {
 java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 application {
-    mainClass.set('com.mcmoddev.mmdbot.dashboard.server.DashboardSever')
+    mainClass.set('com.mcmoddev.mmdbot.dashboard.client.Startup')
 }
 
 repositories {
     mavenCentral()
+}
+
+javafx {
+    version = "16"
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.swing', 'javafx.graphics', 'javafx.web']
+    configuration = "global"
 }
 
 license {
@@ -58,6 +65,8 @@ dependencies {
 
     serverImplementation sourceSets.common.output
     clientImplementation sourceSets.common.output
+
+    clientImplementation libs.logback
 
     api sourceSets.server.output
     api sourceSets.common.output

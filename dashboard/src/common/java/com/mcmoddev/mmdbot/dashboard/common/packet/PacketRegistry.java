@@ -18,10 +18,12 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.dashboard.common;
+package com.mcmoddev.mmdbot.dashboard.common.packet;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
+import com.mcmoddev.mmdbot.dashboard.common.packet.impl.CheckAuthorizedPacket;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import org.slf4j.Logger;
@@ -35,7 +37,8 @@ import java.util.function.Function;
 public final class PacketRegistry {
 
     public static final PacketSet SET = new PacketSet()
-        .addPacket(TestPacket.class, buf -> new TestPacket(buf.readInt()));
+        .addPacket(CheckAuthorizedPacket.class, CheckAuthorizedPacket::new)
+            .addPacket(CheckAuthorizedPacket.Response.class, CheckAuthorizedPacket.Response::new);
 
     public static class PacketSet {
         static final Logger LOG = LoggerFactory.getLogger(PacketSet.class);
@@ -76,19 +79,6 @@ public final class PacketRegistry {
     private static <T> T make(T obj, Consumer<T> consumer) {
         consumer.accept(obj);
         return obj;
-    }
-
-    public record TestPacket(int something) implements Packet {
-
-        @Override
-        public void encode(final ByteBuffer buffer) {
-            buffer.writeInt(something);
-        }
-
-        @Override
-        public void handle(final PacketReceiver sender) {
-            System.out.println("Packet received with something = " + something);
-        }
     }
 
 }

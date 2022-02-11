@@ -22,6 +22,8 @@ package com.mcmoddev.mmdbot.dashboard.common;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.handler.codec.DecoderException;
+import io.netty.handler.codec.EncoderException;
 import io.netty.util.ByteProcessor;
 
 import java.io.IOException;
@@ -32,7 +34,9 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.ScatteringByteChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
+// TODO rename all of the parameters
 public class ByteBuffer extends ByteBuf {
 
     private final ByteBuf source;
@@ -993,5 +997,81 @@ public class ByteBuffer extends ByteBuf {
         return 5;
     }
 
+    /**
+     * Reads a string from the buffer with a maximum length of {@code Short.MAX_VALUE}.
+     *
+     * @see #readUtf(int)
+     * @see #writeUtf
+     */
+    public String readUtf() {
+        return readUtf(32767);
+    }
+
+    /**
+     * Reads a string from the buffer with a maximum length from this buffer.
+     *
+     * @see #writeUtf
+     */
+    public String readUtf(int maxLength) {
+        int i = this.readVarInt();
+        if (i > maxLength * 4) {
+            throw new DecoderException("The received encoded string buffer length is longer than maximum allowed (" + i + " > " + maxLength * 4 + ")");
+        } else if (i < 0) {
+            throw new DecoderException("The received encoded string buffer length is less than zero! Weird string!");
+        } else {
+            String s = this.toString(this.readerIndex(), i, StandardCharsets.UTF_8);
+            this.readerIndex(this.readerIndex() + i);
+            if (s.length() > maxLength) {
+                throw new DecoderException("The received string length is longer than maximum allowed (" + i + " > " + maxLength + ")");
+            } else {
+                return s;
+            }
+        }
+    }
+
+    /**
+     * Writes a string to the buffer with a maximum length of {@code Short.MAX_VALUE}.
+     *
+     * @see #readUtf
+     */
+    public ByteBuf writeUtf(String str) {
+        return writeUtf(str, 32767);
+    }
+
+    /**
+     * Writes a string to the buffer with a maximum length.
+     *
+     * @see #readUtf
+     */
+    public ByteBuffer writeUtf(String str, int maxLength) {
+        byte[] abyte = str.getBytes(StandardCharsets.UTF_8);
+        if (abyte.length > maxLength) {
+            throw new EncoderException("String too big (was " + abyte.length + " bytes encoded, max " + maxLength + ")");
+        } else {
+            this.writeVarInt(abyte.length);
+            this.writeBytes(abyte);
+            return this;
+        }
+    }
+
+    /**
+     * Writes an enum of the given type to the buffer
+     * using the ordinal encoded.
+     *
+     * @see #readEnum
+     */
+    public ByteBuffer writeEnum(Enum<?> value) {
+        return writeVarInt(value.ordinal());
+    }
+
+    /**
+     * Reads an enum of the given type {@code T} from the buffer
+     * using the ordinal encoded.
+     *
+     * @see #writeEnum
+     */
+    public <T extends Enum<T>> T readEnum(Class<T> enumClass) {
+        return (enumClass.getEnumConstants())[this.readVarInt()];
+    }
 
 }

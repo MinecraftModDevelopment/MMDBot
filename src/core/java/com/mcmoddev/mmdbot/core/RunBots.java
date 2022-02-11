@@ -22,8 +22,11 @@ package com.mcmoddev.mmdbot.core;
 
 import com.google.gson.JsonObject;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
+import com.mcmoddev.mmdbot.core.packetlistener.AuthorizationChecker;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.Pair;
+import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
+import com.mcmoddev.mmdbot.dashboard.server.DashboardSever;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +34,14 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 public class RunBots {
 
@@ -43,7 +51,7 @@ public class RunBots {
 
         final var config = getOrCreateConfig();
 
-        BotRegistry.getBotTypes()
+        final var bots = BotRegistry.getBotTypes()
             .entrySet()
             .stream()
             .map(entry -> {
@@ -53,7 +61,7 @@ public class RunBots {
             })
             .sorted(Comparator.comparing(p -> -p.first().priority()))
             .map(entry -> entry.mapFirst(type -> type.botType().createBot(createDirectory(entry.second().runPath()))))
-            .forEach(botPair -> {
+            .map(botPair -> {
                 final var botEntry = botPair.second();
                 final var bot = botPair.first();
                 if (botEntry.isEnabled()) {
@@ -62,7 +70,23 @@ public class RunBots {
                 } else {
                     bot.getLogger().warn("Bot {} is disabled! Its features will not work!", botEntry.name());
                 }
+                return bot;
             });
+
+        // dashboard stuff
+        {
+            final var dashConfig = getDashboardConfig();
+            try {
+                final var ip = InetAddress.getLocalHost();
+                final var address = new InetSocketAddress(ip, dashConfig.port);
+                final var listeners = new ArrayList<PacketListener>();
+                listeners.add(new AuthorizationChecker(dashConfig.accounts));
+                bots.map(b -> b.getType().getPacketListenerUnsafe(b)).forEach(listeners::add);
+                DashboardSever.setup(address, listeners.toArray(PacketListener[]::new));
+            } catch (UnknownHostException e) {
+                LOG.error("Error while trying to set up the dashboard endpoint!", e);
+            }
+        }
     }
 
     private static Path createDirectory(String path) {
@@ -123,6 +147,38 @@ public class RunBots {
             final var enabled = json.has("enabled") && json.get("enabled").getAsBoolean();
             final var runPath = json.has("runPath") ? json.get("runPath").getAsString() : name;
             return new BotEntry(name, enabled, runPath);
+        }
+    }
+
+    public static DashboardConfig getDashboardConfig() {
+        final var path = Path.of("dashboard").resolve("config.json");
+        if (!path.toFile().exists()) {
+            try {
+                Files.createDirectories(Path.of("dashboard"));
+                Files.createFile(path); // If it doesn't exist, generate it
+                try (final var fw = new BufferedWriter(new FileWriter(path.toFile()))) {
+                    Constants.GSON.toJson(new DashboardConfig(), fw);
+                }
+            } catch (IOException e) {
+                LOG.error("Exception while trying to generate dashboard config!", e);
+            }
+        }
+        try (final var ir = new FileReader(path.toFile())) {
+            return Constants.GSON.fromJson(ir, DashboardConfig.class);
+        } catch (IOException e) {
+            LOG.error("Exception while trying to read config!", e);
+        }
+        return new DashboardConfig();
+    }
+
+    public static final class DashboardConfig {
+        public int port = 600;
+
+        public Account[] accounts;
+
+        public static final class Account {
+            public String username;
+            public String password;
         }
     }
 

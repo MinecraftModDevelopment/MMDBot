@@ -20,10 +20,9 @@
  */
 package com.mcmoddev.mmdbot.dashboard.common.encode;
 
-import com.mcmoddev.mmdbot.dashboard.common.Packet;
+import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
+import com.mcmoddev.mmdbot.dashboard.common.packet.PacketReceiver;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
-import com.mcmoddev.mmdbot.dashboard.common.PacketReceiver;
-import com.mcmoddev.mmdbot.dashboard.common.PacketRegistry;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -39,13 +38,8 @@ public final class PacketHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Override
     protected void channelRead0(final ChannelHandlerContext ctx, final Packet msg) throws Exception {
-        listener.onPacket(msg);
+        listener.onPacket(msg, receiver);
         msg.handle(receiver);
-    }
-
-    @Override
-    public void channelActive(final ChannelHandlerContext ctx) throws Exception {
-        ctx.writeAndFlush(new PacketRegistry.TestPacket(12));
     }
 
     @Override

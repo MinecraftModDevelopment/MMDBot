@@ -21,8 +21,8 @@
 package com.mcmoddev.mmdbot.dashboard.common.encode;
 
 import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
-import com.mcmoddev.mmdbot.dashboard.common.Packet;
-import com.mcmoddev.mmdbot.dashboard.common.PacketRegistry;
+import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
+import com.mcmoddev.mmdbot.dashboard.common.packet.PacketRegistry;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;

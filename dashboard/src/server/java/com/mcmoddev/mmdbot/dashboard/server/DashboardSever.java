@@ -20,48 +20,51 @@
  */
 package com.mcmoddev.mmdbot.dashboard.server;
 
-import com.mcmoddev.mmdbot.dashboard.common.Packet;
-import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
-import com.mcmoddev.mmdbot.dashboard.common.PacketReceiver;
-import com.mcmoddev.mmdbot.dashboard.common.PacketRegistry;
+import com.google.common.collect.Lists;
+import com.mcmoddev.mmdbot.dashboard.common.Connection;
 import com.mcmoddev.mmdbot.dashboard.common.encode.DashboardChannelInitializer;
+import com.mcmoddev.mmdbot.dashboard.common.listener.MultiPacketListener;
+import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
+import com.mcmoddev.mmdbot.dashboard.common.listener.PacketWaiter;
+import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
+import com.mcmoddev.mmdbot.dashboard.common.packet.PacketRegistry;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.util.List;
 
-public class DashboardSever {
+public final class DashboardSever {
 
-    private static ChannelFuture channel;
+    private static final Logger LOG = LoggerFactory.getLogger(DashboardSever.class);
+    public static final PacketWaiter PACKET_WAITER = new PacketWaiter();
 
-    public static void setup(InetSocketAddress address, PacketListener listener) {
-        final var boosGroup = new NioEventLoopGroup(1);
-        try {
-            channel = new ServerBootstrap()
-                .group(boosGroup)
-                .channel(NioServerSocketChannel.class)
-                .handler(new LoggingHandler(LogLevel.INFO))
-                .childHandler(new DashboardChannelInitializer(PacketRegistry.SET, new PacketReceiver() {
-                    @Override
-                    public void reply(final Packet packet) {
+    private static Connection connection;
 
-                    }
-                }, listener)).localAddress(address.getAddress(), address.getPort()).bind().syncUninterruptibly();
-        } catch (Exception ignored) {
-
-        }
-        Runtime.getRuntime().addShutdownHook(new Thread(boosGroup::shutdownGracefully, "DashboardServerCloser"));
+    public static void setup(InetSocketAddress address, PacketListener... extraListeners) {
+        final List<PacketListener> listeners = Lists.newArrayList(extraListeners);
+        listeners.add(PACKET_WAITER);
+        final var group = new NioEventLoopGroup(1);
+        final var boostrap = new ServerBootstrap()
+            .group(group)
+            .channel(NioServerSocketChannel.class)
+            .handler(new LoggingHandler(LogLevel.INFO))
+            .childHandler(new DashboardChannelInitializer(PacketRegistry.SET, packet -> connection.sendPacket(packet),
+                new MultiPacketListener(listeners)))
+            .localAddress(address.getAddress(), address.getPort());
+        connection = new Connection(boostrap);
+        LOG.warn("Dashboard endpoint has been created at {}:{}", address.getAddress().getHostAddress(), address.getPort());
+        Runtime.getRuntime().addShutdownHook(new Thread(group::shutdownGracefully, "DashboardServerCloser"));
     }
 
-    public static void main(String[] args) {
-        setup(new InetSocketAddress("localhost", 8912), packet -> {
-
-        });
-        System.out.println("Stuff finished");
+    public static void sendPacket(Packet packet) {
+        connection.sendPacket(packet);
     }
 
 }

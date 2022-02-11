@@ -20,7 +20,7 @@
  */
 package com.mcmoddev.mmdbot.dashboard.common.encode;
 
-import static com.mcmoddev.mmdbot.dashboard.common.PacketRegistry.PacketSet;
+import static com.mcmoddev.mmdbot.dashboard.common.packet.PacketRegistry.PacketSet;
 import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
