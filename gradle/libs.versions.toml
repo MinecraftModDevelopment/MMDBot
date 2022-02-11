@@ -1,6 +1,5 @@
 [plugins]
 shadow = { id = "com.github.johnrengelman.shadow", version = "7.1.2" }
-spotbugs = { id = "com.github.spotbugs", version = "5.0.5" }
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 licenser = { id = "org.cadixdev.licenser", version = "0.6.1" }
 lombok = { id = "io.freefair.lombok", version = "6.3.0" }
@@ -20,7 +19,6 @@ lombok = "1.18.22"
 discord4j = "3.2.1"
 graal = "22.0.0"
 reflections = "0.10.2"
-findsecbugs = "1.11.0"
 jdbi = "3.24.1"
 junit = "5.8.2"
 dotenv = "2.2.3"
@@ -43,7 +41,6 @@ discord4j = { module = "com.discord4j:discord4j-core", version.ref = "discord4j"
 graal = { module = "org.graalvm.js:js", version.ref = "graal" }
 graal-scriptengine = { module = "org.graalvm.js:js-scriptengine", version.ref = "graal" }
 reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
-findsecbugs = { module = "com.h3xstream.findsecbugs:findsecbugs-plugin", version.ref = "findsecbugs" }
 jdbi-core = { module = "org.jdbi:jdbi3-core", version.ref = "jdbi" }
 jdbi-sqlobject = { module = "org.jdbi:jdbi3-sqlobject", version.ref = "jdbi" }
 junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }

@@ -7,7 +7,6 @@ plugins {
     // id 'maven'
     id 'eclipse'
     id 'idea'
-    alias(libs.plugins.spotbugs)
     alias(libs.plugins.shadow)
     alias(libs.plugins.licenser)
     // alias(libs.plugins.lombok)
