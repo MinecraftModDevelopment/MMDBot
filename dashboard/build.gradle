@@ -43,5 +43,4 @@ dependencies {
 
     api sourceSets.server.output
     api sourceSets.common.output
-    api sourceSets.client.output
 }
