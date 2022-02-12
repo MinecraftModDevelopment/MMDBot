@@ -2,14 +2,14 @@
 shadow = { id = "com.github.johnrengelman.shadow", version = "7.1.2" }
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 licenser = { id = "org.cadixdev.licenser", version = "0.6.1" }
-lombok = { id = "io.freefair.lombok", version = "6.3.0" }
+lombok = { id = "io.freefair.lombok", version = "6.4.0" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version = "1.6.10" }
 
 [versions]
 jda = "5.0.0-alpha.5"
 chewtils = "2.0-interactions-SNAPSHOT"
 guava = "31.0.1-jre"
-gson = "2.8.9"
+gson = "2.9.0"
 logback = "1.2.10"
 nightconfig = "3.6.5"
 sqlite = "3.36.0.3"
@@ -17,14 +17,14 @@ flyway = "8.4.4"
 annotations = "23.0.0"
 lombok = "1.18.22"
 discord4j = "3.2.1"
-graal = "22.0.0"
+graal = "22.0.0.2"
 reflections = "0.10.2"
-jdbi = "3.24.1"
+jdbi = "3.27.1"
 junit = "5.8.2"
 dotenv = "2.2.3"
-netty = "4.1.70.Final"
-slf4j = "1.7.32"
-fastutil = "8.5.6"
+netty = "4.1.74.Final"
+slf4j = "1.7.36"
+fastutil = "8.5.8"
 
 [libraries]
 jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
