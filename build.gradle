@@ -187,27 +187,6 @@ flyway {
   user = 'sa'
 }
 
-tasks.register('generatePom') {
-    doLast {
-        pom {
-            project {
-                groupId project.group.toString()
-                artifactId archivesBaseName
-                version version
-
-                inceptionYear '2016'
-                licenses {
-                    license {
-                        name 'LGPL2.1 License'
-                        url 'LGPL2.1'
-                        distribution 'repo'
-                    }
-                }
-            }
-        }.writeTo("$rootProject.projectDir/pom.xml")
-    }
-}
-
 checkstyle {
   ignoreFailures = true
   toolVersion = '9.1'
