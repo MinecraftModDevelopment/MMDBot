@@ -22,9 +22,9 @@ package com.mcmoddev.mmdbot.core;
 
 import com.google.gson.JsonObject;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
-import com.mcmoddev.mmdbot.core.packetlistener.AuthorizationChecker;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.Pair;
+import com.mcmoddev.mmdbot.dashboard.common.ServerBridge;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
 import com.mcmoddev.mmdbot.dashboard.server.DashboardSever;
 import org.slf4j.Logger;
@@ -36,12 +36,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 
 public class RunBots {
 
@@ -75,15 +73,16 @@ public class RunBots {
 
         // dashboard stuff
         {
+            ServerBridge.setInstance(new ServerBridgeImpl());
             final var dashConfig = getDashboardConfig();
             try {
-                final var ip = InetAddress.getLocalHost();
+                // TODO get the public ipv4 address
+                final var ip = InetAddress.getByName("localhost");
                 final var address = new InetSocketAddress(ip, dashConfig.port);
                 final var listeners = new ArrayList<PacketListener>();
-                listeners.add(new AuthorizationChecker(dashConfig.accounts));
                 bots.map(b -> b.getType().getPacketListenerUnsafe(b)).forEach(listeners::add);
                 DashboardSever.setup(address, listeners.toArray(PacketListener[]::new));
-            } catch (UnknownHostException e) {
+            } catch (Exception e) {
                 LOG.error("Error while trying to set up the dashboard endpoint!", e);
             }
         }

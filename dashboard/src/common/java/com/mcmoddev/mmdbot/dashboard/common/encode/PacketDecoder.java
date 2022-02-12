@@ -25,16 +25,16 @@ import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
 import java.io.IOException;
 import java.util.List;
 
+@Slf4j
 public class PacketDecoder extends ByteToMessageDecoder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PacketDecoder.class);
+
     private static final Marker MARKER = MarkerFactory.getMarker("PACKET_RECEIVED");
 
     private final PacketSet packetSet;
@@ -57,8 +57,8 @@ public class PacketDecoder extends ByteToMessageDecoder {
                     throw new IOException("Packet " + j + " (" + packet.getClass().getSimpleName() + ") was larger than I expected, found " + buffer.readableBytes() + " bytes extra whilst reading packet " + j);
                 } else {
                     out.add(packet);
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug(MARKER, " IN: [{}] {}", j, packet.getClass().getName());
+                    if (log.isDebugEnabled()) {
+                        log.debug(MARKER, " IN: [{}] {}", j, packet.getClass().getName());
                     }
                 }
             }

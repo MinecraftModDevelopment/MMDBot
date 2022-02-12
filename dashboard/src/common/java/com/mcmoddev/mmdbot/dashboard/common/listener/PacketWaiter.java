@@ -56,8 +56,8 @@ public class PacketWaiter implements PacketListener {
 
     public <P extends Packet> void waitForPacket(Class<P> classType, Predicate<P> condition, Consumer<P> action,
                                                  long timeout, TimeUnit unit, Runnable timeoutAction) {
-        if (!isShutdown()) {
-            throw new IllegalArgumentException("Attempted to register a WaitingEvent while the EventWaiter's threadpool was already shut down!");
+        if (isShutdown()) {
+            throw new IllegalArgumentException("Attempted to register a WaitingPacket while the PacketWaiter's threadpool was already shut down!");
         }
 
         WaitingPacket<P> we = new WaitingPacket<>(condition, action);

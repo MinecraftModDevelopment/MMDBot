@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.dashboard.common.packet.impl;
 
 import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
+import com.mcmoddev.mmdbot.dashboard.common.ServerBridge;
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketReceiver;
 
@@ -51,7 +52,7 @@ public class CheckAuthorizedPacket implements Packet {
 
     @Override
     public void handle(final PacketReceiver receiver) {
-        // Should be implemented by the core
+		ServerBridge.executeOnInstance(bridge -> receiver.reply(new Response(bridge.checkAuthorized(this))));
     }
 
     public String getUsername() {
@@ -82,6 +83,7 @@ public class CheckAuthorizedPacket implements Packet {
         @Override
         public void handle(final PacketReceiver receiver) {
             // Nothing to do
+            System.out.println("Received packet");
         }
 
         public ResponseType getResponseType() {
@@ -91,5 +93,9 @@ public class CheckAuthorizedPacket implements Packet {
 
     public enum ResponseType {
         AUTHORIZED, DENIED;
+
+        public boolean isAuthorized() {
+            return this == AUTHORIZED;
+        }
     }
 }

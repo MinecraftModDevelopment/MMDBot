@@ -33,7 +33,7 @@ public class PacketPrepender extends MessageToByteEncoder<ByteBuf> {
     protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) {
         int i = msg.readableBytes();
         int j = ByteBuffer.getVarIntSize(i);
-        if (j > 3) {
+        if (j > MAX_BYTES) {
             throw new IllegalArgumentException("Unable to fit " + i + " into 3");
         } else {
             ByteBuffer byteBuffer = new ByteBuffer(out);

@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.dashboard.server;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mcmoddev.mmdbot.dashboard.common.Connection;
 import com.mcmoddev.mmdbot.dashboard.common.encode.DashboardChannelInitializer;
 import com.mcmoddev.mmdbot.dashboard.common.listener.MultiPacketListener;
@@ -28,39 +29,59 @@ import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketWaiter;
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketRegistry;
+import com.mcmoddev.mmdbot.dashboard.common.util.LazyLoadedValue;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 public final class DashboardSever {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DashboardSever.class);
     public static final PacketWaiter PACKET_WAITER = new PacketWaiter();
+
+    private static final LazyLoadedValue<NioEventLoopGroup> SERVER_EVENT_GROUP = new LazyLoadedValue<>(() -> new NioEventLoopGroup(0, new ThreadFactoryBuilder().setNameFormat("Netty Server IO #%d").setDaemon(true).build()));
+    private static final LazyLoadedValue<EpollEventLoopGroup> SERVER_EPOLL_EVENT_GROUP = new LazyLoadedValue<>(() -> new EpollEventLoopGroup(0, new ThreadFactoryBuilder().setNameFormat("Netty Epoll Server IO #%d").setDaemon(true).build()));
 
     private static Connection connection;
 
     public static void setup(InetSocketAddress address, PacketListener... extraListeners) {
         final List<PacketListener> listeners = Lists.newArrayList(extraListeners);
         listeners.add(PACKET_WAITER);
-        final var group = new NioEventLoopGroup(1);
+        Class<? extends ServerSocketChannel> channelClz;
+        LazyLoadedValue<? extends EventLoopGroup> eventGroup;
+        if (Epoll.isAvailable()) {
+            channelClz = EpollServerSocketChannel.class;
+            eventGroup = SERVER_EPOLL_EVENT_GROUP;
+            log.info("Using epoll channel type");
+        } else {
+            channelClz = NioServerSocketChannel.class;
+            eventGroup = SERVER_EVENT_GROUP;
+            log.info("Using default channel type");
+        }
         final var boostrap = new ServerBootstrap()
-            .group(group)
-            .channel(NioServerSocketChannel.class)
-            .handler(new LoggingHandler(LogLevel.INFO))
-            .childHandler(new DashboardChannelInitializer(PacketRegistry.SET, packet -> connection.sendPacket(packet),
+            .group(eventGroup.get())
+            .channel(channelClz)
+            .handler(new LoggingHandler(LogLevel.WARN))
+            .childHandler(new DashboardChannelInitializer(PacketRegistry.SET, DashboardSever::sendPacket,
                 new MultiPacketListener(listeners)))
-            .localAddress(address.getAddress(), address.getPort());
-        connection = new Connection(boostrap);
-        LOG.warn("Dashboard endpoint has been created at {}:{}", address.getAddress().getHostAddress(), address.getPort());
-        Runtime.getRuntime().addShutdownHook(new Thread(group::shutdownGracefully, "DashboardServerCloser"));
+            .localAddress(address.getAddress(), address.getPort())
+            .option(ChannelOption.SO_BACKLOG, 128)
+            .childOption(ChannelOption.SO_KEEPALIVE, true);
+        connection = Connection.fromServer(boostrap);
+        log.warn("Dashboard endpoint has been created at {}:{}", address.getAddress().getHostAddress(), address.getPort());
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> eventGroup.get().shutdownGracefully(), "DashboardServerCloser"));
     }
 
     public static void sendPacket(Packet packet) {

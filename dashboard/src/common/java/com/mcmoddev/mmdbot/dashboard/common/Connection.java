@@ -22,19 +22,41 @@ package com.mcmoddev.mmdbot.dashboard.common;
 
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
 import io.netty.bootstrap.AbstractBootstrap;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import lombok.extern.slf4j.Slf4j;
 
+import java.net.InetSocketAddress;
+
+@Slf4j
 public class Connection {
 
     private final AbstractBootstrap<?, ?> bootstrap;
     private final Channel channel;
 
-    public Connection(final AbstractBootstrap<?, ?> bootstrap) {
+    private Connection(final AbstractBootstrap<?, ?> bootstrap, final Channel channel) {
         this.bootstrap = bootstrap;
-        channel = bootstrap.bind().syncUninterruptibly().channel();
+        this.channel = channel;
+    }
+
+    public static Connection fromServer(ServerBootstrap bootstrap) {
+        return new Connection(bootstrap, bootstrap.bind().syncUninterruptibly().channel());
+    }
+
+    public static Connection fromClient(Bootstrap bootstrap, InetSocketAddress address) {
+        return new Connection(bootstrap, bootstrap.connect(address.getAddress(), address.getPort()).syncUninterruptibly().channel());
     }
 
     public void sendPacket(Packet packet) {
-        channel.writeAndFlush(packet);
+        try {
+            channel.writeAndFlush(packet).get();
+        } catch (Exception e) {
+            log.error("Exception while trying to send packet!", e);
+        }
+    }
+
+    public Channel getChannel() {
+        return channel;
     }
 }

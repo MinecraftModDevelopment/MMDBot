@@ -38,18 +38,6 @@ public final class PacketHandler extends SimpleChannelInboundHandler<Packet> {
 
     @Override
     protected void channelRead0(final ChannelHandlerContext ctx, final Packet msg) throws Exception {
-        listener.onPacket(msg, receiver);
-        msg.handle(receiver);
-    }
-
-    @Override
-    public void channelReadComplete(final ChannelHandlerContext ctx) throws Exception {
-        ctx.flush();
-    }
-
-    @Override
-    public void channelRegistered(final ChannelHandlerContext ctx) throws Exception {
-        super.channelRegistered(ctx);
-        System.out.println(ctx.channel().remoteAddress() + " joined the party!");
+        listener.onPacketAndThen(msg, receiver, () -> msg.handle(receiver));
     }
 }

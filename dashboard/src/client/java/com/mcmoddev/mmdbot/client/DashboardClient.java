@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.client;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mcmoddev.mmdbot.dashboard.common.Connection;
 import com.mcmoddev.mmdbot.dashboard.common.encode.DashboardChannelInitializer;
 import com.mcmoddev.mmdbot.dashboard.common.listener.MultiPacketListener;
@@ -28,16 +29,21 @@ import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketWaiter;
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketRegistry;
+import com.mcmoddev.mmdbot.dashboard.common.util.LazyLoadedValue;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.DefaultEventLoopGroup;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class DashboardClient {
 
@@ -46,20 +52,32 @@ public class DashboardClient {
     private static Connection connection;
     private static Runnable runWhenStopped = () -> {};
 
+    public static final LazyLoadedValue<NioEventLoopGroup> NETWORK_WORKER_GROUP = new LazyLoadedValue<>(() -> new NioEventLoopGroup(0,(new ThreadFactoryBuilder().setNameFormat("Netty Client IO #%d").setDaemon(true).build())));
+    public static final LazyLoadedValue<EpollEventLoopGroup> NETWORK_EPOLL_WORKER_GROUP = new LazyLoadedValue<>(() -> new EpollEventLoopGroup(0, new ThreadFactoryBuilder().setNameFormat("Netty Epoll Client IO #%d").setDaemon(true).build()));
+
     public static void setup(InetSocketAddress address, PacketListener... extraListeners) {
         final List<PacketListener> listeners = Lists.newArrayList(extraListeners);
         listeners.add(PACKET_WAITER);
-        final var group = new NioEventLoopGroup(1);
+        Class<? extends SocketChannel> channelClz;
+        LazyLoadedValue<? extends EventLoopGroup> eventGroup;
+        if (Epoll.isAvailable()) {
+            channelClz = EpollSocketChannel.class;
+            eventGroup = NETWORK_EPOLL_WORKER_GROUP;
+            LOG.info("Using epoll channel type");
+        } else {
+            channelClz = NioSocketChannel.class;
+            eventGroup = NETWORK_WORKER_GROUP;
+            LOG.info("Using default channel type");
+        }
         final var boostrap = new Bootstrap()
-            .group(group)
-            .channel(NioSocketChannel.class)
+            .group(eventGroup.get())
+            .channel(channelClz)
             .handler(new DashboardChannelInitializer(PacketRegistry.SET, packet -> connection.sendPacket(packet),
-                new MultiPacketListener(listeners)))
-            .localAddress(address.getAddress(), address.getPort());
-        connection = new Connection(boostrap);
+                new MultiPacketListener(listeners)));
+        connection = Connection.fromClient(boostrap, address);
         LOG.warn("Dashboard connection has been established with {}:{}", address.getAddress().getHostAddress(), address.getPort());
-        Runtime.getRuntime().addShutdownHook(new Thread(group::shutdownGracefully, "DashboardClientCloser"));
-        runWhenStopped = group::shutdownGracefully;
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> eventGroup.get().shutdownGracefully(), "DashboardClientCloser"));
+        runWhenStopped = () -> eventGroup.get().shutdownGracefully();
     }
 
     public static void sendPacket(Packet packet) {

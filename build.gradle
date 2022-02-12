@@ -11,7 +11,7 @@ plugins {
   alias(libs.plugins.shadow)
   alias(libs.plugins.flyway)
   alias(libs.plugins.licenser)
-  // alias(libs.plugins.lombok)
+  alias(libs.plugins.lombok)
 }
 
 group 'com.mcmoddev'
@@ -91,8 +91,6 @@ dependencies {
 
   global project(':dashboard')
 
-  // globalCompile libs.lombok
-
   jda libs.jda
   jda libs.chewtils
 
@@ -112,6 +110,7 @@ dependencies {
   global libs.fastutil
 
   globalCompile libs.annotations
+  globalCompile libs.lombok
 
   global libs.jdbi.core
   global libs.jdbi.sqlobject

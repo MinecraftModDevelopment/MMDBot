@@ -26,15 +26,14 @@ import com.mcmoddev.mmdbot.dashboard.common.packet.PacketRegistry;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
 import java.io.IOException;
 
+@Slf4j
 public final class PacketEncoder extends MessageToByteEncoder<Packet> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PacketDecoder.class);
     private static final Marker MARKER = MarkerFactory.getMarker("PACKET_SENT");
 
     private final PacketRegistry.PacketSet packetSet;
@@ -46,8 +45,8 @@ public final class PacketEncoder extends MessageToByteEncoder<Packet> {
     @Override
     protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf out) throws Exception {
         Integer integer = packetSet.getId(packet.getClass());
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(MARKER, "OUT: [{}] {}", integer, packet.getClass().getName());
+        if (log.isDebugEnabled()) {
+            log.debug(MARKER, "OUT: [{}] {}", integer, packet.getClass().getName());
         }
 
         if (integer == null) {
@@ -64,7 +63,7 @@ public final class PacketEncoder extends MessageToByteEncoder<Packet> {
                     throw new IllegalArgumentException("Packet too big (is " + j + ", should be less than 8388608): " + packet);
                 }
             } catch (Throwable throwable) {
-                LOGGER.error("Error encoding packet", throwable);
+                log.error("Error encoding packet", throwable);
             }
         }
     }

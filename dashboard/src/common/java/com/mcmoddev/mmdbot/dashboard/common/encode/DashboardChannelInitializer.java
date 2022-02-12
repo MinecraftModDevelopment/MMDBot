@@ -20,14 +20,14 @@
  */
 package com.mcmoddev.mmdbot.dashboard.common.encode;
 
+import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketReceiver;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketRegistry;
-import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.socket.SocketChannel;
 
-public class DashboardChannelInitializer extends ChannelInitializer<SocketChannel> {
+public class DashboardChannelInitializer extends ChannelInitializer<Channel> {
 
     private final PacketRegistry.PacketSet packetSet;
     private final PacketReceiver receiver;
@@ -40,7 +40,7 @@ public class DashboardChannelInitializer extends ChannelInitializer<SocketChanne
     }
 
     @Override
-    protected void initChannel(final SocketChannel ch) throws Exception {
+    protected void initChannel(final Channel ch) throws Exception {
         ch.config().setOption(ChannelOption.TCP_NODELAY, true);
         final var pipeline = ch.pipeline();
         pipeline //.addLast("timeout", new ReadTimeoutHandler(30))

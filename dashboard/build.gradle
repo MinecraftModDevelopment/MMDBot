@@ -10,7 +10,7 @@ plugins {
     alias(libs.plugins.shadow)
     alias(libs.plugins.licenser)
     id 'org.openjfx.javafxplugin' version '0.0.11'
-    // alias(libs.plugins.lombok)
+    alias(libs.plugins.lombok)
 }
 
 sourceSets {
@@ -24,6 +24,11 @@ configurations {
     commonImplementation.extendsFrom(global)
     clientImplementation.extendsFrom(global)
     serverImplementation.extendsFrom(global)
+
+    globalCompile
+    commonCompileOnly.extendsFrom(globalCompile)
+    commonCompileOnly.extendsFrom(globalCompile)
+    commonCompileOnly.extendsFrom(globalCompile)
 
     clientImplementation.extendsFrom(commonImplementation)
     serverImplementation.extendsFrom(commonImplementation)
@@ -62,6 +67,8 @@ dependencies {
     global libs.guava
     global libs.slf4japi
     global libs.fastutil
+
+    globalCompile libs.lombok
 
     serverImplementation sourceSets.common.output
     clientImplementation sourceSets.common.output
