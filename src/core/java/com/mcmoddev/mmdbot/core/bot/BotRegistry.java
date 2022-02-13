@@ -63,10 +63,11 @@ public final class BotRegistry {
 
     /**
      * Registers a {@link BotType}
-     * @param name the name of the bot
-     * @param type the bot type to register
+     *
+     * @param name     the name of the bot
+     * @param type     the bot type to register
      * @param priority the priority. See {@link RegisterBotType#priority()}
-     * @param <B> the type of the bot
+     * @param <B>      the type of the bot
      * @return the bot type ({@code type)}
      */
     public static <B extends Bot> BotType<B> registerType(String name, BotType<B> type, int priority) {
@@ -78,5 +79,6 @@ public final class BotRegistry {
         return Map.copyOf(BOT_TYPES);
     }
 
-    public record BotRegistryEntry<B extends Bot>(BotType<B> botType, Integer priority) {}
+    public record BotRegistryEntry<B extends Bot>(BotType<B> botType, Integer priority) {
+    }
 }

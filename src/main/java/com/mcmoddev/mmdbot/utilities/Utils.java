@@ -677,6 +677,7 @@ public final class Utils {
 
     /**
      * Gets a message from a link
+     *
      * @param link the link to decode
      * @return the message
      * @throws MessageLinkException if an exception occured in the meantime

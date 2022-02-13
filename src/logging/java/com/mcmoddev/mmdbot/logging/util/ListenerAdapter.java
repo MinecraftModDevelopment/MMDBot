@@ -55,31 +55,70 @@ import java.util.concurrent.ConcurrentMap;
 
 public abstract class ListenerAdapter implements EventListener {
 
-    public void onReady(ReadyEvent event) {}
+    public void onReady(ReadyEvent event) {
+    }
 
     // Message related
-    public void onMessageCreate(MessageCreateEvent event) {}
-    public void onMessageDelete(MessageDeleteEvent event) {}
-    public void onMessageUpdate(MessageUpdateEvent event) {}
-    public void onMessageBulkDelete(MessageBulkDeleteEvent event) {}
-    public void onReactionAdd(ReactionAddEvent event) {}
-    public void onReactionRemove(ReactionRemoveEvent event) {}
-    public void onReactionRemoveEmoji(ReactionRemoveEmojiEvent event) {}
-    public void onReactionRemoveAll(ReactionRemoveAllEvent event) {}
+    public void onMessageCreate(MessageCreateEvent event) {
+    }
+
+    public void onMessageDelete(MessageDeleteEvent event) {
+    }
+
+    public void onMessageUpdate(MessageUpdateEvent event) {
+    }
+
+    public void onMessageBulkDelete(MessageBulkDeleteEvent event) {
+    }
+
+    public void onReactionAdd(ReactionAddEvent event) {
+    }
+
+    public void onReactionRemove(ReactionRemoveEvent event) {
+    }
+
+    public void onReactionRemoveEmoji(ReactionRemoveEmojiEvent event) {
+    }
+
+    public void onReactionRemoveAll(ReactionRemoveAllEvent event) {
+    }
 
     // Guild related
-    public void onGuildCreate(GuildCreateEvent event) {}
-    public void onGuildDelete(GuildDeleteEvent event) {}
-    public void onGuildUpdate(GuildUpdateEvent event) {}
-    public void onMemberJoin(MemberJoinEvent event) {}
-    public void onMemberLeave(MemberLeaveEvent event) {}
-    public void onMemberUpdate(MemberUpdateEvent event) {}
-    public void onMemberChunk(MemberChunkEvent event) {}
-    public void onEmojisUpdate(EmojisUpdateEvent event) {}
-    public void onBan(BanEvent event) {}
-    public void onUnban(UnbanEvent event) {}
-    public void onIntegrationsUpdate(IntegrationsUpdateEvent event) {}
-    public void onWebhooksUpdate(WebhooksUpdateEvent event) {}
+    public void onGuildCreate(GuildCreateEvent event) {
+    }
+
+    public void onGuildDelete(GuildDeleteEvent event) {
+    }
+
+    public void onGuildUpdate(GuildUpdateEvent event) {
+    }
+
+    public void onMemberJoin(MemberJoinEvent event) {
+    }
+
+    public void onMemberLeave(MemberLeaveEvent event) {
+    }
+
+    public void onMemberUpdate(MemberUpdateEvent event) {
+    }
+
+    public void onMemberChunk(MemberChunkEvent event) {
+    }
+
+    public void onEmojisUpdate(EmojisUpdateEvent event) {
+    }
+
+    public void onBan(BanEvent event) {
+    }
+
+    public void onUnban(UnbanEvent event) {
+    }
+
+    public void onIntegrationsUpdate(IntegrationsUpdateEvent event) {
+    }
+
+    public void onWebhooksUpdate(WebhooksUpdateEvent event) {
+    }
 
     private static final MethodHandles.Lookup lookup = MethodHandles.lookup();
     private static final ConcurrentMap<Class<?>, MethodHandle> methods = new ConcurrentHashMap<>();

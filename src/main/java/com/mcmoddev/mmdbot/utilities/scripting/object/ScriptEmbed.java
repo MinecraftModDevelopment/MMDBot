@@ -30,9 +30,9 @@ import static com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils.validateArg
 
 /**
  * How does {@code setAuthor} work:
- *  - setAuthor(String name) -> sets the author's name
- *  - setAuthor(String name, String url) -> sets the author's name and URL (click link)
- *  - setAuthor(String name, String url, String imageUrl) -> sets the author's name, URL and icon (in this order). All the parameters can be null
+ * - setAuthor(String name) -> sets the author's name
+ * - setAuthor(String name, String url) -> sets the author's name and URL (click link)
+ * - setAuthor(String name, String url, String imageUrl) -> sets the author's name, URL and icon (in this order). All the parameters can be null
  */
 public class ScriptEmbed extends ScriptingContext {
 

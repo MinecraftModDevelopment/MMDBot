@@ -46,6 +46,7 @@ public @interface RegisterBotType {
      *     <li>Greater priority: first loaded.</li>
      *     <li>Lower priority: last loaded.</li>
      * </ul>
+     *
      * @return the loading priority
      */
     int priority() default 0;

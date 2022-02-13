@@ -35,7 +35,9 @@ public final class ReferencingListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (!event.isFromGuild()) { return; }
+        if (!event.isFromGuild()) {
+            return;
+        }
         final var originalMsg = event.getMessage();
         if (originalMsg.getMessageReference() != null && isStringReference(originalMsg.getContentRaw())) {
             final var referencedMessage = originalMsg.getMessageReference().getMessage();
@@ -45,7 +47,9 @@ public final class ReferencingListener extends ListenerAdapter {
         }
 
         final String[] msg = originalMsg.getContentRaw().split(" ");
-        if (msg.length < 1) { return; }
+        if (msg.length < 1) {
+            return;
+        }
 
         final var matcher = Utils.MESSAGE_LINK_PATTERN.matcher(msg[0]);
         if (matcher.find()) {

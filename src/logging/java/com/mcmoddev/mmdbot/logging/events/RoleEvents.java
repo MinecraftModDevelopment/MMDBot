@@ -45,19 +45,19 @@ public final class RoleEvents extends ListenerAdapter {
     public void onMemberUpdate(final MemberUpdateEvent event) {
         event.getMember().map(m -> Pair.makeOptional(event.getOld(), Optional.of(m)))
             .subscribe(pairO -> pairO.ifPresent(pair -> pair.accept((oldMember, newMember) -> {
-            final var oldRoles = oldMember.getRoleIds();
-            final var newRoles = newMember.getRoleIds();
-            if (oldRoles.size() < newRoles.size()) {
-                final var rolesAdded = new HashSet<>(newRoles);
-                rolesAdded.removeAll(oldRoles);
-                oldRoles.remove(rolesAdded);
-                onRoleAdded(event, newMember, oldMember, oldRoles, rolesAdded);
-            } else if (oldRoles.size() > newRoles.size()) {
-                final var rolesRemoved = new HashSet<>(oldRoles);
-                rolesRemoved.removeAll(newRoles);
-                onRoleRemoved(event, newMember, oldMember, oldRoles, rolesRemoved);
-            }
-        })));
+                final var oldRoles = oldMember.getRoleIds();
+                final var newRoles = newMember.getRoleIds();
+                if (oldRoles.size() < newRoles.size()) {
+                    final var rolesAdded = new HashSet<>(newRoles);
+                    rolesAdded.removeAll(oldRoles);
+                    oldRoles.remove(rolesAdded);
+                    onRoleAdded(event, newMember, oldMember, oldRoles, rolesAdded);
+                } else if (oldRoles.size() > newRoles.size()) {
+                    final var rolesRemoved = new HashSet<>(oldRoles);
+                    rolesRemoved.removeAll(newRoles);
+                    onRoleRemoved(event, newMember, oldMember, oldRoles, rolesRemoved);
+                }
+            })));
     }
 
     private void onRoleAdded(final MemberUpdateEvent event, final Member newMember, final Member oldMember, final Set<Snowflake> rolesBefore, final Set<Snowflake> rolesAdded) {

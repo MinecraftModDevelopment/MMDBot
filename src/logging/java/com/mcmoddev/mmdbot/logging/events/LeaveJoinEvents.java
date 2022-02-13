@@ -45,7 +45,7 @@ public final class LeaveJoinEvents extends ListenerAdapter {
             .addField("User:", event.getMember().getTag(), true)
             .thumbnail(event.getMember().getAvatarUrl())
             .addField("Joined Discord:", "<t:%s:f>".formatted(event.getMember().getId().getTimestamp()
-                .getEpochSecond()),true)
+                .getEpochSecond()), true)
             .build();
 
         Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.LEAVE_JOIN_EVENTS, c ->

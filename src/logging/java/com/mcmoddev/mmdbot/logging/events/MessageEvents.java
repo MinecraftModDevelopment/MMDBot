@@ -59,7 +59,7 @@ public final class MessageEvents extends ListenerAdapter {
                 return embedBuilder.build();
             })).orElseGet(() -> EmbedCreateSpec.builder().description("A message sent in <#%s> has been deleted! No more information could be retrieved."
                     .formatted(event.getChannelId().asLong())).timestamp(Instant.now())
-                    .color(Color.CINNABAR).build());
+                .color(Color.CINNABAR).build());
         Utils.executeInLoggingChannel(event.getGuildId().get(), LoggingType.MESSAGE_EVENTS,
             channel -> channel.createMessage(MessageCreateRequest.builder()
                 .embed(embed.asRequest())

@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.logging;
 
-import static com.mcmoddev.mmdbot.logging.util.Utils.mentionAndID;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
@@ -31,7 +30,6 @@ import com.mcmoddev.mmdbot.logging.events.MessageEvents;
 import com.mcmoddev.mmdbot.logging.events.ModerationEvents;
 import com.mcmoddev.mmdbot.logging.events.RoleEvents;
 import com.mcmoddev.mmdbot.logging.util.EventListener;
-import com.mcmoddev.mmdbot.logging.util.ListenerAdapter;
 import com.mcmoddev.mmdbot.logging.util.LoggingType;
 import com.mcmoddev.mmdbot.logging.util.ThreadedEventListener;
 import com.mcmoddev.mmdbot.logging.util.Utils;
@@ -53,6 +51,8 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import static com.mcmoddev.mmdbot.logging.util.Utils.mentionAndID;
 
 public final class TheListener implements Bot {
 
@@ -150,7 +150,7 @@ public final class TheListener implements Bot {
         // TODO a proper thingy
         new Thread(() -> {
             while (true) {
-              // Just so the JVM doesn't stop
+                // Just so the JVM doesn't stop
             }
         }).start();
     }

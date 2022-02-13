@@ -25,7 +25,6 @@ import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;
 import discord4j.core.object.audit.AuditLogEntry;
-import discord4j.core.object.audit.AuditLogPart;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Message;
 import discord4j.core.spec.AuditLogQueryFlux;
@@ -68,7 +67,7 @@ public final class Utils {
 
     public static String createMessageURL(final Message message) {
         return "https://discord.com/channels/" + message.getGuildId().map(Snowflake::asString)
-            .orElse("@me")+ "/" + message.getChannelId().asLong()
+            .orElse("@me") + "/" + message.getChannelId().asLong()
             + "/" + message.getId().asLong();
     }
 

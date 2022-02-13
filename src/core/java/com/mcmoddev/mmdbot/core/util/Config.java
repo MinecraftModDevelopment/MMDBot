@@ -51,8 +51,7 @@ public abstract class Config<T extends Config<T>> {
     private boolean newlyGenerated;
 
     /**
-     * @deprecated
-     * This version is only supposed to be used for default configs!
+     * @deprecated This version is only supposed to be used for default configs!
      */
     @SuppressWarnings("unchecked")
     @Deprecated(forRemoval = false)
@@ -142,7 +141,8 @@ public abstract class Config<T extends Config<T>> {
         });
     }
 
-    public void addExtraComments(CommentedFileConfig config) {}
+    public void addExtraComments(CommentedFileConfig config) {
+    }
 
     public static String resolvePath(ConfigEntry entry) {
         String category = entry.category().isEmpty() ? "" : entry.category() + ".";
@@ -173,7 +173,7 @@ public abstract class Config<T extends Config<T>> {
     public List<Field> getFields() {
         if (fields == null) {
             fields = Stream.of(getClass().getDeclaredFields()).filter(f ->
-                !Modifier.isStatic(f.getModifiers()) && f.isAnnotationPresent(ConfigEntry.class))
+                    !Modifier.isStatic(f.getModifiers()) && f.isAnnotationPresent(ConfigEntry.class))
                 .peek(f -> f.setAccessible(true)).toList();
         }
         return fields;
