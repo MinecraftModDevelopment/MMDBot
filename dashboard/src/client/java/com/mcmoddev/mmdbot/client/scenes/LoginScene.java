@@ -29,8 +29,11 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.net.InetAddress;
@@ -41,10 +44,18 @@ import java.util.concurrent.TimeUnit;
 public final class LoginScene {
 
     public static Scene createAddressSelectionScreen(final Stage stage) {
-
+        stage.setWidth(402);
+        stage.setHeight(240);
+        stage.setResizable(false);
         final var addressLabel = new Label("Address: ");
         final var addressTextField = new TextField();
         final var continueButton = new Button("Continue");
+
+        addressTextField.setBackground(new Background
+            (new BackgroundFill(Color.GREY.brighter(), null, null)));
+        continueButton.setBackground(new Background(
+            new BackgroundFill(Color.GREY.brighter(), null, null)));
+
         continueButton.setOnAction(event -> {
             var text = addressTextField.getText();
             if (text.indexOf(':') < 0) {
@@ -76,6 +87,7 @@ public final class LoginScene {
         });
 
         final var vbox = new VBox(4, addressLabel, addressTextField, continueButton);
+        vbox.setBackground(new Background(new BackgroundFill(Color.DIMGREY.darker(), null, null)));
         return new Scene(vbox);
     }
 
