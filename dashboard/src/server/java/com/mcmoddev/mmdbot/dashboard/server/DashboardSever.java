@@ -22,7 +22,6 @@ package com.mcmoddev.mmdbot.dashboard.server;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.mcmoddev.mmdbot.dashboard.common.Connection;
 import com.mcmoddev.mmdbot.dashboard.common.encode.DashboardChannelInitializer;
 import com.mcmoddev.mmdbot.dashboard.common.listener.MultiPacketListener;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
@@ -54,7 +53,7 @@ public final class DashboardSever {
     private static final LazyLoadedValue<NioEventLoopGroup> SERVER_EVENT_GROUP = new LazyLoadedValue<>(() -> new NioEventLoopGroup(0, new ThreadFactoryBuilder().setNameFormat("Netty Server IO #%d").setDaemon(true).build()));
     private static final LazyLoadedValue<EpollEventLoopGroup> SERVER_EPOLL_EVENT_GROUP = new LazyLoadedValue<>(() -> new EpollEventLoopGroup(0, new ThreadFactoryBuilder().setNameFormat("Netty Epoll Server IO #%d").setDaemon(true).build()));
 
-    private static Connection connection;
+    private static ServerPacketHandler packetHandler;
 
     public static void setup(InetSocketAddress address, PacketListener... extraListeners) {
         final List<PacketListener> listeners = Lists.newArrayList(extraListeners);
@@ -70,22 +69,22 @@ public final class DashboardSever {
             eventGroup = SERVER_EVENT_GROUP;
             log.info("Using default channel type");
         }
+        packetHandler = new ServerPacketHandler(packet -> packetHandler.sendPacket(packet), new MultiPacketListener(listeners));
         final var boostrap = new ServerBootstrap()
             .group(eventGroup.get())
             .channel(channelClz)
             .handler(new LoggingHandler(LogLevel.WARN))
-            .childHandler(new DashboardChannelInitializer(PacketRegistry.SET, DashboardSever::sendPacket,
-                new MultiPacketListener(listeners)))
+            .childHandler(new DashboardChannelInitializer(PacketRegistry.SET, packetHandler))
             .localAddress(address.getAddress(), address.getPort())
             .option(ChannelOption.SO_BACKLOG, 128)
             .childOption(ChannelOption.SO_KEEPALIVE, true);
-        connection = Connection.fromServer(boostrap);
+        boostrap.bind().syncUninterruptibly().channel();
         log.warn("Dashboard endpoint has been created at {}:{}", address.getAddress().getHostAddress(), address.getPort());
         Runtime.getRuntime().addShutdownHook(new Thread(() -> eventGroup.get().shutdownGracefully(), "DashboardServerCloser"));
     }
 
     public static void sendPacket(Packet packet) {
-        connection.sendPacket(packet);
+        packetHandler.sendPacket(packet);
     }
 
 }

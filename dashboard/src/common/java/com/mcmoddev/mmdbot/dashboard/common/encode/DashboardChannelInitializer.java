@@ -21,22 +21,27 @@
 package com.mcmoddev.mmdbot.dashboard.common.encode;
 
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
+import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketReceiver;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketRegistry;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.SimpleChannelInboundHandler;
 
 public class DashboardChannelInitializer extends ChannelInitializer<Channel> {
 
     private final PacketRegistry.PacketSet packetSet;
-    private final PacketReceiver receiver;
-    private final PacketListener listener;
+    private final SimpleChannelInboundHandler<Packet> handler;
+
+    public DashboardChannelInitializer(final PacketRegistry.PacketSet packetSet,  final SimpleChannelInboundHandler<Packet> handler) {
+        this.packetSet = packetSet;
+        this.handler = handler;
+    }
 
     public DashboardChannelInitializer(final PacketRegistry.PacketSet packetSet, final PacketReceiver receiver, final PacketListener listener) {
-        this.packetSet = packetSet;
-        this.receiver = receiver;
-        this.listener = listener;
+        this(packetSet, new PacketHandler(receiver, listener));
     }
 
     @Override
@@ -48,6 +53,12 @@ public class DashboardChannelInitializer extends ChannelInitializer<Channel> {
             .addLast("decoder", new PacketDecoder(packetSet))
             .addLast("prepender", new PacketPrepender())
             .addLast("encoder", new PacketEncoder(packetSet))
-            .addLast("packet_handler", new PacketHandler(receiver, listener));
+            .addLast("packet_handler", handler);
+    }
+
+    @Override
+    public void channelActive(final ChannelHandlerContext ctx) throws Exception {
+        super.channelActive(ctx);
+        System.out.println("Channel active");
     }
 }

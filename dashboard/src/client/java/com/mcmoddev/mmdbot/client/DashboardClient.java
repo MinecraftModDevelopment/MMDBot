@@ -31,7 +31,6 @@ import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketRegistry;
 import com.mcmoddev.mmdbot.dashboard.common.util.LazyLoadedValue;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;

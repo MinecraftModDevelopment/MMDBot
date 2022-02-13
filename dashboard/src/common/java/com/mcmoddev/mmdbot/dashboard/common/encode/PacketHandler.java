@@ -25,7 +25,9 @@ import com.mcmoddev.mmdbot.dashboard.common.packet.PacketReceiver;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public final class PacketHandler extends SimpleChannelInboundHandler<Packet> {
 
     private final PacketReceiver receiver;
@@ -39,5 +41,11 @@ public final class PacketHandler extends SimpleChannelInboundHandler<Packet> {
     @Override
     protected void channelRead0(final ChannelHandlerContext ctx, final Packet msg) throws Exception {
         listener.onPacketAndThen(msg, receiver, () -> msg.handle(receiver));
+    }
+
+    @Override
+    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
+        log.error("Exception caught while handling a packet!", cause);
+        ctx.close();
     }
 }
