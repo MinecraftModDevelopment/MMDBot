@@ -64,17 +64,22 @@ public final class DashboardSever {
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         packetHandler = new ServerInitializer(PacketRegistry.SET, DashboardSever::sendPacketToAll,
             new MultiPacketListener(listeners));
-        ServerBootstrap b = new ServerBootstrap();
-        b.group(bossGroup, workerGroup)
-            .channel(NioServerSocketChannel.class)
-            .handler(new LoggingHandler(LogLevel.INFO))
-            .childHandler(packetHandler)
-            .childOption(ChannelOption.SO_KEEPALIVE, true);
+        try {
+            ServerBootstrap b = new ServerBootstrap();
+            b.group(bossGroup, workerGroup)
+                .channel(NioServerSocketChannel.class)
+                .handler(new LoggingHandler(LogLevel.INFO))
+                .childHandler(packetHandler)
+                .childOption(ChannelOption.SO_KEEPALIVE, true);
 
-        // Start the server.
-        ChannelFuture f = b.bind(address.getAddress(), address.getPort()).syncUninterruptibly();
+            // Start the server.
+            ChannelFuture f = b.bind(address.getAddress(), address.getPort()).syncUninterruptibly();
 
-        f.channel().closeFuture().syncUninterruptibly();
+            f.channel().closeFuture().syncUninterruptibly();
+        } finally {
+            bossGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
+        }
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
