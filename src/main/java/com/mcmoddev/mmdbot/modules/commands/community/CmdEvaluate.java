@@ -31,6 +31,7 @@ import com.mcmoddev.mmdbot.utilities.scripting.ScriptingContext;
 import com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -262,7 +263,7 @@ public class CmdEvaluate extends SlashCommand {
             })
             .setFunctionVoid("sendEmbeds", args -> executeAndAddColldown(evalContext.getMessageChannel(), c -> c.sendMessageEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
                 .filter(Objects::nonNull).limit(3).toList()).allowedMentions(ALLOWED_MENTIONS).queue())));
-        context.set("textChannel", event.getTextChannel() == null ? null : createTextChannel(evalContext.getTextChannel(), true)
+        context.set("textChannel", evalContext.getTextChannel() == null ? null : createTextChannel(evalContext.getTextChannel(), true)
             .setFunctionVoid("sendMessage", args -> {
                 validateArgs(args, 1);
                 executeAndAddColldown(evalContext.getTextChannel(), c -> c.sendMessage(args.get(0).asString()).allowedMentions(ALLOWED_MENTIONS).queue());
