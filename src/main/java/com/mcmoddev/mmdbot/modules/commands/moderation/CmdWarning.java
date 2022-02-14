@@ -85,6 +85,7 @@ public class CmdWarning extends SlashCommand {
             options = List.of(new OptionData(OptionType.USER, "user", "The user to warn").setRequired(true),
                 new OptionData(OptionType.STRING, "reason", "The reason of the warning").setRequired(true),
                 new OptionData(OptionType.BOOLEAN, "public", "If the punishment is public"));
+            requiredRole = "Staff";
         }
 
         @Override
@@ -137,6 +138,7 @@ public class CmdWarning extends SlashCommand {
             help = "Lists the warnings of a user.";
             options = List
                 .of(new OptionData(OptionType.USER, "user", "The user to remove the warn from").setRequired(true));
+            requiredRole = "Staff";
         }
 
         @Override
@@ -171,6 +173,7 @@ public class CmdWarning extends SlashCommand {
                 new OptionData(OptionType.STRING, "id",
                     "The ID of the warn to remove. Do not provide it if you want to clean all warnings of that user.").setAutoComplete(true),
                 new OptionData(OptionType.BOOLEAN, "public", "If the warning clearing is public"));
+            requiredRole = "Staff";
         }
 
         @Override
