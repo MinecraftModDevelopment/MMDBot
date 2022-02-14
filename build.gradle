@@ -17,7 +17,7 @@ plugins {
 group 'com.mcmoddev'
 version project.bot_version
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 application {
   mainClass = 'com.mcmoddev.mmdbot.core.RunBots'
