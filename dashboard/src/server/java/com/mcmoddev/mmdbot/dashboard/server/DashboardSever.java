@@ -22,7 +22,6 @@ package com.mcmoddev.mmdbot.dashboard.server;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.mcmoddev.mmdbot.dashboard.common.encode.DashboardChannelInitializer;
 import com.mcmoddev.mmdbot.dashboard.common.listener.MultiPacketListener;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketWaiter;
@@ -30,6 +29,7 @@ import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketRegistry;
 import com.mcmoddev.mmdbot.dashboard.common.util.LazyLoadedValue;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
@@ -53,9 +53,35 @@ public final class DashboardSever {
     private static final LazyLoadedValue<NioEventLoopGroup> SERVER_EVENT_GROUP = new LazyLoadedValue<>(() -> new NioEventLoopGroup(0, new ThreadFactoryBuilder().setNameFormat("Netty Server IO #%d").setDaemon(true).build()));
     private static final LazyLoadedValue<EpollEventLoopGroup> SERVER_EPOLL_EVENT_GROUP = new LazyLoadedValue<>(() -> new EpollEventLoopGroup(0, new ThreadFactoryBuilder().setNameFormat("Netty Epoll Server IO #%d").setDaemon(true).build()));
 
-    private static ServerPacketHandler packetHandler;
+    private static ServerInitializer packetHandler;
 
     public static void setup(InetSocketAddress address, PacketListener... extraListeners) {
+        final List<PacketListener> listeners = Lists.newArrayList(extraListeners);
+        listeners.add(PACKET_WAITER);
+
+        // Configure the server.
+        EventLoopGroup bossGroup = new NioEventLoopGroup();
+        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        packetHandler = new ServerInitializer(PacketRegistry.SET, DashboardSever::sendPacketToAll,
+            new MultiPacketListener(listeners));
+        ServerBootstrap b = new ServerBootstrap();
+        b.group(bossGroup, workerGroup)
+            .channel(NioServerSocketChannel.class)
+            .handler(new LoggingHandler(LogLevel.INFO))
+            .childHandler(packetHandler)
+            .childOption(ChannelOption.SO_KEEPALIVE, true);
+
+        // Start the server.
+        ChannelFuture f = b.bind(address.getAddress(), address.getPort()).syncUninterruptibly();
+
+        f.channel().closeFuture().syncUninterruptibly();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            workerGroup.shutdownGracefully();
+            bossGroup.shutdownGracefully();
+        }, "DashboardServerCloser"));
+    }
+
+    public static void setup1(InetSocketAddress address, PacketListener... extraListeners) {
         final List<PacketListener> listeners = Lists.newArrayList(extraListeners);
         listeners.add(PACKET_WAITER);
         Class<? extends ServerSocketChannel> channelClz;
@@ -69,22 +95,24 @@ public final class DashboardSever {
             eventGroup = SERVER_EVENT_GROUP;
             log.info("Using default channel type");
         }
-        packetHandler = new ServerPacketHandler(packet -> packetHandler.sendPacket(packet), new MultiPacketListener(listeners));
+        packetHandler = new ServerInitializer(PacketRegistry.SET, DashboardSever::sendPacketToAll, new MultiPacketListener(listeners));
         final var boostrap = new ServerBootstrap()
             .group(eventGroup.get())
             .channel(channelClz)
             .handler(new LoggingHandler(LogLevel.WARN))
-            .childHandler(new DashboardChannelInitializer(PacketRegistry.SET, packetHandler))
-            .localAddress(address.getAddress(), address.getPort())
-            .option(ChannelOption.SO_BACKLOG, 128)
+            .childHandler(packetHandler)
             .childOption(ChannelOption.SO_KEEPALIVE, true);
-        boostrap.bind().syncUninterruptibly().channel();
+        // Start the server.
+        ChannelFuture f = boostrap.bind(address.getAddress(), address.getPort()).syncUninterruptibly();
+
+        // Wait until the server socket is closed.
+        f.channel().closeFuture().syncUninterruptibly();
         log.warn("Dashboard endpoint has been created at {}:{}", address.getAddress().getHostAddress(), address.getPort());
         Runtime.getRuntime().addShutdownHook(new Thread(() -> eventGroup.get().shutdownGracefully(), "DashboardServerCloser"));
     }
 
-    public static void sendPacket(Packet packet) {
-        packetHandler.sendPacket(packet);
+    public static void sendPacketToAll(Packet packet) {
+        packetHandler.sendPacketToAll(packet);
     }
 
 }

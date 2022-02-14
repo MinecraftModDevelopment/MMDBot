@@ -76,7 +76,7 @@ public class DashboardClient {
         connection = Connection.fromClient(boostrap, address);
         LOG.warn("Dashboard connection has been established with {}:{}", address.getAddress().getHostAddress(), address.getPort());
         Runtime.getRuntime().addShutdownHook(new Thread(() -> eventGroup.get().shutdownGracefully(), "DashboardClientCloser"));
-        runWhenStopped = () -> eventGroup.get().shutdownGracefully();
+        runWhenStopped = eventGroup.get()::shutdownGracefully;
     }
 
     public static void sendPacket(Packet packet) {

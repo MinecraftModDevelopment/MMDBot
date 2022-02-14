@@ -68,7 +68,7 @@ public class ByteBuffer extends ByteBuf {
     }
 
     public ByteBuffer writeVarInt(int value) {
-        while((value & -128) != 0) {
+        while ((value & -128) != 0) {
             this.writeByte(value & 127 | 128);
             value >>>= 7;
         }

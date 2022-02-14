@@ -25,14 +25,10 @@ import com.mcmoddev.mmdbot.dashboard.common.ServerBridge;
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketReceiver;
 
-import java.util.Random;
-
 public class CheckAuthorizedPacket implements Packet {
 
     private final String username;
     private final String password;
-
-    private static final Random RAND = new Random();
 
     public CheckAuthorizedPacket(final String username, final String password) {
         this.username = username;
@@ -52,7 +48,8 @@ public class CheckAuthorizedPacket implements Packet {
 
     @Override
     public void handle(final PacketReceiver receiver) {
-		ServerBridge.executeOnInstance(bridge -> receiver.reply(new Response(bridge.checkAuthorized(this))));
+        System.out.println("Handle");
+		ServerBridge.executeOnInstance(bridge -> receiver.send(new Response(bridge.checkAuthorized(this))));
     }
 
     public String getUsername() {

@@ -27,9 +27,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 
 @Slf4j
@@ -42,10 +44,13 @@ public final class PacketEncoder extends MessageToByteEncoder<Packet> {
         this.packetSet = packetSet;
     }
 
-    @Override
-    protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf out) throws Exception {
+    public void encodeSimple(Packet packet, ByteBuf out) throws Exception {
+        encodeSimple(packet, out, null);
+    }
+
+    public void encodeSimple(Packet packet, ByteBuf out, @Nullable Logger logger) throws Exception {
         Integer integer = packetSet.getId(packet.getClass());
-        if (log.isDebugEnabled()) {
+        if (logger != null && logger.isDebugEnabled()) {
             log.debug(MARKER, "OUT: [{}] {}", integer, packet.getClass().getName());
         }
 
@@ -63,8 +68,15 @@ public final class PacketEncoder extends MessageToByteEncoder<Packet> {
                     throw new IllegalArgumentException("Packet too big (is " + j + ", should be less than 8388608): " + packet);
                 }
             } catch (Throwable throwable) {
-                log.error("Error encoding packet", throwable);
+                if (logger != null) {
+                    log.error("Error encoding packet", throwable);
+                }
             }
         }
+    }
+
+    @Override
+    protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf out) throws Exception {
+        encodeSimple(packet, out, log);
     }
 }

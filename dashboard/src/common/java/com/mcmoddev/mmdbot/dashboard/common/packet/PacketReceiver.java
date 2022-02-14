@@ -23,6 +23,6 @@ package com.mcmoddev.mmdbot.dashboard.common.packet;
 @FunctionalInterface
 public interface PacketReceiver {
 
-    void reply(Packet packet);
+    void send(Packet packet);
 
 }

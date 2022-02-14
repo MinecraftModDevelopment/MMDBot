@@ -20,12 +20,16 @@
  */
 package com.mcmoddev.mmdbot.dashboard.common;
 
+import com.mcmoddev.mmdbot.dashboard.common.encode.PacketEncoder;
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
+import com.mcmoddev.mmdbot.dashboard.common.packet.PacketRegistry;
 import io.netty.bootstrap.AbstractBootstrap;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
-import lombok.extern.slf4j.Slf4j;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.FutureListener;
+import io.netty.util.concurrent.GenericFutureListener;
 
 import java.net.InetSocketAddress;
 
@@ -40,11 +44,20 @@ public class Connection {
     }
 
     public static Connection fromClient(Bootstrap bootstrap, InetSocketAddress address) {
-        return new Connection(bootstrap, bootstrap.connect(address.getAddress(), address.getPort()).syncUninterruptibly().channel());
+        try {
+            return new Connection(bootstrap, bootstrap.connect(address.getAddress(), address.getPort()).sync().channel());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void sendPacket(Packet packet) {
         channel.writeAndFlush(packet);
+    }
+
+    public void sendPacket(Packet packet, GenericFutureListener<? extends Future<? super Void>> futureListener) {
+        channel.writeAndFlush(packet).addListener(futureListener);
     }
 
     public Channel getChannel() {
