@@ -85,7 +85,7 @@ public class CmdEvaluate extends SlashCommand {
 
                 @Override
                 public TextChannel getTextChannel() {
-                    return event.getTextChannel();
+                    return event.isFromType(ChannelType.TEXT) ? event.getTextChannel() : null;
                 }
 
                 @Override
@@ -162,7 +162,7 @@ public class CmdEvaluate extends SlashCommand {
 
             @Override
             public TextChannel getTextChannel() {
-                return event.getTextChannel();
+                return event.isFromType(ChannelType.TEXT) ? event.getTextChannel() : null;
             }
 
             @Override
@@ -262,7 +262,7 @@ public class CmdEvaluate extends SlashCommand {
             })
             .setFunctionVoid("sendEmbeds", args -> executeAndAddColldown(evalContext.getMessageChannel(), c -> c.sendMessageEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
                 .filter(Objects::nonNull).limit(3).toList()).allowedMentions(ALLOWED_MENTIONS).queue())));
-        context.set("textChannel", createTextChannel(evalContext.getTextChannel(), true)
+        context.set("textChannel", event.getTextChannel() == null ? null : createTextChannel(evalContext.getTextChannel(), true)
             .setFunctionVoid("sendMessage", args -> {
                 validateArgs(args, 1);
                 executeAndAddColldown(evalContext.getTextChannel(), c -> c.sendMessage(args.get(0).asString()).allowedMentions(ALLOWED_MENTIONS).queue());
