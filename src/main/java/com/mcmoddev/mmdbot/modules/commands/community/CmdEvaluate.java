@@ -31,7 +31,7 @@ import com.mcmoddev.mmdbot.utilities.scripting.ScriptingContext;
 import com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Channel;
+import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -86,7 +86,7 @@ public class CmdEvaluate extends SlashCommand {
 
                 @Override
                 public TextChannel getTextChannel() {
-                    return event.isFromType(ChannelType.TEXT) ? event.getTextChannel() : null;
+                    return event.getChannelType() == ChannelType.TEXT ? event.getTextChannel() : null;
                 }
 
                 @Override
