@@ -64,6 +64,7 @@ public final class CmdRolePanel extends SlashCommand {
                 new OptionData(OptionType.STRING, "emote", "The emote which will be associated with that role.", true)
             );
             guildOnly = true;
+            userPermissions = USER_PERMS.toArray(new Permission[0]);
         }
 
         @Override
