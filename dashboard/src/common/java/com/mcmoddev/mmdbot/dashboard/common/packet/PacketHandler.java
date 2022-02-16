@@ -18,34 +18,36 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.dashboard.common.encode;
+package com.mcmoddev.mmdbot.dashboard.common.packet;
 
-import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketReceiver;
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.Listener;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public final class PacketHandler extends SimpleChannelInboundHandler<Packet> {
+public final class PacketHandler implements Listener {
 
-    private final PacketReceiver receiver;
     private final PacketListener listener;
+    private final boolean logReceive;
 
-    public PacketHandler(final PacketReceiver receiver, final PacketListener listener) {
-        this.receiver = receiver;
+    public PacketHandler(final PacketListener listener, final boolean logReceive) {
         this.listener = listener;
+        this.logReceive = logReceive;
+    }
+
+    public PacketHandler(final PacketListener listener) {
+        this(listener, true);
     }
 
     @Override
-    protected void channelRead0(final ChannelHandlerContext ctx, final Packet msg) throws Exception {
-        listener.onPacketAndThen(msg, receiver, () -> msg.handle(receiver));
-    }
-
-    @Override
-    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
-        log.error("Exception caught while handling a packet!", cause);
-        ctx.close();
+    public void received(final Connection connection, final Object o) {
+        if (o instanceof Packet packet) {
+            if (logReceive && log.isDebugEnabled()) {
+                log.debug("Received packet {} from {}", packet, connection.getRemoteAddressTCP());
+            }
+            final var ctx = PacketContext.fromConnection(connection);
+            listener.onPacketAndThen(packet, ctx, () -> packet.handle(ctx));
+        }
     }
 }

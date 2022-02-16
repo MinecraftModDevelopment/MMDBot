@@ -21,7 +21,8 @@
 package com.mcmoddev.mmdbot.client.scenes;
 
 import com.mcmoddev.mmdbot.client.DashboardClient;
-import com.mcmoddev.mmdbot.dashboard.common.packet.impl.CheckAuthorizedPacket;
+import com.mcmoddev.mmdbot.dashboard.packets.CheckAuthorizedPacket;
+import com.mcmoddev.mmdbot.dashboard.util.Credentials;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -102,8 +103,10 @@ public final class LoginScene {
                 if (packet.getResponseType().isAuthorized()) {
                     alert.setTitle("Authorized");
                     alert.setContentText("You are authorized! The dashboard will open up soon.");
+                    DashboardClient.credentials = new Credentials(usernameField.getText(), passwordField.getText());
                     // TODO open the actual dashboard
                 } else {
+                    alert.setAlertType(AlertType.WARNING);
                     alert.setTitle("Invalid credentials");
                     alert.setContentText("The credentials you provided are invalid.");
                 }

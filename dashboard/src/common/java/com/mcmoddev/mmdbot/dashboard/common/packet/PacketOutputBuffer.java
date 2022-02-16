@@ -20,9 +20,36 @@
  */
 package com.mcmoddev.mmdbot.dashboard.common.packet;
 
-@FunctionalInterface
-public interface PacketReceiver {
+import com.esotericsoftware.kryo.io.Output;
 
-    void send(Packet packet);
+public interface PacketOutputBuffer {
 
+    void writeInt(int value);
+
+    void writeString(String str);
+
+    /**
+     * Writes an enum of the given type to the buffer
+     * using the ordinal encoded.
+     */
+    void writeEnum(Enum<?> value);
+
+    static PacketOutputBuffer fromOutput(Output output) {
+        return new PacketOutputBuffer() {
+            @Override
+            public void writeInt(final int value) {
+                output.writeInt(value);
+            }
+
+            @Override
+            public void writeString(final String str) {
+                output.writeString(str);
+            }
+
+            @Override
+            public void writeEnum(final Enum<?> value) {
+                output.writeVarInt(value.ordinal(), true);
+            }
+        };
+    }
 }

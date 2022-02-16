@@ -18,28 +18,38 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.dashboard.common;
+package com.mcmoddev.mmdbot.dashboard.common.packet;
 
-import com.mcmoddev.mmdbot.dashboard.common.packet.impl.CheckAuthorizedPacket;
+import com.esotericsoftware.kryo.io.Input;
 
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
+public interface PacketInputBuffer {
 
-public interface ServerBridge {
-    AtomicReference<ServerBridge> INSTANCE = new AtomicReference<>();
+    int readInt();
 
-    static void executeOnInstance(Consumer<ServerBridge> consumer) {
-        final var inst = INSTANCE.get();
-        if (inst != null) {
-            consumer.accept(inst);
-        }
+    String readString();
+
+    /**
+     * Reads an enum of the given type {@code T} from the buffer
+     * using the ordinal encoded.
+     */
+    <T extends Enum<T>> T readEnum(Class<T> enumClass);
+
+    static PacketInputBuffer fromInput(Input input) {
+        return new PacketInputBuffer() {
+            @Override
+            public int readInt() {
+                return input.readInt();
+            }
+
+            @Override
+            public String readString() {
+                return input.readString();
+            }
+
+            @Override
+            public <T extends Enum<T>> T readEnum(final Class<T> enumClass) {
+                return (enumClass.getEnumConstants())[input.readVarInt(true)];
+            }
+        };
     }
-
-    static void setInstance(ServerBridge instance) {
-        if (INSTANCE.get() == null) {
-            INSTANCE.set(instance);
-        }
-    }
-
-    CheckAuthorizedPacket.ResponseType checkAuthorized(CheckAuthorizedPacket packet);
 }

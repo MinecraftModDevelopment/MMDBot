@@ -20,12 +20,19 @@
  */
 package com.mcmoddev.mmdbot.dashboard.common.packet;
 
-import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
+import com.mcmoddev.mmdbot.dashboard.util.RunnableQueue;
 
 public interface Packet {
 
-    void encode(ByteBuffer buffer);
+    void handle(PacketContext context);
 
-    void handle(PacketReceiver receiver);
+    void encode(PacketOutputBuffer buffer);
+
+    default void handleAndThen(PacketContext context, Runnable... andThen) {
+        RunnableQueue.createRunnable()
+            .addFirst(() -> handle(context))
+            .addLast(andThen)
+            .run();
+    }
 
 }

@@ -24,7 +24,7 @@ import com.google.gson.JsonObject;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.Pair;
-import com.mcmoddev.mmdbot.dashboard.common.ServerBridge;
+import com.mcmoddev.mmdbot.dashboard.ServerBridge;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
 import com.mcmoddev.mmdbot.dashboard.server.DashboardSever;
 import org.slf4j.Logger;

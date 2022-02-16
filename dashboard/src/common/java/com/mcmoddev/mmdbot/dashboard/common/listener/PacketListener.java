@@ -21,17 +21,17 @@
 package com.mcmoddev.mmdbot.dashboard.common.listener;
 
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketReceiver;
-import com.mcmoddev.mmdbot.dashboard.common.util.RunnableQueue;
+import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
+import com.mcmoddev.mmdbot.dashboard.util.RunnableQueue;
 
 @FunctionalInterface
 public interface PacketListener {
 
-    void onPacket(Packet packet, PacketReceiver receiver);
+    void onPacket(Packet packet, PacketContext context);
 
-    default void onPacketAndThen(Packet packet, PacketReceiver receiver, Runnable andThen) {
+    default void onPacketAndThen(Packet packet, PacketContext context, Runnable andThen) {
         RunnableQueue.createRunnable()
-            .addLast(() -> onPacket(packet, receiver))
+            .addFirst(() -> onPacket(packet, context))
             .addLast(andThen)
             .run();
     }

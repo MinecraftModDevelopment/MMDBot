@@ -20,10 +20,13 @@
  */
 package com.mcmoddev.mmdbot.dashboard.common.packet;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.Serializer;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
-import com.mcmoddev.mmdbot.dashboard.common.packet.impl.CheckAuthorizedPacket;
+import com.mcmoddev.mmdbot.dashboard.packets.CheckAuthorizedPacket;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import org.slf4j.Logger;
@@ -44,9 +47,9 @@ public final class PacketRegistry {
         static final Logger LOG = LoggerFactory.getLogger(PacketSet.class);
 
         final Object2IntMap<Class<? extends Packet>> classToId = make(new Object2IntOpenHashMap<>(), map -> map.defaultReturnValue(-1));
-        private final List<Function<ByteBuffer, ? extends Packet>> idToDeserializer = Lists.newArrayList();
+        private final List<Function<PacketInputBuffer, ? extends Packet>> idToDeserializer = Lists.newArrayList();
 
-        public <P extends Packet> PacketSet addPacket(Class<P> pktClass, Function<ByteBuffer, P> deserializer) {
+        public <P extends Packet> PacketSet addPacket(Class<P> pktClass, Function<PacketInputBuffer, P> deserializer) {
             int i = this.idToDeserializer.size();
             int j = this.classToId.put(pktClass, i);
             if (j != -1) {
@@ -66,14 +69,37 @@ public final class PacketRegistry {
         }
 
         @Nullable
-        public Packet createPacket(int pktId, ByteBuffer buffer) {
-            Function<ByteBuffer, ? extends Packet> function = this.idToDeserializer.get(pktId);
+        public Packet createPacket(int pktId, PacketInputBuffer buffer) {
+            Function<PacketInputBuffer, ? extends Packet> function = this.idToDeserializer.get(pktId);
             return function != null ? function.apply(buffer) : null;
+        }
+
+        public void applyToKryo(Kryo kryo) {
+            classToId.keySet().stream()
+                .map(clz -> new SimplePair<>(clz, getId(clz)))
+                .forEach(pair -> {
+                    final var id = pair.second();
+                    kryo.register(pair.first(), new Serializer<Packet>() {
+                        @Override
+                        public void write(final Kryo kryo, final Output output, final Packet object) {
+                            object.encode(PacketOutputBuffer.fromOutput(output));
+                        }
+
+                        @Override
+                        public Packet read(final Kryo kryo, final Input input, final Class type) {
+                            return createPacket(id, PacketInputBuffer.fromInput(input));
+                        }
+                        // register from ID 100
+                    }, id + 100);
+                });
         }
 
         public Iterable<Class<? extends Packet>> getAllPackets() {
             return Iterables.unmodifiableIterable(this.classToId.keySet());
         }
+    }
+
+    private record SimplePair<F, S>(F first, S second) {
     }
 
     private static <T> T make(T obj, Consumer<T> consumer) {

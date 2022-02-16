@@ -20,70 +20,73 @@
  */
 package com.mcmoddev.mmdbot.client;
 
+import com.esotericsoftware.kryonet.Client;
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.Listener;
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.mcmoddev.mmdbot.dashboard.common.Connection;
-import com.mcmoddev.mmdbot.dashboard.common.encode.DashboardChannelInitializer;
 import com.mcmoddev.mmdbot.dashboard.common.listener.MultiPacketListener;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketWaiter;
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
+import com.mcmoddev.mmdbot.dashboard.common.packet.PacketHandler;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketRegistry;
-import com.mcmoddev.mmdbot.dashboard.common.util.LazyLoadedValue;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.mcmoddev.mmdbot.dashboard.util.Credentials;
+import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
 import java.util.List;
 
+@Slf4j
+@UtilityClass
 public class DashboardClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DashboardClient.class);
     public static final PacketWaiter PACKET_WAITER = new PacketWaiter();
-    private static Connection connection;
-    private static Runnable runWhenStopped = () -> {};
+    private static Client client;
 
-    public static final LazyLoadedValue<NioEventLoopGroup> NETWORK_WORKER_GROUP = new LazyLoadedValue<>(() -> new NioEventLoopGroup(0,(new ThreadFactoryBuilder().setNameFormat("Netty Client IO #%d").setDaemon(true).build())));
-    public static final LazyLoadedValue<EpollEventLoopGroup> NETWORK_EPOLL_WORKER_GROUP = new LazyLoadedValue<>(() -> new EpollEventLoopGroup(0, new ThreadFactoryBuilder().setNameFormat("Netty Epoll Client IO #%d").setDaemon(true).build()));
+    /**
+     * The last credentials used to log in
+     */
+    public static Credentials credentials;
 
     public static void setup(InetSocketAddress address, PacketListener... extraListeners) {
-        final List<PacketListener> listeners = Lists.newArrayList(extraListeners);
-        listeners.add(PACKET_WAITER);
-        Class<? extends SocketChannel> channelClz;
-        LazyLoadedValue<? extends EventLoopGroup> eventGroup;
-        if (Epoll.isAvailable()) {
-            channelClz = EpollSocketChannel.class;
-            eventGroup = NETWORK_EPOLL_WORKER_GROUP;
-            LOG.info("Using epoll channel type");
-        } else {
-            channelClz = NioSocketChannel.class;
-            eventGroup = NETWORK_WORKER_GROUP;
-            LOG.info("Using default channel type");
+        try {
+            final List<PacketListener> listeners = Lists.newArrayList(extraListeners);
+            listeners.add(PACKET_WAITER);
+
+            client = new Client();
+            client.start();
+            client.connect(5000, address.getAddress().getHostAddress(), address.getPort());
+
+            PacketRegistry.SET.applyToKryo(client.getKryo());
+
+            client.addListener(new PacketHandler(new MultiPacketListener(listeners)));
+            client.addListener(new Listener() {
+                @Override
+                public void connected(final Connection connection) {
+                    log.warn("{} connected!", connection.getRemoteAddressTCP());
+                }
+
+                @Override
+                public void disconnected(final Connection connection) {
+                    log.warn("{} disconnected!", connection.getRemoteAddressTCP());
+                }
+            });
+
+            Runtime.getRuntime().addShutdownHook(new Thread(DashboardClient::shutdown, "DashboardClientCloser"));
+            log.warn("Dashboard connection has been established with {}:{}", address.getAddress().getHostAddress(), address.getPort());
+        } catch (Exception e) {
+            log.error("Error while trying to connect to the dashboard!", e);
         }
-        final var boostrap = new Bootstrap()
-            .group(eventGroup.get())
-            .channel(channelClz)
-            .handler(new DashboardChannelInitializer(PacketRegistry.SET, packet -> connection.sendPacket(packet),
-                new MultiPacketListener(listeners)));
-        connection = Connection.fromClient(boostrap, address);
-        LOG.warn("Dashboard connection has been established with {}:{}", address.getAddress().getHostAddress(), address.getPort());
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> eventGroup.get().shutdownGracefully(), "DashboardClientCloser"));
-        runWhenStopped = eventGroup.get()::shutdownGracefully;
     }
 
     public static void sendPacket(Packet packet) {
-        connection.sendPacket(packet);
+        if (client != null) {
+            client.sendTCP(packet);
+        }
     }
 
     public static void shutdown() {
-        runWhenStopped.run();
+        client.close();
     }
 }

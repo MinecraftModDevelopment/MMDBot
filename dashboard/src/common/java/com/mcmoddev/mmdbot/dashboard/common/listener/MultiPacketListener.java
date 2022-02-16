@@ -21,7 +21,8 @@
 package com.mcmoddev.mmdbot.dashboard.common.listener;
 
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketReceiver;
+import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
+import com.mcmoddev.mmdbot.dashboard.util.RunnableQueue;
 
 import java.util.List;
 
@@ -38,7 +39,9 @@ public class MultiPacketListener implements PacketListener {
     }
 
     @Override
-    public void onPacket(final Packet packet, PacketReceiver receiver) {
-        listeners.forEach(l -> l.onPacket(packet, receiver));
+    public void onPacket(final Packet packet, final PacketContext context) {
+        final var queue = RunnableQueue.createRunnable();
+        listeners.forEach(l -> queue.addLast(() -> l.onPacket(packet, context)));
+        queue.run();
     }
 }

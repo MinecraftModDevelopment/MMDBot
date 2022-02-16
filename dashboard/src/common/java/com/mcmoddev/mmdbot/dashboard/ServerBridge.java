@@ -18,21 +18,29 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.dashboard.common.util;
+package com.mcmoddev.mmdbot.dashboard;
 
-import com.google.common.base.Suppliers;
+import com.mcmoddev.mmdbot.dashboard.packets.CheckAuthorizedPacket;
+import com.mcmoddev.mmdbot.dashboard.util.Credentials;
 
-import java.util.function.Supplier;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
-public class LazyLoadedValue<T> implements Supplier<T> {
-    private final Supplier<T> factory;
+public interface ServerBridge {
+    AtomicReference<ServerBridge> INSTANCE = new AtomicReference<>();
 
-    public LazyLoadedValue(Supplier<T> factory) {
-        this.factory = Suppliers.memoize(factory::get);
+    static void executeOnInstance(Consumer<ServerBridge> consumer) {
+        final var inst = INSTANCE.get();
+        if (inst != null) {
+            consumer.accept(inst);
+        }
     }
 
-    @Override
-    public T get() {
-        return this.factory.get();
+    static void setInstance(ServerBridge instance) {
+        if (INSTANCE.get() == null) {
+            INSTANCE.set(instance);
+        }
     }
+
+    CheckAuthorizedPacket.ResponseType checkAuthorized(Credentials credentials);
 }

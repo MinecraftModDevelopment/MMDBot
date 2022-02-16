@@ -18,32 +18,29 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.core.bot;
+package com.mcmoddev.mmdbot.dashboard.common.packet;
 
-import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
-import org.slf4j.Logger;
+import com.esotericsoftware.kryonet.Connection;
 
-import java.nio.file.Path;
+import java.net.InetSocketAddress;
 
-public interface BotType<B extends Bot> {
+public interface PacketContext {
 
-    B createBot(Path runPath);
+    void reply(Packet packet);
 
-    Logger getLogger();
+    InetSocketAddress getSenderAddress();
 
-    default PacketListener getPacketListener(B bot) {
-        return ($, $2) -> {
+    static PacketContext fromConnection(Connection connection) {
+        return new PacketContext() {
+            @Override
+            public void reply(final Packet packet) {
+                connection.sendTCP(packet);
+            }
+
+            @Override
+            public InetSocketAddress getSenderAddress() {
+                return connection.getRemoteAddressTCP();
+            }
         };
-    }
-
-    /**
-     * @param bot
-     * @return
-     * @deprecated For internal user only.
-     */
-    @Deprecated(forRemoval = false)
-    @SuppressWarnings("unchecked")
-    default PacketListener getPacketListenerUnsafe(Object bot) {
-        return getPacketListener((B) bot);
     }
 }

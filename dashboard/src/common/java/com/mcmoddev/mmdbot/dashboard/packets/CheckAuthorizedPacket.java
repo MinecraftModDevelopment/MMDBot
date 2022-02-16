@@ -18,14 +18,16 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.dashboard.common.packet.impl;
+package com.mcmoddev.mmdbot.dashboard.packets;
 
-import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
-import com.mcmoddev.mmdbot.dashboard.common.ServerBridge;
+import com.mcmoddev.mmdbot.dashboard.ServerBridge;
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketReceiver;
+import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
+import com.mcmoddev.mmdbot.dashboard.common.packet.PacketInputBuffer;
+import com.mcmoddev.mmdbot.dashboard.common.packet.PacketOutputBuffer;
+import com.mcmoddev.mmdbot.dashboard.util.Credentials;
 
-public class CheckAuthorizedPacket implements Packet {
+public final class CheckAuthorizedPacket implements Packet {
 
     private final String username;
     private final String password;
@@ -35,57 +37,28 @@ public class CheckAuthorizedPacket implements Packet {
         this.password = password;
     }
 
-    public CheckAuthorizedPacket(final ByteBuffer buf) {
-        this.username = buf.readUtf();
-        this.password = buf.readUtf();
+    public CheckAuthorizedPacket(final PacketInputBuffer buffer) {
+        this.username = buffer.readString();
+        this.password = buffer.readString();
     }
 
     @Override
-    public void encode(final ByteBuffer buffer) {
-        buffer.writeUtf(username);
-        buffer.writeUtf(password);
+    public void handle(final PacketContext context) {
+        ServerBridge.executeOnInstance(bridge -> context
+            .reply(new Response(bridge.checkAuthorized(new Credentials(getUsername(), getPassword())))));
     }
 
     @Override
-    public void handle(final PacketReceiver receiver) {
-        System.out.println("Handle");
-		ServerBridge.executeOnInstance(bridge -> receiver.send(new Response(bridge.checkAuthorized(this))));
+    public void encode(final PacketOutputBuffer buffer) {
+        buffer.writeString(username);
+        buffer.writeString(password);
     }
 
     public String getUsername() {
         return username;
     }
-
     public String getPassword() {
         return password;
-    }
-
-    public static final class Response implements Packet {
-
-        private final ResponseType type;
-
-        public Response(final ResponseType type) {
-            this.type = type;
-        }
-
-        public Response(final ByteBuffer buf) {
-            this.type = buf.readEnum(ResponseType.class);
-        }
-
-        @Override
-        public void encode(final ByteBuffer buffer) {
-            buffer.writeEnum(type);
-        }
-
-        @Override
-        public void handle(final PacketReceiver receiver) {
-            // Nothing to do
-            System.out.println("Received packet");
-        }
-
-        public ResponseType getResponseType() {
-            return type;
-        }
     }
 
     public enum ResponseType {
@@ -93,6 +66,33 @@ public class CheckAuthorizedPacket implements Packet {
 
         public boolean isAuthorized() {
             return this == AUTHORIZED;
+        }
+    }
+
+    public static final class Response implements Packet {
+
+        private final ResponseType responseType;
+
+        public Response(final PacketInputBuffer buffer) {
+            this.responseType = buffer.readEnum(ResponseType.class);
+        }
+
+        public Response(final ResponseType responseType) {
+            this.responseType = responseType;
+        }
+
+        @Override
+        public void handle(final PacketContext context) {
+            // Nothing to handle
+        }
+
+        @Override
+        public void encode(final PacketOutputBuffer buffer) {
+            buffer.writeEnum(responseType);
+        }
+
+        public ResponseType getResponseType() {
+            return responseType;
         }
     }
 }

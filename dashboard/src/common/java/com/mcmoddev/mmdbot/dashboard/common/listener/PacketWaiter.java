@@ -21,7 +21,7 @@
 package com.mcmoddev.mmdbot.dashboard.common.listener;
 
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketReceiver;
+import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,15 +76,15 @@ public class PacketWaiter implements PacketListener {
     }
 
     @Override
-    public void onPacket(final Packet packet, PacketReceiver receiver) {
+    public void onPacket(final Packet packet, PacketContext context) {
         Class<?> c = packet.getClass();
 
         while (c != null) {
             final Set<WaitingPacket> set = waitingPackets.get(c);
             if (set != null) {
                 set.removeIf(wEvent -> wEvent.attempt(packet));
-                c = c.getSuperclass();
             }
+            c = c.getSuperclass();
         }
     }
 

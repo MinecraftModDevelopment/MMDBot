@@ -76,6 +76,10 @@ repositories {
     name 'jda-chewtils'
     url 'https://m2.chew.pro/snapshots'
   }
+  maven {
+    url "https://clojars.org/repo/"
+  }
+  maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -106,8 +110,9 @@ dependencies {
   global libs.graal.scriptengine
   global libs.reflections
   global libs.dotenv
-  global libs.netty
   global libs.fastutil
+  global libs.kryonet
+  global libs.kryo
 
   globalCompile libs.annotations
   globalCompile libs.lombok

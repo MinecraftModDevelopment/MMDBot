@@ -18,7 +18,7 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.dashboard.common.util;
+package com.mcmoddev.mmdbot.dashboard.util;
 
 import java.util.LinkedList;
 import java.util.function.Consumer;
@@ -40,20 +40,23 @@ public final class RunnableQueue<T> implements Runnable {
         return new RunnableQueue<>(Runnable::run);
     }
 
+    @SafeVarargs
+    public final RunnableQueue<T> addLast(T... toRun) {
+        for (var r : toRun) {
+            queue.addLast(r);
+        }
+        return this;
+    }
+
     public RunnableQueue<T> addFirst(T toRun) {
         queue.addFirst(toRun);
         return this;
     }
 
-    public RunnableQueue<T> addLast(T toRun) {
-        queue.addLast(toRun);
-        return this;
-    }
-
     @Override
     public void run() {
-        do {
+        while (!queue.isEmpty()) {
             runner.accept(queue.poll());
-        } while (!queue.isEmpty());
+        }
     }
 }
