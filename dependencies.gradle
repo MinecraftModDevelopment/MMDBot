@@ -8,7 +8,7 @@ ext {
 
     //-- DEPENDENCY VERSIONS
     jdaVersion = "5.0.0-alpha.5"
-    jdaChewtilsVersion = "2.0-interactions-SNAPSHOT"
+    jdaChewtilsVersion = "2.0-SNAPSHOT"
     guavaVersion = "31.0.1-jre"
     gsonVersion = "2.8.9"
     logbackClassicVersion = "1.2.10"
