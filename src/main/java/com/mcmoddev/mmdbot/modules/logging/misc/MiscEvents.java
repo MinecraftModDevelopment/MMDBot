@@ -118,20 +118,4 @@ public final class MiscEvents extends ListenerAdapter {
             }
         }
     }
-
-    @Override
-    public void onMessageContextInteraction(@NotNull final MessageContextInteractionEvent event) {
-        final var menu = CommandModule.getMenu(event.getName());
-        if (menu instanceof MessageContextMenu messageContextMenu) {
-            messageContextMenu.run(new MessageContextMenuEvent(event.getJDA(), event.getResponseNumber(), event.getInteraction(), CommandModule.getCommandClient()));
-        }
-    }
-
-    @Override
-    public void onUserContextInteraction(@NotNull final UserContextInteractionEvent event) {
-        final var menu = CommandModule.getMenu(event.getName());
-        if (menu instanceof UserContextMenu userContextMenu) {
-            userContextMenu.run(new UserContextMenuEvent(event.getJDA(), event.getResponseNumber(), event.getInteraction(), CommandModule.getCommandClient()));
-        }
-    }
 }
