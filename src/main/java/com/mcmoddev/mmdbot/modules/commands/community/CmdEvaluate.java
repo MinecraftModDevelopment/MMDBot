@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -74,10 +75,12 @@ public class CmdEvaluate extends SlashCommand {
     }
 
     public static final Set<Long> USED_CHANNELS = Collections.synchronizedSet(new HashSet<>());
+    public static final String THREAD_INTERRUPTED_MESSAGE = "org.graalvm.polyglot.PolyglotException: Thread was interrupted.";
 
     @Override
     protected void execute(final SlashCommandEvent event) {
-        event.deferReply().queue(hook -> {
+        event.deferReply().allowedMentions(ALLOWED_MENTIONS)
+            .addActionRow(DismissListener.createDismissButton(event.getUser())).queue(hook -> {
             final var context = createContext(new EvaluationContext() {
                 @Override
                 public Guild getGuild() {
@@ -86,7 +89,7 @@ public class CmdEvaluate extends SlashCommand {
 
                 @Override
                 public TextChannel getTextChannel() {
-                    return event.getChannelType() == ChannelType.TEXT ? event.getTextChannel() : null;
+                    return event.isFromType(ChannelType.TEXT) ? event.getTextChannel() : null;
                 }
 
                 @Override
@@ -107,13 +110,13 @@ public class CmdEvaluate extends SlashCommand {
                 @Override
                 public void reply(final String content) {
                     hook.editOriginal(new MessageBuilder(content).setAllowedMentions(ALLOWED_MENTIONS).build())
-                        .setActionRow(DismissListener.createDismissButton(getUser())).queue();
+                        .queue();
                 }
 
                 @Override
                 public void replyEmbeds(final MessageEmbed... embeds) {
                     hook.editOriginal(new MessageBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
-                        .setActionRow(DismissListener.createDismissButton(getUser())).queue();
+                        .queue();
                 }
             });
 
@@ -121,6 +124,9 @@ public class CmdEvaluate extends SlashCommand {
                 try {
                     ScriptingUtils.evaluate(Utils.getOrEmpty(event, "script"), context);
                 } catch (ScriptingUtils.ScriptingException exception) {
+                    if (exception.getMessage().equalsIgnoreCase(THREAD_INTERRUPTED_MESSAGE)) {
+                        return;
+                    }
                     hook.editOriginal("There was an exception evaluating "
                         + exception.getLocalizedMessage()).queue();
                 }
@@ -195,7 +201,7 @@ public class CmdEvaluate extends SlashCommand {
         });
         final var canEditMessage = event.getGuild() != null && event.getMember().hasPermission(Permission.MESSAGE_MANAGE);
         final var hasMsgReference = event.getMessage().getMessageReference() != null;
-        if (canEditMessage && event.getTextChannel() != null) {
+        if (canEditMessage && event.getChannel() instanceof GuildChannel) {
             context.setFunctionVoid("editMessage", args -> {
                 if (hasMsgReference) {
                     validateArgs(args, 1);
@@ -204,7 +210,7 @@ public class CmdEvaluate extends SlashCommand {
                 }
                 final var msgId = hasMsgReference ? event.getMessage().getMessageReference().getMessageIdLong() :
                     args.get(0).asLong();
-                event.getTextChannel().editMessageById(msgId, args.get(hasMsgReference ? 0 : 1).asString()).queue();
+                event.getChannel().editMessageById(msgId, args.get(hasMsgReference ? 0 : 1).asString()).queue();
             });
             context.setFunctionVoid("editMessageEmbeds", args -> {
                 if (hasMsgReference) {
@@ -220,7 +226,7 @@ public class CmdEvaluate extends SlashCommand {
                     args.get(0).asLong();
                 final var embeds = args.subList(hasMsgReference ? 0 : 1, args.size() - 1).stream().map(ScriptingUtils::getEmbedFromValue)
                     .filter(Objects::nonNull).toArray(MessageEmbed[]::new);
-                event.getTextChannel().editMessageEmbedsById(msgId, embeds).queue();
+                event.getChannel().editMessageEmbedsById(msgId, embeds).queue();
             });
         }
         final String finalScript = script;
@@ -228,8 +234,12 @@ public class CmdEvaluate extends SlashCommand {
             try {
                 ScriptingUtils.evaluate(finalScript, context);
             } catch (ScriptingUtils.ScriptingException exception) {
+                if (exception.getMessage().equalsIgnoreCase(THREAD_INTERRUPTED_MESSAGE)) {
+                    return;
+                }
                 event.getMessage().reply("There was an exception evaluating: "
-                    + exception.getLocalizedMessage()).queue();
+                    + exception.getLocalizedMessage()).allowedMentions(ALLOWED_MENTIONS)
+                    .setActionRow(DismissListener.createDismissButton(event.getAuthor())).queue();
             }
         }, "ScriptEvaluation");
         evalThread.setDaemon(true);
@@ -237,7 +247,8 @@ public class CmdEvaluate extends SlashCommand {
         TaskScheduler.scheduleTask(() -> {
             if (evalThread.isAlive()) {
                 evalThread.interrupt();
-                event.getMessage().reply("Evaluation was timed out!").queue();
+                event.getMessage().reply("Evaluation was timed out!")
+                    .setActionRow(DismissListener.createDismissButton(event.getAuthor())).queue();
             }
         }, 4, TimeUnit.SECONDS);
     }
@@ -247,7 +258,7 @@ public class CmdEvaluate extends SlashCommand {
         context.set("guild", evalContext.getGuild() == null ? null : createGuild(evalContext.getGuild()));
         context.set("member", evalContext.getMember() == null ? null : createMember(evalContext.getMember(), true));
         context.set("user", createUser(evalContext.getUser(), true));
-        final var canSendEmbed = evalContext.getGuild() == null || evalContext.getMember().hasPermission(evalContext.getTextChannel(), Permission.MESSAGE_EMBED_LINKS);
+        final var canSendEmbed = evalContext.getMessageChannel() instanceof GuildChannel guildChannel && evalContext.getMember().hasPermission(guildChannel, Permission.MESSAGE_EMBED_LINKS);
         context.set("channel", createMessageChannel(evalContext.getMessageChannel(), true)
             .setFunctionVoid("sendMessage", args -> {
                 validateArgs(args, 1);
