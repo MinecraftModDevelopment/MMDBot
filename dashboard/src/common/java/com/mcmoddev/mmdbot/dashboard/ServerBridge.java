@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.dashboard;
 import com.mcmoddev.mmdbot.dashboard.packets.CheckAuthorizedPacket;
 import com.mcmoddev.mmdbot.dashboard.util.Credentials;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -43,4 +44,6 @@ public interface ServerBridge {
     }
 
     CheckAuthorizedPacket.ResponseType checkAuthorized(Credentials credentials);
+
+    List<BotTypeEnum> getLoadedBotTypes();
 }

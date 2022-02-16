@@ -20,10 +20,13 @@
  */
 package com.mcmoddev.mmdbot.core;
 
+import com.mcmoddev.mmdbot.core.bot.BotRegistry;
+import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
 import com.mcmoddev.mmdbot.dashboard.ServerBridge;
 import com.mcmoddev.mmdbot.dashboard.packets.CheckAuthorizedPacket;
 import com.mcmoddev.mmdbot.dashboard.util.Credentials;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -37,5 +40,13 @@ public final class ServerBridgeImpl implements ServerBridge {
         } else {
             return CheckAuthorizedPacket.ResponseType.DENIED;
         }
+    }
+
+    @Override
+    public List<BotTypeEnum> getLoadedBotTypes() {
+        return RunBots.getLoadedBots().stream()
+            .map(b -> BotTypeEnum.byName(BotRegistry.getBotTypeName(b.getType())))
+            .filter(Objects::nonNull)
+            .toList();
     }
 }

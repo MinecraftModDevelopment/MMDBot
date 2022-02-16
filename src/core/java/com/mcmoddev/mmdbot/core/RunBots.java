@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.core;
 
 import com.google.gson.JsonObject;
+import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.Pair;
@@ -40,16 +41,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class RunBots {
 
     private static final Logger LOG = LoggerFactory.getLogger(RunBots.class);
+    private static List<Bot> loadedBots = new ArrayList<>();
 
     public static void main(String[] args) throws InterruptedException {
 
         final var config = getOrCreateConfig();
 
-        final var bots = BotRegistry.getBotTypes()
+        var bots = BotRegistry.getBotTypes()
             .entrySet()
             .stream()
             .map(entry -> {
@@ -71,6 +75,9 @@ public class RunBots {
                 return bot;
             });
 
+        loadedBots = bots.toList();
+        bots = loadedBots.stream();
+
         // dashboard stuff
         {
             ServerBridge.setInstance(new ServerBridgeImpl());
@@ -86,6 +93,10 @@ public class RunBots {
                 LOG.error("Error while trying to set up the dashboard endpoint!", e);
             }
         }
+    }
+
+    public static List<Bot> getLoadedBots() {
+        return loadedBots;
     }
 
     private static Path createDirectory(String path) {

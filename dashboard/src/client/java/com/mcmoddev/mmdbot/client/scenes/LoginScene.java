@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.client.scenes;
 
 import com.mcmoddev.mmdbot.client.DashboardClient;
 import com.mcmoddev.mmdbot.dashboard.packets.CheckAuthorizedPacket;
+import com.mcmoddev.mmdbot.dashboard.packets.RequestLoadedBotTypesPacket;
 import com.mcmoddev.mmdbot.dashboard.util.Credentials;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -71,7 +72,7 @@ public final class LoginScene {
             try {
                 final var port = Integer.parseInt(text);
                 DashboardClient.setup(new InetSocketAddress(InetAddress.getByName(hostName), port));
-                stage.setScene(makeLoginScene());
+                makeLoginScene(stage);
                 stage.show();
                 stage.requestFocus();
             } catch (NumberFormatException e) {
@@ -92,40 +93,53 @@ public final class LoginScene {
         return new Scene(vbox);
     }
 
-    private static Scene makeLoginScene() {
+    private static void makeLoginScene(Stage stage) {
         final var usernameField = new TextField();
         final var passwordField = new TextField();
         final var loginBtn = new Button("Login");
         loginBtn.setOnAction(event -> {
-            DashboardClient.sendPacket(new CheckAuthorizedPacket(usernameField.getText(), passwordField.getText()));
-            DashboardClient.PACKET_WAITER.waitForPacket(CheckAuthorizedPacket.Response.class, p -> true, packet -> Platform.runLater(() -> {
-                final var alert = new Alert(AlertType.INFORMATION);
-                if (packet.getResponseType().isAuthorized()) {
-                    alert.setTitle("Authorized");
-                    alert.setContentText("You are authorized! The dashboard will open up soon.");
-                    DashboardClient.credentials = new Credentials(usernameField.getText(), passwordField.getText());
-                    // TODO open the actual dashboard
-                } else {
-                    alert.setAlertType(AlertType.WARNING);
-                    alert.setTitle("Invalid credentials");
-                    alert.setContentText("The credentials you provided are invalid.");
-                }
-                alert.show();
-            }), 20, TimeUnit.SECONDS, () -> Platform.runLater(() -> {
-                final var alert = new Alert(AlertType.ERROR);
-                alert.setTitle("No response");
-                alert.setHeaderText("The server did not send a response!");
-                alert.setContentText("This usually means that you are trying to connect to a server that is not a dashboard.");
-                alert.setWidth(120);
-                alert.setHeight(120);
-                alert.show();
-            }));
+            DashboardClient.sendAndAwaitResponse(new CheckAuthorizedPacket(usernameField.getText(), passwordField.getText()))
+                .withPlatformAction(packet -> {
+                    final var alert = new Alert(AlertType.INFORMATION);
+                    if (packet.getResponseType().isAuthorized()) {
+                        alert.setTitle("Authorized");
+                        alert.setContentText("You are authorized! The dashboard will open up soon.");
+                        DashboardClient.credentials = new Credentials(usernameField.getText(), passwordField.getText());
+                        DashboardClient.sendAndAwaitResponse(new RequestLoadedBotTypesPacket())
+                            .withPlatformAction(response -> {
+                                DashboardClient.botTypes = response.getTypes();
+                                MainScene.makeMainPageScene(stage);
+                                stage.show();
+                            })
+                            .withTimeout(10, TimeUnit.SECONDS)
+                            .withPlatformTimeoutAction(() -> {
+                                final var newAlert = new Alert(Alert.AlertType.ERROR);
+                                newAlert.setContentText("Could not receive the loaded bot types!");
+                                newAlert.show();
+                            }).queue();
+                    } else {
+                        alert.setAlertType(AlertType.WARNING);
+                        alert.setTitle("Invalid credentials");
+                        alert.setContentText("The credentials you provided are invalid.");
+                    }
+                    alert.show();
+                })
+                .withTimeout(20, TimeUnit.SECONDS)
+                .withPlatformTimeoutAction(() -> {
+                    final var alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("No response");
+                    alert.setHeaderText("The server did not send a response!");
+                    alert.setContentText("This usually means that you are trying to connect to a server that is not a dashboard.");
+                    alert.setWidth(120);
+                    alert.setHeight(120);
+                    alert.show();
+                }).queue();
         });
         final var vbox = new VBox(4,
             new HBox(2, new Label("Username: "), usernameField),
             new HBox(2, new Label("Password: "), passwordField),
             loginBtn);
-        return new Scene(vbox);
+        stage.setScene(new Scene(vbox));
     }
 
 }

@@ -79,6 +79,13 @@ public final class BotRegistry {
         return Map.copyOf(BOT_TYPES);
     }
 
-    public record BotRegistryEntry<B extends Bot>(BotType<B> botType, Integer priority) {
+    public static String getBotTypeName(BotType<?> type) {
+        return BOT_TYPES.entrySet().stream()
+            .filter(e -> e.getValue().botType() == type)
+            .map(Map.Entry::getKey)
+            .findFirst()
+            .orElse(null);
     }
+
+    public record BotRegistryEntry<B extends Bot>(BotType<B> botType, Integer priority) {}
 }

@@ -22,9 +22,14 @@ package com.mcmoddev.mmdbot.dashboard.common.packet;
 
 import com.esotericsoftware.kryo.io.Output;
 
+import java.util.List;
+import java.util.function.BiConsumer;
+
 public interface PacketOutputBuffer {
 
     void writeInt(int value);
+
+    void writeVarInt(int value, boolean optimizePositive);
 
     void writeString(String str);
 
@@ -32,7 +37,22 @@ public interface PacketOutputBuffer {
      * Writes an enum of the given type to the buffer
      * using the ordinal encoded.
      */
-    void writeEnum(Enum<?> value);
+    default void writeEnum(Enum<?> value) {
+        writeVarInt(value.ordinal(), true);
+    }
+
+    /**
+     * Writes the list to the buffer using the {@code encoder}.
+     *
+     * @param list    the list to write
+     * @param encoder the encoder used to write items
+     */
+    default <T> void writeList(List<T> list, BiConsumer<T, PacketOutputBuffer> encoder) {
+        writeVarInt(list.size(), true);
+        for (T t : list) {
+            encoder.accept(t, this);
+        }
+    }
 
     static PacketOutputBuffer fromOutput(Output output) {
         return new PacketOutputBuffer() {
@@ -47,8 +67,8 @@ public interface PacketOutputBuffer {
             }
 
             @Override
-            public void writeEnum(final Enum<?> value) {
-                output.writeVarInt(value.ordinal(), true);
+            public void writeVarInt(final int value, final boolean optimizePositive) {
+                output.writeVarInt(value, optimizePositive);
             }
         };
     }

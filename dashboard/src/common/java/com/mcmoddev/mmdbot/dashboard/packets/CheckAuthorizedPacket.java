@@ -21,13 +21,14 @@
 package com.mcmoddev.mmdbot.dashboard.packets;
 
 import com.mcmoddev.mmdbot.dashboard.ServerBridge;
+import com.mcmoddev.mmdbot.dashboard.common.packet.HasResponse;
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketInputBuffer;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketOutputBuffer;
 import com.mcmoddev.mmdbot.dashboard.util.Credentials;
 
-public final class CheckAuthorizedPacket implements Packet {
+public final class CheckAuthorizedPacket implements Packet, HasResponse<CheckAuthorizedPacket.Response> {
 
     private final String username;
     private final String password;
@@ -67,6 +68,11 @@ public final class CheckAuthorizedPacket implements Packet {
         public boolean isAuthorized() {
             return this == AUTHORIZED;
         }
+    }
+
+    @Override
+    public Class<Response> getResponsePacketClass() {
+        return Response.class;
     }
 
     public static final class Response implements Packet {

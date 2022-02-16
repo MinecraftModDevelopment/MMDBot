@@ -24,9 +24,11 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.google.common.collect.Lists;
+import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
 import com.mcmoddev.mmdbot.dashboard.common.listener.MultiPacketListener;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketWaiter;
+import com.mcmoddev.mmdbot.dashboard.common.packet.HasResponse;
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketHandler;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketRegistry;
@@ -35,13 +37,18 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 @Slf4j
 @UtilityClass
 public class DashboardClient {
 
     public static final PacketWaiter PACKET_WAITER = new PacketWaiter();
+    public static List<BotTypeEnum> botTypes = new ArrayList<>();
     private static Client client;
 
     /**
@@ -86,7 +93,12 @@ public class DashboardClient {
         }
     }
 
+    public static <R extends Packet, P extends HasResponse<R> & Packet> PacketProcessorBuilder<R> sendAndAwaitResponse(P packet) {
+        return new PacketProcessorBuilder<>(packet, packet.getResponsePacketClass());
+    }
+
     public static void shutdown() {
         client.close();
     }
+
 }

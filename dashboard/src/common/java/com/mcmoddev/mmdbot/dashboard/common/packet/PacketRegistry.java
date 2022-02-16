@@ -27,12 +27,15 @@ import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.mcmoddev.mmdbot.dashboard.packets.CheckAuthorizedPacket;
+import com.mcmoddev.mmdbot.dashboard.packets.RequestLoadedBotTypesPacket;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -40,10 +43,13 @@ import java.util.function.Function;
 public final class PacketRegistry {
 
     public static final PacketSet SET = new PacketSet()
-        .addPacket(CheckAuthorizedPacket.class, CheckAuthorizedPacket::new)
-            .addPacket(CheckAuthorizedPacket.Response.class, CheckAuthorizedPacket.Response::new);
+        .addPacket(CheckAuthorizedPacket.class)
+            .addPacket(CheckAuthorizedPacket.Response.class)
+        .addPacket(RequestLoadedBotTypesPacket.class)
+            .addPacket(RequestLoadedBotTypesPacket.Response.class);
 
     public static class PacketSet {
+        private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
         static final Logger LOG = LoggerFactory.getLogger(PacketSet.class);
 
         final Object2IntMap<Class<? extends Packet>> classToId = make(new Object2IntOpenHashMap<>(), map -> map.defaultReturnValue(-1));
@@ -59,6 +65,35 @@ public final class PacketRegistry {
             } else {
                 this.idToDeserializer.add(deserializer);
                 return this;
+            }
+        }
+
+        /**
+         * Registers a packet of the specified {@code packetClass}. <br>
+         * The packet class <b>HAS TO HAVE</b> a constructor with a {@link PacketInputBuffer}
+         * as the parameter. <br>
+         * <strong>Due to this method using reflection to find the constructor,
+         * it may <i>slightly</i> reduce performance.</strong>
+         *
+         * @param packetClass the packet class
+         * @param <P>         the type of the packet
+         * @return the current packet set
+         */
+        @SuppressWarnings("unchecked")
+        public <P extends Packet> PacketSet addPacket(Class<P> packetClass) {
+            final var methodType = MethodType.methodType(void.class, PacketInputBuffer.class);
+            try {
+                final var handle = LOOKUP.findConstructor(packetClass, methodType);
+                return addPacket(packetClass, buffer -> {
+                    try {
+                        return (P) handle.invokeWithArguments(buffer);
+                    } catch (Throwable e) {
+                        LOG.error("Exception while trying to construct packet {}!", packetClass, e);
+                        throw new RuntimeException(e);
+                    }
+                });
+            } catch (NoSuchMethodException | IllegalAccessException e) {
+                throw new RuntimeException("The packet class " + packetClass + " does not have a constructor with a PacketInputBuffer as a parameter. Did you mean to use #addPacket(Class, Function)?");
             }
         }
 
