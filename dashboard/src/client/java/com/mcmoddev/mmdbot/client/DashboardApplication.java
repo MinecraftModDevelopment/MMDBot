@@ -34,7 +34,7 @@ public class DashboardApplication extends Application {
     @Override
     public void start(final Stage primaryStage) throws Exception {
         Application.setUserAgentStylesheet(Application.STYLESHEET_CASPIAN);
-        StyleManager.getInstance().addUserAgentStylesheet(notNull(getClass().getResource("/themes/dark.css"), "themeStyle").toString());
+        StyleManager.getInstance().addUserAgentStylesheet(notNull(getClass().getResource("/themes/dark.css"), "themeStyle").toExternalForm());
 
         final Scene loginScene = LoginScene.createAddressSelectionScreen(primaryStage);
         primaryStage.setTitle("MMDBot Dashboard");
