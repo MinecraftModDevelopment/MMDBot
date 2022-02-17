@@ -50,6 +50,8 @@ import static com.mcmoddev.mmdbot.client.util.StyleUtils.*;
 
 public final class LoginScene {
 
+    public static final Color TEXT_FIELD_BG_COLOUR = Color.LIGHTGRAY.darker();
+
     public static Scene createAddressSelectionScreen(final Stage stage) {
         stage.setWidth(402);
         stage.setHeight(240);
@@ -58,9 +60,13 @@ public final class LoginScene {
         final var portLabel = new Label("Port: ");
         final var continueButton = new ButtonBuilder("Continue")
             .setTextFill(Color.CORAL.darker().darker())
-            .setFont(Fonts.MONOSPACED.make(12));
-        final var ipTextFieldB = new TextFieldBuilder().clickButtonOnEnter(continueButton);
-        final var portTextFieldB = new TextFieldBuilder().clickButtonOnEnter(continueButton);
+            .setFont(Fonts.MONOSPACED.make(13.3));
+        final var ipTextFieldB = new TextFieldBuilder()
+            .clickButtonOnEnter(continueButton)
+            .setBackgroundColour(TEXT_FIELD_BG_COLOUR);
+        final var portTextFieldB = new TextFieldBuilder()
+            .clickButtonOnEnter(continueButton)
+            .setBackgroundColour(TEXT_FIELD_BG_COLOUR);
 
         Consumer.<Label>make(l -> l.setTextFill(Color.CHARTREUSE.brighter()))
             .andThen(l -> l.setFont(Fonts.MONOSPACED.make(21)))
@@ -106,8 +112,10 @@ public final class LoginScene {
     }
 
     private static void makeLoginScene(Stage stage) {
-        final var usernameField = new TextFieldBuilder();
-        final var passwordField = new TextFieldBuilder();
+        final var usernameField = new TextFieldBuilder()
+            .setBackgroundColour(TEXT_FIELD_BG_COLOUR);
+        final var passwordField = new TextFieldBuilder()
+            .setBackgroundColour(TEXT_FIELD_BG_COLOUR);
         final var loginBtn = new ButtonBuilder("Login")
             .setOnAction(event -> DashboardClient.sendAndAwaitResponse(new CheckAuthorizedPacket(usernameField.get().getText(),
                     passwordField.get().getText()))
@@ -147,7 +155,7 @@ public final class LoginScene {
                 alert.show();
             }).queue())
             .setTextFill(Color.CORAL.darker().darker())
-            .setFont(Fonts.MONOSPACED.make(12));
+            .setFont(Fonts.MONOSPACED.make(13.3));
 
         usernameField.clickButtonOnEnter(loginBtn);
         passwordField.clickButtonOnEnter(loginBtn);

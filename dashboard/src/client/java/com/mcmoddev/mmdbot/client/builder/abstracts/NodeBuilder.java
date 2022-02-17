@@ -17,6 +17,10 @@ public abstract class NodeBuilder<N extends Node, B extends NodeBuilder<N, B>> i
         return node;
     }
 
+    public B setStyle(String value) {
+        return doAndCast(n -> n.setStyle(value + System.lineSeparator() + n.getStyle()));
+    }
+
     @Override
     public final N get() {
         return build();

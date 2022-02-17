@@ -1,6 +1,7 @@
 package com.mcmoddev.mmdbot.client.builder;
 
 import com.mcmoddev.mmdbot.client.builder.abstracts.RegionBuilder;
+import com.mcmoddev.mmdbot.client.util.ColourUtils;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -8,6 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.paint.Color;
 
 import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
@@ -40,6 +42,15 @@ public final class TextFieldBuilder extends RegionBuilder<TextField, TextFieldBu
 
     public TextFieldBuilder clickButtonOnEnter(Supplier<Button> button) {
         return doAndCast(f -> f.setOnAction(e -> button.get().getOnAction().handle(e)));
+    }
+
+    @Override
+    public TextFieldBuilder setBackgroundColour(final Color colour) {
+        return setInnerBackgroundColour(colour);
+    }
+
+    public TextFieldBuilder setInnerBackgroundColour(final Color colour) {
+        return setStyle("-fx-control-inner-background: " + ColourUtils.toRGBAString(colour));
     }
 
     public enum KeyActionType {

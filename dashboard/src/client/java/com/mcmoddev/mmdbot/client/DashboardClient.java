@@ -99,7 +99,9 @@ public class DashboardClient {
     }
 
     public static <P extends Packet> PacketProcessorBuilder<GenericResponsePacket> sendAndAwaitGenericResponse(Function<PacketID, P> packet) {
-        return new PacketProcessorBuilder<>(packet.apply(PacketID.generateRandom()), GenericResponsePacket.class);
+        final var packetID = PacketID.generateRandom();
+        return new PacketProcessorBuilder<>(packet.apply(packetID), GenericResponsePacket.class)
+            .withPredicate(p -> p.originalPacketID().equals(packetID));
     }
 
     public static void shutdown() {
