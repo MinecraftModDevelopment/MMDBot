@@ -26,7 +26,6 @@ import com.mcmoddev.mmdbot.client.builder.TextFieldBuilder;
 import com.mcmoddev.mmdbot.client.util.Consumer;
 import com.mcmoddev.mmdbot.client.util.ExceptionFunction;
 import com.mcmoddev.mmdbot.client.util.Fonts;
-import com.mcmoddev.mmdbot.client.util.StyleUtils;
 import com.mcmoddev.mmdbot.dashboard.packets.CheckAuthorizedPacket;
 import com.mcmoddev.mmdbot.dashboard.packets.RequestLoadedBotTypesPacket;
 import com.mcmoddev.mmdbot.dashboard.util.Credentials;
@@ -39,6 +38,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.net.InetAddress;
@@ -46,11 +46,7 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
-import static com.mcmoddev.mmdbot.client.util.StyleUtils.*;
-
 public final class LoginScene {
-
-    public static final Color TEXT_FIELD_BG_COLOUR = Color.LIGHTGRAY.darker();
 
     public static Scene createAddressSelectionScreen(final Stage stage) {
         stage.setWidth(402);
@@ -58,21 +54,12 @@ public final class LoginScene {
         stage.setResizable(false);
         final var ipLabel = new Label("IP: ");
         final var portLabel = new Label("Port: ");
-        final var continueButton = new ButtonBuilder("Continue")
-            .setTextFill(Color.CORAL.darker().darker())
-            .setFont(Fonts.MONOSPACED.make(13.3));
-        final var ipTextFieldB = new TextFieldBuilder()
-            .clickButtonOnEnter(continueButton)
-            .setBackgroundColour(TEXT_FIELD_BG_COLOUR);
-        final var portTextFieldB = new TextFieldBuilder()
-            .clickButtonOnEnter(continueButton)
-            .setBackgroundColour(TEXT_FIELD_BG_COLOUR);
+        final var continueButton = new ButtonBuilder("Continue").setFont(Font.font(13.3));
+        final var ipTextFieldB = new TextFieldBuilder().clickButtonOnEnter(continueButton);
+        final var portTextFieldB = new TextFieldBuilder().clickButtonOnEnter(continueButton);
 
-        Consumer.<Label>make(l -> l.setTextFill(Color.CHARTREUSE.brighter()))
-            .andThen(l -> l.setFont(Fonts.MONOSPACED.make(21)))
+        Consumer.<Label>make(l -> l.setFont(Font.font(21)))
             .acceptOnMultiple(ipLabel, portLabel);
-
-        StyleUtils.applyStyle(ipTextFieldB, portTextFieldB, continueButton);
 
         final var portTextField = portTextFieldB.build();
         final var ipTextField = ipTextFieldB.build();
@@ -106,16 +93,13 @@ public final class LoginScene {
         });
 
         final var vbox = new VBox(6, ipLabel, ipTextField, portLabel, portTextField, continueButton.build());
-        setBackgroundColour(vbox, Color.DIMGREY.darker());
         vbox.setPadding(new Insets(12));
         return new Scene(vbox);
     }
 
     private static void makeLoginScene(Stage stage) {
-        final var usernameField = new TextFieldBuilder()
-            .setBackgroundColour(TEXT_FIELD_BG_COLOUR);
-        final var passwordField = new TextFieldBuilder()
-            .setBackgroundColour(TEXT_FIELD_BG_COLOUR);
+        final var usernameField = new TextFieldBuilder();
+        final var passwordField = new TextFieldBuilder();
         final var loginBtn = new ButtonBuilder("Login")
             .setOnAction(event -> DashboardClient.sendAndAwaitResponse(new CheckAuthorizedPacket(usernameField.get().getText(),
                     passwordField.get().getText()))
@@ -154,8 +138,7 @@ public final class LoginScene {
                 alert.setHeight(120);
                 alert.show();
             }).queue())
-            .setTextFill(Color.CORAL.darker().darker())
-            .setFont(Fonts.MONOSPACED.make(13.3));
+            .setFont(Font.font(13.3));
 
         usernameField.clickButtonOnEnter(loginBtn);
         passwordField.clickButtonOnEnter(loginBtn);
@@ -163,16 +146,13 @@ public final class LoginScene {
         final var usernameLabel = new Label("Username: ");
         final var passwordLabel = new Label("Password: ");
 
-        Consumer.<Label>make(l -> l.setTextFill(Color.CHARTREUSE.brighter()))
-            .andThen(l -> l.setFont(Fonts.MONOSPACED.make(21)))
+        Consumer.<Label>make(l -> l.setFont(Font.font(21)))
             .acceptOnMultiple(usernameLabel, passwordLabel);
 
-        applyStyle(loginBtn, usernameField, passwordField);
         final var vbox = new VBox(6,
             new HBox(4, usernameLabel, usernameField.get()),
             new HBox(4, passwordLabel, passwordField.get()),
             loginBtn.get());
-        setBackgroundColour(vbox, Color.DIMGREY.darker());
         vbox.setPadding(new Insets(12));
         stage.setScene(new Scene(vbox));
     }

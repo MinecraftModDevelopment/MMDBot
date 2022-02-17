@@ -1,0 +1,21 @@
+.button {
+    -fx-background-radius: 6;
+    -fx-background-color: rgb(183, 183, 183);
+    -fx-font-family: Monospaced;
+    -fx-text-fill: rgb(68, 36, 27);
+    -fx-font-weight: bold;
+}
+.text-field {
+    -fx-background-radius: 5;
+    -fx-border-radius: 4.7;
+    -fx-control-inner-background: rgb(148, 148, 148);
+    -fx-border-color: rgb(105, 104, 104);
+}
+.label {
+    -fx-font-family: Monospaced;
+    -fx-text-fill: rgb(104, 194, 16);
+}
+.root {
+    -fx-background-color: rgb(74, 74, 74);
+    -fx-font-family: Monospaced;
+}
