@@ -27,6 +27,7 @@ import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketInputBuffer;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketOutputBuffer;
 import com.mcmoddev.mmdbot.dashboard.util.Credentials;
+import org.checkerframework.checker.units.qual.C;
 
 public final class CheckAuthorizedPacket implements Packet, HasResponse<CheckAuthorizedPacket.Response> {
 
@@ -60,6 +61,9 @@ public final class CheckAuthorizedPacket implements Packet, HasResponse<CheckAut
     }
     public String getPassword() {
         return password;
+    }
+    public Credentials getCredentials() {
+        return new Credentials(username, password);
     }
 
     public enum ResponseType {

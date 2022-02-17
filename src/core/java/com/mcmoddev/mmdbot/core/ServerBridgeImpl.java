@@ -23,13 +23,18 @@ package com.mcmoddev.mmdbot.core;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
 import com.mcmoddev.mmdbot.dashboard.ServerBridge;
+import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
 import com.mcmoddev.mmdbot.dashboard.packets.CheckAuthorizedPacket;
+import com.mcmoddev.mmdbot.dashboard.server.DashboardSever;
 import com.mcmoddev.mmdbot.dashboard.util.Credentials;
+import com.mcmoddev.mmdbot.dashboard.util.GenericResponse;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+@Slf4j(topic = "DashboardActions")
 public final class ServerBridgeImpl implements ServerBridge {
 
     @Override
@@ -48,5 +53,22 @@ public final class ServerBridgeImpl implements ServerBridge {
             .map(b -> BotTypeEnum.byName(BotRegistry.getBotTypeName(b.getType())))
             .filter(Objects::nonNull)
             .toList();
+    }
+
+    @Override
+    public GenericResponse shutdownBot(final PacketContext context, final String botName) {
+        final var botType = BotTypeEnum.byName(botName);
+        if (botType != null) {
+            if (RunBots.isBotLoaded(botType)) {
+                log.warn("Shutting down bot {} at the request of {} via the dashboard!", botName,
+                    DashboardSever.USERS.get(context.getSenderAddress()));
+                RunBots.shutdownBot(botType);
+                return GenericResponse.Type.SUCCESS.noMessage();
+            } else {
+                return GenericResponse.Type.INVALID_REQUEST.createF("Bot %s is not loaded!", botName);
+            }
+        } else {
+            return GenericResponse.Type.INVALID_REQUEST.createF("Unknown bot type: %s", botName);
+        }
     }
 }

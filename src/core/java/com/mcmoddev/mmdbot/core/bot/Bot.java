@@ -32,4 +32,5 @@ public interface Bot {
         return getType().getLogger();
     }
 
+    void shutdown();
 }

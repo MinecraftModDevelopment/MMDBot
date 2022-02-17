@@ -35,6 +35,7 @@ import com.mcmoddev.mmdbot.logging.util.ThreadedEventListener;
 import com.mcmoddev.mmdbot.logging.util.Utils;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.retriever.EntityRetrievalStrategy;
 import discord4j.core.spec.EmbedCreateSpec;
@@ -117,6 +118,7 @@ public final class TheListener implements Bot {
     private static TheListener instance;
 
     private DiscordClient client;
+    private GatewayDiscordClient gateway;
     private final Path runPath;
 
     public TheListener(final Path runPath) {
@@ -137,7 +139,7 @@ public final class TheListener implements Bot {
 
         client = DiscordClient.create(token);
 
-        final var gateway = client.gateway()
+        gateway = client.gateway()
             .setEnabledIntents(IntentSet.of(Intent.values()))
             .setEntityRetrievalStrategy(EntityRetrievalStrategy.REST).login().block();
 
@@ -147,12 +149,15 @@ public final class TheListener implements Bot {
         Utils.subscribe(gateway, wrapListener(new MessageEvents()), wrapListener(new LeaveJoinEvents()),
             wrapListener(new ModerationEvents()), wrapListener(new RoleEvents()));
 
-        // TODO a proper thingy
         new Thread(() -> {
-            while (true) {
-                // Just so the JVM doesn't stop
-            }
-        }).start();
+            // D4J doesn't have non-daemon threads
+            while (true) {}
+        });
+    }
+
+    @Override
+    public void shutdown() {
+        gateway.logout().subscribe();
     }
 
     public static EventListener wrapListener(EventListener listener) {

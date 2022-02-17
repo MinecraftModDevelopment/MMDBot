@@ -21,6 +21,8 @@
 package com.mcmoddev.mmdbot.dashboard.common.packet;
 
 import com.esotericsoftware.kryo.io.Input;
+import com.mcmoddev.mmdbot.dashboard.common.BufferDecoder;
+import com.mcmoddev.mmdbot.dashboard.common.BufferSerializers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +46,13 @@ public interface PacketInputBuffer {
     String readString();
 
     /**
+     * Reads a {@link PacketID} from the buffer.
+     */
+    default PacketID readPacketID() {
+        return PacketID.DECODER.decode(this);
+    }
+
+    /**
      * Reads an enum of the given type {@code T} from the buffer
      * using the ordinal encoded.
      */
@@ -62,6 +71,31 @@ public interface PacketInputBuffer {
             list.add(decoder.apply(this));
         }
         return List.copyOf(list);
+    }
+
+    /**
+     * Reads a value from the buffer, using the specified {@code decoder}.
+     *
+     * @param decoder the decoder to use
+     * @param <T>     the type of the object to read
+     */
+    default <T> T read(BufferDecoder<T> decoder) {
+        return decoder.decode(this);
+    }
+
+    /**
+     * Reads a value from the buffer, using the decoder associated
+     * with the specified class from {@link com.mcmoddev.mmdbot.dashboard.common.BufferSerializers#DECODERS}.
+     *
+     * @param clazz the class of the object to read
+     * @param <T>   the type of the object to read
+     */
+    default <T> T read(Class<T> clazz) {
+        final var decoder = BufferSerializers.getDecoder(clazz);
+        if (decoder != null) {
+            return decoder.decode(this);
+        }
+        throw new RuntimeException("I do not know how to decode the " + clazz);
     }
 
     static PacketInputBuffer fromInput(Input input) {

@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.dashboard.common.packet;
 
 import com.esotericsoftware.kryo.io.Output;
+import com.mcmoddev.mmdbot.dashboard.common.BufferSerializable;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -52,6 +53,10 @@ public interface PacketOutputBuffer {
         for (T t : list) {
             encoder.accept(t, this);
         }
+    }
+
+    default void write(BufferSerializable serializable) {
+        serializable.encode(this);
     }
 
     static PacketOutputBuffer fromOutput(Output output) {

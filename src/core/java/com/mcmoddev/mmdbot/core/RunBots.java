@@ -25,9 +25,11 @@ import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.Pair;
+import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
 import com.mcmoddev.mmdbot.dashboard.ServerBridge;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
 import com.mcmoddev.mmdbot.dashboard.server.DashboardSever;
+import lombok.experimental.UtilityClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +44,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+@UtilityClass
 public class RunBots {
 
     private static final Logger LOG = LoggerFactory.getLogger(RunBots.class);
@@ -72,8 +76,9 @@ public class RunBots {
                 } else {
                     bot.getLogger().warn("Bot {} is disabled! Its features will not work!", botEntry.name());
                 }
-                return bot;
-            });
+                return botEntry.isEnabled() ? bot : null;
+            })
+            .filter(Objects::nonNull);
 
         loadedBots = bots.toList();
         bots = loadedBots.stream();
@@ -97,6 +102,19 @@ public class RunBots {
 
     public static List<Bot> getLoadedBots() {
         return loadedBots;
+    }
+
+    public static boolean isBotLoaded(BotTypeEnum botTypeEnum) {
+        return loadedBots.stream().map(b -> BotRegistry.getBotTypeName(b.getType()))
+            .anyMatch(s -> s.equals(botTypeEnum.getName()));
+    }
+
+    public static void shutdownBot(BotTypeEnum botTypeEnum) {
+        loadedBots.stream().map(b -> Pair.of(b, BotRegistry.getBotTypeName(b.getType())))
+            .filter(p -> p.second().equals(botTypeEnum.getName()))
+            .map(Pair::first)
+            .findAny()
+            .ifPresent(Bot::shutdown);
     }
 
     private static Path createDirectory(String path) {

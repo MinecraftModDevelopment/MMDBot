@@ -203,6 +203,11 @@ public final class MMDBot implements Bot {
     }
 
     @Override
+    public void shutdown() {
+        jda.shutdown();
+    }
+
+    @Override
     public BotType<?> getType() {
         return BOT_TYPE;
     }

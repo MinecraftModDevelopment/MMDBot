@@ -20,8 +20,10 @@
  */
 package com.mcmoddev.mmdbot.dashboard;
 
+import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
 import com.mcmoddev.mmdbot.dashboard.packets.CheckAuthorizedPacket;
 import com.mcmoddev.mmdbot.dashboard.util.Credentials;
+import com.mcmoddev.mmdbot.dashboard.util.GenericResponse;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -46,4 +48,6 @@ public interface ServerBridge {
     CheckAuthorizedPacket.ResponseType checkAuthorized(Credentials credentials);
 
     List<BotTypeEnum> getLoadedBotTypes();
+
+    GenericResponse shutdownBot(PacketContext context, String botName);
 }

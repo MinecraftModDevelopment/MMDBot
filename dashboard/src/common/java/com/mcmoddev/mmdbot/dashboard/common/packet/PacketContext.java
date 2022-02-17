@@ -21,12 +21,18 @@
 package com.mcmoddev.mmdbot.dashboard.common.packet;
 
 import com.esotericsoftware.kryonet.Connection;
+import com.mcmoddev.mmdbot.dashboard.packets.GenericResponsePacket;
+import com.mcmoddev.mmdbot.dashboard.util.GenericResponse;
 
 import java.net.InetSocketAddress;
 
 public interface PacketContext {
 
     void reply(Packet packet);
+
+    default void replyGeneric(PacketID packetID, GenericResponse response) {
+        reply(new GenericResponsePacket(packetID, response));
+    }
 
     InetSocketAddress getSenderAddress();
 
