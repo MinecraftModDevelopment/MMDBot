@@ -18,18 +18,14 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client.util;
+package com.mcmoddev.mmdbot.dashboard.client;
 
-import lombok.experimental.UtilityClass;
+import javafx.application.Application;
 
-@UtilityClass
-public class Checks {
+public final class Startup {
 
-    public static <T> T notNull(T object, String name) {
-        if (object == null) {
-            throw new NullPointerException(name);
-        }
-        return object;
+    public static void main(String[] args) {
+        Application.launch(DashboardApplication.class, args);
     }
 
 }

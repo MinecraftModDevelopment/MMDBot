@@ -18,13 +18,13 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client;
+package com.mcmoddev.mmdbot.dashboard.client;
 
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.google.common.collect.Lists;
-import com.mcmoddev.mmdbot.client.util.NullableReference;
+import com.mcmoddev.mmdbot.dashboard.client.util.NullableReference;
 import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
 import com.mcmoddev.mmdbot.dashboard.common.listener.MultiPacketListener;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;

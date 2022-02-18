@@ -18,14 +18,13 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client.scenes;
+package com.mcmoddev.mmdbot.dashboard.client.scenes;
 
-import com.mcmoddev.mmdbot.client.DashboardClient;
-import com.mcmoddev.mmdbot.client.builder.ButtonBuilder;
-import com.mcmoddev.mmdbot.client.builder.TextFieldBuilder;
-import com.mcmoddev.mmdbot.client.util.Consumer;
-import com.mcmoddev.mmdbot.client.util.ExceptionFunction;
-import com.mcmoddev.mmdbot.client.util.Fonts;
+import com.mcmoddev.mmdbot.dashboard.client.DashboardClient;
+import com.mcmoddev.mmdbot.dashboard.client.builder.ButtonBuilder;
+import com.mcmoddev.mmdbot.dashboard.client.builder.TextFieldBuilder;
+import com.mcmoddev.mmdbot.dashboard.client.util.Consumer;
+import com.mcmoddev.mmdbot.dashboard.client.util.ExceptionFunction;
 import com.mcmoddev.mmdbot.dashboard.packets.CheckAuthorizedPacket;
 import com.mcmoddev.mmdbot.dashboard.packets.RequestLoadedBotTypesPacket;
 import com.mcmoddev.mmdbot.dashboard.util.Credentials;
@@ -37,7 +36,6 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 

@@ -18,41 +18,43 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client.builder.abstracts;
+package com.mcmoddev.mmdbot.dashboard.client.util;
 
-import javafx.scene.Node;
+import lombok.NonNull;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public abstract class NodeBuilder<N extends Node, B extends NodeBuilder<N, B>> implements Supplier<N> {
+public class NullableReference<T> implements Supplier<T> {
 
-    private final N node;
+    private T value;
+    private final boolean oneTimeSet;
 
-    protected NodeBuilder(final N node) {
-        this.node = node;
+    public NullableReference(T initialValue, final boolean oneTimeSet) {
+        this.value = initialValue;
+        this.oneTimeSet = oneTimeSet;
     }
 
-    public N build() {
-        return node;
-    }
-
-    public B setStyle(String value) {
-        return doAndCast(n -> n.setStyle(value + System.lineSeparator() + n.getStyle()));
+    public NullableReference(boolean oneTimeSet) {
+        this(null, oneTimeSet);
     }
 
     @Override
-    public final N get() {
-        return build();
+    public T get() {
+        return value;
     }
 
-    @SuppressWarnings("unchecked")
-    protected final B castThis() {
-        return (B) this;
+    public void set(final T value) {
+        if (value != null && oneTimeSet) {
+            throw new UnsupportedOperationException("Current value is not null and oneTimeSet is true!");
+        } else {
+            this.value = value;
+        }
     }
 
-    protected final B doAndCast(Consumer<N> toDo) {
-        toDo.accept(node);
-        return castThis();
+    public void invokeIfNotNull(@NonNull Consumer<T> consumer) {
+        if (value != null) {
+            consumer.accept(value);
+        }
     }
 }

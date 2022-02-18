@@ -18,27 +18,26 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client;
+package com.mcmoddev.mmdbot.dashboard.client;
 
-import com.mcmoddev.mmdbot.client.scenes.LoginScene;
+import com.mcmoddev.mmdbot.dashboard.client.scenes.LoginScene;
+import com.mcmoddev.mmdbot.dashboard.client.util.Checks;
 import com.sun.javafx.css.StyleManager;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-import static com.mcmoddev.mmdbot.client.util.Checks.notNull;
-
 public class DashboardApplication extends Application {
 
     @Override
     public void start(final Stage primaryStage) throws Exception {
         Application.setUserAgentStylesheet(Application.STYLESHEET_CASPIAN);
-        StyleManager.getInstance().addUserAgentStylesheet(notNull(getClass().getResource("/themes/dark.css"), "themeStyle").toExternalForm());
+        StyleManager.getInstance().addUserAgentStylesheet(Checks.notNull(getClass().getResource("/themes/dark.css"), "themeStyle").toExternalForm());
 
         final Scene loginScene = LoginScene.createAddressSelectionScreen(primaryStage);
         primaryStage.setTitle("MMDBot Dashboard");
-        primaryStage.getIcons().add(new Image(notNull(getClass().getResourceAsStream("/icon.png"), "icon")));
+        primaryStage.getIcons().add(new Image(Checks.notNull(getClass().getResourceAsStream("/icon.png"), "icon")));
         primaryStage.setScene(loginScene);
         primaryStage.requestFocus();
         primaryStage.centerOnScreen();

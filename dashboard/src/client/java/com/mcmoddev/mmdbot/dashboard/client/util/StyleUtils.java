@@ -18,23 +18,20 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client.builder.abstracts;
+package com.mcmoddev.mmdbot.dashboard.client.util;
 
-import javafx.scene.control.Labeled;
-import javafx.scene.paint.Paint;
-import javafx.scene.text.Font;
+import javafx.scene.Node;
+import javafx.scene.paint.Color;
+import lombok.experimental.UtilityClass;
 
-public class LabeledBuilder<L extends Labeled, B extends LabeledBuilder<L, B>> extends ControlBuilder<L, B> {
+@UtilityClass
+public class StyleUtils {
 
-    protected LabeledBuilder(final L node) {
-        super(node);
+    public static void setRoundedCorners(Node node, double radius) {
+        node.setStyle("-fx-background-radius: " + radius + ";" + System.lineSeparator() + node.getStyle());
     }
 
-    public B setFont(final Font font) {
-        return doAndCast(n -> n.setFont(font));
-    }
-
-    public B setTextFill(final Paint fill) {
-        return doAndCast(n -> n.setTextFill(fill));
+    public static void setBackgroundColour(Node node, Color colour) {
+        node.setStyle("-fx-background-color: " + ColourUtils.toRGBAString(colour) + System.lineSeparator() + node.getStyle());
     }
 }

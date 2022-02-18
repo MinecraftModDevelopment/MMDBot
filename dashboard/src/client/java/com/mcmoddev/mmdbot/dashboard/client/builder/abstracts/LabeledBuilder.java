@@ -18,43 +18,23 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client.util;
+package com.mcmoddev.mmdbot.dashboard.client.builder.abstracts;
 
-import lombok.NonNull;
+import javafx.scene.control.Labeled;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
 
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+public class LabeledBuilder<L extends Labeled, B extends LabeledBuilder<L, B>> extends ControlBuilder<L, B> {
 
-public class NullableReference<T> implements Supplier<T> {
-
-    private T value;
-    private final boolean oneTimeSet;
-
-    public NullableReference(T initialValue, final boolean oneTimeSet) {
-        this.value = initialValue;
-        this.oneTimeSet = oneTimeSet;
+    protected LabeledBuilder(final L node) {
+        super(node);
     }
 
-    public NullableReference(boolean oneTimeSet) {
-        this(null, oneTimeSet);
+    public B setFont(final Font font) {
+        return doAndCast(n -> n.setFont(font));
     }
 
-    @Override
-    public T get() {
-        return value;
-    }
-
-    public void set(final T value) {
-        if (value != null && oneTimeSet) {
-            throw new UnsupportedOperationException("Current value is not null and oneTimeSet is true!");
-        } else {
-            this.value = value;
-        }
-    }
-
-    public void invokeIfNotNull(@NonNull Consumer<T> consumer) {
-        if (value != null) {
-            consumer.accept(value);
-        }
+    public B setTextFill(final Paint fill) {
+        return doAndCast(n -> n.setTextFill(fill));
     }
 }

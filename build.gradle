@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -123,7 +125,7 @@ dependencies {
   testImplementation libs.junit
 }
 
-tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+tasks.named('shadowJar', ShadowJar) {
   from sourceSets.core.output
   configurations = [project.configurations.jda, project.configurations.global]
 }

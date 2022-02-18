@@ -18,28 +18,12 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client.builder;
+package com.mcmoddev.mmdbot.dashboard.client.builder.abstracts;
 
-import com.mcmoddev.mmdbot.client.builder.abstracts.LabeledBuilder;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Button;
+import javafx.scene.control.Control;
 
-public final class ButtonBuilder extends LabeledBuilder<Button, ButtonBuilder> {
-
-    public ButtonBuilder(final Button button) {
-        super(button);
-    }
-
-    public ButtonBuilder(final String text) {
-        this(new Button(text));
-    }
-
-    public ButtonBuilder() {
-        this(new Button());
-    }
-
-    public ButtonBuilder setOnAction(EventHandler<ActionEvent> action) {
-        return doAndCast(b -> b.setOnAction(action));
+public class ControlBuilder<C extends Control, B extends ControlBuilder<C, B>> extends RegionBuilder<C, B> {
+    protected ControlBuilder(final C node) {
+        super(node);
     }
 }

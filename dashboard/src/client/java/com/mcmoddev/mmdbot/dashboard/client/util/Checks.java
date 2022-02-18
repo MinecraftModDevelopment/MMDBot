@@ -18,15 +18,18 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client;
+package com.mcmoddev.mmdbot.dashboard.client.util;
 
-import com.mcmoddev.mmdbot.client.util.ColourUtils;
-import javafx.scene.paint.Color;
+import lombok.experimental.UtilityClass;
 
-public class Test {
+@UtilityClass
+public class Checks {
 
-    public static void main(String[] args) {
-        System.out.println(ColourUtils.toRGBAString(Color.CHARTREUSE.brighter()));
+    public static <T> T notNull(T object, String name) {
+        if (object == null) {
+            throw new NullPointerException(name);
+        }
+        return object;
     }
 
 }

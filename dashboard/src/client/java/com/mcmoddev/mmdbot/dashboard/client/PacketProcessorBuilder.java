@@ -18,9 +18,8 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client;
+package com.mcmoddev.mmdbot.dashboard.client;
 
-import com.mcmoddev.mmdbot.dashboard.common.packet.HasResponse;
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
 import javafx.application.Platform;
 import lombok.NonNull;

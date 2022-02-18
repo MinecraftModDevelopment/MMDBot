@@ -18,9 +18,9 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client.scenes;
+package com.mcmoddev.mmdbot.dashboard.client.scenes;
 
-import com.mcmoddev.mmdbot.client.DashboardClient;
+import com.mcmoddev.mmdbot.dashboard.client.DashboardClient;
 import com.mcmoddev.mmdbot.dashboard.packets.ShutdownBotPacket;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;

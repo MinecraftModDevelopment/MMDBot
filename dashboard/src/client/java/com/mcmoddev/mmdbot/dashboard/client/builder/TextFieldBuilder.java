@@ -18,10 +18,10 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client.builder;
+package com.mcmoddev.mmdbot.dashboard.client.builder;
 
-import com.mcmoddev.mmdbot.client.builder.abstracts.RegionBuilder;
-import com.mcmoddev.mmdbot.client.util.ColourUtils;
+import com.mcmoddev.mmdbot.dashboard.client.builder.abstracts.RegionBuilder;
+import com.mcmoddev.mmdbot.dashboard.client.util.ColourUtils;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;

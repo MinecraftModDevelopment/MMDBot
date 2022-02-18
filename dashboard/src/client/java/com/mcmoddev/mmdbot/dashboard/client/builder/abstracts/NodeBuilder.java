@@ -18,20 +18,41 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client.util;
+package com.mcmoddev.mmdbot.dashboard.client.builder.abstracts;
 
-import javafx.scene.paint.Color;
-import lombok.experimental.UtilityClass;
+import javafx.scene.Node;
 
-@UtilityClass
-public class ColourUtils {
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-    public static String toRGBAString(Color colour) {
-        int r = (int) Math.round(colour.getRed() * 255.0);
-        int g = (int) Math.round(colour.getGreen() * 255.0);
-        int b = (int) Math.round(colour.getBlue() * 255.0);
-        int o = (int) Math.round(colour.getOpacity() * 255.0);
-        return "rgba(%s, %s, %s, %s);".formatted(r, g, b, o);
+public abstract class NodeBuilder<N extends Node, B extends NodeBuilder<N, B>> implements Supplier<N> {
+
+    private final N node;
+
+    protected NodeBuilder(final N node) {
+        this.node = node;
     }
 
+    public N build() {
+        return node;
+    }
+
+    public B setStyle(String value) {
+        return doAndCast(n -> n.setStyle(value + System.lineSeparator() + n.getStyle()));
+    }
+
+    @Override
+    public final N get() {
+        return build();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected final B castThis() {
+        return (B) this;
+    }
+
+    protected final B doAndCast(Consumer<N> toDo) {
+        toDo.accept(node);
+        return castThis();
+    }
 }

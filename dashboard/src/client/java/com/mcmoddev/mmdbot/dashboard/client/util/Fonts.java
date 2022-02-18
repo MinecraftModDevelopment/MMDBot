@@ -18,28 +18,47 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client.util;
+package com.mcmoddev.mmdbot.dashboard.client.util;
 
-import java.util.function.Consumer;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 
-@FunctionalInterface
-@SuppressWarnings("unchecked")
-public interface ExceptionFunction<T, R, E extends Exception> {
+public enum Fonts {
+    ACME_FONT("AcmeFont"),
+    AGENCY_FB("Agency FB"),
+    ALFREDO("Alfredo"),
+    ALGERIAN("Algerian"),
+    ARIAL("Arial"),
+    CALVIN("Calvin"),
+    GIG("Gigi"),
+    HARVEST("Harvest"),
+    MONOSPACED("Monospaced");
 
-    static <T, R, E extends Exception> ExceptionFunction<T, R, E> make(ExceptionFunction<T, R, E> function) {
-        return function;
+    private final String name;
+
+    Fonts(final String name) {
+        this.name = name;
     }
 
-    R apply(T t) throws E;
-
-    default R applyAndCatchException(T t, Consumer<E> onException) {
-        try {
-            return apply(t);
-        } catch (Exception e) {
-            try {
-                onException.accept((E) e);
-            } catch (ClassCastException ignored) {} // This means that the exception is not the required type
-        }
-        return null;
+    public String getName() {
+        return name;
     }
+
+    public Font make() {
+        return Font.font(name);
+    }
+
+    public Font make(double size) {
+        return Font.font(name, size);
+    }
+
+    public Font make(FontWeight weight, double size) {
+        return Font.font(name, weight, size);
+    }
+
+    public Font make(FontWeight weight, FontPosture posture, double size) {
+        return Font.font(name, weight, posture, size);
+    }
+
 }

@@ -4,6 +4,7 @@ flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 licenser = { id = "org.cadixdev.licenser", version = "0.6.1" }
 lombok = { id = "io.freefair.lombok", version = "6.4.0" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version = "1.6.10" }
+launch4j = { id = 'edu.sc.seis.launch4j', version = '2.5.1'}
 
 [versions]
 jda = "5.0.0-alpha.5"

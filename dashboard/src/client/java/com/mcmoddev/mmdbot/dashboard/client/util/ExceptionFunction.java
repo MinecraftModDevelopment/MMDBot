@@ -18,14 +18,28 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client;
+package com.mcmoddev.mmdbot.dashboard.client.util;
 
-import javafx.application.Application;
+import java.util.function.Consumer;
 
-public final class Startup {
+@FunctionalInterface
+@SuppressWarnings("unchecked")
+public interface ExceptionFunction<T, R, E extends Exception> {
 
-    public static void main(String[] args) {
-        Application.launch(DashboardApplication.class, args);
+    static <T, R, E extends Exception> ExceptionFunction<T, R, E> make(ExceptionFunction<T, R, E> function) {
+        return function;
     }
 
+    R apply(T t) throws E;
+
+    default R applyAndCatchException(T t, Consumer<E> onException) {
+        try {
+            return apply(t);
+        } catch (Exception e) {
+            try {
+                onException.accept((E) e);
+            } catch (ClassCastException ignored) {} // This means that the exception is not the required type
+        }
+        return null;
+    }
 }

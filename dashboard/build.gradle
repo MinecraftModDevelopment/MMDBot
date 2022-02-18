@@ -1,5 +1,8 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 plugins {
     id 'application'
@@ -11,6 +14,7 @@ plugins {
     alias(libs.plugins.licenser)
     id 'org.openjfx.javafxplugin' version '0.0.11'
     alias(libs.plugins.lombok)
+    alias(libs.plugins.launch4j)
 }
 
 sourceSets {
@@ -32,9 +36,19 @@ configurations {
 
     clientImplementation.extendsFrom(commonImplementation)
     serverImplementation.extendsFrom(commonImplementation)
+
+    clientOnly
+    clientImplementation.extendsFrom(clientOnly)
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+group = "com.mcmoddev"
+version = project.dashboard_version
+archivesBaseName = "MMDBot-Dashboard"
+
+final var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
+final var currentDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(actualDateTime)
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 application {
     mainClass.set('com.mcmoddev.mmdbot.dashboard.client.Startup')
@@ -79,8 +93,45 @@ dependencies {
     serverImplementation sourceSets.common.output
     clientImplementation sourceSets.common.output
 
-    clientImplementation libs.logback
+    clientOnly libs.logback
 
     api sourceSets.server.output
     api sourceSets.common.output
 }
+
+tasks.create('clientJar', ShadowJar) {
+    from sourceSets.common.output
+    from sourceSets.client.output
+    configurations = [project.configurations.global, project.configurations.clientOnly]
+
+    manifest {
+        attributes(
+                'Maven-Artifact': "${group}:${archivesBaseName}:${dashboard_version}",
+                'Timestamp': currentDateTime,
+                'Specification-Title': archivesBaseName,
+                'Specification-Vendor': 'Minecraft Mod Development',
+                'Specification-Version': '1',
+                'Implementation-Title': archivesBaseName,
+                'Implementation-Version': "${dashboard_version}",
+                'Implementation-Vendor': 'Minecraft Mod Development',
+                'Implementation-Timestamp': currentDateTime,
+                'Built-On-Java': "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
+                'Built-On': "${project.libs.versions.jda.get()}-${project.libs.versions.chewtils.get()}",
+                'Main-Class': application.getMainClassName()
+        )
+    }
+}
+
+launch4j {
+    mainClassName = application.getMainClassName()
+    icon = "${projectDir}/src/client/resources/icon.ico"
+    jarTask = tasks.getByName("clientJar")
+    outfile = archivesBaseName + ".exe"
+    copyright = "Minecraft Mod Development"
+    copyConfigurable = []
+}
+tasks.create("copyExe", Copy) {
+    from layout.buildDirectory.dir("launch4j/${archivesBaseName}.exe")
+    into layout.buildDirectory.dir("libs/exe")
+}
+tasks.getByName("createExe").finalizedBy(tasks.getByName("copyExe"))

@@ -18,47 +18,28 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client.util;
+package com.mcmoddev.mmdbot.dashboard.client.builder;
 
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
+import com.mcmoddev.mmdbot.dashboard.client.builder.abstracts.LabeledBuilder;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.Button;
 
-public enum Fonts {
-    ACME_FONT("AcmeFont"),
-    AGENCY_FB("Agency FB"),
-    ALFREDO("Alfredo"),
-    ALGERIAN("Algerian"),
-    ARIAL("Arial"),
-    CALVIN("Calvin"),
-    GIG("Gigi"),
-    HARVEST("Harvest"),
-    MONOSPACED("Monospaced");
+public final class ButtonBuilder extends LabeledBuilder<Button, ButtonBuilder> {
 
-    private final String name;
-
-    Fonts(final String name) {
-        this.name = name;
+    public ButtonBuilder(final Button button) {
+        super(button);
     }
 
-    public String getName() {
-        return name;
+    public ButtonBuilder(final String text) {
+        this(new Button(text));
     }
 
-    public Font make() {
-        return Font.font(name);
+    public ButtonBuilder() {
+        this(new Button());
     }
 
-    public Font make(double size) {
-        return Font.font(name, size);
+    public ButtonBuilder setOnAction(EventHandler<ActionEvent> action) {
+        return doAndCast(b -> b.setOnAction(action));
     }
-
-    public Font make(FontWeight weight, double size) {
-        return Font.font(name, weight, size);
-    }
-
-    public Font make(FontWeight weight, FontPosture posture, double size) {
-        return Font.font(name, weight, posture, size);
-    }
-
 }

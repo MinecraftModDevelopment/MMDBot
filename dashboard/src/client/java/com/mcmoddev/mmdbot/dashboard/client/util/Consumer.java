@@ -18,24 +18,36 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client.builder.abstracts;
+package com.mcmoddev.mmdbot.dashboard.client.util;
 
-import com.mcmoddev.mmdbot.client.util.StyleUtils;
-import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
+import lombok.NonNull;
 
-public abstract class RegionBuilder<R extends Region, B extends RegionBuilder<R, B>> extends NodeBuilder<R, B> {
+import javax.annotation.Nullable;
+import java.util.Objects;
 
-    protected RegionBuilder(final R node) {
-        super(node);
+@FunctionalInterface
+public interface Consumer<T> extends java.util.function.Consumer<T> {
+
+    static <T> Consumer<T> make(Consumer<T> consumer) {
+        return consumer;
     }
 
-    public B setBackgroundColour(final Color colour) {
-        return doAndCast(n -> StyleUtils.setBackgroundColour(n, colour));
+    /**
+     * Accepts the consumer on multiple objects.
+     * @param toAccept the objects to accept the consumer on
+     */
+    default void acceptOnMultiple(T... toAccept) {
+        for (var t : toAccept) {
+            accept(t);
+        }
     }
 
-    public B setRoundedCorners(final double radius) {
-        return doAndCast(n -> StyleUtils.setRoundedCorners(n, radius));
+    @Override
+    default Consumer<T> andThen(@NonNull java.util.function.Consumer<? super T> after) {
+        Objects.requireNonNull(after);
+        return (@Nullable T t) -> {
+            accept(t);
+            after.accept(t);
+        };
     }
-
 }

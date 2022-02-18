@@ -18,12 +18,15 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client.builder.abstracts;
+package com.mcmoddev.mmdbot.dashboard.client;
 
-import javafx.scene.control.Control;
+import com.mcmoddev.mmdbot.dashboard.client.util.ColourUtils;
+import javafx.scene.paint.Color;
 
-public class ControlBuilder<C extends Control, B extends ControlBuilder<C, B>> extends RegionBuilder<C, B> {
-    protected ControlBuilder(final C node) {
-        super(node);
+public class Test {
+
+    public static void main(String[] args) {
+        System.out.println(ColourUtils.toRGBAString(Color.CHARTREUSE.brighter()));
     }
+
 }

@@ -18,20 +18,24 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client.util;
+package com.mcmoddev.mmdbot.dashboard.client.builder.abstracts;
 
-import javafx.scene.Node;
+import com.mcmoddev.mmdbot.dashboard.client.util.StyleUtils;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
-import lombok.experimental.UtilityClass;
 
-@UtilityClass
-public class StyleUtils {
+public abstract class RegionBuilder<R extends Region, B extends RegionBuilder<R, B>> extends NodeBuilder<R, B> {
 
-    public static void setRoundedCorners(Node node, double radius) {
-        node.setStyle("-fx-background-radius: " + radius + ";" + System.lineSeparator() + node.getStyle());
+    protected RegionBuilder(final R node) {
+        super(node);
     }
 
-    public static void setBackgroundColour(Node node, Color colour) {
-        node.setStyle("-fx-background-color: " + ColourUtils.toRGBAString(colour) + System.lineSeparator() + node.getStyle());
+    public B setBackgroundColour(final Color colour) {
+        return doAndCast(n -> StyleUtils.setBackgroundColour(n, colour));
     }
+
+    public B setRoundedCorners(final double radius) {
+        return doAndCast(n -> StyleUtils.setRoundedCorners(n, radius));
+    }
+
 }

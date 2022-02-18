@@ -18,36 +18,20 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.client.util;
+package com.mcmoddev.mmdbot.dashboard.client.util;
 
-import lombok.NonNull;
+import javafx.scene.paint.Color;
+import lombok.experimental.UtilityClass;
 
-import javax.annotation.Nullable;
-import java.util.Objects;
+@UtilityClass
+public class ColourUtils {
 
-@FunctionalInterface
-public interface Consumer<T> extends java.util.function.Consumer<T> {
-
-    static <T> Consumer<T> make(Consumer<T> consumer) {
-        return consumer;
+    public static String toRGBAString(Color colour) {
+        int r = (int) Math.round(colour.getRed() * 255.0);
+        int g = (int) Math.round(colour.getGreen() * 255.0);
+        int b = (int) Math.round(colour.getBlue() * 255.0);
+        int o = (int) Math.round(colour.getOpacity() * 255.0);
+        return "rgba(%s, %s, %s, %s);".formatted(r, g, b, o);
     }
 
-    /**
-     * Accepts the consumer on multiple objects.
-     * @param toAccept the objects to accept the consumer on
-     */
-    default void acceptOnMultiple(T... toAccept) {
-        for (var t : toAccept) {
-            accept(t);
-        }
-    }
-
-    @Override
-    default Consumer<T> andThen(@NonNull java.util.function.Consumer<? super T> after) {
-        Objects.requireNonNull(after);
-        return (@Nullable T t) -> {
-            accept(t);
-            after.accept(t);
-        };
-    }
 }
