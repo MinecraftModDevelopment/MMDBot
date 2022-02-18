@@ -1,6 +1,6 @@
 name: "Build With Artifacts"
 
-on: [push, pull_request]
+on: workflow_dispatch
 
 jobs:
 
@@ -33,4 +33,6 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: Package
-          path: build/libs
+          path: | 
+            build/libs
+            build/libs/exe
