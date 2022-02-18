@@ -18,7 +18,7 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.logging.util;
+package com.mcmoddev.mmdbot.thelistener.util;
 
 import discord4j.common.util.Snowflake;
 

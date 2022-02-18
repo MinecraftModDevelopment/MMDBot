@@ -18,13 +18,31 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.logging.util;
+package com.mcmoddev.mmdbot.thelistener.util;
 
+import com.mcmoddev.mmdbot.thelistener.TheListener;
 import discord4j.core.event.domain.Event;
 
-@FunctionalInterface
-public interface EventListener {
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
-    void onEvent(Event event);
+public record ThreadedEventListener(EventListener listener, Executor threadPool) implements EventListener {
+
+    public ThreadedEventListener(final EventListener listener) {
+        this(listener, Executors.newSingleThreadExecutor(r -> Utils.setThreadDaemon(new Thread(r), true)));
+    }
+
+    @Override
+    public void onEvent(final Event event) {
+        if (listener != null) {
+            threadPool.execute(() -> {
+                try {
+                    listener.onEvent(event);
+                } catch (Exception e) {
+                    TheListener.LOGGER.error("Error while executing threaded event!", e);
+                }
+            });
+        }
+    }
 
 }

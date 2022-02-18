@@ -18,11 +18,11 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.logging.events;
+package com.mcmoddev.mmdbot.thelistener.events;
 
-import com.mcmoddev.mmdbot.logging.util.ListenerAdapter;
-import com.mcmoddev.mmdbot.logging.util.LoggingType;
-import com.mcmoddev.mmdbot.logging.util.Utils;
+import com.mcmoddev.mmdbot.thelistener.util.ListenerAdapter;
+import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
+import com.mcmoddev.mmdbot.thelistener.util.Utils;
 import discord4j.core.event.domain.guild.MemberJoinEvent;
 import discord4j.core.event.domain.guild.MemberLeaveEvent;
 import discord4j.core.object.entity.Member;

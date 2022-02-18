@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.gradle.api.internal.tasks.StaticValue
 
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -21,6 +22,8 @@ version project.bot_version
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
+final var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
+
 application {
   mainClass = 'com.mcmoddev.mmdbot.core.RunBots'
 }
@@ -40,12 +43,12 @@ configurations {
   implementation.extendsFrom(shade)
 
   d4j
-  loggingImplementation.extendsFrom(d4j)
+  listenerImplementation.extendsFrom(d4j)
 
   global
   coreImplementation.extendsFrom(global)
   implementation.extendsFrom(global)
-  loggingImplementation.extendsFrom(global)
+  listenerImplementation.extendsFrom(global)
   commanderImplementation.extendsFrom(global)
   watcherImplementation.extendsFrom(global)
 
@@ -58,7 +61,7 @@ configurations {
   globalCompile
   coreCompileOnly.extendsFrom(globalCompile)
   compileOnly.extendsFrom(globalCompile)
-  loggingCompileOnly.extendsFrom(globalCompile)
+  listenerCompileOnly.extendsFrom(globalCompile)
   commanderCompileOnly.extendsFrom(globalCompile)
   watcherCompileOnly.extendsFrom(globalCompile)
 
@@ -67,7 +70,7 @@ configurations {
 
 sourceSets {
   core {}
-  logging {}
+  listener {}
   commander {}
   watcher {}
 }
@@ -86,12 +89,12 @@ repositories {
 
 dependencies {
   implementation sourceSets.core.output
-  loggingImplementation sourceSets.core.output
+  listenerImplementation sourceSets.core.output
   commanderImplementation sourceSets.core.output
   watcherImplementation sourceSets.core.output
 
   coreRuntimeOnly sourceSets.main.output
-  coreRuntimeOnly sourceSets.logging.output
+  coreRuntimeOnly sourceSets.listener.output
   coreRuntimeOnly sourceSets.commander.output
   coreRuntimeOnly sourceSets.watcher.output
 
@@ -125,34 +128,73 @@ dependencies {
   testImplementation libs.junit
 }
 
-tasks.named('shadowJar', ShadowJar) {
-  from sourceSets.core.output
-  configurations = [project.configurations.jda, project.configurations.global]
-}
+// Relocates all of the tasks from build
+tasks.stream().filter({it.group == "build"}).forEach({it.group = "other"})
 
-var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
-var currentDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(actualDateTime)
+tasks.named('shadowJar', ShadowJar).configure {
+  sourceSets.forEach({
+    from it.output
+  })
+  configurations = [project.configurations.jda, project.configurations.global, project.configurations.d4j]
+  manifest.attributes(makeManifestAttributes())
+  classifier("all")
+  group("build")
+  description("Builds the whole project with its dependencies.")
+  dependsOn(tasks.getByName("updateLicenses"))
+}
 
 tasks.named(JavaPlugin.JAR_TASK_NAME, Jar).configure {
   from sourceSets.core.output
+  manifest.attributes(makeManifestAttributes())
+  classifier("core-no-deps")
+  description("Builds the core sourceSet without its dependencies.")
+  dependsOn(tasks.getByName("updateLicenses"))
+}
 
-  manifest {
-    mainAttributes(
-      'Maven-Artifact': "${project.group}:${archivesBaseName}:${project.bot_version}",
-      'Timestamp': currentDateTime,
-      'Specification-Title': archivesBaseName,
-      'Specification-Vendor': 'Minecraft Mod Development',
-      'Specification-Version': '1',
-      'Implementation-Title': archivesBaseName,
-      'Implementation-Version': "${project.bot_version}",
-      'Implementation-Vendor': 'Minecraft Mod Development',
-      'Implementation-Timestamp': currentDateTime,
-      'Built-On-Java': "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
-      'Built-On': "${project.libs.versions.jda.get()}-${project.libs.versions.chewtils.get()}",
-      'Class-Path': configurations.compileClasspath.collect { it.getName() }.join(' '),
-      'Main-Class': 'com.mcmoddev.mmdbot.core.RunBots'
-    )
+configureBotJar("theListener", sourceSets.listener, Arrays.asList("d4j"))
+configureBotJar("theWatcher", sourceSets.watcher, Arrays.asList("jda"))
+configureBotJar("theCommander", sourceSets.commander, Arrays.asList("jda"))
+
+void configureBotJar(String botName, SourceSet sourceSet, List<String> extraConfigurations) {
+  tasks.create("${botName}Jar", ShadowJar) {
+    from sourceSets.core.output
+    from sourceSet.output
+    classifier(botName)
+    manifest.attributes(makeManifestAttributes())
+    configurations = extraConfigurations.stream().map(name -> project.configurations.getByName(name)).toList()
+    configurations.add(project.configurations.global)
+    group("build")
+    description("Builds the bot $botName and its dependencies.")
+    dependsOn(tasks.getByName("updateLicenses"))
   }
+  tasks.create("${botName}JarNoDeps", Jar) {
+    from sourceSets.core.output
+    from sourceSet.output
+    classifier("${botName}-no-deps")
+    manifest.attributes(makeManifestAttributes())
+    group("build")
+    description("Builds the bot $botName without its dependencies.")
+    dependsOn(tasks.getByName("updateLicenses"))
+  }
+}
+
+def makeManifestAttributes() {
+  final var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
+  final var currentDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(actualDateTime)
+    return [
+            'Maven-Artifact'          : "${project.group}:${archivesBaseName}:${project.bot_version}",
+            'Timestamp'               : currentDateTime,
+            'Specification-Title'     : archivesBaseName,
+            'Specification-Vendor'    : 'Minecraft Mod Development',
+            'Specification-Version'   : '1',
+            'Implementation-Title'    : archivesBaseName,
+            'Implementation-Version'  : "${project.bot_version}",
+            'Implementation-Vendor'   : 'Minecraft Mod Development',
+            'Implementation-Timestamp': currentDateTime,
+            'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
+            'Built-On'                : "${project.libs.versions.jda.get()}-${project.libs.versions.chewtils.get()}",
+            'Main-Class'              : application.getMainClassName()
+    ]
 }
 
 license {

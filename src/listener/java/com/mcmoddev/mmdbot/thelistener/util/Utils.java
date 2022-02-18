@@ -18,9 +18,9 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.logging.util;
+package com.mcmoddev.mmdbot.thelistener.util;
 
-import com.mcmoddev.mmdbot.logging.TheListener;
+import com.mcmoddev.mmdbot.thelistener.TheListener;
 import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.Event;

@@ -18,21 +18,21 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.logging;
+package com.mcmoddev.mmdbot.thelistener;
 
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import com.mcmoddev.mmdbot.core.event.WarningEvent;
-import com.mcmoddev.mmdbot.logging.events.LeaveJoinEvents;
-import com.mcmoddev.mmdbot.logging.events.MessageEvents;
-import com.mcmoddev.mmdbot.logging.events.ModerationEvents;
-import com.mcmoddev.mmdbot.logging.events.RoleEvents;
-import com.mcmoddev.mmdbot.logging.util.EventListener;
-import com.mcmoddev.mmdbot.logging.util.LoggingType;
-import com.mcmoddev.mmdbot.logging.util.ThreadedEventListener;
-import com.mcmoddev.mmdbot.logging.util.Utils;
+import com.mcmoddev.mmdbot.thelistener.events.LeaveJoinEvents;
+import com.mcmoddev.mmdbot.thelistener.events.MessageEvents;
+import com.mcmoddev.mmdbot.thelistener.events.ModerationEvents;
+import com.mcmoddev.mmdbot.thelistener.events.RoleEvents;
+import com.mcmoddev.mmdbot.thelistener.util.EventListener;
+import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
+import com.mcmoddev.mmdbot.thelistener.util.ThreadedEventListener;
+import com.mcmoddev.mmdbot.thelistener.util.Utils;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
@@ -53,7 +53,7 @@ import java.time.Instant;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import static com.mcmoddev.mmdbot.logging.util.Utils.mentionAndID;
+import static com.mcmoddev.mmdbot.thelistener.util.Utils.mentionAndID;
 
 public final class TheListener implements Bot {
 
