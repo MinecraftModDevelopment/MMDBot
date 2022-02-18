@@ -99,6 +99,9 @@ dependencies {
     api sourceSets.common.output
 }
 
+// Relocates all of the tasks from build
+tasks.stream().filter({it.group == "build"}).forEach({it.group = "other"})
+
 tasks.create('clientJar', ShadowJar) {
     from sourceSets.common.output
     from sourceSets.client.output
@@ -120,6 +123,9 @@ tasks.create('clientJar', ShadowJar) {
                 'Main-Class': application.getMainClassName()
         )
     }
+
+    description = "Creates a JAR which contains the Dashboard Client and its dependencies."
+    group = "build"
 }
 
 launch4j {
@@ -133,5 +139,10 @@ launch4j {
 tasks.create("copyExe", Copy) {
     from layout.buildDirectory.dir("launch4j/${archivesBaseName}.exe")
     into layout.buildDirectory.dir("libs/exe")
+    group = "build"
+    description = "Copies the EXE from the launch4j output folder into the libs one."
 }
-tasks.getByName("createExe").finalizedBy(tasks.getByName("copyExe"))
+tasks.getByName("createExe") {
+    group = "build"
+    finalizedBy(tasks.getByName("copyExe"))
+}
