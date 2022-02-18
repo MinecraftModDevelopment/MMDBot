@@ -98,9 +98,6 @@ dependencies {
     api sourceSets.common.output
 }
 
-// Relocates all of the tasks from build
-tasks.stream().filter({it.group == "build"}).forEach({it.group = "other"})
-
 tasks.create('clientJar', ShadowJar) {
     from sourceSets.common.output
     from sourceSets.client.output
@@ -127,6 +124,24 @@ tasks.create('clientJar', ShadowJar) {
     group = "build"
 }
 
+tasks.replace("build", ShadowJar).configure {
+    finalizedBy(tasks.getByName("clientJar"))
+}
+
+// Relocates all of the tasks from build
+tasks.stream().filter({it.group == "build" && it.name != "clientJar"}).forEach({it.group = "other"})
+
+tasks.named("jar", Jar).configure {
+    from sourceSets.common.output
+    classifier('common-no-deps')
+}
+
+tasks.named('shadowJar', ShadowJar).configure {
+    from sourceSets.common.output
+    classifier('common')
+    configurations = [project.configurations.global]
+}
+
 launch4j {
     mainClassName = application.getMainClassName()
     icon = "${projectDir}/src/client/resources/icon.ico"
@@ -142,7 +157,7 @@ tasks.create("copyExe", Copy) {
     group = "build"
     description = "Copies the EXE from the launch4j output folder into the libs one."
 }
-tasks.getByName("createExe") {
+tasks.named("createExe").configure {
     group = "build"
     finalizedBy(tasks.getByName("copyExe"))
 }

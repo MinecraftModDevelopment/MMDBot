@@ -32,7 +32,9 @@ jobs:
           gradle-distribution-sha-256-sum-warning: false
       - uses: actions/upload-artifact@v2
         with:
+          # Temporary fix until we can get the build task to not be finalized by shadowJar
           name: Package
           path: | 
             build/libs
-            dashboard/build/libs
+            dashboard/build/libs 
+            !dashboard/build/libs/MMDBot-Dashboard-common.jar
