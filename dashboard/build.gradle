@@ -132,12 +132,12 @@ launch4j {
     mainClassName = application.getMainClassName()
     icon = "${projectDir}/src/client/resources/icon.ico"
     jarTask = tasks.getByName("clientJar")
-    outfile = archivesBaseName + ".exe"
+    outfile = "${archivesBaseName}-${version}.exe"
     copyright = "Minecraft Mod Development"
     copyConfigurable = []
 }
 tasks.create("copyExe", Copy) {
-    from layout.buildDirectory.dir("launch4j/${archivesBaseName}.exe")
+    from layout.buildDirectory.dir("launch4j/${archivesBaseName}-${version}.exe")
     into layout.buildDirectory.dir("libs/exe")
     group = "build"
     description = "Copies the EXE from the launch4j output folder into the libs one."
