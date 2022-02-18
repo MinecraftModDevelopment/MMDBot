@@ -20,12 +20,7 @@
  */
 package com.mcmoddev.mmdbot.core;
 
-import com.electronwill.nightconfig.core.CommentedConfig;
-import com.electronwill.nightconfig.core.ConfigFormat;
-import com.electronwill.nightconfig.core.UnmodifiableConfig;
-import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import com.electronwill.nightconfig.core.file.FileNotFoundAction;
-import com.electronwill.nightconfig.toml.TomlFormat;
+import com.google.common.base.Splitter;
 import com.google.common.io.Resources;
 import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
 import com.mcmoddev.mmdbot.MMDBot;
@@ -33,14 +28,26 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
+import org.spongepowered.configurate.reference.ConfigurationReference;
+import org.spongepowered.configurate.reference.WatchServiceListener;
+import org.spongepowered.configurate.serialize.SerializationException;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.WatchEvent;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
 /**
  * The configuration holder for the bot.
@@ -48,16 +55,22 @@ import java.util.stream.Collectors;
  * @author sciwhiz12
  */
 public final class BotConfig {
+    private static final Splitter DOT_SPLITTER = Splitter.on('.');
 
     /**
-     * The Config.
+     * The path to the configuration file.
      */
-    private final CommentedFileConfig config;
+    private final Path configPath;
+
+    /**
+     * The reference to the loaded configuration node.
+     */
+    private final ConfigurationReference<CommentedConfigurationNode> configNode;
 
     /**
      * The Newly generated.
      */
-    private boolean newlyGenerated;
+    private boolean newlyGenerated = false;
 
     /**
      * Instantiates a new Bot config.
@@ -65,28 +78,43 @@ public final class BotConfig {
      * @param configFile the config file
      */
     public BotConfig(final Path configFile) {
-        this(configFile, TomlFormat.instance());
+        this.configPath = configFile;
+
+        if (!Files.exists(configFile)) {
+            this.newlyGenerated = true;
+            //noinspection UnstableApiUsage
+            try (InputStream defaultConfigStream = Resources.getResource("default-config.toml").openStream()) {
+                Files.copy(defaultConfigStream, configFile);
+            } catch (IOException e) {
+                throw new UncheckedIOException("Error while trying to prepare default config file", e);
+            }
+        }
+
+        try { // Normal configuration
+            final HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
+                .emitComments(true)
+                .prettyPrinting(true)
+                .path(configPath)
+                .build();
+            this.configNode = loader.loadToReference();
+        } catch (ConfigurateException e) {
+            throw new RuntimeException("Failed to load configuration", e);
+        }
+
+        try {
+            final WatchServiceListener watch = WatchServiceListener.builder().fileSystem(configFile.getFileSystem()).build();
+            watch.listenToFile(configFile, this::onWatch);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to create watch service for configs", e);
+        }
     }
 
-    /**
-     * Instantiates a new Bot config.
-     *
-     * @param configFile   the config file
-     * @param configFormat the config format
-     */
-    public BotConfig(final Path configFile, final ConfigFormat<? extends CommentedConfig> configFormat) {
-        this.newlyGenerated = false;
-        this.config = CommentedFileConfig.builder(configFile, configFormat)
-            .autoreload()
-            .onFileNotFound((file, format) -> {
-                this.newlyGenerated = true;
-                //noinspection UnstableApiUsage
-                return FileNotFoundAction.copyData(Resources.getResource("default-config.toml"))
-                    .run(file, format);
-            })
-            .preserveInsertionOrder()
-            .build();
-        config.load();
+    private void onWatch(WatchEvent<?> event) {
+        try {
+            this.configNode.load();
+        } catch (ConfigurateException e) {
+            throw new RuntimeException("Failed to reload configuration after file change", e);
+        }
     }
 
     /**
@@ -99,12 +127,17 @@ public final class BotConfig {
     }
 
     /**
-     * Returns the raw {@link CommentedFileConfig} object.
-     *
-     * @return The raw config object
+     * {@return the path to the configuration file}
      */
-    public CommentedFileConfig getConfig() {
-        return config;
+    public Path getConfigPath() {
+        return configPath;
+    }
+
+    /**
+     * {@return the reference to the root configuration node}
+     */
+    public ConfigurationReference<CommentedConfigurationNode> getConfigNode() {
+        return configNode;
     }
 
     /**
@@ -114,23 +147,29 @@ public final class BotConfig {
      */
     @NotNull
     public String getToken() {
-        return config.<String>getOptional("bot.token")
-            .filter(string -> string.indexOf('!') == -1 || string.isEmpty())
-            .orElse("");
+        final String token = configNode.get("bot", "token").getString();
+        if (token == null || token.isEmpty() || token.indexOf('!') != -1) {
+            return "";
+        }
+        return token;
     }
 
     @NotNull
     public String getGithubToken() {
-        return config.<String>getOptional("bot.githubToken")
-            .filter(string -> string.indexOf('!') == -1 || string.isEmpty())
-            .orElse("");
+        final String token = configNode.get("bot", "githubToken").getString();
+        if (token == null || token.isEmpty() || token.indexOf('!') != -1) {
+            return "";
+        }
+        return token;
     }
 
     @NotNull
     public String getOwlbotToken() {
-        return config.<String>getOptional("bot.owlbotToken")
-            .filter(string -> string.indexOf('!') == -1 || string.isEmpty())
-            .orElse("");
+        final String token = configNode.get("bot", "owlbotToken").getString();
+        if (token == null || token.isEmpty() || token.indexOf('!') != -1) {
+            return "";
+        }
+        return token;
     }
 
     /**
@@ -159,7 +198,7 @@ public final class BotConfig {
      * @return The main commands prefix
      */
     public String getMainPrefix() {
-        return config.getOrElse("commands.prefix.main", "!mmd-");
+        return configNode.get("commands", "prefix", "alternative").getString("!mmd-");
     }
 
     /**
@@ -171,19 +210,19 @@ public final class BotConfig {
      * @return The alternative commands prefix
      */
     public String getAlternativePrefix() {
-        return config.getOrElse("commands.prefix.alternative", "!");
+        return configNode.get("commands", "prefix", "alternative").getString("!");
     }
 
     /**
-     * Returns the table of aliases, in the form of an {@link UnmodifiableConfig}.
+     * Returns the table of aliases, in the form of an {@link CommentedConfigurationNode}.
      * <p>
      * Aliases are used in entries that require snowflake IDs to substitute the ID with a human-readable
      * identifier.
      *
      * @return The table of aliases
      */
-    public Optional<UnmodifiableConfig> getAliases() {
-        return config.getOptional("aliases");
+    public CommentedConfigurationNode getAliases() {
+        return configNode.get("aliases");
     }
 
     /**
@@ -194,12 +233,10 @@ public final class BotConfig {
      */
     public Optional<String> getAlias(final long snowflake) {
         return getAliases()
-            .flatMap(aliases -> aliases.entrySet().stream()
-                .filter(entry -> entry.getValue() instanceof String)
-                .filter(entry -> SafeIdUtil.safeConvert(entry.getValue()) == snowflake)
-                .findFirst()
-            )
-            .map(UnmodifiableConfig.Entry::getKey);
+            .childrenMap().entrySet().stream()
+            .filter(entry -> SafeIdUtil.safeConvert(entry.getValue().getString("")) == snowflake)
+            .map(s -> String.valueOf(s.getKey()))
+            .findFirst();
     }
 
     /**
@@ -212,14 +249,14 @@ public final class BotConfig {
      * @see #isEnabled(String, long) #isEnabled(String, long)#isEnabled(String, long)
      */
     public boolean isEnabled(final String commandName) {
-        return config.<Boolean>getOrElse(References.COMMANDS + commandName + ".enabled", true);
+        return configNode.get("commands", commandName, "enabled").getBoolean(true);
     }
 
     /**
      * @return If tricks should be run using prefix commands
      */
     public boolean prefixTricksEnabled() {
-        return config.getOrElse("commands.prefix_tricks_enabled", false);
+        return configNode.get("commands", "prefix_tricks_enabled").getBoolean(false);
     }
 
     /**
@@ -233,11 +270,10 @@ public final class BotConfig {
      * @return If the command is enabled for the guild, or the value of {@link #isEnabled(String)}
      */
     public boolean isEnabled(final String commandName, final long guildID) {
-        return config.<Boolean>getOptional(
-                References.COMMANDS + commandName + "."
-                    + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
-                    + ".enabled")
-            .orElseGet(() -> isEnabled(commandName));
+        return configNode.get("commands",
+            commandName,
+            getAlias(guildID).orElseGet(() -> String.valueOf(guildID)),
+            "enabled").getBoolean(isEnabled(commandName));
     }
 
     /**
@@ -352,7 +388,7 @@ public final class BotConfig {
      * @return The time in hours since request creation by a leaving user to be deleted
      */
     public int getRequestLeaveDeletionTime() {
-        return config.getIntOrElse("requests.leave_deletion", 0);
+        return configNode.get("requests", "leave_deletion").getInt(0);
     }
 
     /**
@@ -366,7 +402,7 @@ public final class BotConfig {
      * @return The time in days for a request to be actionable by the warning system
      */
     public int getRequestFreshnessDuration() {
-        return config.getIntOrElse("requests.freshness_duration", 0);
+        return configNode.get("requests", "freshness_duration").getInt(0);
     }
 
     /**
@@ -407,7 +443,7 @@ public final class BotConfig {
      * @return The request warning threshold
      */
     public double getRequestsWarningThreshold() {
-        return config.<Number>getOrElse("requests.thresholds.warning", 0.0d).doubleValue();
+        return configNode.get("requests", "thresholds", "warning").getDouble(0.0D);
     }
 
     /**
@@ -416,7 +452,7 @@ public final class BotConfig {
      * @return The request removal threshold
      */
     public double getRequestsRemovalThreshold() {
-        return config.<Number>getOrElse("requests.thresholds.removal", 0.0d).doubleValue();
+        return configNode.get("requests", "thresholds", "removal").getDouble(0.0D);
     }
 
     /**
@@ -433,19 +469,27 @@ public final class BotConfig {
      *
      * @return Set. community channel owner permissions
      */
-    @SuppressWarnings("unchecked")
     public Set<Permission> getCommunityChannelOwnerPermissions() {
-        if (!config.contains(References.COMMUNITY_CHANNEL_OWNER_PERMISSIONS)) {
+        // "community_channels", "owner_permissions"
+        if (configNode.get("community_channels", "owner_permissions").empty()) {
             return EnumSet.noneOf(Permission.class);
         }
-        final Object obj = config.get(References.COMMUNITY_CHANNEL_OWNER_PERMISSIONS);
-        if (obj instanceof Number) {
-            return Permission.getPermissions(((Number) obj).longValue());
-        } else if (obj instanceof List) {
-            final List<String> permList = ((List<String>) obj);
+
+        final long permissionField = configNode.get("community_channels", "owner_permissions").getLong(0L);
+        if (permissionField != 0L) {
+            return Permission.getPermissions(permissionField);
+        }
+
+        List<String> list = null;
+        try {
+            list = configNode.get("community_channels", "owner_permissions").getList(String.class);
+        } catch (SerializationException e) {
+            e.printStackTrace(); // TODO: proper handling
+        }
+        if (list != null) {
             final EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
             outer:
-            for (final String perm : permList) {
+            for (final String perm : list) {
                 for (final Permission permission : Permission.values()) {
                     if (permission.getName().equals(perm) || permission.name().equals(perm)) {
                         permissions.add(permission);
@@ -459,7 +503,11 @@ public final class BotConfig {
         }
         MMDBot.LOGGER.warn("Unknown format of \"{}\", resetting to blank list",
             References.COMMUNITY_CHANNEL_OWNER_PERMISSIONS);
-        config.set(References.COMMUNITY_CHANNEL_OWNER_PERMISSIONS, Collections.emptyList());
+        try {
+            configNode.get("community_channels", "owner_permissions").set(Collections.emptyList());
+        } catch (SerializationException e) {
+            e.printStackTrace(); // TODO: proper handling
+        }
         return EnumSet.noneOf(Permission.class);
     }
 
@@ -471,14 +519,20 @@ public final class BotConfig {
      * @return List. aliased snowflake list
      */
     private Optional<List<Long>> getAliasedSnowflakeList(final String path,
-                                                         final Optional<UnmodifiableConfig> aliases) {
-        return config.<List<String>>getOptional(path)
-            .filter(list -> !list.isEmpty())
-            .map(strings -> strings.stream()
-                .map(str -> aliases.flatMap(cfg -> cfg.<String>getOptional(str)).orElse(str))
-                .map(SafeIdUtil::safeConvert)
-                .filter(snowflake -> snowflake != 0)
-                .collect(Collectors.toList()));
+                                                         final CommentedConfigurationNode aliases) {
+        try {
+            return Optional.ofNullable(configNode.get(DOT_SPLITTER.split(path)).getList(String.class))
+                .filter(Predicate.not(Collection::isEmpty))
+                .map(strings -> strings.stream()
+                    .map(alias -> aliases.node(DOT_SPLITTER.split(alias)).getString(alias))
+                    .map(SafeIdUtil::safeConvert)
+                    .filter(snowflake -> snowflake != 0)
+                    .toList()
+                );
+        } catch (SerializationException e) {
+            e.printStackTrace(); // TODO: proper handling
+            return Optional.empty();
+        }
     }
 
     /**
@@ -488,9 +542,9 @@ public final class BotConfig {
      * @param aliases the aliases
      * @return String. aliased
      */
-    private String getAliased(final String key, final Optional<UnmodifiableConfig> aliases) {
-        return config.<String>getOptional(key)
-            .map(str -> aliases.flatMap(cfg -> cfg.<String>getOptional(str)).orElse(str))
+    private String getAliased(final String key, final CommentedConfigurationNode aliases) {
+        return Optional.ofNullable(configNode.get(key).getString())
+            .map(alias -> aliases.node(DOT_SPLITTER.split(alias)).getString(alias))
             .orElse("");
     }
 
@@ -500,7 +554,7 @@ public final class BotConfig {
      * @return true or false.
      */
     public boolean isCommandModuleEnabled() {
-        return config.<Boolean>getOrElse("modules.command_module_enabled", true);
+        return configNode.get("modules", "command_module_enabled").getBoolean(true);
     }
 
     /**
@@ -510,7 +564,7 @@ public final class BotConfig {
      * @return true or false.
      */
     public boolean isEventLoggingModuleEnabled() {
-        return config.<Boolean>getOrElse("modules.event_logging_module_enabled", true);
+        return configNode.get("modules", "event_logging_module_enabled").getBoolean(true);
     }
 
     /**
@@ -519,10 +573,9 @@ public final class BotConfig {
      * @param channelId the channel ID of the role panel
      * @param messageId the message ID of the role panel
      * @param emote     the emote
-     * @return
      */
     public long getRoleForRolePanel(final long channelId, final long messageId, final String emote) {
-        return config.<Long>getOrElse("role_panels.%s-%s.%s".formatted(channelId, messageId, emote), 0l);
+        return configNode.get("role_panels", "%s-%s".formatted(channelId, messageId), emote).getLong(0L);
     }
 
     public long getRoleForRolePanel(final Message message, final String emote) {
@@ -530,19 +583,23 @@ public final class BotConfig {
     }
 
     public void addRolePanel(final long channelId, final long messageId, final String emote, final long roleId) {
-        config.set("role_panels.%s-%s.%s".formatted(channelId, messageId, emote), roleId);
-        config.save();
+        try {
+            configNode.get("role_panels", "%s-%s".formatted(channelId, messageId), "permanent").set(roleId);
+            configNode.save();
+        } catch (ConfigurateException e) {
+            e.printStackTrace(); // TODO: improve handling
+        }
     }
 
     public boolean isRolePanelPermanent(final long channelId, final long messageId) {
-        return config.<Boolean>getOrElse("role_panels.%s-%s.permanent".formatted(channelId, messageId), false);
+        return configNode.get("role_panels", "%s-%s".formatted(channelId, messageId), "permanent").getBoolean(false);
     }
 
     public Activity.ActivityType getActivityType() {
-        return Activity.ActivityType.valueOf(config.getOrElse("bot.activity.type", "PLAYING"));
+        return Activity.ActivityType.valueOf(configNode.get("bot", "activity", "type").getString(""));
     }
 
     public String getActivityName() {
-        return config.getOrElse("bot.activity.name", "");
+        return configNode.get("bot", "activity", "name").getString("");
     }
 }

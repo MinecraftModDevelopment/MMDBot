@@ -108,7 +108,7 @@ dependencies {
   global libs.guava
   global libs.gson
   global libs.logback
-  global libs.nightconfig
+//  global libs.nightconfig
   global libs.sqlite
   global libs.flyway
   global libs.graal

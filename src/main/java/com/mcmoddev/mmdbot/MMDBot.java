@@ -170,7 +170,7 @@ public final class MMDBot implements Bot {
         JSONDataMigrator.checkAndMigrate(database);
 
         if (config.isNewlyGenerated()) {
-            MMDBot.LOGGER.warn("A new config file at {} has been generated. Please configure the bot and try again.", config.getConfig().getNioPath());
+            MMDBot.LOGGER.warn("A new config file at {} has been generated. Please configure the bot and try again.", config.getConfigPath());
             System.exit(0);
         } else if (config.getToken().isEmpty()) {
             MMDBot.LOGGER.error("No token is specified in the config. Please configure the bot and try again");
