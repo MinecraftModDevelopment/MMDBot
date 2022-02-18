@@ -35,4 +35,4 @@ jobs:
           name: Package
           path: | 
             build/libs
-            build/libs/exe
+            dashboard/build/libs
