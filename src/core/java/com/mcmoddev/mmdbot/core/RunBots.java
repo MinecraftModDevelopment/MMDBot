@@ -151,7 +151,7 @@ public class RunBots {
     }
 
     private static Path createDirectory(Path path) {
-        if (!path.toFile().exists()) {
+        if (!Files.exists(path)) {
             try {
                 Files.createDirectory(path);
             } catch (IOException e) {
