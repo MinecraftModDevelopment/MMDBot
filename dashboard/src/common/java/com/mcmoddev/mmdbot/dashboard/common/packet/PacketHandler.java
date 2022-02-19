@@ -25,11 +25,19 @@ import com.esotericsoftware.kryonet.Listener;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 @Slf4j
 public final class PacketHandler implements Listener {
 
     private final PacketListener listener;
     private final boolean logReceive;
+    private final Executor threadpool = Executors.newSingleThreadExecutor(r -> {
+        final var thread = new Thread(r, "PacketHandler");
+        thread.setDaemon(true);
+        return thread;
+    });
 
     public PacketHandler(final PacketListener listener, final boolean logReceive) {
         this.listener = listener;
@@ -42,12 +50,14 @@ public final class PacketHandler implements Listener {
 
     @Override
     public void received(final Connection connection, final Object o) {
-        if (o instanceof Packet packet) {
-            if (logReceive && log.isDebugEnabled()) {
-                log.debug("Received packet {} from {}", packet, connection.getRemoteAddressTCP());
+        threadpool.execute(() -> {
+            if (o instanceof Packet packet) {
+                if (logReceive && log.isDebugEnabled()) {
+                    log.debug("Received packet {} from {}", packet, connection.getRemoteAddressTCP());
+                }
+                final var ctx = PacketContext.fromConnection(connection);
+                listener.onPacketAndThen(packet, ctx, () -> packet.handle(ctx));
             }
-            final var ctx = PacketContext.fromConnection(connection);
-            listener.onPacketAndThen(packet, ctx, () -> packet.handle(ctx));
-        }
+        });
     }
 }

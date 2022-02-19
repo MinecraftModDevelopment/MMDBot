@@ -33,6 +33,7 @@ import lombok.experimental.UtilityClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -107,6 +108,12 @@ public class RunBots {
     public static boolean isBotLoaded(BotTypeEnum botTypeEnum) {
         return loadedBots.stream().map(b -> BotRegistry.getBotTypeName(b.getType()))
             .anyMatch(s -> s.equals(botTypeEnum.getName()));
+    }
+
+    @Nullable
+    public static Bot getBotByType(BotTypeEnum botTypeEnum) {
+        return loadedBots.stream().filter(b -> BotRegistry.getBotTypeName(b.getType()).equals(botTypeEnum.getName()))
+            .findFirst().orElse(null);
     }
 
     public static void shutdownBot(BotTypeEnum botTypeEnum) {

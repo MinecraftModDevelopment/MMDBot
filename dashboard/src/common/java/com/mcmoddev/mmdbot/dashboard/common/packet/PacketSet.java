@@ -61,7 +61,7 @@ public class PacketSet {
     /**
      * Registers a packet of the specified {@code packetClass}. <br>
      * The packet class <b>HAS TO HAVE</b> a constructor with a {@link PacketInputBuffer}
-     * as the parameter. <br>
+     * as the parameter, or an empty constructor. <br>
      * <strong>Due to this method using reflection to find the constructor,
      * it may <i>slightly</i> reduce performance.</strong>
      *
@@ -71,19 +71,36 @@ public class PacketSet {
      */
     @SuppressWarnings("unchecked")
     public <P extends Packet> PacketSet addPacket(Class<P> packetClass) {
-        final var methodType = MethodType.methodType(void.class, PacketInputBuffer.class);
+        final var hasPacketBufferConstructor = hasPacketBufferConstructor(packetClass);
+        final var methodType = hasPacketBufferConstructor ? MethodType.methodType(void.class, PacketInputBuffer.class) : MethodType.methodType(void.class);
         try {
             final var handle = LOOKUP.findConstructor(packetClass, methodType);
-            return addPacket(packetClass, buffer -> {
+            return addPacket(packetClass, hasPacketBufferConstructor ? buffer -> {
                 try {
                     return (P) handle.invokeWithArguments(buffer);
                 } catch (Throwable e) {
                     LOG.error("Exception while trying to construct packet {}!", packetClass, e);
                     throw new RuntimeException(e);
                 }
+            } : buffer -> {
+                try {
+                    return (P) handle.invoke();
+                } catch (Throwable e) {
+                    LOG.error("Exception while trying to construct packet {}!", packetClass, e);
+                    throw new RuntimeException(e);
+                }
             });
         } catch (NoSuchMethodException | IllegalAccessException e) {
-            throw new RuntimeException("The packet class " + packetClass + " does not have a constructor with a PacketInputBuffer as a parameter. Did you mean to use #addPacket(Class, Function)?");
+            throw new RuntimeException("The packet class " + packetClass + " does not have a constructor with a PacketInputBuffer as a parameter, or an empty constructor. Did you mean to use #addPacket(Class, Function)?");
+        }
+    }
+
+    private static boolean hasPacketBufferConstructor(Class<? extends Packet> clazz) {
+        try {
+            clazz.getConstructor(PacketInputBuffer.class);
+            return true;
+        } catch (NoSuchMethodException ignored) {
+            return false;
         }
     }
 

@@ -26,7 +26,7 @@ import com.mcmoddev.mmdbot.dashboard.client.builder.TextFieldBuilder;
 import com.mcmoddev.mmdbot.dashboard.client.util.Consumer;
 import com.mcmoddev.mmdbot.dashboard.client.util.ExceptionFunction;
 import com.mcmoddev.mmdbot.dashboard.packets.CheckAuthorizedPacket;
-import com.mcmoddev.mmdbot.dashboard.packets.RequestLoadedBotTypesPacket;
+import com.mcmoddev.mmdbot.dashboard.packets.requests.RequestLoadedBotTypesPacket;
 import com.mcmoddev.mmdbot.dashboard.util.Credentials;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -111,7 +111,6 @@ public final class LoginScene {
                         .withPlatformAction(response -> {
                             DashboardClient.botTypes = response.getTypes();
                             MainScene.makeMainPageScene(stage);
-                            stage.show();
                         })
                         .withTimeout(10, TimeUnit.SECONDS)
                         .withPlatformTimeoutAction(() -> {

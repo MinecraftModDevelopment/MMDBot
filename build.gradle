@@ -130,6 +130,10 @@ dependencies {
 // Relocates all of the tasks from build
 tasks.stream().filter({it.group == "build"}).forEach({it.group = "other"})
 
+tasks.named('run', JavaExec).configure {
+  workingDir = new File("run")
+}
+
 tasks.named('shadowJar', ShadowJar).configure {
   sourceSets.forEach({
     from it.output

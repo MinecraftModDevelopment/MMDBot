@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.dashboard.common;
 
+import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import com.mcmoddev.mmdbot.dashboard.util.GenericResponse;
 
 import javax.annotation.Nullable;
@@ -40,6 +41,10 @@ public class BufferSerializers {
             throw new UnsupportedOperationException();
         }
     });
+
+    static {
+        registerDecoder(BotUserData.class, BotUserData.DECODER);
+    }
 
     public static <T> BufferDecoder<T> registerDecoder(Class<T> clazz, BufferDecoder<T> decoder) {
         DECODERS.put(clazz, decoder::decode);

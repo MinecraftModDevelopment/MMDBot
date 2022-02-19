@@ -21,31 +21,52 @@
 package com.mcmoddev.mmdbot.dashboard.client.scenes;
 
 import com.mcmoddev.mmdbot.dashboard.client.DashboardClient;
-import com.mcmoddev.mmdbot.dashboard.packets.ShutdownBotPacket;
+import com.mcmoddev.mmdbot.dashboard.client.scenes.bot.BotStage;
+import com.mcmoddev.mmdbot.dashboard.client.util.StyleUtils;
+import com.mcmoddev.mmdbot.dashboard.packets.requests.RequestBotUserDataPacket;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public class MainScene {
 
     public static void makeMainPageScene(Stage stage) {
-        final var field = new TextField();
-        final var button = new Button("Do");
-        button.setOnAction(event -> {
-            DashboardClient.sendAndAwaitGenericResponse(id -> new ShutdownBotPacket(id, field.getText()))
-                .withPlatformAction(packet -> {
-                    final var alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setResizable(true);
-                    alert.setContentText(packet.response().toString());
-                    alert.show();
+        final var botNodes = new ArrayList<Node>();
+        DashboardClient.botTypes.forEach(botType -> {
+            DashboardClient.sendAndAwaitResponse(new RequestBotUserDataPacket(botType))
+                .withAction(response -> {
+                    final var data = response.data();
+                    final var image = new ImageView(data.avatarUrl());
+                    image.setFitWidth(50);
+                    image.setFitHeight(50);
+                    StyleUtils.setRoundedCorners(image, 4);
+                    final var nameText = new Text(data.username() + "#" + data.discriminator());
+                    final var box = new HBox(7, image, nameText);
+                    StyleUtils.setBackgroundColour(box, Color.LIGHTGRAY);
+                    box.setOnMouseClicked(e -> BotStage.STAGES.get(botType).createAndShowStage(data));
+                    botNodes.add(box);
                 })
-                .queue();
+                .withTimeout(10, TimeUnit.SECONDS)
+                .queueAndBlockNoException(true);
         });
-        final var vbox = new VBox(field, button);
-        stage.setScene(new Scene(vbox));
+        final var vbox = new VBox(6);
+        vbox.getChildren().addAll(botNodes);
+        final var scene = new Scene(vbox);
+        stage.setResizable(true);
+        stage.setWidth(scene.getWidth());
+        stage.setHeight(scene.getHeight());
+        stage.setScene(scene);
+        stage.show();
     }
 
 }

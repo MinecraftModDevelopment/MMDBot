@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.core.bot;
 
+import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import org.slf4j.Logger;
 
 public interface Bot {
@@ -33,4 +34,6 @@ public interface Bot {
     }
 
     void shutdown();
+
+    BotUserData getBotUserData();
 }

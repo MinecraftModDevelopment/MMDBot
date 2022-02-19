@@ -28,9 +28,13 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -40,12 +44,18 @@ public class PacketWaiter implements PacketListener {
     private static final Logger LOG = LoggerFactory.getLogger(PacketWaiter.class);
     private final HashMap<Class<?>, Set<WaitingPacket>> waitingPackets;
     private final ScheduledExecutorService threadpool;
+    private final ExecutorService awaitingThreadpoll = Executors.newSingleThreadExecutor();
 
     public PacketWaiter() {
-        this(Executors.newSingleThreadScheduledExecutor());
+        this(Executors.newSingleThreadScheduledExecutor(r -> makeDaemon(new Thread(r, "PacketWaiter"))), Executors.newCachedThreadPool(r -> makeDaemon(new Thread(r, "PacketAwaiter"))));
     }
 
-    public PacketWaiter(ScheduledExecutorService threadpool) {
+    private static Thread makeDaemon(Thread thread) {
+        thread.setDaemon(true);
+        return thread;
+    }
+
+    public PacketWaiter(ScheduledExecutorService threadpool, ExecutorService awaitingThreadpoll) {
         this.waitingPackets = new HashMap<>();
         this.threadpool = threadpool;
     }
@@ -73,6 +83,29 @@ public class PacketWaiter implements PacketListener {
                 }
             }, timeout, unit);
         }
+    }
+
+    public <P extends Packet> Future<P> awaitPacket(Class<P> classType, Predicate<P> condition,
+                                                    long timeout, TimeUnit unit, Runnable timeoutAction) {
+        final AtomicBoolean packetReceived = new AtomicBoolean();
+        final AtomicReference<P> packet = new AtomicReference<>(null);
+        waitForPacket(classType, condition, p -> {
+            packet.set(p);
+            packetReceived.set(true);
+        });
+        final var future = awaitingThreadpoll.submit(() -> {
+            while (!packetReceived.get()) {
+                // Intentionally block the thread until the packet is received
+            }
+            return packet.get();
+        });
+        threadpool.schedule(() -> {
+            if (!future.isDone()) {
+                future.cancel(true);
+                timeoutAction.run();
+            }
+        }, timeout, unit);
+        return future;
     }
 
     @Override

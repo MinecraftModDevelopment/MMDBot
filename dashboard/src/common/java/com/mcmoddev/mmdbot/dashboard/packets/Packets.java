@@ -21,6 +21,8 @@
 package com.mcmoddev.mmdbot.dashboard.packets;
 
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketSet;
+import com.mcmoddev.mmdbot.dashboard.packets.requests.RequestBotUserDataPacket;
+import com.mcmoddev.mmdbot.dashboard.packets.requests.RequestLoadedBotTypesPacket;
 
 public class Packets {
 
@@ -30,6 +32,7 @@ public class Packets {
             .addPacket(CheckAuthorizedPacket.Response.class)
         .addPacket(RequestLoadedBotTypesPacket.class)
             .addPacket(RequestLoadedBotTypesPacket.Response.class)
-        .addPacket(ShutdownBotPacket.class);
-
+        .addPacket(ShutdownBotPacket.class)
+        .addPacket(RequestBotUserDataPacket.class)
+            .addPacket(RequestBotUserDataPacket.Response.class);
 }

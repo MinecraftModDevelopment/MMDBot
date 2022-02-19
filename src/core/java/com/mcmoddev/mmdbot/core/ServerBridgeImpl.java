@@ -20,18 +20,22 @@
  */
 package com.mcmoddev.mmdbot.core;
 
+import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
 import com.mcmoddev.mmdbot.dashboard.ServerBridge;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
 import com.mcmoddev.mmdbot.dashboard.packets.CheckAuthorizedPacket;
 import com.mcmoddev.mmdbot.dashboard.server.DashboardSever;
+import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import com.mcmoddev.mmdbot.dashboard.util.Credentials;
 import com.mcmoddev.mmdbot.dashboard.util.GenericResponse;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Slf4j(topic = "DashboardActions")
@@ -70,5 +74,15 @@ public final class ServerBridgeImpl implements ServerBridge {
         } else {
             return GenericResponse.Type.INVALID_REQUEST.createF("Unknown bot type: %s", botName);
         }
+    }
+
+    @Nullable
+    @Override
+    public BotUserData getBotData(final BotTypeEnum botType) {
+        if (RunBots.isBotLoaded(botType)) {
+            return Optional.ofNullable(RunBots.getBotByType(botType))
+                .map(Bot::getBotUserData).orElse(null);
+        }
+        return null;
     }
 }

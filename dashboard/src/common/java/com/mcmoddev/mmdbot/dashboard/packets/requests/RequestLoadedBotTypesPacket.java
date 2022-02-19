@@ -18,7 +18,7 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.dashboard.packets;
+package com.mcmoddev.mmdbot.dashboard.packets.requests;
 
 import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
 import com.mcmoddev.mmdbot.dashboard.ServerBridge;
@@ -33,7 +33,6 @@ import java.util.List;
 public final class RequestLoadedBotTypesPacket implements Packet, HasResponse<RequestLoadedBotTypesPacket.Response> {
 
     public RequestLoadedBotTypesPacket() {}
-    public RequestLoadedBotTypesPacket(PacketInputBuffer buffer) {}
 
     @Override
     public void encode(final PacketOutputBuffer buffer) {

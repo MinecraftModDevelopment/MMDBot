@@ -24,6 +24,7 @@ import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
+import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -133,5 +134,12 @@ public final class TheWatcher implements Bot {
 
     public JDA getJda() {
         return jda;
+    }
+
+    @Override
+    public BotUserData getBotUserData() {
+        final var selfUser = jda.getSelfUser();
+        return new BotUserData(selfUser.getName(), selfUser.getDiscriminator(),
+            selfUser.getAvatarUrl() == null ? selfUser.getDefaultAvatarUrl() : selfUser.getAvatarUrl());
     }
 }

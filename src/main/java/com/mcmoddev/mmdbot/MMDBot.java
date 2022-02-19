@@ -25,6 +25,8 @@ import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
+import com.mcmoddev.mmdbot.core.util.NullableReference;
+import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
 import com.mcmoddev.mmdbot.modules.logging.misc.MiscEvents;
@@ -79,7 +81,7 @@ public final class MMDBot implements Bot {
         }
     };
 
-    private JDA jda;
+    private final NullableReference<JDA> jda = new NullableReference<>(null);
     private final BotConfig config;
     private final DatabaseManager database;
     private final Path runPath;
@@ -132,7 +134,7 @@ public final class MMDBot implements Bot {
      * @return JDA. instance
      */
     public static JDA getJDA() {
-        return instance.jda;
+        return instance.jda.get();
     }
 
     /**
@@ -179,7 +181,7 @@ public final class MMDBot implements Bot {
         }
 
         try {
-            jda = JDABuilder
+            jda.set(JDABuilder
                 .create(config.getToken(), MMDBot.INTENTS)
                 .disableCache(CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY)
@@ -187,12 +189,12 @@ public final class MMDBot implements Bot {
                 .disableCache(CacheFlag.ONLINE_STATUS)
                 .addEventListeners(new ThreadedEventListener(new MiscEvents(), GENERAL_EVENT_THREAD_POOL),
                     new ThreadedEventListener(new ReferencingListener(), GENERAL_EVENT_THREAD_POOL))
-                .build().awaitReady();
+                .build().awaitReady());
 
             CommandModule.setupCommandModule();
             LoggingModule.setupLoggingModule();
 
-            jda.getPresence().setActivity(Activity.of(config.getActivityType(), config.getActivityName()));
+            jda.get().getPresence().setActivity(Activity.of(config.getActivityType(), config.getActivityName()));
         } catch (final LoginException exception) {
             MMDBot.LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.", exception);
             System.exit(1);
@@ -204,12 +206,19 @@ public final class MMDBot implements Bot {
 
     @Override
     public void shutdown() {
-        jda.shutdown();
+        jda.get().shutdown();
     }
 
     @Override
     public BotType<?> getType() {
         return BOT_TYPE;
+    }
+
+    @Override
+    public BotUserData getBotUserData() {
+        final var selfUser = jda.get().getSelfUser();
+        return new BotUserData(selfUser.getName(), selfUser.getDiscriminator(),
+            selfUser.getAvatarUrl() == null ? selfUser.getDefaultAvatarUrl() : selfUser.getAvatarUrl());
     }
 
     public Path getRunPath() {

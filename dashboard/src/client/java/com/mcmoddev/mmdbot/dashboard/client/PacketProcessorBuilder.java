@@ -21,10 +21,16 @@
 package com.mcmoddev.mmdbot.dashboard.client;
 
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
+import com.mcmoddev.mmdbot.dashboard.util.RunnableQueue;
 import javafx.application.Platform;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -35,8 +41,10 @@ public final class PacketProcessorBuilder<R extends Packet> {
     private long timeout = -1;
     private TimeUnit unit = TimeUnit.MINUTES;
     private Predicate<R> predicate = r -> true;
-    private Consumer<R> consumer = r -> {};
-    private Runnable timeoutAction = () -> {};
+    private Consumer<R> consumer = r -> {
+    };
+    private Runnable timeoutAction = () -> {
+    };
 
     PacketProcessorBuilder(final Packet packet, final Class<R> responseClass) {
         this.packet = packet;
@@ -75,5 +83,39 @@ public final class PacketProcessorBuilder<R extends Packet> {
     public void queue() {
         DashboardClient.sendPacket(packet);
         DashboardClient.PACKET_WAITER.waitForPacket(responseClass, predicate, consumer, timeout, unit, timeoutAction);
+    }
+
+    public void queueAndBlock(boolean unBlockOnTimeout) throws ExecutionException, InterruptedException {
+        DashboardClient.sendPacket(packet);
+        final var tmAction = new AtomicReference<Runnable>(() -> {});
+        final var future = DashboardClient.PACKET_WAITER.awaitPacket(responseClass, predicate, timeout, unit, () -> {
+            tmAction.get().run();
+            timeoutAction.run();
+        });
+        tmAction.set(() -> future.cancel(true));
+        while (!future.isDone()) {
+            // Block the caller thread, until the packet is received.
+        }
+        try {
+            consumer.accept(future.get());
+        } catch (CancellationException e) {
+            if (!unBlockOnTimeout) {
+                // Throw the exception back if cancellation was not supposed to happen.
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * Similar to {@link #queueAndBlock(boolean)}, but throws any Exception back as a runtime one.
+     *
+     * @see #queueAndBlock(boolean)
+     */
+    public void queueAndBlockNoException(boolean unBlockOnTimeout) {
+        try {
+            queueAndBlock(unBlockOnTimeout);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

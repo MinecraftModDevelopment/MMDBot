@@ -25,6 +25,7 @@ import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import com.mcmoddev.mmdbot.core.event.WarningEvent;
+import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import com.mcmoddev.mmdbot.thelistener.events.LeaveJoinEvents;
 import com.mcmoddev.mmdbot.thelistener.events.MessageEvents;
 import com.mcmoddev.mmdbot.thelistener.events.ModerationEvents;
@@ -50,6 +51,7 @@ import reactor.core.publisher.Mono;
 
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -152,7 +154,7 @@ public final class TheListener implements Bot {
         new Thread(() -> {
             // D4J doesn't have non-daemon threads
             while (true) {}
-        });
+        }).start();
     }
 
     @Override
@@ -181,4 +183,12 @@ public final class TheListener implements Bot {
         return instance == null ? null : instance.client;
     }
 
+    @Override
+    public BotUserData getBotUserData() {
+        final var selfUser = gateway.getSelf().block();
+        if (selfUser != null) {
+            return new BotUserData(selfUser.getUsername(), selfUser.getDiscriminator(), selfUser.getAvatarUrl());
+        }
+        return null;
+    }
 }
