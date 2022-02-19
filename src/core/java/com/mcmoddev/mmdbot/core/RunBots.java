@@ -168,45 +168,6 @@ public class RunBots {
         return orElse;
     }
 
-    private static JsonObject getOrCreateConfig() {
-        final var path = Path.of("config.json");
-        if (!path.toFile().exists()) {
-            try {
-                Files.createFile(path); // If it doesn't exist, generate it
-                try (final var fw = new BufferedWriter(new FileWriter(path.toFile()))) {
-                    final var obj = new JsonObject();
-                    BotRegistry.getBotTypes()
-                        .keySet().forEach(n -> {
-                            final var botObj = new JsonObject();
-                            botObj.addProperty("enabled", true);
-                            botObj.addProperty("runPath", n);
-                            obj.add(n, botObj);
-                        }); // Write all the known bots when generating it
-                    Constants.Gsons.GSON.toJson(obj, fw);
-                }
-            } catch (IOException e) {
-                LOG.error("Exception while trying to generate config!", e);
-            }
-        }
-        try (final var ir = new FileReader(path.toFile())) {
-            return Constants.Gsons.GSON.fromJson(ir, JsonObject.class);
-        } catch (IOException e) {
-            LOG.error("Exception while trying to read config!", e);
-        }
-        return new JsonObject();
-    }
-
-    private record BotEntry(String name, boolean isEnabled, String runPath) {
-        public static BotEntry of(String name, JsonObject json) {
-            if (json == null) {
-                json = new JsonObject();
-            }
-            final var enabled = json.has("enabled") && json.get("enabled").getAsBoolean();
-            final var runPath = json.has("runPath") ? json.get("runPath").getAsString() : name;
-            return new BotEntry(name, enabled, runPath);
-        }
-    }
-
     public static DashboardConfig getDashboardConfig() {
         final var path = Path.of("dashboard").resolve("config.json");
         if (!path.toFile().exists()) {
