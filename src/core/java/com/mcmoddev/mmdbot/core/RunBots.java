@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.core;
 import com.google.gson.JsonObject;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
+import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.core.util.Utils;
@@ -46,7 +47,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
+import java.util.Optional;
 
 @UtilityClass
 public class RunBots {
@@ -57,37 +59,51 @@ public class RunBots {
     public static void main(String[] args) {
         System.setProperty("java.net.preferIPv4Stack", "true");
 
-        final var config = getOrCreateConfig();
+        final BotsConfig botsConfig = new BotsConfig(Path.of("bots.conf"), BotRegistry.getBotTypes());
 
-        var bots = BotRegistry.getBotTypes()
-            .entrySet()
-            .stream()
-            .map(entry -> {
-                final var botEntry = BotEntry.of(entry.getKey(),
-                    config.has(entry.getKey()) ? config.get(entry.getKey()).getAsJsonObject() : new JsonObject());
-                return Pair.of(entry.getValue(), botEntry);
-            })
-            .sorted(Comparator.comparing(p -> -p.first().priority()))
-            .map(entry -> entry.mapFirst(type -> type.botType().createBot(createDirectory(entry.second().runPath()))))
-            .map(botPair -> {
-                final var botEntry = botPair.second();
-                final var bot = botPair.first();
-                if (botEntry.isEnabled()) {
-                    if (bot != null) {
-                        bot.start();
-                        bot.getLogger().warn("Bot {} has been found, and it has been launched!", botEntry.name());
-                    } else {
-                        LOG.warn("Bot {} was null! Skipping...", botEntry.name);
-                    }
-                } else {
-                    bot.getLogger().warn("Bot {} is disabled! Its features will not work!", botEntry.name());
-                }
-                return botEntry.isEnabled() ? bot : null;
-            })
-            .filter(Objects::nonNull);
+        final List<String> sortedNames = BotRegistry.getBotTypes().entrySet().stream()
+            .sorted(Comparator.comparing(s -> -s.getValue().priority()))
+            .map(Map.Entry::getKey)
+            .toList();
 
-        loadedBots = bots.toList();
-        bots = loadedBots.stream();
+        final List<Bot> enabledBots = new ArrayList<>();
+
+        for (String name : sortedNames) {
+            final BotRegistry.BotRegistryEntry<?> entry = BotRegistry.getBotTypes().get(name);
+            final BotType<?> botType = entry.botType();
+
+            final Optional<Path> pathOpt = botsConfig.getRunPath(name);
+            if (pathOpt.isEmpty()) {
+                botType.getLogger().warn("Bot {} has no configured run path, skipping", name);
+                continue;
+            }
+            final Path path = pathOpt.get();
+            final Bot botInstance = botType.createBot(path);
+
+            if (botInstance == null) {
+                botType.getLogger().warn("Bot type {} returned a null instance, skipping", name);
+                continue;
+            }
+
+            if (!botsConfig.getEnabled(name).orElse(Boolean.FALSE)) {
+                botType.getLogger().warn("Bot {} is disabled, skipping", name);
+                continue;
+            }
+
+            final Optional<String> tokenOpt = botsConfig.getToken(name);
+            if (tokenOpt.isEmpty()) {
+                botType.getLogger().warn("Bot {} is enabled yet has no configured token, skipping", name);
+                continue;
+            }
+            final String token = tokenOpt.get();
+
+            botInstance.start(); // TODO: Token
+
+            enabledBots.add(botInstance);
+        }
+
+        loadedBots = enabledBots;
+        var bots = loadedBots.stream();
 
         // dashboard stuff
         {
