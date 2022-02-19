@@ -141,7 +141,7 @@ public final class TheCommander implements Bot {
     }
 
     @Override
-    public void start() {
+    public void start(final String token) {
         instance = this;
         EventListeners.clear();
 
@@ -194,7 +194,7 @@ public final class TheCommander implements Bot {
 
         try {
             final var builder = JDABuilder
-                .create(dotenv.get("BOT_TOKEN"), INTENTS)
+                .create(token, INTENTS)
                 .disableCache(CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY)
                 .disableCache(CacheFlag.CLIENT_STATUS)

@@ -165,14 +165,19 @@ public final class MMDBot implements Bot {
     }
 
     @Override
-    public void start() {
+    public void start(final String token) {
         instance = this;
         JSONDataMigrator.checkAndMigrate(database);
+
+        String actualToken = token;
+        if (actualToken.isEmpty()) {
+            actualToken = config.getToken();
+        }
 
         if (config.isNewlyGenerated()) {
             MMDBot.LOGGER.warn("A new config file at {} has been generated. Please configure the bot and try again.", config.getConfigPath());
             System.exit(0);
-        } else if (config.getToken().isEmpty()) {
+        } else if (actualToken.isEmpty()) {
             MMDBot.LOGGER.error("No token is specified in the config. Please configure the bot and try again");
             System.exit(0);
         } else if (config.getOwnerID().isEmpty()) {

@@ -97,7 +97,7 @@ public class RunBots {
             }
             final String token = tokenOpt.get();
 
-            botInstance.start(); // TODO: Token
+            botInstance.start(token);
 
             enabledBots.add(botInstance);
         }

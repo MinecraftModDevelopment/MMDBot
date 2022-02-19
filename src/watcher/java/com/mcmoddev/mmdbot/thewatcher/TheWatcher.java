@@ -92,12 +92,12 @@ public final class TheWatcher implements Bot {
     }
 
     @Override
-    public void start() {
+    public void start(final String token) {
         instance = this;
 
         try {
             jda = JDABuilder
-                .create(dotenv.get("BOT_TOKEN"), INTENTS)
+                .create(token, INTENTS)
                 .disableCache(CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY)
                 .disableCache(CacheFlag.CLIENT_STATUS)

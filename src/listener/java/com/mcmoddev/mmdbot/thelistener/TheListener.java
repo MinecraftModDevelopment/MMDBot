@@ -99,13 +99,11 @@ public final class TheListener implements Bot {
         r -> Utils.setThreadDaemon(new Thread(r, "GeneralD4JEvents"), true));
 
     @Override
-    public void start() {
+    public void start(final String token) {
         instance = this;
 
         final var dotenv = Dotenv.configure()
             .directory(runPath.toString()).load();
-
-        final var token = dotenv.get("BOT_TOKEN", "");
 
         client = DiscordClient.create(token);
 

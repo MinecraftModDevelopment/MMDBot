@@ -50,12 +50,19 @@ public class CmdRestart extends SlashCommand {
 
     @Override
     protected void execute(final SlashCommandEvent event) {
+        // TODO: make an alternative mechanism to restart bots
+        if (true) {
+            event.reply("This command is currently unavailable. Sorry.").queue();
+            return;
+        }
+
         event.reply("Restarting the bot!").queue();
         event.getJDA().shutdown();
         MMDBot.LOGGER.warn("Restarting the bot by request of {} via Discord!", event.getUser().getName());
         TaskScheduler.scheduleTask(() -> {
             // TODO some other things may need to be nullified for this to restart with no exceptions!
-            MMDBot.BOT_TYPE.createBot(MMDBot.getInstance().getRunPath()).start();
+            // TODO: make an alternative mechanism to restart bots
+            //MMDBot.BOT_TYPE.createBot(MMDBot.getInstance().getRunPath()).start(token);
         }, 3, TimeUnit.SECONDS);
     }
 }

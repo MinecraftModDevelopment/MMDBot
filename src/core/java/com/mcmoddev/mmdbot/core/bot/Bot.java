@@ -30,7 +30,7 @@ import javax.annotation.Nullable;
 
 public interface Bot {
 
-    void start();
+    void start(final String token);
 
     BotType<?> getType();
 
