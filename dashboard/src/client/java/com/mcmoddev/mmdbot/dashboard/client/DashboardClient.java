@@ -29,6 +29,7 @@ import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
 import com.mcmoddev.mmdbot.dashboard.common.listener.MultiPacketListener;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketWaiter;
+import com.mcmoddev.mmdbot.dashboard.common.packet.HasIDPacket;
 import com.mcmoddev.mmdbot.dashboard.common.packet.HasResponse;
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketHandler;
@@ -92,6 +93,18 @@ public class DashboardClient {
 
     public static void sendPacket(Packet packet) {
         CLIENT.invokeIfNotNull(c -> c.sendTCP(packet));
+    }
+
+    public static <R extends Packet, P extends HasResponse<R> & Packet> PacketProcessorBuilder<R> sendAndAwaitResponseWithID(Function<PacketID, P> packetCreator) {
+        final var packetID = PacketID.generateRandom();
+        final var pkt = packetCreator.apply(packetID);
+        return new PacketProcessorBuilder<>(pkt, pkt.getResponsePacketClass())
+            .withPredicate(p -> {
+                if (p instanceof HasIDPacket withId) {
+                    return packetID.equals(withId.getPacketID());
+                }
+                return true;
+            });
     }
 
     public static <R extends Packet, P extends HasResponse<R> & Packet> PacketProcessorBuilder<R> sendAndAwaitResponse(P packet) {

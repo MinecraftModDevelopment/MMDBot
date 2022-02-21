@@ -22,12 +22,32 @@ package com.mcmoddev.mmdbot.core.util;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.AbstractMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * A pair of elements.
+ *
+ * <p>
+ * This record gives access to a pair of elements &lt;<var>F</var>, <var>S</var>&gt;, where
+ * <var>F</var> is the {@linkplain #first()} <em>first element</em>} and <var>S</var> is the
+ * {@linkplain #second()} <em>second element</em>}. Pairs are <b>immutable</b>.
+ *
+ * <p>
+ * Mappers return a new pair instance, and such are chainable:
+ *
+ * <pre>
+ * pair.mapFirst(0).mapSecond(12); // this pair now has the first value 0, and the second one 12
+ * </pre>
+ *
+ * @param <F> the type of the first element.
+ * @param <S> the type of the second element.
+ */
 @ParametersAreNonnullByDefault
 public record Pair<F, S>(F first, S second) {
 
@@ -98,7 +118,7 @@ public record Pair<F, S>(F first, S second) {
     }
 
     /**
-     * Maps the first value to another value
+     * Maps the first value to another value.
      *
      * @param mapper      the mapper
      * @param <NEW_FIRST> the new first value type
@@ -109,7 +129,18 @@ public record Pair<F, S>(F first, S second) {
     }
 
     /**
-     * Maps the second value to another value
+     * Maps the first value to another value.
+     *
+     * @param newFirst    the new first value
+     * @param <NEW_FIRST> the new first value type
+     * @return the mapped pair
+     */
+    public <NEW_FIRST> Pair<NEW_FIRST, S> mapFirst(NEW_FIRST newFirst) {
+        return of(newFirst, second());
+    }
+
+    /**
+     * Maps the second value to another value.
      *
      * @param mapper       the mapper
      * @param <NEW_SECOND> the new first value type
@@ -117,6 +148,17 @@ public record Pair<F, S>(F first, S second) {
      */
     public <NEW_SECOND> Pair<F, NEW_SECOND> mapSecond(Function<S, NEW_SECOND> mapper) {
         return of(first(), mapper.apply(second()));
+    }
+
+    /**
+     * Maps the second value to another value.
+     *
+     * @param newSecond    the new second value
+     * @param <NEW_SECOND> the new first value type
+     * @return the mapped pair
+     */
+    public <NEW_SECOND> Pair<F, NEW_SECOND> mapSecond(NEW_SECOND newSecond) {
+        return of(first(), newSecond);
     }
 
     /**
@@ -133,4 +175,23 @@ public record Pair<F, S>(F first, S second) {
         return Optional.of(this);
     }
 
+    /**
+     * Maps this pair to a {@link java.util.AbstractMap.SimpleImmutableEntry}
+     * containing the pair's values in a First-Second order.
+     *
+     * @return the entry.
+     */
+    public Map.Entry<F, S> toEntryFS() {
+        return new AbstractMap.SimpleImmutableEntry<>(first(), second());
+    }
+
+    /**
+     * Maps this pair to a {@link java.util.AbstractMap.SimpleImmutableEntry}
+     * containing the pair's values in a Second-First order.
+     *
+     * @return the entry.
+     */
+    public Map.Entry<S, F> toEntrySF() {
+        return new AbstractMap.SimpleImmutableEntry<>(second(), first());
+    }
 }

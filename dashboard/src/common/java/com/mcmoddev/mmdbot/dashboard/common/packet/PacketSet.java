@@ -24,8 +24,6 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.mcmoddev.mmdbot.dashboard.common.BufferDecoder;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -35,15 +33,28 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
-public class PacketSet {
+public class PacketSet implements Iterable<Map.Entry<Class<? extends Packet>, Integer>> {
     private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
     static final Logger LOG = LoggerFactory.getLogger(PacketSet.class);
 
-    final Object2IntMap<Class<? extends Packet>> classToId = make(new Object2IntOpenHashMap<>(), map -> map.defaultReturnValue(-1));
-    private final List<BufferDecoder<? extends Packet>> idToDeserializer = Lists.newArrayList();
+    final Object2IntMap<Class<? extends Packet>> classToId;
+    private final List<BufferDecoder<? extends Packet>> idToDeserializer;
+
+    public PacketSet() {
+        this(make(new Object2IntOpenHashMap<>(), map -> map.defaultReturnValue(-1)), new ArrayList<>());
+    }
+
+    PacketSet(final Object2IntMap<Class<? extends Packet>> classToId, final List<BufferDecoder<? extends Packet>> idToDeserializer) {
+        this.classToId = classToId;
+        this.idToDeserializer = idToDeserializer;
+    }
 
     public <P extends Packet> PacketSet addPacket(Class<P> pktClass, BufferDecoder<P> deserializer) {
         int i = this.idToDeserializer.size();
@@ -136,8 +147,36 @@ public class PacketSet {
             });
     }
 
-    public Iterable<Class<? extends Packet>> getAllPackets() {
-        return Iterables.unmodifiableIterable(this.classToId.keySet());
+    @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public Iterator<Map.Entry<Class<? extends Packet>, Integer>> iterator() {
+        return classToId.keySet().stream().map(c -> new AbstractMap.SimpleImmutableEntry(c, getId(c)))
+            .map(s -> (Map.Entry<Class<? extends Packet>, Integer>) s).iterator();
+    }
+
+    /**
+     * Wraps this packet set into an immutable implementation.
+     * @return an immutable implementation of this set.
+     */
+    public Immutable immutable() {
+        return new Immutable(this);
+    }
+
+    public static final class Immutable extends PacketSet {
+
+        public Immutable(PacketSet other) {
+            super(other.classToId, List.copyOf(other.idToDeserializer));
+        }
+
+        @Override
+        public <P extends Packet> PacketSet addPacket(final Class<P> packetClass) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public <P extends Packet> PacketSet addPacket(final Class<P> pktClass, final BufferDecoder<P> deserializer) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     private record SimplePair<F, S>(F first, S second) {

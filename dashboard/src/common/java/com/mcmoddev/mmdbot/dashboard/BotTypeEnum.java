@@ -23,24 +23,30 @@ package com.mcmoddev.mmdbot.dashboard;
 import javax.annotation.Nullable;
 
 public enum BotTypeEnum {
-    THE_COMMANDER("thecommander"),
-    THE_LISTENER("thelistener"),
-    THE_WATCHER("thewatcher"),
+    THE_COMMANDER("thecommander", "The Commander"),
+    THE_LISTENER("thelistener", "The Listener"),
+    THE_WATCHER("thewatcher", "The Watcher"),
 
     /**
      * @deprecated The bot split
      */
     @Deprecated(forRemoval = true)
-    MMDBOT("mmdbot");
+    MMDBOT("mmdbot", "MMDBot");
 
     private final String name;
+    private final String niceName;
 
-    BotTypeEnum(final String name) {
+    BotTypeEnum(final String name, final String niceName) {
         this.name = name;
+        this.niceName = niceName;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getNiceName() {
+        return niceName;
     }
 
     @Nullable

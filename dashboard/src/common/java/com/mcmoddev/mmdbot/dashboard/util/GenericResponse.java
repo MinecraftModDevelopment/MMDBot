@@ -24,8 +24,19 @@ import com.mcmoddev.mmdbot.dashboard.common.BufferDecoder;
 import com.mcmoddev.mmdbot.dashboard.common.BufferSerializable;
 import com.mcmoddev.mmdbot.dashboard.common.BufferSerializers;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketOutputBuffer;
+import lombok.NonNull;
+
+import java.util.AbstractMap;
+import java.util.Map;
+import java.util.stream.Stream;
 
 public record GenericResponse(Type type, String message) implements BufferSerializable {
+
+    @SuppressWarnings("unchecked")
+    public static final Map<Type, GenericResponse> NO_MESSAGE = Map.ofEntries(Stream.of(Type.values())
+        .map(t -> new AbstractMap.SimpleImmutableEntry<>(t, t.create(""))).toArray(Map.Entry[]::new));
+
+    public static final GenericResponse SUCCESS = Type.SUCCESS.noMessage();
 
     public static final BufferDecoder<GenericResponse> DECODER;
 
@@ -53,19 +64,26 @@ public record GenericResponse(Type type, String message) implements BufferSerial
 
     public enum Type {
         INVALID_REQUEST,
+        UNAUTHORIZED,
         TIMED_OUT,
         SUCCESS;
 
-        public GenericResponse create(String message) {
+        @NonNull
+        public GenericResponse create(@NonNull String message) {
             return new GenericResponse(this, message);
         }
 
-        public GenericResponse createF(String message, Object... args) {
+        @NonNull
+        public GenericResponse createF(@NonNull String message, Object... args) {
             return create(message.formatted(args));
         }
 
+        /**
+         * @return a response with no message.
+         */
+        @NonNull
         public GenericResponse noMessage() {
-            return create("");
+            return NO_MESSAGE.get(this);
         }
     }
 }

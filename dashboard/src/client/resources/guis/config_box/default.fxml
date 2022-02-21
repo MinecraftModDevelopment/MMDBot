@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import java.net.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="141.0" stylesheets="@../../themes/dark.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label fx:id="configNameLabel" alignment="CENTER" prefHeight="27.0" prefWidth="600.0" text="Cfg name" textAlignment="CENTER">
+         <font>
+            <Font size="23.0" />
+         </font></Label>
+      <Label fx:id="commentsLabel" text="Comments" textAlignment="CENTER" />
+      <TextField fx:id="valueField" promptText="Value" text="Current Value" />
+      <Button mnemonicParsing="false" onAction="#onUpdateValueClick" text="Update value" />
+   </children>
+   <styleClass>
+      <String fx:value="config_box" />
+      <String fx:value="default" />
+   </styleClass>
+</VBox>

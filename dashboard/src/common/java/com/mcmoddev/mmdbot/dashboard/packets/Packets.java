@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.dashboard.packets;
 
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketSet;
 import com.mcmoddev.mmdbot.dashboard.packets.requests.RequestBotUserDataPacket;
+import com.mcmoddev.mmdbot.dashboard.packets.requests.RequestConfigValuePacket;
 import com.mcmoddev.mmdbot.dashboard.packets.requests.RequestLoadedBotTypesPacket;
 
 public class Packets {
@@ -34,5 +35,13 @@ public class Packets {
             .addPacket(RequestLoadedBotTypesPacket.Response.class)
         .addPacket(ShutdownBotPacket.class)
         .addPacket(RequestBotUserDataPacket.class)
-            .addPacket(RequestBotUserDataPacket.Response.class);
+            .addPacket(RequestBotUserDataPacket.Response.class)
+
+        // Config stuff
+        .addPacket(UpdateConfigPacket.class, UpdateConfigPacket::decode)
+        .addPacket(RequestConfigValuePacket.class, RequestConfigValuePacket::decode)
+            .addPacket(RequestConfigValuePacket.Response.class, RequestConfigValuePacket.Response::decode)
+
+        // Finish off by making it immutable, just in case
+        .immutable();
 }

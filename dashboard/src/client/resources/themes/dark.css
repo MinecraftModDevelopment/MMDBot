@@ -19,3 +19,7 @@
     -fx-background-color: rgb(74, 74, 74);
     -fx-font-family: Monospaced;
 }
+.config_box.default {
+    -fx-border-color: red;
+    -fx-border-radius: 5;
+}

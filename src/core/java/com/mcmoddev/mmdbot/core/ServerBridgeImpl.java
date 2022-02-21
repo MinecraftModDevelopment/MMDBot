@@ -30,9 +30,11 @@ import com.mcmoddev.mmdbot.dashboard.server.DashboardSever;
 import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import com.mcmoddev.mmdbot.dashboard.util.Credentials;
 import com.mcmoddev.mmdbot.dashboard.util.GenericResponse;
+import com.mcmoddev.mmdbot.dashboard.util.UpdateConfigContext;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -84,5 +86,30 @@ public final class ServerBridgeImpl implements ServerBridge {
                 .map(Bot::getBotUserData).orElse(null);
         }
         return null;
+    }
+
+    @Override
+    public boolean isUserAuthenticated(final InetSocketAddress address) {
+        return DashboardSever.USERS.containsKey(address);
+    }
+
+    @Override
+    public GenericResponse updateConfig(final UpdateConfigContext configContext, final PacketContext packetContext) {
+        return Optional.ofNullable(RunBots.getBotByType(configContext.botType()))
+            .map(b -> {
+                final var oldValue = b.getConfigValue(configContext.configName(), configContext.path());
+                final var response = b.updateConfig(configContext);
+                if (response.type() == GenericResponse.Type.SUCCESS) {
+                    log.info("{} updated config {} (in config {}) from {} to {}", DashboardSever.USERS.get(packetContext.getSenderAddress()),
+                        configContext.path(), configContext.configName(), oldValue, configContext.newValue());
+                }
+                return response;
+            }).orElse(GenericResponse.Type.INVALID_REQUEST.createF("Bot %s is not loaded!", configContext.botType()));
+    }
+
+    @Override
+    public Object getConfigValue(final BotTypeEnum botType, final String configName, final String path) {
+        return Optional.ofNullable(RunBots.getBotByType(botType))
+            .map(b -> b.getConfigValue(configName, path)).orElse(null);
     }
 }

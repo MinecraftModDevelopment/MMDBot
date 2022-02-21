@@ -25,8 +25,10 @@ import com.mcmoddev.mmdbot.dashboard.packets.CheckAuthorizedPacket;
 import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import com.mcmoddev.mmdbot.dashboard.util.Credentials;
 import com.mcmoddev.mmdbot.dashboard.util.GenericResponse;
+import com.mcmoddev.mmdbot.dashboard.util.UpdateConfigContext;
 
 import javax.annotation.Nullable;
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -55,4 +57,10 @@ public interface ServerBridge {
 
     @Nullable
     BotUserData getBotData(BotTypeEnum botType);
+
+    boolean isUserAuthenticated(InetSocketAddress address);
+
+    GenericResponse updateConfig(UpdateConfigContext configContext, PacketContext packetContext);
+
+    Object getConfigValue(BotTypeEnum botType, String configName, String path);
 }

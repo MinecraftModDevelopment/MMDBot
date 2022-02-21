@@ -26,8 +26,9 @@ import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketID;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketInputBuffer;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketOutputBuffer;
+import com.mcmoddev.mmdbot.dashboard.common.packet.WithAuthorizationPacket;
 
-public record ShutdownBotPacket(PacketID id, String botName) implements Packet {
+public record ShutdownBotPacket(PacketID id, String botName) implements WithAuthorizationPacket {
 
     public ShutdownBotPacket(PacketInputBuffer buffer) {
         this(buffer.readPacketID(), buffer.readString());
@@ -40,7 +41,7 @@ public record ShutdownBotPacket(PacketID id, String botName) implements Packet {
     }
 
     @Override
-    public void handle(final PacketContext context) {
+    public void handle1(final PacketContext context) {
         ServerBridge.executeOnInstance(bridge -> context.replyGeneric(id, bridge.shutdownBot(context, botName)));
     }
 }

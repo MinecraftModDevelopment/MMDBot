@@ -22,8 +22,7 @@ package com.mcmoddev.mmdbot.dashboard.common.listener;
 
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -38,10 +37,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
+@Slf4j
+@SuppressWarnings({"rawtypes", "unchecked", "ClassCanBeRecord"})
 public class PacketWaiter implements PacketListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PacketWaiter.class);
     private final HashMap<Class<?>, Set<WaitingPacket>> waitingPackets;
     private final ScheduledExecutorService threadpool;
     private final ExecutorService awaitingThreadpoll = Executors.newSingleThreadExecutor();
@@ -77,9 +76,11 @@ public class PacketWaiter implements PacketListener {
         if (timeout > 0 && unit != null) {
             threadpool.schedule(() -> {
                 try {
-                    if (set.remove(we) && timeoutAction != null) timeoutAction.run();
+                    if (set.remove(we) && timeoutAction != null) {
+                        timeoutAction.run();
+                    }
                 } catch (Exception ex) {
-                    LOG.error("Failed to run timeoutAction", ex);
+                    log.error("Failed to run timeoutAction!", ex);
                 }
             }, timeout, unit);
         }
@@ -146,5 +147,4 @@ public class PacketWaiter implements PacketListener {
             return false;
         }
     }
-
 }

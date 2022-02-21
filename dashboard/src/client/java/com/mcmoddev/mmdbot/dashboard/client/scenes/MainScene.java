@@ -49,10 +49,8 @@ public class MainScene {
                     final var image = new ImageView(data.avatarUrl());
                     image.setFitWidth(50);
                     image.setFitHeight(50);
-                    StyleUtils.setRoundedCorners(image, 4);
                     final var nameText = new Text(data.username() + "#" + data.discriminator());
                     final var box = new HBox(7, image, nameText);
-                    StyleUtils.setBackgroundColour(box, Color.LIGHTGRAY);
                     box.setOnMouseClicked(e -> BotStage.STAGES.get(botType).createAndShowStage(data));
                     botNodes.add(box);
                 })
