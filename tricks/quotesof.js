@@ -3,7 +3,10 @@ if (args.length < 1) {
 } else {
     const quotes = guild.getQuotes()
     const regStr = args[0] 
-    const regex = new RegExp(regStr) 
+    let regex = new RegExp(regStr) 
+	if (args.length > 1) {
+		regex = new RegExp(regStr, args[1])
+	}
     const embed = new Embed()
     embed.setTitle(`Quotes matching ${regStr}`)
     for (let i = 0; i < quotes.length; i++) {
