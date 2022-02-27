@@ -27,12 +27,18 @@ import discord4j.core.event.domain.Event;
 import discord4j.core.object.audit.AuditLogEntry;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.spec.AuditLogQueryFlux;
 import discord4j.rest.entity.RestChannel;
+import reactor.core.publisher.Mono;
 
+import java.io.Serial;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
+import java.util.regex.Pattern;
 
 public final class Utils {
 
@@ -80,5 +86,73 @@ public final class Utils {
             .map(l -> l.getEntries().stream().filter(log -> log.getTargetId().map(Snowflake::asLong).orElse(0L).equals(targetId)).findAny())
             .filter(Optional::isPresent)
             .map(Optional::get).subscribe(consumer);
+    }
+
+    public static Message getMessageByLink(final String link, final Guild guild) throws MessageLinkException {
+        final AtomicReference<Message> returnAtomic = new AtomicReference<>(null);
+        decodeMessageLink(link, (guildId, channelId, messageId) -> {
+            guild.getChannelById(Snowflake.of(channelId))
+                .onErrorResume(e -> Mono.empty()).blockOptional()
+                .ifPresent(channel -> {
+                if (channel instanceof MessageChannel msgChannel) {
+                    msgChannel.getMessageById(Snowflake.of(messageId)).blockOptional().ifPresent(returnAtomic::set);
+                }
+            });
+        });
+        return returnAtomic.get();
+    }
+
+    public static final Pattern MESSAGE_LINK_PATTERN = Pattern.compile("https://discord.com/channels/");
+
+    public static void decodeMessageLink(final String link, MessageInfo consumer)
+        throws MessageLinkException {
+        final var matcher = MESSAGE_LINK_PATTERN.matcher(link);
+        if (matcher.find()) {
+            try {
+                var originalWithoutLink = matcher.replaceAll("");
+                if (originalWithoutLink.indexOf('/') > -1) {
+                    final long guildId = Long
+                        .parseLong(originalWithoutLink.substring(0, originalWithoutLink.indexOf('/')));
+                    originalWithoutLink = originalWithoutLink.substring(originalWithoutLink.indexOf('/') + 1);
+                    if (originalWithoutLink.indexOf('/') > -1) {
+                        final long channelId = Long
+                            .parseLong(originalWithoutLink.substring(0, originalWithoutLink.indexOf('/')));
+                        originalWithoutLink = originalWithoutLink.substring(originalWithoutLink.indexOf('/') + 1);
+                        final long messageId = Long.parseLong(originalWithoutLink);
+                        consumer.accept(guildId, channelId, messageId);
+                    } else {
+                        throw new MessageLinkException("Invalid Link");
+                    }
+                } else {
+                    throw new MessageLinkException("Invalid Link");
+                }
+            } catch (NumberFormatException e) {
+                throw new MessageLinkException(e);
+            }
+        } else {
+            throw new MessageLinkException("Invalid Link");
+        }
+    }
+
+    public static class MessageLinkException extends Exception {
+
+        @Serial
+        private static final long serialVersionUID = -2805786147679905681L;
+
+        public MessageLinkException(Throwable e) {
+            super(e);
+        }
+
+        public MessageLinkException(String message) {
+            super(message);
+        }
+
+    }
+
+    @FunctionalInterface
+    public interface MessageInfo {
+
+        void accept(final long guildId, final long channelId, final long messageId);
+
     }
 }

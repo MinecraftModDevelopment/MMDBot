@@ -29,6 +29,7 @@ import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import com.mcmoddev.mmdbot.thelistener.events.LeaveJoinEvents;
 import com.mcmoddev.mmdbot.thelistener.events.MessageEvents;
 import com.mcmoddev.mmdbot.thelistener.events.ModerationEvents;
+import com.mcmoddev.mmdbot.thelistener.events.ReferencingListener;
 import com.mcmoddev.mmdbot.thelistener.events.RoleEvents;
 import com.mcmoddev.mmdbot.thelistener.util.EventListener;
 import com.mcmoddev.mmdbot.thelistener.util.GuildConfig;
@@ -170,7 +171,8 @@ public final class TheListener implements Bot {
             });
 
         Utils.subscribe(gateway, wrapListener(new MessageEvents()), wrapListener(new LeaveJoinEvents()),
-            wrapListener(new ModerationEvents()), wrapListener(new RoleEvents()));
+            wrapListener(new ModerationEvents()), wrapListener(new RoleEvents()),
+            wrapListener(new ReferencingListener()));
 
         new Thread(() -> {
             // D4J doesn't have non-daemon threads
