@@ -20,17 +20,17 @@
  */
 package com.mcmoddev.mmdbot.thelistener.util;
 
+import com.mcmoddev.mmdbot.thelistener.TheListener;
 import discord4j.common.util.Snowflake;
 
 import java.util.Set;
 
 public enum LoggingType {
 
-    // TODO yes, config
-    MESSAGE_EVENTS("message_events", s -> Set.of()),
-    LEAVE_JOIN_EVENTS("leave_join_events", s -> Set.of()),
-    MODERATION_EVENTS("moderation_events", s -> Set.of()),
-    ROLE_EVENTS("role_events", s -> Set.of());
+    MESSAGE_EVENTS("message_events", configGetter(0)),
+    LEAVE_JOIN_EVENTS("leave_join_events", configGetter(1)),
+    MODERATION_EVENTS("moderation_events", configGetter(2)),
+    ROLE_EVENTS("role_events", configGetter(3));
 
     private final String name;
     private final ChannelGetter channelGetter;
@@ -53,5 +53,16 @@ public enum LoggingType {
 
         Set<Snowflake> getChannels(Snowflake guild);
 
+    }
+
+    private static ChannelGetter configGetter(int index) {
+        return s -> {
+            final var cfg = TheListener.getInstance().getConfigForGuild(s);
+            if (cfg == null) {
+                TheListener.LOGGER.warn("Config for guild %s doesn't exist!".formatted(s.asLong()));
+                return Set.of();
+            }
+            return cfg.getChannelsForLogging(values()[index]);
+        };
     }
 }

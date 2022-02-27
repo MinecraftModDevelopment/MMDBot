@@ -31,12 +31,14 @@ import com.mcmoddev.mmdbot.thelistener.events.MessageEvents;
 import com.mcmoddev.mmdbot.thelistener.events.ModerationEvents;
 import com.mcmoddev.mmdbot.thelistener.events.RoleEvents;
 import com.mcmoddev.mmdbot.thelistener.util.EventListener;
+import com.mcmoddev.mmdbot.thelistener.util.GuildConfig;
 import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
 import com.mcmoddev.mmdbot.thelistener.util.ThreadedEventListener;
 import com.mcmoddev.mmdbot.thelistener.util.Utils;
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
+import discord4j.core.event.domain.guild.GuildCreateEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.retriever.EntityRetrievalStrategy;
 import discord4j.core.spec.EmbedCreateSpec;
@@ -45,6 +47,8 @@ import discord4j.gateway.intent.Intent;
 import discord4j.gateway.intent.IntentSet;
 import discord4j.rest.util.Color;
 import io.github.cdimascio.dotenv.Dotenv;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
@@ -56,6 +60,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import static com.mcmoddev.mmdbot.thelistener.util.Utils.mentionAndID;
+
+import javax.annotation.Nullable;
 
 public final class TheListener implements Bot {
 
@@ -122,6 +128,7 @@ public final class TheListener implements Bot {
     private DiscordClient client;
     private GatewayDiscordClient gateway;
     private final Path runPath;
+    private final Long2ObjectMap<GuildConfig> guildConfigs = new Long2ObjectOpenHashMap<>();
 
     public TheListener(final Path runPath) {
         this.runPath = runPath;
@@ -145,8 +152,22 @@ public final class TheListener implements Bot {
             .setEnabledIntents(IntentSet.of(Intent.values()))
             .setEntityRetrievalStrategy(EntityRetrievalStrategy.REST).login().block();
 
+        if (gateway == null) {
+            throw new NullPointerException("gateway");
+        }
+
         gateway.getEventDispatcher().on(ReadyEvent.class)
             .subscribe(event -> LOGGER.warn("I am ready to work! Logged in as {}", event.getSelf().getTag()));
+
+        final var guildConfigsPath = getRunPath().resolve("configs/guilds");
+
+        gateway.getEventDispatcher().on(GuildCreateEvent.class)
+            .subscribe(event -> {
+                final var id = event.getGuild().getId().asLong();
+                if (!guildConfigs.containsKey(id)) {
+                    guildConfigs.put(id, new GuildConfig(id, guildConfigsPath));
+                }
+            });
 
         Utils.subscribe(gateway, wrapListener(new MessageEvents()), wrapListener(new LeaveJoinEvents()),
             wrapListener(new ModerationEvents()), wrapListener(new RoleEvents()));
@@ -173,6 +194,11 @@ public final class TheListener implements Bot {
 
     public Path getRunPath() {
         return runPath;
+    }
+
+    @Nullable
+    public GuildConfig getConfigForGuild(Snowflake guild) {
+        return guildConfigs.get(guild.asLong());
     }
 
     public static TheListener getInstance() {
