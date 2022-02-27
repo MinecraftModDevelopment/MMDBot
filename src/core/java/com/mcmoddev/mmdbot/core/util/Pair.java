@@ -35,8 +35,8 @@ import java.util.function.Function;
  *
  * <p>
  * This record gives access to a pair of elements &lt;<var>F</var>, <var>S</var>&gt;, where
- * <var>F</var> is the {@linkplain #first()} <em>first element</em>} and <var>S</var> is the
- * {@linkplain #second()} <em>second element</em>}. Pairs are <b>immutable</b>.
+ * <var>F</var> is the {@linkplain #first()} element and <var>S</var> is the
+ * {@linkplain #second()} element. Pairs are <b>immutable</b>.
  *
  * <p>
  * Mappers return a new pair instance, and such are chainable:
@@ -49,7 +49,7 @@ import java.util.function.Function;
  * @param <S> the type of the second element.
  */
 @ParametersAreNonnullByDefault
-public record Pair<F, S>(F first, S second) {
+public record Pair<F, S>(@Nullable F first, @Nullable S second) {
 
     /**
      * Makes a pair from the given value
@@ -77,6 +77,16 @@ public record Pair<F, S>(F first, S second) {
      */
     public static <F, S> Optional<Pair<F, S>> makeOptional(Optional<F> first, Optional<S> second) {
         return of(first.orElse(null), second.orElse(null)).toOptional();
+    }
+
+    /**
+     * Makes an empty pair, which has each value {@code null}.
+     * @param <F>    the type of the first value
+     * @param <S>    the type of the second value
+     * @return the empty pair.
+     */
+    public static <F, S> Pair<F, S> empty() {
+        return of(null, null);
     }
 
     /**
@@ -193,5 +203,21 @@ public record Pair<F, S>(F first, S second) {
      */
     public Map.Entry<S, F> toEntrySF() {
         return new AbstractMap.SimpleImmutableEntry<>(second(), first());
+    }
+
+    /**
+     * Clears the first value of the pair, by making it {@code null}.
+     * @return the new pair
+     */
+    public Pair<F, S> clearFirst() {
+        return of(null, second());
+    }
+
+    /**
+     * Clears the second value of the pair, by making it {@code null}.
+     * @return the new pair
+     */
+    public Pair<F, S> clearSecond() {
+        return of(first(), null);
     }
 }
