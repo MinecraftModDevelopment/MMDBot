@@ -68,10 +68,15 @@ public final class MessageEvents extends ListenerAdapter {
 
     @Override
     public void onMessageUpdate(final MessageUpdateEvent event) {
-        if (event.getGuildId().isEmpty()) {
-            return; // Not from guild
+        if (event.getGuildId().isEmpty() /* Not from guild */ || !event.isContentChanged()) {
+            return;
         }
         event.getMessage().subscribe(newMessage -> {
+            if (newMessage.getAuthor()
+                .map(u -> u.getId().asLong() == event.getClient().getSelfId().asLong())
+                .orElse(false)) {
+                return; // The bot edited the message, so it can be ignored
+            }
             // The horrible mapping takes in an optional of the old message, and another
             // optional of the message author. The optionals are merged into a
             // pair optional, which is empty if either the message optional or the author optional
