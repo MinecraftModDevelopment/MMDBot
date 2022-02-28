@@ -47,6 +47,9 @@ public final class MessageEvents extends ListenerAdapter {
         if (event.getMessage().isPresent() && ReferencingListener.isStringReference(event.getMessage().get().getContent())) {
             return; // Don't log referencing
         }
+        if (LoggingType.MESSAGE_EVENTS.getChannels(event.getGuildId().get()).contains(event.getChannelId())) {
+            return; // Don't log deletions in a logging channel
+        }
         final var embed = event.getMessage()
             .flatMap(message -> Pair.of(message, message.getAuthor().orElse(null)).toOptional())
             .map(c -> c.map((message, user) -> {
@@ -73,6 +76,9 @@ public final class MessageEvents extends ListenerAdapter {
     public void onMessageUpdate(final MessageUpdateEvent event) {
         if (event.getGuildId().isEmpty() /* Not from guild */ || !event.isContentChanged()) {
             return;
+        }
+        if (LoggingType.MESSAGE_EVENTS.getChannels(event.getGuildId().get()).contains(event.getChannelId())) {
+            return; // Don't log deletions in a logging channel
         }
         event.getMessage().subscribe(newMessage -> {
             if (newMessage.getAuthor()
