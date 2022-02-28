@@ -50,7 +50,7 @@ import java.util.function.Function;
  */
 @SuppressWarnings("unused")
 @ParametersAreNonnullByDefault
-public record Pair<F, S>(@Nullable F first, @Nullable S second) {
+public record Pair<F, S>(F first, S second) {
 
     /**
      * Makes a pair from the given value
@@ -82,8 +82,9 @@ public record Pair<F, S>(@Nullable F first, @Nullable S second) {
 
     /**
      * Makes an empty pair, which has each value {@code null}.
-     * @param <F>    the type of the first value
-     * @param <S>    the type of the second value
+     *
+     * @param <F> the type of the first value
+     * @param <S> the type of the second value
      * @return the empty pair.
      */
     public static <F, S> Pair<F, S> empty() {
@@ -94,27 +95,33 @@ public record Pair<F, S>(@Nullable F first, @Nullable S second) {
      * Accepts the given {@code consumer} on the values from the pair
      *
      * @param consumer the consumer
+     * @return the pair, for chaining
      */
-    public void accept(BiConsumer<F, S> consumer) {
+    public Pair<F, S> accept(BiConsumer<F, S> consumer) {
         consumer.accept(first(), second());
+        return this;
     }
 
     /**
      * Accepts the given {@code consumer} on the first value of the pair.
      *
      * @param consumer the consumer
+     * @return the pair, for chaining
      */
-    public void acceptFirst(Consumer<F> consumer) {
+    public Pair<F, S> acceptFirst(Consumer<F> consumer) {
         consumer.accept(first());
+        return this;
     }
 
     /**
      * Accepts the given {@code consumer} on the second value of the pair.
      *
      * @param consumer the consumer
+     * @return the pair, for chaining
      */
-    public void acceptSecond(Consumer<S> consumer) {
+    public Pair<F, S> acceptSecond(Consumer<S> consumer) {
         consumer.accept(second());
+        return this;
     }
 
     /**
@@ -208,6 +215,7 @@ public record Pair<F, S>(@Nullable F first, @Nullable S second) {
 
     /**
      * Clears the first value of the pair, by making it {@code null}.
+     *
      * @return the new pair
      */
     public Pair<F, S> clearFirst() {
@@ -216,6 +224,7 @@ public record Pair<F, S>(@Nullable F first, @Nullable S second) {
 
     /**
      * Clears the second value of the pair, by making it {@code null}.
+     *
      * @return the new pair
      */
     public Pair<F, S> clearSecond() {
@@ -224,9 +233,30 @@ public record Pair<F, S>(@Nullable F first, @Nullable S second) {
 
     /**
      * Swaps the order of the values.
+     *
      * @return the swapped pair
      */
     public Pair<S, F> swap() {
         return of(second(), first());
+    }
+
+    /**
+     * Maps this pair to an {@link Either} containing the values
+     * in a First-Second order using {@link Either#byNullables(Object, Object)}.
+     *
+     * @return the either
+     */
+    public Either<F, S> toEitherFS() {
+        return Either.byNullables(first(), second());
+    }
+
+    /**
+     * Maps this pair to an {@link Either} containing the values
+     * in a Second-First order using {@link Either#byNullables(Object, Object)}.
+     *
+     * @return the either
+     */
+    public Either<S, F> toEitherSF() {
+        return Either.byNullables(second(), first());
     }
 }
