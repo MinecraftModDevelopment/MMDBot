@@ -48,6 +48,7 @@ import java.util.function.Function;
  * @param <F> the type of the first element.
  * @param <S> the type of the second element.
  */
+@SuppressWarnings("unused")
 @ParametersAreNonnullByDefault
 public record Pair<F, S>(@Nullable F first, @Nullable S second) {
 
@@ -219,5 +220,13 @@ public record Pair<F, S>(@Nullable F first, @Nullable S second) {
      */
     public Pair<F, S> clearSecond() {
         return of(first(), null);
+    }
+
+    /**
+     * Swaps the order of the values.
+     * @return the swapped pair
+     */
+    public Pair<S, F> swap() {
+        return of(second(), first());
     }
 }

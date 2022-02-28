@@ -107,7 +107,7 @@ public class ScamDetector extends ListenerAdapter {
         final var member = message.getMember();
         return new EmbedBuilder().setTitle("Scam link detected!")
             .setDescription(String.format("User %s sent a scam link in %s%s. Their message was deleted, and they were muted.",
-                member.getAsMention(), message.getTextChannel().getAsMention(), extraDescription))
+                member.getAsMention(), message.getChannel().getAsMention(), extraDescription))
             .addField("Message Content", MarkdownUtil.codeblock(message.getContentRaw()), false)
             .setColor(Color.RED)
             .setTimestamp(Instant.now())
