@@ -79,8 +79,8 @@ public final class RoleEvents extends ListenerAdapter {
                     entry.getResponsibleUser().ifPresent(u -> embed.addField("Editor:", u.getMention() + "(%s)".formatted(u.getId().asLong()), true));
                 }
 
-                embed.addField("Previous Role(s):", rolesBefore.stream().map(id -> "<@&%s>".formatted(id.asLong())).collect(Collectors.joining(" ")), false);
-                embed.addField("Added Role(s):", rolesAdded.stream().map(id -> "<@&%s>".formatted(id.asLong())).collect(Collectors.joining(" ")), false);
+                embed.addField("Previous Role(s):", ifEmpty(rolesBefore.stream().map(id -> "<@&%s>".formatted(id.asLong())).collect(Collectors.joining(" ")), "None"), false);
+                embed.addField("Added Role(s):", ifEmpty(rolesAdded.stream().map(id -> "<@&%s>".formatted(id.asLong())).collect(Collectors.joining(" ")), "None"), false);
                 embed.timestamp(Instant.now());
 
                 Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.ROLE_EVENTS, c -> c.createMessage(embed.build().asRequest()).subscribe());
@@ -107,12 +107,16 @@ public final class RoleEvents extends ListenerAdapter {
                     entry.getResponsibleUser().ifPresent(u -> embed.addField("Editor:", u.getMention() + "(%s)".formatted(u.getId().asLong()), true));
                 }
 
-                embed.addField("Previous Role(s):", rolesBefore.stream().map(id -> "<@&%s>".formatted(id.asLong())).collect(Collectors.joining(" ")), false);
-                embed.addField("Removed Role(s):", rolesRemoved.stream().map(id -> "<@&%s>".formatted(id.asLong())).collect(Collectors.joining(" ")), false);
+                embed.addField("Previous Role(s):", ifEmpty(rolesBefore.stream().map(id -> "<@&%s>".formatted(id.asLong())).collect(Collectors.joining(" ")), "None"), false);
+                embed.addField("Removed Role(s):", ifEmpty(rolesRemoved.stream().map(id -> "<@&%s>".formatted(id.asLong())).collect(Collectors.joining(" ")), "None"), false);
                 embed.timestamp(Instant.now());
 
                 Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.ROLE_EVENTS, c -> c.createMessage(embed.build().asRequest()).subscribe());
             });
         });
+    }
+
+    private static String ifEmpty(String str, String ifEmpty) {
+        return str.isBlank() ? ifEmpty : str;
     }
 }
