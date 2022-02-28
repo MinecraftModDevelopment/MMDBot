@@ -47,6 +47,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -130,13 +131,15 @@ public class ScamDetector extends ListenerAdapter {
         return false;
     }
 
+    private static final List<String> IGNORED = List.of("discordapp.co", "witch.tv");
+
     public static boolean setupScamLinks() {
         MMDBot.LOGGER.debug("Setting up scam links! Receiving data from {}.", SCAM_LINKS_DATA_URL);
         try (var is = new URL(SCAM_LINKS_DATA_URL).openStream()) {
             final String result = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             SCAM_LINKS.clear();
             SCAM_LINKS.addAll(StreamSupport.stream(GSON.fromJson(result, JsonArray.class).spliterator(), false)
-                .map(JsonElement::getAsString).filter(s -> !s.contains("discordapp.co")).toList());
+                .map(JsonElement::getAsString).filter(s -> IGNORED.stream().noneMatch(s::contains)).toList());
             return true;
         } catch (final IOException e) {
             MMDBot.LOGGER.error("Error while setting up scam links!", e);
