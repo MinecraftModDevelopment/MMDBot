@@ -122,6 +122,19 @@ public final class TheListener implements Bot {
                         c -> c.createMessage(embed.build().asRequest()).subscribe());
                 });
         });
+        WarningEvent.ClearAllWarns.addListener(event -> {
+            getClient().getUserById(Snowflake.of(event.getModeratorId())).getData()
+                .subscribe(moderator -> {
+                    final var embed = EmbedCreateSpec.builder()
+                        .color(Color.GREEN)
+                        .title("Warnings Cleared")
+                        .description("All of the warnings of " + mentionAndID(event.getTargetId()) + " have been cleared!")
+                        .timestamp(Instant.now())
+                        .footer("Moderator ID: " + event.getModeratorId(), moderator.avatar().orElse(null));
+                    Utils.executeInLoggingChannel(Snowflake.of(event.getGuildId()), LoggingType.MODERATION_EVENTS,
+                        c -> c.createMessage(embed.build().asRequest()).subscribe());
+                });
+        });
     }
 
     private static TheListener instance;

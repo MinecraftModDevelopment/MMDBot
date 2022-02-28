@@ -87,4 +87,38 @@ public class WarningEvent {
         }
     }
 
+    public static final class ClearAllWarns extends WarningEvent {
+        private static final List<Consumer<ClearAllWarns>> LISTENERS = Collections.synchronizedList(new ArrayList<>());
+
+        private final long moderatorId;
+        private final long targetId;
+        private final long guildId;
+
+        public ClearAllWarns(final long moderatorId, final long targetId, final long guildId) {
+            super(null);
+            this.moderatorId = moderatorId;
+            this.targetId = targetId;
+            this.guildId = guildId;
+        }
+
+        public long getModeratorId() {
+            return moderatorId;
+        }
+        public long getTargetId() {
+            return targetId;
+        }
+
+        public static void addListener(Consumer<ClearAllWarns> listener) {
+            LISTENERS.add(listener);
+        }
+
+        public static void fire(ClearAllWarns event) {
+            LISTENERS.forEach(c -> c.accept(event));
+        }
+
+        public long getGuildId() {
+            return guildId;
+        }
+    }
+
 }

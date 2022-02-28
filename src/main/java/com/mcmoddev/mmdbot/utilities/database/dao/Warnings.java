@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.utilities.database.dao;
 
+import com.mcmoddev.mmdbot.core.util.WarningDocument;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
@@ -110,9 +111,5 @@ public interface Warnings extends Transactional<Warnings> {
         final var moderator = getModerator(warnId);
         final var timestamp = getTimestamp(warnId);
         return new WarningDocument(userId, guildId, warnId, reason, moderator, timestamp);
-    }
-
-    record WarningDocument(long userId, long guildId, String warnId, String reason, long moderatorId,
-                           Instant timestamp) {
     }
 }

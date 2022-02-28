@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.modules.commands.moderation;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.core.event.WarningEvent;
 import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.database.dao.Warnings;
@@ -125,6 +126,7 @@ public class CmdWarning extends SlashCommand {
             if (publicPunishment) {
                 event.getChannel().sendMessageEmbeds(embed.build()).queue();
             }
+            WarningEvent.Add.fire(new WarningEvent.Add(withExtension(doc -> doc.getWarningDocument(warnId.toString()))));
             LoggingModule.executeInLoggingChannel(LoggingModule.LoggingType.IMPORTANT, loggingChannel -> loggingChannel.sendMessageEmbeds(embed.build()).queue());
             event.getInteraction().reply(new MessageBuilder().append("Warn successful!").build()).setEphemeral(true)
                 .queue();
@@ -211,6 +213,7 @@ public class CmdWarning extends SlashCommand {
                 if (publicPunishment) {
                     event.getChannel().sendMessageEmbeds(embed.build()).queue();
                 }
+                WarningEvent.ClearAllWarns.fire(new WarningEvent.ClearAllWarns(member.getIdLong(), userToWarn.getIdLong(), event.getIdLong()));
                 LoggingModule.executeInLoggingChannel(LoggingModule.LoggingType.IMPORTANT, c -> c.sendMessageEmbeds(embed.build()).queue());
 
                 event.getInteraction().reply(new MessageBuilder().append("Warnings cleared!").build()).setEphemeral(true).queue();
@@ -249,6 +252,7 @@ public class CmdWarning extends SlashCommand {
                 if (publicPunishment) {
                     event.getChannel().sendMessageEmbeds(embed.build()).queue();
                 }
+                WarningEvent.Clear.fire(new WarningEvent.Clear(withExtension(doc -> doc.getWarningDocument(warnId)), member.getIdLong()));
                 LoggingModule.executeInLoggingChannel(LoggingModule.LoggingType.IMPORTANT, c -> c.sendMessageEmbeds(embed.build()).queue());
 
                 event.getInteraction().reply(new MessageBuilder().append("Warning cleared!").build()).setEphemeral(true).queue();
