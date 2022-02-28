@@ -33,9 +33,7 @@ import discord4j.discordjson.json.AllowedMentionsData;
 import discord4j.discordjson.json.MessageCreateRequest;
 import discord4j.rest.util.Color;
 
-import javax.annotation.Nullable;
 import java.time.Instant;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class MessageEvents extends ListenerAdapter {
