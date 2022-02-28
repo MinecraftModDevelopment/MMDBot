@@ -34,6 +34,7 @@ import discord4j.discordjson.json.MessageCreateRequest;
 import discord4j.rest.util.Color;
 
 import java.time.Instant;
+import java.util.Optional;
 
 public final class MessageEvents extends ListenerAdapter {
 
@@ -90,7 +91,12 @@ public final class MessageEvents extends ListenerAdapter {
             // optional of the message author. The optionals are merged into a
             // pair optional, which is empty if either the message optional or the author optional
             // are empty
-            final var embed = Pair.of(event.getOld(), newMessage.getAuthor())
+            final var embed = Pair.of(event.getOld().flatMap(oldMsg -> {
+                    if (oldMsg.getContent().equals(newMessage.getContent())) {
+                        return Optional.empty(); // Content is the same, ignore
+                    }
+                    return Optional.of(oldMsg);
+                }), newMessage.getAuthor())
                 .map(Pair::makeOptional)
                 .map(c -> c.map((oldMessage, author) -> {
                     final var embedBuilder = EmbedCreateSpec.builder();
