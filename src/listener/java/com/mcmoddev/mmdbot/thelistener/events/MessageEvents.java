@@ -33,8 +33,10 @@ import discord4j.discordjson.json.AllowedMentionsData;
 import discord4j.discordjson.json.MessageCreateRequest;
 import discord4j.rest.util.Color;
 
+import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class MessageEvents extends ListenerAdapter {
 
@@ -91,14 +93,13 @@ public final class MessageEvents extends ListenerAdapter {
             // optional of the message author. The optionals are merged into a
             // pair optional, which is empty if either the message optional or the author optional
             // are empty
-            final var embed = Pair.of(event.getOld().flatMap(oldMsg -> {
-                    if (oldMsg.getContent().equals(newMessage.getContent())) {
-                        return Optional.empty(); // Content is the same, ignore
-                    }
-                    return Optional.of(oldMsg);
-                }), newMessage.getAuthor())
+            final var contentChanged = new AtomicBoolean(true);
+            final var embed = Pair.of(event.getOld(), newMessage.getAuthor())
                 .map(Pair::makeOptional)
                 .map(c -> c.map((oldMessage, author) -> {
+                    if (oldMessage.getContent().equals(newMessage.getContent())) {
+                        contentChanged.set(false);
+                    }
                     final var embedBuilder = EmbedCreateSpec.builder();
                     embedBuilder.color(Color.VIVID_VIOLET)
                         .description("**A message sent by <@%s> in <#%s> has been edited!** [Jump to message.](%s)"
@@ -114,10 +115,12 @@ public final class MessageEvents extends ListenerAdapter {
                     .timestamp(Instant.now()).addField("After", newMessage.getContent(), false)
                     .color(Color.ENDEAVOUR).build());
 
-            Utils.executeInLoggingChannel(event.getGuildId().get(), LoggingType.MESSAGE_EVENTS,
-                channel -> channel.createMessage(MessageCreateRequest.builder()
-                    .embed(embed.asRequest())
-                    .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe());
+            if (contentChanged.get()) {
+                Utils.executeInLoggingChannel(event.getGuildId().get(), LoggingType.MESSAGE_EVENTS,
+                    channel -> channel.createMessage(MessageCreateRequest.builder()
+                        .embed(embed.asRequest())
+                        .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe());
+            }
         }, e -> TheListener.LOGGER.error("Error while trying to log a message edit!", e));
     }
 
