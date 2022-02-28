@@ -57,7 +57,7 @@ public final class ReferencingListener extends ListenerAdapter {
 
     public final static String ZERO_WIDTH_SPACE = "\u200E";
 
-    private static boolean isStringReference(final String string) {
+    public static boolean isStringReference(final String string) {
         // The zero-width space
         return string.equalsIgnoreCase(".") || string.equalsIgnoreCase(ZERO_WIDTH_SPACE);
     }

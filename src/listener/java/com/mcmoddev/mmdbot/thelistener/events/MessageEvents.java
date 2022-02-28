@@ -44,6 +44,9 @@ public final class MessageEvents extends ListenerAdapter {
         if (event.getGuildId().isEmpty()) {
             return; // Not from guild
         }
+        if (event.getMessage().isPresent() && ReferencingListener.isStringReference(event.getMessage().get().getContent())) {
+            return; // Don't log referencing
+        }
         final var embed = event.getMessage()
             .flatMap(message -> Pair.of(message, message.getAuthor().orElse(null)).toOptional())
             .map(c -> c.map((message, user) -> {
