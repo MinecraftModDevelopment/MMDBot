@@ -109,8 +109,8 @@ public final class MessageEvents extends ListenerAdapter {
                     embedBuilder.author(author.getUsername(), null, author.getAvatarUrl())
                         .footer("Author ID: " + author.getId().asLong(), null);
                     return embedBuilder.build();
-                })).orElseGet(() -> EmbedCreateSpec.builder().description("A message sent in <#%s> has been edited! Old content information could not be retrieved."
-                        .formatted(event.getChannelId().asLong()))
+                })).orElseGet(() -> EmbedCreateSpec.builder().description("A message sent in <#%s> has been edited! Old content information could not be retrieved. [Jump to message.](%s)"
+                        .formatted(event.getChannelId().asLong(), Utils.createMessageURL(newMessage)))
                     .timestamp(Instant.now()).addField("After", newMessage.getContent(), false)
                     .color(Color.ENDEAVOUR).build());
 
