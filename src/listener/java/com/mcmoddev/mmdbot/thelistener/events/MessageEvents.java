@@ -47,15 +47,23 @@ public final class MessageEvents extends ListenerAdapter {
         if (event.getGuildId().isEmpty()) {
             return; // Not from guild
         }
-        if (event.getMessage().isPresent() && ReferencingListener.isStringReference(event.getMessage().get().getContent())) {
-            return; // Don't log referencing
-        }
         if (LoggingType.MESSAGE_EVENTS.getChannels(event.getGuildId().get()).contains(event.getChannelId())) {
             return; // Don't log deletions in a logging channel
         }
+        final var doLog = new AtomicBoolean(true);
         final var embed = event.getMessage()
             .flatMap(message -> Pair.of(message, message.getAuthor().orElse(null)).toOptional())
             .map(c -> c.map((message, user) -> {
+                if (ReferencingListener.isStringReference(message.getContent())) {
+                    doLog.set(false);
+                }
+                final var msgSplit = message.getContent().split(" ");
+                if (msgSplit.length == 1) {
+                    final var matcher = Utils.MESSAGE_LINK_PATTERN.matcher(msgSplit[0]);
+                    if (matcher.find()) {
+                        doLog.set(false);
+                    }
+                }
                 final var embedBuilder = EmbedCreateSpec.builder();
                 embedBuilder.color(Color.GRAY_CHATEAU)
                     .description("""
@@ -69,10 +77,12 @@ public final class MessageEvents extends ListenerAdapter {
             })).orElseGet(() -> EmbedCreateSpec.builder().description("A message sent in <#%s> has been deleted! No more information could be retrieved."
                     .formatted(event.getChannelId().asLong())).timestamp(Instant.now())
                 .color(Color.CINNABAR).build());
-        Utils.executeInLoggingChannel(event.getGuildId().get(), LoggingType.MESSAGE_EVENTS,
-            channel -> channel.createMessage(MessageCreateRequest.builder()
-                .embed(embed.asRequest())
-                .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe());
+        if (doLog.get()) {
+            Utils.executeInLoggingChannel(event.getGuildId().get(), LoggingType.MESSAGE_EVENTS,
+                channel -> channel.createMessage(MessageCreateRequest.builder()
+                    .embed(embed.asRequest())
+                    .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe());
+        }
     }
 
     @Override
