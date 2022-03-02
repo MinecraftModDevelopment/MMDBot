@@ -97,7 +97,7 @@ public final class ModerationEvents extends ListenerAdapter {
                     final var bannedUser = event.getUser();
                     final var bannedBy = log.getResponsibleUser();
 
-                    embed.color(Color.RED);
+                    embed.color(Color.GREEN);
                     embed.title("User Un-banned.");
                     embed.thumbnail(bannedUser.getAvatarUrl());
                     embed.addField("**Name:**", bannedUser.getUsername(), false);
