@@ -29,6 +29,7 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.PartialMember;
 import discord4j.core.object.entity.Role;
 import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.rest.util.Color;
 import reactor.core.publisher.Flux;
 
 import java.time.Instant;
@@ -40,6 +41,7 @@ public final class LeaveJoinEvents extends ListenerAdapter {
     public void onMemberJoin(final MemberJoinEvent event) {
         final var embed = EmbedCreateSpec.builder()
             .timestamp(Instant.now())
+            .color(Color.GREEN)
             .title("User Joined")
             .footer("User ID: " + event.getMember().getId().asLong(), null)
             .addField("User:", event.getMember().getTag(), true)
@@ -56,6 +58,7 @@ public final class LeaveJoinEvents extends ListenerAdapter {
     public void onMemberLeave(final MemberLeaveEvent event) {
         final var embed = EmbedCreateSpec.builder()
             .timestamp(Instant.now())
+            .color(Color.RED)
             .title("User Left")
             .footer("User ID: " + event.getUser().getId().asLong(), null)
             .addField("User:", event.getUser().getTag(), true)
