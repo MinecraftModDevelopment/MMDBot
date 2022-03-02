@@ -82,6 +82,10 @@ public final class Utils {
     }
 
     public static void getAuditLog(final Guild guild, final long targetId, UnaryOperator<AuditLogQueryFlux> modifier, Consumer<AuditLogEntry> consumer) {
+        getAuditLog(guild, targetId, modifier, consumer, () -> {});
+    }
+
+    public static void getAuditLog(final Guild guild, final long targetId, UnaryOperator<AuditLogQueryFlux> modifier, Consumer<AuditLogEntry> consumer, Runnable orElse) {
         modifier.apply(guild.getAuditLog())
             .map(l -> l.getEntries().stream().filter(log -> log.getTargetId().map(Snowflake::asLong).orElse(0L).equals(targetId)).findAny())
             .filter(Optional::isPresent)
@@ -89,7 +93,7 @@ public final class Utils {
             .toStream()
             .limit(1)
             .findFirst()
-            .ifPresent(consumer);
+            .ifPresentOrElse(consumer, orElse);
     }
 
     public static Message getMessageByLink(final String link, final Guild guild) throws MessageLinkException {

@@ -50,39 +50,39 @@ public final class ModerationEvents extends ListenerAdapter {
                 .withLimit(5)
                 .withActionType(ActionType.MEMBER_BAN_ADD)
                 .withGuild(guild), log -> {
-                    final var embed = EmbedCreateSpec.builder();
-                    final var bannedUser = event.getUser();
-                    final var bannedBy = log.getResponsibleUser();
+                final var embed = EmbedCreateSpec.builder();
+                final var bannedUser = event.getUser();
+                final var bannedBy = log.getResponsibleUser();
 
-                    embed.color(Color.RED);
-                    embed.title("User Banned.");
-                    embed.thumbnail(bannedUser.getAvatarUrl());
-                    embed.addField("**Name:**", bannedUser.getUsername(), false);
-                    embed.addField("**User ID:**", bannedUser.getId().asString(), false);
-                    embed.addField("**Profile:**", bannedUser.getMention(), false);
-                    embed.addField("**Profile Age**", TimestampFormat.RELATIVE_TIME
-                        .format(bannedUser.getId().getTimestamp()), false);
+                embed.color(Color.RED);
+                embed.title("User Banned.");
+                embed.thumbnail(bannedUser.getAvatarUrl());
+                embed.addField("**Name:**", bannedUser.getUsername(), false);
+                embed.addField("**User ID:**", bannedUser.getId().asString(), false);
+                embed.addField("**Profile:**", bannedUser.getMention(), false);
+                embed.addField("**Profile Age**", TimestampFormat.RELATIVE_TIME
+                    .format(bannedUser.getId().getTimestamp()), false);
 
-                    embed.addField("**Ban reason:**", log.getReason().orElse("Reason for ban was not provided or could not be found, please contact "
-                        + bannedBy.map(User::getMention).orElse("the banner.")), false);
+                embed.addField("**Ban reason:**", log.getReason().orElse("Reason for ban was not provided or could not be found, please contact "
+                    + bannedBy.map(User::getMention).orElse("the banner.")), false);
 
-                    final var targetId = (long) log.getTargetId().map(Snowflake::asLong).orElse(0L);
+                final var targetId = (long) log.getTargetId().map(Snowflake::asLong).orElse(0L);
 
-                    if (targetId != bannedUser.getId().asLong()) {
-                        TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
-                                + "entry and actual ban event target: retrieved is {}, but target is {}",
-                            targetId, bannedUser);
-                    } else {
-                        embed.addField("Banned By: ", bannedBy.map(u -> "<@%s> (%s)".formatted(u.getId().asString(), u.getId().asLong())).orElse("Unknown"), false);
-                    }
+                if (targetId != bannedUser.getId().asLong()) {
+                    TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
+                            + "entry and actual ban event target: retrieved is {}, but target is {}",
+                        targetId, bannedUser);
+                } else {
+                    embed.addField("Banned By: ", bannedBy.map(u -> "<@%s> (%s)".formatted(u.getId().asString(), u.getId().asLong())).orElse("Unknown"), false);
+                }
 
-                    bannedBy.ifPresent(u -> embed.footer("Moderator ID: " + u.getId().asString(), u.getAvatarUrl()));
+                bannedBy.ifPresent(u -> embed.footer("Moderator ID: " + u.getId().asString(), u.getAvatarUrl()));
 
-                    embed.timestamp(Instant.now());
+                embed.timestamp(Instant.now());
 
-                    Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c
-                        .createMessage(embed.build().asRequest()).subscribe());
-                });
+                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c
+                    .createMessage(embed.build().asRequest()).subscribe());
+            });
         });
     }
 
@@ -93,36 +93,36 @@ public final class ModerationEvents extends ListenerAdapter {
                 .withActionType(ActionType.MEMBER_BAN_REMOVE)
                 .withLimit(5)
                 .withGuild(guild), log -> {
-                    final var embed = EmbedCreateSpec.builder();
-                    final var bannedUser = event.getUser();
-                    final var bannedBy = log.getResponsibleUser();
+                final var embed = EmbedCreateSpec.builder();
+                final var bannedUser = event.getUser();
+                final var bannedBy = log.getResponsibleUser();
 
-                    embed.color(Color.GREEN);
-                    embed.title("User Un-banned.");
-                    embed.thumbnail(bannedUser.getAvatarUrl());
-                    embed.addField("**Name:**", bannedUser.getUsername(), false);
-                    embed.addField("**User ID:**", bannedUser.getId().asString(), false);
-                    embed.addField("**Profile:**", bannedUser.getMention(), false);
-                    embed.addField("**Profile Age**", TimestampFormat.RELATIVE_TIME
-                        .format(bannedUser.getId().getTimestamp()), false);
+                embed.color(Color.GREEN);
+                embed.title("User Un-banned.");
+                embed.thumbnail(bannedUser.getAvatarUrl());
+                embed.addField("**Name:**", bannedUser.getUsername(), false);
+                embed.addField("**User ID:**", bannedUser.getId().asString(), false);
+                embed.addField("**Profile:**", bannedUser.getMention(), false);
+                embed.addField("**Profile Age**", TimestampFormat.RELATIVE_TIME
+                    .format(bannedUser.getId().getTimestamp()), false);
 
-                    final var targetId = (long) log.getTargetId().map(Snowflake::asLong).orElse(0L);
+                final var targetId = (long) log.getTargetId().map(Snowflake::asLong).orElse(0L);
 
-                    if (targetId != bannedUser.getId().asLong()) {
-                        TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
-                                + "entry and actual unban event target: retrieved is {}, but target is {}",
-                            targetId, bannedUser);
-                    } else {
-                        embed.addField("Un-banned By: ", bannedBy.map(u -> "<@%s> (%s)".formatted(u.getId().asString(), u.getId().asLong())).orElse("Unknown"), false);
-                    }
+                if (targetId != bannedUser.getId().asLong()) {
+                    TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
+                            + "entry and actual unban event target: retrieved is {}, but target is {}",
+                        targetId, bannedUser);
+                } else {
+                    embed.addField("Un-banned By: ", bannedBy.map(u -> "<@%s> (%s)".formatted(u.getId().asString(), u.getId().asLong())).orElse("Unknown"), false);
+                }
 
-                    bannedBy.ifPresent(u -> embed.footer("Moderator ID: " + u.getId().asString(), u.getAvatarUrl()));
+                bannedBy.ifPresent(u -> embed.footer("Moderator ID: " + u.getId().asString(), u.getAvatarUrl()));
 
-                    embed.timestamp(Instant.now());
+                embed.timestamp(Instant.now());
 
-                    Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c
-                        .createMessage(embed.build().asRequest()).subscribe());
-                });
+                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c
+                    .createMessage(embed.build().asRequest()).subscribe());
+            });
         });
     }
 
@@ -144,31 +144,46 @@ public final class ModerationEvents extends ListenerAdapter {
                 .withActionType(ActionType.MEMBER_UPDATE)
                 .withLimit(5)
                 .withGuild(guild), entry -> {
-                    final var embed = EmbedCreateSpec.builder();
-                    final var targetUser = new User(newMember.getClient(), newMember.getUserData());
-                    final var editor = entry.getResponsibleUser();
+                final var embed = EmbedCreateSpec.builder();
+                final var targetUser = new User(newMember.getClient(), newMember.getUserData());
+                final var editor = entry.getResponsibleUser();
 
-                    embed.color(Color.YELLOW);
-                    embed.title("Nickname Changed");
-                    embed.thumbnail(newMember.getEffectiveAvatarUrl());
-                    embed.addField("User:", targetUser.getMention() + " (" + newMember.getId().asLong() + ")", true);
-                    embed.timestamp(Instant.now());
+                embed.color(Color.YELLOW);
+                embed.title("Nickname Changed");
+                embed.thumbnail(newMember.getEffectiveAvatarUrl());
+                embed.addField("User:", targetUser.getMention() + " (" + newMember.getId().asLong() + ")", true);
+                embed.timestamp(Instant.now());
 
-                    final var targetId = (long) entry.getTargetId().map(Snowflake::asLong).orElse(0L);
+                final var targetId = (long) entry.getTargetId().map(Snowflake::asLong).orElse(0L);
 
-                    if (targetId != newMember.getId().asLong()) {
-                        TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
-                                + "entry and actual nickname event target: retrieved is {}, but target is {}",
-                            targetId, newMember);
-                    } else {
-                        embed.addField("Nickname Editor: ", editor.map(u -> "<@%s> (%s)".formatted(u.getId().asString(), u.getId().asLong())).orElse("Unknown"), false);
-                    }
+                if (targetId != newMember.getId().asLong()) {
+                    TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
+                            + "entry and actual nickname event target: retrieved is {}, but target is {}",
+                        targetId, newMember);
+                } else {
+                    embed.addField("Nickname Editor: ", editor.map(u -> "<@%s> (%s)".formatted(u.getId().asString(), u.getId().asLong())).orElse("Unknown"), false);
+                }
 
-                    embed.addField("Old Nickname:", oldNick, true);
-                    embed.addField("New Nickname:", newNick, true);
+                embed.addField("Old Nickname:", oldNick, true);
+                embed.addField("New Nickname:", newNick, true);
 
-                    Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c.createMessage(embed.build().asRequest()).subscribe());
-                });
+                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c.createMessage(embed.build().asRequest()).subscribe());
+            }, () -> {
+                final var embed = EmbedCreateSpec.builder();
+                final var targetUser = new User(newMember.getClient(), newMember.getUserData());
+
+                embed.color(Color.YELLOW);
+                embed.title("Nickname Changed");
+                embed.thumbnail(newMember.getEffectiveAvatarUrl());
+                embed.addField("User:", targetUser.getMention() + " (" + newMember.getId().asLong() + ")", true);
+                embed.timestamp(Instant.now());
+                embed.addField("Nickname Editor: ", "<@%s> (%s)".formatted(targetUser.getId().asString(), targetUser.getId().asLong()), false);
+
+                embed.addField("Old Nickname:", oldNick, true);
+                embed.addField("New Nickname:", newNick, true);
+
+                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c.createMessage(embed.build().asRequest()).subscribe());
+            });
         });
     }
 
@@ -179,39 +194,39 @@ public final class ModerationEvents extends ListenerAdapter {
                 .withActionType(ActionType.MEMBER_KICK)
                 .withLimit(5)
                 .withGuild(guild), log -> {
-                    final var embed = EmbedCreateSpec.builder();
-                    final var kicker = log.getResponsibleUser();
-                    final var kickedUser = event.getUser();
+                final var embed = EmbedCreateSpec.builder();
+                final var kicker = log.getResponsibleUser();
+                final var kickedUser = event.getUser();
 
-                    embed.color(Color.RUBY);
-                    embed.title("User Kicked");
-                    embed.thumbnail(kickedUser.getAvatarUrl());
-                    embed.addField("**Name:**", kickedUser.getUsername(), false);
-                    embed.addField("**User ID:**", kickedUser.getId().asString(), false);
-                    embed.addField("**Profile:**", kickedUser.getMention(), false);
-                    embed.addField("**Profile Age**", TimestampFormat.RELATIVE_TIME
-                        .format(kickedUser.getId().getTimestamp()), false);
+                embed.color(Color.RUBY);
+                embed.title("User Kicked");
+                embed.thumbnail(kickedUser.getAvatarUrl());
+                embed.addField("**Name:**", kickedUser.getUsername(), false);
+                embed.addField("**User ID:**", kickedUser.getId().asString(), false);
+                embed.addField("**Profile:**", kickedUser.getMention(), false);
+                embed.addField("**Profile Age**", TimestampFormat.RELATIVE_TIME
+                    .format(kickedUser.getId().getTimestamp()), false);
 
-                    embed.addField("Guild Join Time:", event.getMember().flatMap(PartialMember::getJoinTime)
-                        .map(i -> "<t:%s:f>".formatted(i.getEpochSecond())).orElse("Join time could not be determined!"), true);
+                embed.addField("Guild Join Time:", event.getMember().flatMap(PartialMember::getJoinTime)
+                    .map(i -> "<t:%s:f>".formatted(i.getEpochSecond())).orElse("Join time could not be determined!"), true);
 
-                    embed.addField("**Kick reason:**", log.getReason().orElse("Reason for kick was not provided or could not be found, please contact "
-                        + kicker.map(User::getMention).orElse("the kicker.")), false);
+                embed.addField("**Kick reason:**", log.getReason().orElse("Reason for kick was not provided or could not be found, please contact "
+                    + kicker.map(User::getMention).orElse("the kicker.")), false);
 
-                    final var targetId = (long) log.getTargetId().map(Snowflake::asLong).orElse(0L);
+                final var targetId = (long) log.getTargetId().map(Snowflake::asLong).orElse(0L);
 
-                    if (targetId != event.getUser().getId().asLong()) {
-                        TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
-                                + "entry and actual kick event target: retrieved is {}, but target is {}",
-                            targetId, event.getUser());
-                    } else {
-                        embed.addField("Kicked By: ", kicker.map(u -> "<@%s> (%s)".formatted(u.getId().asString(), u.getId().asLong())).orElse("Unknown"), false);
-                    }
+                if (targetId != event.getUser().getId().asLong()) {
+                    TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
+                            + "entry and actual kick event target: retrieved is {}, but target is {}",
+                        targetId, event.getUser());
+                } else {
+                    embed.addField("Kicked By: ", kicker.map(u -> "<@%s> (%s)".formatted(u.getId().asString(), u.getId().asLong())).orElse("Unknown"), false);
+                }
 
-                    kicker.ifPresent(u -> embed.footer("Moderator ID: " + u.getId().asString(), u.getAvatarUrl()));
+                kicker.ifPresent(u -> embed.footer("Moderator ID: " + u.getId().asString(), u.getAvatarUrl()));
 
-                    Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c.createMessage(embed.build().asRequest()).subscribe());
-                });
+                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c.createMessage(embed.build().asRequest()).subscribe());
+            });
         });
     }
 }
