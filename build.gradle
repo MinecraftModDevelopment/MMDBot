@@ -118,6 +118,7 @@ dependencies {
   global libs.kryonet
   global libs.kryo
   global libs.configurate.hocon
+  global libs.cfapi
 
   globalCompile libs.annotations
   globalCompile libs.lombok

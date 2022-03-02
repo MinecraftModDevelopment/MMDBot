@@ -28,6 +28,7 @@ fastutil = "8.5.8"
 kryo = "2.24.0"
 kryonet = "2.22.7"
 configurate = "4.1.1"
+cfapi = "1.1.0"
 
 [libraries]
 jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
@@ -53,3 +54,4 @@ fastutil = {module = "it.unimi.dsi:fastutil", version.ref = "fastutil"}
 kryo = {module = "com.esotericsoftware.kryo:kryo", version.ref = "kryo"}
 kryonet = {module = "com.github.crykn:kryonet", version.ref = "kryonet"}
 configurate-hocon = {module = "org.spongepowered:configurate-hocon", version.ref = "configurate"}
+cfapi = {module = "io.github.matyrobbrt:curseforgeapi", version.ref = "cfapi"}
