@@ -50,7 +50,7 @@ public final class RoleEvents extends ListenerAdapter {
                 if (oldRoles.size() < newRoles.size()) {
                     final var rolesAdded = new HashSet<>(newRoles);
                     rolesAdded.removeAll(oldRoles);
-                    oldRoles.remove(rolesAdded);
+                    oldRoles.removeAll(rolesAdded);
                     onRoleAdded(event, newMember, oldMember, oldRoles, rolesAdded);
                 } else if (oldRoles.size() > newRoles.size()) {
                     final var rolesRemoved = new HashSet<>(oldRoles);
@@ -62,7 +62,7 @@ public final class RoleEvents extends ListenerAdapter {
 
     private void onRoleAdded(final MemberUpdateEvent event, final Member newMember, final Member oldMember, final Set<Snowflake> rolesBefore, final Set<Snowflake> rolesAdded) {
         event.getGuild().subscribe(guild -> {
-            guild.getAuditLog().withActionType(ActionType.MEMBER_ROLE_UPDATE).withLimit(5).map(l -> l.getEntries().stream().filter(log -> log.getTargetId().map(Snowflake::asLong).orElse(0L) == newMember.getId().asLong()).findAny()).filter(Optional::isPresent).map(Optional::get).subscribe(entry -> {
+            Utils.getAuditLog(guild, newMember.getId().asLong(), log -> log.withLimit(5).withActionType(ActionType.MEMBER_ROLE_UPDATE).withGuild(guild), entry -> {
                 final var embed = EmbedCreateSpec.builder();
                 final var target = new User(event.getClient(), newMember.getUserData());
 

@@ -85,7 +85,11 @@ public final class Utils {
         modifier.apply(guild.getAuditLog())
             .map(l -> l.getEntries().stream().filter(log -> log.getTargetId().map(Snowflake::asLong).orElse(0L).equals(targetId)).findAny())
             .filter(Optional::isPresent)
-            .map(Optional::get).subscribe(consumer);
+            .map(Optional::get)
+            .toStream()
+            .limit(1)
+            .findFirst()
+            .ifPresent(consumer);
     }
 
     public static Message getMessageByLink(final String link, final Guild guild) throws MessageLinkException {

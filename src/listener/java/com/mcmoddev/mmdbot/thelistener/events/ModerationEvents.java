@@ -46,14 +46,10 @@ public final class ModerationEvents extends ListenerAdapter {
     @Override
     public void onBan(final BanEvent event) {
         event.getGuild().subscribe(guild -> {
-            guild.getAuditLog()
-                .withActionType(ActionType.MEMBER_BAN_ADD)
-                .withGuild(guild)
+            Utils.getAuditLog(guild, event.getUser().getId().asLong(), log -> log
                 .withLimit(5)
-                .map(l -> l.getEntries().stream().filter(log -> log.getTargetId().map(Snowflake::asLong).orElse(0L) == event.getUser().getId().asLong()).findAny())
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .subscribe(log -> {
+                .withActionType(ActionType.MEMBER_BAN_ADD)
+                .withGuild(guild), log -> {
                     final var embed = EmbedCreateSpec.builder();
                     final var bannedUser = event.getUser();
                     final var bannedBy = log.getResponsibleUser();
@@ -93,14 +89,10 @@ public final class ModerationEvents extends ListenerAdapter {
     @Override
     public void onUnban(final UnbanEvent event) {
         event.getGuild().subscribe(guild -> {
-            guild.getAuditLog()
+            Utils.getAuditLog(guild, event.getUser().getId().asLong(), log -> log
                 .withActionType(ActionType.MEMBER_BAN_REMOVE)
-                .withGuild(guild)
                 .withLimit(5)
-                .map(l -> l.getEntries().stream().filter(log -> log.getTargetId().map(Snowflake::asLong).orElse(0L) == event.getUser().getId().asLong()).findAny())
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .subscribe(log -> {
+                .withGuild(guild), log -> {
                     final var embed = EmbedCreateSpec.builder();
                     final var bannedUser = event.getUser();
                     final var bannedBy = log.getResponsibleUser();
@@ -148,13 +140,10 @@ public final class ModerationEvents extends ListenerAdapter {
 
     private void onNickChanged(final MemberUpdateEvent event, final Member newMember, final String oldNick, final String newNick) {
         event.getGuild().subscribe(guild -> {
-            guild.getAuditLog()
+            Utils.getAuditLog(guild, newMember.getId().asLong(), log -> log
                 .withActionType(ActionType.MEMBER_UPDATE)
                 .withLimit(5)
-                .map(l -> l.getEntries().stream().filter(log -> log.getTargetId().map(Snowflake::asLong).orElse(0L) == newMember.getId().asLong()).findAny())
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .subscribe(entry -> {
+                .withGuild(guild), entry -> {
                     final var embed = EmbedCreateSpec.builder();
                     final var targetUser = new User(newMember.getClient(), newMember.getUserData());
                     final var editor = entry.getResponsibleUser();
@@ -186,12 +175,10 @@ public final class ModerationEvents extends ListenerAdapter {
     @Override
     public void onMemberLeave(final MemberLeaveEvent event) {
         event.getGuild().subscribe(guild -> {
-            guild.getAuditLog()
+            Utils.getAuditLog(guild, event.getUser().getId().asLong(), log -> log
                 .withActionType(ActionType.MEMBER_KICK)
-                .withLimit(5).map(l -> l.getEntries().stream().filter(log -> log.getTargetId().map(Snowflake::asLong).orElse(0L) == event.getUser().getId().asLong()).findAny())
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .subscribe(log -> {
+                .withLimit(5)
+                .withGuild(guild), log -> {
                     final var embed = EmbedCreateSpec.builder();
                     final var kicker = log.getResponsibleUser();
                     final var kickedUser = event.getUser();
