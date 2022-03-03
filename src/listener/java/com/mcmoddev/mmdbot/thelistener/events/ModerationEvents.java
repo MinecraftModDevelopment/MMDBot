@@ -150,7 +150,7 @@ public final class ModerationEvents extends ListenerAdapter {
 
                 embed.color(Color.YELLOW);
                 embed.title("Nickname Changed");
-                embed.thumbnail(newMember.getEffectiveAvatarUrl());
+                embed.thumbnail(newMember.getAvatarUrl());
                 embed.addField("User:", targetUser.getMention() + " (" + newMember.getId().asLong() + ")", true);
                 embed.timestamp(Instant.now());
 
@@ -174,7 +174,7 @@ public final class ModerationEvents extends ListenerAdapter {
 
                 embed.color(Color.YELLOW);
                 embed.title("Nickname Changed");
-                embed.thumbnail(newMember.getEffectiveAvatarUrl());
+                embed.thumbnail(newMember.getAvatarUrl());
                 embed.addField("User:", targetUser.getMention() + " (" + newMember.getId().asLong() + ")", true);
                 embed.timestamp(Instant.now());
                 embed.addField("Nickname Editor: ", "<@%s> (%s)".formatted(targetUser.getId().asString(), targetUser.getId().asLong()), false);

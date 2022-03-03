@@ -76,8 +76,8 @@ public final class ReferencingListener extends ListenerAdapter {
         } else {
             description.append("[%s](%s)".formatted("Jump to referenced message.", msgLink));
         }
-        if (quoter.getId().asLong() != message.getAuthor().map(u -> u.getId().asLong()).orElse(0l)) {
-            embed.footer("%s#%s".formatted(quoter.getUsername(), quoter.getDiscriminator()) + " referenced", quoter.getEffectiveAvatarUrl());
+        if (quoter.getId().asLong() != message.getAuthor().map(u -> u.getId().asLong()).orElse(0L)) {
+            embed.footer("%s#%s".formatted(quoter.getUsername(), quoter.getDiscriminator()) + " referenced", quoter.getAvatarUrl());
         }
         if (!message.getAttachments().isEmpty()) {
             embed.image(message.getAttachments().get(0).getUrl());
