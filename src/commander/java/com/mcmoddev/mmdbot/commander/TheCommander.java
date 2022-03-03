@@ -20,11 +20,14 @@
  */
 package com.mcmoddev.mmdbot.commander;
 
+import com.mcmoddev.mmdbot.commander.curseforge.CFProjects;
+import com.mcmoddev.mmdbot.commander.curseforge.CurseForgeManager;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
+import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
@@ -42,10 +45,15 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public final class TheCommander implements Bot {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("TheCommander");
+    public static final ScheduledExecutorService CURSE_FORGE_UPDATE_SCHEDULER = Executors.newScheduledThreadPool(1,
+        r -> Utils.setThreadDaemon(new Thread(r, "CurseForgeUpdateChecker"), true));
 
     @RegisterBotType(name = BotRegistry.THE_COMMANDER_NAME)
     public static final BotType<TheCommander> BOT_TYPE = new BotType<>() {
@@ -99,7 +107,7 @@ public final class TheCommander implements Bot {
 
     private JDA jda;
     @Nullable
-    private CurseForgeAPI curseForgeAPI;
+    private CurseForgeManager curseForgeManager;
     private final Dotenv dotenv;
     private final Path runPath;
 
@@ -131,7 +139,11 @@ public final class TheCommander implements Bot {
 
         final var cfKey = dotenv.get("CF_API_KEY", "");
         if (!cfKey.isBlank()) {
-            curseForgeAPI = new CurseForgeAPI(cfKey);
+            final var api = new CurseForgeAPI(cfKey);
+            final var cfProjects = new CFProjects(runPath.resolve("cf_projects.json"));
+            this.curseForgeManager = new CurseForgeManager(api, cfProjects);
+
+            CURSE_FORGE_UPDATE_SCHEDULER.scheduleAtFixedRate(cfProjects, 0, 1, TimeUnit.MINUTES);
         } else {
             LOGGER.warn("Could not find a valid CurseForge API Key! Some features might not work as expected.");
         }
@@ -159,8 +171,8 @@ public final class TheCommander implements Bot {
         return jda;
     }
 
-    public Optional<CurseForgeAPI> getCurseAPI() {
-        return Optional.ofNullable(curseForgeAPI);
+    public Optional<CurseForgeManager> getCurseForgeManager() {
+        return Optional.ofNullable(curseForgeManager);
     }
 
     @Override

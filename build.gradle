@@ -119,6 +119,7 @@ dependencies {
   global libs.kryo
   global libs.configurate.hocon
   global libs.cfapi
+  global libs.jsoup
 
   globalCompile libs.annotations
   globalCompile libs.lombok

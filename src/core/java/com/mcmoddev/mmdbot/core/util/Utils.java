@@ -27,6 +27,18 @@ import java.net.URL;
 public final class Utils {
 
     /**
+     * Sets the thread's daemon property to the specified {@code isDaemon} and returns it
+     *
+     * @param thread   the thread to modify
+     * @param isDaemon if the thread should be daemon
+     * @return the modified thread
+     */
+    public static Thread setThreadDaemon(final Thread thread, final boolean isDaemon) {
+        thread.setDaemon(isDaemon);
+        return thread;
+    }
+
+    /**
      * @return the current public IP address of the machine.
      */
     public static String getPublicIPAddress() {

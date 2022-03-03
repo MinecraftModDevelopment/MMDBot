@@ -165,14 +165,14 @@ public class RunBots {
                             botObj.addProperty("runPath", n);
                             obj.add(n, botObj);
                         }); // Write all the known bots when generating it
-                    Constants.GSON.toJson(obj, fw);
+                    Constants.Gsons.GSON.toJson(obj, fw);
                 }
             } catch (IOException e) {
                 LOG.error("Exception while trying to generate config!", e);
             }
         }
         try (final var ir = new FileReader(path.toFile())) {
-            return Constants.GSON.fromJson(ir, JsonObject.class);
+            return Constants.Gsons.GSON.fromJson(ir, JsonObject.class);
         } catch (IOException e) {
             LOG.error("Exception while trying to read config!", e);
         }
@@ -197,14 +197,14 @@ public class RunBots {
                 Files.createDirectories(Path.of("dashboard"));
                 Files.createFile(path); // If it doesn't exist, generate it
                 try (final var fw = new BufferedWriter(new FileWriter(path.toFile()))) {
-                    Constants.GSON.toJson(new DashboardConfig(), fw);
+                    Constants.Gsons.GSON.toJson(new DashboardConfig(), fw);
                 }
             } catch (IOException e) {
                 LOG.error("Exception while trying to generate dashboard config!", e);
             }
         }
         try (final var ir = new FileReader(path.toFile())) {
-            return Constants.GSON.fromJson(ir, DashboardConfig.class);
+            return Constants.Gsons.GSON.fromJson(ir, DashboardConfig.class);
         } catch (IOException e) {
             LOG.error("Exception while trying to read config!", e);
         }

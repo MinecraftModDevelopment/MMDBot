@@ -23,13 +23,25 @@ package com.mcmoddev.mmdbot.core.util;
 import com.google.common.base.Joiner;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.github.matyrobbrt.curseforgeapi.util.gson.RecordTypeAdapterFactory;
 
+/**
+ * A class holding common constants
+ */
 public final class Constants {
 
     public static final Joiner LINE_JOINER = Joiner.on(System.lineSeparator());
 
-    public static final Gson GSON = new GsonBuilder()
-        .setPrettyPrinting()
-        .disableHtmlEscaping()
-        .create();
+    public static final class Gsons {
+        public static final Gson NO_PRETTY_PRINTING = new GsonBuilder()
+            .registerTypeAdapterFactory(new RecordTypeAdapterFactory())
+            .disableHtmlEscaping()
+            .setLenient()
+            .create();
+        public static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapterFactory(new RecordTypeAdapterFactory())
+            .setPrettyPrinting()
+            .disableHtmlEscaping()
+            .create();
+    }
 }
