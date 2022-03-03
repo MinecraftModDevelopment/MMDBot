@@ -26,12 +26,13 @@ import com.mcmoddev.mmdbot.dashboard.util.DashConfigType;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public final class MMDBotStage extends DefaultBotStage {
 
     private static final ConfigEntry THING = new ConfigEntry(DashConfigType.STRING, "prefix", "commands.prefix.main", new String[] {"The prefix of the bot"});
 
-    public static final Map<String, List<ConfigEntry>> CONFIGS = new ImmutableMap.Builder<String, List<ConfigEntry>>()
+    public static final Supplier<Map<String, List<ConfigEntry>>> CONFIGS = () -> new ImmutableMap.Builder<String, List<ConfigEntry>>()
         .put("someConfig", List.of(
             new ConfigEntry(DashConfigType.STRING, "botOwner", "bot.owner", new String[] {"Something, yes"})
         ))

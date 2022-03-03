@@ -44,18 +44,18 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Comparator;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class DefaultBotStage implements BotStage {
 
-    private final Map<String, List<ConfigEntry>> configs;
+    private final Supplier<Map<String, List<ConfigEntry>>> configsSupplier;
     private final BotTypeEnum botType;
 
-    public DefaultBotStage(final Map<String, List<ConfigEntry>> configs, final BotTypeEnum botType) {
-        this.configs = configs;
+    public DefaultBotStage(final Supplier<Map<String, List<ConfigEntry>>> configsSupplier, final BotTypeEnum botType) {
+        this.configsSupplier = configsSupplier;
         this.botType = botType;
     }
 
@@ -63,7 +63,9 @@ public class DefaultBotStage implements BotStage {
     public void createAndShowStage(final BotUserData botUserData) {
         final var configTab = new Tab("Configs");
         configTab.setContent(Suppliers.memoize(() -> {
-            final var configNamesPane = new TabPane(configs.entrySet().stream()
+            final var configNamesPane = new TabPane(configsSupplier
+                .get() // Create the configs
+                .entrySet().stream()
                 .map(e -> {
                     final var tab = new Tab(e.getKey());
                     final var box = new VBox(4);
