@@ -25,16 +25,23 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationOptions;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Comment;
+import org.spongepowered.configurate.objectmapping.meta.Required;
+import org.spongepowered.configurate.objectmapping.meta.Setting;
 import org.spongepowered.configurate.reference.ConfigurationReference;
 import org.spongepowered.configurate.reference.WatchServiceListener;
 import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -47,6 +54,11 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class GuildConfig {
+    public static final TypeSerializerCollection SERIALIZERS = TypeSerializerCollection.defaults()
+        .childBuilder()
+        .register(Snowflake.class, new SnowflakeSerializer())
+        .build();
+
     private static WatchServiceListener watchService;
 
     private final long guildId;
@@ -80,6 +92,7 @@ public class GuildConfig {
                 .emitComments(true)
                 .prettyPrinting(true)
                 .path(configPath)
+                .defaultOptions(ConfigurationOptions.defaults().serializers(SERIALIZERS))
                 .build();
             this.configNode = loader.loadToReference();
 
@@ -109,14 +122,26 @@ public class GuildConfig {
 
     private void onWatch(WatchEvent<?> event) {
         try {
-            this.configNode.load();
             log.info("Reloading config {}", configPath);
+            this.configNode.load();
         } catch (ConfigurateException e) {
             throw new RuntimeException("Failed to reload configuration for guild " + guildId + " after file change", e);
         }
     }
 
-    public Set<Snowflake> getChannelsForLogging(LoggingType type) {
+    public List<Snowflake> getNoLoggingRoles() {
+        return catchException(() -> {
+            final Object[] path = {"roles", "no_logging"};
+            final var node = configNode.get(path);
+            if (node.empty()) {
+                configNode.set(node.path(), List.of());
+                configNode.save();
+            }
+            return Objects.requireNonNull(configNode.get(path).getList(Snowflake.class));
+        }, List::of);
+    }
+
+    public List<Snowflake> getChannelsForLogging(LoggingType type) {
         return catchException(() -> {
             final var path = new Object[]{
                 "channels", type.getName()
@@ -126,11 +151,8 @@ public class GuildConfig {
                 createNodeForLogging(type);
                 configNode.save();
             }
-            return Objects.requireNonNull(configNode.get("channels", type.getName()).getList(String.class))
-                .stream()
-                .map(Snowflake::of)
-                .collect(Collectors.toUnmodifiableSet());
-        }, Set::of);
+            return Objects.requireNonNull(configNode.get("channels", type.getName()).getList(Snowflake.class));
+        }, List::of);
     }
 
     private void createNodeForLogging(LoggingType type) throws SerializationException {

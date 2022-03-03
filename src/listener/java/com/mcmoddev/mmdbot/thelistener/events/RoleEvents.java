@@ -61,6 +61,9 @@ public final class RoleEvents extends ListenerAdapter {
     }
 
     private void onRoleAdded(final MemberUpdateEvent event, final Member newMember, final Member oldMember, final Set<Snowflake> rolesBefore, final Set<Snowflake> rolesAdded) {
+        if (TheListener.getInstance().getConfigForGuild(event.getGuildId()).getNoLoggingRoles().stream().anyMatch(s -> rolesAdded.contains(s))) {
+            return; // Ignore ignorable roles
+        }
         event.getGuild().subscribe(guild -> {
             Utils.getAuditLog(guild, newMember.getId().asLong(), log -> log.withLimit(5).withActionType(ActionType.MEMBER_ROLE_UPDATE).withGuild(guild), entry -> {
                 final var embed = EmbedCreateSpec.builder();
@@ -89,6 +92,9 @@ public final class RoleEvents extends ListenerAdapter {
     }
 
     private void onRoleRemoved(final MemberUpdateEvent event, final Member newMember, final Member oldMember, final Set<Snowflake> rolesBefore, final Set<Snowflake> rolesRemoved) {
+        if (TheListener.getInstance().getConfigForGuild(event.getGuildId()).getNoLoggingRoles().stream().anyMatch(s -> rolesRemoved.contains(s))) {
+            return; // Ignore ignorable roles
+        }
         event.getGuild().subscribe(guild -> {
             Utils.getAuditLog(guild, newMember.getId().asLong(), log -> log.withLimit(5).withActionType(ActionType.MEMBER_ROLE_UPDATE).withGuild(guild), entry -> {
                 final var embed = EmbedCreateSpec.builder();

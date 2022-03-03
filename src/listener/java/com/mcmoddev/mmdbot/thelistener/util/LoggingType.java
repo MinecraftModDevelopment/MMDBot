@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.thelistener.util;
 import com.mcmoddev.mmdbot.thelistener.TheListener;
 import discord4j.common.util.Snowflake;
 
+import java.util.List;
 import java.util.Set;
 
 public enum LoggingType {
@@ -40,7 +41,7 @@ public enum LoggingType {
         this.channelGetter = channelGetter;
     }
 
-    public Set<Snowflake> getChannels(Snowflake guild) {
+    public List<Snowflake> getChannels(Snowflake guild) {
         return channelGetter.getChannels(guild);
     }
 
@@ -51,18 +52,13 @@ public enum LoggingType {
     @FunctionalInterface
     public interface ChannelGetter {
 
-        Set<Snowflake> getChannels(Snowflake guild);
+        List<Snowflake> getChannels(Snowflake guild);
 
     }
 
     private static ChannelGetter configGetter(int index) {
         return s -> {
-            final var cfg = TheListener.getInstance().getConfigForGuild(s);
-            if (cfg == null) {
-                TheListener.LOGGER.warn("Config for guild %s doesn't exist!".formatted(s.asLong()));
-                return Set.of();
-            }
-            return cfg.getChannelsForLogging(values()[index]);
+            return TheListener.getInstance().getConfigForGuild(s).getChannelsForLogging(values()[index]);
         };
     }
 }

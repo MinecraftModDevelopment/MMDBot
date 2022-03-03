@@ -50,6 +50,7 @@ import discord4j.rest.util.Color;
 import io.github.cdimascio.dotenv.Dotenv;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
@@ -211,9 +212,9 @@ public final class TheListener implements Bot {
         return runPath;
     }
 
-    @Nullable
+    @NonNull
     public GuildConfig getConfigForGuild(Snowflake guild) {
-        return guildConfigs.get(guild.asLong());
+        return guildConfigs.computeIfAbsent(guild.asLong(), k -> new GuildConfig(k, getRunPath().resolve("configs/guilds")));
     }
 
     public static TheListener getInstance() {
