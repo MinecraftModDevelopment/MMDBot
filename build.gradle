@@ -131,6 +131,8 @@ dependencies {
 
 // Relocates all of the tasks from build
 tasks.stream().filter({it.group == "build"}).forEach({it.group = "other"})
+tasks.named('updateLicenses').configure(it -> it.group = "licensing")
+tasks.named('licenseFormat').configure(it -> it.group = "licensing")
 
 tasks.named('run', JavaExec).configure {
   workingDir = new File("run")

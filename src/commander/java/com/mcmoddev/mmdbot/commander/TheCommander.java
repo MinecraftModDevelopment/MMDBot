@@ -24,8 +24,10 @@ import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
+import com.mcmoddev.mmdbot.core.util.DotenvLoader;
 import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import io.github.cdimascio.dotenv.Dotenv;
+import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -34,8 +36,11 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.security.auth.login.LoginException;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.Set;
 
 public final class TheCommander implements Bot {
@@ -46,9 +51,19 @@ public final class TheCommander implements Bot {
     public static final BotType<TheCommander> BOT_TYPE = new BotType<>() {
         @Override
         public TheCommander createBot(final Path runPath) {
-            return new TheCommander(runPath, Dotenv.configure()
-                .directory(runPath.toString())
-                .load());
+            try {
+                return new TheCommander(runPath, DotenvLoader.builder()
+                    .filePath(runPath.resolve(".env"))
+                    .whenCreated(writer -> writer
+                        .writeComment("The token of the bot: ")
+                        .writeValue("BOT_TOKEN", "")
+                        .writeComment("The API key to use for CurseForge requests: ")
+                        .writeValue("CF_API_KEY", ""))
+                    .load());
+            } catch (IOException e) {
+                LOGGER.error("Could not load the .env file due to an IOException: ", e);
+            }
+            return null;
         }
 
         @Override
@@ -83,6 +98,8 @@ public final class TheCommander implements Bot {
     }
 
     private JDA jda;
+    @Nullable
+    private CurseForgeAPI curseForgeAPI;
     private final Dotenv dotenv;
     private final Path runPath;
 
@@ -94,7 +111,6 @@ public final class TheCommander implements Bot {
     @Override
     public void start() {
         instance = this;
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> LOGGER.warn("The bot is shutting down!")));
 
         try {
             jda = JDABuilder
@@ -111,6 +127,13 @@ public final class TheCommander implements Bot {
         } catch (InterruptedException e) {
             LOGGER.error("Error awaiting caching.", e);
             System.exit(1);
+        }
+
+        final var cfKey = dotenv.get("CF_API_KEY", "");
+        if (!cfKey.isBlank()) {
+            curseForgeAPI = new CurseForgeAPI(cfKey);
+        } else {
+            LOGGER.warn("Could not find a valid CurseForge API Key! Some features might not work as expected.");
         }
     }
 
@@ -134,6 +157,10 @@ public final class TheCommander implements Bot {
 
     public JDA getJda() {
         return jda;
+    }
+
+    public Optional<CurseForgeAPI> getCurseAPI() {
+        return Optional.ofNullable(curseForgeAPI);
     }
 
     @Override

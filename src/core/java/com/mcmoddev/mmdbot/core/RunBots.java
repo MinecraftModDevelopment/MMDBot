@@ -71,8 +71,12 @@ public class RunBots {
                 final var botEntry = botPair.second();
                 final var bot = botPair.first();
                 if (botEntry.isEnabled()) {
-                    bot.start();
-                    bot.getLogger().warn("Bot {} has been found, and it has been launched!", botEntry.name());
+                    if (bot != null) {
+                        bot.start();
+                        bot.getLogger().warn("Bot {} has been found, and it has been launched!", botEntry.name());
+                    } else {
+                        LOG.warn("Bot {} was null! Skipping...", botEntry.name);
+                    }
                 } else {
                     bot.getLogger().warn("Bot {} is disabled! Its features will not work!", botEntry.name());
                 }
@@ -98,6 +102,8 @@ public class RunBots {
                 LOG.error("Error while trying to set up the dashboard endpoint!", e);
             }
         }
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> LOG.warn("The bot(s) are shutting down!")));
     }
 
     public static List<Bot> getLoadedBots() {

@@ -94,7 +94,6 @@ public final class TheWatcher implements Bot {
     @Override
     public void start() {
         instance = this;
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> LOGGER.warn("The bot is shutting down!")));
 
         try {
             jda = JDABuilder

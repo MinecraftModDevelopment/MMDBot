@@ -166,7 +166,6 @@ public final class MMDBot implements Bot {
     @Override
     public void start() {
         instance = this;
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> LOGGER.warn("The bot is shutting down!")));
         JSONDataMigrator.checkAndMigrate(database);
 
         if (config.isNewlyGenerated()) {
