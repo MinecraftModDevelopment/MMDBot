@@ -120,6 +120,7 @@ dependencies {
   global libs.configurate.hocon
   global libs.cfapi
   global libs.jsoup
+  global libs.webhooks
 
   globalCompile libs.annotations
   globalCompile libs.lombok

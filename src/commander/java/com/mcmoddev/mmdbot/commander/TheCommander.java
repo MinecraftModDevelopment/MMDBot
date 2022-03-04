@@ -143,7 +143,7 @@ public final class TheCommander implements Bot {
             final var cfProjects = new CFProjects(runPath.resolve("cf_projects.json"));
             this.curseForgeManager = new CurseForgeManager(api, cfProjects);
 
-            CURSE_FORGE_UPDATE_SCHEDULER.scheduleAtFixedRate(cfProjects, 0, 1, TimeUnit.MINUTES);
+            CURSE_FORGE_UPDATE_SCHEDULER.scheduleAtFixedRate(cfProjects, 0, 10, TimeUnit.MINUTES);
         } else {
             LOGGER.warn("Could not find a valid CurseForge API Key! Some features might not work as expected.");
         }

@@ -3,12 +3,16 @@ package com.mcmoddev.mmdbot.commander.curseforge;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import io.github.matyrobbrt.curseforgeapi.request.AsyncRequest;
 import io.github.matyrobbrt.curseforgeapi.request.Response;
+import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.Webhook;
+import net.dv8tion.jda.api.entities.WebhookClient;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public record CFProject(int projectId, List<Long> channels, AtomicInteger lastFoundFile) implements Runnable {
@@ -22,8 +26,7 @@ public record CFProject(int projectId, List<Long> channels, AtomicInteger lastFo
 
         try {
             api.getAsyncHelper().getMod(projectId)
-                .flatMap(r ->
-                    r.flatMap(m -> {
+                .flatMap(r -> r.flatMap(m -> {
                         if (m.latestFilesIndexes().isEmpty() || (m.latestFilesIndexes().get(0).fileId() <= lastFoundFile.get())) {
                             return Response.empty(r.getStatusCode());
                         }
@@ -34,22 +37,22 @@ public record CFProject(int projectId, List<Long> channels, AtomicInteger lastFo
                         lastFoundFile.set(latestFile);
                         allProjects.save();
                         return toRet;
-                    }, AsyncRequest::empty)
+                    }, AsyncRequest::empty, t -> AsyncRequest.empty())
                 )
-                .map(e -> {
+                .queue(embed -> {
                     if (channels.isEmpty()) {
-                        return null;
+                        return;
                     }
-                    return RestAction.allOf(channels.stream().map(id -> TheCommander.getJDA().getGuildChannelById(id))
-                        .filter(c -> c instanceof MessageChannel)
-                        .map(MessageChannel.class::cast)
-                        .map(c -> c.sendMessageEmbeds(e.build()).allowedMentions(ALLOWED_MENTIONS))
-                        .toList());
-                })
-                .queue(actions -> {
-                    if (actions != null) {
-                        actions.queue();
-                    }
+                    channels.forEach(channelId -> {
+                        CFUtils.getWebhookClient(channelId)
+                            .send(embed.build())
+                            .thenAccept(msg -> {
+                                final var channel = TheCommander.getJDA().getChannelById(MessageChannel.class, msg.getChannelId());
+                                if (channel != null && channel.getType() == ChannelType.NEWS) {
+                                    channel.retrieveMessageById(msg.getId()).flatMap(Message::crosspost).queue();
+                                }
+                            });
+                    });
                 });
         } catch (Exception e) {
             TheCommander.LOGGER.error("Exception while trying to send CurseForge update message!", e);
