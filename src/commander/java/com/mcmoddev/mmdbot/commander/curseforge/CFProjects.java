@@ -1,6 +1,7 @@
 package com.mcmoddev.mmdbot.commander.curseforge;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonWriter;
@@ -48,7 +49,7 @@ public final class CFProjects implements Runnable {
 
     public void addProject(int projectId, long channelId) {
         getProjectById(projectId).ifPresentOrElse(cfProject -> cfProject.channels().add(channelId),
-            () -> projects.add(new CFProject(projectId, Lists.newArrayList(channelId), new AtomicInteger(0))));
+            () -> projects.add(new CFProject(projectId, Sets.newHashSet(channelId), new AtomicInteger(0))));
         save();
     }
 

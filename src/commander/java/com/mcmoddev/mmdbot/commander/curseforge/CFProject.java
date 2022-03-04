@@ -12,10 +12,11 @@ import net.dv8tion.jda.api.requests.RestAction;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public record CFProject(int projectId, List<Long> channels, AtomicInteger lastFoundFile) implements Runnable {
+public record CFProject(int projectId, Set<Long> channels, AtomicInteger lastFoundFile) implements Runnable {
     private static final Collection<Message.MentionType> ALLOWED_MENTIONS = List.of();
 
     @Override

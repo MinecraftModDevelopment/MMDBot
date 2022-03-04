@@ -20,8 +20,11 @@
  */
 package com.mcmoddev.mmdbot.commander;
 
+import com.jagrosh.jdautilities.command.CommandClient;
+import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.commander.curseforge.CFProjects;
 import com.mcmoddev.mmdbot.commander.curseforge.CurseForgeManager;
+import com.mcmoddev.mmdbot.commander.curseforge.CurseForgeWebhooksCommand;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
@@ -136,6 +139,15 @@ public final class TheCommander implements Bot {
             LOGGER.error("Error awaiting caching.", e);
             System.exit(1);
         }
+
+        // TODO config
+        final var commandClient = new CommandClientBuilder()
+            .setOwnerId(561254664750891009L)
+            .forceGuildOnly(853270691176906802L)
+            .addSlashCommands(new CurseForgeWebhooksCommand())
+            .build();
+
+        jda.addEventListener(commandClient); // TODO convert to a threaded event listener
 
         final var cfKey = dotenv.get("CF_API_KEY", "");
         if (!cfKey.isBlank()) {
