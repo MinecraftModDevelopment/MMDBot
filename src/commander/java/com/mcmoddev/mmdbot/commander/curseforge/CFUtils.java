@@ -47,44 +47,52 @@ public class CFUtils {
             .and(getAsyncApiHelper().getModFileChangelog(mod.id(), fileId))
             .map(Pair::mapResponses)
             .map(Optional::orElseThrow)
-            .map(p -> p.map((file, changelog) -> new EmbedBuilder()
-                .setTimestamp(Instant.parse(file.fileDate()))
-                .setTitle(mod.name(), mod.links().websiteUrl() /* The mod CF link */)
-                .setColor(Color.DARK_GRAY)
-                .setThumbnail(mod.logo().thumbnailUrl())
-                .appendDescription("New file detected for the CurseForge project `%s`".formatted(mod.name()))
-                .appendDescription(lineSeparator())
-                .appendDescription(lineSeparator())
-                .appendDescription("Release Type: `%s`".formatted(file.releaseType()))
-                .appendDescription(lineSeparator())
-                .appendDescription("File Name: `%s`".formatted(file.fileName()))
-                .appendDescription(lineSeparator())
-                .appendDescription("Game Versions: `%s`".formatted(String.join(", ", file.gameVersions())))
-                .appendDescription(lineSeparator())
-                .appendDescription("Download URL: [Download](%s)".formatted(file.downloadUrl()))
-                .appendDescription(lineSeparator())
-                .appendDescription(lineSeparator())
-                .appendDescription("""
-                    Changelog:
-                    ```
-                    %s
-                    ```""".formatted(Jsoup.parse(changelog).text())))
+            .map(p -> p.map((file, changelog) -> {
+                    final var embed = new EmbedBuilder()
+                        .setTimestamp(Instant.parse(file.fileDate()))
+                        .setTitle(mod.name(), mod.links().websiteUrl() /* The mod CF link */)
+                        .setColor(Color.DARK_GRAY)
+                        .setThumbnail(mod.logo().thumbnailUrl())
+                        .appendDescription("New file detected for the CurseForge project `%s`".formatted(mod.name()))
+                        .appendDescription(lineSeparator())
+                        .appendDescription(lineSeparator())
+                        .appendDescription("Release Type: `%s`".formatted(file.releaseType()))
+                        .appendDescription(lineSeparator())
+                        .appendDescription("File Name: `%s`".formatted(file.fileName()))
+                        .appendDescription(lineSeparator())
+                        .appendDescription("Game Versions: `%s`".formatted(String.join(", ", file.gameVersions())))
+                        .appendDescription(lineSeparator())
+                        .appendDescription("Download URL: [Download](%s)".formatted(file.downloadUrl()))
+                        .appendDescription(lineSeparator())
+                        .appendDescription(lineSeparator());
+
+                    try {
+                        embed.appendDescription("""
+                            Changelog:
+                            ```
+                            %s
+                            ```""".formatted(Jsoup.parse(changelog).text()));
+                    } catch (IllegalArgumentException e) {
+                        embed.appendDescription("Changelog: *Too big to be displayed*");
+                    }
+                    return embed;
+                })
             );
     }
 
-    public static final String WEBHOOK_NAME = "CurseForgeWebhooks";
+    public static final String WEBHOOK_SUFFIX = "[CF]";
 
     public static Webhook getOrCreateWebhook(long channelId) {
         final var channel = TheCommander.getJDA().getChannelById(BaseGuildMessageChannel.class, channelId);
         final var alreadyExisted = Objects.requireNonNull(channel).retrieveWebhooks()
             .complete()
             .stream()
-            .filter(w -> w.getName().equals(WEBHOOK_NAME))
+            .filter(w -> w.getName().endsWith(WEBHOOK_SUFFIX))
             .findAny();
         if (alreadyExisted.isPresent()) {
             return alreadyExisted.get();
         }
-        final var webhook = channel.createWebhook(WEBHOOK_NAME).complete();
+        final var webhook = channel.createWebhook("CurseForgeWebhooks %s".formatted(WEBHOOK_SUFFIX)).complete();
         try {
             final var icon = Icon.from(Objects.requireNonNull(TheCommander.class.getResourceAsStream("/commander/cf_logo.png")));
             webhook.getManager().setAvatar(icon).complete();

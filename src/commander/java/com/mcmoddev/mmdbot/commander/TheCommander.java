@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.commander;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.commander.curseforge.CFProjects;
+import com.mcmoddev.mmdbot.commander.curseforge.CFUtils;
 import com.mcmoddev.mmdbot.commander.curseforge.CurseForgeManager;
 import com.mcmoddev.mmdbot.commander.curseforge.CurseForgeWebhooksCommand;
 import com.mcmoddev.mmdbot.core.bot.Bot;
@@ -34,8 +35,11 @@ import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
+import io.github.matyrobbrt.curseforgeapi.request.Response;
+import io.github.matyrobbrt.curseforgeapi.util.CurseForgeException;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.AllowedMentions;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -48,6 +52,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -123,6 +128,15 @@ public final class TheCommander implements Bot {
     public void start() {
         instance = this;
 
+        // TODO config
+        final var commandClient = new CommandClientBuilder()
+            .setOwnerId(561254664750891009L)
+            .forceGuildOnly(853270691176906802L)
+            .addSlashCommands(new CurseForgeWebhooksCommand())
+            .useHelpBuilder(false)
+            .setManualUpsert(false)
+            .build();
+
         try {
             jda = JDABuilder
                 .create(dotenv.get("BOT_TOKEN"), INTENTS)
@@ -130,7 +144,9 @@ public final class TheCommander implements Bot {
                 .disableCache(CacheFlag.ACTIVITY)
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
-                .build().awaitReady();
+                .addEventListeners(commandClient) // TODO convert to a threaded event listener
+                .build()
+                .awaitReady();
 
         } catch (final LoginException exception) {
             LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.", exception);
@@ -139,15 +155,6 @@ public final class TheCommander implements Bot {
             LOGGER.error("Error awaiting caching.", e);
             System.exit(1);
         }
-
-        // TODO config
-        final var commandClient = new CommandClientBuilder()
-            .setOwnerId(561254664750891009L)
-            .forceGuildOnly(853270691176906802L)
-            .addSlashCommands(new CurseForgeWebhooksCommand())
-            .build();
-
-        jda.addEventListener(commandClient); // TODO convert to a threaded event listener
 
         final var cfKey = dotenv.get("CF_API_KEY", "");
         if (!cfKey.isBlank()) {

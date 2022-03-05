@@ -47,7 +47,7 @@ public class CurseForgeWebhooksCommand extends SlashCommand {
                 Permission.MANAGE_WEBHOOKS
             };
             options = List.of(
-                new OptionData(OptionType.INTEGER, "project-id", "The ID of the project to add to this channel.")
+                new OptionData(OptionType.INTEGER, "project-id", "The ID of the project to add to this channel.", true)
             );
         }
 
