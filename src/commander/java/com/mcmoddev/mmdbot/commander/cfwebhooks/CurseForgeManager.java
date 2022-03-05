@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.commander.curseforge.webhooks;
+package com.mcmoddev.mmdbot.commander.cfwebhooks;
 
 import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
 

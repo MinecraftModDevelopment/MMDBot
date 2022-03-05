@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.thelistener.util;
 
+import com.mcmoddev.mmdbot.core.util.Constants;
 import discord4j.common.util.Snowflake;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -27,12 +28,7 @@ import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationOptions;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
-import org.spongepowered.configurate.objectmapping.ConfigSerializable;
-import org.spongepowered.configurate.objectmapping.meta.Comment;
-import org.spongepowered.configurate.objectmapping.meta.Required;
-import org.spongepowered.configurate.objectmapping.meta.Setting;
 import org.spongepowered.configurate.reference.ConfigurationReference;
-import org.spongepowered.configurate.reference.WatchServiceListener;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 
@@ -41,12 +37,9 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * A guild-specific config for logging channels.
@@ -58,8 +51,6 @@ public class GuildConfig {
         .childBuilder()
         .register(Snowflake.class, new SnowflakeSerializer())
         .build();
-
-    private static WatchServiceListener watchService;
 
     private final long guildId;
     /**
@@ -107,14 +98,7 @@ public class GuildConfig {
         }
 
         try {
-            if (watchService == null) {
-                watchService = WatchServiceListener
-                    .builder()
-                    .fileSystem(configPath.getFileSystem())
-                    .threadFactory(r -> Utils.setThreadDaemon(new Thread(r, "ConfigLoader"), true))
-                    .build();
-            }
-            watchService.listenToFile(configPath, this::onWatch);
+            Constants.CONFIG_WATCH_SERVICE.listenToFile(configPath, this::onWatch);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to create watch service for guild config " + guildId, e);
         }

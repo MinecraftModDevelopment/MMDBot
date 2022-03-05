@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.commander.curseforge.webhooks;
+package com.mcmoddev.mmdbot.commander.cfwebhooks;
 
 import static java.lang.System.lineSeparator;
 import club.minnced.discord.webhook.WebhookClientBuilder;

@@ -20,14 +20,17 @@
  */
 package com.mcmoddev.mmdbot.commander;
 
+import com.google.common.reflect.TypeToken;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
-import com.mcmoddev.mmdbot.commander.curseforge.webhooks.CFProjects;
-import com.mcmoddev.mmdbot.commander.curseforge.webhooks.CurseForgeManager;
-import com.mcmoddev.mmdbot.commander.curseforge.webhooks.CurseForgeWebhooksCommand;
+import com.mcmoddev.mmdbot.commander.config.Configuration;
+import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
+import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
+import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeWebhooksCommand;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
+import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
@@ -36,15 +39,26 @@ import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.utils.AllowedMentions;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationOptions;
+import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
+import org.spongepowered.configurate.reference.ConfigurationReference;
+import org.spongepowered.configurate.reference.ValueReference;
+import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 
 import javax.annotation.Nullable;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -52,6 +66,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public final class TheCommander implements Bot {
+    static final TypeSerializerCollection ADDED_SERIALIZERS = TypeSerializerCollection.defaults()
+        .childBuilder()
+        .build();
 
     public static final Logger LOGGER = LoggerFactory.getLogger("TheCommander");
     public static final ScheduledExecutorService CURSE_FORGE_UPDATE_SCHEDULER = Executors.newScheduledThreadPool(1,
@@ -110,6 +127,8 @@ public final class TheCommander implements Bot {
     private JDA jda;
     @Nullable
     private CurseForgeManager curseForgeManager;
+    private ConfigurationReference<CommentedConfigurationNode> configRef;
+    private Configuration generalConfig;
     private final Dotenv dotenv;
     private final Path runPath;
 
@@ -122,11 +141,57 @@ public final class TheCommander implements Bot {
     public void start() {
         instance = this;
 
+        try {
+            final var configPath = runPath.resolve("configs").resolve("general_config.conf");
+            final ValueReference<Configuration, CommentedConfigurationNode> configReference;
+            { // Normal configuration
+                final HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
+                    .emitComments(true)
+                    .prettyPrinting(true)
+                    .defaultOptions(ConfigurationOptions.defaults().serializers(ADDED_SERIALIZERS))
+                    .path(configPath)
+                    .build();
+
+                if (!Files.exists(configPath)) {
+                    try {
+                        final var node = loader.loadToReference();
+                        Files.createDirectories(configPath.getParent());
+                        Files.createFile(configPath);
+                        Objects.requireNonNull(loader.defaultOptions().serializers().get(Configuration.class))
+                            .serialize(new TypeToken<Configuration>(){}.getType(), Configuration.EMPTY, node.node());
+                        node.save();
+                    } catch (Exception e) {
+                        LOGGER.error("Exception while tyring to create config file!", e);
+                        throw new RuntimeException(e);
+                    }
+                }
+
+                configRef = loader.loadToReference();
+                configReference = configRef.referenceTo(Configuration.class);
+                generalConfig = configReference.get();
+
+                Constants.CONFIG_WATCH_SERVICE.listenToFile(configPath, e -> loadConfig());
+            }
+        } catch (ConfigurateException e) {
+            LOGGER.error("Exception while trying to load general config", e);
+            throw new RuntimeException(e);
+        }
+
+        MessageAction.setDefaultMentionRepliedUser(false);
+        MessageAction.setDefaultMentions(Collections.emptySet());
+
+        if (generalConfig.bot().getOwners().isEmpty()) {
+            LOGGER.warn("Please provide at least one bot owner!");
+            throw new RuntimeException();
+        }
+        final var coOwners = generalConfig.bot().getOwners().subList(1, generalConfig.bot().getOwners().size());
+
         // TODO config
         final var commandClient = new CommandClientBuilder()
-            .setOwnerId(561254664750891009L)
-            .forceGuildOnly(853270691176906802L)
-            .addSlashCommands(new CurseForgeWebhooksCommand())
+            .setOwnerId(generalConfig.bot().getOwners().get(0))
+            .setCoOwnerIds(coOwners.toArray(String[]::new))
+            .forceGuildOnly(generalConfig.bot().guild())
+            .addSlashCommands(CurseForgeWebhooksCommand.INSTANCE)
             .useHelpBuilder(false)
             .setManualUpsert(false)
             .build();
@@ -162,6 +227,15 @@ public final class TheCommander implements Bot {
         }
     }
 
+    private void loadConfig() {
+        try {
+            this.configRef.load();
+            generalConfig = configRef.referenceTo(Configuration.class).get();
+        } catch (ConfigurateException e) {
+            throw new RuntimeException("Failed to reload configuration after file change", e);
+        }
+    }
+
     @Override
     public void shutdown() {
         jda.shutdown();
@@ -186,6 +260,10 @@ public final class TheCommander implements Bot {
 
     public Optional<CurseForgeManager> getCurseForgeManager() {
         return Optional.ofNullable(curseForgeManager);
+    }
+
+    public Configuration getGeneralConfig() {
+        return generalConfig;
     }
 
     @Override

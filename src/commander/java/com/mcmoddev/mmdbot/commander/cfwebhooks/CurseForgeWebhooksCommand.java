@@ -1,8 +1,9 @@
-package com.mcmoddev.mmdbot.commander.curseforge.webhooks;
+package com.mcmoddev.mmdbot.commander.cfwebhooks;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.mcmoddev.mmdbot.core.util.builder.SlashCommandBuilder;
 import io.github.matyrobbrt.curseforgeapi.util.CurseForgeException;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -12,7 +13,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
@@ -20,41 +20,14 @@ import java.util.function.BiConsumer;
  * The command used for CurseForge webhook managing
  * @author matyrobbrt
  */
-public class CurseForgeWebhooksCommand extends SlashCommand {
-
-    public CurseForgeWebhooksCommand() {
-        this.name = "curseforge-webhooks";
-        guildOnly = true;
-        help = "Commands regarding CurseForge webhooks.";
-        userPermissions = new Permission[] {
-            Permission.MANAGE_WEBHOOKS
-        };
-        children = new SlashCommand[] {
-            new AddProject(), new RemoveProject(), new ListProjects()
-        };
-    }
-
-    @Override
-    protected void execute(final SlashCommandEvent event) {
-    }
-
-    public static final class AddProject extends SlashCommand {
-
-        private AddProject() {
-            this.name = "add-project";
-            guildOnly = true;
-            help = "Adds a CurseForge project to this channel.";
-            userPermissions = new Permission[] {
-                Permission.MANAGE_WEBHOOKS
-            };
-            options = List.of(
-                new OptionData(OptionType.INTEGER, "project-id", "The ID of the project to add to this channel.", true)
-            );
-        }
-
-        @Override
-        protected void execute(final SlashCommandEvent event) {
-            final var pId = Objects.requireNonNull(event.getOption("project-id", OptionMapping::getAsInt));
+public final class CurseForgeWebhooksCommand {
+    private static final SlashCommand ADD_PROJECT_CMD = SlashCommandBuilder.builder()
+        .name("add-project")
+        .guildOnly(true)
+        .userPermissions(Permission.MANAGE_WEBHOOKS)
+        .options(new OptionData(OptionType.INTEGER, "project-id", "The ID of the project to add to this channel.", true))
+        .executes(event -> {
+            final var pId= Objects.requireNonNull(event.getOption("project-id", OptionMapping::getAsInt));
             checkConfigured(event, catchException((hook, manager) -> {
                 // Start a check to see if the project ID is valid
                 manager.api().getAsyncHelper().getMod(pId)
@@ -72,25 +45,16 @@ public class CurseForgeWebhooksCommand extends SlashCommand {
                         }
                     });
             }));
-        }
-    }
+        })
+        .build();
 
-    public static final class RemoveProject extends SlashCommand {
-
-        private RemoveProject() {
-            this.name = "remove-project";
-            guildOnly = true;
-            help = "Adds a CurseForge project from this channel.";
-            userPermissions = new Permission[] {
-                Permission.MANAGE_WEBHOOKS
-            };
-            options = List.of(
-                new OptionData(OptionType.INTEGER, "project-id", "The ID of the project to remove from this channel.", true)
-            );
-        }
-
-        @Override
-        protected void execute(final SlashCommandEvent event) {
+    private static final SlashCommand REMOVE_PROJECT_CMD = SlashCommandBuilder.builder()
+        .name("remove-project")
+        .guildOnly(true)
+        .userPermissions(Permission.MANAGE_WEBHOOKS)
+        .help("Adds a CurseForge project from this channel.")
+        .options(new OptionData(OptionType.INTEGER, "project-id", "The ID of the project to remove from this channel.", true))
+        .executes(event -> {
             final var pId = Objects.requireNonNull(event.getOption("project-id", OptionMapping::getAsInt));
             checkConfigured(event, catchException((hook, manager) -> {
                 // Start a check to see if the project ID is valid
@@ -109,22 +73,14 @@ public class CurseForgeWebhooksCommand extends SlashCommand {
                         }
                     });
             }));
-        }
-    }
+        })
+        .build();
 
-    public static final class ListProjects extends SlashCommand {
-
-        private ListProjects() {
-            this.name = "list-projects";
-            guildOnly = true;
-            help = "Lists all of the CurseForge projects added to this channel.";
-            userPermissions = new Permission[] {
-                Permission.MANAGE_WEBHOOKS
-            };
-        }
-
-        @Override
-        protected void execute(final SlashCommandEvent event) {
+    private static final SlashCommand LIST_PROJECTS_CMD = SlashCommandBuilder.builder()
+        .name("list-projects")
+        .guildOnly(true)
+        .help("Lists all of the CurseForge projects added to this channel.")
+        .executes(event -> {
             checkConfigured(event, catchException((hook, manager) -> {
                 final var projects = manager.projects().getProjectsForChannel(event.getChannel().getIdLong());
                 final var embed = new EmbedBuilder()
@@ -132,15 +88,20 @@ public class CurseForgeWebhooksCommand extends SlashCommand {
                     .setDescription(projects
                         .stream()
                         .map(String::valueOf)
-                        .toList()
-                        .subList(0, projects.size())
-                        .stream()
                         .reduce("", (a, b) -> a + "\n" + b))
                     .setTimestamp(Instant.now());
                 hook.editOriginalEmbeds(embed.build()).queue();
             }));
-        }
-    }
+        })
+        .build();
+
+    public static final SlashCommand INSTANCE = SlashCommandBuilder.builder()
+        .name("curseforge-webhooks")
+        .guildOnly(true)
+        .help("Commands regarding CurseForge webhooks.")
+        .userPermissions(Permission.MANAGE_WEBHOOKS)
+        .children(ADD_PROJECT_CMD, REMOVE_PROJECT_CMD, LIST_PROJECTS_CMD)
+        .build();
 
     private static void checkConfigured(SlashCommandEvent event, BiConsumer<InteractionHook, CurseForgeManager> consumer) {
         final var curseManager = TheCommander.getInstance().getCurseForgeManager();
