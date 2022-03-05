@@ -30,7 +30,7 @@ public record CFProject(int projectId, Set<Long> channels, AtomicInteger lastFou
                         return r;
                     }).mapOrElseWithException(m -> {
                         final var latestFile = m.latestFilesIndexes().get(0).fileId();
-                        final var toRet = CFUtils.createFileEmbed(m, latestFile);
+                        final var toRet = CFUtils.createWebhookFileEmbed(m, latestFile);
                         lastFoundFile.set(latestFile);
                         allProjects.save();
                         return toRet;

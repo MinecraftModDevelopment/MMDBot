@@ -3,7 +3,9 @@ package com.mcmoddev.mmdbot.commander.commands.curseforge;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
+import com.mcmoddev.mmdbot.core.util.builder.SlashCommandBuilder;
 import io.github.matyrobbrt.curseforgeapi.util.CurseForgeException;
 import lombok.NonNull;
 import net.dv8tion.jda.api.entities.Member;
@@ -13,7 +15,18 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 
 import javax.annotation.Nullable;
 
+/**
+ * The base class for CurseForge commands
+ *
+ * @author matyrobbrt
+ */
 public abstract class CurseForgeCommand extends SlashCommand {
+
+    @RegisterSlashCommand
+    public static final SlashCommand INSTANCE = SlashCommandBuilder.builder()
+        .name("curseforge")
+        .help("Commands regarding CurseForge stuff.")
+        .build();
 
     @Override
     protected final void execute(final SlashCommandEvent event) {
@@ -42,19 +55,21 @@ public abstract class CurseForgeCommand extends SlashCommand {
                 TheCommander.LOGGER.error("Exception while executing a CF command!", e);
             }
         }), () -> event.deferReply(true)
-                .setContent("I am not configured with a (valid) CurseForge API key. Please contact the bot owner.")
-                .queue());
+            .setContent("I am not configured with a (valid) CurseForge API key. Please contact the bot owner.")
+            .queue());
     }
 
     /**
      * Executes this command
-     * @param event the context
+     *
+     * @param context the context
      * @param manager the CF manager
      */
     protected abstract void execute(final CFCommandContext context, CurseForgeManager manager) throws CurseForgeException;
 
     protected interface CFCommandContext {
-        @Nullable Member getMember();
+        @Nullable
+        Member getMember();
 
         @NonNull User getUser();
 

@@ -42,7 +42,7 @@ public class CFUtils {
             WEBHOOKS.values().forEach(JDAWebhookClient::close), "CurseForgeWebhookCloser"));
     }
 
-    public static AsyncRequest<EmbedBuilder> createFileEmbed(Mod mod, int fileId) throws CurseForgeException {
+    public static AsyncRequest<EmbedBuilder> createWebhookFileEmbed(Mod mod, int fileId) throws CurseForgeException {
         return getAsyncApiHelper().getModFile(mod.id(), fileId)
             .and(getAsyncApiHelper().getModFileChangelog(mod.id(), fileId))
             .map(Pair::mapResponses)

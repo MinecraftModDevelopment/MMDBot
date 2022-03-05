@@ -21,23 +21,29 @@
 package com.mcmoddev.mmdbot.commander;
 
 import com.google.common.reflect.TypeToken;
+import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import com.jagrosh.jdautilities.command.SlashCommand;
+import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeWebhooksCommand;
+import com.mcmoddev.mmdbot.commander.util.EventListeners;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
+import com.mcmoddev.mmdbot.core.util.ReflectionsUtils;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.utils.AllowedMentions;
@@ -55,6 +61,7 @@ import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 import javax.annotation.Nullable;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -125,6 +132,7 @@ public final class TheCommander implements Bot {
     }
 
     private JDA jda;
+    private CommandClient commandClient;
     @Nullable
     private CurseForgeManager curseForgeManager;
     private ConfigurationReference<CommentedConfigurationNode> configRef;
@@ -140,6 +148,7 @@ public final class TheCommander implements Bot {
     @Override
     public void start() {
         instance = this;
+        EventListeners.clear();
 
         try {
             final var configPath = runPath.resolve("configs").resolve("general_config.conf");
@@ -186,27 +195,36 @@ public final class TheCommander implements Bot {
         }
         final var coOwners = generalConfig.bot().getOwners().subList(1, generalConfig.bot().getOwners().size());
 
-        // TODO config
-        final var commandClient = new CommandClientBuilder()
+        commandClient = new CommandClientBuilder()
             .setOwnerId(generalConfig.bot().getOwners().get(0))
             .setCoOwnerIds(coOwners.toArray(String[]::new))
             .forceGuildOnly(generalConfig.bot().guild())
-            .addSlashCommands(CurseForgeWebhooksCommand.INSTANCE)
             .useHelpBuilder(false)
             .setManualUpsert(false)
             .build();
+        EventListeners.COMMANDS_LISTENER.addListener((EventListener) commandClient);
+
+        {
+            // Command register
+            ReflectionsUtils.getFieldsAnnotatedWith(RegisterSlashCommand.class)
+                .stream()
+                .peek(f -> f.setAccessible(true))
+                .map(io.github.matyrobbrt.curseforgeapi.util.Utils.rethrowFunction(f -> f.get(null)))
+                .filter(SlashCommand.class::isInstance)
+                .map(SlashCommand.class::cast)
+                .forEach(commandClient::addSlashCommand);
+        }
 
         try {
-            jda = JDABuilder
+            final var builder = JDABuilder
                 .create(dotenv.get("BOT_TOKEN"), INTENTS)
                 .disableCache(CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY)
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
-                .addEventListeners(commandClient) // TODO convert to a threaded event listener
-                .build()
-                .awaitReady();
-
+                .setEnabledIntents(INTENTS);
+            EventListeners.register(builder::addEventListeners);
+            jda = builder.build().awaitReady();
         } catch (final LoginException exception) {
             LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.", exception);
             System.exit(1);
@@ -239,6 +257,9 @@ public final class TheCommander implements Bot {
     @Override
     public void shutdown() {
         jda.shutdown();
+        instance = null; // Clear the instance, as it doesn't exist anymore.
+                         // The "this" object should still exist for restarting it, at which point the instance will
+                         // be assigned again
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.mcmoddev.mmdbot.commander.cfwebhooks;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.core.util.builder.SlashCommandBuilder;
 import io.github.matyrobbrt.curseforgeapi.util.CurseForgeException;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -23,6 +24,7 @@ import java.util.function.BiConsumer;
 public final class CurseForgeWebhooksCommand {
     private static final SlashCommand ADD_PROJECT_CMD = SlashCommandBuilder.builder()
         .name("add-project")
+        .help("Adds a CurseForge project from this channel.")
         .guildOnly(true)
         .userPermissions(Permission.MANAGE_WEBHOOKS)
         .options(new OptionData(OptionType.INTEGER, "project-id", "The ID of the project to add to this channel.", true))
@@ -52,7 +54,7 @@ public final class CurseForgeWebhooksCommand {
         .name("remove-project")
         .guildOnly(true)
         .userPermissions(Permission.MANAGE_WEBHOOKS)
-        .help("Adds a CurseForge project from this channel.")
+        .help("Removes a CurseForge project from this channel.")
         .options(new OptionData(OptionType.INTEGER, "project-id", "The ID of the project to remove from this channel.", true))
         .executes(event -> {
             final var pId = Objects.requireNonNull(event.getOption("project-id", OptionMapping::getAsInt));
@@ -95,6 +97,7 @@ public final class CurseForgeWebhooksCommand {
         })
         .build();
 
+    @RegisterSlashCommand
     public static final SlashCommand INSTANCE = SlashCommandBuilder.builder()
         .name("curseforge-webhooks")
         .guildOnly(true)
