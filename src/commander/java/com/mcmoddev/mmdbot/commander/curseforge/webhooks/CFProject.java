@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.commander.curseforge;
+package com.mcmoddev.mmdbot.commander.curseforge.webhooks;
 
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import io.github.matyrobbrt.curseforgeapi.request.AsyncRequest;
@@ -6,14 +6,10 @@ import io.github.matyrobbrt.curseforgeapi.request.Response;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.Webhook;
-import net.dv8tion.jda.api.entities.WebhookClient;
-import net.dv8tion.jda.api.requests.RestAction;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public record CFProject(int projectId, Set<Long> channels, AtomicInteger lastFoundFile) implements Runnable {

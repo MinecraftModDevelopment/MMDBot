@@ -1,4 +1,4 @@
-package com.mcmoddev.mmdbot.commander.curseforge;
+package com.mcmoddev.mmdbot.commander.curseforge.webhooks;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;

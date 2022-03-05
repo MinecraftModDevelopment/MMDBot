@@ -20,12 +20,10 @@
  */
 package com.mcmoddev.mmdbot.commander;
 
-import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
-import com.mcmoddev.mmdbot.commander.curseforge.CFProjects;
-import com.mcmoddev.mmdbot.commander.curseforge.CFUtils;
-import com.mcmoddev.mmdbot.commander.curseforge.CurseForgeManager;
-import com.mcmoddev.mmdbot.commander.curseforge.CurseForgeWebhooksCommand;
+import com.mcmoddev.mmdbot.commander.curseforge.webhooks.CFProjects;
+import com.mcmoddev.mmdbot.commander.curseforge.webhooks.CurseForgeManager;
+import com.mcmoddev.mmdbot.commander.curseforge.webhooks.CurseForgeWebhooksCommand;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
@@ -35,11 +33,8 @@ import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
-import io.github.matyrobbrt.curseforgeapi.request.Response;
-import io.github.matyrobbrt.curseforgeapi.util.CurseForgeException;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.AllowedMentions;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -52,7 +47,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
