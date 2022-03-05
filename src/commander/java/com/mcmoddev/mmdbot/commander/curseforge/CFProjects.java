@@ -1,6 +1,5 @@
 package com.mcmoddev.mmdbot.commander.curseforge;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
@@ -9,7 +8,6 @@ import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.dashboard.util.RunnableQueue;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.Nullable;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -51,6 +49,23 @@ public final class CFProjects implements Runnable {
         getProjectById(projectId).ifPresentOrElse(cfProject -> cfProject.channels().add(channelId),
             () -> projects.add(new CFProject(projectId, Sets.newHashSet(channelId), new AtomicInteger(0))));
         save();
+    }
+
+    public void removeProject(int projectId, long channelId) {
+        getProjectById(projectId).ifPresent(project -> {
+            project.channels().remove(channelId);
+            if (project.channels().isEmpty()) {
+                getProjects().remove(project);
+            }
+            save();
+        });
+    }
+
+    public List<Integer> getProjectsForChannel(long channelId) {
+        return getProjects().stream()
+            .filter(p -> p.channels().contains(channelId))
+            .map(CFProject::projectId)
+            .toList();
     }
 
     public void load() {
