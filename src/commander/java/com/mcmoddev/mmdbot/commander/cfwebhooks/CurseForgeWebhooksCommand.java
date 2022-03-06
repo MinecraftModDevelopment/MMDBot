@@ -1,3 +1,23 @@
+/*
+ * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
+ * Copyright (C) 2016-2022 <MMD - MinecraftModDevelopment>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ */
 package com.mcmoddev.mmdbot.commander.cfwebhooks;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
@@ -19,6 +39,7 @@ import java.util.function.BiConsumer;
 
 /**
  * The command used for CurseForge webhook managing
+ *
  * @author matyrobbrt
  */
 public final class CurseForgeWebhooksCommand {
@@ -29,7 +50,7 @@ public final class CurseForgeWebhooksCommand {
         .userPermissions(Permission.MANAGE_WEBHOOKS)
         .options(new OptionData(OptionType.INTEGER, "project-id", "The ID of the project to add to this channel.", true))
         .executes(event -> {
-            final var pId= Objects.requireNonNull(event.getOption("project-id", OptionMapping::getAsInt));
+            final var pId = Objects.requireNonNull(event.getOption("project-id", OptionMapping::getAsInt));
             checkConfigured(event, catchException((hook, manager) -> {
                 // Start a check to see if the project ID is valid
                 manager.api().getAsyncHelper().getMod(pId)

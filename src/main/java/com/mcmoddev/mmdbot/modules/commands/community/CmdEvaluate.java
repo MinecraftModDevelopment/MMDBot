@@ -81,65 +81,65 @@ public class CmdEvaluate extends SlashCommand {
     protected void execute(final SlashCommandEvent event) {
         event.deferReply().allowedMentions(ALLOWED_MENTIONS)
             .addActionRow(DismissListener.createDismissButton(event.getUser())).queue(hook -> {
-            final var context = createContext(new EvaluationContext() {
-                @Override
-                public Guild getGuild() {
-                    return event.getGuild();
-                }
-
-                @Override
-                public TextChannel getTextChannel() {
-                    return event.isFromType(ChannelType.TEXT) ? event.getTextChannel() : null;
-                }
-
-                @Override
-                public @NotNull MessageChannel getMessageChannel() {
-                    return event.getChannel();
-                }
-
-                @Override
-                public Member getMember() {
-                    return event.getMember();
-                }
-
-                @Override
-                public @NotNull User getUser() {
-                    return event.getUser();
-                }
-
-                @Override
-                public void reply(final String content) {
-                    hook.editOriginal(new MessageBuilder(content).setAllowedMentions(ALLOWED_MENTIONS).build())
-                        .queue();
-                }
-
-                @Override
-                public void replyEmbeds(final MessageEmbed... embeds) {
-                    hook.editOriginal(new MessageBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
-                        .queue();
-                }
-            });
-
-            final var evalThread = new Thread(() -> {
-                try {
-                    ScriptingUtils.evaluate(Utils.getOrEmpty(event, "script"), context);
-                } catch (ScriptingUtils.ScriptingException exception) {
-                    if (exception.getMessage().equalsIgnoreCase(THREAD_INTERRUPTED_MESSAGE)) {
-                        return;
+                final var context = createContext(new EvaluationContext() {
+                    @Override
+                    public Guild getGuild() {
+                        return event.getGuild();
                     }
-                    hook.editOriginal("There was an exception evaluating "
-                        + exception.getLocalizedMessage()).queue();
-                }
-            }, "ScriptEvaluation");
-            evalThread.setDaemon(true);
-            evalThread.start();
-            TaskScheduler.scheduleTask(() -> {
-                if (evalThread.isAlive()) {
-                    evalThread.interrupt();
-                    hook.editOriginal("Evaluation was timed out!").queue();
-                }
-            }, 4, TimeUnit.SECONDS);
-        });
+
+                    @Override
+                    public TextChannel getTextChannel() {
+                        return event.isFromType(ChannelType.TEXT) ? event.getTextChannel() : null;
+                    }
+
+                    @Override
+                    public @NotNull MessageChannel getMessageChannel() {
+                        return event.getChannel();
+                    }
+
+                    @Override
+                    public Member getMember() {
+                        return event.getMember();
+                    }
+
+                    @Override
+                    public @NotNull User getUser() {
+                        return event.getUser();
+                    }
+
+                    @Override
+                    public void reply(final String content) {
+                        hook.editOriginal(new MessageBuilder(content).setAllowedMentions(ALLOWED_MENTIONS).build())
+                            .queue();
+                    }
+
+                    @Override
+                    public void replyEmbeds(final MessageEmbed... embeds) {
+                        hook.editOriginal(new MessageBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
+                            .queue();
+                    }
+                });
+
+                final var evalThread = new Thread(() -> {
+                    try {
+                        ScriptingUtils.evaluate(Utils.getOrEmpty(event, "script"), context);
+                    } catch (ScriptingUtils.ScriptingException exception) {
+                        if (exception.getMessage().equalsIgnoreCase(THREAD_INTERRUPTED_MESSAGE)) {
+                            return;
+                        }
+                        hook.editOriginal("There was an exception evaluating "
+                            + exception.getLocalizedMessage()).queue();
+                    }
+                }, "ScriptEvaluation");
+                evalThread.setDaemon(true);
+                evalThread.start();
+                TaskScheduler.scheduleTask(() -> {
+                    if (evalThread.isAlive()) {
+                        evalThread.interrupt();
+                        hook.editOriginal("Evaluation was timed out!").queue();
+                    }
+                }, 4, TimeUnit.SECONDS);
+            });
     }
 
     @Override
@@ -238,7 +238,7 @@ public class CmdEvaluate extends SlashCommand {
                     return;
                 }
                 event.getMessage().reply("There was an exception evaluating: "
-                    + exception.getLocalizedMessage()).allowedMentions(ALLOWED_MENTIONS)
+                        + exception.getLocalizedMessage()).allowedMentions(ALLOWED_MENTIONS)
                     .setActionRow(DismissListener.createDismissButton(event.getAuthor())).queue();
             }
         }, "ScriptEvaluation");

@@ -24,7 +24,6 @@ import com.mcmoddev.mmdbot.thelistener.TheListener;
 import discord4j.common.util.Snowflake;
 
 import java.util.List;
-import java.util.Set;
 
 public enum LoggingType {
 

@@ -104,6 +104,7 @@ public class WarningEvent {
         public long getModeratorId() {
             return moderatorId;
         }
+
         public long getTargetId() {
             return targetId;
         }

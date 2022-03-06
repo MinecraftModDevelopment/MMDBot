@@ -1,3 +1,23 @@
+/*
+ * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
+ * Copyright (C) 2016-2022 <MMD - MinecraftModDevelopment>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ */
 package com.mcmoddev.mmdbot.core.util;
 
 import lombok.experimental.Delegate;
@@ -19,6 +39,7 @@ import java.util.concurrent.ExecutorService;
 /**
  * An {@link EventListener} implementation which allows running the action of
  * multiple {@link EventListener}s in a thread poll.
+ *
  * @author matyrobbrt
  */
 @Slf4j
@@ -29,8 +50,9 @@ public class ThreadedEventListener implements EventListener, ExecutorService {
 
     /**
      * Creates a new {@link ThreadedEventListener}
+     *
      * @param threadPool the thread poll used for running the actions of the events
-     * @param listeners the listeners to run
+     * @param listeners  the listeners to run
      */
     public ThreadedEventListener(final ExecutorService threadPool, EventListener... listeners) {
         this.threadPool = threadPool;
@@ -39,6 +61,7 @@ public class ThreadedEventListener implements EventListener, ExecutorService {
 
     /**
      * Adds another listener whose action will be run in the {@link #threadPool}
+     *
      * @param listener the listener to add
      * @return the current {@link ThreadedEventListener} for chaining conveniences.
      */
@@ -49,6 +72,7 @@ public class ThreadedEventListener implements EventListener, ExecutorService {
 
     /**
      * Adds multiple listeners whose actions will be run in the {@link #threadPool}
+     *
      * @param listeners the listeners to add
      * @return the current {@link ThreadedEventListener} for chaining conveniences.
      */
@@ -59,6 +83,7 @@ public class ThreadedEventListener implements EventListener, ExecutorService {
 
     /**
      * Adds multiple listeners whose actions will be run in the {@link #threadPool}
+     *
      * @param listeners the listeners to add
      * @return the current {@link ThreadedEventListener} for chaining conveniences.
      */

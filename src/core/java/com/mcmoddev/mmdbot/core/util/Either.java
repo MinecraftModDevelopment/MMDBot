@@ -64,10 +64,11 @@ public final class Either<L, R> {
      *     <li>if {@code right} isn't {@code null}, but {@code left} is, the side is {@link Side#RIGHT}</li>
      *     <li>if {@code left} isn't {@code null}, but {@code right} is, the side is {@link Side#LEFT}</li>
      * </ul>
-     * @param left the left value
+     *
+     * @param left  the left value
      * @param right the right value
-     * @param <L> the type of the left value
-     * @param <R> the type of the right value
+     * @param <L>   the type of the left value
+     * @param <R>   the type of the right value
      * @return the {@link Either}
      */
     @NonNull
@@ -127,7 +128,8 @@ public final class Either<L, R> {
 
     /**
      * Accepts the consumers on the values. The consumers can be {@code null}.
-     * @param ifLeft the consumer to accept on the left value, if present
+     *
+     * @param ifLeft  the consumer to accept on the left value, if present
      * @param ifRight the consumer to accept on the right value, if present
      */
     public void accept(Consumer<? super L> ifLeft, Consumer<? super R> ifRight) {

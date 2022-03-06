@@ -33,7 +33,6 @@ import discord4j.rest.entity.RestChannel;
 import reactor.core.publisher.Mono;
 
 import java.io.Serial;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -82,7 +81,8 @@ public final class Utils {
     }
 
     public static void getAuditLog(final Guild guild, final long targetId, UnaryOperator<AuditLogQueryFlux> modifier, Consumer<AuditLogEntry> consumer) {
-        getAuditLog(guild, targetId, modifier, consumer, () -> {});
+        getAuditLog(guild, targetId, modifier, consumer, () -> {
+        });
     }
 
     public static void getAuditLog(final Guild guild, final long targetId, UnaryOperator<AuditLogQueryFlux> modifier, Consumer<AuditLogEntry> consumer, Runnable orElse) {
@@ -102,10 +102,10 @@ public final class Utils {
             guild.getChannelById(Snowflake.of(channelId))
                 .onErrorResume(e -> Mono.empty()).blockOptional()
                 .ifPresent(channel -> {
-                if (channel instanceof MessageChannel msgChannel) {
-                    msgChannel.getMessageById(Snowflake.of(messageId)).blockOptional().ifPresent(returnAtomic::set);
-                }
-            });
+                    if (channel instanceof MessageChannel msgChannel) {
+                        msgChannel.getMessageById(Snowflake.of(messageId)).blockOptional().ifPresent(returnAtomic::set);
+                    }
+                });
         });
         return returnAtomic.get();
     }
