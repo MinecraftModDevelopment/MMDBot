@@ -209,15 +209,23 @@ public final class TheCommander implements Bot {
             System.exit(1);
         }
 
-        final var cfKey = dotenv.get("CF_API_KEY", "");
-        if (!cfKey.isBlank()) {
-            final var api = new CurseForgeAPI(cfKey);
-            final var cfProjects = new CFProjects(runPath.resolve("cf_projects.json"));
-            this.curseForgeManager = new CurseForgeManager(api, cfProjects);
+        try {
+            final var cfKey = dotenv.get("CF_API_KEY", "");
+            if (!cfKey.isBlank()) {
+                final var api = CurseForgeAPI
+                    .builder()
+                    .apiKey(cfKey)
+                    .build();
+                final var cfProjects = new CFProjects(runPath.resolve("cf_projects.json"));
+                this.curseForgeManager = new CurseForgeManager(api, cfProjects);
 
-            CURSE_FORGE_UPDATE_SCHEDULER.scheduleAtFixedRate(cfProjects, 0, 10, TimeUnit.MINUTES);
-        } else {
-            LOGGER.warn("Could not find a valid CurseForge API Key! Some features might not work as expected.");
+                CURSE_FORGE_UPDATE_SCHEDULER.scheduleAtFixedRate(cfProjects, 0, 10, TimeUnit.MINUTES);
+            } else {
+                LOGGER.warn("Could not find a valid CurseForge API Key! Some features might not work as expected.");
+            }
+        } catch (LoginException e) {
+            LOGGER.error("Error while authenticating to the CurseForge API. Please provide a valid token, or don't provide any value!", e);
+            System.exit(1);
         }
     }
 
