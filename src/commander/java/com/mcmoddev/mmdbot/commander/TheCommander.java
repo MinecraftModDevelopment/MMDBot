@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.commander;
 
-import com.google.common.reflect.TypeToken;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.command.SlashCommand;
@@ -28,12 +27,12 @@ import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
-import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeWebhooksCommand;
 import com.mcmoddev.mmdbot.commander.util.EventListeners;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
+import com.mcmoddev.mmdbot.core.util.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
 import com.mcmoddev.mmdbot.core.util.ReflectionsUtils;
@@ -50,10 +49,8 @@ import net.dv8tion.jda.api.utils.AllowedMentions;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.configurate.BasicConfigurationNode;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.ConfigurationOptions;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 import org.spongepowered.configurate.reference.ConfigurationReference;
@@ -63,7 +60,6 @@ import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 import javax.annotation.Nullable;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -137,7 +133,7 @@ public final class TheCommander implements Bot {
     private CommandClient commandClient;
     @Nullable
     private CurseForgeManager curseForgeManager;
-    private ConfigurationReference<CommentedConfigurationNode> configRef;
+    private ConfigurationReference<CommentedConfigurationNode> config;
     private Configuration generalConfig;
     private final Dotenv dotenv;
     private final Path runPath;
@@ -154,44 +150,16 @@ public final class TheCommander implements Bot {
 
         try {
             final var configPath = runPath.resolve("configs").resolve("general_config.conf");
-            final ValueReference<Configuration, CommentedConfigurationNode> configReference;
-            { // Normal configuration
-                final HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
-                    .emitComments(true)
-                    .prettyPrinting(true)
-                    .defaultOptions(ConfigurationOptions.defaults().serializers(ADDED_SERIALIZERS))
-                    .path(configPath)
-                    .build();
+            final HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
+                .emitComments(true)
+                .prettyPrinting(true)
+                .defaultOptions(ConfigurationOptions.defaults().serializers(ADDED_SERIALIZERS))
+                .path(configPath)
+                .build();
+            final var cPair = ConfigurateUtils.loadConfig(loader, configPath, c -> generalConfig = c, Configuration.class, Configuration.EMPTY);
+            config = cPair.second();
+            generalConfig = cPair.first().get();
 
-                final var configSerializer = Objects.requireNonNull(loader.defaultOptions().serializers().get(Configuration.class));
-
-                if (!Files.exists(configPath)) {
-                    try {
-                        final var node = loader.loadToReference();
-                        Files.createDirectories(configPath.getParent());
-                        Files.createFile(configPath);
-                        configSerializer.serialize(Configuration.TYPE, Configuration.EMPTY, node.node());
-                        node.save();
-                    } catch (Exception e) {
-                        LOGGER.error("Exception while tyring to create config file!", e);
-                        throw new RuntimeException(e);
-                    }
-                }
-
-                configRef = loader.loadToReference();
-
-                { // Add new values to the config
-                    final var inMemoryNode = CommentedConfigurationNode.factory().createNode();
-                    configSerializer.serialize(Configuration.TYPE, Configuration.EMPTY, inMemoryNode);
-                    configRef.node().mergeFrom(inMemoryNode);
-                    configRef.save();
-                }
-
-                configReference = configRef.referenceTo(Configuration.class);
-                generalConfig = configReference.get();
-
-                Constants.CONFIG_WATCH_SERVICE.listenToFile(configPath, e -> loadConfig());
-            }
         } catch (ConfigurateException e) {
             LOGGER.error("Exception while trying to load general config", e);
             throw new RuntimeException(e);
@@ -256,21 +224,12 @@ public final class TheCommander implements Bot {
         }
     }
 
-    private void loadConfig() {
-        try {
-            this.configRef.load();
-            generalConfig = configRef.referenceTo(Configuration.class).get();
-        } catch (ConfigurateException e) {
-            throw new RuntimeException("Failed to reload configuration after file change", e);
-        }
-    }
-
     @Override
     public void shutdown() {
         jda.shutdown();
         instance = null; // Clear the instance, as it doesn't exist anymore.
-                         // The "this" object should still exist for restarting it, at which point the instance will
-                         // be assigned again
+        // The "this" object should still exist for restarting it, at which point the instance will
+        // be assigned again
     }
 
     @Override
