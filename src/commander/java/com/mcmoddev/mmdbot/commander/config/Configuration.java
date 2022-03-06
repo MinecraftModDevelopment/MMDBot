@@ -16,6 +16,7 @@ public class Configuration {
     @Required
     @Setting("bot")
     private Bot bot = new Bot();
+
     public Bot bot() {
         return bot;
     }
@@ -27,6 +28,7 @@ public class Configuration {
         @Setting("owners")
         @Comment("The Snowflake IDs of the owners of the bot.")
         private List<String> owners = new ArrayList<>();
+
         public List<String> getOwners() {
             return owners;
         }
@@ -35,6 +37,7 @@ public class Configuration {
         @Setting("guild")
         @Comment("The main guild of the bot.")
         private String guild = null;
+
         public String guild() {
             return guild;
         }

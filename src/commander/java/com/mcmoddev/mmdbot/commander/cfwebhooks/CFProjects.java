@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class CFProjects implements Runnable {
     private final Path filePath;
     private List<CFProject> projects;
+
     public CFProjects(final Path filePath) {
         this.filePath = filePath;
         load();
@@ -72,7 +73,8 @@ public final class CFProjects implements Runnable {
         try {
             createFileIfNotExists();
             try (InputStreamReader reader = new InputStreamReader(new FileInputStream(filePath.toFile()), StandardCharsets.UTF_8)) {
-                Type typeOfList = new TypeToken<List<CFProject>>() {}.getType();
+                Type typeOfList = new TypeToken<List<CFProject>>() {
+                }.getType();
                 projects = Constants.Gsons.NO_PRETTY_PRINTING.fromJson(reader, typeOfList);
             }
         } catch (IOException e) {

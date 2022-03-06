@@ -58,20 +58,20 @@ public final class ReferencingListener extends ListenerAdapter {
 
         final var matcher = Utils.MESSAGE_LINK_PATTERN.matcher(msg[0]);
         if (matcher.find()) {
-                Mono.zip(event.getGuild(), Mono.justOrEmpty(event.getMember())).subscribe(pair -> {
-                    try {
-                        final var message = Utils.getMessageByLink(msg[0], pair.getT1());
-                        if (message != null) {
-                            event.getMessage().getChannel().subscribe(channel -> channel.createMessage(reference(message, pair.getT2()))
-                                .withAllowedMentions(ALLOWED_MENTIONS).subscribe());
-                            if (msg.length == 1) {
-                                originalMsg.delete("Quote successful").subscribe();
-                            }
+            Mono.zip(event.getGuild(), Mono.justOrEmpty(event.getMember())).subscribe(pair -> {
+                try {
+                    final var message = Utils.getMessageByLink(msg[0], pair.getT1());
+                    if (message != null) {
+                        event.getMessage().getChannel().subscribe(channel -> channel.createMessage(reference(message, pair.getT2()))
+                            .withAllowedMentions(ALLOWED_MENTIONS).subscribe());
+                        if (msg.length == 1) {
+                            originalMsg.delete("Quote successful").subscribe();
                         }
-                    } catch (Utils.MessageLinkException ignored) {
-
                     }
-                });
+                } catch (Utils.MessageLinkException ignored) {
+
+                }
+            });
         }
     }
 
@@ -92,7 +92,7 @@ public final class ReferencingListener extends ListenerAdapter {
         });
         if (!message.getContent().isBlank()) {
             description.append("[%s](%s)".formatted("Reference ➤ ", msgLink))
-                    .append(message.getContent());
+                .append(message.getContent());
         } else {
             description.append("[%s](%s)".formatted("Jump to referenced message.", msgLink));
         }

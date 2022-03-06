@@ -1,6 +1,5 @@
 package com.mcmoddev.mmdbot.commander.cfwebhooks;
 
-import static java.lang.System.lineSeparator;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.external.JDAWebhookClient;
 import club.minnced.discord.webhook.send.AllowedMentions;
@@ -28,6 +27,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+
+import static java.lang.System.lineSeparator;
 
 @UtilityClass
 public class CFUtils {

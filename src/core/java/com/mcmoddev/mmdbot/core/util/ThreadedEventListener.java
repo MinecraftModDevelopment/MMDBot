@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 /**
  * An {@link EventListener} implementation which allows running the action of
  * multiple {@link EventListener}s in a thread poll.
+ *
  * @author matyrobbrt
  */
 @Slf4j
@@ -29,8 +30,9 @@ public class ThreadedEventListener implements EventListener, ExecutorService {
 
     /**
      * Creates a new {@link ThreadedEventListener}
+     *
      * @param threadPool the thread poll used for running the actions of the events
-     * @param listeners the listeners to run
+     * @param listeners  the listeners to run
      */
     public ThreadedEventListener(final ExecutorService threadPool, EventListener... listeners) {
         this.threadPool = threadPool;
@@ -39,6 +41,7 @@ public class ThreadedEventListener implements EventListener, ExecutorService {
 
     /**
      * Adds another listener whose action will be run in the {@link #threadPool}
+     *
      * @param listener the listener to add
      * @return the current {@link ThreadedEventListener} for chaining conveniences.
      */
@@ -49,6 +52,7 @@ public class ThreadedEventListener implements EventListener, ExecutorService {
 
     /**
      * Adds multiple listeners whose actions will be run in the {@link #threadPool}
+     *
      * @param listeners the listeners to add
      * @return the current {@link ThreadedEventListener} for chaining conveniences.
      */
@@ -59,6 +63,7 @@ public class ThreadedEventListener implements EventListener, ExecutorService {
 
     /**
      * Adds multiple listeners whose actions will be run in the {@link #threadPool}
+     *
      * @param listeners the listeners to add
      * @return the current {@link ThreadedEventListener} for chaining conveniences.
      */

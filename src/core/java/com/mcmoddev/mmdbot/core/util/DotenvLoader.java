@@ -45,6 +45,7 @@ public class DotenvLoader {
 
     /**
      * Sets the consumer which will be run when a .env file is created, if it doesn't exist
+     *
      * @param whenCreated the consumer
      * @return this {@link DotenvLoader}
      */
@@ -55,6 +56,7 @@ public class DotenvLoader {
 
     /**
      * Sets the path of the .env
+     *
      * @param filePath the path of the .env file
      * @return this {@link DotenvLoader}
      */
@@ -65,6 +67,7 @@ public class DotenvLoader {
 
     /**
      * Does not throw an exception when .env is malformed.
+     *
      * @return this {@link DotenvLoader}
      */
     public DotenvLoader ignoreIfMalformed() {
@@ -74,6 +77,7 @@ public class DotenvLoader {
 
     /**
      * Sets each environment variable as system properties.
+     *
      * @return this {@link DotenvLoader}
      */
     public DotenvLoader systemProperties() {
@@ -83,6 +87,7 @@ public class DotenvLoader {
 
     /**
      * Load the contents of .env into the virtual environment.
+     *
      * @return a new {@link Dotenv} instance
      * @throws DotenvException when an error occurs
      */

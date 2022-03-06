@@ -23,12 +23,13 @@ public class ConfigurateUtils {
 
     /**
      * Loads a config, and sets any new values that are not present.
-     * @param loader the loader to use
-     * @param configPath the path of the config
+     *
+     * @param loader        the loader to use
+     * @param configPath    the path of the config
      * @param configSetter  a consumer which will set the new config in the case of reloads
-     * @param configClass the class of the config
+     * @param configClass   the class of the config
      * @param defaultConfig the default config
-     * @param <T> the type of the config
+     * @param <T>           the type of the config
      * @return a reference to the configuration node and the configuration reference
      * @throws ConfigurateException
      */

@@ -87,5 +87,6 @@ public final class BotRegistry {
             .orElse(null);
     }
 
-    public record BotRegistryEntry<B extends Bot>(BotType<B> botType, Integer priority) {}
+    public record BotRegistryEntry<B extends Bot>(BotType<B> botType, Integer priority) {
+    }
 }

@@ -19,6 +19,7 @@ import java.util.function.BiConsumer;
 
 /**
  * The command used for CurseForge webhook managing
+ *
  * @author matyrobbrt
  */
 public final class CurseForgeWebhooksCommand {
@@ -29,7 +30,7 @@ public final class CurseForgeWebhooksCommand {
         .userPermissions(Permission.MANAGE_WEBHOOKS)
         .options(new OptionData(OptionType.INTEGER, "project-id", "The ID of the project to add to this channel.", true))
         .executes(event -> {
-            final var pId= Objects.requireNonNull(event.getOption("project-id", OptionMapping::getAsInt));
+            final var pId = Objects.requireNonNull(event.getOption("project-id", OptionMapping::getAsInt));
             checkConfigured(event, catchException((hook, manager) -> {
                 // Start a check to see if the project ID is valid
                 manager.api().getAsyncHelper().getMod(pId)

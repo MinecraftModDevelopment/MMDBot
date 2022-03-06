@@ -43,6 +43,7 @@ import java.util.function.Supplier;
 
 /**
  * A guild-specific config for logging channels.
+ *
  * @author matyrobbrt
  */
 @Slf4j

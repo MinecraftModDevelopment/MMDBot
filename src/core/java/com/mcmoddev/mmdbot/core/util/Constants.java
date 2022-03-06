@@ -34,11 +34,11 @@ public final class Constants {
     public static final Joiner LINE_JOINER = Joiner.on(System.lineSeparator());
 
     public static final WatchServiceListener CONFIG_WATCH_SERVICE = io.github.matyrobbrt.curseforgeapi.util.Utils.rethrowSupplier(() -> WatchServiceListener
-		.builder()
-		.threadFactory(r -> Utils.setThreadDaemon(new Thread(r, "ConfigListener"), true))
-		.build()).get();
+        .builder()
+        .threadFactory(r -> Utils.setThreadDaemon(new Thread(r, "ConfigListener"), true))
+        .build()).get();
 
-	public static final class Gsons {
+    public static final class Gsons {
         public static final Gson NO_PRETTY_PRINTING = new GsonBuilder()
             .registerTypeAdapterFactory(new RecordTypeAdapterFactory())
             .disableHtmlEscaping()

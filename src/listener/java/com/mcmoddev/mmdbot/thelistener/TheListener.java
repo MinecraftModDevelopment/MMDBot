@@ -57,13 +57,10 @@ import reactor.core.publisher.Mono;
 
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import static com.mcmoddev.mmdbot.thelistener.util.Utils.mentionAndID;
-
-import javax.annotation.Nullable;
 
 public final class TheListener implements Bot {
 
@@ -190,7 +187,8 @@ public final class TheListener implements Bot {
 
         new Thread(() -> {
             // D4J doesn't have non-daemon threads
-            while (true) {}
+            while (true) {
+            }
         }).start();
     }
 
