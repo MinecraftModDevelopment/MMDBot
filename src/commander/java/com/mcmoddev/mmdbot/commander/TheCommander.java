@@ -180,6 +180,7 @@ public final class TheCommander implements Bot {
             .forceGuildOnly(generalConfig.bot().guild())
             .useHelpBuilder(false)
             .setManualUpsert(false)
+            .setActivity(null)
             .build();
         EventListeners.COMMANDS_LISTENER.addListener((EventListener) commandClient);
 
