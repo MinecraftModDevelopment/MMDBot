@@ -56,7 +56,7 @@ public class Configuration {
         @Required
         @Setting("guild")
         @Comment("The main guild of the bot.")
-        private String guild = null;
+        private String guild = "";
 
         public String guild() {
             return guild;
