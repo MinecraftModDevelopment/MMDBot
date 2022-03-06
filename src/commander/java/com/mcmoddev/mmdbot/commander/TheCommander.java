@@ -50,8 +50,10 @@ import net.dv8tion.jda.api.utils.AllowedMentions;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.configurate.BasicConfigurationNode;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.ConfigurationOptions;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 import org.spongepowered.configurate.reference.ConfigurationReference;
@@ -161,13 +163,14 @@ public final class TheCommander implements Bot {
                     .path(configPath)
                     .build();
 
+                final var configSerializer = Objects.requireNonNull(loader.defaultOptions().serializers().get(Configuration.class));
+
                 if (!Files.exists(configPath)) {
                     try {
                         final var node = loader.loadToReference();
                         Files.createDirectories(configPath.getParent());
                         Files.createFile(configPath);
-                        Objects.requireNonNull(loader.defaultOptions().serializers().get(Configuration.class))
-                            .serialize(new TypeToken<Configuration>(){}.getType(), Configuration.EMPTY, node.node());
+                        configSerializer.serialize(Configuration.TYPE, Configuration.EMPTY, node.node());
                         node.save();
                     } catch (Exception e) {
                         LOGGER.error("Exception while tyring to create config file!", e);
@@ -176,6 +179,14 @@ public final class TheCommander implements Bot {
                 }
 
                 configRef = loader.loadToReference();
+
+                { // Add new values to the config
+                    final var inMemoryNode = CommentedConfigurationNode.factory().createNode();
+                    configSerializer.serialize(Configuration.TYPE, Configuration.EMPTY, inMemoryNode);
+                    configRef.node().mergeFrom(inMemoryNode);
+                    configRef.save();
+                }
+
                 configReference = configRef.referenceTo(Configuration.class);
                 generalConfig = configReference.get();
 

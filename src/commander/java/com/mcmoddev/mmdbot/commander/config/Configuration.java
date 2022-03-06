@@ -11,6 +11,7 @@ import java.util.List;
 @ConfigSerializable
 public class Configuration {
     public static final Configuration EMPTY = new Configuration();
+    public static final java.lang.reflect.Type TYPE = io.leangen.geantyref.TypeToken.get(Configuration.class).getType();
 
     @Required
     @Setting("bot")
