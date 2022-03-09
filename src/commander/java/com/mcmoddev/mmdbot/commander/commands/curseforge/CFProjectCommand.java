@@ -145,7 +145,13 @@ public class CFProjectCommand {
                             .stream()
                             .map(io.github.matyrobbrt.curseforgeapi.schemas.Category::name)
                             .reduce("", (a, b) -> a + System.lineSeparator() + b), true)
-                        .addField("Featured", String.valueOf(mod.isFeatured()), true);
+                        .addField("Featured", String.valueOf(mod.isFeatured()), true)
+                        .addField("Latest Files and their CurseMaven Coordinates", mod.latestFiles()
+                            .stream()
+                            .map(f -> "[%s](%s): `curse.maven:%s-%s:%s`".formatted(f.displayName(), f.downloadUrl(),
+                                mod.slug().replace("-", "_") /* Replace dashes, just in case */, mod.id(), f.id()))
+                            .limit(5)
+                            .reduce("", (a, b) -> a + System.lineSeparator() + b), false);
                     setEmbedAuthor(embed);
                     context.replyEmbeds(embed.build());
                 }, () -> context.reply("Could not find project with ID: **%s**".formatted(pId)));
