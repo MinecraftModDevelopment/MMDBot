@@ -29,6 +29,7 @@ import com.mcmoddev.mmdbot.gist.Gist;
 import com.mcmoddev.mmdbot.gist.GistUtils;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -63,7 +64,7 @@ public class ContextMenuGist extends MessageContextMenu {
     }
 
     private static void run(final String token, final MessageContextMenuEvent event) {
-        if (event.getTarget().getAttachments().isEmpty()) {
+        if (!canGist(event.getTarget())) {
             event.deferReply(true).setContent("The message doesn't have any attachments!").queue();
             return;
         }
@@ -100,7 +101,16 @@ public class ContextMenuGist extends MessageContextMenu {
 
     public static Gist createGistFromMessage(final net.dv8tion.jda.api.entities.Message message)
         throws InterruptedException, ExecutionException {
-        final var gist = new Gist(message.getContentRaw(), false);
+        final var hasCodeBlocks = message.getContentRaw().contains("```");
+        final var gist = hasCodeBlocks ? new Gist("", false) : new Gist(message.getContentRaw(), false);
+        if (hasCodeBlocks) {
+            var content = message.getContentRaw().substring(message.getContentRaw().indexOf("```") + 3);
+            final var indexOf$ = content.indexOf("\n");
+            final var extension = content.substring(0, indexOf$ == -1 ? 0 : indexOf$);
+            content = content.substring(content.indexOf("\n") + 1);
+            content = content.substring(0, content.lastIndexOf("```"));
+            gist.addFile("file" + (extension.isBlank() ? "" : "." + extension), content);
+        }
         for (var attach : message.getAttachments()) {
             attach.retrieveInputStream().thenAccept(is -> {
                 if (BLACKLISTED_ATTACHMENTS.contains(attach.getFileExtension())) {
@@ -115,5 +125,9 @@ public class ContextMenuGist extends MessageContextMenu {
             }).get();
         }
         return gist;
+    }
+
+    public static boolean canGist(Message message) {
+        return message.getAttachments().isEmpty() || !message.getContentRaw().contains("```");
     }
 }

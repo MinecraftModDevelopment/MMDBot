@@ -66,7 +66,7 @@ public final class CmdGist extends Command {
             event.getMessage().reply("Please reference a message to create a gist from its attachments.").mentionRepliedUser(false).queue();
             return;
         }
-        if (target.getAttachments().isEmpty()) {
+        if (!ContextMenuGist.canGist(target)) {
             event.getMessage().reply("The message doesn't have any attachments!").mentionRepliedUser(false).queue();
             return;
         }
