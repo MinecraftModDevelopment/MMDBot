@@ -31,6 +31,7 @@ configurate = "4.1.1"
 cfapi = "1.5.0"
 jsoup = "1.14.3"
 webhooks = "0.7.5"
+eventdispatcher = "1.0.0"
 
 [libraries]
 jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
@@ -59,3 +60,4 @@ configurate-hocon = {module = "org.spongepowered:configurate-hocon", version.ref
 cfapi = {module = "io.github.matyrobbrt:curseforgeapi", version.ref = "cfapi"}
 jsoup = {module = "org.jsoup:jsoup", version.ref = "jsoup"}
 webhooks = {module = "club.minnced:discord-webhooks", version.ref = "webhooks"}
+eventdispatcher = {module = "io.github.matyrobbrt:eventdispatcher", version.ref = "eventdispatcher"} 
