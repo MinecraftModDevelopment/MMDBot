@@ -20,6 +20,9 @@
  */
 package com.mcmoddev.mmdbot.thelistener.events;
 
+import static com.mcmoddev.mmdbot.thelistener.TheListener.getClient;
+import static com.mcmoddev.mmdbot.thelistener.util.Utils.mentionAndID;
+import com.mcmoddev.mmdbot.core.event.moderation.WarningEvent;
 import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.thelistener.TheListener;
 import com.mcmoddev.mmdbot.thelistener.util.ListenerAdapter;
@@ -36,12 +39,17 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.PartialMember;
 import discord4j.core.object.entity.User;
 import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.discordjson.possible.Possible;
 import discord4j.rest.util.Color;
+import io.github.matyrobbrt.eventdispatcher.SubscribeEvent;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.Optional;
 
 public final class ModerationEvents extends ListenerAdapter {
+    public static final ModerationEvents INSTANCE = new ModerationEvents();
+    private ModerationEvents() {}
 
     @Override
     public void onBan(final BanEvent event) {
@@ -228,5 +236,73 @@ public final class ModerationEvents extends ListenerAdapter {
                 Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c.createMessage(embed.build().asRequest()).subscribe());
             });
         });
+    }
+
+    @SubscribeEvent
+    public void onWarnAdd(final WarningEvent.Add event) {
+        if (getClient() == null) {
+            return;
+        }
+        final var doc = event.getDocument();
+        Mono.zip(getClient().getUserById(Snowflake.of(doc.userId())).getData(),
+                getClient().getUserById(Snowflake.of(doc.moderatorId())).getData())
+            .subscribe(t -> {
+                final var user = t.getT1();
+                final var warner = t.getT2();
+                final var embed = EmbedCreateSpec.builder()
+                    .color(Color.RED)
+                    .title("New Warning")
+                    .description("%s warned %s".formatted(mentionAndID(doc.moderatorId()), mentionAndID(doc.userId())))
+                    .thumbnail(user.avatar().map(Possible::of).orElse(Possible.absent()))
+                    .addField("Reason:", doc.reason(), false)
+                    .addField("Warning ID", doc.warnId(), false)
+                    .timestamp(Instant.now())
+                    .footer("Warner ID: " + doc.moderatorId(), warner.avatar().orElse(null));
+                Utils.executeInLoggingChannel(Snowflake.of(doc.guildId()), LoggingType.MODERATION_EVENTS,
+                    c -> c.createMessage(embed.build().asRequest()).subscribe());
+            });
+    }
+
+    @SubscribeEvent
+    public void onWarnClear(final WarningEvent.Clear event) {
+        if (getClient() == null) {
+            return;
+        }
+        final var warnDoc = event.getDocument();
+        Mono.zip(getClient().getUserById(Snowflake.of(warnDoc.userId())).getData(),
+                getClient().getUserById(Snowflake.of(event.getModeratorId())).getData())
+            .subscribe(t -> {
+                final var user = t.getT1();
+                final var moderator = t.getT2();
+                final var embed = EmbedCreateSpec.builder()
+                    .color(Color.GREEN)
+                    .title("Warning Cleared")
+                    .description("One of the warnings of " + mentionAndID(warnDoc.userId()) + " has been removed!")
+                    .thumbnail(user.avatar().map(Possible::of).orElse(Possible.absent()))
+                    .addField("Old warning reason:", warnDoc.reason(), false)
+                    .addField("Old warner:", mentionAndID(warnDoc.userId()), false)
+                    .timestamp(Instant.now())
+                    .footer("Moderator ID: " + event.getModeratorId(), moderator.avatar().orElse(null));
+                Utils.executeInLoggingChannel(Snowflake.of(warnDoc.guildId()), LoggingType.MODERATION_EVENTS,
+                    c -> c.createMessage(embed.build().asRequest()).subscribe());
+            });
+    }
+
+    @SubscribeEvent
+    public void onWarnClearAll(final WarningEvent.ClearAllWarns event) {
+        if (getClient() == null) {
+            return;
+        }
+        getClient().getUserById(Snowflake.of(event.getModeratorId())).getData()
+            .subscribe(moderator -> {
+                final var embed = EmbedCreateSpec.builder()
+                    .color(Color.GREEN)
+                    .title("Warnings Cleared")
+                    .description("All of the warnings of " + mentionAndID(event.getTargetId()) + " have been cleared!")
+                    .timestamp(Instant.now())
+                    .footer("Moderator ID: " + event.getModeratorId(), moderator.avatar().orElse(null));
+                Utils.executeInLoggingChannel(Snowflake.of(event.getGuildId()), LoggingType.MODERATION_EVENTS,
+                    c -> c.createMessage(embed.build().asRequest()).subscribe());
+            });
     }
 }

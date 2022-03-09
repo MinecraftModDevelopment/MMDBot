@@ -24,7 +24,8 @@ import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
-import com.mcmoddev.mmdbot.core.event.WarningEvent;
+import com.mcmoddev.mmdbot.core.event.Events;
+import com.mcmoddev.mmdbot.core.event.moderation.WarningEvent;
 import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import com.mcmoddev.mmdbot.thelistener.events.LeaveJoinEvents;
 import com.mcmoddev.mmdbot.thelistener.events.MessageEvents;
@@ -80,59 +81,7 @@ public final class TheListener implements Bot {
     };
 
     static {
-        WarningEvent.Add.addListener(event -> {
-            final var doc = event.getDocument();
-            Mono.zip(getClient().getUserById(Snowflake.of(doc.userId())).getData(),
-                    getClient().getUserById(Snowflake.of(doc.moderatorId())).getData())
-                .subscribe(t -> {
-                    final var user = t.getT1();
-                    final var warner = t.getT2();
-                    final var embed = EmbedCreateSpec.builder()
-                        .color(Color.RED)
-                        .title("New Warning")
-                        .description("%s warned %s".formatted(mentionAndID(doc.moderatorId()), mentionAndID(doc.userId())))
-                        .thumbnail(user.avatar().map(Possible::of).orElse(Possible.absent()))
-                        .addField("Reason:", doc.reason(), false)
-                        .addField("Warning ID", doc.warnId(), false)
-                        .timestamp(Instant.now())
-                        .footer("Warner ID: " + doc.moderatorId(), warner.avatar().orElse(null));
-                    Utils.executeInLoggingChannel(Snowflake.of(doc.guildId()), LoggingType.MODERATION_EVENTS,
-                        c -> c.createMessage(embed.build().asRequest()).subscribe());
-                });
-        });
-        WarningEvent.Clear.addListener(event -> {
-            final var warnDoc = event.getDocument();
-            Mono.zip(getClient().getUserById(Snowflake.of(warnDoc.userId())).getData(),
-                    getClient().getUserById(Snowflake.of(event.getModeratorId())).getData())
-                .subscribe(t -> {
-                    final var user = t.getT1();
-                    final var moderator = t.getT2();
-                    final var embed = EmbedCreateSpec.builder()
-                        .color(Color.GREEN)
-                        .title("Warning Cleared")
-                        .description("One of the warnings of " + mentionAndID(warnDoc.userId()) + " has been removed!")
-                        .thumbnail(user.avatar().map(Possible::of).orElse(Possible.absent()))
-                        .addField("Old warning reason:", warnDoc.reason(), false)
-                        .addField("Old warner:", mentionAndID(warnDoc.userId()), false)
-                        .timestamp(Instant.now())
-                        .footer("Moderator ID: " + event.getModeratorId(), moderator.avatar().orElse(null));
-                    Utils.executeInLoggingChannel(Snowflake.of(warnDoc.guildId()), LoggingType.MODERATION_EVENTS,
-                        c -> c.createMessage(embed.build().asRequest()).subscribe());
-                });
-        });
-        WarningEvent.ClearAllWarns.addListener(event -> {
-            getClient().getUserById(Snowflake.of(event.getModeratorId())).getData()
-                .subscribe(moderator -> {
-                    final var embed = EmbedCreateSpec.builder()
-                        .color(Color.GREEN)
-                        .title("Warnings Cleared")
-                        .description("All of the warnings of " + mentionAndID(event.getTargetId()) + " have been cleared!")
-                        .timestamp(Instant.now())
-                        .footer("Moderator ID: " + event.getModeratorId(), moderator.avatar().orElse(null));
-                    Utils.executeInLoggingChannel(Snowflake.of(event.getGuildId()), LoggingType.MODERATION_EVENTS,
-                        c -> c.createMessage(embed.build().asRequest()).subscribe());
-                });
-        });
+        Events.MODERATION_BUS.register(ModerationEvents.INSTANCE);
     }
 
     private static TheListener instance;
@@ -182,7 +131,7 @@ public final class TheListener implements Bot {
             });
 
         Utils.subscribe(gateway, wrapListener(new MessageEvents()), wrapListener(new LeaveJoinEvents()),
-            wrapListener(new ModerationEvents()), wrapListener(new RoleEvents()),
+            wrapListener(ModerationEvents.INSTANCE), wrapListener(new RoleEvents()),
             wrapListener(new ReferencingListener()));
 
         new Thread(() -> {

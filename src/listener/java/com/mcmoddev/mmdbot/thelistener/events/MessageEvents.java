@@ -113,8 +113,8 @@ public final class MessageEvents extends ListenerAdapter {
                         .description("**A message sent by <@%s> in <#%s> has been edited!** [Jump to message.](%s)"
                             .formatted(author.getId().asLong(), event.getChannelId().asLong(), Utils.createMessageURL(newMessage)));
                     embedBuilder.timestamp(Instant.now());
-                    embedBuilder.addField("Before", oldMessage.getContent(), false)
-                        .addField("After", newMessage.getContent(), false);
+                    embedBuilder.addField("Before", oldMessage.getContent().isBlank() ? "*Blank*" : oldMessage.getContent(), false)
+                        .addField("After", newMessage.getContent().isBlank() ? "*Blank*" : newMessage.getContent(), false);
                     embedBuilder.author(author.getUsername(), null, author.getAvatarUrl())
                         .footer("Author ID: " + author.getId().asLong(), null);
                     return embedBuilder.build();
