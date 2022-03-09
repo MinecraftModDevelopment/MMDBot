@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.core.util;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Locale;
 
 public final class Utils {
 
@@ -51,5 +52,9 @@ public final class Utils {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static String uppercaseFirstLetter(final String string) {
+        return string.substring(0, 1).toUpperCase(Locale.ROOT) + string.substring(1);
     }
 }

@@ -28,10 +28,10 @@ fastutil = "8.5.8"
 kryo = "2.24.0"
 kryonet = "2.22.7"
 configurate = "4.1.1"
-cfapi = "1.5.0"
+cfapi = "1.6.1"
 jsoup = "1.14.3"
 webhooks = "0.7.5"
-eventdispatcher = "1.0.0"
+eventdispatcher = "1.1.0"
 
 [libraries]
 jda = { module = "net.dv8tion:JDA", version.ref = "jda" }

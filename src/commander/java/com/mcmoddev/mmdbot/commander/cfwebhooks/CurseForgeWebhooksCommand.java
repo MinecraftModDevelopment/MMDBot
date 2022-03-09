@@ -103,19 +103,31 @@ public final class CurseForgeWebhooksCommand {
         .name("list-projects")
         .guildOnly(true)
         .help("Lists all of the CurseForge projects added to this channel.")
-        .executes(event -> {
-            checkConfigured(event, catchException((hook, manager) -> {
-                final var projects = manager.projects().getProjectsForChannel(event.getChannel().getIdLong());
-                final var embed = new EmbedBuilder()
-                    .setTitle("Projects in this channel")
-                    .setDescription(projects
-                        .stream()
-                        .map(String::valueOf)
-                        .reduce("", (a, b) -> a + "\n" + b))
-                    .setTimestamp(Instant.now());
-                hook.editOriginalEmbeds(embed.build()).queue();
-            }));
-        })
+        .executes(event -> checkConfigured(event, catchException((hook, manager) -> {
+            final var projects = manager.projects().getProjectsForChannel(event.getChannel().getIdLong());
+            final var embed = new EmbedBuilder()
+                .setTitle("Projects in this channel")
+                .setDescription(projects
+                    .stream()
+                    .map(String::valueOf)
+                    .reduce("", (a, b) -> a + "\n" + b))
+                .setTimestamp(Instant.now());
+            hook.editOriginalEmbeds(embed.build()).queue();
+        })))
+        .build();
+
+    private static final SlashCommand REFRESH_PROJECTS_CMD = SlashCommandBuilder.builder()
+        .name("refresh")
+        .guildOnly(true)
+        .help("Re-runs the CurseForge update checkers.")
+        .executes(event -> checkConfigured(event, catchException((hook, manager) -> {
+            if (!event.getMember().hasPermission(Permission.MANAGE_WEBHOOKS)) {
+                hook.editOriginal("This command requires the Manage Webhooks permission across the entire guild!").queue();
+                return;
+            }
+            TheCommander.CURSE_FORGE_UPDATE_SCHEDULER.execute(manager.projects());
+            hook.editOriginal("Refreshing CurseForge update checkers.").queue();
+        })))
         .build();
 
     @RegisterSlashCommand
@@ -124,7 +136,7 @@ public final class CurseForgeWebhooksCommand {
         .guildOnly(true)
         .help("Commands regarding CurseForge webhooks.")
         .userPermissions(Permission.MANAGE_WEBHOOKS)
-        .children(ADD_PROJECT_CMD, REMOVE_PROJECT_CMD, LIST_PROJECTS_CMD)
+        .children(ADD_PROJECT_CMD, REMOVE_PROJECT_CMD, LIST_PROJECTS_CMD, REFRESH_PROJECTS_CMD)
         .build();
 
     private static void checkConfigured(SlashCommandEvent event, BiConsumer<InteractionHook, CurseForgeManager> consumer) {

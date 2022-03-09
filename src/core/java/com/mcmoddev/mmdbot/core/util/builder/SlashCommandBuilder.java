@@ -25,11 +25,13 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import io.github.matyrobbrt.curseforgeapi.util.ExceptionConsumer;
 import lombok.Builder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @Builder(builderClassName = "Builder")
@@ -77,6 +79,13 @@ public class SlashCommandBuilder {
                         Builder.this.executes.accept(event);
                     }
                 }
+
+                @Override
+                public void onAutoComplete(final CommandAutoCompleteInteractionEvent event) {
+                    if (onAutocomplete != null) {
+                        onAutocomplete.accept(event);
+                    }
+                }
             };
         }
     }
@@ -87,6 +96,7 @@ public class SlashCommandBuilder {
     private final List<OptionData> options;
     private boolean guildOnly;
     private ExceptionConsumer<SlashCommandEvent, ?> executes;
+    private Consumer<CommandAutoCompleteInteractionEvent> onAutocomplete;
 
     private static abstract class Cmd extends SlashCommand {
         public Cmd() {

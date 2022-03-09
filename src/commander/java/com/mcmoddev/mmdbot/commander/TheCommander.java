@@ -26,6 +26,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
+import com.mcmoddev.mmdbot.commander.commands.curseforge.CurseForgeCommand;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.commander.util.EventListeners;
 import com.mcmoddev.mmdbot.core.bot.Bot;
@@ -220,6 +221,7 @@ public final class TheCommander implements Bot {
                 this.curseForgeManager = new CurseForgeManager(api, cfProjects);
 
                 CURSE_FORGE_UPDATE_SCHEDULER.scheduleAtFixedRate(cfProjects, 0, 10, TimeUnit.MINUTES);
+                CurseForgeCommand.REFRESH_GAMES_TASK.run();
             } else {
                 LOGGER.warn("Could not find a valid CurseForge API Key! Some features might not work as expected.");
             }

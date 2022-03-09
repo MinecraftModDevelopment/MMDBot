@@ -26,6 +26,10 @@ import com.google.gson.GsonBuilder;
 import io.github.matyrobbrt.curseforgeapi.util.gson.RecordTypeAdapterFactory;
 import org.spongepowered.configurate.reference.WatchServiceListener;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
 /**
  * A class holding common constants
  */
@@ -37,6 +41,8 @@ public final class Constants {
         .builder()
         .threadFactory(r -> Utils.setThreadDaemon(new Thread(r, "ConfigListener"), true))
         .build()).get();
+
+    public static final ScheduledExecutorService TIMER = Executors.newSingleThreadScheduledExecutor(r -> Utils.setThreadDaemon(new Thread(r, "Timer"), true));
 
     public static final class Gsons {
         public static final Gson NO_PRETTY_PRINTING = new GsonBuilder()
