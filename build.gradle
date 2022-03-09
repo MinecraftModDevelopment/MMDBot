@@ -121,6 +121,7 @@ dependencies {
   global libs.cfapi
   global libs.jsoup
   global libs.webhooks
+  global libs.eventdispatcher 
 
   globalCompile libs.annotations
   globalCompile libs.lombok
