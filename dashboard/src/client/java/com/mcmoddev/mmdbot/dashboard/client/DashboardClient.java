@@ -73,8 +73,9 @@ public class DashboardClient {
             final var boostrap = new Bootstrap()
                 .group(clientGroup)
                 .channel(NioSocketChannel.class)
+                .remoteAddress(address.getAddress(), address.getPort())
                 .handler(new ChannelInitializer(Packets.SET, new MultiPacketListener(listeners)));
-            CHANNEL.set(boostrap.connect(address.getAddress(), address.getPort()).syncUninterruptibly().channel());
+            CHANNEL.set(boostrap.connect().syncUninterruptibly().channel());
 
             log.warn("Dashboard connection has been established with {}:{}", address.getAddress().getHostAddress(), address.getPort());
         } catch (Exception e) {

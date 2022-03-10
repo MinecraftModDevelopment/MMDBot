@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.dashboard.server;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mcmoddev.mmdbot.dashboard.ServerBridge;
 import com.mcmoddev.mmdbot.dashboard.common.encode.ChannelInitializer;
 import com.mcmoddev.mmdbot.dashboard.common.listener.MultiPacketListener;
@@ -28,6 +29,7 @@ import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketWaiter;
 import com.mcmoddev.mmdbot.dashboard.packets.CheckAuthorizedPacket;
 import com.mcmoddev.mmdbot.dashboard.packets.Packets;
+import com.mcmoddev.mmdbot.dashboard.util.LazySupplier;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
@@ -49,6 +51,12 @@ public final class DashboardSever {
 
     public static final PacketWaiter PACKET_WAITER = new PacketWaiter();
     public static final Map<InetSocketAddress, String> USERS = new HashMap<>();
+    private static final LazySupplier<NioEventLoopGroup> SERVER_EVENT_GROUP = LazySupplier
+        .of(() -> new NioEventLoopGroup(2, new ThreadFactoryBuilder().setNameFormat("Netty Server Group #%d").setDaemon(true).build()));
+
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread(SERVER_EVENT_GROUP.get()::shutdownGracefully, "ServerDashboardCloser"));
+    }
 
     public static void setup(InetSocketAddress address, PacketListener... extraListeners) {
         try {
@@ -65,9 +73,8 @@ public final class DashboardSever {
                 }
             });
 
-            final var bossGroup = new NioEventLoopGroup();
             final var bootstrap = new ServerBootstrap()
-                .group(bossGroup)
+                .group(SERVER_EVENT_GROUP.get())
                 .channel(NioServerSocketChannel.class)
                 .handler(new LoggingHandler(LogLevel.INFO))
                 .childHandler(new ChannelInitializer(Packets.SET, new MultiPacketListener(listeners)) {
@@ -78,16 +85,15 @@ public final class DashboardSever {
                     }
 
                     @Override
-                    public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
+                    public void channelUnregistered(final ChannelHandlerContext ctx) throws Exception {
                         log.warn("{} disconnected from the dashboard!", ctx.channel().remoteAddress());
-                        super.channelInactive(ctx);
+                        super.channelUnregistered(ctx);
                     }
                 })
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .childOption(ChannelOption.AUTO_CLOSE, false)
                 .localAddress(address.getAddress(), address.getPort());
-            bootstrap.bind(address.getAddress(), address.getPort()).syncUninterruptibly();
-
-            Runtime.getRuntime().addShutdownHook(new Thread(bossGroup::shutdownGracefully, "ServerDashboardCloser"));
+            bootstrap.bind().syncUninterruptibly();
             log.warn("Dashboard endpoint created at {}:{}!", address.getAddress(), address.getPort());
         } catch (Exception e) {
             log.error("Exception while trying to create dashboard endpoint!", e);

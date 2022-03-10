@@ -25,6 +25,7 @@ import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.Pair;
+import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
 import com.mcmoddev.mmdbot.dashboard.ServerBridge;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
@@ -53,7 +54,8 @@ public class RunBots {
     private static final Logger LOG = LoggerFactory.getLogger(RunBots.class);
     private static List<Bot> loadedBots = new ArrayList<>();
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
+        System.setProperty("java.net.preferIPv4Stack", "true");
 
         final var config = getOrCreateConfig();
 
@@ -93,8 +95,7 @@ public class RunBots {
             final var dashConfig = getDashboardConfig();
             try {
                 // TODO get the public ipv4 address
-                final var ip = InetAddress.getByName("localhost");
-                final var address = new InetSocketAddress(ip, dashConfig.port);
+                final var address = new InetSocketAddress("0.0.0.0", dashConfig.port);
                 final var listeners = new ArrayList<PacketListener>();
                 bots.map(b -> b.getType().getPacketListenerUnsafe(b)).forEach(listeners::add);
                 DashboardSever.setup(address, listeners.toArray(PacketListener[]::new));
