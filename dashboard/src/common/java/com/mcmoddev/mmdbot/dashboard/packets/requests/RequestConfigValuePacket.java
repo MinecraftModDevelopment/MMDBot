@@ -22,20 +22,19 @@ package com.mcmoddev.mmdbot.dashboard.packets.requests;
 
 import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
 import com.mcmoddev.mmdbot.dashboard.ServerBridge;
+import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
 import com.mcmoddev.mmdbot.dashboard.common.packet.HasIDPacket;
 import com.mcmoddev.mmdbot.dashboard.common.packet.HasResponse;
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketID;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketInputBuffer;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketOutputBuffer;
 import com.mcmoddev.mmdbot.dashboard.common.packet.WithAuthorizationPacket;
 import com.mcmoddev.mmdbot.dashboard.util.DashConfigType;
 
 public record RequestConfigValuePacket(PacketID packetID, BotTypeEnum botType, DashConfigType configType, String configName, String path)
     implements WithAuthorizationPacket, HasResponse<RequestConfigValuePacket.Response> {
 
-    public static RequestConfigValuePacket decode(PacketInputBuffer buffer) {
+    public static RequestConfigValuePacket decode(ByteBuffer buffer) {
         final var id = buffer.readPacketID();
         final var botType = buffer.readEnum(BotTypeEnum.class);
         final var cfgType = buffer.readEnum(DashConfigType.class);
@@ -45,7 +44,7 @@ public record RequestConfigValuePacket(PacketID packetID, BotTypeEnum botType, D
     }
 
     @Override
-    public void encode(final PacketOutputBuffer buffer) {
+    public void encode(final ByteBuffer buffer) {
         buffer.write(packetID);
         buffer.writeEnum(botType);
         buffer.writeEnum(configType);
@@ -66,7 +65,7 @@ public record RequestConfigValuePacket(PacketID packetID, BotTypeEnum botType, D
 
     public record Response(PacketID packetID, DashConfigType configType, Object value) implements Packet, HasIDPacket {
 
-        public static Response decode(PacketInputBuffer buffer) {
+        public static Response decode(ByteBuffer buffer) {
             final var id = buffer.readPacketID();
             final var cfgType = buffer.readEnum(DashConfigType.class);
             final var value = cfgType.tryConvert(cfgType.decode(buffer));
@@ -84,7 +83,7 @@ public record RequestConfigValuePacket(PacketID packetID, BotTypeEnum botType, D
         }
 
         @Override
-        public void encode(final PacketOutputBuffer buffer) {
+        public void encode(final ByteBuffer buffer) {
             buffer.write(packetID);
             buffer.writeEnum(configType);
             configType().encode(buffer, configType.tryConvert(value));

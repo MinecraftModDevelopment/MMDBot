@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.dashboard.common.packet;
 import com.mcmoddev.mmdbot.dashboard.common.BufferDecoder;
 import com.mcmoddev.mmdbot.dashboard.common.BufferSerializable;
 import com.mcmoddev.mmdbot.dashboard.common.BufferSerializers;
+import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
 
 import java.util.Objects;
 import java.util.Random;
@@ -52,12 +53,12 @@ public record PacketID(int intId, String stringId) implements BufferSerializable
 
     static {
         DECODER = BufferSerializers.registerDecoder(PacketID.class,
-            buffer -> new PacketID(buffer.readVarInt(true), buffer.readString()));
+            buffer -> new PacketID(buffer.readVarInt(), buffer.readString()));
     }
 
     @Override
-    public void encode(final PacketOutputBuffer buffer) {
-        buffer.writeVarInt(intId, true);
+    public void encode(final ByteBuffer buffer) {
+        buffer.writeVarInt(intId);
         buffer.writeString(stringId);
     }
 

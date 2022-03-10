@@ -20,11 +20,8 @@
  */
 package com.mcmoddev.mmdbot.dashboard.common.packet;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.Serializer;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import com.mcmoddev.mmdbot.dashboard.common.BufferDecoder;
+import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import org.slf4j.Logger;
@@ -71,7 +68,7 @@ public class PacketSet implements Iterable<Map.Entry<Class<? extends Packet>, In
 
     /**
      * Registers a packet of the specified {@code packetClass}. <br>
-     * The packet class <b>HAS TO HAVE</b> a constructor with a {@link PacketInputBuffer}
+     * The packet class <b>HAS TO HAVE</b> a constructor with a {@link ByteBuffer}
      * as the parameter, or an empty constructor. <br>
      * <strong>Due to this method using reflection to find the constructor,
      * it may <i>slightly</i> reduce performance.</strong>
@@ -83,7 +80,7 @@ public class PacketSet implements Iterable<Map.Entry<Class<? extends Packet>, In
     @SuppressWarnings("unchecked")
     public <P extends Packet> PacketSet addPacket(Class<P> packetClass) {
         final var hasPacketBufferConstructor = hasPacketBufferConstructor(packetClass);
-        final var methodType = hasPacketBufferConstructor ? MethodType.methodType(void.class, PacketInputBuffer.class) : MethodType.methodType(void.class);
+        final var methodType = hasPacketBufferConstructor ? MethodType.methodType(void.class, ByteBuffer.class) : MethodType.methodType(void.class);
         try {
             final var handle = LOOKUP.findConstructor(packetClass, methodType);
             return addPacket(packetClass, hasPacketBufferConstructor ? buffer -> {
@@ -102,13 +99,13 @@ public class PacketSet implements Iterable<Map.Entry<Class<? extends Packet>, In
                 }
             });
         } catch (NoSuchMethodException | IllegalAccessException e) {
-            throw new RuntimeException("The packet class " + packetClass + " does not have a constructor with a PacketInputBuffer as a parameter, or an empty constructor. Did you mean to use #addPacket(Class, Function)?");
+            throw new RuntimeException("The packet class " + packetClass + " does not have a constructor with a ByteBuffer as a parameter, or an empty constructor. Did you mean to use #addPacket(Class, Function)?");
         }
     }
 
     private static boolean hasPacketBufferConstructor(Class<? extends Packet> clazz) {
         try {
-            clazz.getConstructor(PacketInputBuffer.class);
+            clazz.getConstructor(ByteBuffer.class);
             return true;
         } catch (NoSuchMethodException ignored) {
             return false;
@@ -122,29 +119,9 @@ public class PacketSet implements Iterable<Map.Entry<Class<? extends Packet>, In
     }
 
     @Nullable
-    public Packet createPacket(int pktId, PacketInputBuffer buffer) {
+    public Packet createPacket(int pktId, ByteBuffer buffer) {
         final var function = this.idToDeserializer.get(pktId);
         return function != null ? function.decode(buffer) : null;
-    }
-
-    public void applyToKryo(Kryo kryo) {
-        classToId.keySet().stream()
-            .map(clz -> new SimplePair<>(clz, getId(clz)))
-            .forEach(pair -> {
-                final var id = pair.second();
-                kryo.register(pair.first(), new Serializer<Packet>() {
-                    @Override
-                    public void write(final Kryo kryo, final Output output, final Packet object) {
-                        object.encode(PacketOutputBuffer.fromOutput(output));
-                    }
-
-                    @Override
-                    public Packet read(final Kryo kryo, final Input input, final Class type) {
-                        return createPacket(id, PacketInputBuffer.fromInput(input));
-                    }
-                    // register from ID 100
-                }, id + 100);
-            });
     }
 
     @Override

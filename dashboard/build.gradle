@@ -84,8 +84,7 @@ dependencies {
     global libs.guava
     global libs.slf4japi
     global libs.fastutil
-    global libs.kryonet
-    global libs.kryo
+    global libs.netty
 
     globalCompile libs.lombok
 

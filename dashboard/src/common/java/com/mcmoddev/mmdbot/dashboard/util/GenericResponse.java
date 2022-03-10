@@ -23,7 +23,7 @@ package com.mcmoddev.mmdbot.dashboard.util;
 import com.mcmoddev.mmdbot.dashboard.common.BufferDecoder;
 import com.mcmoddev.mmdbot.dashboard.common.BufferSerializable;
 import com.mcmoddev.mmdbot.dashboard.common.BufferSerializers;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketOutputBuffer;
+import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
 import lombok.NonNull;
 
 import java.util.AbstractMap;
@@ -49,7 +49,7 @@ public record GenericResponse(Type type, String message) implements BufferSerial
     }
 
     @Override
-    public void encode(final PacketOutputBuffer buffer) {
+    public void encode(final ByteBuffer buffer) {
         buffer.writeEnum(type);
         buffer.writeString(message);
     }

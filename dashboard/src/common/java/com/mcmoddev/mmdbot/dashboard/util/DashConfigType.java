@@ -21,26 +21,25 @@
 package com.mcmoddev.mmdbot.dashboard.util;
 
 import com.mcmoddev.mmdbot.dashboard.common.BufferDecoder;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketInputBuffer;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketOutputBuffer;
+import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
 
 import java.util.function.BiConsumer;
 
 public enum DashConfigType {
-    STRING(String.class, (buffer, o) -> buffer.writeString(castOrException(o, String.class)), PacketInputBuffer::readString, "default.fxml", Ref.DEFAULT_CONTROLLER),
-    INTEGER(int.class, (buffer, o) -> buffer.writeInt(castOrException(o, int.class)), PacketInputBuffer::readInt, "default.fxml", Ref.DEFAULT_CONTROLLER);
+    STRING(String.class, (buffer, o) -> buffer.writeString(castOrException(o, String.class)), ByteBuffer::readString, "default.fxml", Ref.DEFAULT_CONTROLLER),
+    INTEGER(int.class, (buffer, o) -> buffer.writeInt(castOrException(o, int.class)), ByteBuffer::readInt, "default.fxml", Ref.DEFAULT_CONTROLLER);
 
     private static final class Ref {
         public static final String DEFAULT_CONTROLLER = "com.mcmoddev.mmdbot.dashboard.client.controller.config.DefaultConfigBoxController";
     }
 
-    private final BiConsumer<PacketOutputBuffer, Object> encoder;
+    private final BiConsumer<ByteBuffer, Object> encoder;
     private final BufferDecoder<Object> decoder;
     private final String configBoxName;
     private final Class<?> targetType;
     private final String controllerClassName;
 
-    DashConfigType(final Class<?> targetType, final BiConsumer<PacketOutputBuffer, Object> encoder, final BufferDecoder<Object> decoder, final String configBoxName, final String controllerClassName) {
+    DashConfigType(final Class<?> targetType, final BiConsumer<ByteBuffer, Object> encoder, final BufferDecoder<Object> decoder, final String configBoxName, final String controllerClassName) {
         this.targetType = targetType;
         this.encoder = encoder;
         this.decoder = decoder;
@@ -48,11 +47,11 @@ public enum DashConfigType {
         this.controllerClassName = controllerClassName;
     }
 
-    public void encode(PacketOutputBuffer buffer, Object toEncode) {
+    public void encode(ByteBuffer buffer, Object toEncode) {
         encoder.accept(buffer, toEncode);
     }
 
-    public Object decode(PacketInputBuffer buffer) {
+    public Object decode(ByteBuffer buffer) {
         return decoder.decode(buffer);
     }
 

@@ -25,13 +25,12 @@ junit = "5.8.2"
 dotenv = "2.2.3"
 slf4j = "1.7.36"
 fastutil = "8.5.8"
-kryo = "2.24.0"
-kryonet = "2.22.7"
 configurate = "4.1.2"
 cfapi = "1.6.1"
 jsoup = "1.14.3"
 webhooks = "0.7.5"
 eventdispatcher = "1.1.1"
+netty = "4.1.74.Final"
 
 [libraries]
 jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
@@ -54,10 +53,9 @@ junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 dotenv = {module = "io.github.cdimascio:dotenv-java", version.ref = "dotenv"}
 slf4japi = {module = "org.slf4j:slf4j-api", version.ref = "slf4j"}
 fastutil = {module = "it.unimi.dsi:fastutil", version.ref = "fastutil"}
-kryo = {module = "com.esotericsoftware.kryo:kryo", version.ref = "kryo"}
-kryonet = {module = "com.github.crykn:kryonet", version.ref = "kryonet"}
 configurate-hocon = {module = "org.spongepowered:configurate-hocon", version.ref = "configurate"}
 cfapi = {module = "io.github.matyrobbrt:curseforgeapi", version.ref = "cfapi"}
 jsoup = {module = "org.jsoup:jsoup", version.ref = "jsoup"}
 webhooks = {module = "club.minnced:discord-webhooks", version.ref = "webhooks"}
-eventdispatcher = {module = "io.github.matyrobbrt:eventdispatcher", version.ref = "eventdispatcher"} 
+eventdispatcher = {module = "io.github.matyrobbrt:eventdispatcher", version.ref = "eventdispatcher"}
+netty = {module = "io.netty:netty-all", version.ref = "netty"}

@@ -18,28 +18,33 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.dashboard.packets;
+package com.mcmoddev.mmdbot.dashboard.common.encode;
 
-import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
+import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketID;
-import com.mcmoddev.mmdbot.dashboard.util.GenericResponse;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
+import lombok.extern.slf4j.Slf4j;
 
-public record GenericResponsePacket(PacketID originalPacketID, GenericResponse response) implements Packet {
+@Slf4j
+public final class PacketHandler extends SimpleChannelInboundHandler<Packet> {
 
-    public GenericResponsePacket(ByteBuffer buffer) {
-        this(buffer.readPacketID(), buffer.read(GenericResponse.DECODER));
+    private final PacketListener listener;
+
+    public PacketHandler(final PacketListener listener) {
+        this.listener = listener;
     }
 
     @Override
-    public void encode(final ByteBuffer buffer) {
-        buffer.write(originalPacketID);
-        buffer.write(response);
+    protected void channelRead0(final ChannelHandlerContext ctx, final Packet msg) throws Exception {
+        final var context = PacketContext.fromChannelHandlerContext(ctx);
+        listener.onPacketAndThen(msg, context, () -> msg.handle(context));
     }
 
     @Override
-    public void handle(final PacketContext context) {
-        // Nothing to handle. Packet is supposed to be awaited
+    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
+        log.error("Exception caught while handling a packet!", cause);
+        ctx.close();
     }
 }

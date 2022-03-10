@@ -20,19 +20,21 @@
  */
 package com.mcmoddev.mmdbot.dashboard.server;
 
-import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.Listener;
-import com.esotericsoftware.kryonet.Server;
 import com.google.common.collect.Lists;
 import com.mcmoddev.mmdbot.dashboard.ServerBridge;
+import com.mcmoddev.mmdbot.dashboard.common.encode.ChannelInitializer;
 import com.mcmoddev.mmdbot.dashboard.common.listener.MultiPacketListener;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
 import com.mcmoddev.mmdbot.dashboard.common.listener.PacketWaiter;
-import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketHandler;
 import com.mcmoddev.mmdbot.dashboard.packets.CheckAuthorizedPacket;
 import com.mcmoddev.mmdbot.dashboard.packets.Packets;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,7 +49,6 @@ public final class DashboardSever {
 
     public static final PacketWaiter PACKET_WAITER = new PacketWaiter();
     public static final Map<InetSocketAddress, String> USERS = new HashMap<>();
-    private static Server server;
 
     public static void setup(InetSocketAddress address, PacketListener... extraListeners) {
         try {
@@ -64,33 +65,32 @@ public final class DashboardSever {
                 }
             });
 
-            server = new Server();
-            server.bind(address, null);
-            server.start();
+            final var bossGroup = new NioEventLoopGroup();
+            final var bootstrap = new ServerBootstrap()
+                .group(bossGroup)
+                .channel(NioServerSocketChannel.class)
+                .handler(new LoggingHandler(LogLevel.INFO))
+                .childHandler(new ChannelInitializer(Packets.SET, new MultiPacketListener(listeners)) {
+                    @Override
+                    public void channelActive(final ChannelHandlerContext ctx) throws Exception {
+                        log.warn("{} connected to the dashboard!", ctx.channel().remoteAddress());
+                        super.channelActive(ctx);
+                    }
 
-            Packets.SET.applyToKryo(server.getKryo());
+                    @Override
+                    public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
+                        log.warn("{} disconnected from the dashboard!", ctx.channel().remoteAddress());
+                        super.channelInactive(ctx);
+                    }
+                })
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .localAddress(address.getAddress(), address.getPort());
+            bootstrap.bind(address.getAddress(), address.getPort()).syncUninterruptibly();
 
-            server.addListener(new PacketHandler(new MultiPacketListener(listeners)));
-            server.addListener(new Listener() {
-                @Override
-                public void connected(final Connection connection) {
-                    log.warn("{} connected to the dashboard!", connection.getRemoteAddressTCP());
-                }
-
-                @Override
-                public void disconnected(final Connection connection) {
-                    log.warn("{} disconnected from the dashboard!", connection.getRemoteAddressTCP());
-                }
-            });
-
-            Runtime.getRuntime().addShutdownHook(new Thread(server::close, "ServerDashboardCloser"));
+            Runtime.getRuntime().addShutdownHook(new Thread(bossGroup::shutdownGracefully, "ServerDashboardCloser"));
             log.warn("Dashboard endpoint created at {}:{}!", address.getAddress(), address.getPort());
         } catch (Exception e) {
             log.error("Exception while trying to create dashboard endpoint!", e);
         }
-    }
-
-    public static void sendToAll(Packet packet) {
-        server.sendToAllTCP(packet);
     }
 }

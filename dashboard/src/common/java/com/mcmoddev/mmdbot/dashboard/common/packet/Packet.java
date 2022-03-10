@@ -20,13 +20,14 @@
  */
 package com.mcmoddev.mmdbot.dashboard.common.packet;
 
+import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
 import com.mcmoddev.mmdbot.dashboard.util.RunnableQueue;
 
 public interface Packet {
 
     void handle(PacketContext context);
 
-    void encode(PacketOutputBuffer buffer);
+    void encode(ByteBuffer buffer);
 
     default void handleAndThen(PacketContext context, Runnable... andThen) {
         RunnableQueue.createRunnable()

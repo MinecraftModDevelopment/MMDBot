@@ -22,17 +22,16 @@ package com.mcmoddev.mmdbot.dashboard.packets;
 
 import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
 import com.mcmoddev.mmdbot.dashboard.ServerBridge;
+import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketID;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketInputBuffer;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketOutputBuffer;
 import com.mcmoddev.mmdbot.dashboard.common.packet.WithAuthorizationPacket;
 import com.mcmoddev.mmdbot.dashboard.util.DashConfigType;
 import com.mcmoddev.mmdbot.dashboard.util.UpdateConfigContext;
 
 public record UpdateConfigPacket(PacketID packetID, BotTypeEnum botType, DashConfigType configType, String configName, String path, Object newValue) implements WithAuthorizationPacket {
 
-    public static UpdateConfigPacket decode(PacketInputBuffer buffer) {
+    public static UpdateConfigPacket decode(ByteBuffer buffer) {
         final var id = buffer.readPacketID();
         final var botType = buffer.readEnum(BotTypeEnum.class);
         final var cfgType = buffer.readEnum(DashConfigType.class);
@@ -43,7 +42,7 @@ public record UpdateConfigPacket(PacketID packetID, BotTypeEnum botType, DashCon
     }
 
     @Override
-    public void encode(final PacketOutputBuffer buffer) {
+    public void encode(final ByteBuffer buffer) {
         buffer.write(packetID);
         buffer.writeEnum(botType);
         buffer.writeEnum(configType);

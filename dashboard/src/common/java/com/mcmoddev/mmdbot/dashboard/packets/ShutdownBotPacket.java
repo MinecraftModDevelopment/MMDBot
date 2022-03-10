@@ -21,21 +21,19 @@
 package com.mcmoddev.mmdbot.dashboard.packets;
 
 import com.mcmoddev.mmdbot.dashboard.ServerBridge;
-import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
+import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketID;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketInputBuffer;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketOutputBuffer;
 import com.mcmoddev.mmdbot.dashboard.common.packet.WithAuthorizationPacket;
 
 public record ShutdownBotPacket(PacketID id, String botName) implements WithAuthorizationPacket {
 
-    public ShutdownBotPacket(PacketInputBuffer buffer) {
+    public ShutdownBotPacket(ByteBuffer buffer) {
         this(buffer.readPacketID(), buffer.readString());
     }
 
     @Override
-    public void encode(final PacketOutputBuffer buffer) {
+    public void encode(final ByteBuffer buffer) {
         buffer.write(id);
         buffer.writeString(botName);
     }

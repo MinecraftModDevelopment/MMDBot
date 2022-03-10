@@ -22,11 +22,10 @@ package com.mcmoddev.mmdbot.dashboard.packets.requests;
 
 import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
 import com.mcmoddev.mmdbot.dashboard.ServerBridge;
+import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
 import com.mcmoddev.mmdbot.dashboard.common.packet.HasResponse;
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketInputBuffer;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketOutputBuffer;
 
 import java.util.List;
 
@@ -35,7 +34,7 @@ public final class RequestLoadedBotTypesPacket implements Packet, HasResponse<Re
     public RequestLoadedBotTypesPacket() {}
 
     @Override
-    public void encode(final PacketOutputBuffer buffer) {
+    public void encode(final ByteBuffer buffer) {
         // Nothing to encode
     }
 
@@ -57,7 +56,7 @@ public final class RequestLoadedBotTypesPacket implements Packet, HasResponse<Re
             this.types = types;
         }
 
-        public Response(final PacketInputBuffer buffer) {
+        public Response(final ByteBuffer buffer) {
             this.types = buffer.readList(b -> b.readEnum(BotTypeEnum.class));
         }
 
@@ -67,8 +66,8 @@ public final class RequestLoadedBotTypesPacket implements Packet, HasResponse<Re
         }
 
         @Override
-        public void encode(final PacketOutputBuffer buffer) {
-            buffer.writeList(types, (e, b) -> b.writeEnum(e));
+        public void encode(final ByteBuffer buffer) {
+            buffer.writeCollection(types, ByteBuffer::writeEnum);
         }
 
         public List<BotTypeEnum> getTypes() {

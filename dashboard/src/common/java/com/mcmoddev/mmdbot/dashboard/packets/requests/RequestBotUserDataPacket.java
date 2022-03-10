@@ -22,11 +22,10 @@ package com.mcmoddev.mmdbot.dashboard.packets.requests;
 
 import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
 import com.mcmoddev.mmdbot.dashboard.ServerBridge;
+import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
 import com.mcmoddev.mmdbot.dashboard.common.packet.HasResponse;
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketInputBuffer;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketOutputBuffer;
 import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 
 public class RequestBotUserDataPacket implements Packet, HasResponse<RequestBotUserDataPacket.Response> {
@@ -37,7 +36,7 @@ public class RequestBotUserDataPacket implements Packet, HasResponse<RequestBotU
         this.botType = botType;
     }
 
-    public RequestBotUserDataPacket(final PacketInputBuffer buffer) {
+    public RequestBotUserDataPacket(final ByteBuffer buffer) {
         this(buffer.readEnum(BotTypeEnum.class));
     }
 
@@ -47,7 +46,7 @@ public class RequestBotUserDataPacket implements Packet, HasResponse<RequestBotU
     }
 
     @Override
-    public void encode(final PacketOutputBuffer buffer) {
+    public void encode(final ByteBuffer buffer) {
         buffer.writeEnum(botType);
     }
 
@@ -58,12 +57,12 @@ public class RequestBotUserDataPacket implements Packet, HasResponse<RequestBotU
 
     public record Response(BotUserData data) implements Packet {
 
-        public Response(final PacketInputBuffer buffer) {
+        public Response(final ByteBuffer buffer) {
             this(buffer.read(BotUserData.class));
         }
 
         @Override
-        public void encode(final PacketOutputBuffer buffer) {
+        public void encode(final ByteBuffer buffer) {
             if (data != null) {
                 buffer.write(data);
             }

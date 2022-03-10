@@ -21,13 +21,11 @@
 package com.mcmoddev.mmdbot.dashboard.packets;
 
 import com.mcmoddev.mmdbot.dashboard.ServerBridge;
+import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
 import com.mcmoddev.mmdbot.dashboard.common.packet.HasResponse;
 import com.mcmoddev.mmdbot.dashboard.common.packet.Packet;
 import com.mcmoddev.mmdbot.dashboard.common.packet.PacketContext;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketInputBuffer;
-import com.mcmoddev.mmdbot.dashboard.common.packet.PacketOutputBuffer;
 import com.mcmoddev.mmdbot.dashboard.util.Credentials;
-import org.checkerframework.checker.units.qual.C;
 
 public final class CheckAuthorizedPacket implements Packet, HasResponse<CheckAuthorizedPacket.Response> {
 
@@ -39,7 +37,7 @@ public final class CheckAuthorizedPacket implements Packet, HasResponse<CheckAut
         this.password = password;
     }
 
-    public CheckAuthorizedPacket(final PacketInputBuffer buffer) {
+    public CheckAuthorizedPacket(final ByteBuffer buffer) {
         this.username = buffer.readString();
         this.password = buffer.readString();
     }
@@ -51,7 +49,7 @@ public final class CheckAuthorizedPacket implements Packet, HasResponse<CheckAut
     }
 
     @Override
-    public void encode(final PacketOutputBuffer buffer) {
+    public void encode(final ByteBuffer buffer) {
         buffer.writeString(username);
         buffer.writeString(password);
     }
@@ -83,7 +81,7 @@ public final class CheckAuthorizedPacket implements Packet, HasResponse<CheckAut
 
         private final ResponseType responseType;
 
-        public Response(final PacketInputBuffer buffer) {
+        public Response(final ByteBuffer buffer) {
             this.responseType = buffer.readEnum(ResponseType.class);
         }
 
@@ -97,7 +95,7 @@ public final class CheckAuthorizedPacket implements Packet, HasResponse<CheckAut
         }
 
         @Override
-        public void encode(final PacketOutputBuffer buffer) {
+        public void encode(final ByteBuffer buffer) {
             buffer.writeEnum(responseType);
         }
 

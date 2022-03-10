@@ -115,8 +115,6 @@ dependencies {
   global libs.reflections
   global libs.dotenv
   global libs.fastutil
-  global libs.kryonet
-  global libs.kryo
   global libs.configurate.hocon
   global libs.cfapi
   global libs.jsoup

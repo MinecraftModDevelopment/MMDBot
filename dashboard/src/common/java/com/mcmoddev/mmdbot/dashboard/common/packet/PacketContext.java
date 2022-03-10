@@ -20,9 +20,9 @@
  */
 package com.mcmoddev.mmdbot.dashboard.common.packet;
 
-import com.esotericsoftware.kryonet.Connection;
 import com.mcmoddev.mmdbot.dashboard.packets.GenericResponsePacket;
 import com.mcmoddev.mmdbot.dashboard.util.GenericResponse;
+import io.netty.channel.ChannelHandlerContext;
 
 import java.net.InetSocketAddress;
 
@@ -36,16 +36,16 @@ public interface PacketContext {
 
     InetSocketAddress getSenderAddress();
 
-    static PacketContext fromConnection(Connection connection) {
+    static PacketContext fromChannelHandlerContext(final ChannelHandlerContext ctx) {
         return new PacketContext() {
             @Override
             public void reply(final Packet packet) {
-                connection.sendTCP(packet);
+                ctx.writeAndFlush(packet);
             }
 
             @Override
             public InetSocketAddress getSenderAddress() {
-                return connection.getRemoteAddressTCP();
+                return (InetSocketAddress) ctx.channel().remoteAddress();
             }
         };
     }
