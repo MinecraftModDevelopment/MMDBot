@@ -31,7 +31,7 @@ configurate = "4.1.2"
 cfapi = "1.6.1"
 jsoup = "1.14.3"
 webhooks = "0.7.5"
-eventdispatcher = "1.1.0"
+eventdispatcher = "1.1.1"
 
 [libraries]
 jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
