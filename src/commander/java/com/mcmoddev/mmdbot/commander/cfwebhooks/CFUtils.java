@@ -67,7 +67,7 @@ public class CFUtils {
         return getAsyncApiHelper().getModFile(mod.id(), fileId)
             .and(getAsyncApiHelper().getModFileChangelog(mod.id(), fileId))
             .map(Pair::mapResponses)
-            .map(Optional::orElseThrow)
+            .map(io.github.matyrobbrt.curseforgeapi.util.Utils.rethrowFunction(o -> o.orElseThrow(() -> new CurseForgeException("Could not find project " + mod.id()))))
             .map(p -> p.map((file, changelog) -> {
                     final var embed = new EmbedBuilder()
                         .setTimestamp(Instant.parse(file.fileDate()))
