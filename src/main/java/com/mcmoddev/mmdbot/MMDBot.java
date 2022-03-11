@@ -25,7 +25,6 @@ import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
-import com.mcmoddev.mmdbot.core.util.NullableReference;
 import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import com.mcmoddev.mmdbot.dashboard.util.GenericResponse;
 import com.mcmoddev.mmdbot.dashboard.util.UpdateConfigContext;
@@ -53,6 +52,7 @@ import java.nio.file.Path;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Our Main class.
@@ -84,7 +84,7 @@ public final class MMDBot implements Bot {
         }
     };
 
-    private final NullableReference<JDA> jda = new NullableReference<>(null);
+    private final AtomicReference<JDA> jda = new AtomicReference<>(null);
     private final BotConfig config;
     private final DatabaseManager database;
     private final Path runPath;
