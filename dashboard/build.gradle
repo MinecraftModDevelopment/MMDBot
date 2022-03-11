@@ -115,7 +115,7 @@ tasks.create('clientJar', ShadowJar) {
                 'Implementation-Timestamp': currentDateTime,
                 'Built-On-Java': "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
                 'Built-On': "${project.libs.versions.jda.get()}-${project.libs.versions.chewtils.get()}",
-                'Main-Class': application.getMainClassName()
+                'Main-Class': application.getMainClass().get()
         )
     }
 
@@ -142,7 +142,7 @@ tasks.named('shadowJar', ShadowJar).configure {
 }
 
 launch4j {
-    mainClassName = application.getMainClassName()
+    mainClassName = application.getMainClass().get()
     icon = "${projectDir}/src/client/resources/icon.ico"
     jarTask = tasks.getByName("clientJar")
     outfile = "${archivesBaseName}-${dashboard_version}.exe"

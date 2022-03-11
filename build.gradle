@@ -201,7 +201,7 @@ def makeManifestAttributes() {
             'Implementation-Timestamp': currentDateTime,
             'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
             'Built-On'                : "${project.libs.versions.jda.get()}-${project.libs.versions.chewtils.get()}",
-            'Main-Class'              : application.getMainClassName()
+            'Main-Class'              : application.getMainClass().get()
     ]
 }
 
@@ -252,8 +252,8 @@ checkstyle {
 
 tasks.withType(Checkstyle).configureEach {
   reports {
-    xml.enabled true
-    html.enabled true
+    xml.required = true
+    html.required = true
 //  html.stylesheet resources.text.fromFile('config/xsl/checkstyle-noframes.xsl') // Default
     html.stylesheet resources.text.fromFile('config/xsl/checkstyle-noframes-severity-sorted.xsl')
   }
