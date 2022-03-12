@@ -85,6 +85,7 @@ dependencies {
     global libs.slf4japi
     global libs.fastutil
     global libs.netty
+    global libs.asmutils
 
     globalCompile libs.lombok
 

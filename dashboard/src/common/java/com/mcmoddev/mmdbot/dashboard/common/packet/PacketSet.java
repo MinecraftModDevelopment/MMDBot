@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.dashboard.common.packet;
 
 import com.mcmoddev.mmdbot.dashboard.common.BufferDecoder;
 import com.mcmoddev.mmdbot.dashboard.common.ByteBuffer;
+import io.github.matyrobbrt.asmutils.wrapper.ConstructorWrapper;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import org.slf4j.Logger;
@@ -29,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class PacketSet implements Iterable<Map.Entry<Class<? extends Packet>, Integer>> {
-    private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
     static final Logger LOG = LoggerFactory.getLogger(PacketSet.class);
 
     final Object2IntMap<Class<? extends Packet>> classToId;
@@ -77,35 +76,24 @@ public class PacketSet implements Iterable<Map.Entry<Class<? extends Packet>, In
      * @param <P>         the type of the packet
      * @return the current packet set
      */
-    @SuppressWarnings("unchecked")
     public <P extends Packet> PacketSet addPacket(Class<P> packetClass) {
         final var hasPacketBufferConstructor = hasPacketBufferConstructor(packetClass);
-        final var methodType = hasPacketBufferConstructor ? MethodType.methodType(void.class, ByteBuffer.class) : MethodType.methodType(void.class);
         try {
-            final var handle = LOOKUP.findConstructor(packetClass, methodType);
-            return addPacket(packetClass, hasPacketBufferConstructor ? buffer -> {
-                try {
-                    return (P) handle.invokeWithArguments(buffer);
-                } catch (Throwable e) {
-                    LOG.error("Exception while trying to construct packet {}!", packetClass, e);
-                    throw new RuntimeException(e);
-                }
-            } : buffer -> {
-                try {
-                    return (P) handle.invoke();
-                } catch (Throwable e) {
-                    LOG.error("Exception while trying to construct packet {}!", packetClass, e);
-                    throw new RuntimeException(e);
-                }
-            });
-        } catch (NoSuchMethodException | IllegalAccessException e) {
+            final var wrapper = ConstructorWrapper.wrap(packetClass, hasPacketBufferConstructor ? new Class<?>[]{ByteBuffer.class} : new Class<?>[]{});
+            if (hasPacketBufferConstructor) {
+                addPacket(packetClass, wrapper::invoke);
+            } else {
+                addPacket(packetClass, b -> wrapper.invoke());
+            }
+        } catch (NoSuchMethodException e) {
             throw new RuntimeException("The packet class " + packetClass + " does not have a constructor with a ByteBuffer as a parameter, or an empty constructor. Did you mean to use #addPacket(Class, Function)?");
         }
+        return this;
     }
 
     private static boolean hasPacketBufferConstructor(Class<? extends Packet> clazz) {
         try {
-            clazz.getConstructor(ByteBuffer.class);
+            clazz.getDeclaredConstructor(ByteBuffer.class);
             return true;
         } catch (NoSuchMethodException ignored) {
             return false;
@@ -133,6 +121,7 @@ public class PacketSet implements Iterable<Map.Entry<Class<? extends Packet>, In
 
     /**
      * Wraps this packet set into an immutable implementation.
+     *
      * @return an immutable implementation of this set.
      */
     public Immutable immutable() {
@@ -154,9 +143,6 @@ public class PacketSet implements Iterable<Map.Entry<Class<? extends Packet>, In
         public <P extends Packet> PacketSet addPacket(final Class<P> pktClass, final BufferDecoder<P> deserializer) {
             throw new UnsupportedOperationException();
         }
-    }
-
-    private record SimplePair<F, S>(F first, S second) {
     }
 
     private static <T> T make(T obj, Consumer<T> consumer) {

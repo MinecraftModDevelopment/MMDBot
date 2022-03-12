@@ -31,6 +31,7 @@ jsoup = "1.14.3"
 webhooks = "0.8.0"
 eventdispatcher = "1.1.1"
 netty = "4.1.74.Final"
+asmutils = "0.2.0"
 
 [libraries]
 jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
@@ -59,3 +60,4 @@ jsoup = {module = "org.jsoup:jsoup", version.ref = "jsoup"}
 webhooks = {module = "club.minnced:discord-webhooks", version.ref = "webhooks"}
 eventdispatcher = {module = "io.github.matyrobbrt:eventdispatcher", version.ref = "eventdispatcher"}
 netty = {module = "io.netty:netty-all", version.ref = "netty"}
+asmutils = {module = "io.github.matyrobbrt:asmutils", version.ref = "asmutils"}
