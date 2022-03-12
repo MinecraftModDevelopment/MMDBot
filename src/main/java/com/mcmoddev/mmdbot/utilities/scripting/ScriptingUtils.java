@@ -52,7 +52,10 @@ import org.graalvm.polyglot.proxy.ProxyExecutable;
 
 import javax.annotation.Nullable;
 import java.io.Serial;
+import java.lang.reflect.Modifier;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -64,6 +67,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public final class ScriptingUtils {
 
@@ -89,6 +93,15 @@ public final class ScriptingUtils {
             .allowListAccess(true)
             .allowMapAccess(true)
             .allowImplementationsAnnotatedBy(ExposeScripting.class);
+        final Class<?>[] allPublicAccess = {
+            Instant.class, OffsetDateTime.class, Temporal.class
+        };
+
+        for (final var c : allPublicAccess) {
+            for (var m : c.getMethods()) {
+                hostAccess.allowAccess(m);
+            }
+        }
 
         HOST_ACCESS = hostAccess.build();
     }
