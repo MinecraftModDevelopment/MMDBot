@@ -562,6 +562,8 @@ public final class Utils {
         final var channel = MMDBot.getJDA().getTextChannelById(channelID);
         if (channel != null) {
             consumer.accept(channel);
+        } else {
+            MMDBot.LOGGER.error("Could not find channel with ID " + channelID);
         }
     }
 

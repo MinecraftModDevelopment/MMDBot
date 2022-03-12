@@ -57,24 +57,27 @@ public final class TaskScheduler {
      */
     public static void init() {
         try {
+            MMDBot.LOGGER.error("Debugging: Checking for Forge updates every 15 min...");
             TIMER.scheduleAtFixedRate(new ForgeUpdateNotifier(), 0, 15, TimeUnit.MINUTES);
         } catch (Exception ex) {
             MMDBot.LOGGER.error("Unable to schedule job Forge Update Notifier", ex);
             ex.printStackTrace();
         }
+        MMDBot.LOGGER.error("Debugging: Checking for Minecraft and Fabric updates every 15 min...");
         TIMER.scheduleAtFixedRate(new MinecraftUpdateNotifier(), 0, 15, TimeUnit.MINUTES);
         TIMER.scheduleAtFixedRate(new FabricApiUpdateNotifier(), 0, 15, TimeUnit.MINUTES);
         TIMER.scheduleAtFixedRate(new ChannelMessageChecker(), 0, 1, TimeUnit.DAYS);
         TIMER.scheduleAtFixedRate(() -> {
             if (ScamDetector.setupScamLinks()) {
-                MMDBot.LOGGER.info("Successfully refreshed scam links");
+                MMDBot.LOGGER.error("Successfully refreshed scam links");
             } else {
-                MMDBot.LOGGER.warn("Scam links could not be automatically refreshed");
+                MMDBot.LOGGER.error("Scam links could not be automatically refreshed");
             }
         }, 0, 14, TimeUnit.DAYS);
     }
 
     public static void scheduleTask(Runnable toRun, long delay, TimeUnit unit) {
+        MMDBot.LOGGER.error("Debugging: Schedule timed tasks to run...");
         TIMER.schedule(toRun, delay, unit);
     }
 }
