@@ -35,6 +35,7 @@ import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.database.DatabaseManager;
 import com.mcmoddev.mmdbot.utilities.database.JSONDataMigrator;
+import io.github.matyrobbrt.curseforgeapi.request.AsyncRequest;
 import lombok.NonNull;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -93,6 +94,8 @@ public final class MMDBot implements Bot {
         this.config = config;
         this.database = database;
         this.runPath = runPath;
+        //TODO Replace this and fix broken Async CF stuff.
+        AsyncRequest.setDefaultFailure(null);
     }
 
     /**
