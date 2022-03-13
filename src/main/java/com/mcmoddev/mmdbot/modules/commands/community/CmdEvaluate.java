@@ -29,12 +29,15 @@ import com.mcmoddev.mmdbot.modules.commands.DismissListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.scripting.ScriptingContext;
 import com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils;
+import com.mcmoddev.mmdbot.utilities.tricks.TrickContext;
+import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -80,7 +83,7 @@ public class CmdEvaluate extends SlashCommand {
     @Override
     protected void execute(final SlashCommandEvent event) {
         event.deferReply().allowedMentions(ALLOWED_MENTIONS)
-            .addActionRow(DismissListener.createDismissButton(event.getUser())).queue(hook -> {
+            .queue(hook -> {
                 final var context = createContext(new EvaluationContext() {
                     @Override
                     public Guild getGuild() {
@@ -110,12 +113,21 @@ public class CmdEvaluate extends SlashCommand {
                     @Override
                     public void reply(final String content) {
                         hook.editOriginal(new MessageBuilder(content).setAllowedMentions(ALLOWED_MENTIONS).build())
+                            .setActionRow(DismissListener.createDismissButton(event.getUser()))
                             .queue();
                     }
 
                     @Override
                     public void replyEmbeds(final MessageEmbed... embeds) {
                         hook.editOriginal(new MessageBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
+                            .setActionRow(DismissListener.createDismissButton(event.getUser()))
+                            .queue();
+                    }
+
+                    @Override
+                    public void replyWithMessage(final Message msg) {
+                        hook.editOriginal(msg)
+                            .setActionRow(DismissListener.createDismissButton(event.getUser()))
                             .queue();
                     }
                 });
@@ -196,6 +208,12 @@ public class CmdEvaluate extends SlashCommand {
             @Override
             public void replyEmbeds(final MessageEmbed... embeds) {
                 event.getMessage().reply(new MessageBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
+                    .setActionRow(DismissListener.createDismissButton(getUser())).mentionRepliedUser(false).queue();
+            }
+
+            @Override
+            public void replyWithMessage(final Message msg) {
+                event.getMessage().reply(msg).allowedMentions(ALLOWED_MENTIONS)
                     .setActionRow(DismissListener.createDismissButton(getUser())).mentionRepliedUser(false).queue();
             }
         });
@@ -307,6 +325,62 @@ public class CmdEvaluate extends SlashCommand {
                 }
             });
         }
+        context.setFunctionVoid("runTrick", args -> {
+            validateArgs(args, 1, 2);
+            final String[] trickArgs = args.size() > 1 ? args.get(1).as(String[].class) : new String[]{};
+            Tricks.getTrick(args.get(0).asString()).ifPresent(trick -> trick.execute(new TrickContext() {
+                @Nullable
+                @Override
+                public Member getMember() {
+                    return evalContext.getMember();
+                }
+
+                @NotNull
+                @Override
+                public User getUser() {
+                    return evalContext.getUser();
+                }
+
+                @NotNull
+                @Override
+                public MessageChannel getChannel() {
+                    return evalContext.getMessageChannel();
+                }
+
+                @Nullable
+                @Override
+                public TextChannel getTextChannel() {
+                    return evalContext.getTextChannel();
+                }
+
+                @Nullable
+                @Override
+                public Guild getGuild() {
+                    return evalContext.getGuild();
+                }
+
+                @Nonnull
+                @Override
+                public String[] getArgs() {
+                    return trickArgs;
+                }
+
+                @Override
+                public void reply(final String content) {
+                    evalContext.reply(content);
+                }
+
+                @Override
+                public void replyEmbeds(final MessageEmbed... embeds) {
+                    evalContext.replyEmbeds(embeds);
+                }
+
+                @Override
+                public void replyWithMessage(final Message message) {
+                    evalContext.replyWithMessage(message);
+                }
+            }));
+        });
         return context;
     }
 
@@ -337,5 +411,7 @@ public class CmdEvaluate extends SlashCommand {
         void reply(String content);
 
         void replyEmbeds(MessageEmbed... embeds);
+
+        void replyWithMessage(Message msg);
     }
 }

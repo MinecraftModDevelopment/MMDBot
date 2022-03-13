@@ -31,6 +31,7 @@ import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdRunTrick;
 import com.mcmoddev.mmdbot.utilities.tricks.Trick.TrickType;
+import io.github.matyrobbrt.curseforgeapi.util.gson.RecordTypeAdapterFactory;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -196,6 +197,7 @@ public final class Tricks {
 
         GSON = new GsonBuilder()
             .registerTypeAdapterFactory(new TrickSerializer())
+            .registerTypeAdapterFactory(new RecordTypeAdapterFactory())
             .create();
     }
 

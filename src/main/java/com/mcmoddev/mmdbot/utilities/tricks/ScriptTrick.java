@@ -30,6 +30,7 @@ import java.util.List;
 
 import static com.mcmoddev.mmdbot.utilities.Utils.getOrEmpty;
 
+// TODO convert to record, and register a record adapter factory to the GSON in `Tricks`
 public final class ScriptTrick implements Trick {
 
     /**
