@@ -94,8 +94,6 @@ public final class MMDBot implements Bot {
         this.config = config;
         this.database = database;
         this.runPath = runPath;
-        //TODO Replace this and fix broken Async CF stuff.
-        AsyncRequest.setDefaultFailure(null);
     }
 
     /**
