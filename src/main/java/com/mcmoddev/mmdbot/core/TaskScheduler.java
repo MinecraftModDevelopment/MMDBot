@@ -77,7 +77,6 @@ public final class TaskScheduler {
     }
 
     public static void scheduleTask(Runnable toRun, long delay, TimeUnit unit) {
-        MMDBot.LOGGER.error("Debugging: Schedule timed tasks to run...");
         TIMER.schedule(toRun, delay, unit);
     }
 }
