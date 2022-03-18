@@ -26,6 +26,7 @@ import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.event.moderation.WarningEvent;
 import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
+import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.database.dao.Warnings;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -184,7 +185,7 @@ public class CmdWarning extends SlashCommand {
         protected void execute(SlashCommandEvent event) {
             boolean publicPunishment = event.getOption("public") == null || event.getOption("public").getAsBoolean();
             User userToWarn = event.getOption("user").getAsUser();
-            String warnId = Utils.getOrEmpty(event, "id");
+            String warnId = CommandUtilities.getOrEmpty(event, "id");
             Member member = event.getMember();
 
             if (!canInteract(event, event.getGuild().getMember(userToWarn))) {

@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.modules.commands.moderation;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.Permission;
 
@@ -64,7 +65,7 @@ public final class CmdUnban extends Command {
      */
     @Override
     protected void execute(final CommandEvent event) {
-        if (!Utils.checkCommand(this, event)) {
+        if (!CommandUtilities.checkCommand(this, event)) {
             return;
         }
 

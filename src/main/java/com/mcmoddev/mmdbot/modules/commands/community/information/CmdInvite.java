@@ -25,6 +25,7 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.BotConfig;
 import com.mcmoddev.mmdbot.modules.commands.community.PaginatedCommand;
+import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.database.dao.Invites;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -77,7 +78,7 @@ public class CmdInvite extends SlashCommand {
 
         @Override
         protected void execute(final SlashCommandEvent event) {
-            if (!Utils.checkCommand(this, event)) {
+            if (!CommandUtilities.checkCommand(this, event)) {
                 return;
             }
 
@@ -119,7 +120,7 @@ public class CmdInvite extends SlashCommand {
 
         @Override
         protected void execute(final SlashCommandEvent event) {
-            if (!Utils.checkCommand(this, event)) {
+            if (!CommandUtilities.checkCommand(this, event)) {
                 return;
             }
 
@@ -158,7 +159,7 @@ public class CmdInvite extends SlashCommand {
 
         @Override
         protected void execute(final SlashCommandEvent event) {
-            if (!Utils.checkCommand(this, event)) {
+            if (!CommandUtilities.checkCommand(this, event)) {
                 return;
             }
 

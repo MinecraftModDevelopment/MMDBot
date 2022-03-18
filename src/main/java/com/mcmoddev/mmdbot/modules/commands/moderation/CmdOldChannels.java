@@ -22,7 +22,7 @@ package com.mcmoddev.mmdbot.modules.commands.moderation;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import com.mcmoddev.mmdbot.utilities.oldchannels.OldChannelsHelper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -91,7 +91,7 @@ public final class CmdOldChannels extends SlashCommand {
         final var guild = event.getGuild();
         final var embed = new EmbedBuilder();
 
-        if (!Utils.checkCommand(this, event)) {
+        if (!CommandUtilities.checkCommand(this, event)) {
             event.reply("This command is channel locked.").setEphemeral(true).queue();
             return;
         }

@@ -24,7 +24,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.modules.commands.DismissListener;
 import com.mcmoddev.mmdbot.modules.commands.community.PaginatedCommand;
-import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import com.mcmoddev.mmdbot.utilities.quotes.NullQuote;
 import com.mcmoddev.mmdbot.utilities.quotes.Quote;
 import com.mcmoddev.mmdbot.utilities.quotes.QuoteList;
@@ -118,7 +118,7 @@ public class CmdQuote extends SlashCommand {
 
         @Override
         protected void execute(final SlashCommandEvent event) {
-            if (!Utils.checkCommand(this, event))
+            if (!CommandUtilities.checkCommand(this, event))
                 return;
 
             String text = event.getOption("quote").getAsString();
@@ -197,7 +197,7 @@ public class CmdQuote extends SlashCommand {
 
         @Override
         protected void execute(final SlashCommandEvent event) {
-            if (!Utils.checkCommand(this, event)) {
+            if (!CommandUtilities.checkCommand(this, event)) {
                 return;
             }
 
@@ -268,7 +268,7 @@ public class CmdQuote extends SlashCommand {
 
         @Override
         protected void execute(final SlashCommandEvent event) {
-            if (!Utils.checkCommand(this, event)) {
+            if (!CommandUtilities.checkCommand(this, event)) {
                 return;
             }
 
@@ -311,7 +311,7 @@ public class CmdQuote extends SlashCommand {
 
         @Override
         protected void execute(final SlashCommandEvent event) {
-            if (!Utils.checkCommand(this, event)) {
+            if (!CommandUtilities.checkCommand(this, event)) {
                 return;
             }
 

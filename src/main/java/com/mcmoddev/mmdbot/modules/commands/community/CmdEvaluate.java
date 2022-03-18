@@ -26,7 +26,7 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.core.TaskScheduler;
 import com.mcmoddev.mmdbot.gist.GistUtils;
 import com.mcmoddev.mmdbot.modules.commands.DismissListener;
-import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import com.mcmoddev.mmdbot.utilities.scripting.ScriptingContext;
 import com.mcmoddev.mmdbot.utilities.scripting.ScriptingUtils;
 import com.mcmoddev.mmdbot.utilities.tricks.TrickContext;
@@ -134,7 +134,7 @@ public class CmdEvaluate extends SlashCommand {
 
                 final var evalThread = new Thread(() -> {
                     try {
-                        ScriptingUtils.evaluate(Utils.getOrEmpty(event, "script"), context);
+                        ScriptingUtils.evaluate(CommandUtilities.getOrEmpty(event, "script"), context);
                     } catch (ScriptingUtils.ScriptingException exception) {
                         if (exception.getMessage().equalsIgnoreCase(THREAD_INTERRUPTED_MESSAGE)) {
                             return;

@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.modules.commands.community.server.tricks;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
@@ -66,7 +67,7 @@ public final class CmdRemoveTrick extends SlashCommand {
      */
     @Override
     protected void execute(final SlashCommandEvent event) {
-        if (!Utils.checkCommand(this, event)) {
+        if (!CommandUtilities.checkCommand(this, event)) {
             return;
         }
 
@@ -80,7 +81,7 @@ public final class CmdRemoveTrick extends SlashCommand {
             return;
         }
 
-        Tricks.getTrick(Utils.getOrEmpty(event, "trick")).ifPresent(Tricks::removeTrick);
+        Tricks.getTrick(CommandUtilities.getOrEmpty(event, "trick")).ifPresent(Tricks::removeTrick);
         event.reply("Removed trick!").setEphemeral(true).queue();
     }
 

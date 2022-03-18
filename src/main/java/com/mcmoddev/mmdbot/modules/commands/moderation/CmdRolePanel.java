@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.modules.commands.moderation;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -69,13 +70,13 @@ public final class CmdRolePanel extends SlashCommand {
 
         @Override
         protected void execute(final SlashCommandEvent event) {
-            if (!Utils.checkCommand(this, event)) {
+            if (!CommandUtilities.checkCommand(this, event)) {
                 return;
             }
 
             try {
                 var channel = event.getChannel();
-                var msgIdStr = Utils.getOrEmpty(event.getOption("message_id"));
+                var msgIdStr = CommandUtilities.getOrEmpty(event.getOption("message_id"));
                 if (msgIdStr.contains("-")) {
                     // Accept the `channelID-messageID` format Discord gives when using the Copy ID button
                     final var newChannel = event.getGuild().getTextChannelById(msgIdStr.substring(0, msgIdStr.indexOf('-')));
@@ -87,7 +88,7 @@ public final class CmdRolePanel extends SlashCommand {
                 final var channelId = channel.getIdLong(); // Field must be final for lambda usage
                 final long messageId = Long.parseLong(msgIdStr);
                 final var role = event.getOption("role").getAsRole();
-                final var emote = Emoji.fromMarkdown(Utils.getOrEmpty(event.getOption("emote")));
+                final var emote = Emoji.fromMarkdown(CommandUtilities.getOrEmpty(event.getOption("emote")));
                 final var emoteStr = getEmoteAsString(emote);
 
                 channel.addReactionById(messageId, emoteStr).queue($ -> {

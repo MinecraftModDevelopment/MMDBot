@@ -30,7 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import static com.mcmoddev.mmdbot.utilities.Utils.getOrEmpty;
+import static com.mcmoddev.mmdbot.utilities.CommandUtilities.getOrEmpty;
 
 /**
  * The type String trick.

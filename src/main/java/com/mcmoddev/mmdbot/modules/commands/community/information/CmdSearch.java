@@ -24,7 +24,7 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -77,7 +77,7 @@ public final class CmdSearch extends SlashCommand {
      * @param event The {@link CommandEvent CommandEvent} that triggered this Command.
      */
     protected void execute(final SlashCommandEvent event) {
-        if (!Utils.checkCommand(this, event)) {
+        if (!CommandUtilities.checkCommand(this, event)) {
             return;
         }
 

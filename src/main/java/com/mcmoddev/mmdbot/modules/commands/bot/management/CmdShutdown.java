@@ -23,7 +23,7 @@ package com.mcmoddev.mmdbot.modules.commands.bot.management;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -64,8 +64,8 @@ public class CmdShutdown extends SlashCommand {
      */
     @Override
     protected void execute(final SlashCommandEvent event) {
-        final var clearGlobal = Utils.getArgumentOr(event, "clear_global", OptionMapping::getAsBoolean, false);
-        final var clearGuild = Utils.getArgumentOr(event, "clear_guild", OptionMapping::getAsBoolean, false);
+        final var clearGlobal = CommandUtilities.getArgumentOr(event, "clear_global", OptionMapping::getAsBoolean, false);
+        final var clearGuild = CommandUtilities.getArgumentOr(event, "clear_guild", OptionMapping::getAsBoolean, false);
         if (clearGuild && !event.isFromGuild()) {
             event.reply("You cannot clear guild commands if you are not in a guild!").queue();
             return;
@@ -78,7 +78,7 @@ public class CmdShutdown extends SlashCommand {
                     "Deleting the guild commands of the guild with the id {} at the request of {} via Discord!",
                     event.getGuild().getIdLong(), event.getUser().getName());
                 new Thread(() -> {
-                    Utils.clearGuildCommands(event.getGuild(), () -> {
+                    CommandUtilities.clearGuildCommands(event.getGuild(), () -> {
                         msg.get().editOriginal("Shutting down the bot!").queue();
                         executeShutdown(event);
                     });
@@ -96,7 +96,7 @@ public class CmdShutdown extends SlashCommand {
                 MMDBot.LOGGER.warn(
                     "Deleting the global commands at the request of {} via Discord!", event.getUser().getName());
                 new Thread(() -> {
-                    Utils.clearGlobalCommands(() -> {
+                    CommandUtilities.clearGlobalCommands(() -> {
                         msg.get().editOriginal("Shutting down the bot!").queue();
                         executeShutdown(event);
                     });

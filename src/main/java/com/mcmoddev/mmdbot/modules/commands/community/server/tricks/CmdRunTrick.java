@@ -24,7 +24,7 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.modules.commands.DismissListener;
-import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import com.mcmoddev.mmdbot.utilities.tricks.Trick;
 import com.mcmoddev.mmdbot.utilities.tricks.TrickContext;
 import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
@@ -71,13 +71,13 @@ public final class CmdRunTrick extends SlashCommand {
      */
     @Override
     protected void execute(final SlashCommandEvent event) {
-        if (!Utils.checkCommand(this, event)) {
+        if (!CommandUtilities.checkCommand(this, event)) {
             return;
         }
 
         event.deferReply().queue(hook -> {
-            Tricks.getTrick(Utils.getOrEmpty(event, "name")).ifPresentOrElse(
-                trick -> trick.execute(new TrickContext.Slash(event, hook, Utils.getOrEmpty(event, "args").split(" "))),
+            Tricks.getTrick(CommandUtilities.getOrEmpty(event, "name")).ifPresentOrElse(
+                trick -> trick.execute(new TrickContext.Slash(event, hook, CommandUtilities.getOrEmpty(event, "args").split(" "))),
                 () -> hook.editOriginal("No trick with that name was found.").setActionRow(DismissListener.createDismissButton(event)).queue()
             );
         });

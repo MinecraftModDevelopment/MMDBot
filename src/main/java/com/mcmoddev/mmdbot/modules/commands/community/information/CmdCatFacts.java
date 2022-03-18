@@ -24,7 +24,7 @@ import com.google.gson.JsonParser;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.io.BufferedReader;
@@ -92,7 +92,7 @@ public final class CmdCatFacts extends SlashCommand {
      */
     @Override
     protected void execute(final SlashCommandEvent event) {
-        if (!Utils.checkCommand(this, event)) {
+        if (!CommandUtilities.checkCommand(this, event)) {
             return;
         }
         final var embed = new EmbedBuilder();

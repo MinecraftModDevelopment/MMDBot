@@ -26,6 +26,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.gist.GistUtils;
+import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.tricks.ScriptTrick;
 import com.mcmoddev.mmdbot.utilities.tricks.Trick;
@@ -91,7 +92,7 @@ public final class CmdEditTrick extends SlashCommand {
 
         @Override
         protected void execute(final SlashCommandEvent event) {
-            if (!Utils.checkCommand(this, event)) {
+            if (!CommandUtilities.checkCommand(this, event)) {
                 return;
             }
 
@@ -146,7 +147,7 @@ public final class CmdEditTrick extends SlashCommand {
 
         @Override
         protected void execute(final CommandEvent event) {
-            if (!Utils.checkCommand(this, event)) {
+            if (!CommandUtilities.checkCommand(this, event)) {
                 return;
             }
 
