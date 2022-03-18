@@ -232,16 +232,19 @@ public final class MMDBot implements Bot {
         return runPath;
     }
 
+    // TODO: fix these config methods to work with Configurate
     @Nullable
     @Override
     public Object getConfigValue(final String configName, final String path) {
-        return config.getConfig().get(path);
+//        return config.getConfig().get(path);
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @Override
     public @NonNull GenericResponse updateConfig(final UpdateConfigContext context) {
-        config.getConfig().set(context.path(), context.newValue());
-        config.getConfig().save();
-        return GenericResponse.Type.SUCCESS.noMessage();
+        return GenericResponse.Type.INVALID_REQUEST.noMessage();
+//        config.getConfig().set(context.path(), context.newValue());
+//        config.getConfig().save();
+//        return GenericResponse.Type.SUCCESS.noMessage();
     }
 }
