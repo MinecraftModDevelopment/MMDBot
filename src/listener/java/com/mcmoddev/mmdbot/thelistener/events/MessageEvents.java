@@ -79,7 +79,7 @@ public final class MessageEvents extends ListenerAdapter {
             Utils.executeInLoggingChannel(event.getGuildId().get(), LoggingType.MESSAGE_EVENTS,
                 channel -> channel.createMessage(MessageCreateRequest.builder()
                     .embed(embed.asRequest())
-                    .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe());
+                    .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {}, t -> {}));
         }
     }
 
@@ -127,7 +127,7 @@ public final class MessageEvents extends ListenerAdapter {
                 Utils.executeInLoggingChannel(event.getGuildId().get(), LoggingType.MESSAGE_EVENTS,
                     channel -> channel.createMessage(MessageCreateRequest.builder()
                         .embed(embed.asRequest())
-                        .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe());
+                        .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {}, t -> {}));
             }
         }, e -> TheListener.LOGGER.error("Error while trying to log a message edit!", e));
     }
@@ -143,6 +143,6 @@ public final class MessageEvents extends ListenerAdapter {
         Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MESSAGE_EVENTS,
             channel -> channel.createMessage(MessageCreateRequest.builder()
                 .embed(embed.asRequest())
-                .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe());
+                .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {}, t -> {}));
     }
 }
