@@ -28,6 +28,7 @@ import com.mcmoddev.mmdbot.modules.commands.community.server.DeletableCommand;
 import com.mcmoddev.mmdbot.utilities.database.dao.PersistedRoles;
 import com.mcmoddev.mmdbot.utilities.database.dao.UserFirstJoins;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Channel;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
@@ -60,10 +61,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.LongFunction;
 import java.util.function.LongPredicate;
+import java.util.function.ObjLongConsumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
 import static com.mcmoddev.mmdbot.MMDBot.getConfig;
 
 /**
@@ -564,6 +568,72 @@ public final class Utils {
             consumer.accept(channel);
         } else {
             MMDBot.LOGGER.error("Could not find channel with ID " + channelID);
+        }
+    }
+
+    /**
+     * Uses the text channel for a configured channel key.
+     *
+     * @param channelKey      the channel key
+     * @param channelCallback callback for when the channel is configured and exists
+     * @throws NullPointerException if either the channel key or channel callback is {@code null}
+     * @see com.mcmoddev.mmdbot.core.BotConfig#getChannel(String)
+     * @see #useTextChannel(String, Consumer, ObjLongConsumer)
+     */
+    public static void useTextChannel(final String channelKey, final Consumer<TextChannel> channelCallback) {
+        useTextChannel(channelKey, channelCallback,
+            (key, id) -> LOGGER.warn("Channel with ID {} configured as '{}' does not exist", id, key));
+    }
+
+    /**
+     * Uses the text channel for a configured channel key, with a callback for a configured but missing channel.
+     *
+     * @param channelKey             the channel key
+     * @param channelCallback        callback for when the channel is configured and exists
+     * @param missingChannelCallback callback for when the channel is configured but does not exist, may be {@code null}
+     * @throws NullPointerException if either the channel key or channel callback is {@code null}
+     * @see com.mcmoddev.mmdbot.core.BotConfig#getChannel(String)
+     * @see #useTextChannel(String, Consumer, ObjLongConsumer, Consumer)
+     */
+    public static void useTextChannel(final String channelKey, final Consumer<TextChannel> channelCallback,
+                                      @Nullable final ObjLongConsumer<String> missingChannelCallback) {
+        useTextChannel(channelKey, channelCallback, missingChannelCallback, null);
+    }
+
+    /**
+     * Uses the text channel for a configured channel key, with callbacks for a configured but missing channel and a
+     * non-configured channel.
+     *
+     * @param channelKey             the channel key
+     * @param channelCallback        callback for when the channel is configured and exists
+     * @param missingChannelCallback callback for when the channel is configured but does not exist, may be {@code null}
+     * @param noChannelCallback      callback for when the channel is not configured, may be {@code null}
+     * @throws NullPointerException if either the channel key or channel callback is {@code null}
+     * @see com.mcmoddev.mmdbot.core.BotConfig#getChannel(String)
+     */
+    public static void useTextChannel(final String channelKey, final Consumer<TextChannel> channelCallback,
+                                      @Nullable final ObjLongConsumer<String> missingChannelCallback,
+                                      @Nullable final Consumer<String> noChannelCallback) {
+        useChannel(channelKey, MMDBot.getJDA()::getTextChannelById, channelCallback, missingChannelCallback, noChannelCallback);
+    }
+
+    private static <C extends Channel> void useChannel(final String channelKey, final LongFunction<C> channelGetter,
+                                                       final Consumer<? super C> channelCallback,
+                                                       @Nullable final ObjLongConsumer<String> missingChannelCallback,
+                                                       @Nullable final Consumer<String> noChannelCallback) {
+        Objects.requireNonNull(channelKey, "channel key must not be null");
+        Objects.requireNonNull(channelGetter, "channel getter must not be null");
+        Objects.requireNonNull(channelCallback, "channel callback must not be null");
+        final long channelID = getConfig().getChannel(channelKey);
+        if (channelID != 0L) {
+            final C channel = channelGetter.apply(channelID);
+            if (channel != null) {
+                channelCallback.accept(channel);
+            } else if (missingChannelCallback != null) {
+                missingChannelCallback.accept(channelKey, channelID);
+            }
+        } else if (noChannelCallback != null) {
+            noChannelCallback.accept(channelKey);
         }
     }
 

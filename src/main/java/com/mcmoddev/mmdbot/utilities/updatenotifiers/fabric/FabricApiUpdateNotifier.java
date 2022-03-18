@@ -58,13 +58,11 @@ public final class FabricApiUpdateNotifier implements Runnable {
         LOGGER.debug(NOTIFIER_FABRIC, "Checking for new Fabric API versions...");
         final String latest = FabricVersionHelper.getLatestApi();
 
-        final long channelId = getConfig().getChannel("notifications.fabric");
-
         if (!lastLatest.equals(latest)) {
             LOGGER.info(NOTIFIER_FABRIC, "New Fabric API release found, from {} to {}", lastLatest, latest);
             lastLatest = latest;
 
-            Utils.getChannelIfPresent(channelId, channel -> {
+            Utils.useTextChannel("notifications.fabric", channel -> {
                 final var embed = new EmbedBuilder();
                 embed.setTitle("New Fabric API release available!");
                 embed.setDescription(latest);

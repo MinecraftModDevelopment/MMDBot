@@ -135,7 +135,7 @@ public final class ForgeUpdateNotifier implements Runnable {
                 LOGGER.info(NOTIFIER_FORGE, "New Forge version found for {}: {}", mcVersion, logMsg);
                 lastForgeVersions = latest;
 
-                Utils.getChannelIfPresent(getConfig().getChannel("notifications.forge"),
+                Utils.useTextChannel("notifications.forge",
                     channel -> channel.sendMessageEmbeds(embed.build()).queue(msg -> {
                         if (channel.getType() == ChannelType.NEWS) {
                             msg.crosspost().queue();

@@ -66,7 +66,7 @@ public class LoggingModule {
     }
 
     public static void executeInLoggingChannel(LoggingType loggingType, Consumer<TextChannel> channel) {
-        Utils.getChannelIfPresent(MMDBot.getConfig().getChannel("events." + loggingType.toString()), channel);
+        Utils.useTextChannel("events." + loggingType.toString(), channel);
     }
 
     public enum LoggingType {

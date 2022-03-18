@@ -65,12 +65,11 @@ public final class MinecraftUpdateNotifier implements Runnable {
         MinecraftVersionHelper.update();
         final String latest = MinecraftVersionHelper.getLatest();
         final String latestStable = MinecraftVersionHelper.getLatestStable();
-        final long channelId = getConfig().getChannel("notifications.minecraft");
 
         if (!lastLatestStable.equals(latestStable)) {
             LOGGER.info(MMDMarkers.NOTIFIER_MC, "New Minecraft release found, from {} to {}", lastLatest, latest);
 
-            Utils.getChannelIfPresent(channelId, channel -> {
+            Utils.useTextChannel("notifications.minecraft", channel -> {
                 final var embed = new EmbedBuilder();
                 embed.setTitle("New Minecraft release available!");
                 embed.setDescription(latest);
@@ -85,7 +84,7 @@ public final class MinecraftUpdateNotifier implements Runnable {
         } else if (!lastLatest.equals(latest)) {
             LOGGER.info(MMDMarkers.NOTIFIER_MC, "New Minecraft snapshot found, from {} to {}", lastLatest, latest);
 
-            Utils.getChannelIfPresent(channelId, channel -> {
+            Utils.useTextChannel("notifications.minecraft", channel -> {
                 final var embed = new EmbedBuilder();
                 embed.setTitle("New Minecraft snapshot available!");
                 embed.setDescription(latest);
