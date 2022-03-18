@@ -28,8 +28,9 @@ import org.spongepowered.configurate.objectmapping.meta.Setting;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("FieldMayBeFinal")
 @ConfigSerializable
-public class Configuration {
+public final class Configuration {
     public static final Configuration EMPTY = new Configuration();
     public static final java.lang.reflect.Type TYPE = io.leangen.geantyref.TypeToken.get(Configuration.class).getType();
 
@@ -41,8 +42,16 @@ public class Configuration {
         return bot;
     }
 
+    @Required
+    @Setting("channels")
+    private Channels channels = new Channels();
+
+    public Channels channels() {
+        return channels;
+    }
+
     @ConfigSerializable
-    public static class Bot {
+    public static final class Bot {
 
         @Required
         @Setting("owners")
@@ -60,6 +69,47 @@ public class Configuration {
 
         public String guild() {
             return guild;
+        }
+    }
+
+    @ConfigSerializable
+    public static final class Channels {
+
+        @Required
+        @Setting("update_notifiers")
+        @Comment("Channels used for update notifiers.")
+        private UpdateNotifiers updateNotifiers = new UpdateNotifiers();
+
+        public UpdateNotifiers updateNotifiers() {
+            return updateNotifiers;
+        }
+
+        @ConfigSerializable
+        public static final class UpdateNotifiers {
+
+            @Required
+            @Setting("fabric")
+            @Comment("A list of Snowflake IDs of channels in which to send Fabric update notifiers.")
+            private List<String> fabric = new ArrayList<>();
+            public List<String> fabric() {
+                return fabric;
+            }
+
+            @Required
+            @Setting("forge")
+            @Comment("A list of Snowflake IDs of channels in which to send Forge update notifiers.")
+            private List<String> forge = new ArrayList<>();
+            public List<String> forge() {
+                return fabric;
+            }
+
+            @Required
+            @Setting("minecraft")
+            @Comment("A list of Snowflake IDs of channels in which to send Minecraft update notifiers.")
+            private List<String> minecraft = new ArrayList<>();
+            public List<String> minecraft() {
+                return fabric;
+            }
         }
     }
 }

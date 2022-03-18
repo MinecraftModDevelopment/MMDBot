@@ -18,18 +18,18 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.utilities.updatenotifiers.fabric;
+package com.mcmoddev.mmdbot.commander.updatenotifiers.fabric;
 
-import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.commander.TheCommander;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.MessageChannel;
 
 import java.awt.Color;
 import java.time.Instant;
 
-import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
-import static com.mcmoddev.mmdbot.MMDBot.getConfig;
-import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.NOTIFIER_FABRIC;
+import static com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers.LOGGER;
+import static com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers.MARKER;
 
 /**
  * The type Fabric api update notifier.
@@ -55,27 +55,34 @@ public final class FabricApiUpdateNotifier implements Runnable {
      */
     @Override
     public void run() {
-        LOGGER.debug(NOTIFIER_FABRIC, "Checking for new Fabric API versions...");
+        if (TheCommander.getInstance() == null) {
+            LOGGER.warn(MARKER, "Cannot start Fabric Update Notifier due to the bot instance being null.");
+            return;
+        }
+        LOGGER.debug(MARKER, "Checking for new Fabric API versions...");
         final String latest = FabricVersionHelper.getLatestApi();
 
         if (!lastLatest.equals(latest)) {
-            LOGGER.info(NOTIFIER_FABRIC, "New Fabric API release found, from {} to {}", lastLatest, latest);
+            LOGGER.info(MARKER, "New Fabric API release found, from {} to {}", lastLatest, latest);
             lastLatest = latest;
 
-            Utils.useTextChannel("notifications.fabric", channel -> {
-                final var embed = new EmbedBuilder();
-                embed.setTitle("New Fabric API release available!");
-                embed.setDescription(latest);
-                embed.setColor(Color.WHITE);
-                embed.setTimestamp(Instant.now());
-                channel.sendMessageEmbeds(embed.build()).queue(msg -> {
-                    if (channel.getType() == ChannelType.NEWS) {
-                        msg.crosspost().queue();
-                    }
-                });
+            TheCommander.getInstance().getGeneralConfig().channels().updateNotifiers().fabric().forEach(chId -> {
+                final var channel = TheCommander.getJDA().getChannelById(MessageChannel.class, chId);
+                if (channel != null) {
+                    final var embed = new EmbedBuilder();
+                    embed.setTitle("New Fabric API release available!");
+                    embed.setDescription(latest);
+                    embed.setColor(Color.WHITE);
+                    embed.setTimestamp(Instant.now());
+                    channel.sendMessageEmbeds(embed.build()).queue(msg -> {
+                        if (channel.getType() == ChannelType.NEWS) {
+                            msg.crosspost().queue();
+                        }
+                    });
+                }
             });
         } else {
-            LOGGER.debug(NOTIFIER_FABRIC, "No new Fabric API version found");
+            LOGGER.debug(MARKER, "No new Fabric API version found");
         }
 
         lastLatest = latest;

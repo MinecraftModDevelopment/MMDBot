@@ -37,10 +37,7 @@ import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.GuildOnlyMenu;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuAddQuote;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuGist;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.user.ContextMenuUserInfo;
-import com.mcmoddev.mmdbot.modules.commands.community.development.CmdFabricVersion;
-import com.mcmoddev.mmdbot.modules.commands.community.development.CmdForgeVersion;
 import com.mcmoddev.mmdbot.modules.commands.community.development.CmdGist;
-import com.mcmoddev.mmdbot.modules.commands.community.development.CmdMinecraftVersion;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdCatFacts;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdDictionary;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdGuild;
@@ -125,9 +122,6 @@ public class CommandModule {
             new CmdSearch("lmgtfy", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"),
             new CmdToggleMcServerPings(),
             new CmdToggleEventPings(),
-            new CmdForgeVersion(),
-            new CmdMinecraftVersion(),
-            new CmdFabricVersion(),
             new CmdMute(),
             new CmdUnmute(),
             new CmdCommunityChannel(),

@@ -21,12 +21,27 @@
 package com.mcmoddev.mmdbot.core.event;
 
 import com.mcmoddev.mmdbot.core.event.moderation.ModerationEvent;
+import io.github.matyrobbrt.eventdispatcher.Event;
 import io.github.matyrobbrt.eventdispatcher.EventBus;
 import lombok.experimental.UtilityClass;
 
+/**
+ * Class containing different event buses.
+ */
 @UtilityClass
 public class Events {
+
+    /**
+     * The bus on which moderation events will be fired.
+     */
     public static final EventBus MODERATION_BUS = EventBus.builder("Moderation")
         .baseEventType(ModerationEvent.class)
+        .build();
+
+    /**
+     * Bus used for miscellaneous events.
+     */
+    public static final EventBus MISC_BUS = EventBus.builder("Misc")
+        .baseEventType(Event.class)
         .build();
 }

@@ -18,7 +18,7 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.utilities.updatenotifiers.forge;
+package com.mcmoddev.mmdbot.commander.updatenotifiers.forge;
 
 import java.util.Map;
 

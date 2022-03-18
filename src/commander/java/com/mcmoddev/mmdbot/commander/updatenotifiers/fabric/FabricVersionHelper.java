@@ -18,11 +18,11 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.utilities.updatenotifiers.fabric;
+package com.mcmoddev.mmdbot.commander.updatenotifiers.fabric;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.commander.TheCommander;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -216,7 +216,7 @@ public final class FabricVersionHelper {
                 .compile("/metadata/versioning/latest/text()");
             latestApi = expr.evaluate(doc);
         } catch (SAXException | XPathExpressionException | ParserConfigurationException | IOException ex) {
-            MMDBot.LOGGER.error("Failed to resolve latest loader version", ex);
+            TheCommander.LOGGER.error("Failed to resolve latest loader version", ex);
         }
     }
 
@@ -246,7 +246,7 @@ public final class FabricVersionHelper {
             final var url = new URL(urlString);
             return url.openStream();
         } catch (IOException ex) {
-            MMDBot.LOGGER.error("Failed to get minecraft version", ex);
+            TheCommander.LOGGER.error("Failed to get minecraft version", ex);
             return null;
         }
     }

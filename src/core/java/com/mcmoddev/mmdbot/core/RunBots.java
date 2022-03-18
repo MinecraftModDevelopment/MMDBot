@@ -25,6 +25,7 @@ import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.Pair;
+import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
 import com.mcmoddev.mmdbot.dashboard.ServerBridge;
@@ -103,6 +104,8 @@ public class RunBots {
                 LOG.error("Error while trying to set up the dashboard endpoint!", e);
             }
         }
+
+        TaskScheduler.init();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> LOG.warn("The bot(s) are shutting down!")));
     }

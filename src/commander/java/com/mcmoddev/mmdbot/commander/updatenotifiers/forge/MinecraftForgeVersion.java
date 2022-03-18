@@ -18,51 +18,50 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.utilities.updatenotifiers.forge;
+package com.mcmoddev.mmdbot.commander.updatenotifiers.forge;
 
 /**
- * The type Version meta.
+ * The type Minecraft forge version.
  *
  * @author Antoine Gagnon
  */
-public final class VersionMeta {
+public final class MinecraftForgeVersion {
 
     /**
-     * The Version.
+     * The Forge version.
      */
-    private final String version;
-
+    private final ForgeVersion forgeVersion;
     /**
-     * The State.
+     * The Mc version.
      */
-    private final String state;
+    private final String mcVersion;
 
     /**
-     * Gets version.
+     * Instantiates a new Minecraft forge version.
      *
-     * @return the version
+     * @param mcVersionIn    the mc version in
+     * @param forgeVersionIn the forge version in
      */
-    public String getVersion() {
-        return version;
+    public MinecraftForgeVersion(final String mcVersionIn, final ForgeVersion forgeVersionIn) {
+        this.mcVersion = mcVersionIn;
+        this.forgeVersion = forgeVersionIn;
     }
 
     /**
-     * Gets state.
+     * Gets forge version.
      *
-     * @return the state
+     * @return ForgeVersion. forge version
      */
-    public String getState() {
-        return state;
+    public ForgeVersion getForgeVersion() {
+        return forgeVersion;
     }
 
     /**
-     * Instantiates a new Version meta.
+     * Gets mc version.
      *
-     * @param versionIn the version in
-     * @param stateIn   the state in
+     * @return String. mc version
      */
-    public VersionMeta(final String versionIn, final String stateIn) {
-        this.version = versionIn;
-        this.state = stateIn;
+    public String getMcVersion() {
+        return mcVersion;
     }
 }

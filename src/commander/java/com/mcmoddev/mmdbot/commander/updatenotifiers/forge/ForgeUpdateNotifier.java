@@ -18,19 +18,20 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.utilities.updatenotifiers.forge;
+package com.mcmoddev.mmdbot.commander.updatenotifiers.forge;
 
-import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.mcmoddev.mmdbot.core.util.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.MessageChannel;
 
 import java.awt.Color;
 import java.io.IOException;
 import java.time.Instant;
 
-import static com.mcmoddev.mmdbot.MMDBot.LOGGER;
-import static com.mcmoddev.mmdbot.MMDBot.getConfig;
-import static com.mcmoddev.mmdbot.utilities.console.MMDMarkers.NOTIFIER_FORGE;
+import static com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers.LOGGER;
+import static com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers.MARKER;
 
 /**
  * The type Forge update notifier.
@@ -76,8 +77,12 @@ public final class ForgeUpdateNotifier implements Runnable {
      */
     @Override
     public void run() {
+        if (TheCommander.getInstance() == null) {
+            LOGGER.warn("Cannot check for new Forge versions, due to the bot instance being null.");
+            return;
+        }
         try {
-            LOGGER.debug(NOTIFIER_FORGE, "Checking for new Forge versions...");
+            LOGGER.debug(MARKER, "Checking for new Forge versions...");
             mcVersion = ForgeVersionHelper.getLatestMcVersionForgeVersions().getMcVersion();
 
             final var latest = ForgeVersionHelper.getForgeVersionsForMcVersion(mcVersion);
@@ -132,22 +137,26 @@ public final class ForgeUpdateNotifier implements Runnable {
             }
 
             if (changed) {
-                LOGGER.info(NOTIFIER_FORGE, "New Forge version found for {}: {}", mcVersion, logMsg);
+                LOGGER.info(MARKER, "New Forge version found for {}: {}", mcVersion, logMsg);
                 lastForgeVersions = latest;
 
-                Utils.useTextChannel("notifications.forge",
-                    channel -> channel.sendMessageEmbeds(embed.build()).queue(msg -> {
-                        if (channel.getType() == ChannelType.NEWS) {
-                            msg.crosspost().queue();
-                        }
-                    }));
+                TheCommander.getInstance().getGeneralConfig().channels().updateNotifiers().forge().forEach(chId -> {
+                    final var channel = TheCommander.getJDA().getChannelById(MessageChannel.class, chId);
+                    if (channel != null) {
+                        channel.sendMessageEmbeds(embed.build()).queue(msg -> {
+                            if (channel.getType() == ChannelType.NEWS) {
+                                msg.crosspost().queue();
+                            }
+                        });
+                    }
+                });
             } else {
-                LOGGER.debug(NOTIFIER_FORGE, "No new Forge version found");
+                LOGGER.debug(MARKER, "No new Forge version found");
             }
         } catch (RuntimeException ex) {
             throw ex;
         } catch (Exception ex) {
-            LOGGER.error(NOTIFIER_FORGE, "Error while running", ex);
+            LOGGER.error(MARKER, "Error while running", ex);
             ex.printStackTrace();
         }
     }

@@ -50,10 +50,18 @@ public class EventListeners {
         }
     }
 
+    /**
+     * Registers {@link EventListener}s to the {@link #COMMANDS_LISTENER}.
+     *
+     * @param registerer the consumer that registers event listeners
+     */
     public static void register(Consumer<EventListener> registerer) {
         registerer.accept(COMMANDS_LISTENER);
     }
 
+    /**
+     * Clears all the listeners from the {@link #COMMANDS_LISTENER}.
+     */
     public static void clear() {
         COMMANDS_LISTENER.clear();
     }

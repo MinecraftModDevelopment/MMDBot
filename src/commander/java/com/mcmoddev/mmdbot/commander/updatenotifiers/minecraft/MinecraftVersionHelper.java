@@ -18,11 +18,11 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.utilities.updatenotifiers.minecraft;
+package com.mcmoddev.mmdbot.commander.updatenotifiers.minecraft;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.commander.TheCommander;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -116,7 +116,7 @@ public final class MinecraftVersionHelper {
             final var url = new URL(API_URL);
             return new InputStreamReader(url.openStream(), StandardCharsets.UTF_8);
         } catch (IOException ex) {
-            MMDBot.LOGGER.error("Failed to get minecraft version", ex);
+            TheCommander.LOGGER.error("Failed to get minecraft version", ex);
             return null;
         }
     }

@@ -28,6 +28,7 @@ import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
 import com.mcmoddev.mmdbot.commander.commands.curseforge.CurseForgeCommand;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
+import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers;
 import com.mcmoddev.mmdbot.commander.util.EventListeners;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
@@ -144,6 +145,7 @@ public final class TheCommander implements Bot {
     public void start() {
         instance = this;
         EventListeners.clear();
+        UpdateNotifiers.register();
 
         try {
             final var configPath = runPath.resolve("configs").resolve("general_config.conf");
