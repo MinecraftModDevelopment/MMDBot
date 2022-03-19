@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.thelistener.events;
 
+import com.mcmoddev.mmdbot.core.util.MessageUtilities;
 import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.thelistener.TheListener;
 import com.mcmoddev.mmdbot.thelistener.util.ListenerAdapter;
@@ -52,12 +53,12 @@ public final class MessageEvents extends ListenerAdapter {
         final var embed = event.getMessage()
             .flatMap(message -> Pair.of(message, message.getAuthor().orElse(null)).toOptional())
             .map(c -> c.map((message, user) -> {
-                if (ReferencingListener.isStringReference(message.getContent())) {
+                if (message.getContent().isBlank() || message.getContent().equals(".") || message.getContent().equals("^")) {
                     doLog.set(false);
                 }
                 final var msgSplit = message.getContent().split(" ");
                 if (msgSplit.length == 1) {
-                    final var matcher = Utils.MESSAGE_LINK_PATTERN.matcher(msgSplit[0]);
+                    final var matcher = MessageUtilities.MESSAGE_LINK_PATTERN.matcher(msgSplit[0]);
                     if (matcher.find()) {
                         doLog.set(false);
                     }

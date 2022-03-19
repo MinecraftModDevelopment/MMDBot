@@ -90,7 +90,7 @@ public class RunBots {
         loadedBots = bots.toList();
         bots = loadedBots.stream();
 
-        // dashboard stuff
+        /* dashboard stuff
         {
             ServerBridge.setInstance(new ServerBridgeImpl());
             final var dashConfig = getDashboardConfig();
@@ -104,6 +104,7 @@ public class RunBots {
                 LOG.error("Error while trying to set up the dashboard endpoint!", e);
             }
         }
+        */
 
         TaskScheduler.init();
 

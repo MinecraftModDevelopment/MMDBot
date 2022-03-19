@@ -50,6 +50,15 @@ public final class Configuration {
         return channels;
     }
 
+    @Required
+    @Setting("features")
+    @Comment("Configuration for features.")
+    private Features features = new Features();
+
+    public Features features() {
+        return features;
+    }
+
     @ConfigSerializable
     public static final class Bot {
 
@@ -110,6 +119,18 @@ public final class Configuration {
             public List<String> minecraft() {
                 return fabric;
             }
+        }
+    }
+
+    @ConfigSerializable
+    public static final class Features {
+
+        @Required
+        @Setting("referencing_enabled")
+        @Comment("If message referencing should be enabled.")
+        private boolean referencingEnabled = true;
+        public boolean isReferencingEnabled() {
+            return referencingEnabled;
         }
     }
 }

@@ -28,14 +28,17 @@ import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
 import com.mcmoddev.mmdbot.commander.commands.curseforge.CurseForgeCommand;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
+import com.mcmoddev.mmdbot.commander.eventlistener.ThreadListener;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers;
 import com.mcmoddev.mmdbot.commander.util.EventListeners;
+import com.mcmoddev.mmdbot.commander.eventlistener.ReferencingListener;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import com.mcmoddev.mmdbot.core.util.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
+import com.mcmoddev.mmdbot.core.util.MessageUtilities;
 import com.mcmoddev.mmdbot.core.util.ReflectionsUtils;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
@@ -43,8 +46,11 @@ import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.utils.AllowedMentions;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -61,12 +67,13 @@ import javax.annotation.Nullable;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 public final class TheCommander implements Bot {
     static final TypeSerializerCollection ADDED_SERIALIZERS = TypeSerializerCollection.defaults()
@@ -109,6 +116,10 @@ public final class TheCommander implements Bot {
         GatewayIntent.GUILD_MESSAGE_REACTIONS,
         GatewayIntent.GUILD_MESSAGES,
         GatewayIntent.GUILD_MEMBERS);
+
+    private static final Set<Message.MentionType> DEFAULT_MENTIONS = EnumSet.of(
+        Message.MentionType.EMOTE,
+        Message.MentionType.CHANNEL);
 
     static {
         AllowedMentions.setDefaultMentionRepliedUser(false);
@@ -165,7 +176,7 @@ public final class TheCommander implements Bot {
         }
 
         MessageAction.setDefaultMentionRepliedUser(false);
-        MessageAction.setDefaultMentions(Collections.emptySet());
+        MessageAction.setDefaultMentions(DEFAULT_MENTIONS);
 
         if (generalConfig.bot().getOwners().isEmpty()) {
             LOGGER.warn("Please provide at least one bot owner!");
@@ -193,6 +204,12 @@ public final class TheCommander implements Bot {
                 .map(SlashCommand.class::cast)
                 .forEach(commandClient::addSlashCommand);
         }
+
+        if (generalConfig.features().isReferencingEnabled()) {
+            EventListeners.MISC_LISTENER.addListener(new ReferencingListener());
+        }
+
+        EventListeners.MISC_LISTENER.addListener(new ThreadListener());
 
         try {
             final var builder = JDABuilder
@@ -235,7 +252,11 @@ public final class TheCommander implements Bot {
 
     @Override
     public void shutdown() {
+        commandClient.shutdown();
         jda.shutdown();
+        generalConfig = null;
+        config = null;
+        curseForgeManager = null;
         instance = null; // Clear the instance, as it doesn't exist anymore.
         // The "this" object should still exist for restarting it, at which point the instance will
         // be assigned again
@@ -264,6 +285,20 @@ public final class TheCommander implements Bot {
 
     public Configuration getGeneralConfig() {
         return generalConfig;
+    }
+
+    @Nullable
+    public RestAction<Message> getMessageByLink(final String link) throws MessageUtilities.MessageLinkException {
+        final AtomicReference<RestAction<Message>> returnAtomic = new AtomicReference<>();
+        MessageUtilities.decodeMessageLink(link, (guildId, channelId, messageId) -> {
+            final var guild = getJDA().getGuildById(guildId);
+            if (guild == null) return;
+            final var channel = guild.getChannelById(MessageChannel.class, channelId);
+            if (channel != null) {
+                returnAtomic.set(channel.retrieveMessageById(messageId));
+            }
+        });
+        return returnAtomic.get();
     }
 
     @Override

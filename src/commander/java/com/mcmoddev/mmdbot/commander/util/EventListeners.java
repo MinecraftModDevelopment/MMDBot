@@ -33,10 +33,23 @@ import java.util.function.Consumer;
 @UtilityClass
 public class EventListeners {
 
+    public static final ThreadedEventListener MISC_LISTENER;
     public static final ThreadedEventListener COMMANDS_LISTENER;
 
     static {
         final var mainGroup = new ThreadGroup("The Commander");
+
+        // Misc
+        {
+            final var group = new ThreadGroup("Misc Listeners");
+            // TODO maybe increase in the future, as needed
+            final var poll = (ThreadPoolExecutor) Executors.newFixedThreadPool(1, r ->
+                Utils.setThreadDaemon(new Thread(group, r, "MiscListener #%s".formatted(group.activeCount())),
+                    true));
+            poll.setKeepAliveTime(30, TimeUnit.MINUTES);
+            poll.allowCoreThreadTimeOut(true);
+            MISC_LISTENER = new ThreadedEventListener(poll);
+        }
 
         // Commands
         {
@@ -51,18 +64,20 @@ public class EventListeners {
     }
 
     /**
-     * Registers {@link EventListener}s to the {@link #COMMANDS_LISTENER}.
+     * Registers all the threaded listeners to the {@code registerer}.
      *
-     * @param registerer the consumer that registers event listeners
+     * @param registerer the consumer that register the listeners
      */
     public static void register(Consumer<EventListener> registerer) {
+        registerer.accept(MISC_LISTENER);
         registerer.accept(COMMANDS_LISTENER);
     }
 
     /**
-     * Clears all the listeners from the {@link #COMMANDS_LISTENER}.
+     * Clears all the listeners from the threaded listeners.
      */
     public static void clear() {
+        MISC_LISTENER.clear();
         COMMANDS_LISTENER.clear();
     }
 }

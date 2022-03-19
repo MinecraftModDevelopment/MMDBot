@@ -25,16 +25,13 @@ import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import com.mcmoddev.mmdbot.core.event.Events;
-import com.mcmoddev.mmdbot.core.event.moderation.WarningEvent;
 import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import com.mcmoddev.mmdbot.thelistener.events.LeaveJoinEvents;
 import com.mcmoddev.mmdbot.thelistener.events.MessageEvents;
 import com.mcmoddev.mmdbot.thelistener.events.ModerationEvents;
-import com.mcmoddev.mmdbot.thelistener.events.ReferencingListener;
 import com.mcmoddev.mmdbot.thelistener.events.RoleEvents;
 import com.mcmoddev.mmdbot.thelistener.util.EventListener;
 import com.mcmoddev.mmdbot.thelistener.util.GuildConfig;
-import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
 import com.mcmoddev.mmdbot.thelistener.util.ThreadedEventListener;
 import com.mcmoddev.mmdbot.thelistener.util.Utils;
 import discord4j.common.util.Snowflake;
@@ -43,25 +40,18 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.guild.GuildCreateEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.retriever.EntityRetrievalStrategy;
-import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.discordjson.possible.Possible;
 import discord4j.gateway.intent.Intent;
 import discord4j.gateway.intent.IntentSet;
-import discord4j.rest.util.Color;
 import io.github.cdimascio.dotenv.Dotenv;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Mono;
 
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
-import static com.mcmoddev.mmdbot.thelistener.util.Utils.mentionAndID;
 
 public final class TheListener implements Bot {
 
@@ -95,7 +85,7 @@ public final class TheListener implements Bot {
         this.runPath = runPath;
     }
 
-    public static final Executor GENERAL_EVENT_THREAD_POOL = Executors.newFixedThreadPool(3,
+    public static final Executor GENERAL_EVENT_THREAD_POOL = Executors.newFixedThreadPool(2,
         r -> Utils.setThreadDaemon(new Thread(r, "GeneralD4JEvents"), true));
 
     @Override
@@ -131,8 +121,7 @@ public final class TheListener implements Bot {
             });
 
         Utils.subscribe(gateway, wrapListener(new MessageEvents()), wrapListener(new LeaveJoinEvents()),
-            wrapListener(ModerationEvents.INSTANCE), wrapListener(new RoleEvents()),
-            wrapListener(new ReferencingListener()));
+            wrapListener(ModerationEvents.INSTANCE), wrapListener(new RoleEvents()));
 
         new Thread(() -> {
             // D4J doesn't have non-daemon threads
