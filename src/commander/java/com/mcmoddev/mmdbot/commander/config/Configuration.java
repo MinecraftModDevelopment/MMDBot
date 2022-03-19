@@ -109,7 +109,7 @@ public final class Configuration {
             @Comment("A list of Snowflake IDs of channels in which to send Forge update notifiers.")
             private List<String> forge = new ArrayList<>();
             public List<String> forge() {
-                return fabric;
+                return forge;
             }
 
             @Required
@@ -117,7 +117,7 @@ public final class Configuration {
             @Comment("A list of Snowflake IDs of channels in which to send Minecraft update notifiers.")
             private List<String> minecraft = new ArrayList<>();
             public List<String> minecraft() {
-                return fabric;
+                return minecraft;
             }
         }
     }
