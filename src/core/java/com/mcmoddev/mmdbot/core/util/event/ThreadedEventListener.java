@@ -18,7 +18,7 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.core.util;
+package com.mcmoddev.mmdbot.core.util.event;
 
 import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;

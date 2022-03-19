@@ -38,7 +38,6 @@ import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.Contex
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuGist;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.user.ContextMenuUserInfo;
 import com.mcmoddev.mmdbot.modules.commands.community.development.CmdGist;
-import com.mcmoddev.mmdbot.modules.commands.community.information.CmdCatFacts;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdDictionary;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdGuild;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdInvite;
@@ -115,7 +114,6 @@ public class CommandModule {
             new CmdAbout(),
             new CmdUser(),
             new CmdRoles(),
-            new CmdCatFacts(),
             new CmdSearch("google", "https://www.google.com/search?q=", "goog"),
             new CmdSearch("bing", "https://www.bing.com/search?q="),
             new CmdSearch("duckduckgo", "https://duckduckgo.com/?q=", "ddg"),

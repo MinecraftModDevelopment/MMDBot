@@ -20,7 +20,7 @@
  */
 package com.mcmoddev.mmdbot.commander.util;
 
-import com.mcmoddev.mmdbot.core.util.ThreadedEventListener;
+import com.mcmoddev.mmdbot.core.util.event.ThreadedEventListener;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import lombok.experimental.UtilityClass;
 import net.dv8tion.jda.api.hooks.EventListener;

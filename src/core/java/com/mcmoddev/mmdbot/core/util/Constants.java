@@ -24,8 +24,10 @@ import com.google.common.base.Joiner;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.github.matyrobbrt.curseforgeapi.util.gson.RecordTypeAdapterFactory;
+import lombok.experimental.UtilityClass;
 import org.spongepowered.configurate.reference.WatchServiceListener;
 
+import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,6 +35,7 @@ import java.util.concurrent.ScheduledExecutorService;
 /**
  * A class holding common constants
  */
+@UtilityClass
 public final class Constants {
 
     public static final Joiner LINE_JOINER = Joiner.on(System.lineSeparator());
@@ -42,7 +45,10 @@ public final class Constants {
         .threadFactory(r -> Utils.setThreadDaemon(new Thread(r, "ConfigListener"), true))
         .build()).get();
 
-    public static final ScheduledExecutorService TIMER = Executors.newSingleThreadScheduledExecutor(r -> Utils.setThreadDaemon(new Thread(r, "Timer"), true));
+    /**
+     * The constant random.
+     */
+    public static final Random RANDOM = new Random();
 
     public static final class Gsons {
         public static final Gson NO_PRETTY_PRINTING = new GsonBuilder()

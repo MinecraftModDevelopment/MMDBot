@@ -60,6 +60,16 @@ public final class TaskScheduler {
         public void addTask(Task task) {
             tasks.add(task);
         }
+
+        /**
+         * Registers a task that should be run at a fixed rate.
+         */
+        public void addTask(Runnable command,
+                            long initialDelay,
+                            long period,
+                            TimeUnit unit) {
+            tasks.add(new Task(command, initialDelay, period, unit));
+        }
     }
 
     public record Task(Runnable command,

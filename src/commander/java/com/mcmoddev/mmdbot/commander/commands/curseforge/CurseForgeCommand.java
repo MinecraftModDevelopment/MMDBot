@@ -26,7 +26,9 @@ import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
 import com.mcmoddev.mmdbot.core.util.Constants;
+import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.builder.SlashCommandBuilder;
+import com.mcmoddev.mmdbot.core.util.event.OneTimeEventListener;
 import io.github.matyrobbrt.curseforgeapi.util.CurseForgeException;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -73,9 +75,10 @@ public abstract class CurseForgeCommand extends SlashCommand {
             }
         });
     };
-    static {
-        Constants.TIMER.scheduleAtFixedRate(REFRESH_GAMES_TASK, 0, 1, TimeUnit.HOURS);
-    }
+    public static final OneTimeEventListener<TaskScheduler.CollectTasksEvent> RG_TASK_SCHEDULER_LISTENER = new OneTimeEventListener<>(event -> {
+        event.addTask(REFRESH_GAMES_TASK, 0, 1, TimeUnit.HOURS);
+    });
+
     public static Command.Choice[] getGameChoices(String currentGame) {
         return GAMES.object2IntEntrySet().stream()
             .filter(e -> e.getKey().startsWith(currentGame))

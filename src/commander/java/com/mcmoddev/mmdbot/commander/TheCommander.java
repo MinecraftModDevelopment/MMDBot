@@ -37,6 +37,7 @@ import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
+import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
 import com.mcmoddev.mmdbot.core.util.MessageUtilities;
@@ -212,6 +213,7 @@ public final class TheCommander implements Bot {
 
         EventListeners.MISC_LISTENER.addListeners(new ThreadListener(),
             new ThreadChannelCreatorEvents(this::getGeneralConfig));
+        CurseForgeCommand.RG_TASK_SCHEDULER_LISTENER.register(Events.MISC_BUS);
 
         try {
             final var builder = JDABuilder
