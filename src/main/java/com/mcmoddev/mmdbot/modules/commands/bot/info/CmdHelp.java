@@ -25,7 +25,7 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
-import com.mcmoddev.mmdbot.modules.commands.community.PaginatedCommand;
+import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;

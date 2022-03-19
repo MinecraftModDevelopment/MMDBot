@@ -21,7 +21,7 @@
 package com.mcmoddev.mmdbot.modules.commands.community.server;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import com.mcmoddev.mmdbot.modules.commands.community.PaginatedCommand;
+import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
 import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;

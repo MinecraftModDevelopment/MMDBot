@@ -253,11 +253,12 @@ public final class ModerationEvents extends ListenerAdapter {
                     .color(Color.RED)
                     .title("New Warning")
                     .description("%s warned %s".formatted(mentionAndID(doc.moderatorId()), mentionAndID(doc.userId())))
-                    .thumbnail(user.avatar().map(Possible::of).orElse(Possible.absent()))
+                    .thumbnail(user.avatar().map(i -> Possible.of(getAvatar(user.id().asString(), i))).orElse(Possible.absent()))
                     .addField("Reason:", doc.reason(), false)
-                    .addField("Warning ID", doc.warnId(), false)
+                    .addField("Warning ID: ", doc.warnId(), false)
                     .timestamp(Instant.now())
-                    .footer("Warner ID: " + doc.moderatorId(), warner.avatar().orElse(null));
+                    .footer("Warner ID: " + doc.moderatorId(), warner.avatar()
+                        .map(i -> getAvatar(warner.id().asString(), i)).orElse(null));
                 Utils.executeInLoggingChannel(Snowflake.of(doc.guildId()), LoggingType.MODERATION_EVENTS,
                     c -> c.createMessage(embed.build().asRequest()).subscribe());
             });
@@ -278,11 +279,12 @@ public final class ModerationEvents extends ListenerAdapter {
                     .color(Color.GREEN)
                     .title("Warning Cleared")
                     .description("One of the warnings of " + mentionAndID(warnDoc.userId()) + " has been removed!")
-                    .thumbnail(user.avatar().map(Possible::of).orElse(Possible.absent()))
+                    .thumbnail(user.avatar().map(i -> Possible.of(getAvatar(user.id().asString(), i))).orElse(Possible.absent()))
                     .addField("Old warning reason:", warnDoc.reason(), false)
                     .addField("Old warner:", mentionAndID(warnDoc.userId()), false)
                     .timestamp(Instant.now())
-                    .footer("Moderator ID: " + event.getModeratorId(), moderator.avatar().orElse(null));
+                    .footer("Moderator ID: " + event.getModeratorId(), moderator.avatar()
+                        .map(i -> getAvatar(moderator.id().asString(), i)).orElse(null));
                 Utils.executeInLoggingChannel(Snowflake.of(warnDoc.guildId()), LoggingType.MODERATION_EVENTS,
                     c -> c.createMessage(embed.build().asRequest()).subscribe());
             });
@@ -300,9 +302,14 @@ public final class ModerationEvents extends ListenerAdapter {
                     .title("Warnings Cleared")
                     .description("All of the warnings of " + mentionAndID(event.getTargetId()) + " have been cleared!")
                     .timestamp(Instant.now())
-                    .footer("Moderator ID: " + event.getModeratorId(), moderator.avatar().orElse(null));
+                    .footer("Moderator ID: " + event.getModeratorId(), moderator.avatar()
+                        .map(i -> getAvatar(moderator.id().asString(), i)).orElse(null));
                 Utils.executeInLoggingChannel(Snowflake.of(event.getGuildId()), LoggingType.MODERATION_EVENTS,
                     c -> c.createMessage(embed.build().asRequest()).subscribe());
             });
+    }
+
+    private static String getAvatar(String userId, String avatarId) {
+        return "https://cdn.discordapp.com/avatars/%s/%s.webp?size=128".formatted(userId, avatarId);
     }
 }

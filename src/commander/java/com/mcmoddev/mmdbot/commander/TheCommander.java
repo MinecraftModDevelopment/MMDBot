@@ -28,8 +28,15 @@ import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
 import com.mcmoddev.mmdbot.commander.commands.DictionaryCommand;
 import com.mcmoddev.mmdbot.commander.commands.curseforge.CurseForgeCommand;
+import com.mcmoddev.mmdbot.commander.commands.tricks.AddTrickCommand;
+import com.mcmoddev.mmdbot.commander.commands.tricks.EditTrickCommand;
+import com.mcmoddev.mmdbot.commander.commands.tricks.ListTricksCommand;
+import com.mcmoddev.mmdbot.commander.commands.tricks.RunTrickCommand;
+import com.mcmoddev.mmdbot.commander.commands.tricks.TrickCommand;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
+import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
 import com.mcmoddev.mmdbot.commander.eventlistener.ThreadListener;
+import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers;
 import com.mcmoddev.mmdbot.commander.util.EventListeners;
 import com.mcmoddev.mmdbot.commander.eventlistener.ReferencingListener;
@@ -196,11 +203,22 @@ public final class TheCommander implements Bot {
             .setOwnerId(generalConfig.bot().getOwners().get(0))
             .setCoOwnerIds(coOwners.toArray(String[]::new))
             .forceGuildOnly(generalConfig.bot().guild())
+            .setPrefixes(generalConfig.bot().getPrefixes().toArray(String[]::new))
             .useHelpBuilder(false)
             .setManualUpsert(false)
             .setActivity(null)
             .build();
         EventListeners.COMMANDS_LISTENER.addListener((EventListener) commandClient);
+
+        if (generalConfig.features().tricks().tricksEnabled()) {
+            commandClient.addSlashCommand(new TrickCommand());
+            commandClient.addCommand(new AddTrickCommand.Prefix());
+            commandClient.addCommand(new EditTrickCommand.Prefix());
+            EventListeners.COMMANDS_LISTENER.addListener(ListTricksCommand.getListListener());
+            if (generalConfig.features().tricks().prefixEnabled()) {
+                Tricks.getTricks().stream().map(RunTrickCommand.Prefix::new).forEach(commandClient::addCommand);
+            }
+        }
 
         {
             // Command register
@@ -214,7 +232,7 @@ public final class TheCommander implements Bot {
         }
 
         // Button listeners
-        EventListeners.COMMANDS_LISTENER.addListeners(DictionaryCommand.listener);
+        EventListeners.COMMANDS_LISTENER.addListeners(DictionaryCommand.listener, new DismissListener());
 
         if (generalConfig.features().isReferencingEnabled()) {
             EventListeners.MISC_LISTENER.addListener(new ReferencingListener());
@@ -290,6 +308,10 @@ public final class TheCommander implements Bot {
 
     public JDA getJda() {
         return jda;
+    }
+
+    public CommandClient getCommandClient() {
+        return commandClient;
     }
 
     public Optional<CurseForgeManager> getCurseForgeManager() {

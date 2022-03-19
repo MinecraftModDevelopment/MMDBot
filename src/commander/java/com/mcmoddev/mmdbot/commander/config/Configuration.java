@@ -51,6 +51,14 @@ public final class Configuration {
     }
 
     @Required
+    @Setting("roles")
+    private Roles roles = new Roles();
+
+    public Roles roles() {
+        return roles;
+    }
+
+    @Required
     @Setting("features")
     @Comment("Configuration for features.")
     private Features features = new Features();
@@ -78,6 +86,26 @@ public final class Configuration {
 
         public String guild() {
             return guild;
+        }
+
+        @Required
+        @Setting("prefixes")
+        @Comment("The prefixes the bot should use.")
+        private List<String> prefixes = new ArrayList<>();
+
+        public List<String> getPrefixes() {
+            return prefixes;
+        }
+    }
+
+    @ConfigSerializable
+    public static final class Roles {
+        @Required
+        @Setting("bot_maintainers")
+        @Comment("A list of Snowflake IDs representing the roles which are bot maintainers.")
+        private List<String> botMaintainers = new ArrayList<>();
+        public List<String> getBotMaintainers() {
+            return botMaintainers;
         }
     }
 
@@ -149,6 +177,44 @@ public final class Configuration {
         private boolean referencingEnabled = true;
         public boolean isReferencingEnabled() {
             return referencingEnabled;
+        }
+
+        @Required
+        @Setting("tricks")
+        @Comment("Tricks configuration.")
+        private Tricks tricks = new Tricks();
+        public Tricks tricks() {
+            return tricks;
+        }
+
+        @ConfigSerializable
+        public static final class Tricks {
+
+            @Required
+            @Setting("enabled")
+            @Comment("If tricks should be enabled.")
+            private boolean tricksEnabled = true;
+            public boolean tricksEnabled() {
+                return tricksEnabled;
+            }
+
+            @Required
+            @Setting("prefix_enabled")
+            @Comment("""
+                Only if tricks are enabled!
+                If tricks should be able to work with a prefixes.""")
+            private boolean prefixEnabled = true;
+            public boolean prefixEnabled() {
+                return prefixEnabled;
+            }
+        }
+
+        @Required
+        @Setting("evaluation")
+        @Comment("If evaluation is enabled.")
+        private boolean evaluationEnabled = true;
+        public boolean isEvaluationnabled() {
+            return evaluationEnabled;
         }
     }
 }

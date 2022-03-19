@@ -25,8 +25,8 @@ import com.jagrosh.jdautilities.command.MessageContextMenu;
 import com.jagrosh.jdautilities.command.MessageContextMenuEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.References;
-import com.mcmoddev.mmdbot.gist.Gist;
-import com.mcmoddev.mmdbot.gist.GistUtils;
+import com.mcmoddev.mmdbot.core.util.gist.Gist;
+import com.mcmoddev.mmdbot.core.util.gist.GistUtils;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -51,7 +51,7 @@ public class ContextMenuGist extends MessageContextMenu {
 
     @Override
     protected void execute(final MessageContextMenuEvent event) {
-        if (!GistUtils.hasToken()) {
+        if (MMDBot.getConfig().getGithubToken().isBlank()) {
             event.deferReply(true).setContent("I cannot create a gist! I have not been configured to do so.");
         }
         THREAD_POOL.execute(() -> {

@@ -21,7 +21,7 @@
 package com.mcmoddev.mmdbot.utilities.quotes;
 
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.utilities.scripting.ExposeScripting;
+import com.mcmoddev.mmdbot.core.annotation.ExposeScripting;
 import net.dv8tion.jda.api.entities.User;
 
 /**

@@ -24,7 +24,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.BotConfig;
-import com.mcmoddev.mmdbot.modules.commands.community.PaginatedCommand;
+import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
 import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.database.dao.Invites;

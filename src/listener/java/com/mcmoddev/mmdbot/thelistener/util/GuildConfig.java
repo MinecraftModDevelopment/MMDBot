@@ -114,6 +114,19 @@ public class GuildConfig {
         }
     }
 
+    public List<Snowflake> getScamLoggingChannels() {
+        return catchException(() -> {
+            final Object[] path = {"channels", "scam"};
+            final var node = configNode.get(path);
+            if (node.empty()) {
+                configNode.set(node.path(), List.of());
+                node.comment("A list of snowflakes representing the channels in which to log the deletion of scam links.");
+                configNode.save();
+            }
+            return Objects.requireNonNull(configNode.get(path).getList(Snowflake.class));
+        }, List::of);
+    }
+
     public List<Snowflake> getNoLoggingRoles() {
         return catchException(() -> {
             final Object[] path = {"roles", "no_logging"};

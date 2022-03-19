@@ -20,19 +20,23 @@
  */
 package com.mcmoddev.mmdbot.thelistener.events;
 
+import com.mcmoddev.mmdbot.core.event.moderation.ScamLinkEvent;
 import com.mcmoddev.mmdbot.core.util.MessageUtilities;
 import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.thelistener.TheListener;
 import com.mcmoddev.mmdbot.thelistener.util.ListenerAdapter;
 import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
 import com.mcmoddev.mmdbot.thelistener.util.Utils;
+import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.message.MessageBulkDeleteEvent;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
 import discord4j.core.event.domain.message.MessageUpdateEvent;
+import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.discordjson.json.AllowedMentionsData;
 import discord4j.discordjson.json.MessageCreateRequest;
 import discord4j.rest.util.Color;
+import io.github.matyrobbrt.eventdispatcher.SubscribeEvent;
 
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,6 +44,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class MessageEvents extends ListenerAdapter {
 
     public static final AllowedMentionsData ALLOWED_MENTIONS_DATA = AllowedMentionsData.builder().repliedUser(false).build();
+
+    public static final MessageEvents INSTANCE = new MessageEvents();
+    private MessageEvents() {}
 
     @Override
     public void onMessageDelete(final MessageDeleteEvent event) {
@@ -145,5 +152,35 @@ public final class MessageEvents extends ListenerAdapter {
             channel -> channel.createMessage(MessageCreateRequest.builder()
                 .embed(embed.asRequest())
                 .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {}, t -> {}));
+    }
+
+    @SubscribeEvent
+    @SuppressWarnings("unused")
+    public void onScamLink(final ScamLinkEvent event) {
+        final var embed = EmbedCreateSpec.builder()
+            .title("Scam link detected!")
+            .description(String.format("User <@%s> sent a scam link in <#%s>%s. Their message was deleted, and they were muted.",
+                event.getTargetId(), event.getChannelId(), event.isMessageEdited() ? "" : ", by editing an old message"))
+            .addField("Message Content", """
+                ```
+                %s
+                ```""".formatted(event.getMessageContent()), false)
+            .color(Color.RED)
+            .timestamp(Instant.now())
+            .footer(EmbedCreateFields.Footer.of("User ID: " + event.getTargetId(), event.getTargetAvatar()))
+            .thumbnail(event.getTargetAvatar())
+            .build();
+
+        if (TheListener.getClient() != null) {
+            // Hardcoded until configs
+            final var channels = TheListener.getInstance().getConfigForGuild(Snowflake.of(event.getGuildId())).getScamLoggingChannels();
+            channels.forEach(channelId -> {
+                final var channel = TheListener.getClient().getChannelById(channelId);
+                channel.createMessage(MessageCreateRequest.builder()
+                    .embed(embed.asRequest())
+                    .allowedMentions(ALLOWED_MENTIONS_DATA)
+                    .build()).subscribe();
+            });
+        }
     }
 }

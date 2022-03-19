@@ -24,7 +24,7 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.CooldownScope;
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.gist.GistUtils;
+import com.mcmoddev.mmdbot.core.util.gist.GistUtils;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuGist;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -48,7 +48,7 @@ public final class CmdGist extends Command {
 
     @Override
     protected void execute(final CommandEvent event) {
-        if (!GistUtils.hasToken()) {
+        if (MMDBot.getConfig().getGithubToken().isBlank()) {
             event.getMessage().reply("I cannot create a gist! I have not been configured to do so.").mentionRepliedUser(false).queue();
         }
         ContextMenuGist.THREAD_POOL.execute(() -> {

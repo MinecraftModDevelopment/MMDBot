@@ -32,7 +32,6 @@ import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRefreshScamLinks;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRestart;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
-import com.mcmoddev.mmdbot.modules.commands.community.CmdEvaluate;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.GuildOnlyMenu;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuAddQuote;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuGist;
@@ -46,12 +45,6 @@ import com.mcmoddev.mmdbot.modules.commands.community.server.CmdToggleEventPings
 import com.mcmoddev.mmdbot.modules.commands.community.server.CmdToggleMcServerPings;
 import com.mcmoddev.mmdbot.modules.commands.community.server.DeletableCommand;
 import com.mcmoddev.mmdbot.modules.commands.community.server.quotes.CmdQuote;
-import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdAddTrick;
-import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdEditTrick;
-import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdListTricks;
-import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdRawTrick;
-import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdRunTrick;
-import com.mcmoddev.mmdbot.modules.commands.community.server.tricks.CmdTrick;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdMute;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdOldChannels;
@@ -61,7 +54,6 @@ import com.mcmoddev.mmdbot.modules.commands.moderation.CmdUnmute;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdWarning;
 import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
-import com.mcmoddev.mmdbot.utilities.tricks.Tricks;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
@@ -126,28 +118,17 @@ public class CommandModule {
             new CmdQuote(),
             new CmdRolePanel(),
             new CmdWarning(),
-            new CmdTrick(),
-            new CmdInvite(),
-            new CmdEvaluate(),
-            new CmdRawTrick());
+            new CmdInvite());
 
         // addSlashCommand(Tricks.getTricks().stream().map(CmdRunTrickSeparated::new).toArray(SlashCommand[]::new));
 
         commandClient.addCommand(new CmdRefreshScamLinks());
         commandClient.addCommand(new CmdReact());
         commandClient.addCommand(new CmdGist());
-        commandClient.addCommand(new CmdEvaluate());
-
-        commandClient.addCommand(new CmdAddTrick.Prefix());
-        commandClient.addCommand(new CmdEditTrick.Prefix());
 
         addContextMenu(new ContextMenuGist());
         addContextMenu(new ContextMenuAddQuote());
         addContextMenu(new ContextMenuUserInfo());
-
-        if (MMDBot.getConfig().prefixTricksEnabled()) {
-            Tricks.getTricks().stream().map(CmdRunTrick.Prefix::new).forEach(commandClient::addCommand);
-        }
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
             // Wrap the command and button listener in another thread, so that if a runtime exception
@@ -156,7 +137,6 @@ public class CommandModule {
             MMDBot.getJDA().addEventListener(new ThreadedEventListener((EventListener) commandClient, COMMAND_LISTENER_THREAD_POOL));
             MMDBot.getJDA().addEventListener(buttonListener(CmdRoles.getListener()));
             MMDBot.getJDA().addEventListener(buttonListener(CmdHelp.getListener()));
-            MMDBot.getJDA().addEventListener(buttonListener(CmdListTricks.getListListener()));
             MMDBot.getJDA().addEventListener(buttonListener(CmdQuote.ListQuotes.getQuoteListener()));
             MMDBot.getJDA().addEventListener(buttonListener(CmdInvite.ListCmd.getButtonListener()));
             MMDBot.getJDA().addEventListener(buttonListener(new DismissListener()));

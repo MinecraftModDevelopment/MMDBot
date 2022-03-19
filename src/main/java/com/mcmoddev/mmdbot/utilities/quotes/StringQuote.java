@@ -20,7 +20,7 @@
  */
 package com.mcmoddev.mmdbot.utilities.quotes;
 
-import com.mcmoddev.mmdbot.utilities.scripting.ExposeScripting;
+import com.mcmoddev.mmdbot.core.annotation.ExposeScripting;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 

@@ -18,28 +18,36 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.core;
+package com.mcmoddev.mmdbot.commander.util.script.object;
 
-import com.mcmoddev.mmdbot.core.event.Events;
-import com.mcmoddev.mmdbot.core.util.TaskScheduler.CollectTasksEvent;
-import com.mcmoddev.mmdbot.core.util.TaskScheduler.Task;
-import com.mcmoddev.mmdbot.utilities.oldchannels.ChannelMessageChecker;
+import com.mcmoddev.mmdbot.core.annotation.ExposeScripting;
+import net.dv8tion.jda.api.Region;
 
-import java.util.concurrent.TimeUnit;
+public final class ScriptRegion {
 
-public final class TaskScheduler {
+    @ExposeScripting
+    public final String key;
+    @ExposeScripting
+    public final String name;
+    @ExposeScripting
+    public final String emoji;
 
-    /**
-     * Init.
-     * TODO: move into another bot
-     */
-    public static void init() {
-        Events.MISC_BUS.addListener(-1, (CollectTasksEvent event) -> {
-            event.addTask(new Task(new ChannelMessageChecker(), 0, 1, TimeUnit.DAYS));
-        });
+    private final boolean isVip;
+
+    public ScriptRegion(Region region) {
+        this.key = region.getKey();
+        this.name = region.getName();
+        this.emoji = region.getEmoji();
+        this.isVip = region.isVip();
     }
 
-    public static void scheduleTask(Runnable toRun, long delay, TimeUnit unit) {
-        com.mcmoddev.mmdbot.core.util.TaskScheduler.scheduleTask(toRun, delay, unit);
+    @ExposeScripting
+    public boolean isVip() {
+        return isVip;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

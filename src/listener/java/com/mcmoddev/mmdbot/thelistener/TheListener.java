@@ -72,6 +72,7 @@ public final class TheListener implements Bot {
 
     static {
         Events.MODERATION_BUS.register(ModerationEvents.INSTANCE);
+        Events.MODERATION_BUS.register(MessageEvents.INSTANCE);
     }
 
     private static TheListener instance;
@@ -120,7 +121,7 @@ public final class TheListener implements Bot {
                 }
             });
 
-        Utils.subscribe(gateway, wrapListener(new MessageEvents()), wrapListener(new LeaveJoinEvents()),
+        Utils.subscribe(gateway, wrapListener(MessageEvents.INSTANCE), wrapListener(new LeaveJoinEvents()),
             wrapListener(ModerationEvents.INSTANCE), wrapListener(new RoleEvents()));
 
         new Thread(() -> {

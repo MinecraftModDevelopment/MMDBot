@@ -22,10 +22,10 @@ package com.mcmoddev.mmdbot.modules.commands.bot.management;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.mcmoddev.mmdbot.modules.logging.misc.ScamDetector;
+import com.mcmoddev.mmdbot.core.common.ScamDetector;
 
 /**
- * Refreshes the {@link com.mcmoddev.mmdbot.modules.logging.misc.ScamDetector#SCAM_LINKS}
+ * Refreshes the {@link ScamDetector#SCAM_LINKS}
  *
  * @author matyrobbrt
  */

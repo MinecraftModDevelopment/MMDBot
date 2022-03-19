@@ -18,28 +18,20 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.core;
+package com.mcmoddev.mmdbot.core.annotation;
 
-import com.mcmoddev.mmdbot.core.event.Events;
-import com.mcmoddev.mmdbot.core.util.TaskScheduler.CollectTasksEvent;
-import com.mcmoddev.mmdbot.core.util.TaskScheduler.Task;
-import com.mcmoddev.mmdbot.utilities.oldchannels.ChannelMessageChecker;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.util.concurrent.TimeUnit;
-
-public final class TaskScheduler {
-
-    /**
-     * Init.
-     * TODO: move into another bot
-     */
-    public static void init() {
-        Events.MISC_BUS.addListener(-1, (CollectTasksEvent event) -> {
-            event.addTask(new Task(new ChannelMessageChecker(), 0, 1, TimeUnit.DAYS));
-        });
-    }
-
-    public static void scheduleTask(Runnable toRun, long delay, TimeUnit unit) {
-        com.mcmoddev.mmdbot.core.util.TaskScheduler.scheduleTask(toRun, delay, unit);
-    }
+/**
+ * Annotate a member with this annotation in order to expose it to a scripting context, if the object
+ * gets into one.
+ */
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.CONSTRUCTOR})
+public @interface ExposeScripting {
 }

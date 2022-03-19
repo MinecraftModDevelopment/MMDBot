@@ -18,28 +18,24 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.core;
+package com.mcmoddev.mmdbot.commander.util.script.object;
 
-import com.mcmoddev.mmdbot.core.event.Events;
-import com.mcmoddev.mmdbot.core.util.TaskScheduler.CollectTasksEvent;
-import com.mcmoddev.mmdbot.core.util.TaskScheduler.Task;
-import com.mcmoddev.mmdbot.utilities.oldchannels.ChannelMessageChecker;
+import com.mcmoddev.mmdbot.core.annotation.ExposeScripting;
+import net.dv8tion.jda.api.entities.RoleIcon;
 
-import java.util.concurrent.TimeUnit;
+public class ScriptRoleIcon {
 
-public final class TaskScheduler {
+    @ExposeScripting
+    public final String id;
+    @ExposeScripting
+    public final String url;
+    @ExposeScripting
+    public final String emoji;
 
-    /**
-     * Init.
-     * TODO: move into another bot
-     */
-    public static void init() {
-        Events.MISC_BUS.addListener(-1, (CollectTasksEvent event) -> {
-            event.addTask(new Task(new ChannelMessageChecker(), 0, 1, TimeUnit.DAYS));
-        });
+    public ScriptRoleIcon(RoleIcon roleIcon) {
+        this.id = roleIcon.getIconId();
+        this.url = roleIcon.getIconUrl();
+        this.emoji = roleIcon.getEmoji();
     }
 
-    public static void scheduleTask(Runnable toRun, long delay, TimeUnit unit) {
-        com.mcmoddev.mmdbot.core.util.TaskScheduler.scheduleTask(toRun, delay, unit);
-    }
 }

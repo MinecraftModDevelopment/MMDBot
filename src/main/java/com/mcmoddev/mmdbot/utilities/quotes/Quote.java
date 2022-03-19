@@ -20,7 +20,7 @@
  */
 package com.mcmoddev.mmdbot.utilities.quotes;
 
-import com.mcmoddev.mmdbot.utilities.scripting.ExposeScripting;
+import com.mcmoddev.mmdbot.core.annotation.ExposeScripting;
 
 /**
  * Handles the attribution aspect of a Quote.

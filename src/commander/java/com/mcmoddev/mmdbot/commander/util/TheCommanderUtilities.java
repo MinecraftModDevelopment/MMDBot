@@ -23,12 +23,14 @@ package com.mcmoddev.mmdbot.commander.util;
 import com.google.gson.JsonParser;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.entities.Member;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Slf4j
 @UtilityClass
@@ -58,6 +60,21 @@ public class TheCommanderUtilities {
             ex.printStackTrace();
         }
         return "";
+    }
+
+    /**
+     * Checks if the given member any of the given roles
+     *
+     * @param member the member to check
+     * @param roleId the IDs of the roles to check for
+     * @return if the member has any of the role
+     */
+    public static boolean memberHasRoles(final Member member, final String... roleIds) {
+        if (member == null) {
+            return false;
+        }
+        final var roles = List.of(roleIds);
+        return member.getRoles().stream().anyMatch(r -> roles.contains(r.getId()));
     }
 
 }
