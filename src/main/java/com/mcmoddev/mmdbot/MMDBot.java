@@ -167,7 +167,6 @@ public final class MMDBot implements Bot {
     @Override
     public void start() {
         instance = this;
-        JSONDataMigrator.checkAndMigrate(database);
 
         if (config.isNewlyGenerated()) {
             MMDBot.LOGGER.warn("A new config file at {} has been generated. Please configure the bot and try again.", config.getConfig().getNioPath());
@@ -204,6 +203,11 @@ public final class MMDBot implements Bot {
             MMDBot.LOGGER.error("Error awaiting caching.", e);
             System.exit(1);
         }
+    }
+
+    @Override
+    public void migrateData() {
+        JSONDataMigrator.checkAndMigrate(runPath, database);
     }
 
     @Override

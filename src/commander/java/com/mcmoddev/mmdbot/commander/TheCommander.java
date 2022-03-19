@@ -36,6 +36,7 @@ import com.mcmoddev.mmdbot.commander.commands.tricks.TrickCommand;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
 import com.mcmoddev.mmdbot.commander.eventlistener.ThreadListener;
+import com.mcmoddev.mmdbot.commander.migrate.TricksMigrator;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers;
 import com.mcmoddev.mmdbot.commander.util.EventListeners;
@@ -291,6 +292,11 @@ public final class TheCommander implements Bot {
         instance = null; // Clear the instance, as it doesn't exist anymore.
         // The "this" object should still exist for restarting it, at which point the instance will
         // be assigned again
+    }
+
+    @Override
+    public void migrateData() {
+        new TricksMigrator(runPath).migrate();
     }
 
     @Override

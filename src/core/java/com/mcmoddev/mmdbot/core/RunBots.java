@@ -55,9 +55,11 @@ public class RunBots {
     private static final Logger LOG = LoggerFactory.getLogger(RunBots.class);
     private static List<Bot> loadedBots = new ArrayList<>();
 
-    public static void main(String[] args) {
+    public static void main(String[] a) {
         System.setProperty("java.net.preferIPv4Stack", "true");
+        final var args = List.of(a);
 
+        final var doMigrate = !args.contains("noMigration");
         final var config = getOrCreateConfig();
 
         var bots = BotRegistry.getBotTypes()
@@ -75,6 +77,11 @@ public class RunBots {
                 final var bot = botPair.first();
                 if (botEntry.isEnabled()) {
                     if (bot != null) {
+                        if (doMigrate) {
+                            bot.getLogger().info("Started data migration...");
+                            bot.migrateData();
+                            bot.getLogger().info("Finished data migration.");
+                        }
                         bot.start();
                         bot.getLogger().warn("Bot {} has been found, and it has been launched!", botEntry.name());
                     } else {

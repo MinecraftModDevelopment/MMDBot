@@ -30,9 +30,6 @@ import com.google.gson.stream.JsonWriter;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.commands.tricks.RunTrickCommand;
 import com.mcmoddev.mmdbot.commander.tricks.Trick.TrickType;
-import com.mcmoddev.mmdbot.utilities.tricks.EmbedTrick;
-import com.mcmoddev.mmdbot.utilities.tricks.ScriptTrick;
-import com.mcmoddev.mmdbot.utilities.tricks.StringTrick;
 import io.github.matyrobbrt.curseforgeapi.util.gson.RecordTypeAdapterFactory;
 import org.jetbrains.annotations.Nullable;
 

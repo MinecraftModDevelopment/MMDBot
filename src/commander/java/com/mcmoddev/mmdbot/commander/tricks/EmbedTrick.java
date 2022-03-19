@@ -18,11 +18,9 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.utilities.tricks;
+package com.mcmoddev.mmdbot.commander.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import com.mcmoddev.mmdbot.commander.tricks.Trick;
-import com.mcmoddev.mmdbot.commander.tricks.TrickContext;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;

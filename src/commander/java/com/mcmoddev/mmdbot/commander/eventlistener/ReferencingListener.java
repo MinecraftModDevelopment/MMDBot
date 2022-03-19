@@ -74,8 +74,10 @@ public final class ReferencingListener extends ListenerAdapter {
         }
     }
 
+    public static final String ZERO_WIDTH_SPACE = String.valueOf('\u200E');
+
     private static boolean isStringReference(@NonNull final String string) {
-        return string.equals(".") || string.equals("^") || string.isBlank();
+        return string.equals(".") || string.equals("^") || string.equals(ZERO_WIDTH_SPACE);
     }
 
     public static MessageEmbed reference(@NonNull final Message message, final Member quoter) {

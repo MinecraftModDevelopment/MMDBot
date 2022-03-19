@@ -46,6 +46,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * Migrates data from the old JSON flat-file storage to the SQL database tables.
@@ -86,11 +88,11 @@ public final class JSONDataMigrator {
     /**
      * The name of the JSON file that contains the user first join times data.
      */
-    public static final String USER_JOIN_TIMES_FILE_PATH = "mmdbot_user_join_times.json";
+    public static final UnaryOperator<Path> USER_JOIN_TIMES_FILE_PATH = path -> path.resolve("mmdbot_user_join_times.json");
     /**
      * The name of the JSON file that contains the sticky roles data.
      */
-    public static final String STICKY_ROLES_FILE_PATH = "mmdbot_sticky_roles.json";
+    public static final UnaryOperator<Path> STICKY_ROLES_FILE_PATH = path -> path.resolve("mmdbot_sticky_roles.json");
 
     /**
      * Utility classes should not be constructed.
@@ -103,13 +105,14 @@ public final class JSONDataMigrator {
      * due to file loading or SQL errors will not cause the application to stop, but the file will remain in place to
      * allow repeating the migration for the next time this method is called (on application bootup).
      *
+     * @param botPath the path of the bot.
      * @param database the database manager
      */
-    public static void checkAndMigrate(final DatabaseManager database) {
+    public static void checkAndMigrate(final Path botPath, final DatabaseManager database) {
         LOGGER.debug("Checking for JSON files to migrate");
 
         // User first join times
-        Path joinTimesFile = Path.of(USER_JOIN_TIMES_FILE_PATH);
+        Path joinTimesFile = USER_JOIN_TIMES_FILE_PATH.apply(botPath);
         if (Files.exists(joinTimesFile) && Files.isRegularFile(joinTimesFile) && Files.isReadable(joinTimesFile)) {
             LOGGER.info("Found JSON file for user first join times data, migrating...");
 
@@ -133,7 +136,7 @@ public final class JSONDataMigrator {
         }
 
         // Sticky roles
-        Path rolesFile = Path.of(STICKY_ROLES_FILE_PATH);
+        Path rolesFile = STICKY_ROLES_FILE_PATH.apply(botPath);
         if (Files.exists(rolesFile) && Files.isRegularFile(rolesFile) && Files.isReadable(rolesFile)) {
             LOGGER.info("Found JSON file for sticky roles data, migrating...");
 
