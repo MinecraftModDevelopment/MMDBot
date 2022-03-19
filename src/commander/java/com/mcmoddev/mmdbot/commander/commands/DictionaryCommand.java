@@ -18,14 +18,15 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.modules.commands.community.information;
+package com.mcmoddev.mmdbot.commander.commands;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.utilities.Utils;
-import com.mcmoddev.mmdbot.utilities.dictionary.DictionaryEntry;
-import com.mcmoddev.mmdbot.utilities.dictionary.DictionaryUtils;
+import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
+import com.mcmoddev.mmdbot.core.util.Utils;
+import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryEntry;
+import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -40,11 +41,14 @@ import java.awt.Color;
 import java.time.Instant;
 import java.util.List;
 
-public final class CmdDictionary extends SlashCommand {
+public final class DictionaryCommand extends SlashCommand {
+
+    @RegisterSlashCommand
+    public static final SlashCommand COMMAND = new DictionaryCommand();
 
     public static ListenerAdapter listener;
 
-    public CmdDictionary() {
+    public DictionaryCommand() {
         name = "dictionary";
         help = "Looks up a word";
         options = List.of(new OptionData(OptionType.STRING, "word", "The word to lookup").setRequired(true));
@@ -72,7 +76,7 @@ public final class CmdDictionary extends SlashCommand {
                 event.deferReply().setContent("Unknown word: " + word).queue();
             } else {
                 event.deferReply(true).setContent("There was an exception while trying to execute that command: " + e.getLocalizedMessage());
-                MMDBot.LOGGER.error("Exception while trying to show definition for word {} ", word, e);
+                TheCommander.LOGGER.error("Exception while trying to show definition for word {} ", word, e);
             }
         }
 

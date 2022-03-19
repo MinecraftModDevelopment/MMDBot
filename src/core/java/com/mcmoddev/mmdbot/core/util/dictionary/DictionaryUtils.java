@@ -18,7 +18,7 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.utilities.dictionary;
+package com.mcmoddev.mmdbot.core.util.dictionary;
 
 import com.google.common.base.Throwables;
 import com.google.common.cache.Cache;
@@ -26,9 +26,10 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.ExecutionError;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.gson.JsonObject;
-import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.core.References;
+import com.mcmoddev.mmdbot.core.util.Constants;
+import lombok.NonNull;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serial;
 import java.net.URI;
@@ -43,6 +44,19 @@ public final class DictionaryUtils {
 
     private static int lastCode = 0;
     private static String lastErrorMessage = "";
+
+    @NonNull
+    private static String token = "";
+
+    /**
+     * Sets the OwlBot token used for dictionary lookup.
+     * @param token the token
+     */
+    public static void setToken(@Nullable String token) {
+        if (token != null) {
+            DictionaryUtils.token = token;
+        }
+    }
 
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
 
@@ -77,7 +91,7 @@ public final class DictionaryUtils {
                     throw new DictionaryException("No definition", lastCode);
                 }
 
-                return DictionaryEntry.fromJson(References.GSON.fromJson(definition, JsonObject.class));
+                return DictionaryEntry.fromJson(Constants.Gsons.GSON.fromJson(definition, JsonObject.class));
             });
         } catch (ExecutionException | UncheckedExecutionException | ExecutionError e) {
             // The only checked exception we expect is this one, any others are unchecked ones
@@ -88,7 +102,7 @@ public final class DictionaryUtils {
     }
 
     public static DictionaryEntry getDefinition(final String word) throws DictionaryException {
-        return getDefinition(MMDBot.getConfig().getOwlbotToken(), word);
+        return getDefinition(token, word);
     }
 
     public static DictionaryEntry getDefinitionNoException(final String token, final String word) {
@@ -100,7 +114,7 @@ public final class DictionaryUtils {
     }
 
     public static DictionaryEntry getDefinitionNoException(final String word) {
-        return getDefinitionNoException(MMDBot.getConfig().getOwlbotToken(), word);
+        return getDefinitionNoException(token, word);
     }
 
     private static String post(final String token, final String word) throws InterruptedException, IOException {
@@ -123,7 +137,7 @@ public final class DictionaryUtils {
     }
 
     public static boolean hasToken() {
-        return !MMDBot.getConfig().getOwlbotToken().isBlank();
+        return token.isBlank();
     }
 
     public static final class DictionaryException extends Exception {

@@ -38,7 +38,6 @@ import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.Contex
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuGist;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.user.ContextMenuUserInfo;
 import com.mcmoddev.mmdbot.modules.commands.community.development.CmdGist;
-import com.mcmoddev.mmdbot.modules.commands.community.information.CmdDictionary;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdGuild;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdInvite;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdUser;
@@ -129,7 +128,6 @@ public class CommandModule {
             new CmdWarning(),
             new CmdTrick(),
             new CmdInvite(),
-            new CmdDictionary(),
             new CmdEvaluate(),
             new CmdRawTrick());
 
@@ -161,7 +159,6 @@ public class CommandModule {
             MMDBot.getJDA().addEventListener(buttonListener(CmdListTricks.getListListener()));
             MMDBot.getJDA().addEventListener(buttonListener(CmdQuote.ListQuotes.getQuoteListener()));
             MMDBot.getJDA().addEventListener(buttonListener(CmdInvite.ListCmd.getButtonListener()));
-            MMDBot.getJDA().addEventListener(buttonListener(CmdDictionary.listener));
             MMDBot.getJDA().addEventListener(buttonListener(new DismissListener()));
             MMDBot.LOGGER.warn("Command module enabled and loaded.");
         } else {

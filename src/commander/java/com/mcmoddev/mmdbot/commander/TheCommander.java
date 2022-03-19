@@ -26,6 +26,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
+import com.mcmoddev.mmdbot.commander.commands.DictionaryCommand;
 import com.mcmoddev.mmdbot.commander.commands.curseforge.CurseForgeCommand;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.commander.eventlistener.ThreadListener;
@@ -43,6 +44,7 @@ import com.mcmoddev.mmdbot.core.util.DotenvLoader;
 import com.mcmoddev.mmdbot.core.util.MessageUtilities;
 import com.mcmoddev.mmdbot.core.util.ReflectionsUtils;
 import com.mcmoddev.mmdbot.core.util.Utils;
+import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryUtils;
 import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
@@ -97,7 +99,9 @@ public final class TheCommander implements Bot {
                         .writeComment("The token of the bot: ")
                         .writeValue("BOT_TOKEN", "")
                         .writeComment("The API key to use for CurseForge requests: ")
-                        .writeValue("CF_API_KEY", ""))
+                        .writeValue("CF_API_KEY", "")
+                        .writeComment("The OwlBot API Token used for dictionary lookup:")
+                        .writeValue("OWL_BOT_TOKEN", ""))
                     .load());
             } catch (IOException e) {
                 LOGGER.error("Could not load the .env file due to an IOException: ", e);
@@ -152,6 +156,8 @@ public final class TheCommander implements Bot {
     public TheCommander(final Path runPath, final Dotenv dotenv) {
         this.dotenv = dotenv;
         this.runPath = runPath;
+
+        DictionaryUtils.setToken(dotenv.get("OWL_BOT_TOKEN", null));
     }
 
     @Override
@@ -206,6 +212,9 @@ public final class TheCommander implements Bot {
                 .map(SlashCommand.class::cast)
                 .forEach(commandClient::addSlashCommand);
         }
+
+        // Button listeners
+        EventListeners.COMMANDS_LISTENER.addListeners(DictionaryCommand.listener);
 
         if (generalConfig.features().isReferencingEnabled()) {
             EventListeners.MISC_LISTENER.addListener(new ReferencingListener());
