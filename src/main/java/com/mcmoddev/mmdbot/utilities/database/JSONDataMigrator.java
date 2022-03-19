@@ -60,8 +60,8 @@ public final class JSONDataMigrator {
 
     /**
      * The shared Gson instance, used to load JSON files.
-     * +     *
-     * +     * @see InstantDeserializer
+     *
+     * @see InstantDeserializer
      */
     private static final Gson GSON = new GsonBuilder()
         .registerTypeAdapter(Instant.class, new InstantDeserializer())
