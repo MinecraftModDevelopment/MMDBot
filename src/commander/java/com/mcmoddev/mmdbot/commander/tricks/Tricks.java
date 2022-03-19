@@ -29,7 +29,9 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.commands.tricks.RunTrickCommand;
+import com.mcmoddev.mmdbot.commander.migrate.TricksMigrator;
 import com.mcmoddev.mmdbot.commander.tricks.Trick.TrickType;
+import com.mcmoddev.mmdbot.core.util.WithVersionJsonDatabase;
 import io.github.matyrobbrt.curseforgeapi.util.gson.RecordTypeAdapterFactory;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,6 +44,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,6 +63,11 @@ import java.util.function.Supplier;
 public final class Tricks {
 
     /**
+     * The current version of the database schema.
+     */
+    public static final int CURRENT_SCHEMA_VERSION = 1;
+
+    /**
      * The storage location for the tricks file.
      */
     private static final Supplier<Path> TRICK_STORAGE_PATH = () -> TheCommander.getInstance().getRunPath().resolve("tricks.json");
@@ -67,7 +75,7 @@ public final class Tricks {
     /**
      * The GSON instance.
      */
-    private static final Gson GSON;
+    public static final Gson GSON;
 
     /**
      * All registered {@link TrickType}s.
@@ -96,16 +104,22 @@ public final class Tricks {
      */
     public static List<Trick> getTricks() {
         if (tricks == null) {
-            final File file = TRICK_STORAGE_PATH.get().toFile();
-            if (!file.exists()) {
-                tricks = new ArrayList<>();
+            final var path = TRICK_STORAGE_PATH.get();
+            if (!Files.exists(path)) {
+                return tricks = new ArrayList<>();
             }
-            try (InputStreamReader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
-                Type typeOfList = new TypeToken<List<Trick>>() {
-                }.getType();
-                tricks = GSON.fromJson(reader, typeOfList);
+            final var typeOfList = new TypeToken<List<Trick>>() {}.getType();
+            try {
+                final var db = WithVersionJsonDatabase.<List<Trick>>fromFile(GSON, path, typeOfList);
+                if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
+                    new TricksMigrator(TheCommander.getInstance().getRunPath()).migrate();
+                    final var newDb = WithVersionJsonDatabase.<List<Trick>>fromFile(GSON, path, typeOfList);
+                    return tricks = newDb.getData();
+                } else {
+                    return tricks = db.getData();
+                }
             } catch (final IOException exception) {
-                TheCommander.LOGGER.trace("Failed to read tricks file...", exception);
+                TheCommander.LOGGER.error("Failed to read tricks file...", exception);
                 tricks = new ArrayList<>();
             }
         }
@@ -183,9 +197,10 @@ public final class Tricks {
      */
     private static void write() {
         final var tricksFile = TRICK_STORAGE_PATH.get().toFile();
-        List<Trick> tricks = getTricks();
+        final var tricks = getTricks();
+        final var db = WithVersionJsonDatabase.inMemory(tricks, CURRENT_SCHEMA_VERSION);
         try (var writer = new OutputStreamWriter(new FileOutputStream(tricksFile), StandardCharsets.UTF_8)) {
-            GSON.toJson(tricks, writer);
+            GSON.toJson(db.toJson(GSON), writer);
         } catch (final FileNotFoundException exception) {
             TheCommander.LOGGER.error("An FileNotFoundException occurred saving tricks...", exception);
         } catch (final IOException exception) {

@@ -57,7 +57,6 @@ import java.util.stream.StreamSupport;
  * @author matyrobbrt
  */
 @Slf4j
-@RegisterEventListener(bus = RegisterEventListener.BusType.MISCELLANEOUS)
 public class ScamDetector extends ListenerAdapter {
 
     public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
@@ -121,7 +120,6 @@ public class ScamDetector extends ListenerAdapter {
 
     private static final List<String> IGNORED = List.of("discordapp.co", "witch.tv");
 
-    @SubscribeEvent
     public static void onCollectTasks(final TaskScheduler.CollectTasksEvent event) {
         event.addTask(() -> {
             if (setupScamLinks()) {

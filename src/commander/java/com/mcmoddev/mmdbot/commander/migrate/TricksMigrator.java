@@ -1,10 +1,34 @@
+/*
+ * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
+ * Copyright (C) 2016-2022 <MMD - MinecraftModDevelopment>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ */
 package com.mcmoddev.mmdbot.commander.migrate;
 
 import com.google.common.reflect.TypeToken;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mcmoddev.mmdbot.commander.tricks.EmbedTrick;
 import com.mcmoddev.mmdbot.commander.tricks.ScriptTrick;
 import com.mcmoddev.mmdbot.commander.tricks.StringTrick;
+import com.mcmoddev.mmdbot.commander.tricks.Trick;
+import com.mcmoddev.mmdbot.commander.tricks.Tricks;
+import com.mcmoddev.mmdbot.core.util.WithVersionJsonDatabase;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileReader;
@@ -37,46 +61,54 @@ public record TricksMigrator(Path runPath) {
 
     public void migrate() {
         try {
-            var oldFilePath = OLD_TRICKS_PATH.apply(runPath);
-            if (!Files.exists(oldFilePath)) {
-                final var parent = runPath.toAbsolutePath().getParent();
-                if (parent != null) {
-                    // Check the ../mmdbot/mmdbot_tricks.json file for after the split
-                    oldFilePath = OLD_TRICKS_PATH.apply(parent.resolve("mmdbot"));
-                    if (!Files.exists(oldFilePath)) {
-                        return;
-                    }
-                } else {
-                    return;
-                }
-            }
-            log.warn("Found old tricks file... migration started.");
-            final var type = new TypeToken<java.util.List<JsonObject>>() {
-            }.getType();
-            final List<JsonObject> newData = new ArrayList<>();
-            try (final var is = new FileReader(oldFilePath.toFile())) {
-                final List<JsonObject> oldData = NO_PRETTY_PRINTING.fromJson(is, type);
-                oldData.forEach(oldJson -> {
-                    final var newType = CLASS_CONVERSIONS.get(oldJson.get("$type").getAsString());
-                    final var newJson = new JsonObject();
-                    newJson.addProperty("$type", newType);
-                    newJson.add("value", oldJson.get("value"));
-                    newData.add(newJson);
-                });
-            } finally {
-                final var newTricksPath = NEW_TRICKS_PATH.apply(runPath);
-                if (!Files.exists(newTricksPath)) {
-                    Files.createFile(newTricksPath);
-                }
-                try (final var writer = new FileWriter(newTricksPath.toFile())) {
-                    NO_PRETTY_PRINTING.toJson(newData, writer);
-                } finally {
-                    renameMigratedFile(oldFilePath);
-                    log.warn("Finished migrating old tricks file.");
-                }
-            }
+            migrateOldFiles();
         } catch (IOException e) {
             log.error("Exception while trying to migrate old tricks file: ", e);
+        }
+    }
+
+    /**
+     * Tries migrating old files.
+     */
+    private void migrateOldFiles() throws IOException {
+        var oldFilePath = OLD_TRICKS_PATH.apply(runPath);
+        if (!Files.exists(oldFilePath)) {
+            final var parent = runPath.toAbsolutePath().getParent();
+            if (parent != null) {
+                // Check the ../mmdbot/mmdbot_tricks.json file for after the split
+                oldFilePath = OLD_TRICKS_PATH.apply(parent.resolve("mmdbot"));
+                if (!Files.exists(oldFilePath)) {
+                    return;
+                }
+            } else {
+                return;
+            }
+        }
+        log.warn("Found old tricks file... migration started.");
+        final var type = new TypeToken<java.util.List<JsonObject>>() {
+        }.getType();
+        final List<JsonObject> newData = new ArrayList<>();
+        try (final var is = new FileReader(oldFilePath.toFile())) {
+            final List<JsonObject> oldData = NO_PRETTY_PRINTING.fromJson(is, type);
+            oldData.forEach(oldJson -> {
+                final var newType = CLASS_CONVERSIONS.get(oldJson.get("$type").getAsString());
+                final var newJson = new JsonObject();
+                newJson.addProperty("$type", newType);
+                newJson.add("value", oldJson.get("value"));
+                newData.add(newJson);
+            });
+        } finally {
+            final var newTricksPath = NEW_TRICKS_PATH.apply(runPath);
+            if (!Files.exists(newTricksPath)) {
+                Files.createFile(newTricksPath);
+            }
+            try (final var writer = new FileWriter(newTricksPath.toFile())) {
+                final var db = WithVersionJsonDatabase.inMemory(newData, Tricks.CURRENT_SCHEMA_VERSION);
+                NO_PRETTY_PRINTING.toJson(db.toJson(NO_PRETTY_PRINTING), writer);
+            } finally {
+                renameMigratedFile(oldFilePath);
+                log.warn("Finished migrating old tricks file.");
+            }
         }
     }
 

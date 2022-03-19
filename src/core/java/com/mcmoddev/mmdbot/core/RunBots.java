@@ -23,6 +23,8 @@ package com.mcmoddev.mmdbot.core;
 import com.google.gson.JsonObject;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
+import com.mcmoddev.mmdbot.core.common.ScamDetector;
+import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
@@ -113,6 +115,7 @@ public class RunBots {
         }
         */
 
+        Events.MODERATION_BUS.addListener(ScamDetector::onCollectTasks);
         TaskScheduler.init();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> LOG.warn("The bot(s) are shutting down!")));

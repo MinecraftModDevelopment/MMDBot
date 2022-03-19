@@ -20,9 +20,12 @@
  */
 package com.mcmoddev.mmdbot.core.event;
 
+import com.mcmoddev.mmdbot.core.annotation.RegisterEventListener;
 import com.mcmoddev.mmdbot.core.event.moderation.ModerationEvent;
 import io.github.matyrobbrt.eventdispatcher.Event;
 import io.github.matyrobbrt.eventdispatcher.EventBus;
+import io.github.matyrobbrt.eventdispatcher.reflections.AnnotationProvider;
+import io.github.matyrobbrt.eventdispatcher.reflections.AnnotationProvider.AnnotationFilter;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -36,6 +39,7 @@ public class Events {
      */
     public static final EventBus MODERATION_BUS = EventBus.builder("Moderation")
         .baseEventType(ModerationEvent.class)
+        .addAnnotationProvider(forBusProvider(RegisterEventListener.BusType.MODERATION))
         .build();
 
     /**
@@ -43,5 +47,10 @@ public class Events {
      */
     public static final EventBus MISC_BUS = EventBus.builder("Misc")
         .baseEventType(Event.class)
+        .addAnnotationProvider(forBusProvider(RegisterEventListener.BusType.MISCELLANEOUS))
         .build();
+
+    private static AnnotationProvider forBusProvider(final RegisterEventListener.BusType bus) {
+        return new AnnotationProvider(new AnnotationFilter<>(RegisterEventListener.class, l -> l.bus() == bus));
+    }
 }
