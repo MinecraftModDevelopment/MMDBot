@@ -41,7 +41,6 @@ import com.mcmoddev.mmdbot.modules.commands.community.development.CmdGist;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdDictionary;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdGuild;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdInvite;
-import com.mcmoddev.mmdbot.modules.commands.community.information.CmdSearch;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdUser;
 import com.mcmoddev.mmdbot.modules.commands.community.server.CmdRoles;
 import com.mcmoddev.mmdbot.modules.commands.community.server.CmdToggleEventPings;
@@ -114,10 +113,6 @@ public class CommandModule {
             new CmdAbout(),
             new CmdUser(),
             new CmdRoles(),
-            new CmdSearch("google", "https://www.google.com/search?q=", "goog"),
-            new CmdSearch("bing", "https://www.bing.com/search?q="),
-            new CmdSearch("duckduckgo", "https://duckduckgo.com/?q=", "ddg"),
-            new CmdSearch("lmgtfy", "https://lmgtfy.com/?q=", "let-me-google-that-for-you"),
             new CmdToggleMcServerPings(),
             new CmdToggleEventPings(),
             new CmdMute(),
