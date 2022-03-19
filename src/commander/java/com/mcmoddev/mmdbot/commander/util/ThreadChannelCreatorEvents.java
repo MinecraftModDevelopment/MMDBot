@@ -18,11 +18,12 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.modules.logging.misc;
+package com.mcmoddev.mmdbot.commander.util;
 
-import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.core.TaskScheduler;
-import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.mcmoddev.mmdbot.commander.config.Configuration;
+import com.mcmoddev.mmdbot.core.util.TaskScheduler;
+import com.mcmoddev.mmdbot.core.util.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
@@ -36,33 +37,43 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 public class ThreadChannelCreatorEvents extends ListenerAdapter {
 
     private final Map<Type, List<Long>> caches = new HashMap<>();
+    private final Supplier<Configuration> configGetter;
+
+    public ThreadChannelCreatorEvents(final Supplier<Configuration> configGetter) {
+        this.configGetter = configGetter;
+    }
 
     @Override
     public void onMessageReceived(@NotNull final MessageReceivedEvent event) {
         if (!event.isFromGuild() || event.isFromThread() || event.isWebhookMessage() || event.getAuthor().isBot() || event.getAuthor().isSystem()) {
             return;
         }
-        if (event.getChannel().getIdLong() == MMDBot.getConfig().getChannel("requests.main")) {
+        final var cfg = configGetter.get();
+        if (cfg == null) return;
+        if (event.getChannel().getId().equals(cfg.channels().requests())) {
             createThread(event, Type.REQUEST);
         }
-        if (event.getChannel().getIdLong() == MMDBot.getConfig().getChannel("free_mod_ideas")) {
+        if (event.getChannel().getId().equals(cfg.channels().freeModIdeas())) {
             createThread(event, Type.IDEA);
         }
     }
 
     @Override
     public void onMessageUpdate(@NotNull final MessageUpdateEvent event) {
-        if (!event.isFromGuild() || event.isFromThread() || event.getAuthor().isBot() || event.getAuthor().isSystem()) {
+        if (!event.isFromGuild()|| event.isFromThread() || event.getAuthor().isBot() || event.getAuthor().isSystem()) {
             return;
         }
-        if (event.getChannel().getIdLong() == MMDBot.getConfig().getChannel("requests.main")) {
+        final var cfg = configGetter.get();
+        if (cfg == null) return;
+        if (event.getChannel().getId().equals(cfg.channels().requests())) {
             notifyMessageDeleted(event, Type.REQUEST);
         }
-        if (event.getChannel().getIdLong() == MMDBot.getConfig().getChannel("free_mod_ideas")) {
+        if (event.getChannel().getId().equals(cfg.channels().freeModIdeas())) {
             notifyMessageDeleted(event, Type.IDEA);
         }
     }

@@ -32,6 +32,7 @@ import com.mcmoddev.mmdbot.commander.eventlistener.ThreadListener;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers;
 import com.mcmoddev.mmdbot.commander.util.EventListeners;
 import com.mcmoddev.mmdbot.commander.eventlistener.ReferencingListener;
+import com.mcmoddev.mmdbot.commander.util.ThreadChannelCreatorEvents;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
@@ -209,7 +210,8 @@ public final class TheCommander implements Bot {
             EventListeners.MISC_LISTENER.addListener(new ReferencingListener());
         }
 
-        EventListeners.MISC_LISTENER.addListener(new ThreadListener());
+        EventListeners.MISC_LISTENER.addListeners(new ThreadListener(),
+            new ThreadChannelCreatorEvents(this::getGeneralConfig));
 
         try {
             final var builder = JDABuilder

@@ -53,8 +53,7 @@ public class LoggingModule {
                 .addEventListener(
                     loggingEvent(new EventReactionAdded()),
                     loggingEvent(new ConsoleChannelButtonListener()),
-                    loggingEvent(new ScamDetector()),
-                    loggingEvent(new ThreadChannelCreatorEvents()));
+                    loggingEvent(new ScamDetector()));
             MMDBot.LOGGER.warn("Event logging module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Event logging module disabled via config, Discord event logging won't work right now!");

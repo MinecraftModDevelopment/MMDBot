@@ -93,6 +93,24 @@ public final class Configuration {
             return updateNotifiers;
         }
 
+        @Required
+        @Setting("requests")
+        @Comment("The Requests channel.")
+        private String requests = "";
+
+        public String requests() {
+            return requests;
+        }
+
+        @Required
+        @Setting("free_mod_ideas")
+        @Comment("The Free Mod Ideas channel.")
+        private String freeModIdeas = "";
+
+        public String freeModIdeas() {
+            return freeModIdeas;
+        }
+
         @ConfigSerializable
         public static final class UpdateNotifiers {
 

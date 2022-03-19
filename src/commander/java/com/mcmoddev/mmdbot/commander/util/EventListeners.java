@@ -42,8 +42,7 @@ public class EventListeners {
         // Misc
         {
             final var group = new ThreadGroup(mainGroup, "Misc Listeners");
-            // TODO maybe increase in the future, as needed
-            final var poll = (ThreadPoolExecutor) Executors.newFixedThreadPool(1, r ->
+            final var poll = (ThreadPoolExecutor) Executors.newFixedThreadPool(2, r ->
                 Utils.setThreadDaemon(new Thread(group, r, "MiscListener #%s".formatted(group.activeCount())),
                     true));
             poll.setKeepAliveTime(30, TimeUnit.MINUTES);
