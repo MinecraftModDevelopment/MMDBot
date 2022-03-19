@@ -41,7 +41,7 @@ public class EventListeners {
 
         // Misc
         {
-            final var group = new ThreadGroup("Misc Listeners");
+            final var group = new ThreadGroup(mainGroup, "Misc Listeners");
             // TODO maybe increase in the future, as needed
             final var poll = (ThreadPoolExecutor) Executors.newFixedThreadPool(1, r ->
                 Utils.setThreadDaemon(new Thread(group, r, "MiscListener #%s".formatted(group.activeCount())),
@@ -53,7 +53,7 @@ public class EventListeners {
 
         // Commands
         {
-            final var group = new ThreadGroup("Command Listeners");
+            final var group = new ThreadGroup(mainGroup, "Command Listeners");
             final var poll = (ThreadPoolExecutor) Executors.newFixedThreadPool(2, r ->
                 Utils.setThreadDaemon(new Thread(group, r, "CommandListener #%s".formatted(group.activeCount())),
                     true));
