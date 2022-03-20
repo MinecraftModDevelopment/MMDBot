@@ -18,7 +18,7 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.utilities.quotes;
+package com.mcmoddev.mmdbot.commander.quotes;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,20 +28,20 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.mcmoddev.mmdbot.commander.migrate.QuotesMigrator;
+import com.mcmoddev.mmdbot.core.util.WithVersionJsonDatabase;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -53,22 +53,26 @@ import java.util.function.Supplier;
  * <p>
  * Contains the logic needed to add, remove, read and write the quotes contained within.
  * <p>
- * Most of this code is taken from willbl's Tricks.class file.
+ * Most of this code is taken from willbl's Tricks file.
  * <p>
- * TODO: Migrate to SQLite.
  * TODO: Fix the mess i made trying to get subclasses to serialize and deserialize.
  *
  * @author Curle
  */
-public final class QuoteList {
+public final class Quotes {
 
-    private QuoteList() {
+    private Quotes() {
     }
+
+    /**
+     * The current version of the database schema.
+     */
+    public static final int CURRENT_SCHEMA_VERSION = 1;
 
     /**
      * Location to the quote storage file.
      */
-    private static final Supplier<Path> QUOTE_STORAGE = () -> MMDBot.getInstance().getRunPath().resolve("quotes.json");
+    private static final Supplier<Path> QUOTE_STORAGE = () -> TheCommander.getInstance().getRunPath().resolve("quotes.json");
 
     /**
      * The Gson instance used for serialization and deserialization.
@@ -108,8 +112,9 @@ public final class QuoteList {
      */
     @Nullable
     public static Quote getQuote(final int id) {
-        if (quotes == null)
+        if (quotes == null) {
             loadQuotes();
+        }
 
         return quotes.get(id);
     }
@@ -120,21 +125,27 @@ public final class QuoteList {
      * Has minimal error handling.
      */
     public static void loadQuotes() {
-        if (quotes != null)
+        if (quotes != null) {
             return;
+        }
 
-        final File quoteFile = QUOTE_STORAGE.get().toFile();
-        if (!quoteFile.exists())
+        final var path = QUOTE_STORAGE.get();
+        if (!Files.exists(path)) {
             quotes = new ArrayList<>();
-
-        try (InputStreamReader reader = new InputStreamReader(new FileInputStream(quoteFile), StandardCharsets.UTF_8)) {
-
-            Type listType = new TypeToken<List<Quote>>() {
-            }.getType();
-            quotes = GSON.fromJson(reader, listType);
+        }
+        final var listType = new TypeToken<List<Quote>>() {}.getType();
+        try  {
+            final var db = WithVersionJsonDatabase.<List<Quote>>fromFile(GSON, path, listType);
+            if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
+                new QuotesMigrator(TheCommander.getInstance().getRunPath()).migrate();
+                final var newDb = WithVersionJsonDatabase.<List<Quote>>fromFile(GSON, path, listType);
+                quotes = newDb.getData();
+            } else {
+                quotes = db.getData();
+            }
 
         } catch (final IOException exception) {
-            MMDBot.LOGGER.trace("Failed to read quote file...", exception);
+            TheCommander.LOGGER.trace("Failed to read quote file...", exception);
             quotes = new ArrayList<>();
         }
     }
@@ -145,12 +156,16 @@ public final class QuoteList {
      * Has minimal error handling.
      */
     private static void syncQuotes() {
+        if (quotes == null) {
+            loadQuotes();
+        }
         final File quoteFile = QUOTE_STORAGE.get().toFile();
+        final var db = WithVersionJsonDatabase.inMemory(quotes, CURRENT_SCHEMA_VERSION);
         try (OutputStreamWriter writer =
                  new OutputStreamWriter(new FileOutputStream(quoteFile), StandardCharsets.UTF_8)) {
-            GSON.toJson(quotes, writer);
+            GSON.toJson(db.toJson(GSON), writer);
         } catch (Exception exception) {
-            MMDBot.LOGGER.trace("Failed to write quote file...", exception);
+            TheCommander.LOGGER.error("Failed to write quote file...", exception);
         }
     }
 
@@ -160,8 +175,9 @@ public final class QuoteList {
      * @param quote The quote to add.
      */
     public static void addQuote(final Quote quote) {
-        if (quotes == null)
+        if (quotes == null) {
             loadQuotes();
+        }
 
         quotes.add(quote.getID(), quote);
         syncQuotes();

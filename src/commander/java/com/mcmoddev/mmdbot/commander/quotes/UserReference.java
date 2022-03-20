@@ -18,9 +18,9 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.utilities.quotes;
+package com.mcmoddev.mmdbot.commander.quotes;
 
-import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.core.annotation.ExposeScripting;
 import net.dv8tion.jda.api.entities.User;
 
@@ -146,7 +146,7 @@ public final class UserReference {
         switch (getReferenceType()) {
             case SNOWFLAKE:
                 // Try to find the user's data in a server
-                User user = MMDBot.getJDA().getUserById(getSnowflakeData());
+                User user = TheCommander.getJDA().getUserById(getSnowflakeData());
                 // If we have it...
                 if (user != null) {
                     return user.getAsTag();

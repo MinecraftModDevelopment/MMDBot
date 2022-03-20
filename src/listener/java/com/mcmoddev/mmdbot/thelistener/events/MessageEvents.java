@@ -31,10 +31,13 @@ import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.message.MessageBulkDeleteEvent;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
 import discord4j.core.event.domain.message.MessageUpdateEvent;
+import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.core.spec.MessageCreateSpec;
 import discord4j.discordjson.json.AllowedMentionsData;
 import discord4j.discordjson.json.MessageCreateRequest;
+import discord4j.rest.util.AllowedMentions;
 import discord4j.rest.util.Color;
 import io.github.matyrobbrt.eventdispatcher.SubscribeEvent;
 
@@ -43,7 +46,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class MessageEvents extends ListenerAdapter {
 
-    public static final AllowedMentionsData ALLOWED_MENTIONS_DATA = AllowedMentionsData.builder().repliedUser(false).build();
+    public static final AllowedMentions ALLOWED_MENTIONS_DATA = AllowedMentions.builder().repliedUser(false).build();
 
     public static final MessageEvents INSTANCE = new MessageEvents();
     private MessageEvents() {}
@@ -85,8 +88,8 @@ public final class MessageEvents extends ListenerAdapter {
                 .color(Color.CINNABAR).build());
         if (doLog.get()) {
             Utils.executeInLoggingChannel(event.getGuildId().get(), LoggingType.MESSAGE_EVENTS,
-                channel -> channel.createMessage(MessageCreateRequest.builder()
-                    .embed(embed.asRequest())
+                channel -> channel.createMessage(MessageCreateSpec.builder()
+                    .embeds(embed)
                     .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {}, t -> {}));
         }
     }
@@ -133,8 +136,8 @@ public final class MessageEvents extends ListenerAdapter {
 
             if (contentChanged.get()) {
                 Utils.executeInLoggingChannel(event.getGuildId().get(), LoggingType.MESSAGE_EVENTS,
-                    channel -> channel.createMessage(MessageCreateRequest.builder()
-                        .embed(embed.asRequest())
+                    channel -> channel.createMessage(MessageCreateSpec.builder()
+                        .embeds(embed)
                         .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {}, t -> {}));
             }
         }, e -> TheListener.LOGGER.error("Error while trying to log a message edit!", e));
@@ -149,8 +152,8 @@ public final class MessageEvents extends ListenerAdapter {
             .build();
 
         Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MESSAGE_EVENTS,
-            channel -> channel.createMessage(MessageCreateRequest.builder()
-                .embed(embed.asRequest())
+            channel -> channel.createMessage(MessageCreateSpec.builder()
+                .embeds(embed)
                 .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {}, t -> {}));
     }
 
@@ -175,11 +178,16 @@ public final class MessageEvents extends ListenerAdapter {
             // Hardcoded until configs
             final var channels = TheListener.getInstance().getConfigForGuild(Snowflake.of(event.getGuildId())).getScamLoggingChannels();
             channels.forEach(channelId -> {
-                final var channel = TheListener.getClient().getChannelById(channelId);
-                channel.createMessage(MessageCreateRequest.builder()
-                    .embed(embed.asRequest())
-                    .allowedMentions(ALLOWED_MENTIONS_DATA)
-                    .build()).subscribe();
+                TheListener.getClient()
+                    .getChannelById(channelId)
+                    .subscribe(channel -> {
+                        if (channel instanceof MessageChannel msgChannel) {
+                            msgChannel.createMessage(MessageCreateSpec.builder()
+                                .embeds(embed)
+                                .allowedMentions(ALLOWED_MENTIONS_DATA)
+                                .build()).subscribe();
+                        }
+                    });
             });
         }
     }

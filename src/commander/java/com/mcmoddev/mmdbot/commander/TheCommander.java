@@ -27,7 +27,9 @@ import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
 import com.mcmoddev.mmdbot.commander.commands.DictionaryCommand;
+import com.mcmoddev.mmdbot.commander.commands.QuoteCommand;
 import com.mcmoddev.mmdbot.commander.commands.curseforge.CurseForgeCommand;
+import com.mcmoddev.mmdbot.commander.commands.menu.message.ContextMenuAddQuote;
 import com.mcmoddev.mmdbot.commander.commands.tricks.AddTrickCommand;
 import com.mcmoddev.mmdbot.commander.commands.tricks.EditTrickCommand;
 import com.mcmoddev.mmdbot.commander.commands.tricks.ListTricksCommand;
@@ -36,6 +38,7 @@ import com.mcmoddev.mmdbot.commander.commands.tricks.TrickCommand;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
 import com.mcmoddev.mmdbot.commander.eventlistener.ThreadListener;
+import com.mcmoddev.mmdbot.commander.migrate.QuotesMigrator;
 import com.mcmoddev.mmdbot.commander.migrate.TricksMigrator;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers;
@@ -80,12 +83,15 @@ import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public final class TheCommander implements Bot {
     static final TypeSerializerCollection ADDED_SERIALIZERS = TypeSerializerCollection.defaults()
@@ -212,7 +218,6 @@ public final class TheCommander implements Bot {
         EventListeners.COMMANDS_LISTENER.addListener((EventListener) commandClient);
 
         if (generalConfig.features().tricks().tricksEnabled()) {
-            commandClient.addSlashCommand(new TrickCommand());
             commandClient.addCommand(new AddTrickCommand.Prefix());
             commandClient.addCommand(new EditTrickCommand.Prefix());
             EventListeners.COMMANDS_LISTENER.addListener(ListTricksCommand.getListListener());
@@ -221,19 +226,34 @@ public final class TheCommander implements Bot {
             }
         }
 
+        if (generalConfig.features().areQuotesEnabled()) {
+            commandClient.addContextMenu(new ContextMenuAddQuote());
+        }
+
         {
             // Command register
             ReflectionsUtils.getFieldsAnnotatedWith(RegisterSlashCommand.class)
                 .stream()
                 .peek(f -> f.setAccessible(true))
                 .map(io.github.matyrobbrt.curseforgeapi.util.Utils.rethrowFunction(f -> f.get(null)))
-                .filter(SlashCommand.class::isInstance)
-                .map(SlashCommand.class::cast)
+                .map(object -> {
+                    if (object instanceof SlashCommand slash) {
+                        return slash;
+                    } else if (object instanceof Supplier<?> sup) {
+                        final var obj = sup.get();
+                        if (obj instanceof SlashCommand slash) {
+                            return slash;
+                        }
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
                 .forEach(commandClient::addSlashCommand);
         }
 
         // Button listeners
-        EventListeners.COMMANDS_LISTENER.addListeners(DictionaryCommand.listener, new DismissListener());
+        EventListeners.COMMANDS_LISTENER.addListeners(DictionaryCommand.listener, new DismissListener(),
+            QuoteCommand.ListQuotes.getQuoteListener());
 
         if (generalConfig.features().isReferencingEnabled()) {
             EventListeners.MISC_LISTENER.addListener(new ReferencingListener());
@@ -297,6 +317,7 @@ public final class TheCommander implements Bot {
     @Override
     public void migrateData() {
         new TricksMigrator(runPath).migrate();
+        new QuotesMigrator(runPath).migrate();
     }
 
     @Override

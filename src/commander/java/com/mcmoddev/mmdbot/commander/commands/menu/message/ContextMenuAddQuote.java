@@ -18,18 +18,16 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message;
+package com.mcmoddev.mmdbot.commander.commands.menu.message;
 
 import com.jagrosh.jdautilities.command.MessageContextMenu;
 import com.jagrosh.jdautilities.command.MessageContextMenuEvent;
-import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.GuildOnlyMenu;
-import com.mcmoddev.mmdbot.utilities.quotes.Quote;
-import com.mcmoddev.mmdbot.utilities.quotes.QuoteList;
-import com.mcmoddev.mmdbot.utilities.quotes.StringQuote;
-import com.mcmoddev.mmdbot.utilities.quotes.UserReference;
+import com.mcmoddev.mmdbot.commander.quotes.Quotes;
+import com.mcmoddev.mmdbot.commander.quotes.UserReference;
+import com.mcmoddev.mmdbot.commander.quotes.StringQuote;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-public class ContextMenuAddQuote extends MessageContextMenu implements GuildOnlyMenu {
+public class ContextMenuAddQuote extends MessageContextMenu {
 
     public ContextMenuAddQuote() {
         name = "Add Quote";
@@ -37,21 +35,29 @@ public class ContextMenuAddQuote extends MessageContextMenu implements GuildOnly
 
     @Override
     protected void execute(final MessageContextMenuEvent event) {
-        String text = event.getTarget().getContentRaw();
+        if (!event.isFromGuild()) {
+            event.deferReply(true).setContent("This command can only be used in a guild!").queue();
+            return;
+        }
+        final var text = event.getTarget().getContentRaw();
 
         // Fetch the user who created the quote.
-        UserReference author = new UserReference(event.getUser().getIdLong());
+        final var author = new UserReference(event.getUser().getIdLong());
         // Fetch the user who owns the message quoted.
-        UserReference quotee = new UserReference(event.getTarget().getAuthor().getIdLong());
-        Quote finishedQuote = new StringQuote(quotee, text, author);
+        final var quotee = new UserReference(event.getTarget().getAuthor().getIdLong());
+        final var finishedQuote = new StringQuote(quotee, text, author);
 
-        var quoteID = QuoteList.getQuoteSlot();
+        var quoteID = Quotes.getQuoteSlot();
         finishedQuote.setID(quoteID);
 
         // All execution leads to here, where finishedQuote is valid.
-        QuoteList.addQuote(finishedQuote);
+        Quotes.addQuote(finishedQuote);
 
-        event.replyEmbeds(new EmbedBuilder(finishedQuote.getQuoteMessage()).setTitle("Added quote " + quoteID).build()).mentionRepliedUser(false).queue();
+        event.replyEmbeds(new EmbedBuilder(finishedQuote.getQuoteMessage())
+            .setTitle("Added quote " + quoteID)
+            .build())
+            .mentionRepliedUser(false)
+            .queue();
     }
 
 }

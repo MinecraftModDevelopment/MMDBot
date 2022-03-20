@@ -51,7 +51,7 @@ public final class LeaveJoinEvents extends ListenerAdapter {
             .build();
 
         Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.LEAVE_JOIN_EVENTS, c ->
-            c.createMessage(embed.asRequest()).subscribe());
+            c.createMessage(embed).subscribe());
     }
 
     @Override
@@ -70,6 +70,6 @@ public final class LeaveJoinEvents extends ListenerAdapter {
             .build();
 
         Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.LEAVE_JOIN_EVENTS, c ->
-            c.createMessage(embed.asRequest()).subscribe());
+            c.createMessage(embed).subscribe());
     }
 }

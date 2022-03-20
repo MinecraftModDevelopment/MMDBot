@@ -86,13 +86,13 @@ public final class RoleEvents extends ListenerAdapter {
                 embed.addField("Added Role(s):", ifEmpty(rolesAdded.stream().map(id -> "<@&%s>".formatted(id.asLong())).collect(Collectors.joining(" ")), "None"), false);
                 embed.timestamp(Instant.now());
 
-                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.ROLE_EVENTS, c -> c.createMessage(embed.build().asRequest()).subscribe());
+                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.ROLE_EVENTS, c -> c.createMessage(embed.build()).subscribe());
             });
         });
     }
 
     private void onRoleRemoved(final MemberUpdateEvent event, final Member newMember, final Member oldMember, final Set<Snowflake> rolesBefore, final Set<Snowflake> rolesRemoved) {
-        if (TheListener.getInstance().getConfigForGuild(event.getGuildId()).getNoLoggingRoles().stream().anyMatch(s -> rolesRemoved.contains(s))) {
+        if (TheListener.getInstance().getConfigForGuild(event.getGuildId()).getNoLoggingRoles().stream().anyMatch(rolesRemoved::contains)) {
             return; // Ignore ignorable roles
         }
         event.getGuild().subscribe(guild -> {
@@ -113,11 +113,14 @@ public final class RoleEvents extends ListenerAdapter {
                     entry.getResponsibleUser().ifPresent(u -> embed.addField("Editor:", u.getMention() + "(%s)".formatted(u.getId().asLong()), true));
                 }
 
-                embed.addField("Previous Role(s):", ifEmpty(rolesBefore.stream().map(id -> "<@&%s>".formatted(id.asLong())).collect(Collectors.joining(" ")), "None"), false);
-                embed.addField("Removed Role(s):", ifEmpty(rolesRemoved.stream().map(id -> "<@&%s>".formatted(id.asLong())).collect(Collectors.joining(" ")), "None"), false);
+                embed.addField("Previous Role(s):", ifEmpty(rolesBefore.stream().map(id -> "<@&%s>"
+                    .formatted(id.asLong())).collect(Collectors.joining(" ")), "None"), false);
+                embed.addField("Removed Role(s):", ifEmpty(rolesRemoved.stream().map(id -> "<@&%s>"
+                    .formatted(id.asLong())).collect(Collectors.joining(" ")), "None"), false);
                 embed.timestamp(Instant.now());
 
-                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.ROLE_EVENTS, c -> c.createMessage(embed.build().asRequest()).subscribe());
+                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.ROLE_EVENTS, c ->
+                    c.createMessage(embed.build()).subscribe());
             });
         });
     }

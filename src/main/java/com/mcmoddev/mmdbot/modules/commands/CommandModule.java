@@ -33,7 +33,6 @@ import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRestart;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.GuildOnlyMenu;
-import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuAddQuote;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuGist;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.user.ContextMenuUserInfo;
 import com.mcmoddev.mmdbot.modules.commands.community.development.CmdGist;
@@ -44,7 +43,6 @@ import com.mcmoddev.mmdbot.modules.commands.community.server.CmdRoles;
 import com.mcmoddev.mmdbot.modules.commands.community.server.CmdToggleEventPings;
 import com.mcmoddev.mmdbot.modules.commands.community.server.CmdToggleMcServerPings;
 import com.mcmoddev.mmdbot.modules.commands.community.server.DeletableCommand;
-import com.mcmoddev.mmdbot.modules.commands.community.server.quotes.CmdQuote;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdMute;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdOldChannels;
@@ -112,10 +110,8 @@ public class CommandModule {
             new CmdOldChannels(),
             new CmdAvatar(),
             new CmdRename(),
-            //TODO Setup DB storage for tricks and polish them off/add permission restrictions for when needed.
             new CmdShutdown(),
             new CmdRestart(),
-            new CmdQuote(),
             new CmdRolePanel(),
             new CmdWarning(),
             new CmdInvite());
@@ -127,7 +123,6 @@ public class CommandModule {
         commandClient.addCommand(new CmdGist());
 
         addContextMenu(new ContextMenuGist());
-        addContextMenu(new ContextMenuAddQuote());
         addContextMenu(new ContextMenuUserInfo());
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
@@ -137,7 +132,6 @@ public class CommandModule {
             MMDBot.getJDA().addEventListener(new ThreadedEventListener((EventListener) commandClient, COMMAND_LISTENER_THREAD_POOL));
             MMDBot.getJDA().addEventListener(buttonListener(CmdRoles.getListener()));
             MMDBot.getJDA().addEventListener(buttonListener(CmdHelp.getListener()));
-            MMDBot.getJDA().addEventListener(buttonListener(CmdQuote.ListQuotes.getQuoteListener()));
             MMDBot.getJDA().addEventListener(buttonListener(CmdInvite.ListCmd.getButtonListener()));
             MMDBot.getJDA().addEventListener(buttonListener(new DismissListener()));
             MMDBot.LOGGER.warn("Command module enabled and loaded.");

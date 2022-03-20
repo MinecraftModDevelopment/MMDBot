@@ -18,8 +18,10 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.utilities.quotes;
+package com.mcmoddev.mmdbot.commander.quotes;
 
+import com.mcmoddev.mmdbot.commander.quotes.Quote;
+import com.mcmoddev.mmdbot.commander.quotes.Quotes;
 import com.mcmoddev.mmdbot.core.annotation.ExposeScripting;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
@@ -32,7 +34,7 @@ public final class NullQuote extends Quote {
 
     @Override
     public MessageEmbed getQuoteMessage() {
-        return QuoteList.getQuoteNotPresent();
+        return Quotes.getQuoteNotPresent();
     }
 
     @Override

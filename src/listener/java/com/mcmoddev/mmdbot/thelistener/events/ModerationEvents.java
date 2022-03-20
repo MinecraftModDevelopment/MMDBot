@@ -89,7 +89,7 @@ public final class ModerationEvents extends ListenerAdapter {
                 embed.timestamp(Instant.now());
 
                 Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c
-                    .createMessage(embed.build().asRequest()).subscribe());
+                    .createMessage(embed.build()).subscribe());
             });
         });
     }
@@ -129,7 +129,7 @@ public final class ModerationEvents extends ListenerAdapter {
                 embed.timestamp(Instant.now());
 
                 Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c
-                    .createMessage(embed.build().asRequest()).subscribe());
+                    .createMessage(embed.build()).subscribe());
             });
         });
     }
@@ -175,7 +175,7 @@ public final class ModerationEvents extends ListenerAdapter {
                 embed.addField("Old Nickname:", oldNick, true);
                 embed.addField("New Nickname:", newNick, true);
 
-                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c.createMessage(embed.build().asRequest()).subscribe());
+                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c.createMessage(embed.build()).subscribe());
             }, () -> {
                 final var embed = EmbedCreateSpec.builder();
                 final var targetUser = new User(newMember.getClient(), newMember.getUserData());
@@ -190,7 +190,7 @@ public final class ModerationEvents extends ListenerAdapter {
                 embed.addField("Old Nickname:", oldNick, true);
                 embed.addField("New Nickname:", newNick, true);
 
-                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c.createMessage(embed.build().asRequest()).subscribe());
+                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c.createMessage(embed.build()).subscribe());
             });
         });
     }
@@ -233,7 +233,8 @@ public final class ModerationEvents extends ListenerAdapter {
 
                 kicker.ifPresent(u -> embed.footer("Moderator ID: " + u.getId().asString(), u.getAvatarUrl()));
 
-                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c.createMessage(embed.build().asRequest()).subscribe());
+                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c ->
+                    c.createMessage(embed.build()).subscribe());
             });
         });
     }
@@ -244,8 +245,8 @@ public final class ModerationEvents extends ListenerAdapter {
             return;
         }
         final var doc = event.getDocument();
-        Mono.zip(getClient().getUserById(Snowflake.of(doc.userId())).getData(),
-                getClient().getUserById(Snowflake.of(doc.moderatorId())).getData())
+        Mono.zip(getClient().getUserById(Snowflake.of(doc.userId())),
+                getClient().getUserById(Snowflake.of(doc.moderatorId())))
             .subscribe(t -> {
                 final var user = t.getT1();
                 final var warner = t.getT2();
@@ -253,14 +254,13 @@ public final class ModerationEvents extends ListenerAdapter {
                     .color(Color.RED)
                     .title("New Warning")
                     .description("%s warned %s".formatted(mentionAndID(doc.moderatorId()), mentionAndID(doc.userId())))
-                    .thumbnail(user.avatar().map(i -> Possible.of(getAvatar(user.id().asString(), i))).orElse(Possible.absent()))
+                    .thumbnail(user.getAvatarUrl())
                     .addField("Reason:", doc.reason(), false)
                     .addField("Warning ID: ", doc.warnId(), false)
                     .timestamp(Instant.now())
-                    .footer("Warner ID: " + doc.moderatorId(), warner.avatar()
-                        .map(i -> getAvatar(warner.id().asString(), i)).orElse(null));
+                    .footer("Warner ID: " + doc.moderatorId(), warner.getAvatarUrl());
                 Utils.executeInLoggingChannel(Snowflake.of(doc.guildId()), LoggingType.MODERATION_EVENTS,
-                    c -> c.createMessage(embed.build().asRequest()).subscribe());
+                    c -> c.createMessage(embed.build()).subscribe());
             });
     }
 
@@ -270,8 +270,8 @@ public final class ModerationEvents extends ListenerAdapter {
             return;
         }
         final var warnDoc = event.getDocument();
-        Mono.zip(getClient().getUserById(Snowflake.of(warnDoc.userId())).getData(),
-                getClient().getUserById(Snowflake.of(event.getModeratorId())).getData())
+        Mono.zip(getClient().getUserById(Snowflake.of(warnDoc.userId())),
+                getClient().getUserById(Snowflake.of(event.getModeratorId())))
             .subscribe(t -> {
                 final var user = t.getT1();
                 final var moderator = t.getT2();
@@ -279,14 +279,13 @@ public final class ModerationEvents extends ListenerAdapter {
                     .color(Color.GREEN)
                     .title("Warning Cleared")
                     .description("One of the warnings of " + mentionAndID(warnDoc.userId()) + " has been removed!")
-                    .thumbnail(user.avatar().map(i -> Possible.of(getAvatar(user.id().asString(), i))).orElse(Possible.absent()))
+                    .thumbnail(user.getAvatarUrl())
                     .addField("Old warning reason:", warnDoc.reason(), false)
                     .addField("Old warner:", mentionAndID(warnDoc.userId()), false)
                     .timestamp(Instant.now())
-                    .footer("Moderator ID: " + event.getModeratorId(), moderator.avatar()
-                        .map(i -> getAvatar(moderator.id().asString(), i)).orElse(null));
+                    .footer("Moderator ID: " + event.getModeratorId(), moderator.getAvatarUrl());
                 Utils.executeInLoggingChannel(Snowflake.of(warnDoc.guildId()), LoggingType.MODERATION_EVENTS,
-                    c -> c.createMessage(embed.build().asRequest()).subscribe());
+                    c -> c.createMessage(embed.build()).subscribe());
             });
     }
 
@@ -295,21 +294,16 @@ public final class ModerationEvents extends ListenerAdapter {
         if (getClient() == null) {
             return;
         }
-        getClient().getUserById(Snowflake.of(event.getModeratorId())).getData()
+        getClient().getUserById(Snowflake.of(event.getModeratorId()))
             .subscribe(moderator -> {
                 final var embed = EmbedCreateSpec.builder()
                     .color(Color.GREEN)
                     .title("Warnings Cleared")
                     .description("All of the warnings of " + mentionAndID(event.getTargetId()) + " have been cleared!")
                     .timestamp(Instant.now())
-                    .footer("Moderator ID: " + event.getModeratorId(), moderator.avatar()
-                        .map(i -> getAvatar(moderator.id().asString(), i)).orElse(null));
+                    .footer("Moderator ID: " + event.getModeratorId(), moderator.getAvatarUrl());
                 Utils.executeInLoggingChannel(Snowflake.of(event.getGuildId()), LoggingType.MODERATION_EVENTS,
-                    c -> c.createMessage(embed.build().asRequest()).subscribe());
+                    c -> c.createMessage(embed.build()).subscribe());
             });
-    }
-
-    private static String getAvatar(String userId, String avatarId) {
-        return "https://cdn.discordapp.com/avatars/%s/%s.webp?size=128".formatted(userId, avatarId);
     }
 }

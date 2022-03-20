@@ -28,11 +28,7 @@ import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
-import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
-import com.mcmoddev.mmdbot.dashboard.ServerBridge;
-import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
-import com.mcmoddev.mmdbot.dashboard.server.DashboardSever;
 import lombok.experimental.UtilityClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,17 +38,32 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @UtilityClass
 public class RunBots {
+
+    private static final ThreadPoolExecutor BOT_STARTER_EXECUTOR;
+
+    static {
+        final var group = new ThreadGroup("Bot Threads");
+        BOT_STARTER_EXECUTOR = (ThreadPoolExecutor) Executors.newFixedThreadPool(BotRegistry.getBotTypes().size(), r ->
+            new Thread(group, r, "BotThead #%s".formatted(group.activeCount())));
+        // Shut down inactive threads after 2 minutes, as if the thread isn't needed
+        // at that point, it won't be needed again. The only bots that may freeze that
+        // thread are D4J bots
+        BOT_STARTER_EXECUTOR.setKeepAliveTime(2, TimeUnit.MINUTES);
+        BOT_STARTER_EXECUTOR.allowCoreThreadTimeOut(true);
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(RunBots.class);
     private static List<Bot> loadedBots = new ArrayList<>();
@@ -79,13 +90,16 @@ public class RunBots {
                 final var bot = botPair.first();
                 if (botEntry.isEnabled()) {
                     if (bot != null) {
-                        if (doMigrate) {
-                            bot.getLogger().info("Started data migration...");
-                            bot.migrateData();
-                            bot.getLogger().info("Finished data migration.");
-                        }
-                        bot.start();
-                        bot.getLogger().warn("Bot {} has been found, and it has been launched!", botEntry.name());
+                        CompletableFuture.runAsync(() -> {
+                            if (doMigrate) {
+                                bot.getLogger().info("Started data migration...");
+                                bot.migrateData();
+                                bot.getLogger().info("Finished data migration.");
+                            }
+                        }, BOT_STARTER_EXECUTOR).whenCompleteAsync(($, $$) -> {
+                            bot.start();
+                            bot.getLogger().warn("Bot {} has been found, and it has been launched!", botEntry.name());
+                        });
                     } else {
                         LOG.warn("Bot {} was null! Skipping...", botEntry.name);
                     }
@@ -97,7 +111,6 @@ public class RunBots {
             .filter(Objects::nonNull);
 
         loadedBots = bots.toList();
-        bots = loadedBots.stream();
 
         /* dashboard stuff
         {
@@ -115,7 +128,7 @@ public class RunBots {
         }
         */
 
-        Events.MODERATION_BUS.addListener(ScamDetector::onCollectTasks);
+        Events.MISC_BUS.addListener(ScamDetector::onCollectTasks);
         TaskScheduler.init();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> LOG.warn("The bot(s) are shutting down!")));

@@ -59,13 +59,17 @@ public final class Utils {
         return thread;
     }
 
-    public static void executeInLoggingChannel(final Snowflake guild, LoggingType type, Consumer<RestChannel> consumer) {
+    public static void executeInLoggingChannel(final Snowflake guild, LoggingType type, Consumer<MessageChannel> consumer) {
         if (TheListener.getClient() != null) {
             // Hardcoded until configs
             final var channels = type.getChannels(guild);
             channels.forEach(channelId -> {
-                final var channel = TheListener.getClient().getChannelById(channelId);
-                consumer.accept(channel);
+                TheListener.getClient().getChannelById(channelId)
+                    .subscribe(channel -> {
+                       if (channel instanceof MessageChannel mc) {
+                           consumer.accept(mc);
+                       }
+                    });
             });
         }
     }

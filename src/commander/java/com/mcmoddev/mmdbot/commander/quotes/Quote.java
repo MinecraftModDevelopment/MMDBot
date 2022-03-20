@@ -18,7 +18,7 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.utilities.quotes;
+package com.mcmoddev.mmdbot.commander.quotes;
 
 import com.mcmoddev.mmdbot.core.annotation.ExposeScripting;
 

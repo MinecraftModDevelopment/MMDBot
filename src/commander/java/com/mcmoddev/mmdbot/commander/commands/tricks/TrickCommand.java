@@ -22,22 +22,27 @@ package com.mcmoddev.mmdbot.commander.commands.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
+import com.mcmoddev.mmdbot.dashboard.util.LazySupplier;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * This class is the parent of all the trick commands. <br>
- * <strong>Due to the need of enabled roles, this command cannot be statically initialized!</strong>
  *
  * @author matyrobbrt
  */
 public final class TrickCommand extends SlashCommand {
 
-    public TrickCommand() {
+    @RegisterSlashCommand // lazy as it has role requirements
+    public static final Supplier<SlashCommand> COMMAND = LazySupplier.of(TrickCommand::new);
+
+    private TrickCommand() {
         name = "trick";
         help = "Does stuff regarding tricks";
 

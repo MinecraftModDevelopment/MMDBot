@@ -32,7 +32,6 @@ import java.util.List;
 @ConfigSerializable
 public final class Configuration {
     public static final Configuration EMPTY = new Configuration();
-    public static final java.lang.reflect.Type TYPE = io.leangen.geantyref.TypeToken.get(Configuration.class).getType();
 
     @Required
     @Setting("bot")
@@ -213,8 +212,16 @@ public final class Configuration {
         @Setting("evaluation")
         @Comment("If evaluation is enabled.")
         private boolean evaluationEnabled = true;
-        public boolean isEvaluationnabled() {
+        public boolean isEvaluationEnabled() {
             return evaluationEnabled;
+        }
+
+        @Required
+        @Setting("quotes_enabled")
+        @Comment("If quotes are enabled.")
+        private boolean quotesEnabled = true;
+        public boolean areQuotesEnabled() {
+            return quotesEnabled;
         }
     }
 }

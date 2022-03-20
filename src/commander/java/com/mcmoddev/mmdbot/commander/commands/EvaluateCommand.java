@@ -81,7 +81,7 @@ public class EvaluateCommand extends SlashCommand {
 
     @Override
     protected void execute(final SlashCommandEvent event) {
-        if (!TheCommander.getInstance().getGeneralConfig().features().isEvaluationnabled()) {
+        if (!TheCommander.getInstance().getGeneralConfig().features().isEvaluationEnabled()) {
             event.deferReply(true).setContent("Evaluation is not enabled!").queue();
             return;
         }
@@ -159,7 +159,7 @@ public class EvaluateCommand extends SlashCommand {
 
     @Override
     protected void execute(final CommandEvent event) {
-        if (!TheCommander.getInstance().getGeneralConfig().features().isEvaluationnabled()) {
+        if (!TheCommander.getInstance().getGeneralConfig().features().isEvaluationEnabled()) {
             event.reply("Evaluation is not enabled!");
             return;
         }

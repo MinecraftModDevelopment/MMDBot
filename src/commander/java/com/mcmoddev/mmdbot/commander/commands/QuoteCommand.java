@@ -18,18 +18,19 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.modules.commands.community.server.quotes;
+package com.mcmoddev.mmdbot.commander.commands;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import com.mcmoddev.mmdbot.modules.commands.DismissListener;
+import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
+import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
+import com.mcmoddev.mmdbot.commander.quotes.Quote;
+import com.mcmoddev.mmdbot.commander.quotes.Quotes;
+import com.mcmoddev.mmdbot.commander.quotes.UserReference;
 import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
-import com.mcmoddev.mmdbot.utilities.CommandUtilities;
-import com.mcmoddev.mmdbot.utilities.quotes.NullQuote;
-import com.mcmoddev.mmdbot.utilities.quotes.Quote;
-import com.mcmoddev.mmdbot.utilities.quotes.QuoteList;
-import com.mcmoddev.mmdbot.utilities.quotes.StringQuote;
-import com.mcmoddev.mmdbot.utilities.quotes.UserReference;
+import com.mcmoddev.mmdbot.commander.quotes.NullQuote;
+import com.mcmoddev.mmdbot.commander.quotes.StringQuote;
+import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -44,7 +45,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Handles all of the quote related commands.
+ * Handles all the quote related commands.
  * Contains four subcommands;
  * - Add
  * - Remove
@@ -53,14 +54,15 @@ import java.util.Random;
  * <p>
  * Each is documented more thoroughly in the appropriate subclass.
  * <p>
- * TODO: Database migration in progress.
- * This will change a lot.
- *
+ * TODO use actual role IDs
  * @author Curle
  */
-public class CmdQuote extends SlashCommand {
+public class QuoteCommand extends SlashCommand {
 
-    public CmdQuote() {
+    @RegisterSlashCommand
+    public static final LazySupplier<SlashCommand> CMD = LazySupplier.of(QuoteCommand::new);
+
+    private QuoteCommand() {
         name = "quote";
         help = "Manage or view quotes.";
 
@@ -118,9 +120,6 @@ public class CmdQuote extends SlashCommand {
 
         @Override
         protected void execute(final SlashCommandEvent event) {
-            if (!CommandUtilities.checkCommand(this, event))
-                return;
-
             String text = event.getOption("quote").getAsString();
             OptionMapping quoteeUser = event.getOption("quotee");
             OptionMapping quoteeText = event.getOption("quoteetext");
@@ -153,11 +152,11 @@ public class CmdQuote extends SlashCommand {
                 }
             }
 
-            var quoteID = QuoteList.getQuoteSlot();
+            var quoteID = Quotes.getQuoteSlot();
             finishedQuote.setID(quoteID);
 
             // All execution leads to here, where finishedQuote is valid.
-            QuoteList.addQuote(finishedQuote);
+            Quotes.addQuote(finishedQuote);
 
             event.reply("Added quote " + quoteID + "!").mentionRepliedUser(false).queue();
         }
@@ -197,25 +196,21 @@ public class CmdQuote extends SlashCommand {
 
         @Override
         protected void execute(final SlashCommandEvent event) {
-            if (!CommandUtilities.checkCommand(this, event)) {
-                return;
-            }
-
             OptionMapping index = event.getOption("index");
 
             // Check whether any parameters given.
             if (index != null) {
                 // We have something to parse.
-                if (index.getAsLong() >= QuoteList.getQuoteSlot()) {
-                    event.replyEmbeds(QuoteList.getQuoteNotPresent()).mentionRepliedUser(false).queue();
+                if (index.getAsLong() >= Quotes.getQuoteSlot()) {
+                    event.replyEmbeds(Quotes.getQuoteNotPresent()).mentionRepliedUser(false).queue();
                     return;
                 }
 
-                var fetched = QuoteList.getQuote((int) index.getAsLong());
+                var fetched = Quotes.getQuote((int) index.getAsLong());
                 // Check if the quote exists.
-                if (fetched == QuoteList.NULL) {
+                if (fetched == Quotes.NULL) {
                     // Send the standard message
-                    event.replyEmbeds(QuoteList.getQuoteNotPresent()).mentionRepliedUser(false).queue();
+                    event.replyEmbeds(Quotes.getQuoteNotPresent()).mentionRepliedUser(false).queue();
                     return;
                 }
 
@@ -228,8 +223,8 @@ public class CmdQuote extends SlashCommand {
             Quote fetched;
             Random rand = new Random();
             do {
-                int id = rand.nextInt(QuoteList.getQuoteSlot());
-                fetched = QuoteList.getQuote(id);
+                int id = rand.nextInt(Quotes.getQuoteSlot());
+                fetched = Quotes.getQuote(id);
             } while (fetched == null);
 
             // It exists, so get the content and send it.
@@ -268,11 +263,7 @@ public class CmdQuote extends SlashCommand {
 
         @Override
         protected void execute(final SlashCommandEvent event) {
-            if (!CommandUtilities.checkCommand(this, event)) {
-                return;
-            }
-
-            QuoteList.removeQuote((int) event.getOption("index").getAsLong());
+            Quotes.removeQuote((int) event.getOption("index").getAsLong());
             event.reply("Quote " + event.getOption("index").getAsLong() + " removed.").mentionRepliedUser(false).setEphemeral(true).queue();
         }
     }
@@ -311,11 +302,7 @@ public class CmdQuote extends SlashCommand {
 
         @Override
         protected void execute(final SlashCommandEvent event) {
-            if (!CommandUtilities.checkCommand(this, event)) {
-                return;
-            }
-
-            updateMaximum(QuoteList.getQuoteSlot() - 1);
+            updateMaximum(Quotes.getQuoteSlot() - 1);
             createPaginatedMessage(event).addActionRows(ActionRow.of(DismissListener.createDismissButton(event))).queue();
         }
 
@@ -329,7 +316,7 @@ public class CmdQuote extends SlashCommand {
         protected EmbedBuilder getEmbed(int start) {
             EmbedBuilder embed;
             // We have to make sure that this doesn't crash if we list a fresh bot.
-            if (QuoteList.getQuoteSlot() == 0) {
+            if (Quotes.getQuoteSlot() == 0) {
                 embed = new EmbedBuilder()
                     .setColor(Color.GREEN)
                     .setDescription("There are no quotes loaded currently.")
@@ -344,12 +331,12 @@ public class CmdQuote extends SlashCommand {
             // From the specified starting point until the end of the page.
             for (int x = start; x < start + items_per_page; x++) {
                 // But stop early if we hit the end of the list,
-                if (x >= QuoteList.getQuoteSlot()) {
+                if (x >= Quotes.getQuoteSlot()) {
                     break;
                 }
 
                 // Get the current Quote
-                Quote fetchedQuote = QuoteList.getQuote(x);
+                Quote fetchedQuote = Quotes.getQuote(x);
 
                 if (fetchedQuote instanceof NullQuote || fetchedQuote == null) {
                     embed.addField(String.valueOf(x), "Quote does not exist.", false);

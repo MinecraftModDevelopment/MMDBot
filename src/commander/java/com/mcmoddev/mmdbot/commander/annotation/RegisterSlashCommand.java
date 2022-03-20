@@ -27,8 +27,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotate a field whose underlying object is an instance of {@link com.jagrosh.jdautilities.command.SlashCommand}
- * in order to register it when {@link com.mcmoddev.mmdbot.commander.TheCommander} is started up.
+ * Annotate a field whose underlying object is an instance of {@link com.jagrosh.jdautilities.command.SlashCommand} or
+ * a supplier of that type, in order to register it when {@link com.mcmoddev.mmdbot.commander.TheCommander} is started up.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

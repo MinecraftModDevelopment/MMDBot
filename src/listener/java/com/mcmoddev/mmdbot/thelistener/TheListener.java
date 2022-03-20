@@ -77,8 +77,7 @@ public final class TheListener implements Bot {
 
     private static TheListener instance;
 
-    private DiscordClient client;
-    private GatewayDiscordClient gateway;
+    private GatewayDiscordClient client;
     private final Path runPath;
     private final Long2ObjectMap<GuildConfig> guildConfigs = new Long2ObjectOpenHashMap<>();
 
@@ -98,22 +97,20 @@ public final class TheListener implements Bot {
 
         final var token = dotenv.get("BOT_TOKEN", "");
 
-        client = DiscordClient.create(token);
-
-        gateway = client.gateway()
+        client = DiscordClient.create(token).gateway()
             .setEnabledIntents(IntentSet.of(Intent.values()))
             .setEntityRetrievalStrategy(EntityRetrievalStrategy.REST).login().block();
 
-        if (gateway == null) {
-            throw new NullPointerException("gateway");
+        if (client == null) {
+            throw new NullPointerException("client");
         }
 
-        gateway.getEventDispatcher().on(ReadyEvent.class)
+        client.getEventDispatcher().on(ReadyEvent.class)
             .subscribe(event -> LOGGER.warn("I am ready to work! Logged in as {}", event.getSelf().getTag()));
 
         final var guildConfigsPath = getRunPath().resolve("configs/guilds");
 
-        gateway.getEventDispatcher().on(GuildCreateEvent.class)
+        client.getEventDispatcher().on(GuildCreateEvent.class)
             .subscribe(event -> {
                 final var id = event.getGuild().getId().asLong();
                 if (!guildConfigs.containsKey(id)) {
@@ -121,19 +118,17 @@ public final class TheListener implements Bot {
                 }
             });
 
-        Utils.subscribe(gateway, wrapListener(MessageEvents.INSTANCE), wrapListener(new LeaveJoinEvents()),
+        Utils.subscribe(client, wrapListener(MessageEvents.INSTANCE), wrapListener(new LeaveJoinEvents()),
             wrapListener(ModerationEvents.INSTANCE), wrapListener(new RoleEvents()));
 
-        new Thread(() -> {
-            // D4J doesn't have non-daemon threads
-            while (true) {
-            }
-        }).start();
+        while (true) {
+            // Block the thread
+        }
     }
 
     @Override
     public void shutdown() {
-        gateway.logout().subscribe();
+        client.logout().subscribe();
     }
 
     public static EventListener wrapListener(EventListener listener) {
@@ -158,13 +153,13 @@ public final class TheListener implements Bot {
         return instance;
     }
 
-    public static DiscordClient getClient() {
+    public static GatewayDiscordClient getClient() {
         return instance == null ? null : instance.client;
     }
 
     @Override
     public BotUserData getBotUserData() {
-        final var selfUser = gateway.getSelf().block();
+        final var selfUser = client.getSelf().block();
         if (selfUser != null) {
             return new BotUserData(selfUser.getUsername(), selfUser.getDiscriminator(), selfUser.getAvatarUrl());
         }
