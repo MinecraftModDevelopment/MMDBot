@@ -28,8 +28,10 @@ import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
 import com.mcmoddev.mmdbot.commander.commands.DictionaryCommand;
 import com.mcmoddev.mmdbot.commander.commands.QuoteCommand;
+import com.mcmoddev.mmdbot.commander.commands.RolesCommand;
 import com.mcmoddev.mmdbot.commander.commands.curseforge.CurseForgeCommand;
-import com.mcmoddev.mmdbot.commander.commands.menu.message.ContextMenuAddQuote;
+import com.mcmoddev.mmdbot.commander.commands.menu.message.AddQuoteContextMenu;
+import com.mcmoddev.mmdbot.commander.commands.menu.user.UserInfoContextMenu;
 import com.mcmoddev.mmdbot.commander.commands.tricks.AddTrickCommand;
 import com.mcmoddev.mmdbot.commander.commands.tricks.EditTrickCommand;
 import com.mcmoddev.mmdbot.commander.commands.tricks.ListTricksCommand;
@@ -62,6 +64,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -225,7 +228,8 @@ public final class TheCommander implements Bot {
         }
 
         if (generalConfig.features().areQuotesEnabled()) {
-            commandClient.addContextMenu(new ContextMenuAddQuote());
+            commandClient.addContextMenu(new AddQuoteContextMenu());
+            commandClient.addContextMenu(new UserInfoContextMenu());
         }
 
         {
@@ -251,7 +255,7 @@ public final class TheCommander implements Bot {
 
         // Button listeners
         EventListeners.COMMANDS_LISTENER.addListeners(DictionaryCommand.listener, new DismissListener(),
-            QuoteCommand.ListQuotes.getQuoteListener());
+            QuoteCommand.ListQuotes.getQuoteListener(), RolesCommand.getListener());
 
         if (generalConfig.features().isReferencingEnabled()) {
             EventListeners.MISC_LISTENER.addListener(new ReferencingListener());

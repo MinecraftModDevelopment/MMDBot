@@ -23,7 +23,12 @@ package com.mcmoddev.mmdbot.core.util;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Locale;
+import java.util.StringJoiner;
 
 public final class Utils {
 
@@ -52,6 +57,17 @@ public final class Utils {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * Get the {@link OffsetDateTime} from an Instant value, relative to UTC+0 / GMT+0.
+     * Overtakes the last system which used LocalDateTime which was unpredictable and caused confusion among developers.
+     *
+     * @param instant the instant
+     * @return OffsetDateTime. Offset from UTC+0.
+     */
+    public static OffsetDateTime getTimeFromUTC(final Instant instant) {
+        return OffsetDateTime.ofInstant(instant, ZoneOffset.UTC);
     }
 
     public static String uppercaseFirstLetter(final String string) {

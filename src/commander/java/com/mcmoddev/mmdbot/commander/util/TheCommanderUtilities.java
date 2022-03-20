@@ -23,14 +23,22 @@ package com.mcmoddev.mmdbot.commander.util;
 import com.google.gson.JsonParser;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Locale;
 
 @Slf4j
 @UtilityClass
@@ -66,7 +74,7 @@ public class TheCommanderUtilities {
      * Checks if the given member any of the given roles
      *
      * @param member the member to check
-     * @param roleId the IDs of the roles to check for
+     * @param roleIds the IDs of the roles to check for
      * @return if the member has any of the role
      */
     public static boolean memberHasRoles(final Member member, final String... roleIds) {
@@ -75,6 +83,40 @@ public class TheCommanderUtilities {
         }
         final var roles = List.of(roleIds);
         return member.getRoles().stream().anyMatch(r -> roles.contains(r.getId()));
+    }
+
+    /**
+     * Creates an embed for the information of a member.
+     *
+     * @param member the member
+     * @return EmbedBuilder. embed builder
+     */
+    public static EmbedBuilder createMemberInfoEmbed(final Member member) {
+        final var user = member.getUser();
+        final var embed = new EmbedBuilder();
+        final var dateJoinedDiscord = member.getTimeCreated().toInstant();
+        final var dateJoinedServer = member.getTimeJoined();
+
+        embed.setTitle("User info");
+        embed.setColor(Color.WHITE);
+        embed.setThumbnail(user.getEffectiveAvatarUrl());
+        embed.addField("Username:", user.getName(), true);
+        embed.addField("Users discriminator:", "#" + user.getDiscriminator(), true);
+        embed.addField("Users id:", member.getId(), true);
+
+        if (member.getNickname() == null) {
+            embed.addField("Users nickname:", "No nickname applied.", true);
+        } else {
+            embed.addField("Users nickname:", member.getNickname(), true);
+        }
+
+        final var date = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH);
+        embed.addField("Joined Discord:", date.format(dateJoinedDiscord.toEpochMilli()), true);
+        embed.addField("Joined Server:", TimeFormat.DATE_TIME_SHORT.format(dateJoinedServer), true);
+        embed.addField("Member for:", TimeFormat.RELATIVE.format(dateJoinedDiscord), true);
+        embed.setTimestamp(Instant.now());
+
+        return embed;
     }
 
 }

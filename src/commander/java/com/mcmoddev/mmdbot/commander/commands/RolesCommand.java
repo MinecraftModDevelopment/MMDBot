@@ -1,28 +1,9 @@
-/*
- * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
- * Copyright (C) 2016-2022 <MMD - MinecraftModDevelopment>
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
- * USA
- * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
- */
-package com.mcmoddev.mmdbot.modules.commands.community.server;
+package com.mcmoddev.mmdbot.commander.commands;
 
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
-import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;
 
@@ -32,22 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Shows how many users are in each role in the current Guild.
- * <p>
- * This is the first usage of the Paginated Command.
- *
- * @author KiriCattus
- * @author Curle
- */
-public final class CmdRoles extends PaginatedCommand {
+public final class RolesCommand extends PaginatedCommand {
+    @RegisterSlashCommand
+    public static final SlashCommand COMMAND = new RolesCommand();
+
     private static RolesListener listener;
     private List<Role> roles = new ArrayList<>();
 
-    /**
-     * Constructs this command, to be registered in a {@link com.jagrosh.jdautilities.command.CommandClient}.
-     */
-    public CmdRoles() {
+    private RolesCommand() {
         super("roles",
             "Shows how many users are in each role.",
             true,
@@ -86,10 +59,6 @@ public final class CmdRoles extends PaginatedCommand {
      */
     @Override
     protected void execute(final SlashCommandEvent event) {
-        if (!CommandUtilities.checkCommand(this, event)) {
-            return;
-        }
-
         roles = event.getGuild().getRoles()
             .stream()
             .filter(role -> !role.isManaged()) // Filter out managed roles

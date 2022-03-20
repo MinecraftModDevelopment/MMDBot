@@ -34,12 +34,8 @@ import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRestart;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.GuildOnlyMenu;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuGist;
-import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.user.ContextMenuUserInfo;
 import com.mcmoddev.mmdbot.modules.commands.community.development.CmdGist;
-import com.mcmoddev.mmdbot.modules.commands.community.information.CmdGuild;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdInvite;
-import com.mcmoddev.mmdbot.modules.commands.community.information.CmdUser;
-import com.mcmoddev.mmdbot.modules.commands.community.server.CmdRoles;
 import com.mcmoddev.mmdbot.modules.commands.community.server.CmdToggleEventPings;
 import com.mcmoddev.mmdbot.modules.commands.community.server.CmdToggleMcServerPings;
 import com.mcmoddev.mmdbot.modules.commands.community.server.DeletableCommand;
@@ -98,10 +94,7 @@ public class CommandModule {
             .useHelpBuilder(false).setManualUpsert(true).build();
 
         addSlashCommand(new CmdHelp(),
-            new CmdGuild(),
             new CmdAbout(),
-            new CmdUser(),
-            new CmdRoles(),
             new CmdToggleMcServerPings(),
             new CmdToggleEventPings(),
             new CmdMute(),
@@ -116,21 +109,17 @@ public class CommandModule {
             new CmdWarning(),
             new CmdInvite());
 
-        // addSlashCommand(Tricks.getTricks().stream().map(CmdRunTrickSeparated::new).toArray(SlashCommand[]::new));
-
         commandClient.addCommand(new CmdRefreshScamLinks());
         commandClient.addCommand(new CmdReact());
         commandClient.addCommand(new CmdGist());
 
         addContextMenu(new ContextMenuGist());
-        addContextMenu(new ContextMenuUserInfo());
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
             // Wrap the command and button listener in another thread, so that if a runtime exception
             // occurs while executing a command, the event thread will not be stopped
             // Commands and buttons are separated so that they do not interfere with each other
             MMDBot.getJDA().addEventListener(new ThreadedEventListener((EventListener) commandClient, COMMAND_LISTENER_THREAD_POOL));
-            MMDBot.getJDA().addEventListener(buttonListener(CmdRoles.getListener()));
             MMDBot.getJDA().addEventListener(buttonListener(CmdHelp.getListener()));
             MMDBot.getJDA().addEventListener(buttonListener(CmdInvite.ListCmd.getButtonListener()));
             MMDBot.getJDA().addEventListener(buttonListener(new DismissListener()));

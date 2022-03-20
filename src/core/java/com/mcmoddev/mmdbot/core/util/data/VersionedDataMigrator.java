@@ -67,6 +67,10 @@ public class VersionedDataMigrator implements DataMigrator {
                 try (final var w = new BufferedWriter(new FileWriter(file.toFile()))) {
                     final var noVersion = whenNoVersion.apply(json);
                     final var db = VersionedDatabase.inMemory(noVersion.firstInt(), noVersion.second());
+                    if (db.getSchemaVersion() != target) {
+                        db.setSchemaVersion(target);
+                        db.setData(migrate(db.getSchemaVersion(), target, db.getData()));
+                    }
                     Constants.Gsons.NO_PRETTY_PRINTING.toJson(db.toJson(Constants.Gsons.NO_PRETTY_PRINTING), w);
                 }
             } else {

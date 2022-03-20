@@ -27,9 +27,9 @@ import com.mcmoddev.mmdbot.commander.quotes.StringQuote;
 import com.mcmoddev.mmdbot.commander.quotes.UserReference;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-public class ContextMenuAddQuote extends MessageContextMenu {
+public class AddQuoteContextMenu extends MessageContextMenu {
 
-    public ContextMenuAddQuote() {
+    public AddQuoteContextMenu() {
         name = "Add Quote";
     }
 
