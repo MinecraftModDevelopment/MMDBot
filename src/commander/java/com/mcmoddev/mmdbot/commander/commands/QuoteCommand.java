@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.commander.commands;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
 import com.mcmoddev.mmdbot.commander.quotes.NullQuote;
@@ -121,9 +122,13 @@ public class QuoteCommand extends SlashCommand {
 
         @Override
         protected void execute(final SlashCommandEvent event) {
-            String text = event.getOption("quote").getAsString();
-            OptionMapping quoteeUser = event.getOption("quotee");
-            OptionMapping quoteeText = event.getOption("quoteetext");
+            if (!TheCommander.getInstance().getGeneralConfig().features().areQuotesEnabled()) {
+                event.deferReply(true).setContent("Quotes are not enabled!").queue();
+                return;
+            }
+            final var text = event.getOption("quote", "", OptionMapping::getAsString);
+            final var quoteeUser = event.getOption("quotee");
+            final var quoteeText = event.getOption("quoteetext");
 
             // Verify that there's a message being quoted.
             if (quoteeText != null && quoteeUser != null) {
@@ -197,7 +202,11 @@ public class QuoteCommand extends SlashCommand {
 
         @Override
         protected void execute(final SlashCommandEvent event) {
-            OptionMapping index = event.getOption("index");
+            if (!TheCommander.getInstance().getGeneralConfig().features().areQuotesEnabled()) {
+                event.deferReply(true).setContent("Quotes are not enabled!").queue();
+                return;
+            }
+            final var index = event.getOption("index");
 
             // Check whether any parameters given.
             if (index != null) {
@@ -264,8 +273,13 @@ public class QuoteCommand extends SlashCommand {
 
         @Override
         protected void execute(final SlashCommandEvent event) {
-            Quotes.removeQuote((int) event.getOption("index").getAsLong());
-            event.reply("Quote " + event.getOption("index").getAsLong() + " removed.").mentionRepliedUser(false).setEphemeral(true).queue();
+            if (!TheCommander.getInstance().getGeneralConfig().features().areQuotesEnabled()) {
+                event.deferReply(true).setContent("Quotes are not enabled!").queue();
+                return;
+            }
+            final var index = event.getOption("index", 0, OptionMapping::getAsInt);
+            Quotes.removeQuote(index);
+            event.reply("Quote " + index + " removed.").mentionRepliedUser(false).setEphemeral(true).queue();
         }
     }
 
@@ -303,6 +317,10 @@ public class QuoteCommand extends SlashCommand {
 
         @Override
         protected void execute(final SlashCommandEvent event) {
+            if (!TheCommander.getInstance().getGeneralConfig().features().areQuotesEnabled()) {
+                event.deferReply(true).setContent("Quotes are not enabled!").queue();
+                return;
+            }
             updateMaximum(Quotes.getQuoteSlot() - 1);
             createPaginatedMessage(event).addActionRows(ActionRow.of(DismissListener.createDismissButton(event))).queue();
         }
