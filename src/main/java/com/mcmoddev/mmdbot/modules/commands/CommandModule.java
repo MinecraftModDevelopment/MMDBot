@@ -123,7 +123,6 @@ public class CommandModule {
             MMDBot.getJDA().addEventListener(buttonListener(CmdHelp.getListener()));
             MMDBot.getJDA().addEventListener(buttonListener(CmdInvite.ListCmd.getButtonListener()));
             MMDBot.getJDA().addEventListener(buttonListener(new DismissListener()));
-            MMDBot.LOGGER.warn("Command module enabled and loaded.");
         } else {
             MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");
         }

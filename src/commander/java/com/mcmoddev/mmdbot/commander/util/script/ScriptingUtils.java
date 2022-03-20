@@ -21,6 +21,8 @@
 package com.mcmoddev.mmdbot.commander.util.script;
 
 import com.google.common.collect.Lists;
+import com.mcmoddev.mmdbot.commander.quotes.IQuote;
+import com.mcmoddev.mmdbot.commander.quotes.Quotes;
 import com.mcmoddev.mmdbot.commander.tricks.TrickContext;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.util.script.object.ScriptEmbed;
@@ -291,10 +293,7 @@ public final class ScriptingUtils {
         });
         context.setFunction("getQuotes", args -> {
             validateArgs(args, 0);
-
-            return List.of();
-            // TODO move quotes as well
-            // return IntStream.range(0, QuoteList.getQuoteSlot()).mapToObj(i -> (IQuote) QuoteList.getQuote(i)).toList();
+            return IntStream.range(0, Quotes.getQuoteSlot()).mapToObj(Quotes::getQuote).toList();
         });
         context.setFunction("getMembers", a -> guild.getMembers().stream().map(m -> createMember(m).toProxyObject()).toList());
         context.setFunction("getRoles", a -> guild.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList());
