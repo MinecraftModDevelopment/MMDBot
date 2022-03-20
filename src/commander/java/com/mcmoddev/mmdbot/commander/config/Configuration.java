@@ -103,6 +103,7 @@ public final class Configuration {
         @Setting("bot_maintainers")
         @Comment("A list of Snowflake IDs representing the roles which are bot maintainers.")
         private List<String> botMaintainers = new ArrayList<>();
+
         public List<String> getBotMaintainers() {
             return botMaintainers;
         }
@@ -145,6 +146,7 @@ public final class Configuration {
             @Setting("fabric")
             @Comment("A list of Snowflake IDs of channels in which to send Fabric update notifiers.")
             private List<String> fabric = new ArrayList<>();
+
             public List<String> fabric() {
                 return fabric;
             }
@@ -153,6 +155,7 @@ public final class Configuration {
             @Setting("forge")
             @Comment("A list of Snowflake IDs of channels in which to send Forge update notifiers.")
             private List<String> forge = new ArrayList<>();
+
             public List<String> forge() {
                 return forge;
             }
@@ -161,6 +164,7 @@ public final class Configuration {
             @Setting("minecraft")
             @Comment("A list of Snowflake IDs of channels in which to send Minecraft update notifiers.")
             private List<String> minecraft = new ArrayList<>();
+
             public List<String> minecraft() {
                 return minecraft;
             }
@@ -174,6 +178,7 @@ public final class Configuration {
         @Setting("referencing_enabled")
         @Comment("If message referencing should be enabled.")
         private boolean referencingEnabled = true;
+
         public boolean isReferencingEnabled() {
             return referencingEnabled;
         }
@@ -182,6 +187,7 @@ public final class Configuration {
         @Setting("tricks")
         @Comment("Tricks configuration.")
         private Tricks tricks = new Tricks();
+
         public Tricks tricks() {
             return tricks;
         }
@@ -193,6 +199,7 @@ public final class Configuration {
             @Setting("enabled")
             @Comment("If tricks should be enabled.")
             private boolean tricksEnabled = true;
+
             public boolean tricksEnabled() {
                 return tricksEnabled;
             }
@@ -203,6 +210,7 @@ public final class Configuration {
                 Only if tricks are enabled!
                 If tricks should be able to work with a prefixes.""")
             private boolean prefixEnabled = true;
+
             public boolean prefixEnabled() {
                 return prefixEnabled;
             }
@@ -212,6 +220,7 @@ public final class Configuration {
         @Setting("evaluation")
         @Comment("If evaluation is enabled.")
         private boolean evaluationEnabled = true;
+
         public boolean isEvaluationEnabled() {
             return evaluationEnabled;
         }
@@ -220,6 +229,7 @@ public final class Configuration {
         @Setting("quotes_enabled")
         @Comment("If quotes are enabled.")
         private boolean quotesEnabled = true;
+
         public boolean areQuotesEnabled() {
             return quotesEnabled;
         }

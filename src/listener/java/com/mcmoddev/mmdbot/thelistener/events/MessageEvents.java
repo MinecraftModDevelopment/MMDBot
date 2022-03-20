@@ -35,8 +35,6 @@ import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
-import discord4j.discordjson.json.AllowedMentionsData;
-import discord4j.discordjson.json.MessageCreateRequest;
 import discord4j.rest.util.AllowedMentions;
 import discord4j.rest.util.Color;
 import io.github.matyrobbrt.eventdispatcher.SubscribeEvent;
@@ -49,7 +47,9 @@ public final class MessageEvents extends ListenerAdapter {
     public static final AllowedMentions ALLOWED_MENTIONS_DATA = AllowedMentions.builder().repliedUser(false).build();
 
     public static final MessageEvents INSTANCE = new MessageEvents();
-    private MessageEvents() {}
+
+    private MessageEvents() {
+    }
 
     @Override
     public void onMessageDelete(final MessageDeleteEvent event) {
@@ -90,7 +90,9 @@ public final class MessageEvents extends ListenerAdapter {
             Utils.executeInLoggingChannel(event.getGuildId().get(), LoggingType.MESSAGE_EVENTS,
                 channel -> channel.createMessage(MessageCreateSpec.builder()
                     .embeds(embed)
-                    .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {}, t -> {}));
+                    .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {
+                }, t -> {
+                }));
         }
     }
 
@@ -138,7 +140,9 @@ public final class MessageEvents extends ListenerAdapter {
                 Utils.executeInLoggingChannel(event.getGuildId().get(), LoggingType.MESSAGE_EVENTS,
                     channel -> channel.createMessage(MessageCreateSpec.builder()
                         .embeds(embed)
-                        .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {}, t -> {}));
+                        .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {
+                    }, t -> {
+                    }));
             }
         }, e -> TheListener.LOGGER.error("Error while trying to log a message edit!", e));
     }
@@ -154,7 +158,9 @@ public final class MessageEvents extends ListenerAdapter {
         Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MESSAGE_EVENTS,
             channel -> channel.createMessage(MessageCreateSpec.builder()
                 .embeds(embed)
-                .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {}, t -> {}));
+                .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {
+            }, t -> {
+            }));
     }
 
     @SubscribeEvent

@@ -24,12 +24,12 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
+import com.mcmoddev.mmdbot.commander.quotes.NullQuote;
 import com.mcmoddev.mmdbot.commander.quotes.Quote;
 import com.mcmoddev.mmdbot.commander.quotes.Quotes;
+import com.mcmoddev.mmdbot.commander.quotes.StringQuote;
 import com.mcmoddev.mmdbot.commander.quotes.UserReference;
 import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
-import com.mcmoddev.mmdbot.commander.quotes.NullQuote;
-import com.mcmoddev.mmdbot.commander.quotes.StringQuote;
 import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -55,6 +55,7 @@ import java.util.Random;
  * Each is documented more thoroughly in the appropriate subclass.
  * <p>
  * TODO use actual role IDs
+ *
  * @author Curle
  */
 public class QuoteCommand extends SlashCommand {

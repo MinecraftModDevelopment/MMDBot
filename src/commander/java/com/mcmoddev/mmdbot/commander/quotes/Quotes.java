@@ -133,8 +133,9 @@ public final class Quotes {
         if (!Files.exists(path)) {
             quotes = new ArrayList<>();
         }
-        final var listType = new TypeToken<List<Quote>>() {}.getType();
-        try  {
+        final var listType = new TypeToken<List<Quote>>() {
+        }.getType();
+        try {
             final var db = VersionedDatabase.<List<Quote>>fromFile(GSON, path, listType);
             if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
                 new QuotesMigrator(TheCommander.getInstance().getRunPath()).migrate();

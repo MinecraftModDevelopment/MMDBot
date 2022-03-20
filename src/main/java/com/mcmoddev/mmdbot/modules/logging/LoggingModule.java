@@ -21,8 +21,8 @@
 package com.mcmoddev.mmdbot.modules.logging;
 
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.modules.logging.misc.EventReactionAdded;
 import com.mcmoddev.mmdbot.core.common.ScamDetector;
+import com.mcmoddev.mmdbot.modules.logging.misc.EventReactionAdded;
 import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.console.ConsoleChannelButtonListener;

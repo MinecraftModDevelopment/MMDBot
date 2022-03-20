@@ -50,6 +50,7 @@ public final class DictionaryUtils {
 
     /**
      * Sets the OwlBot token used for dictionary lookup.
+     *
      * @param token the token
      */
     public static void setToken(@Nullable String token) {

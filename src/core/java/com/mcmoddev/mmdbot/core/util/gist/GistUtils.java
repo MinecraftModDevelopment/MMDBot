@@ -22,10 +22,7 @@ package com.mcmoddev.mmdbot.core.util.gist;
 
 import com.google.gson.JsonObject;
 import com.mcmoddev.mmdbot.core.util.Constants;
-import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryUtils;
-import lombok.NonNull;
 
-import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;

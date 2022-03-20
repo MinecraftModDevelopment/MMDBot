@@ -25,7 +25,6 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
-import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.builder.SlashCommandBuilder;
 import com.mcmoddev.mmdbot.core.util.event.OneTimeEventListener;
@@ -47,9 +46,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -86,6 +83,7 @@ public abstract class CurseForgeCommand extends SlashCommand {
             .map(e -> new Command.Choice(e.getKey(), e.getIntValue()))
             .toArray(Command.Choice[]::new);
     }
+
     public static void setEmbedAuthor(EmbedBuilder embed) {
         embed.setAuthor("CurseForge", "https://www.curseforge.com/", "https://th.bing.com/th/id/OIP.d_qkwTnxlcQkqUGsTJkOjAAAAA?pid=ImgDet&rs=1");
     }
@@ -103,6 +101,7 @@ public abstract class CurseForgeCommand extends SlashCommand {
             }
         })
         .build();
+
     static {
         Arrays.stream(INSTANCE.getChildren()).forEach(c -> {
             final var name = c.getSubcommandGroup() == null ? c.getName() : c.getSubcommandGroup().getName() + "//" + c.getName();
@@ -184,8 +183,8 @@ public abstract class CurseForgeCommand extends SlashCommand {
         <T> T getOption(@Nonnull String name, @Nonnull Function<? super OptionMapping, ? extends T> resolver);
 
         <T> T getOption(@Nonnull String name,
-                                @Nullable T fallback,
-                                @Nonnull Function<? super OptionMapping, ? extends T> resolver);
+                        @Nullable T fallback,
+                        @Nonnull Function<? super OptionMapping, ? extends T> resolver);
 
         default void reply(String content) {
             getHook().editOriginal(content).queue();

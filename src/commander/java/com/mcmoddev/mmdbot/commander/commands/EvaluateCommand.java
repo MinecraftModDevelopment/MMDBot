@@ -60,8 +60,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.ALLOWED_MENTIONS;
+import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.createGuild;
+import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.createMember;
+import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.createMessageChannel;
+import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.createTextChannel;
+import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.createUser;
+import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.getEmbedFromValue;
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.validateArgs;
-import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.*;
 
 public class EvaluateCommand extends SlashCommand {
 

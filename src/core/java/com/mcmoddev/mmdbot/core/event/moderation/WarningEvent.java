@@ -22,11 +22,6 @@ package com.mcmoddev.mmdbot.core.event.moderation;
 
 import com.mcmoddev.mmdbot.core.util.WarningDocument;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Consumer;
-
 public sealed class WarningEvent extends ModerationEvent permits WarningEvent.Add, WarningEvent.Clear, WarningEvent.ClearAllWarns {
 
     protected final WarningDocument document;
@@ -52,6 +47,7 @@ public sealed class WarningEvent extends ModerationEvent permits WarningEvent.Ad
         public Clear(final long guildId, final long moderatorId, final long targetId, final WarningDocument doc) {
             super(guildId, moderatorId, targetId, doc);
         }
+
         /**
          * @return the old warning document that was cleared
          */

@@ -20,8 +20,6 @@
  */
 package com.mcmoddev.mmdbot.commander.updatenotifiers.minecraft;
 
-import static com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers.LOGGER;
-import static com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers.MARKER;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -29,6 +27,9 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 
 import java.awt.Color;
 import java.time.Instant;
+
+import static com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers.LOGGER;
+import static com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers.MARKER;
 
 /**
  * The type Minecraft update notifier.

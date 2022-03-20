@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 /**
  * A listener for dismissing.
+ *
  * @author matyrobbrt
  */
 public final class DismissListener extends ListenerAdapter {

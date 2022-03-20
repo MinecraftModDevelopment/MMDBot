@@ -20,8 +20,6 @@
  */
 package com.mcmoddev.mmdbot.thelistener.events;
 
-import static com.mcmoddev.mmdbot.thelistener.TheListener.getClient;
-import static com.mcmoddev.mmdbot.thelistener.util.Utils.mentionAndID;
 import com.mcmoddev.mmdbot.core.event.moderation.WarningEvent;
 import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.thelistener.TheListener;
@@ -39,7 +37,6 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.PartialMember;
 import discord4j.core.object.entity.User;
 import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.discordjson.possible.Possible;
 import discord4j.rest.util.Color;
 import io.github.matyrobbrt.eventdispatcher.SubscribeEvent;
 import reactor.core.publisher.Mono;
@@ -47,9 +44,14 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.Optional;
 
+import static com.mcmoddev.mmdbot.thelistener.TheListener.getClient;
+import static com.mcmoddev.mmdbot.thelistener.util.Utils.mentionAndID;
+
 public final class ModerationEvents extends ListenerAdapter {
     public static final ModerationEvents INSTANCE = new ModerationEvents();
-    private ModerationEvents() {}
+
+    private ModerationEvents() {
+    }
 
     @Override
     public void onBan(final BanEvent event) {

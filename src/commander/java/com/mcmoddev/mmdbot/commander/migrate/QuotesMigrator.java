@@ -20,13 +20,12 @@
  */
 package com.mcmoddev.mmdbot.commander.migrate;
 
-import static com.mcmoddev.mmdbot.core.util.Constants.Gsons.NO_PRETTY_PRINTING;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonObject;
-import com.mcmoddev.mmdbot.commander.quotes.Quotes;
-import com.mcmoddev.mmdbot.core.util.data.VersionedDatabase;
 import com.mcmoddev.mmdbot.commander.quotes.NullQuote;
+import com.mcmoddev.mmdbot.commander.quotes.Quotes;
 import com.mcmoddev.mmdbot.commander.quotes.StringQuote;
+import com.mcmoddev.mmdbot.core.util.data.VersionedDatabase;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileReader;
@@ -39,6 +38,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.UnaryOperator;
+
+import static com.mcmoddev.mmdbot.core.util.Constants.Gsons.NO_PRETTY_PRINTING;
 
 @Slf4j
 public record QuotesMigrator(Path runPath) {
@@ -82,7 +83,8 @@ public record QuotesMigrator(Path runPath) {
      */
     private void migrateUnversioned(final Path path) throws IOException {
         log.warn("Found old unversioned quotes file... migration started.");
-        final var type = new TypeToken<List<JsonObject>>() {}.getType();
+        final var type = new TypeToken<List<JsonObject>>() {
+        }.getType();
         final List<JsonObject> newData = new ArrayList<>();
         try (final var is = new FileReader(path.toFile())) {
             final List<JsonObject> oldData = NO_PRETTY_PRINTING.fromJson(is, type);

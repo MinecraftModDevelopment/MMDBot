@@ -104,7 +104,8 @@ public final class Tricks {
             if (!Files.exists(path)) {
                 return tricks = new ArrayList<>();
             }
-            final var typeOfList = new TypeToken<List<Trick>>() {}.getType();
+            final var typeOfList = new TypeToken<List<Trick>>() {
+            }.getType();
             try {
                 final var db = VersionedDatabase.<List<Trick>>fromFile(GSON, path, typeOfList);
                 if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {

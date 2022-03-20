@@ -46,7 +46,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 /**
@@ -105,7 +104,7 @@ public final class JSONDataMigrator {
      * due to file loading or SQL errors will not cause the application to stop, but the file will remain in place to
      * allow repeating the migration for the next time this method is called (on application bootup).
      *
-     * @param botPath the path of the bot.
+     * @param botPath  the path of the bot.
      * @param database the database manager
      */
     public static void checkAndMigrate(final Path botPath, final DatabaseManager database) {

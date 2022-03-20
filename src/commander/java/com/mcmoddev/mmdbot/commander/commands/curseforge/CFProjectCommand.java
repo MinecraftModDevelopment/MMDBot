@@ -20,14 +20,10 @@
  */
 package com.mcmoddev.mmdbot.commander.commands.curseforge;
 
-import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
 import com.mcmoddev.mmdbot.core.util.Utils;
-import io.github.matyrobbrt.curseforgeapi.request.AsyncRequest;
 import io.github.matyrobbrt.curseforgeapi.request.query.ModSearchQuery;
-import io.github.matyrobbrt.curseforgeapi.schemas.Category;
-import io.github.matyrobbrt.curseforgeapi.schemas.game.Game;
 import io.github.matyrobbrt.curseforgeapi.schemas.mod.ModAuthor;
 import io.github.matyrobbrt.curseforgeapi.schemas.mod.ModLoaderType;
 import io.github.matyrobbrt.curseforgeapi.util.Constants;
@@ -116,10 +112,10 @@ public class CFProjectCommand {
                     TheCommander.getInstance().getCurseForgeManager().get().api().getAsyncHelper().getCategories(gameId)
                         .queue(r -> r.ifPresent(categories -> {
                             event.replyChoices(categories.stream()
-                                .filter(c -> c.name().startsWith(cSelection))
-                                .limit(20)
-                                .map(c -> new Command.Choice(c.name(), c.id()))
-                                .toArray(Command.Choice[]::new))
+                                    .filter(c -> c.name().startsWith(cSelection))
+                                    .limit(20)
+                                    .map(c -> new Command.Choice(c.name(), c.id()))
+                                    .toArray(Command.Choice[]::new))
                                 .queue();
                         }));
                 }

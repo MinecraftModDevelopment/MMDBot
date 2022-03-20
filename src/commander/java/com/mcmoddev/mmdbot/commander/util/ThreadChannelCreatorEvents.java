@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.commander.util;
 
-import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.Utils;
@@ -65,7 +64,7 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
 
     @Override
     public void onMessageUpdate(@NotNull final MessageUpdateEvent event) {
-        if (!event.isFromGuild()|| event.isFromThread() || event.getAuthor().isBot() || event.getAuthor().isSystem()) {
+        if (!event.isFromGuild() || event.isFromThread() || event.getAuthor().isBot() || event.getAuthor().isSystem()) {
             return;
         }
         final var cfg = configGetter.get();

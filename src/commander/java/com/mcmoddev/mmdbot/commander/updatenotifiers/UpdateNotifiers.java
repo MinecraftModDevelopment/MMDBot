@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.commander.updatenotifiers;
 
-import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.fabric.FabricApiUpdateNotifier;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.forge.ForgeUpdateNotifier;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.minecraft.MinecraftUpdateNotifier;

@@ -23,8 +23,8 @@ package com.mcmoddev.mmdbot.commander.commands.menu.message;
 import com.jagrosh.jdautilities.command.MessageContextMenu;
 import com.jagrosh.jdautilities.command.MessageContextMenuEvent;
 import com.mcmoddev.mmdbot.commander.quotes.Quotes;
-import com.mcmoddev.mmdbot.commander.quotes.UserReference;
 import com.mcmoddev.mmdbot.commander.quotes.StringQuote;
+import com.mcmoddev.mmdbot.commander.quotes.UserReference;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 public class ContextMenuAddQuote extends MessageContextMenu {
@@ -54,8 +54,8 @@ public class ContextMenuAddQuote extends MessageContextMenu {
         Quotes.addQuote(finishedQuote);
 
         event.replyEmbeds(new EmbedBuilder(finishedQuote.getQuoteMessage())
-            .setTitle("Added quote " + quoteID)
-            .build())
+                .setTitle("Added quote " + quoteID)
+                .build())
             .mentionRepliedUser(false)
             .queue();
     }

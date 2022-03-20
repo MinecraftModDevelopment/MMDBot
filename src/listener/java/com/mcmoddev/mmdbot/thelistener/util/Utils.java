@@ -29,15 +29,10 @@ import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.spec.AuditLogQueryFlux;
-import discord4j.rest.entity.RestChannel;
-import reactor.core.publisher.Mono;
 
-import java.io.Serial;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
-import java.util.regex.Pattern;
 
 public final class Utils {
 
@@ -66,9 +61,9 @@ public final class Utils {
             channels.forEach(channelId -> {
                 TheListener.getClient().getChannelById(channelId)
                     .subscribe(channel -> {
-                       if (channel instanceof MessageChannel mc) {
-                           consumer.accept(mc);
-                       }
+                        if (channel instanceof MessageChannel mc) {
+                            consumer.accept(mc);
+                        }
                     });
             });
         }

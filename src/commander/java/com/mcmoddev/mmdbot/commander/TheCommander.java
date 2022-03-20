@@ -34,16 +34,15 @@ import com.mcmoddev.mmdbot.commander.commands.tricks.AddTrickCommand;
 import com.mcmoddev.mmdbot.commander.commands.tricks.EditTrickCommand;
 import com.mcmoddev.mmdbot.commander.commands.tricks.ListTricksCommand;
 import com.mcmoddev.mmdbot.commander.commands.tricks.RunTrickCommand;
-import com.mcmoddev.mmdbot.commander.commands.tricks.TrickCommand;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
+import com.mcmoddev.mmdbot.commander.eventlistener.ReferencingListener;
 import com.mcmoddev.mmdbot.commander.eventlistener.ThreadListener;
 import com.mcmoddev.mmdbot.commander.migrate.QuotesMigrator;
 import com.mcmoddev.mmdbot.commander.migrate.TricksMigrator;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers;
 import com.mcmoddev.mmdbot.commander.util.EventListeners;
-import com.mcmoddev.mmdbot.commander.eventlistener.ReferencingListener;
 import com.mcmoddev.mmdbot.commander.util.ThreadChannelCreatorEvents;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
@@ -90,7 +89,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public final class TheCommander implements Bot {

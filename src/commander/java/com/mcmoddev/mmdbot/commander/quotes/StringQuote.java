@@ -20,8 +20,6 @@
  */
 package com.mcmoddev.mmdbot.commander.quotes;
 
-import com.mcmoddev.mmdbot.commander.quotes.Quote;
-import com.mcmoddev.mmdbot.commander.quotes.UserReference;
 import com.mcmoddev.mmdbot.core.annotation.ExposeScripting;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
