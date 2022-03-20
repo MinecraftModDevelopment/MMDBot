@@ -30,7 +30,7 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.migrate.QuotesMigrator;
-import com.mcmoddev.mmdbot.core.util.WithVersionJsonDatabase;
+import com.mcmoddev.mmdbot.core.util.data.VersionedDatabase;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.Nullable;
@@ -135,10 +135,10 @@ public final class Quotes {
         }
         final var listType = new TypeToken<List<Quote>>() {}.getType();
         try  {
-            final var db = WithVersionJsonDatabase.<List<Quote>>fromFile(GSON, path, listType);
+            final var db = VersionedDatabase.<List<Quote>>fromFile(GSON, path, listType);
             if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
                 new QuotesMigrator(TheCommander.getInstance().getRunPath()).migrate();
-                final var newDb = WithVersionJsonDatabase.<List<Quote>>fromFile(GSON, path, listType);
+                final var newDb = VersionedDatabase.<List<Quote>>fromFile(GSON, path, listType);
                 quotes = newDb.getData();
             } else {
                 quotes = db.getData();
@@ -160,7 +160,7 @@ public final class Quotes {
             loadQuotes();
         }
         final File quoteFile = QUOTE_STORAGE.get().toFile();
-        final var db = WithVersionJsonDatabase.inMemory(quotes, CURRENT_SCHEMA_VERSION);
+        final var db = VersionedDatabase.inMemory(CURRENT_SCHEMA_VERSION, quotes);
         try (OutputStreamWriter writer =
                  new OutputStreamWriter(new FileOutputStream(quoteFile), StandardCharsets.UTF_8)) {
             GSON.toJson(db.toJson(GSON), writer);

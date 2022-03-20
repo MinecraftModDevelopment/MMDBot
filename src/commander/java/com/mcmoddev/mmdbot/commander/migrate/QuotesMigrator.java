@@ -24,8 +24,7 @@ import static com.mcmoddev.mmdbot.core.util.Constants.Gsons.NO_PRETTY_PRINTING;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonObject;
 import com.mcmoddev.mmdbot.commander.quotes.Quotes;
-import com.mcmoddev.mmdbot.commander.tricks.Tricks;
-import com.mcmoddev.mmdbot.core.util.WithVersionJsonDatabase;
+import com.mcmoddev.mmdbot.core.util.data.VersionedDatabase;
 import com.mcmoddev.mmdbot.commander.quotes.NullQuote;
 import com.mcmoddev.mmdbot.commander.quotes.StringQuote;
 import lombok.extern.slf4j.Slf4j;
@@ -96,7 +95,7 @@ public record QuotesMigrator(Path runPath) {
             });
         } finally {
             try (final var writer = new FileWriter(path.toFile())) {
-                final var db = WithVersionJsonDatabase.inMemory(newData, Quotes.CURRENT_SCHEMA_VERSION);
+                final var db = VersionedDatabase.inMemory(Quotes.CURRENT_SCHEMA_VERSION, newData);
                 NO_PRETTY_PRINTING.toJson(db.toJson(NO_PRETTY_PRINTING), writer);
             } finally {
                 log.warn("Finished migrating old quotes file.");

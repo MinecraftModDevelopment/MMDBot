@@ -21,14 +21,12 @@
 package com.mcmoddev.mmdbot.commander.migrate;
 
 import com.google.common.reflect.TypeToken;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mcmoddev.mmdbot.commander.tricks.EmbedTrick;
 import com.mcmoddev.mmdbot.commander.tricks.ScriptTrick;
 import com.mcmoddev.mmdbot.commander.tricks.StringTrick;
-import com.mcmoddev.mmdbot.commander.tricks.Trick;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
-import com.mcmoddev.mmdbot.core.util.WithVersionJsonDatabase;
+import com.mcmoddev.mmdbot.core.util.data.VersionedDatabase;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileReader;
@@ -103,7 +101,7 @@ public record TricksMigrator(Path runPath) {
                 Files.createFile(newTricksPath);
             }
             try (final var writer = new FileWriter(newTricksPath.toFile())) {
-                final var db = WithVersionJsonDatabase.inMemory(newData, Tricks.CURRENT_SCHEMA_VERSION);
+                final var db = VersionedDatabase.inMemory(Tricks.CURRENT_SCHEMA_VERSION, newData);
                 NO_PRETTY_PRINTING.toJson(db.toJson(NO_PRETTY_PRINTING), writer);
             } finally {
                 renameMigratedFile(oldFilePath);

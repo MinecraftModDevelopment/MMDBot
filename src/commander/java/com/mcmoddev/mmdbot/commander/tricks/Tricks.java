@@ -31,18 +31,14 @@ import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.commands.tricks.RunTrickCommand;
 import com.mcmoddev.mmdbot.commander.migrate.TricksMigrator;
 import com.mcmoddev.mmdbot.commander.tricks.Trick.TrickType;
-import com.mcmoddev.mmdbot.core.util.WithVersionJsonDatabase;
+import com.mcmoddev.mmdbot.core.util.data.VersionedDatabase;
 import io.github.matyrobbrt.curseforgeapi.util.gson.RecordTypeAdapterFactory;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -110,10 +106,10 @@ public final class Tricks {
             }
             final var typeOfList = new TypeToken<List<Trick>>() {}.getType();
             try {
-                final var db = WithVersionJsonDatabase.<List<Trick>>fromFile(GSON, path, typeOfList);
+                final var db = VersionedDatabase.<List<Trick>>fromFile(GSON, path, typeOfList);
                 if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
                     new TricksMigrator(TheCommander.getInstance().getRunPath()).migrate();
-                    final var newDb = WithVersionJsonDatabase.<List<Trick>>fromFile(GSON, path, typeOfList);
+                    final var newDb = VersionedDatabase.<List<Trick>>fromFile(GSON, path, typeOfList);
                     return tricks = newDb.getData();
                 } else {
                     return tricks = db.getData();
@@ -198,7 +194,7 @@ public final class Tricks {
     private static void write() {
         final var tricksFile = TRICK_STORAGE_PATH.get().toFile();
         final var tricks = getTricks();
-        final var db = WithVersionJsonDatabase.inMemory(tricks, CURRENT_SCHEMA_VERSION);
+        final var db = VersionedDatabase.inMemory(CURRENT_SCHEMA_VERSION, tricks);
         try (var writer = new OutputStreamWriter(new FileOutputStream(tricksFile), StandardCharsets.UTF_8)) {
             GSON.toJson(db.toJson(GSON), writer);
         } catch (final FileNotFoundException exception) {
