@@ -36,9 +36,6 @@ import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.GuildOnlyMenu;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuGist;
 import com.mcmoddev.mmdbot.modules.commands.community.development.CmdGist;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdInvite;
-import com.mcmoddev.mmdbot.modules.commands.community.server.CmdToggleEventPings;
-import com.mcmoddev.mmdbot.modules.commands.community.server.CmdToggleMcServerPings;
-import com.mcmoddev.mmdbot.modules.commands.community.server.DeletableCommand;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdMute;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdOldChannels;
@@ -51,9 +48,6 @@ import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -95,8 +89,6 @@ public class CommandModule {
 
         addSlashCommand(new CmdHelp(),
             new CmdAbout(),
-            new CmdToggleMcServerPings(),
-            new CmdToggleEventPings(),
             new CmdMute(),
             new CmdUnmute(),
             new CmdCommunityChannel(),
@@ -132,51 +124,8 @@ public class CommandModule {
         return new ThreadedEventListener(listener, BUTTON_LISTENER_THREAD_POOL);
     }
 
-    /**
-     * Removes a slash command. If the command is a {@link DeletableCommand}, this also marks it as deleted so that if
-     * somehow it is run (which should be impossible) nothing will happen.
-     *
-     * @param name the name of the command to remove
-     */
-    public static void removeCommand(final String name, final boolean guildOnly) {
-        if (guildOnly) {
-            var guild = MMDBot.getJDA().getGuildById(MMDBot.getConfig().getGuildID());
-            if (guild == null) {
-                throw new NullPointerException("No Guild found!");
-            }
-
-            commandClient.getSlashCommands().stream()
-                .filter(cmd -> cmd.getName().equals(name))
-                .filter(cmd -> cmd instanceof DeletableCommand && cmd.isGuildOnly())
-                .map(cmd -> (DeletableCommand) cmd)
-                .forEach(DeletableCommand::delete);
-
-            guild.retrieveCommands()
-                .flatMap(list -> list.stream().filter(cmd -> cmd.getName().equals(name)).findAny().map(cmd -> guild.deleteCommandById(cmd.getId())).orElseThrow())
-                .queue();
-        } else {
-            commandClient.getSlashCommands().stream()
-                .filter(cmd -> cmd.getName().equals(name))
-                .filter(cmd -> cmd instanceof DeletableCommand && !cmd.isGuildOnly())
-                .map(cmd -> (DeletableCommand) cmd)
-                .forEach(DeletableCommand::delete);
-
-            MMDBot.getJDA().retrieveCommands()
-                .flatMap(list -> list.stream().filter(cmd -> cmd.getName().equals(name)).findAny().map(cmd ->
-                    MMDBot.getJDA().deleteCommandById(cmd.getId())).orElseThrow()).queue();
-        }
-    }
-
-    // This is a temporary fix for something broken in chewtils, whose fix is not yet published
-    private static final Map<String, ContextMenu> MENUS = Collections.synchronizedMap(new HashMap<>());
-
-    public static ContextMenu getMenu(final String name) {
-        return MENUS.get(name);
-    }
-
     public static void addContextMenu(final ContextMenu menu) {
         commandClient.addContextMenu(menu);
-        MENUS.put(menu.getName(), menu);
         upsertCommand(menu.buildCommandData(), menu instanceof GuildOnlyMenu);
     }
 

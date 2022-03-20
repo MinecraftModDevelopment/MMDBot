@@ -24,7 +24,6 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.modules.commands.community.server.DeletableCommand;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -217,10 +216,6 @@ public class CommandUtilities {
                     .queue();
                 return false;
             }
-        }
-
-        if (command instanceof DeletableCommand && ((DeletableCommand) command).isDeleted()) {
-            return false;
         }
 
         return true;
