@@ -95,6 +95,15 @@ public final class Configuration {
         public List<String> getPrefixes() {
             return prefixes;
         }
+
+        @Required
+        @Setting("forge_commands_guild_only")
+        @Comment("If true, commands will be forced to register to the main guild.")
+        private boolean forceCommandsGuildOnly;
+
+        public boolean areCommandsForcedGuildOnly() {
+            return forceCommandsGuildOnly;
+        }
     }
 
     @ConfigSerializable

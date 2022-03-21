@@ -138,7 +138,7 @@ public final class DictionaryUtils {
     }
 
     public static boolean hasToken() {
-        return token.isBlank();
+        return !token.isBlank();
     }
 
     public static final class DictionaryException extends Exception {
