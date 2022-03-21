@@ -83,7 +83,7 @@ public class ConfigurateUtils {
                 try {
                     configRef.load();
                     configSetter.accept(configRef.referenceTo(configClass).get());
-                    log.info("Reloaded config {}!", configPath);
+                    log.warn("Reloaded config {}!", configPath);
                 } catch (ConfigurateException e) {
                     log.error("Exception while trying to reload config {}!", configPath, e);
                 }

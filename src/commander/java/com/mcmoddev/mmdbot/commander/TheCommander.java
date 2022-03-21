@@ -57,6 +57,7 @@ import com.mcmoddev.mmdbot.core.util.MessageUtilities;
 import com.mcmoddev.mmdbot.core.util.ReflectionsUtils;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryUtils;
+import com.mcmoddev.mmdbot.core.util.jda.CommandUpserter;
 import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
@@ -189,7 +190,8 @@ public final class TheCommander implements Bot {
                 .defaultOptions(ConfigurationOptions.defaults().serializers(ADDED_SERIALIZERS))
                 .path(configPath)
                 .build();
-            final var cPair = ConfigurateUtils.loadConfig(loader, configPath, c -> generalConfig = c, Configuration.class, Configuration.EMPTY);
+            final var cPair =
+                ConfigurateUtils.loadConfig(loader, configPath, c -> generalConfig = c, Configuration.class, Configuration.EMPTY);
             config = cPair.second();
             generalConfig = cPair.first().get();
 
@@ -210,10 +212,9 @@ public final class TheCommander implements Bot {
         commandClient = new CommandClientBuilder()
             .setOwnerId(generalConfig.bot().getOwners().get(0))
             .setCoOwnerIds(coOwners.toArray(String[]::new))
-            .forceGuildOnly(generalConfig.bot().guild())
             .setPrefixes(generalConfig.bot().getPrefixes().toArray(String[]::new))
+            .setManualUpsert(true)
             .useHelpBuilder(false)
-            .setManualUpsert(false)
             .setActivity(null)
             .build();
         EventListeners.COMMANDS_LISTENER.addListener((EventListener) commandClient);
@@ -238,6 +239,10 @@ public final class TheCommander implements Bot {
                 .filter(Objects::nonNull)
                 .forEach(commandClient::addSlashCommand);
         }
+
+        final var upserter = new CommandUpserter(commandClient, generalConfig.bot().areCommandsForcedGuildOnly(),
+            generalConfig.bot().guild());
+        EventListeners.COMMANDS_LISTENER.addListener(upserter);
 
         // Tricks
         if (generalConfig.features().tricks().tricksEnabled()) {
