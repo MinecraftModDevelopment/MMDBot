@@ -77,7 +77,7 @@ public final class RunTrickCommand extends SlashCommand {
             return;
         }
         event.deferReply().queue(hook -> {
-            Tricks.getTrick(event.getOption("name", "", OptionMapping::getName)).ifPresentOrElse(
+            Tricks.getTrick(event.getOption("name", "", OptionMapping::getAsString)).ifPresentOrElse(
                 trick -> trick.execute(new TrickContext.Slash(event, hook, event.getOption("args", "", OptionMapping::getAsString).split(" "))),
                 () -> hook.editOriginal("No trick with that name was found.").setActionRow(DismissListener.createDismissButton(event)).queue()
             );
