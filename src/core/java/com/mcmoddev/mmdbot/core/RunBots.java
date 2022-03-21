@@ -117,7 +117,6 @@ public class RunBots {
             ServerBridge.setInstance(new ServerBridgeImpl());
             final var dashConfig = getDashboardConfig();
             try {
-                // TODO get the public ipv4 address
                 final var address = new InetSocketAddress("0.0.0.0", dashConfig.port);
                 final var listeners = new ArrayList<PacketListener>();
                 bots.map(b -> b.getType().getPacketListenerUnsafe(b)).forEach(listeners::add);

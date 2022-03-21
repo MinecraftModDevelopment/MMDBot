@@ -302,7 +302,7 @@ public class QuoteCommand extends SlashCommand {
          * Create the command.
          * Sets all the usual flags.
          */
-        public ListQuotes() {
+        private ListQuotes() {
             super("list", "Get all quotes.", true, new ArrayList<>(), 10);
             category = new Category("Fun");
             guildOnly = true;

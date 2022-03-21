@@ -49,8 +49,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-//TODO: Migrate to a SQLite DB with PR #45
-
 /**
  * The Tricks Module.
  *
@@ -211,8 +209,8 @@ public final class Tricks {
         Tricks.registerTrickType("script", new ScriptTrick.Type());
 
         GSON = new GsonBuilder()
-            .registerTypeAdapterFactory(new TrickSerializer())
             .registerTypeAdapterFactory(new RecordTypeAdapterFactory())
+            .registerTypeAdapterFactory(new TrickSerializer())
             .create();
     }
 

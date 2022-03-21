@@ -331,7 +331,7 @@ public final class ScriptingUtils {
         context.set("nickname", member.getNickname());
         context.set("color", member.getColorRaw());
         context.set("timeBoosted", member.getTimeBoosted());
-        context.set("joinTime", member.getTimeJoined()); // TODO replace with the database values
+        context.set("joinTime", member.getTimeJoined());
         context.setFunction("getStatus", a -> member.getOnlineStatus().getKey());
         context.set("activities", member.getActivities().stream().map(a -> createActivity(a).toProxyObject()).toArray(ScriptingContext[]::new));
         context.setFunction("getGuild", a -> createGuild(member.getGuild()).toProxyObject());

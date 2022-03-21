@@ -36,28 +36,7 @@ import java.util.Set;
  *
  * @author williambl
  */
-public class StringTrick implements Trick {
-
-    /**
-     * The Names.
-     */
-    private final List<String> names;
-
-    /**
-     * The Body.
-     */
-    private final String body;
-
-    /**
-     * Instantiates a new String trick.
-     *
-     * @param names the names
-     * @param body  the body
-     */
-    public StringTrick(final List<String> names, final String body) {
-        this.names = names;
-        this.body = body;
-    }
+public record StringTrick(List<String> names, String body) implements Trick {
 
     /**
      * Gets names.

@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.core.util.event;
 
+import lombok.NonNull;
 import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -65,7 +66,7 @@ public class ThreadedEventListener implements EventListener, ExecutorService {
      * @param listener the listener to add
      * @return the current {@link ThreadedEventListener} for chaining conveniences.
      */
-    public ThreadedEventListener addListener(EventListener listener) {
+    public ThreadedEventListener addListener(@NonNull final EventListener listener) {
         this.listeners.add(listener);
         return this;
     }
@@ -76,7 +77,7 @@ public class ThreadedEventListener implements EventListener, ExecutorService {
      * @param listeners the listeners to add
      * @return the current {@link ThreadedEventListener} for chaining conveniences.
      */
-    public ThreadedEventListener addListeners(EventListener... listeners) {
+    public ThreadedEventListener addListeners(@NonNull final EventListener... listeners) {
         this.listeners.addAll(Arrays.asList(listeners));
         return this;
     }
@@ -87,7 +88,7 @@ public class ThreadedEventListener implements EventListener, ExecutorService {
      * @param listeners the listeners to add
      * @return the current {@link ThreadedEventListener} for chaining conveniences.
      */
-    public ThreadedEventListener addListeners(List<EventListener> listeners) {
+    public ThreadedEventListener addListeners(@NonNull List<EventListener> listeners) {
         this.listeners.addAll(listeners);
         return this;
     }
@@ -100,7 +101,9 @@ public class ThreadedEventListener implements EventListener, ExecutorService {
     public void onEvent(@Nonnull GenericEvent event) {
         listeners.forEach(listener -> threadPool.execute(() -> {
             try {
-                listener.onEvent(event);
+                if (listener != null) {
+                    listener.onEvent(event);
+                }
             } catch (Exception e) {
                 log.error("Error while executing threaded event!", e);
                 // Reply to the user in order to inform them

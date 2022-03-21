@@ -29,23 +29,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import java.util.Arrays;
 import java.util.List;
 
-// TODO convert to record, and register a record adapter factory to the GSON in `Tricks`
-public final class ScriptTrick implements Trick {
-
-    /**
-     * The Names.
-     */
-    private final List<String> names;
-
-    /**
-     * The Body.
-     */
-    private final String script;
-
-    public ScriptTrick(final List<String> names, final String script) {
-        this.names = names;
-        this.script = script;
-    }
+public record ScriptTrick(List<String> names, String script) implements Trick {
 
     @Override
     public List<String> getNames() {

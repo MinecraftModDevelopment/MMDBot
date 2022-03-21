@@ -71,7 +71,7 @@ public final class AddTrickCommand extends SlashCommand {
             return;
         }
 
-        if (TheCommander.getInstance().getGeneralConfig().features().tricks().tricksEnabled()) {
+        if (!TheCommander.getInstance().getGeneralConfig().features().tricks().tricksEnabled()) {
             event.deferReply(true).setContent("Tricks are not enabled!").queue();
             return;
         }

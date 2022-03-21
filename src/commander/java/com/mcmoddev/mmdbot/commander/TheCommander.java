@@ -218,20 +218,6 @@ public final class TheCommander implements Bot {
             .build();
         EventListeners.COMMANDS_LISTENER.addListener((EventListener) commandClient);
 
-        if (generalConfig.features().tricks().tricksEnabled()) {
-            commandClient.addCommand(new AddTrickCommand.Prefix());
-            commandClient.addCommand(new EditTrickCommand.Prefix());
-            EventListeners.COMMANDS_LISTENER.addListener(ListTricksCommand.getListListener());
-            if (generalConfig.features().tricks().prefixEnabled()) {
-                Tricks.getTricks().stream().map(RunTrickCommand.Prefix::new).forEach(commandClient::addCommand);
-            }
-        }
-
-        if (generalConfig.features().areQuotesEnabled()) {
-            commandClient.addContextMenu(new AddQuoteContextMenu());
-            commandClient.addContextMenu(new UserInfoContextMenu());
-        }
-
         {
             // Command register
             ReflectionsUtils.getFieldsAnnotatedWith(RegisterSlashCommand.class)
@@ -251,6 +237,22 @@ public final class TheCommander implements Bot {
                 })
                 .filter(Objects::nonNull)
                 .forEach(commandClient::addSlashCommand);
+        }
+
+        // Tricks
+        if (generalConfig.features().tricks().tricksEnabled()) {
+            commandClient.addCommand(new AddTrickCommand.Prefix());
+            commandClient.addCommand(new EditTrickCommand.Prefix());
+            EventListeners.COMMANDS_LISTENER.addListener(ListTricksCommand.getListListener());
+            if (generalConfig.features().tricks().prefixEnabled()) {
+                Tricks.getTricks().stream().map(RunTrickCommand.Prefix::new).forEach(commandClient::addCommand);
+            }
+        }
+
+        // Quotes
+        if (generalConfig.features().areQuotesEnabled()) {
+            commandClient.addContextMenu(new AddQuoteContextMenu());
+            commandClient.addContextMenu(new UserInfoContextMenu());
         }
 
         // Button listeners
