@@ -69,7 +69,6 @@ public interface Trick {
          * Gets argument names for creating from command.
          *
          * @return arg names
-         * @deprecated use slash commands where possible
          */
         default List<String> getArgNames() {
             return getArgs().stream().map(OptionData::getName).toList();
@@ -80,7 +79,6 @@ public interface Trick {
          *
          * @param args the args as a single string
          * @return the trick
-         * @deprecated use slash commands when possible
          */
         T createFromArgs(String args);
 
