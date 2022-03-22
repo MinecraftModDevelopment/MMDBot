@@ -64,7 +64,10 @@ public class CommandUpserter implements EventListener {
             if (guild == null) throw new NullPointerException("Unknown guild with ID: " + guildId);
             guild.retrieveCommands().queue(commands -> {
                 // Delete old commands.
-                RestAction.allOf(getCommandsToRemove(commands).mapToObj(guild::deleteCommandById).toList()).queue();
+                final var toRemove = getCommandsToRemove(commands);
+                if (toRemove.findAny().isPresent()) {
+                    RestAction.allOf(toRemove.mapToObj(guild::deleteCommandById).toList()).queue();
+                }
 
                 // Upsert new ones
                 RestAction.allOf(client.getSlashCommands().stream()
@@ -94,7 +97,10 @@ public class CommandUpserter implements EventListener {
             }
             jda.retrieveCommands().queue(commands -> {
                 // Delete old commands.
-                RestAction.allOf(getCommandsToRemove(commands).mapToObj(jda::deleteCommandById).toList()).queue();
+                final var toRemove = getCommandsToRemove(commands);
+                if (toRemove.findAny().isPresent()) {
+                    RestAction.allOf(toRemove.mapToObj(jda::deleteCommandById).toList()).queue();
+                }
 
                 // Upsert new ones
                 RestAction.allOf(client.getSlashCommands()
