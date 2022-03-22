@@ -25,6 +25,7 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
+import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.builder.SlashCommandBuilder;
 import com.mcmoddev.mmdbot.core.util.event.OneTimeEventListener;
@@ -187,11 +188,15 @@ public abstract class CurseForgeCommand extends SlashCommand {
                         @Nonnull Function<? super OptionMapping, ? extends T> resolver);
 
         default void reply(String content) {
-            getHook().editOriginal(content).queue();
+            getHook().editOriginal(content)
+                .setActionRow(DismissListener.createDismissButton(getUser()))
+                .queue();
         }
 
         default void replyEmbeds(MessageEmbed... embeds) {
-            getHook().editOriginalEmbeds(embeds).queue();
+            getHook().editOriginalEmbeds(embeds)
+                .setActionRow(DismissListener.createDismissButton(getUser()))
+                .queue();
         }
     }
 }
