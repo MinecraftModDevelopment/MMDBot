@@ -127,6 +127,11 @@ public final class TheListener implements Bot {
     }
 
     @Override
+    public boolean blocksStartupThread() {
+        return true;
+    }
+
+    @Override
     public void shutdown() {
         client.logout().subscribe();
     }

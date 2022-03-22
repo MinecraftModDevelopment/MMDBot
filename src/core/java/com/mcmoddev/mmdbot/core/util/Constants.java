@@ -27,6 +27,7 @@ import io.github.matyrobbrt.curseforgeapi.util.gson.RecordTypeAdapterFactory;
 import lombok.experimental.UtilityClass;
 import org.spongepowered.configurate.reference.WatchServiceListener;
 
+import java.net.http.HttpClient;
 import java.util.Random;
 
 /**
@@ -46,6 +47,8 @@ public final class Constants {
      * The constant random.
      */
     public static final Random RANDOM = new Random();
+
+    public static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
     public static final class Gsons {
         public static final Gson NO_PRETTY_PRINTING = new GsonBuilder()

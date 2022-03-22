@@ -29,6 +29,7 @@ import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
+import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import lombok.experimental.UtilityClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @UtilityClass
 public class RunBots {
@@ -75,6 +77,8 @@ public class RunBots {
         final var doMigrate = !args.contains("noMigration");
         final var config = getOrCreateConfig();
 
+        final var botsAmount = new AtomicInteger();
+
         var bots = BotRegistry.getBotTypes()
             .entrySet()
             .stream()
@@ -97,14 +101,24 @@ public class RunBots {
                                 bot.getLogger().info("Finished data migration.");
                             }
                         }, BOT_STARTER_EXECUTOR).whenCompleteAsync(($, $$) -> {
+                            if (bot.blocksStartupThread()) {
+                                TaskScheduler.scheduleTask(() -> {
+                                    botsAmount.incrementAndGet();
+                                    bot.getLogger().warn("Bot {} has been found, and it has been launched!", botEntry.name());
+                                }, 5, TimeUnit.SECONDS); // Give the bot 5 seconds to startup.. it
+                                // should add its listeners till then
+                            }
                             bot.start();
+                            botsAmount.incrementAndGet();
                             bot.getLogger().warn("Bot {} has been found, and it has been launched!", botEntry.name());
                         });
                     } else {
                         LOG.warn("Bot {} was null! Skipping...", botEntry.name);
+                        botsAmount.incrementAndGet();
                     }
                 } else {
                     bot.getLogger().warn("Bot {} is disabled! Its features will not work!", botEntry.name());
+                    botsAmount.incrementAndGet();
                 }
                 return botEntry.isEnabled() ? bot : null;
             })
@@ -127,10 +141,15 @@ public class RunBots {
         }
         */
 
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> LOG.warn("The bot(s) are shutting down!")));
+
+        final var botsTarget = BotRegistry.getBotTypes().size();
+        while (botsAmount.get() < botsTarget) {
+            // Block thread
+        }
+
         Events.MISC_BUS.addListener(ScamDetector::onCollectTasks);
         TaskScheduler.init();
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> LOG.warn("The bot(s) are shutting down!")));
     }
 
     public static List<Bot> getLoadedBots() {

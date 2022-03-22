@@ -48,6 +48,13 @@ public interface Bot {
 
     }
 
+    /**
+     * @return if the bot blocks the startup thread.
+     */
+    default boolean blocksStartupThread() {
+        return false;
+    }
+
     BotUserData getBotUserData();
 
     @Nullable

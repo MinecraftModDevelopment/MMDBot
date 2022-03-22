@@ -49,6 +49,7 @@ import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers;
 import com.mcmoddev.mmdbot.commander.util.EventListeners;
 import com.mcmoddev.mmdbot.commander.util.ThreadChannelCreatorEvents;
+import com.mcmoddev.mmdbot.commander.util.mc.MCVersions;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
@@ -103,6 +104,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
+import java.util.jar.Manifest;
 
 public final class TheCommander implements Bot {
     static final TypeSerializerCollection ADDED_SERIALIZERS = TypeSerializerCollection.defaults()
@@ -184,6 +186,7 @@ public final class TheCommander implements Bot {
 
     static {
         AllowedMentions.setDefaultMentionRepliedUser(false);
+
         var version = TheCommander.class.getPackage().getImplementationVersion();
         if (version == null) {
             version = "DEV " + DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(OffsetDateTime.now(ZoneOffset.UTC));
@@ -315,6 +318,7 @@ public final class TheCommander implements Bot {
         EventListeners.MISC_LISTENER.addListeners(new ThreadListener(),
             new ThreadChannelCreatorEvents(this::getGeneralConfig));
         CurseForgeCommand.RG_TASK_SCHEDULER_LISTENER.register(Events.MISC_BUS);
+        MCVersions.REFRESHER_TASK.register(Events.MISC_BUS);
 
         try {
             final var builder = JDABuilder
@@ -323,6 +327,7 @@ public final class TheCommander implements Bot {
                     @Override
                     public void onReady(@NotNull final ReadyEvent event) {
                         startupTime = Instant.now();
+                        getLogger().warn("The Commander is ready to work! Logged in as {}", event.getJDA().getSelfUser().getAsTag());
                     }
                 })
                 .disableCache(CacheFlag.CLIENT_STATUS)
@@ -357,7 +362,6 @@ public final class TheCommander implements Bot {
             }
         } catch (LoginException e) {
             LOGGER.error("Error while authenticating to the CurseForge API. Please provide a valid token, or don't provide any value!", e);
-            System.exit(1);
         }
     }
 

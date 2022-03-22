@@ -265,7 +265,7 @@ public class QuoteCommand extends SlashCommand {
             name = "remove";
             help = "Remove a quote from the list.";
             arguments = "<the quotes numerical ID>";
-            requiredRole = "bot maintainer";
+            enabledRoles = TheCommander.getInstance().getGeneralConfig().roles().getBotMaintainers().toArray(String[]::new);
             guildOnly = true;
 
             options = Collections.singletonList(new OptionData(OptionType.INTEGER, "index", "The index of the quote to delete.").setRequired(true));

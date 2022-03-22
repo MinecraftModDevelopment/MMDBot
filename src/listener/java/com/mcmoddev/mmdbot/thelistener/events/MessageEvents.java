@@ -83,7 +83,7 @@ public final class MessageEvents extends ListenerAdapter {
                 embedBuilder.timestamp(Instant.now())
                     .footer("Author: %s | Message ID: %s".formatted(user.getId().asLong(), message.getId().asLong()), null);
                 message.getInteraction().ifPresent(interaction -> embedBuilder.addField("Interaction Author: ", "%s (%s)".formatted(interaction.getUser()
-                    .getMention(), interaction.getUser().getId()), true));
+                    .getMention(), interaction.getUser().getId().asString()), true));
                 return embedBuilder.build();
             })).orElseGet(() -> EmbedCreateSpec.builder().description("A message sent in <#%s> has been deleted! No more information could be retrieved."
                     .formatted(event.getChannelId().asLong())).timestamp(Instant.now())
@@ -133,7 +133,7 @@ public final class MessageEvents extends ListenerAdapter {
                     embedBuilder.author(author.getUsername(), null, author.getAvatarUrl())
                         .footer("Author ID: " + author.getId().asLong(), null);
                     newMessage.getInteraction().ifPresent(interaction -> embedBuilder.addField("Interaction Author: ", "%s (%s)".formatted(interaction.getUser()
-                        .getMention(), interaction.getUser().getId()), true));
+                        .getMention(), interaction.getUser().getId().asString()), true));
                     return embedBuilder.build();
                 })).orElseGet(() -> EmbedCreateSpec.builder().description("A message sent in <#%s> has been edited! Old content information could not be retrieved. [Jump to message.](%s)"
                         .formatted(event.getChannelId().asLong(), Utils.createMessageURL(newMessage)))
