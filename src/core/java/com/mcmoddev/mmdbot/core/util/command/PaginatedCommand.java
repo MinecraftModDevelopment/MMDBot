@@ -47,12 +47,14 @@ import java.util.List;
  * - call {@link #updateMaximum(int)} as required - usually once per invocation
  * - call {@link #sendPaginatedMessage(SlashCommandEvent)} in the execute method when a paginated embed is wanted.
  *
+ * TODO Add a context to the {@link #updateMaximum(int)}
+ *
  * @author Curle
  */
 public abstract class PaginatedCommand extends SlashCommand {
 
     // How many items should be sent per individual page. Defaults to the maximum field count for an Embed, 25.
-    protected int items_per_page = 25;
+    protected int itemsPerPage = 25;
     // The maximum number of items in the list. Update with #updateMaximum
     protected int maximum = 0;
     protected PaginatedCommand.ButtonListener listener = new ButtonListener();
@@ -64,7 +66,7 @@ public abstract class PaginatedCommand extends SlashCommand {
 
         this.guildOnly = guildOnly;
 
-        items_per_page = items;
+        itemsPerPage = items;
 
         this.options = options;
     }
@@ -129,7 +131,7 @@ public abstract class PaginatedCommand extends SlashCommand {
             backward = backward.asEnabled();
         }
 
-        if (start + items_per_page < maximum) {
+        if (start + itemsPerPage < maximum) {
             forward = forward.asEnabled();
         }
 
@@ -175,15 +177,15 @@ public abstract class PaginatedCommand extends SlashCommand {
                 new ArrayList<>(event.getMessage().getActionRows().subList(1, oldActionRowsSize));
 
             if (idParts[2].equals("next")) {
-                oldActionRows.add(0, ActionRow.of(createScrollButtons(current + items_per_page)));
+                oldActionRows.add(0, ActionRow.of(createScrollButtons(current + itemsPerPage)));
                 event
-                    .editMessageEmbeds(getEmbed(current + items_per_page).build())
+                    .editMessageEmbeds(getEmbed(current + itemsPerPage).build())
                     .setActionRows(oldActionRows)
                     .queue();
             } else if (idParts[2].equals("prev")) {
-                oldActionRows.add(0, ActionRow.of(createScrollButtons(current - items_per_page)));
+                oldActionRows.add(0, ActionRow.of(createScrollButtons(current - itemsPerPage)));
                 event
-                    .editMessageEmbeds(getEmbed(current - items_per_page).build())
+                    .editMessageEmbeds(getEmbed(current - itemsPerPage).build())
                     .setActionRows(oldActionRows)
                     .queue();
             }

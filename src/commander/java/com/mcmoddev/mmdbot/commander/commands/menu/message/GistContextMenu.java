@@ -18,16 +18,17 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message;
+package com.mcmoddev.mmdbot.commander.commands.menu.message;
 
 import com.jagrosh.jdautilities.command.CooldownScope;
 import com.jagrosh.jdautilities.command.MessageContextMenu;
 import com.jagrosh.jdautilities.command.MessageContextMenuEvent;
-import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.core.References;
+import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
+import com.mcmoddev.mmdbot.core.util.Constants;
+import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.gist.Gist;
 import com.mcmoddev.mmdbot.core.util.gist.GistUtils;
-import com.mcmoddev.mmdbot.utilities.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 
@@ -39,11 +40,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class ContextMenuGist extends MessageContextMenu {
+public class GistContextMenu extends MessageContextMenu {
 
     public static final Executor THREAD_POOL = Executors.newSingleThreadExecutor(r -> Utils.setThreadDaemon(new Thread(r, "GistCreator"), true));
 
-    public ContextMenuGist() {
+    public GistContextMenu() {
         name = "Gist";
         cooldown = 120;
         cooldownScope = CooldownScope.USER_GUILD;
@@ -51,15 +52,15 @@ public class ContextMenuGist extends MessageContextMenu {
 
     @Override
     protected void execute(final MessageContextMenuEvent event) {
-        if (MMDBot.getConfig().getGithubToken().isBlank()) {
+        if (TheCommander.getInstance().getGithubToken().isBlank()) {
             event.deferReply(true).setContent("I cannot create a gist! I have not been configured to do so.");
         }
         THREAD_POOL.execute(() -> {
-            if (event.isFromGuild() && Utils.memberHasRole(event.getMember(), MMDBot.getConfig().getRole("bot_maintainer"))) {
+            if (event.isFromGuild() && TheCommanderUtilities.memberHasRoles(event.getMember(), TheCommander.getInstance().getGeneralConfig().roles().getBotMaintainers())) {
                 // Remove the cooldown from bot maintainers, for testing purposes
                 event.getClient().applyCooldown(getCooldownKey(event), 1);
             }
-            run(MMDBot.getConfig().getGithubToken(), event);
+            run(TheCommander.getInstance().getGithubToken(), event);
         });
     }
 
@@ -83,7 +84,7 @@ public class ContextMenuGist extends MessageContextMenu {
                 hook.editOriginalEmbeds(embed.build()).queue();
             } catch (InterruptedException | ExecutionException | GistUtils.GistException e) {
                 hook.editOriginal(String.format("Error while creating gist: **%s**", e.getLocalizedMessage())).queue();
-                MMDBot.LOGGER.error("Error while creating gist", e);
+                TheCommander.LOGGER.error("Error while creating gist", e);
             }
         });
     }
@@ -92,7 +93,7 @@ public class ContextMenuGist extends MessageContextMenu {
         // Create a random name for the file, to prevent any conflicts
         int leftLimit = 48; // numeral '0'
         int rightLimit = 122; // letter 'z'
-        return References.RANDOM.ints(leftLimit, rightLimit + 1).filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+        return Constants.RANDOM.ints(leftLimit, rightLimit + 1).filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
             .limit(length).collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
             .toString();
     }
@@ -120,7 +121,7 @@ public class ContextMenuGist extends MessageContextMenu {
                 try {
                     gist.addFile(fileName, GistUtils.readInputStream(is));
                 } catch (IOException e) {
-                    MMDBot.LOGGER.error("Error while reading file for creating a gist", e);
+                    TheCommander.LOGGER.error("Error while reading file for creating a gist", e);
                 }
             }).get();
         }

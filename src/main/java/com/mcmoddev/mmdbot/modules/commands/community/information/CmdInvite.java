@@ -211,7 +211,7 @@ public class CmdInvite extends SlashCommand {
                 .setDescription(withExtension(i -> i.getAllNames().stream()
                     .map(n -> Utils.makeHyperlink(Utils.uppercaseFirstLetter(n),
                         withExtension(db -> db.getLink(n)).get())).toList())
-                    .subList(from, Math.min(from + items_per_page, maximum))
+                    .subList(from, Math.min(from + itemsPerPage, maximum))
                     .stream()
                     .reduce("", (a, b) -> a + "\n" + b))
                 .setTimestamp(Instant.now());

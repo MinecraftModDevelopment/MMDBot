@@ -343,12 +343,12 @@ public class QuoteCommand extends SlashCommand {
             } else {
                 embed = new EmbedBuilder()
                     .setColor(Color.GREEN)
-                    .setTitle("Quote Page " + ((start / items_per_page) + 1))
+                    .setTitle("Quote Page " + ((start / itemsPerPage) + 1))
                     .setTimestamp(Instant.now());
             }
 
             // From the specified starting point until the end of the page.
-            for (int x = start; x < start + items_per_page; x++) {
+            for (int x = start; x < start + itemsPerPage; x++) {
                 // But stop early if we hit the end of the list,
                 if (x >= Quotes.getQuoteSlot()) {
                     break;

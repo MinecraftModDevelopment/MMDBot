@@ -27,10 +27,13 @@ import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
 import com.mcmoddev.mmdbot.commander.commands.DictionaryCommand;
+import com.mcmoddev.mmdbot.commander.commands.GistCommand;
+import com.mcmoddev.mmdbot.commander.commands.HelpCommand;
 import com.mcmoddev.mmdbot.commander.commands.QuoteCommand;
 import com.mcmoddev.mmdbot.commander.commands.RolesCommand;
 import com.mcmoddev.mmdbot.commander.commands.curseforge.CurseForgeCommand;
 import com.mcmoddev.mmdbot.commander.commands.menu.message.AddQuoteContextMenu;
+import com.mcmoddev.mmdbot.commander.commands.menu.message.GistContextMenu;
 import com.mcmoddev.mmdbot.commander.commands.menu.user.UserInfoContextMenu;
 import com.mcmoddev.mmdbot.commander.commands.tricks.AddTrickCommand;
 import com.mcmoddev.mmdbot.commander.commands.tricks.EditTrickCommand;
@@ -65,7 +68,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -114,10 +116,16 @@ public final class TheCommander implements Bot {
                     .whenCreated(writer -> writer
                         .writeComment("The token of the bot: ")
                         .writeValue("BOT_TOKEN", "")
+
                         .writeComment("The API key to use for CurseForge requests: ")
                         .writeValue("CF_API_KEY", "")
+
                         .writeComment("The OwlBot API Token used for dictionary lookup:")
-                        .writeValue("OWL_BOT_TOKEN", ""))
+                        .writeValue("OWL_BOT_TOKEN", "")
+
+                        .writeComment("The token used for GitHub requests. (Mainly for creating gists)")
+                        .writeValue("GITHUB_TOKEN", "")
+                    )
                     .load());
             } catch (IOException e) {
                 LOGGER.error("Could not load the .env file due to an IOException: ", e);
@@ -169,11 +177,14 @@ public final class TheCommander implements Bot {
     private final Dotenv dotenv;
     private final Path runPath;
 
+    private final String githubToken;
+
     public TheCommander(final Path runPath, final Dotenv dotenv) {
         this.dotenv = dotenv;
         this.runPath = runPath;
 
         DictionaryUtils.setToken(dotenv.get("OWL_BOT_TOKEN", null));
+        githubToken = dotenv.get("GITHUB_TOKEN", "");
     }
 
     @Override
@@ -213,6 +224,8 @@ public final class TheCommander implements Bot {
             .setOwnerId(generalConfig.bot().getOwners().get(0))
             .setCoOwnerIds(coOwners.toArray(String[]::new))
             .setPrefixes(generalConfig.bot().getPrefixes().toArray(String[]::new))
+            .addCommands(new GistCommand())
+            .addContextMenus(new GistContextMenu())
             .setManualUpsert(true)
             .useHelpBuilder(false)
             .setActivity(null)
@@ -262,7 +275,7 @@ public final class TheCommander implements Bot {
 
         // Button listeners
         EventListeners.COMMANDS_LISTENER.addListeners(DictionaryCommand.listener, new DismissListener(),
-            QuoteCommand.ListQuotes.getQuoteListener(), RolesCommand.getListener());
+            QuoteCommand.ListQuotes.getQuoteListener(), RolesCommand.getListener(), HelpCommand.getListener());
 
         if (generalConfig.features().isReferencingEnabled()) {
             EventListeners.MISC_LISTENER.addListener(new ReferencingListener());
@@ -377,5 +390,9 @@ public final class TheCommander implements Bot {
         final var selfUser = jda.getSelfUser();
         return new BotUserData(selfUser.getName(), selfUser.getDiscriminator(),
             selfUser.getAvatarUrl() == null ? selfUser.getDefaultAvatarUrl() : selfUser.getAvatarUrl());
+    }
+
+    public String getGithubToken() {
+        return githubToken;
     }
 }

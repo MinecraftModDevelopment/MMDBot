@@ -18,22 +18,21 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.modules.commands.bot.info;
+package com.mcmoddev.mmdbot.commander.commands;
 
 import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.core.References;
+import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
-import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Show every registered command, or information on a single command.
@@ -46,16 +45,21 @@ import java.util.List;
  *
  * @author Curle
  */
-public class CmdHelp extends PaginatedCommand {
+public class HelpCommand extends PaginatedCommand {
+
+    public static final SlashCommand COMMAND = new HelpCommand();
 
     private List<Command> commands;
     private static ButtonListener helpListener;
 
-    public CmdHelp() {
+    private static final String NAME = "The Commander";
+    private static final String ISSUE_TRACKER = "https://github.com/MinecraftModDevelopment/MMDBot/issues";
+
+    private HelpCommand() {
         super("help",
             "Show all commands, or detailed information about a particular command.",
             false,
-            Collections.singletonList(new OptionData(OptionType.STRING, "command", "A command to get detailed information on").setRequired(false)),
+            List.of(new OptionData(OptionType.STRING, "command", "A command to get detailed information on").setRequired(false)),
             25);
 
         arguments = "[command]";
@@ -77,25 +81,27 @@ public class CmdHelp extends PaginatedCommand {
      * <p>
      * See {@link #getEmbed(int)} for the implementation.
      */
+    @Override
     public void execute(SlashCommandEvent e) {
         OptionMapping commandName = e.getOption("command");
+        final var client = e.getClient();
 
-        commands = CommandModule.getCommandClient().getCommands();
-        commands.addAll(CommandModule.getCommandClient().getSlashCommands());
+        commands = client.getCommands();
+        commands.addAll(client.getSlashCommands());
         updateMaximum(commands.size());
 
         // If no command specified, show all.
         if (commandName == null) {
             sendPaginatedMessage(e);
         } else {
-            Command command = CommandModule.getCommandClient().getCommands().stream()
+            Command command = client.getCommands().stream()
                 .filter(com -> com.getName().equals(commandName.getAsString())) // Find the command with the matching name
                 .findFirst() // Get the first (should be only) entry
-                .orElseGet(CmdHelp::new); // And return it as Command.
+                .orElseGet(HelpCommand::new); // And return it as Command.
 
             // Build the embed that summarises the command.
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setAuthor(References.NAME, References.ISSUE_TRACKER, MMDBot.getJDA().getSelfUser().getAvatarUrl());
+            embed.setAuthor(NAME, ISSUE_TRACKER, e.getJDA().getSelfUser().getAvatarUrl());
             embed.setDescription("Command help:");
 
             embed.addField(command.getName(), command.getHelp(), false);
@@ -105,7 +111,7 @@ public class CmdHelp extends PaginatedCommand {
                 embed.addField("Arguments", command.getArguments(), false);
             }
 
-            embed.setFooter(References.NAME).setTimestamp(Instant.now());
+            embed.setFooter(NAME, ISSUE_TRACKER).setTimestamp(Instant.now());
 
             e.replyEmbeds(embed.build()).queue();
         }
@@ -119,21 +125,21 @@ public class CmdHelp extends PaginatedCommand {
     @Override
     protected EmbedBuilder getEmbed(int index) {
         EmbedBuilder embed = new EmbedBuilder();
-        embed.setAuthor(References.NAME, References.ISSUE_TRACKER, MMDBot.getJDA().getSelfUser().getAvatarUrl());
+        embed.setAuthor(NAME, ISSUE_TRACKER, TheCommander.getJDA().getSelfUser().getAvatarUrl());
         embed.setDescription("All registered commands:");
 
         // Embeds have a 25 field limit. We need to make sure we don't exceed that.
-        if (commands.size() < items_per_page) {
+        if (commands.size() < itemsPerPage) {
             for (Command c : commands)
                 embed.addField(c.getName(), c.getHelp(), true);
         } else {
             // Make sure we only go up to the limit.
-            for (int i = index; i < index + items_per_page; i++)
+            for (int i = index; i < index + itemsPerPage; i++)
                 if (i < commands.size())
                     embed.addField(commands.get(i).getName(), commands.get(i).getHelp(), true);
         }
 
-        embed.setFooter(References.NAME).setTimestamp(Instant.now());
+        embed.setFooter(NAME, ISSUE_TRACKER).setTimestamp(Instant.now());
 
         return embed;
     }

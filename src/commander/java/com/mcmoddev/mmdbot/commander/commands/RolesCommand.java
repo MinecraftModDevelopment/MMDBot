@@ -97,7 +97,7 @@ public final class RolesCommand extends PaginatedCommand {
         embed.setDescription("A count of how many members have been assigned some of MMD's many roles.");
         embed.addField("Role count:", String.valueOf(roles.size()), true);
         StringBuilder str = new StringBuilder();
-        for (int i = startingIndex; i < startingIndex + items_per_page - 1; i++)
+        for (int i = startingIndex; i < startingIndex + itemsPerPage - 1; i++)
             if (i <= maximum)
                 str.append(roles.get(i).getAsMention() + ": " + roles.get(i).getGuild().getMembersWithRoles(roles.get(i)).size() + "\n");
 

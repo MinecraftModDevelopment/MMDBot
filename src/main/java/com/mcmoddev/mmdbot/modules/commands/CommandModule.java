@@ -26,15 +26,11 @@ import com.jagrosh.jdautilities.command.ContextMenu;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
-import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdHelp;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
-import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRefreshScamLinks;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRestart;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
 import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.GuildOnlyMenu;
-import com.mcmoddev.mmdbot.modules.commands.community.contextmenu.message.ContextMenuGist;
-import com.mcmoddev.mmdbot.modules.commands.community.development.CmdGist;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdInvite;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdMute;
@@ -87,7 +83,7 @@ public class CommandModule {
             .setAlternativePrefix(MMDBot.getConfig().getAlternativePrefix())
             .useHelpBuilder(false).setManualUpsert(true).build();
 
-        addSlashCommand(new CmdHelp(),
+        addSlashCommand(
             new CmdAbout(),
             new CmdMute(),
             new CmdUnmute(),
@@ -101,18 +97,13 @@ public class CommandModule {
             new CmdWarning(),
             new CmdInvite());
 
-        commandClient.addCommand(new CmdRefreshScamLinks());
         commandClient.addCommand(new CmdReact());
-        commandClient.addCommand(new CmdGist());
-
-        addContextMenu(new ContextMenuGist());
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
             // Wrap the command and button listener in another thread, so that if a runtime exception
             // occurs while executing a command, the event thread will not be stopped
             // Commands and buttons are separated so that they do not interfere with each other
             MMDBot.getJDA().addEventListener(new ThreadedEventListener((EventListener) commandClient, COMMAND_LISTENER_THREAD_POOL));
-            MMDBot.getJDA().addEventListener(buttonListener(CmdHelp.getListener()));
             MMDBot.getJDA().addEventListener(buttonListener(CmdInvite.ListCmd.getButtonListener()));
             MMDBot.getJDA().addEventListener(buttonListener(new DismissListener()));
         } else {
@@ -122,11 +113,6 @@ public class CommandModule {
 
     private static EventListener buttonListener(final EventListener listener) {
         return new ThreadedEventListener(listener, BUTTON_LISTENER_THREAD_POOL);
-    }
-
-    public static void addContextMenu(final ContextMenu menu) {
-        commandClient.addContextMenu(menu);
-        upsertCommand(menu.buildCommandData(), menu instanceof GuildOnlyMenu);
     }
 
     /**
@@ -141,26 +127,6 @@ public class CommandModule {
         }
     }
 
-    /**
-     * Upserts a slash command.
-     *
-     * @param cmd the command
-     */
-    public static void upsertCommand(final SlashCommand cmd) {
-        if (cmd.isGuildOnly()) {
-            var guild = MMDBot.getJDA().getGuildById(MMDBot.getConfig().getGuildID());
-            if (guild == null) {
-                throw new NullPointerException("No Guild found!");
-            }
-
-            guild.upsertCommand(cmd.buildCommandData()).queue(cmd1 -> {
-                cmd1.updatePrivileges(guild, cmd.buildPrivileges(commandClient)).queue();
-            });
-        } else {
-            MMDBot.getJDA().updateCommands().addCommands(cmd.buildCommandData()).queue();
-        }
-    }
-
     public static void upsertCommand(final CommandData data, boolean guildOnly) {
         if (guildOnly) {
             var guild = MMDBot.getJDA().getGuildById(MMDBot.getConfig().getGuildID());
@@ -171,24 +137,6 @@ public class CommandModule {
             guild.upsertCommand(data).queue();
         } else {
             MMDBot.getJDA().upsertCommand(data).queue();
-        }
-    }
-
-    /**
-     * Upserts a context menu.
-     *
-     * @param menu the menu
-     */
-    public static void upsertContextMenu(final ContextMenu menu) {
-        if (menu instanceof GuildOnlyMenu) {
-            var guild = MMDBot.getJDA().getGuildById(MMDBot.getConfig().getGuildID());
-            if (guild == null) {
-                throw new NullPointerException("No Guild found!");
-            }
-
-            guild.upsertCommand(menu.buildCommandData()).queue(cmd1 -> cmd1.updatePrivileges(guild, menu.buildPrivileges(commandClient)).queue());
-        } else {
-            MMDBot.getJDA().upsertCommand(menu.buildCommandData()).queue();
         }
     }
 }

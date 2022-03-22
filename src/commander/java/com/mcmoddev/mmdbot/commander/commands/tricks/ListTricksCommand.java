@@ -84,7 +84,7 @@ public final class ListTricksCommand extends PaginatedCommand {
         return new EmbedBuilder()
             .setTitle("Tricks")
             .setDescription(Tricks.getTricks()
-                .subList(from, Math.min(from + items_per_page, maximum))
+                .subList(from, Math.min(from + itemsPerPage, maximum))
                 .stream()
                 .map(it -> it.getNames().stream().reduce("", (a, b) -> (a.isEmpty() ? a : a + " / ") + b))
                 .reduce("", (a, b) -> a + "\n" + b))

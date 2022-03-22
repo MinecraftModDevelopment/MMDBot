@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.commander.util;
 
 import com.google.gson.JsonParser;
+import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -37,6 +38,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -77,12 +79,22 @@ public class TheCommanderUtilities {
      * @param roleIds the IDs of the roles to check for
      * @return if the member has any of the role
      */
-    public static boolean memberHasRoles(final Member member, final String... roleIds) {
+    public static boolean memberHasRoles(@NonNull final Member member, @NonNull final List<String> roleIds) {
         if (member == null) {
             return false;
         }
-        final var roles = List.of(roleIds);
-        return member.getRoles().stream().anyMatch(r -> roles.contains(r.getId()));
+        return member.getRoles().stream().anyMatch(r -> roleIds.contains(r.getId()));
+    }
+
+    /**
+     * Checks if the given member any of the given roles
+     *
+     * @param member the member to check
+     * @param roleIds the IDs of the roles to check for
+     * @return if the member has any of the role
+     */
+    public static boolean memberHasRoles(@NonNull final Member member, @NonNull final String... roleIds) {
+        return memberHasRoles(member, Arrays.asList(roleIds));
     }
 
     /**

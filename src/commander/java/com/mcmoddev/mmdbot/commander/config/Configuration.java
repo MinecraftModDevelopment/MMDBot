@@ -97,9 +97,9 @@ public final class Configuration {
         }
 
         @Required
-        @Setting("forge_commands_guild_only")
+        @Setting("force_commands_guild_only")
         @Comment("If true, commands will be forced to register to the main guild.")
-        private boolean forceCommandsGuildOnly;
+        private boolean forceCommandsGuildOnly = false;
 
         public boolean areCommandsForcedGuildOnly() {
             return forceCommandsGuildOnly;
