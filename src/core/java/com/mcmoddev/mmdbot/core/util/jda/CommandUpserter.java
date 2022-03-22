@@ -1,6 +1,7 @@
 package com.mcmoddev.mmdbot.core.util.jda;
 
 import com.jagrosh.jdautilities.command.CommandClient;
+import com.jagrosh.jdautilities.command.ContextMenu;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.core.util.Pair;
 import lombok.NonNull;
@@ -71,6 +72,13 @@ public class CommandUpserter implements EventListener {
                         .map(guild::upsertCommand)
                         .collect(Collectors.toSet()))
                     .queue();
+
+                // Upsert menus
+                RestAction.allOf(client.getContextMenus().stream()
+                        .map(ContextMenu::buildCommandData)
+                        .map(guild::upsertCommand)
+                        .collect(Collectors.toSet()))
+                    .queue();
             });
         } else {
             if (guildId != null) {
@@ -89,8 +97,16 @@ public class CommandUpserter implements EventListener {
                 RestAction.allOf(getCommandsToRemove(commands).mapToObj(jda::deleteCommandById).toList()).queue();
 
                 // Upsert new ones
-                RestAction.allOf(client.getSlashCommands().stream()
+                RestAction.allOf(client.getSlashCommands()
+                        .stream()
                         .map(SlashCommand::buildCommandData)
+                        .map(jda::upsertCommand)
+                        .collect(Collectors.toSet()))
+                    .queue();
+
+                // Upsert menus
+                RestAction.allOf(client.getContextMenus().stream()
+                        .map(ContextMenu::buildCommandData)
                         .map(jda::upsertCommand)
                         .collect(Collectors.toSet()))
                     .queue();
@@ -100,6 +116,7 @@ public class CommandUpserter implements EventListener {
 
     private LongStream getCommandsToRemove(final List<Command> existingCommands) {
         final var ext = existingCommands.stream()
+            .filter(c -> c.getType() == Command.Type.SLASH)
             .map(c -> Pair.of(c.getName(), c.getIdLong()))
             .collect(Collectors.toSet());
         final var clientCommandNames = client.getSlashCommands().stream().map(SlashCommand::getName).collect(Collectors.toSet());
