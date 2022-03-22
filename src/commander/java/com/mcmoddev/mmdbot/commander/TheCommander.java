@@ -68,12 +68,15 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.utils.AllowedMentions;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.configurate.CommentedConfigurationNode;
@@ -87,6 +90,10 @@ import javax.annotation.Nullable;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -151,14 +158,38 @@ public final class TheCommander implements Bot {
         Message.MentionType.EMOTE,
         Message.MentionType.CHANNEL);
 
-    static {
-        AllowedMentions.setDefaultMentionRepliedUser(false);
-    }
-
     /**
      * The instance.
      */
     private static TheCommander instance;
+
+    /**
+     * The startup time of the bot.
+     */
+    private static Instant startupTime;
+
+    public static Instant getStartupTime() {
+        return startupTime;
+    }
+
+    /**
+     * The bot's current version.
+     *
+     * <p>
+     * The version will be taken from the {@code Implementation-Version} attribute of the JAR manifest. If that is
+     * unavailable, the version shall be the combination of the string {@code "DEV "} and the current date and time
+     * in {@link java.time.format.DateTimeFormatter#ISO_OFFSET_DATE_TIME}.
+     */
+    public static final String VERSION;
+
+    static {
+        AllowedMentions.setDefaultMentionRepliedUser(false);
+        var version = TheCommander.class.getPackage().getImplementationVersion();
+        if (version == null) {
+            version = "DEV " + DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(OffsetDateTime.now(ZoneOffset.UTC));
+        }
+        VERSION = version;
+    }
 
     public static TheCommander getInstance() {
         return instance;
@@ -288,10 +319,16 @@ public final class TheCommander implements Bot {
         try {
             final var builder = JDABuilder
                 .create(dotenv.get("BOT_TOKEN"), INTENTS)
-                .disableCache(CacheFlag.VOICE_STATE)
-                .disableCache(CacheFlag.ACTIVITY)
+                .addEventListeners(new ListenerAdapter() {
+                    @Override
+                    public void onReady(@NotNull final ReadyEvent event) {
+                        startupTime = Instant.now();
+                    }
+                })
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
+                .disableCache(CacheFlag.VOICE_STATE)
+                .disableCache(CacheFlag.ACTIVITY)
                 .setEnabledIntents(INTENTS);
             EventListeners.register(builder::addEventListeners);
             jda = builder.build().awaitReady();

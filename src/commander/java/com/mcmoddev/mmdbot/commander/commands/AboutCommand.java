@@ -18,21 +18,24 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.modules.commands.bot.info;
+package com.mcmoddev.mmdbot.commander.commands;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.core.References;
-import com.mcmoddev.mmdbot.utilities.CommandUtilities;
-import com.mcmoddev.mmdbot.utilities.Utils;
+import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
+import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.utils.MarkdownUtil;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.awt.Color;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Shows information about the bot.
@@ -48,19 +51,25 @@ import java.time.temporal.ChronoUnit;
  * @author Jriwanek
  * @author Curle
  */
-public final class CmdAbout extends SlashCommand {
+public final class AboutCommand extends SlashCommand {
+
+    @RegisterSlashCommand
+    public static final AboutCommand CMD = new AboutCommand();
 
     /**
      * Instantiates a new Cmd about.
      */
-    public CmdAbout() {
-        super();
+    private AboutCommand() {
         name = "about";
         aliases = new String[]{"build"};
         help = "Gives info about this bot.";
         category = new Category("Info");
         guildOnly = false;
     }
+
+    public static final String[] MAINTAINERS = {
+        "jriwanek", "KiriCattus", "matyrobbrt", "sciwhiz12", "Curle"
+    };
 
     /**
      * Execute.
@@ -69,29 +78,23 @@ public final class CmdAbout extends SlashCommand {
      */
     @Override
     protected void execute(final SlashCommandEvent event) {
-        if (!CommandUtilities.checkCommand(this, event)) {
-            return;
-        }
-
         final var embed = new EmbedBuilder();
 
         embed.setTitle("Bot Build info");
         embed.setColor(Color.GREEN);
-        embed.setThumbnail(MMDBot.getJDA().getSelfUser().getAvatarUrl());
+        embed.setThumbnail(event.getJDA().getSelfUser().getAvatarUrl());
         embed.setDescription("An in house bot to assists staff with daily tasks and provide fun and useful commands "
             + "for the community, please try ``/help`` for a list of commands!");
-        embed.addField("Version:", References.VERSION, true);
-        embed.addField("Issue Tracker:", Utils.makeHyperlink("MMDBot's Github", References.ISSUE_TRACKER),
+        embed.addField("Version:", TheCommander.VERSION, true);
+        embed.addField("Issue Tracker:", MarkdownUtil.maskedLink("MMDBot's Github", HelpCommand.ISSUE_TRACKER),
             true);
-        embed.addField("Current maintainers:", "jriwanek, WillBL, KiriCattus, sciwhiz12, Curle, matyrobbrt",
+        embed.addField("Current maintainers:", String.join(", ", MAINTAINERS),
             true);
-        embed.addField("I've been online for: ", Utils.getTimeDifference(Utils.getTimeFromUTC(
-                    References.STARTUP_TIME), OffsetDateTime.now(ZoneOffset.UTC),
-                ChronoUnit.YEARS, ChronoUnit.MONTHS, ChronoUnit.DAYS, ChronoUnit.HOURS, ChronoUnit.HOURS, ChronoUnit.SECONDS)
-            , false);
+        embed.addField("I've been online for: ", TimeFormat.RELATIVE.format(TheCommander.getStartupTime()), false);
         embed.setTimestamp(Instant.now());
 
-        if (event.isFromGuild() && Utils.memberHasRole(event.getMember(), MMDBot.getConfig().getRole("bot_maintainer"))) {
+        if (event.isFromGuild() && TheCommanderUtilities.memberHasRoles(Objects.requireNonNull(event.getMember()),
+            TheCommander.getInstance().getGeneralConfig().roles().getBotMaintainers())) {
             event.deferReply(false).queue(hook -> {
                 event.getJDA().retrieveCommands().queue(commands -> {
                     embed.addField("Globally registered commands", String.valueOf(commands.size()), false);

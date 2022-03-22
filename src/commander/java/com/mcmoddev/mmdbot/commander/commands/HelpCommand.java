@@ -53,7 +53,7 @@ public class HelpCommand extends PaginatedCommand {
     private static ButtonListener helpListener;
 
     private static final String NAME = "The Commander";
-    private static final String ISSUE_TRACKER = "https://github.com/MinecraftModDevelopment/MMDBot/issues";
+    public static final String ISSUE_TRACKER = "https://github.com/MinecraftModDevelopment/MMDBot/issues";
 
     private HelpCommand() {
         super("help",

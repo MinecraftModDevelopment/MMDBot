@@ -109,7 +109,8 @@ public class CFProjectCommand {
                 final var cSelection = event.getFocusedOption().getValue();
                 final var gameId = event.getOption("game", DEFAULT_GAME_ID, OptionMapping::getAsInt);
                 if (TheCommander.getInstance().getCurseForgeManager().isPresent()) {
-                    TheCommander.getInstance().getCurseForgeManager().get().api().getAsyncHelper().getCategories(gameId)
+                    TheCommander.getInstance().getCurseForgeManager().get().api().getAsyncHelper()
+                        .getCategories(gameId)
                         .queue(r -> r.ifPresent(categories -> {
                             event.replyChoices(categories.stream()
                                     .filter(c -> c.name().startsWith(cSelection))

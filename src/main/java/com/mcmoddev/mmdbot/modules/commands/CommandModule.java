@@ -24,7 +24,6 @@ import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.modules.commands.bot.info.CmdAbout;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRestart;
@@ -82,7 +81,6 @@ public class CommandModule {
             .useHelpBuilder(false).setManualUpsert(true).build();
 
         addSlashCommand(
-            new CmdAbout(),
             new CmdMute(),
             new CmdUnmute(),
             new CmdCommunityChannel(),
