@@ -96,9 +96,13 @@ public class RunBots {
                     if (bot != null) {
                         CompletableFuture.runAsync(() -> {
                             if (doMigrate) {
-                                bot.getLogger().info("Started data migration...");
-                                bot.migrateData();
-                                bot.getLogger().info("Finished data migration.");
+                                try {
+                                    bot.getLogger().info("Started data migration...");
+                                    bot.migrateData();
+                                    bot.getLogger().info("Finished data migration.");
+                                } catch (IOException e) {
+                                    bot.getLogger().error("An exception occured migrating data: ", e);
+                                }
                             }
                         }, BOT_STARTER_EXECUTOR).whenCompleteAsync(($, $$) -> {
                             if (bot.blocksStartupThread()) {

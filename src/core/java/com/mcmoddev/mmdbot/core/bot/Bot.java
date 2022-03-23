@@ -27,6 +27,7 @@ import lombok.NonNull;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 
 public interface Bot {
 
@@ -44,7 +45,7 @@ public interface Bot {
      * Called when the bot is allowed to migrate any old data. <br>
      * This method is <strong>always</strong> be called before {@link #start()}.
      */
-    default void migrateData() {
+    default void migrateData() throws IOException {
 
     }
 

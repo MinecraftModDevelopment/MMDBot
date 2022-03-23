@@ -27,8 +27,14 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalField;
+import java.util.Date;
 import java.util.Locale;
 import java.util.StringJoiner;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public final class Utils {
 
@@ -76,5 +82,16 @@ public final class Utils {
 
     public static String makeHyperlink(String masked, String link) {
         return "[%s](%s)".formatted(masked, link);
+    }
+
+    /**
+     * Schedules a task to run at the specified {@code date}.
+     * @param service the service to schedule the task on.
+     * @param task the task to schedule.
+     * @param date the time at which to schedule the task.
+     */
+    public static void scheduleTask(final ScheduledExecutorService service, final Runnable task, final Instant date) {
+        service.schedule(task, date.atOffset(ZoneOffset.UTC).toEpochSecond() -
+            Instant.now().atOffset(ZoneOffset.UTC).toEpochSecond(), TimeUnit.SECONDS);
     }
 }

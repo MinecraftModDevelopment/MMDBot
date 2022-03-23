@@ -45,6 +45,8 @@ import com.mcmoddev.mmdbot.commander.eventlistener.ReferencingListener;
 import com.mcmoddev.mmdbot.commander.eventlistener.ThreadListener;
 import com.mcmoddev.mmdbot.commander.migrate.QuotesMigrator;
 import com.mcmoddev.mmdbot.commander.migrate.TricksMigrator;
+import com.mcmoddev.mmdbot.commander.reminders.Reminder;
+import com.mcmoddev.mmdbot.commander.reminders.Reminders;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers;
 import com.mcmoddev.mmdbot.commander.util.EventListeners;
@@ -95,6 +97,9 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -307,6 +312,11 @@ public final class TheCommander implements Bot {
             commandClient.addContextMenu(new UserInfoContextMenu());
         }
 
+        // Reminders
+        if (generalConfig.features().areRemindersEnabled()) {
+            Reminders.scheduleAllReminders();
+        }
+
         // Button listeners
         EventListeners.COMMANDS_LISTENER.addListeners(DictionaryCommand.listener, new DismissListener(),
             QuoteCommand.ListQuotes.getQuoteListener(), RolesCommand.getListener(), HelpCommand.getListener());
@@ -378,9 +388,10 @@ public final class TheCommander implements Bot {
     }
 
     @Override
-    public void migrateData() {
+    public void migrateData() throws IOException {
         new TricksMigrator(runPath).migrate();
         new QuotesMigrator(runPath).migrate();
+        Reminders.MIGRATOR.migrate(Reminders.CURRENT_SCHEMA_VERSION, Reminders.PATH.get());
     }
 
     @Override

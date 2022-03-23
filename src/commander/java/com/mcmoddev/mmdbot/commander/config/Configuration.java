@@ -242,5 +242,14 @@ public final class Configuration {
         public boolean areQuotesEnabled() {
             return quotesEnabled;
         }
+
+        @Required
+        @Setting("reminders_enabled")
+        @Comment("If reminders should be enabled.")
+        private boolean remindersEnabled = true;
+
+        public boolean areRemindersEnabled() {
+            return remindersEnabled;
+        }
     }
 }

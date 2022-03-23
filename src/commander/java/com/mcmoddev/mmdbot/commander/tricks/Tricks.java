@@ -197,7 +197,7 @@ public final class Tricks {
         try (var writer = new OutputStreamWriter(new FileOutputStream(tricksFile), StandardCharsets.UTF_8)) {
             GSON.toJson(db.toJson(GSON), writer);
         } catch (final FileNotFoundException exception) {
-            TheCommander.LOGGER.error("An FileNotFoundException occurred saving tricks...", exception);
+            TheCommander.LOGGER.error("A FileNotFoundException occurred saving tricks...", exception);
         } catch (final IOException exception) {
             TheCommander.LOGGER.error("An IOException occurred saving tricks...", exception);
         }

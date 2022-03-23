@@ -65,8 +65,27 @@ public final class VersionedDatabase<T> {
      * @throws IOException if an exception occurred reading the file
      */
     public static <T> VersionedDatabase<T> fromFile(Gson gson, Path filePath, java.lang.reflect.Type dataType) throws IOException {
+        return fromFile(gson, filePath, dataType, 0, null);
+    }
+
+    /**
+     * Reads a database from a file.
+     *
+     * @param gson                 the gson to use for reading
+     * @param filePath             the path of the file to read
+     * @param dataType             the type of the data the file contains
+     * @param defaultSchemaVersion the schema version which the database will have if the json is empty
+     * @param defaultValue         the value of the database if the json is empty
+     * @param <T>                  the type of the data
+     * @return the database
+     * @throws IOException if an exception occurred reading the file
+     */
+    public static <T> VersionedDatabase<T> fromFile(Gson gson, Path filePath, java.lang.reflect.Type dataType, int defaultSchemaVersion, T defaultValue) throws IOException {
         try (final var reader = new FileReader(filePath.toFile())) {
             final var json = gson.fromJson(reader, JsonObject.class);
+            if (json == null) {
+                return new VersionedDatabase<>(defaultSchemaVersion, defaultValue);
+            }
             return new VersionedDatabase<>(json.get(SCHEMA_VERSION_TAG).getAsInt(), gson.fromJson(json.get(DATA_TAG), dataType));
         }
     }

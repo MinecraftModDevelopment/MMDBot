@@ -23,11 +23,13 @@ package com.mcmoddev.mmdbot.core.util;
 import com.google.common.base.Joiner;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mcmoddev.mmdbot.core.util.gson.InstantTypeAdapter;
 import io.github.matyrobbrt.curseforgeapi.util.gson.RecordTypeAdapterFactory;
 import lombok.experimental.UtilityClass;
 import org.spongepowered.configurate.reference.WatchServiceListener;
 
 import java.net.http.HttpClient;
+import java.time.Instant;
 import java.util.Random;
 
 /**
@@ -52,11 +54,13 @@ public final class Constants {
 
     public static final class Gsons {
         public static final Gson NO_PRETTY_PRINTING = new GsonBuilder()
+            .registerTypeAdapter(Instant.class, new InstantTypeAdapter())
             .registerTypeAdapterFactory(new RecordTypeAdapterFactory())
             .disableHtmlEscaping()
             .setLenient()
             .create();
         public static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(Instant.class, new InstantTypeAdapter())
             .registerTypeAdapterFactory(new RecordTypeAdapterFactory())
             .setPrettyPrinting()
             .disableHtmlEscaping()
