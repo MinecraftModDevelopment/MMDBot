@@ -244,12 +244,39 @@ public final class Configuration {
         }
 
         @Required
-        @Setting("reminders_enabled")
-        @Comment("If reminders should be enabled.")
-        private boolean remindersEnabled = true;
+        @Setting("reminders")
+        @Comment("Reminders configuration.")
+        private Reminders reminders = new Reminders();
 
-        public boolean areRemindersEnabled() {
-            return remindersEnabled;
+        public Reminders reminders() {
+            return reminders;
+        }
+
+        @ConfigSerializable
+        public static final class Reminders {
+
+            @Required
+            @Setting("enabled")
+            @Comment("If reminders should be enabled.")
+            private boolean enabled = true;
+
+            public boolean areEnabled() {
+                return enabled;
+            }
+
+            @Required
+            @Setting("snoozing_times")
+            @Comment("""
+                A list of snoozing times available for snoozing reminders.
+                The format is: <time><unit>, where <time> is the snoozing time, and <unit> is the unit (`s` for seconds, `m` for minutes, `d` for days, etc.)
+                Multiple times can be chained in the same configuration with a `-`. Example:
+                12s-48m-2h (12 seconds, 48 minutes and 2 hours)""")
+            private List<String> snoozingTimes = List.of(
+                "5m", "1h", "1d"
+            );
+            public List<String> getSnoozingTimes() {
+                return snoozingTimes;
+            }
         }
     }
 }

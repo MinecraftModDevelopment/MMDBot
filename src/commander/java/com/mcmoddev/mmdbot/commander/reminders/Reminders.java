@@ -1,24 +1,23 @@
 package com.mcmoddev.mmdbot.commander.reminders;
 
-import com.google.gson.reflect.TypeToken;
 import com.mcmoddev.mmdbot.commander.TheCommander;
-import com.mcmoddev.mmdbot.commander.migrate.TricksMigrator;
-import com.mcmoddev.mmdbot.commander.tricks.Trick;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.data.VersionedDataMigrator;
 import com.mcmoddev.mmdbot.core.util.data.VersionedDatabase;
 import com.mcmoddev.mmdbot.dashboard.util.LazySupplier;
 import lombok.experimental.UtilityClass;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -48,28 +47,30 @@ public class Reminders {
      */
     private static final ScheduledExecutorService TIMER = Executors.newSingleThreadScheduledExecutor(r -> Utils.setThreadDaemon(new Thread(r, "Reminders"), true));
 
-    private static List<Reminder> reminders;
+    /**
+     * The type of the reminders.
+     */
+    private static final Type TYPE = new com.google.common.reflect.TypeToken<Map<Long, List<Reminder>>>() {}.getType();
+    private static Map<Long, List<Reminder>> reminders;
 
-    public static List<Reminder> getReminders() {
+    public static Map<Long, List<Reminder>> getReminders() {
         if (reminders != null) return reminders;
         final var path = PATH.get();
         if (!Files.exists(path)) {
-            return reminders = new ArrayList<>();
+            return reminders = new HashMap<>();
         }
-        final var typeOfList = new TypeToken<List<Reminder>>() {
-        }.getType();
         try {
-            final var db = VersionedDatabase.<List<Reminder>>fromFile(NO_PRETTY_PRINTING, path, typeOfList, CURRENT_SCHEMA_VERSION, new ArrayList<>());
+            final var db = VersionedDatabase.<Map<Long, List<Reminder>>>fromFile(NO_PRETTY_PRINTING, path, TYPE, CURRENT_SCHEMA_VERSION, new HashMap<>());
             if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
                 MIGRATOR.migrate(CURRENT_SCHEMA_VERSION, path);
-                final var newDb = VersionedDatabase.<List<Reminder>>fromFile(NO_PRETTY_PRINTING, path, typeOfList);
+                final var newDb = VersionedDatabase.<Map<Long, List<Reminder>>>fromFile(NO_PRETTY_PRINTING, path, TYPE);
                 return reminders = newDb.getData();
             } else {
                 return reminders = db.getData();
             }
         } catch (final IOException exception) {
             TheCommander.LOGGER.error("Failed to read reminders file...", exception);
-            return reminders = new ArrayList<>();
+            return reminders = new HashMap<>();
         }
     }
 
@@ -91,7 +92,16 @@ public class Reminders {
      * Schedules all the reminders to be run.
      */
     public static void scheduleAllReminders() {
-        getReminders().forEach(Reminders::registerReminder);
+        getReminders().values().forEach(l -> l.forEach(Reminders::registerReminder));
+    }
+
+    /**
+     * Gets all the reminders a user has.
+     * @param userId the ID of the user to query the reminders from
+     * @return the user's reminders
+     */
+    public static List<Reminder> getRemindersForUser(final long userId) {
+        return getReminders().computeIfAbsent(userId, k -> new ArrayList<>());
     }
 
     /**
@@ -100,7 +110,7 @@ public class Reminders {
      */
     public static void removeReminder(final Reminder reminder) {
         reminder.removed().set(true);
-        getReminders().remove(reminder);
+        getRemindersForUser(reminder.ownerId()).remove(reminder);
         write();
     }
 
@@ -109,7 +119,7 @@ public class Reminders {
      * @param reminder the reminder to add.
      */
     public static void addReminder(final Reminder reminder) {
-        getReminders().add(reminder);
+        getRemindersForUser(reminder.ownerId()).add(reminder);
         registerReminder(reminder);
         write();
     }

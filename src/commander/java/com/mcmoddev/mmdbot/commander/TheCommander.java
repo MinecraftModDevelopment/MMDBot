@@ -27,6 +27,7 @@ import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
 import com.mcmoddev.mmdbot.commander.commands.DictionaryCommand;
+import com.mcmoddev.mmdbot.commander.commands.EvaluateCommand;
 import com.mcmoddev.mmdbot.commander.commands.GistCommand;
 import com.mcmoddev.mmdbot.commander.commands.HelpCommand;
 import com.mcmoddev.mmdbot.commander.commands.QuoteCommand;
@@ -47,6 +48,7 @@ import com.mcmoddev.mmdbot.commander.migrate.QuotesMigrator;
 import com.mcmoddev.mmdbot.commander.migrate.TricksMigrator;
 import com.mcmoddev.mmdbot.commander.reminders.Reminder;
 import com.mcmoddev.mmdbot.commander.reminders.Reminders;
+import com.mcmoddev.mmdbot.commander.reminders.SnoozingListener;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers;
 import com.mcmoddev.mmdbot.commander.util.EventListeners;
@@ -263,7 +265,7 @@ public final class TheCommander implements Bot {
             .setOwnerId(generalConfig.bot().getOwners().get(0))
             .setCoOwnerIds(coOwners.toArray(String[]::new))
             .setPrefixes(generalConfig.bot().getPrefixes().toArray(String[]::new))
-            .addCommands(new GistCommand())
+            .addCommands(new GistCommand(), EvaluateCommand.COMMAND)
             .addContextMenus(new GistContextMenu())
             .setManualUpsert(true)
             .useHelpBuilder(false)
@@ -313,8 +315,9 @@ public final class TheCommander implements Bot {
         }
 
         // Reminders
-        if (generalConfig.features().areRemindersEnabled()) {
+        if (generalConfig.features().reminders().areEnabled()) {
             Reminders.scheduleAllReminders();
+            EventListeners.COMMANDS_LISTENER.addListener(SnoozingListener.INSTANCE);
         }
 
         // Button listeners

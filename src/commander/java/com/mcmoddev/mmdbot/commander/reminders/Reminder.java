@@ -1,16 +1,20 @@
 package com.mcmoddev.mmdbot.commander.reminders;
 
 import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 import java.awt.Color;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -73,7 +77,21 @@ public record Reminder(String content, long channelId, boolean isPrivateChannel,
                         .build()
                 )
                 .setAllowedMentions(ALLOWED_MENTIONS)
+                .setActionRows(getActionRows())
                 .build())
-            .queue(v -> {}, error -> log.error("Exception while trying to send reminder!", error));
+            .queue(m -> SnoozingListener.INSTANCE.addSnoozeListener(m.getIdLong(), this),
+                error -> log.error("Exception while trying to send reminder!", error));
+    }
+
+    private List<ActionRow> getActionRows() {
+        final var list = new ArrayList<ActionRow>();
+        final var snoozers = TheCommander.getInstance().getGeneralConfig().features().reminders().getSnoozingTimes();
+        if (!snoozers.isEmpty()) {
+            list.add(ActionRow.of(
+                snoozers.stream().map(SnoozingListener.INSTANCE::createSnoozeButton).toList()
+            ));
+        }
+        list.add(ActionRow.of(DismissListener.createDismissButton(ownerId)));
+        return list;
     }
 }
