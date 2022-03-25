@@ -65,7 +65,7 @@ public class RemindCommand {
     @RegisterSlashCommand
     public static final SlashCommand COMMAND = SlashCommandBuilder.builder()
         .name("remind")
-        .guildOnly(true)
+        .guildOnly(false)
         .help("Reminder related commands.")
         .children(new In(), new At(), new ListCmd(), new Remove())
         .build();
