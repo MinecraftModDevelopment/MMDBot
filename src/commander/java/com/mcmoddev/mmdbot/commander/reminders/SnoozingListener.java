@@ -42,6 +42,7 @@ import java.util.function.ObjLongConsumer;
 
 public enum SnoozingListener implements EventListener {
     INSTANCE;
+
     public static final String BUTTON_LABEL = "snooze_reminder_";
     public static final String SNOOZE_EMOJI = String.valueOf('\u23F1');
     private final Cache<Long, Reminder> reminders = CacheBuilder.newBuilder()
@@ -123,6 +124,7 @@ public enum SnoozingListener implements EventListener {
     public static Time decodeTime(@NonNull final String time) {
         final var unit = switch (time.charAt(time.length() - 1)) {
             case 'n' -> ChronoUnit.NANOS;
+            case 'l' -> ChronoUnit.MILLIS;
             case 's' -> ChronoUnit.SECONDS;
             case 'h' -> ChronoUnit.HOURS;
             case 'd' -> ChronoUnit.DAYS;

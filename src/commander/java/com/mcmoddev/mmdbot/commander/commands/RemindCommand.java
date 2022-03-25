@@ -20,6 +20,9 @@
  */
 package com.mcmoddev.mmdbot.commander.commands;
 
+import com.ibm.icu.impl.duration.DurationFormatter;
+import com.ibm.icu.impl.duration.DurationFormatterFactory;
+import com.ibm.icu.text.DurationFormat;
 import com.jagrosh.jdautilities.command.CooldownScope;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
@@ -46,6 +49,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +67,7 @@ public class RemindCommand {
         .name("remind")
         .guildOnly(true)
         .help("Reminder related commands.")
-        .children(new In(), new ListCmd(), new Remove())
+        .children(new In(), new At(), new ListCmd(), new Remove())
         .build();
 
     public static final class In extends SlashCommand {
@@ -68,7 +75,7 @@ public class RemindCommand {
             this.name = "in";
             this.help = "Adds a reminder relative to the current time.";
             options = List.of(
-                new OptionData(OptionType.STRING, "time", "The relative time of the reminder. Example: 12h15m", true),
+                new OptionData(OptionType.STRING, "time", "The relative time of the reminder. The format is: <time><unit>. Example: 12h15m", true),
                 new OptionData(OptionType.STRING, "content", "The content of the reminder.")
             );
             cooldown = 20;
@@ -92,7 +99,8 @@ public class RemindCommand {
                 final var time = getDurationFromInput(event.getOption("time", "", OptionMapping::getAsString));
                 final var limit = MAXIMUM_TIME.getAsLong();
                 if (time.getSeconds() > limit) {
-                    event.deferReply().setContent("Cannot add reminder that is over the limit of %s seconds!".formatted(limit)).queue();
+                    event.deferReply().setContent("Cannot add a reminder that is over the limit of %s seconds!".formatted(limit)).queue();
+                    return;
                 }
                 final var remTime = Instant.now().plus(time);
                 Reminders.addReminder(new Reminder(event.getOption("content", "", OptionMapping::getAsString),
@@ -102,6 +110,77 @@ public class RemindCommand {
                     .addActionRow(DismissListener.createDismissButton(userId))
                     .queue();
             } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                event.deferReply(true).setContent("Invalid time provided!").queue();
+            }
+        }
+    }
+
+    public static final class At extends SlashCommand {
+
+        public static final DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder()
+            .appendValue(ChronoField.YEAR, 4)
+            .appendLiteral('-')
+            .appendValue(ChronoField.MONTH_OF_YEAR, 2)
+            .appendLiteral('-')
+            .appendValue(ChronoField.DAY_OF_MONTH, 2)
+                .optionalStart()
+                    .appendLiteral('_')
+                    .appendValue(ChronoField.HOUR_OF_DAY, 2)
+                        .optionalStart()
+                            .appendLiteral(':')
+                            .appendValue(ChronoField.MINUTE_OF_HOUR, 2)
+                            .optionalStart()
+                                .appendLiteral(':')
+                                .appendValue(ChronoField.SECOND_OF_MINUTE, 2)
+                            .optionalEnd()
+                        .optionalEnd()
+                .optionalEnd()
+            .appendOffsetId()
+            .toFormatter();
+
+        public At() {
+            name = "at";
+            help = "Adds a reminder relative to an absolute time.";
+            options = List.of(
+                new OptionData(OptionType.STRING, "time", "The time of the reminder. The format is: uuuu-MM-dd_HH:mm+timezone. Example: 2022-03-25_21:17+02:00", true),
+                new OptionData(OptionType.STRING, "content", "The content of the reminder.")
+            );
+            cooldown = 20;
+            cooldownScope = CooldownScope.USER;
+        }
+
+        @Override
+        protected void execute(final SlashCommandEvent event) {
+            if (!checkEnabled(event)) return;
+            if (event.isFromGuild() && TheCommanderUtilities.memberHasRoles(event.getMember(), TheCommander.getInstance().getGeneralConfig().roles().getBotMaintainers())) {
+                // Remove the cooldown from bot maintainers, for testing purposes
+                event.getClient().applyCooldown(getCooldownKey(event), 1);
+            }
+            final var userId = event.getUser().getIdLong();
+            if (Reminders.userReachedMax(userId)) {
+                event.deferReply(true).setContent("You cannot add any other reminders as you have reached the limit of %s pending ones. Remove some or wait until they fire."
+                    .formatted(TheCommander.getInstance().getGeneralConfig().features().reminders().getLimitPerUser())).queue();
+                return;
+            }
+            final var limit = MAXIMUM_TIME.getAsLong();
+            try {
+                final var now = Instant.now();
+                final var time = Instant.from(FORMATTER.parse(event.getOption("time", "", OptionMapping::getAsString)));
+                if (time.isBefore(now)) {
+                    event.deferReply().setContent("Cannot add a reminder in the past!").queue();
+                    return;
+                }
+                if (time.minus(now.getEpochSecond(), ChronoUnit.SECONDS).getEpochSecond() > limit) {
+                    event.deferReply().setContent("Cannot add a reminder that is over the limit of %s seconds!".formatted(limit)).queue();
+                    return;
+                }
+                Reminders.addReminder(new Reminder(event.getOption("content", "", OptionMapping::getAsString),
+                    event.getChannel().getIdLong(), event.isFromType(ChannelType.PRIVATE), userId, time));
+                event.deferReply().setContent("Successfully scheduled reminder on %s (%s)!".formatted(TimeFormat.DATE_TIME_LONG.format(time),
+                        TimeFormat.RELATIVE.format(time)))
+                    .addActionRow(DismissListener.createDismissButton(userId))
+                    .queue();
+            } catch (DateTimeParseException e) {
                 event.deferReply(true).setContent("Invalid time provided!").queue();
             }
         }
@@ -143,7 +222,7 @@ public class RemindCommand {
             for (var i = index; i < (reminders.size() <= ITEMS_PER_PAGE ? reminders.size() : index + ITEMS_PER_PAGE); i++) {
                 final var reminder = reminders.get(i);
                 embed.appendDescription(System.lineSeparator());
-                embed.appendDescription("**%s**: *%s* - <#%s> at %s (%s)".formatted(i, reminder.content(), reminder.channelId(),
+                embed.appendDescription("**%s**: *%s* - <#%s> at %s (%s)".formatted(i, reminder.content().isBlank() ? "No Content." : reminder.content(), reminder.channelId(),
                     TimeFormat.DATE_TIME_LONG.format(reminder.time()), TimeFormat.RELATIVE.format(reminder.time())));
             }
             return embed;
