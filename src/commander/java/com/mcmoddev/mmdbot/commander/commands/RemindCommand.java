@@ -80,6 +80,7 @@ public class RemindCommand {
             );
             cooldown = 20;
             cooldownScope = CooldownScope.USER;
+            guildOnly = false;
         }
 
         @Override
@@ -147,6 +148,7 @@ public class RemindCommand {
             );
             cooldown = 20;
             cooldownScope = CooldownScope.USER;
+            guildOnly = false;
         }
 
         @Override
@@ -198,6 +200,7 @@ public class RemindCommand {
             this.name = "list";
             this.help = "Lists all of your reminders.";
             listener = new ButtonListener();
+            guildOnly = false;
         }
 
         @Override
@@ -297,6 +300,7 @@ public class RemindCommand {
             options = List.of(
                 new OptionData(OptionType.INTEGER, "index", "The index of the reminder to remove. Do not provide to clear all reminders.")
             );
+            guildOnly = false;
         }
 
         @Override
