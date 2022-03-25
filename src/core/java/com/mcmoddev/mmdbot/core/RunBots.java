@@ -100,11 +100,11 @@ public class RunBots {
                                     bot.getLogger().info("Started data migration...");
                                     bot.migrateData();
                                     bot.getLogger().info("Finished data migration.");
-                                } catch (IOException e) {
-                                    bot.getLogger().error("An exception occured migrating data: ", e);
+                                } catch (Exception e) {
+                                    bot.getLogger().error("An exception occurred migrating data: ", e);
                                 }
                             }
-                        }, BOT_STARTER_EXECUTOR).whenCompleteAsync(($, $$) -> {
+                        }, BOT_STARTER_EXECUTOR).whenComplete(($, $$) -> {
                             if (bot.blocksStartupThread()) {
                                 TaskScheduler.scheduleTask(() -> {
                                     botsAmount.incrementAndGet();

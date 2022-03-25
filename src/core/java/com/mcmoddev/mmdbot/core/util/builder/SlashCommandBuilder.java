@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.core.util.builder;
 
+import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import io.github.matyrobbrt.curseforgeapi.util.ExceptionConsumer;
@@ -31,7 +32,9 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Builder(builderClassName = "Builder")
@@ -63,6 +66,9 @@ public class SlashCommandBuilder {
 
         public SlashCommand build() {
             return new Cmd() {
+                private Map<String, SlashCommand> byNameMap = Builder.this.children.stream()
+                    .collect(Collectors.toMap(Command::getName, s -> s));
+
                 @Override
                 public void init() {
                     this.name = Builder.this.name;
@@ -82,6 +88,12 @@ public class SlashCommandBuilder {
 
                 @Override
                 public void onAutoComplete(final CommandAutoCompleteInteractionEvent event) {
+                    if (event.getSubcommandName() != null) {
+                        final var cmd = byNameMap.get(event.getSubcommandName());
+                        if (cmd != null) {
+                            cmd.onAutoComplete(event);
+                        }
+                    }
                     if (onAutocomplete != null) {
                         onAutocomplete.accept(event);
                     }

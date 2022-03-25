@@ -68,7 +68,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Deprecated(forRemoval = false) // It is for removal, but IDEs complain so...
 public final class MMDBot implements Bot {
 
-    @RegisterBotType(name = "mmdbot", priority = -1)
+    @RegisterBotType(name = "mmdbot", priority = -100)
     public static final BotType<MMDBot> BOT_TYPE = new BotType<>() {
         @Override
         public MMDBot createBot(final Path runPath) {

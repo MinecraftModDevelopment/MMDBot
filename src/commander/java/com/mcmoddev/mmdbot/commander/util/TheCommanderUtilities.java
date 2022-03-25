@@ -124,8 +124,7 @@ public class TheCommanderUtilities {
 
         final var date = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH);
         embed.addField("Joined Discord:", date.format(dateJoinedDiscord.toEpochMilli()), true);
-        embed.addField("Joined Server:", TimeFormat.DATE_TIME_SHORT.format(dateJoinedServer), true);
-        embed.addField("Member for:", TimeFormat.RELATIVE.format(dateJoinedDiscord), true);
+        embed.addField("Joined Server:", TimeFormat.RELATIVE.format(dateJoinedServer), true);
         embed.setTimestamp(Instant.now());
 
         return embed;

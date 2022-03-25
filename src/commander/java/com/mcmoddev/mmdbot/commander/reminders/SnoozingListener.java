@@ -1,7 +1,28 @@
+/*
+ * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
+ * Copyright (C) 2016-2022 <MMD - MinecraftModDevelopment>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ */
 package com.mcmoddev.mmdbot.commander.reminders;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.mcmoddev.mmdbot.commander.TheCommander;
 import lombok.NonNull;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -9,6 +30,7 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -25,7 +47,6 @@ public enum SnoozingListener implements EventListener {
     private final Cache<Long, Reminder> reminders = CacheBuilder.newBuilder()
         .initialCapacity(10)
         .maximumSize(100)
-        .expireAfterAccess(10, TimeUnit.SECONDS)
         .expireAfterWrite(1, TimeUnit.DAYS)
         .build();
 
@@ -39,6 +60,16 @@ public enum SnoozingListener implements EventListener {
                 event.deferReply(true).setContent("Unknown reminder!").queue();
                 return;
             }
+            if (reminder.ownerId() != event.getUser().getIdLong()) {
+                event.deferReply(true).setContent("You do not own this reminder.").queue();
+                return;
+            }
+            if (Reminders.userReachedMax(event.getUser().getIdLong())) {
+                event.deferReply(true).setContent("You cannot add any other reminders as you have reached the limit of %s pending ones. Remove some or wait until they fire."
+                    .formatted(TheCommander.getInstance().getGeneralConfig().features().reminders().getLimitPerUser())).queue();
+                return;
+            }
+            reminders.invalidate(reminder);
             final var timeStr = buttonId.substring(BUTTON_LABEL.length());
             final var offset = withOffset(timeStr, Instant.now());
             Reminders.addReminder(new Reminder(reminder.content(), reminder.channelId(), reminder.isPrivateChannel(), reminder.ownerId(), offset));
@@ -79,18 +110,32 @@ public enum SnoozingListener implements EventListener {
     public static void decodeOffset(@NonNull final String offsetGroup, @NonNull final ObjLongConsumer<ChronoUnit> consumer) {
         final var allOffsets = offsetGroup.split("-");
         for (final var offset : allOffsets) {
-            final var unit = switch (offset.charAt(offset.length() - 1)) {
-                case 'n' -> ChronoUnit.NANOS;
-                case 's' -> ChronoUnit.SECONDS;
-                case 'h' -> ChronoUnit.HOURS;
-                case 'd' -> ChronoUnit.DAYS;
-                case 'w' -> ChronoUnit.WEEKS;
-                case 'M' -> ChronoUnit.MONTHS;
-                case 'y' -> ChronoUnit.YEARS;
-                default -> ChronoUnit.MINUTES;
-            };
-            final var time = Long.parseLong(offset.substring(0, offset.length() - 1));
-            consumer.accept(unit, time);
+            final var time = decodeTime(offset);
+            consumer.accept(time.unit(), time.amount());
         }
+    }
+
+    /**
+     * Decodes time from a string.
+     * @param time the time to decode
+     * @return the decoded time.
+     */
+    public static Time decodeTime(@NonNull final String time) {
+        final var unit = switch (time.charAt(time.length() - 1)) {
+            case 'n' -> ChronoUnit.NANOS;
+            case 's' -> ChronoUnit.SECONDS;
+            case 'h' -> ChronoUnit.HOURS;
+            case 'd' -> ChronoUnit.DAYS;
+            case 'w' -> ChronoUnit.WEEKS;
+            case 'M' -> ChronoUnit.MONTHS;
+            case 'y' -> ChronoUnit.YEARS;
+            default -> ChronoUnit.MINUTES;
+        };
+        final var tm = Long.parseLong(time.substring(0, time.length() - 1));
+        return new Time(tm, unit);
+    }
+
+    public record Time(long amount, ChronoUnit unit) {
+
     }
 }

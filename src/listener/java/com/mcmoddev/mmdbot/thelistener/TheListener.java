@@ -57,7 +57,7 @@ public final class TheListener implements Bot {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("TheListener");
 
-    @RegisterBotType(name = BotRegistry.THE_LISTENER_NAME)
+    @RegisterBotType(name = BotRegistry.THE_LISTENER_NAME, priority = -10)
     public static final BotType<TheListener> BOT_TYPE = new BotType<>() {
         @Override
         public TheListener createBot(final Path runPath) {

@@ -1,3 +1,23 @@
+/*
+ * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
+ * Copyright (C) 2016-2022 <MMD - MinecraftModDevelopment>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ */
 package com.mcmoddev.mmdbot.commander.reminders;
 
 import com.mcmoddev.mmdbot.commander.TheCommander;
@@ -18,8 +38,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.UnaryOperator;
 
 import static com.mcmoddev.mmdbot.core.util.Constants.Gsons.NO_PRETTY_PRINTING;
 
@@ -38,9 +60,14 @@ public class Reminders {
         .build();
 
     /**
+     * A function that resolves the path of the reminders file from the bot run path.
+     */
+    public static final UnaryOperator<Path> PATH_RESOLVER = p -> p.resolve("reminders.json");
+
+    /**
      * The path of the reminders file.
      */
-    public static final LazySupplier<Path> PATH = LazySupplier.of(() -> TheCommander.getInstance().getRunPath().resolve("reminders.json"));
+    public static final LazySupplier<Path> PATH = LazySupplier.of(() -> PATH_RESOLVER.apply(TheCommander.getInstance().getRunPath()));
 
     /**
      * The timer that runs reminders.
@@ -102,6 +129,23 @@ public class Reminders {
      */
     public static List<Reminder> getRemindersForUser(final long userId) {
         return getReminders().computeIfAbsent(userId, k -> new ArrayList<>());
+    }
+
+    /**
+     * Clears all reminders from a user.
+     * @param userId the id of the user to clear reminders from
+     */
+    public static void clearAllUserReminders(final long userId) {
+        getRemindersForUser(userId).forEach(Reminders::removeReminder);
+    }
+
+    /**
+     * Checks if a user reached the max pending reminders.
+     * @param userId the id of the user to search reminders
+     * @return if the user reached the max pending reminders.
+     */
+    public static boolean userReachedMax(final long userId) {
+        return getRemindersForUser(userId).size() > TheCommander.getInstance().getGeneralConfig().features().reminders().getLimitPerUser();
     }
 
     /**

@@ -31,6 +31,7 @@ import com.mcmoddev.mmdbot.commander.commands.EvaluateCommand;
 import com.mcmoddev.mmdbot.commander.commands.GistCommand;
 import com.mcmoddev.mmdbot.commander.commands.HelpCommand;
 import com.mcmoddev.mmdbot.commander.commands.QuoteCommand;
+import com.mcmoddev.mmdbot.commander.commands.RemindCommand;
 import com.mcmoddev.mmdbot.commander.commands.RolesCommand;
 import com.mcmoddev.mmdbot.commander.commands.curseforge.CurseForgeCommand;
 import com.mcmoddev.mmdbot.commander.commands.menu.message.AddQuoteContextMenu;
@@ -46,7 +47,6 @@ import com.mcmoddev.mmdbot.commander.eventlistener.ReferencingListener;
 import com.mcmoddev.mmdbot.commander.eventlistener.ThreadListener;
 import com.mcmoddev.mmdbot.commander.migrate.QuotesMigrator;
 import com.mcmoddev.mmdbot.commander.migrate.TricksMigrator;
-import com.mcmoddev.mmdbot.commander.reminders.Reminder;
 import com.mcmoddev.mmdbot.commander.reminders.Reminders;
 import com.mcmoddev.mmdbot.commander.reminders.SnoozingListener;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
@@ -99,9 +99,6 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -111,7 +108,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
-import java.util.jar.Manifest;
 
 public final class TheCommander implements Bot {
     static final TypeSerializerCollection ADDED_SERIALIZERS = TypeSerializerCollection.defaults()
@@ -206,7 +202,7 @@ public final class TheCommander implements Bot {
     }
 
     public static JDA getJDA() {
-        return getInstance().getJda();
+        return getInstance() == null ? null : getInstance().getJda();
     }
 
     private JDA jda;
@@ -266,7 +262,7 @@ public final class TheCommander implements Bot {
             .setCoOwnerIds(coOwners.toArray(String[]::new))
             .setPrefixes(generalConfig.bot().getPrefixes().toArray(String[]::new))
             .addCommands(new GistCommand(), EvaluateCommand.COMMAND)
-            .addContextMenus(new GistContextMenu())
+            .addContextMenus(new GistContextMenu(), new UserInfoContextMenu())
             .setManualUpsert(true)
             .useHelpBuilder(false)
             .setActivity(null)
@@ -311,13 +307,12 @@ public final class TheCommander implements Bot {
         // Quotes
         if (generalConfig.features().areQuotesEnabled()) {
             commandClient.addContextMenu(new AddQuoteContextMenu());
-            commandClient.addContextMenu(new UserInfoContextMenu());
         }
 
         // Reminders
         if (generalConfig.features().reminders().areEnabled()) {
             Reminders.scheduleAllReminders();
-            EventListeners.COMMANDS_LISTENER.addListener(SnoozingListener.INSTANCE);
+            EventListeners.COMMANDS_LISTENER.addListeners(SnoozingListener.INSTANCE, RemindCommand.ListCmd.getListener());
         }
 
         // Button listeners
@@ -394,7 +389,7 @@ public final class TheCommander implements Bot {
     public void migrateData() throws IOException {
         new TricksMigrator(runPath).migrate();
         new QuotesMigrator(runPath).migrate();
-        Reminders.MIGRATOR.migrate(Reminders.CURRENT_SCHEMA_VERSION, Reminders.PATH.get());
+        Reminders.MIGRATOR.migrate(Reminders.CURRENT_SCHEMA_VERSION, Reminders.PATH_RESOLVER.apply(runPath));
     }
 
     @Override

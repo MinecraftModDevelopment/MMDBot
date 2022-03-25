@@ -18,24 +18,37 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.core.util.gson;
+package com.mcmoddev.mmdbot.core.util;
 
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+public class TimeCalculator {
+    private long seconds;
 
-import java.io.IOException;
-import java.time.Instant;
-
-public class InstantTypeAdapter extends TypeAdapter<Instant> {
-
-    @Override
-    public void write(final JsonWriter out, final Instant value) throws IOException {
-        out.value(value.getEpochSecond());
+    public TimeCalculator addSeconds(long seconds) {
+        this.seconds += seconds;
+        return this;
     }
 
-    @Override
-    public Instant read(final JsonReader in) throws IOException {
-        return Instant.ofEpochSecond(in.nextLong());
+    public TimeCalculator addMinutes(long minutes) {
+        this.seconds += minutes * 60;
+        return this;
+    }
+
+    public TimeCalculator addHours(long hours) {
+        this.seconds += hours * 60 * 60;
+        return this;
+    }
+
+    public TimeCalculator addDays(long days) {
+        this.seconds += days * 60 * 60 * 24;
+        return this;
+    }
+
+    public TimeCalculator addYears(long years) {
+        this.seconds += years * 60 * 60 * 24 * 365;
+        return this;
+    }
+
+    public long toSeconds() {
+        return seconds;
     }
 }

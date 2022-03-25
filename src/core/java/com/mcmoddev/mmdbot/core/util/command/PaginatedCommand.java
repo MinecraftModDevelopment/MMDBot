@@ -47,7 +47,7 @@ import java.util.List;
  * - call {@link #updateMaximum(int)} as required - usually once per invocation
  * - call {@link #sendPaginatedMessage(SlashCommandEvent)} in the execute method when a paginated embed is wanted.
  *
- * TODO Add a context to the {@link #updateMaximum(int)}
+ * TODO Add a context to the {@link #updateMaximum(int)}, might need a refactor
  *
  * @author Curle
  */
