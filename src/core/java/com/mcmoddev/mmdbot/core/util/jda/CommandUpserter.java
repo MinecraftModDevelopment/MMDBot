@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.core.util.jda;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.ContextMenu;
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.mcmoddev.mmdbot.core.util.EmptyRestAction;
 import com.mcmoddev.mmdbot.core.util.Pair;
 import lombok.NonNull;
 import net.dv8tion.jda.api.JDA;
@@ -33,10 +34,12 @@ import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 /**
  * Utility class for upserting commands. <br>
@@ -85,8 +88,8 @@ public class CommandUpserter implements EventListener {
             guild.retrieveCommands().queue(commands -> {
                 // Delete old commands.
                 final var toRemove = getCommandsToRemove(commands);
-                if (toRemove.findAny().isPresent()) {
-                    RestAction.allOf(toRemove.mapToObj(guild::deleteCommandById).toList()).queue();
+                if (toRemove.length > 0) {
+                    RestAction.allOf(LongStream.of(toRemove).mapToObj(guild::deleteCommandById).toList()).queue();
                 }
 
                 // Upsert new ones
@@ -96,19 +99,22 @@ public class CommandUpserter implements EventListener {
                         .collect(Collectors.toSet()))
                     .queue();
 
-                // Upsert menus
-                RestAction.allOf(client.getContextMenus().stream()
-                        .map(ContextMenu::buildCommandData)
-                        .map(guild::upsertCommand)
-                        .collect(Collectors.toSet()))
-                    .queue();
+                if (!client.getContextMenus().isEmpty()) {
+                    // Upsert menus
+                    RestAction.allOf(client.getContextMenus().stream()
+                            .map(ContextMenu::buildCommandData)
+                            .map(guild::upsertCommand)
+                            .collect(Collectors.toSet()))
+                        .queue();
+                }
             });
         } else {
             if (guildId != null) {
                 final var guild = jda.getGuildById(Objects.requireNonNull(guildId));
                 if (guild != null) {
                     // Guild still specified? Then remove guild commands
-                    guild.retrieveCommands().flatMap(commands -> RestAction.allOf(commands.stream()
+                    guild.retrieveCommands()
+                        .flatMap(commands -> commands.isEmpty() ? EmptyRestAction.empty() : RestAction.allOf(commands.stream()
                             .map(Command::getIdLong)
                             .map(guild::deleteCommandById)
                             .toList()))
@@ -118,8 +124,8 @@ public class CommandUpserter implements EventListener {
             jda.retrieveCommands().queue(commands -> {
                 // Delete old commands.
                 final var toRemove = getCommandsToRemove(commands);
-                if (toRemove.findAny().isPresent()) {
-                    RestAction.allOf(toRemove.mapToObj(jda::deleteCommandById).toList()).queue();
+                if (toRemove.length > 1) {
+                    RestAction.allOf(LongStream.of(toRemove).mapToObj(jda::deleteCommandById).toList()).queue();
                 }
 
                 // Upsert new ones
@@ -130,17 +136,19 @@ public class CommandUpserter implements EventListener {
                         .collect(Collectors.toSet()))
                     .queue();
 
-                // Upsert menus
-                RestAction.allOf(client.getContextMenus().stream()
-                        .map(ContextMenu::buildCommandData)
-                        .map(jda::upsertCommand)
-                        .collect(Collectors.toSet()))
-                    .queue();
+                if (!client.getContextMenus().isEmpty()) {
+                    // Upsert menus
+                    RestAction.allOf(client.getContextMenus().stream()
+                            .map(ContextMenu::buildCommandData)
+                            .map(jda::upsertCommand)
+                            .collect(Collectors.toSet()))
+                        .queue();
+                }
             });
         }
     }
 
-    private LongStream getCommandsToRemove(final List<Command> existingCommands) {
+    private long[] getCommandsToRemove(final List<Command> existingCommands) {
         final var ext = existingCommands.stream()
             .filter(c -> c.getType() == Command.Type.SLASH)
             .map(c -> Pair.of(c.getName(), c.getIdLong()))
@@ -153,6 +161,6 @@ public class CommandUpserter implements EventListener {
             }
             return contains;
         });
-        return ext.stream().mapToLong(Pair::second);
+        return ext.stream().mapToLong(Pair::second).toArray();
     }
 }
