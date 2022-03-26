@@ -32,6 +32,7 @@ import com.mcmoddev.mmdbot.commander.util.script.ScriptingContext;
 import com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.gist.GistUtils;
+import io.github.matyrobbrt.curseforgeapi.util.Utils;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -43,9 +44,15 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.components.Modal;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -57,6 +64,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -72,12 +83,21 @@ public class EvaluateCommand extends SlashCommand {
     @RegisterSlashCommand
     public static final EvaluateCommand COMMAND = new EvaluateCommand();
 
+    private static final ExecutorService EVALUATION_EXECUTOR = Utils.makeWithSupplier(() -> {
+        final var group = new ThreadGroup("ScriptingEvaluation");
+        final var ex = (ThreadPoolExecutor) Executors.newFixedThreadPool(2, r -> com.mcmoddev.mmdbot.core.util.Utils.setThreadDaemon(new Thread(group,
+            r, "ScriptingEvaluator #" + group.activeCount()), true));
+        ex.setKeepAliveTime(10, TimeUnit.MINUTES);
+        ex.allowCoreThreadTimeOut(true);
+        return ex;
+    });
+
     private EvaluateCommand() {
         guildOnly = true;
         name = "evaluate";
         aliases = new String[]{"eval"};
         help = "Evaluates the given script";
-        options = List.of(new OptionData(OptionType.STRING, "script", "The script to evaluate.").setRequired(true));
+        options = List.of(new OptionData(OptionType.STRING, "script", "The script to evaluate."));
     }
 
     public static final Set<Long> USED_CHANNELS = Collections.synchronizedSet(new HashSet<>());
@@ -89,76 +109,121 @@ public class EvaluateCommand extends SlashCommand {
             event.deferReply(true).setContent("Evaluation is not enabled!").queue();
             return;
         }
-        event.deferReply().allowedMentions(ALLOWED_MENTIONS)
-            .queue(hook -> {
-                final var context = createContext(new EvaluationContext() {
-                    @Override
-                    public Guild getGuild() {
-                        return event.getGuild();
-                    }
+        final var scriptOption = event.getOption("script");
+        if (scriptOption != null) {
+            event.deferReply().allowedMentions(ALLOWED_MENTIONS)
+                .queue(hook -> {
+                    final var context = createInteractionContext(hook);
 
-                    @Override
-                    public TextChannel getTextChannel() {
-                        return event.isFromType(ChannelType.TEXT) ? event.getTextChannel() : null;
-                    }
-
-                    @Override
-                    public @NotNull MessageChannel getMessageChannel() {
-                        return event.getChannel();
-                    }
-
-                    @Override
-                    public Member getMember() {
-                        return event.getMember();
-                    }
-
-                    @Override
-                    public @NotNull User getUser() {
-                        return event.getUser();
-                    }
-
-                    @Override
-                    public void reply(final String content) {
-                        hook.editOriginal(new MessageBuilder(content).setAllowedMentions(ALLOWED_MENTIONS).build())
-                            .setActionRow(DismissListener.createDismissButton(event.getUser()))
-                            .queue();
-                    }
-
-                    @Override
-                    public void replyEmbeds(final MessageEmbed... embeds) {
-                        hook.editOriginal(new MessageBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
-                            .setActionRow(DismissListener.createDismissButton(event.getUser()))
-                            .queue();
-                    }
-
-                    @Override
-                    public void replyWithMessage(final Message msg) {
-                        hook.editOriginal(msg)
-                            .setActionRow(DismissListener.createDismissButton(event.getUser()))
-                            .queue();
-                    }
-                });
-
-                final var evalThread = new Thread(() -> {
-                    try {
-                        ScriptingUtils.evaluate(event.getOption("script", "", OptionMapping::getAsString), context);
-                    } catch (ScriptingUtils.ScriptingException exception) {
-                        if (exception.getMessage().equalsIgnoreCase(THREAD_INTERRUPTED_MESSAGE)) {
-                            return;
+                    final var future = EVALUATION_EXECUTOR.submit(() -> {
+                        try {
+                            ScriptingUtils.evaluate(scriptOption.getAsString(), context);
+                        } catch (ScriptingUtils.ScriptingException exception) {
+                            if (exception.getMessage().equalsIgnoreCase(THREAD_INTERRUPTED_MESSAGE)) {
+                                return;
+                            }
+                            hook.editOriginal("There was an exception evaluating "
+                                + exception.getLocalizedMessage()).queue();
                         }
-                        hook.editOriginal("There was an exception evaluating "
-                            + exception.getLocalizedMessage()).queue();
-                    }
-                }, "ScriptEvaluation");
-                evalThread.setDaemon(true);
-                evalThread.start();
-                TaskScheduler.scheduleTask(() -> {
-                    if (evalThread.isAlive()) {
-                        evalThread.interrupt();
-                        hook.editOriginal("Evaluation was timed out!").queue();
-                    }
-                }, 4, TimeUnit.SECONDS);
-            });
+                    });
+                    TaskScheduler.scheduleTask(() -> {
+                        if (!future.isDone()) {
+                            future.cancel(true);
+                            hook.editOriginal("Evaluation was timed out!").queue();
+                        }
+                    }, 4, TimeUnit.SECONDS);
+                });
+        } else {
+            final var scriptInput = TextInput.create("script", "Script", TextInputStyle.PARAGRAPH)
+                .setRequired(true)
+                .setPlaceholder("The script to evaluate.")
+                .setRequiredRange(1, TextInput.TEXT_INPUT_MAX_LENGTH)
+                .build();
+            final var modal = Modal.create(ModalListener.MODAL_ID, "Evaluate a script")
+                .addActionRow(scriptInput)
+                .build();
+            event.replyModal(modal).queue();
+        }
+    }
+
+    public static final class ModalListener extends ListenerAdapter {
+        public static final String MODAL_ID = "evaluate";
+        @Override
+        public void onModalInteraction(@NotNull final ModalInteractionEvent event) {
+            if (event.getModalId().equals(MODAL_ID)) {
+                event.deferReply().allowedMentions(ALLOWED_MENTIONS).queue(hook -> {
+                    final var context = createInteractionContext(hook);
+
+                    final var future = EVALUATION_EXECUTOR.submit(() -> {
+                        try {
+                            ScriptingUtils.evaluate(Objects.requireNonNull(event.getValue("script")).getAsString(), context);
+                        } catch (ScriptingUtils.ScriptingException exception) {
+                            if (exception.getMessage().equalsIgnoreCase(THREAD_INTERRUPTED_MESSAGE)) {
+                                return;
+                            }
+                            hook.editOriginal("There was an exception evaluating "
+                                + exception.getLocalizedMessage()).queue();
+                        }
+                    });
+                    TaskScheduler.scheduleTask(() -> {
+                        if (!future.isDone()) {
+                            future.cancel(true);
+                            hook.editOriginal("Evaluation was timed out!").queue();
+                        }
+                    }, 4, TimeUnit.SECONDS);
+                });
+            }
+        }
+    }
+
+    public static ScriptingContext createInteractionContext(final InteractionHook hook) {
+        return createContext(new EvaluationContext() {
+            @Override
+            public Guild getGuild() {
+                return hook.getInteraction().getGuild();
+            }
+
+            @Override
+            public TextChannel getTextChannel() {
+                return hook.getInteraction().getMessageChannel().getType() == ChannelType.TEXT ? hook.getInteraction().getTextChannel() : null;
+            }
+
+            @Override
+            public @NotNull MessageChannel getMessageChannel() {
+                return hook.getInteraction().getMessageChannel();
+            }
+
+            @Override
+            public Member getMember() {
+                return hook.getInteraction().getMember();
+            }
+
+            @Override
+            public @NotNull User getUser() {
+                return hook.getInteraction().getUser();
+            }
+
+            @Override
+            public void reply(final String content) {
+                hook.editOriginal(new MessageBuilder(content).setAllowedMentions(ALLOWED_MENTIONS).build())
+                    .setActionRow(DismissListener.createDismissButton(hook.getInteraction().getUser()))
+                    .queue();
+            }
+
+            @Override
+            public void replyEmbeds(final MessageEmbed... embeds) {
+                hook.editOriginal(new MessageBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
+                    .setActionRow(DismissListener.createDismissButton(hook.getInteraction().getUser()))
+                    .queue();
+            }
+
+            @Override
+            public void replyWithMessage(final Message msg) {
+                hook.editOriginal(msg)
+                    .setActionRow(DismissListener.createDismissButton(hook.getInteraction().getUser()))
+                    .queue();
+            }
+        });
     }
 
     @Override
@@ -260,7 +325,7 @@ public class EvaluateCommand extends SlashCommand {
             });
         }
         final String finalScript = script;
-        final var evalThread = new Thread(() -> {
+        final var future = EVALUATION_EXECUTOR.submit(() -> {
             try {
                 ScriptingUtils.evaluate(finalScript, context);
             } catch (ScriptingUtils.ScriptingException exception) {
@@ -271,12 +336,10 @@ public class EvaluateCommand extends SlashCommand {
                         + exception.getLocalizedMessage()).allowedMentions(ALLOWED_MENTIONS)
                     .setActionRow(DismissListener.createDismissButton(event.getAuthor())).queue();
             }
-        }, "ScriptEvaluation");
-        evalThread.setDaemon(true);
-        evalThread.start();
+        });
         TaskScheduler.scheduleTask(() -> {
-            if (evalThread.isAlive()) {
-                evalThread.interrupt();
+            if (!future.isDone()) {
+                future.cancel(true);
                 event.getMessage().reply("Evaluation was timed out!")
                     .setActionRow(DismissListener.createDismissButton(event.getAuthor())).queue();
             }

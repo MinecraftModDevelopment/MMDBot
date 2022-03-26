@@ -292,7 +292,12 @@ public final class TheCommander implements Bot {
 
         final var upserter = new CommandUpserter(commandClient, generalConfig.bot().areCommandsForcedGuildOnly(),
             generalConfig.bot().guild());
-        EventListeners.COMMANDS_LISTENER.addListener(upserter);
+        EventListeners.COMMANDS_LISTENER.addListeners(upserter);
+
+        // Evaluation
+        if (generalConfig.features().isEvaluationEnabled()) {
+            EventListeners.COMMANDS_LISTENER.addListener(new EvaluateCommand.ModalListener());
+        }
 
         // Tricks
         if (generalConfig.features().tricks().tricksEnabled()) {
