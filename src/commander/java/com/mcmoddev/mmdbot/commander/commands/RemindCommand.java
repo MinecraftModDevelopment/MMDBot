@@ -219,7 +219,7 @@ public class RemindCommand {
 
         public static EmbedBuilder getEmbed(final long userId, final int index) {
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setDescription("Your reminders:");
+            embed.setTitle("Your reminders:");
             final var reminders = Reminders.getRemindersForUser(userId);
 
             for (var i = index; i < (reminders.size() <= ITEMS_PER_PAGE ? reminders.size() : index + ITEMS_PER_PAGE); i++) {
