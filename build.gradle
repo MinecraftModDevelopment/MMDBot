@@ -24,7 +24,8 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 final var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
 
 application {
-  mainClass = 'com.mcmoddev.mmdbot.core.RunBots'
+  // mainClass = 'com.mcmoddev.mmdbot.core.RunBots'
+  mainClass = 'com.mcmoddev.mmdbot.commander.TheCommander'
 }
 
 tasks.withType(JavaCompile).configureEach {

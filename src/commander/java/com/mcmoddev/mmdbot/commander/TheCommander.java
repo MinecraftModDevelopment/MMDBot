@@ -197,6 +197,11 @@ public final class TheCommander implements Bot {
         VERSION = version;
     }
 
+    public static void main(String[] args) {
+        final var bot = BOT_TYPE.createBot(Path.of("thecommander"));
+        bot.start();
+    }
+
     public static TheCommander getInstance() {
         return instance;
     }
