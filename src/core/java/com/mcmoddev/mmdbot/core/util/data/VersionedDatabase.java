@@ -83,7 +83,7 @@ public final class VersionedDatabase<T> {
     public static <T> VersionedDatabase<T> fromFile(Gson gson, Path filePath, java.lang.reflect.Type dataType, int defaultSchemaVersion, T defaultValue) throws IOException {
         try (final var reader = new FileReader(filePath.toFile())) {
             final var json = gson.fromJson(reader, JsonObject.class);
-            if (json == null) {
+            if (json == null || !json.has(DATA_TAG)) {
                 return new VersionedDatabase<>(defaultSchemaVersion, defaultValue);
             }
             return new VersionedDatabase<>(json.get(SCHEMA_VERSION_TAG).getAsInt(), gson.fromJson(json.get(DATA_TAG), dataType));
