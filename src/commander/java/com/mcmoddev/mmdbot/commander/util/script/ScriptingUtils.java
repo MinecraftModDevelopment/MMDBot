@@ -34,6 +34,7 @@ import com.mcmoddev.mmdbot.core.util.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Category;
+import net.dv8tion.jda.api.entities.Channel;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -166,14 +167,19 @@ public final class ScriptingUtils {
         }
     }
 
+    public static ScriptingContext createChannel(Channel channel) {
+        return ScriptingContext.of("Channel", channel)
+            .set("name", channel.getName())
+            .set("type", channel.getType().toString());
+    }
+
     public static ScriptingContext createMessageChannel(MessageChannel channel) {
         return createMessageChannel(channel, false);
     }
 
     public static ScriptingContext createMessageChannel(MessageChannel channel, boolean canSendMessage) {
         final var context = ScriptingContext.of("MessageChannel", channel);
-        context.set("name", channel.getName());
-        context.set("type", channel.getType().toString());
+        context.flatAdd(createChannel(channel));
         context.setFunction("canBotTalk", args -> channel.canTalk());
         if (canSendMessage) {
             context.setFunctionVoid("sendMessage", args -> {
@@ -297,7 +303,9 @@ public final class ScriptingUtils {
         });
         context.setFunction("getMembers", a -> guild.getMembers().stream().map(m -> createMember(m).toProxyObject()).toList());
         context.setFunction("getRoles", a -> guild.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList());
+        context.setFunction("getChannels", a -> guild.getChannels().stream().map(c -> createChannel(c).toProxyObject()).toList());
         context.setFunction("getTextChannels", a -> guild.getTextChannels().stream().map(c -> createTextChannel(c).toProxyObject()).toList());
+        context.setFunction("getCategories", a -> guild.getCategories().stream().map(c -> createCategory(c).toProxyObject()).toList());
         context.setFunction("getEmotes", a -> guild.getEmotes().stream().map(c -> createEmote(c).toProxyObject()).toList());
         return context;
     }
