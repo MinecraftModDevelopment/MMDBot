@@ -298,7 +298,7 @@ public final class TheCommander implements Bot {
         if (generalConfig.features().tricks().tricksEnabled()) {
             commandClient.addCommand(new AddTrickCommand.Prefix());
             commandClient.addCommand(new EditTrickCommand.Prefix());
-            EventListeners.COMMANDS_LISTENER.addListener(ListTricksCommand.getListListener());
+            EventListeners.COMMANDS_LISTENER.addListeners(ListTricksCommand.getListListener(), new AddTrickCommand.ModalListener());
             if (generalConfig.features().tricks().prefixEnabled()) {
                 Tricks.getTricks().stream().map(RunTrickCommand.Prefix::new).forEach(commandClient::addCommand);
             }

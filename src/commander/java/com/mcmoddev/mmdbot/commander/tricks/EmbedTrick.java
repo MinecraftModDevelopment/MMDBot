@@ -21,13 +21,16 @@
 package com.mcmoddev.mmdbot.commander.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 
 import java.util.Arrays;
 import java.util.List;
@@ -179,28 +182,67 @@ public class EmbedTrick implements Trick {
             );
         }
 
+        private static final List<String> ARG_NAMES = List.of("names", "title", "description", "colour");
+
         @Override
-        public List<OptionData> getArgs() {
-            return List.of(
-                new OptionData(OptionType.STRING, "names", "Name(s) for the trick. Separate with spaces.").setRequired(true),
-                new OptionData(OptionType.STRING, "title", "Title of the embed.").setRequired(true),
-                new OptionData(OptionType.STRING, "description", "Description of the embed.").setRequired(true),
-                new OptionData(OptionType.STRING, "color", "Hex color string in #AABBCC format, used for the embed.").setRequired(true)
-            );
+        public List<String> getArgNames() {
+            return ARG_NAMES;
+        }
+
+        private static final LazySupplier<List<ActionRow>> MODAL_ARGS = LazySupplier.of(() -> {
+            final var names = TextInput.create("names", "Names", TextInputStyle.SHORT)
+                .setRequired(true)
+                .setRequiredRange(1, TextInput.TEXT_INPUT_MAX_LENGTH)
+                .setPlaceholder("Name(s) for the trick. Separate with spaces.")
+                .build();
+
+            final var title = TextInput.create("title", "Title", TextInputStyle.SHORT)
+                .setRequired(true)
+                .setRequiredRange(1, TextInput.TEXT_INPUT_MAX_LENGTH)
+                .setPlaceholder("Title of the embed.")
+                .build();
+
+            final var description = TextInput.create("description", "Description", TextInputStyle.PARAGRAPH)
+                .setRequired(true)
+                .setRequiredRange(1, TextInput.TEXT_INPUT_MAX_LENGTH)
+                .setPlaceholder("Description of the embed.")
+                .build();
+
+            final var colour = TextInput.create("colour", "Colour", TextInputStyle.SHORT)
+                .setRequired(false)
+                .setPlaceholder("Hex colour string in #AABBCC format, used for the embed.")
+                .build();
+
+            return List.of(ActionRow.of(names), ActionRow.of(title), ActionRow.of(description), ActionRow.of(colour));
+        });
+
+        @Override
+        public List<ActionRow> getModalArguments() {
+            return MODAL_ARGS.get();
         }
 
         @Override
-        public EmbedTrick createFromCommand(final SlashCommandEvent event) {
+        public EmbedTrick createFromModal(final ModalInteractionEvent event) {
+            final var colour = getOr(event, "colour", "#000000");
             return new EmbedTrick(
-                Arrays.asList(getOrEmpty(event, "names").split(" ")),
+                List.of(getOrEmpty(event, "names").split(" ")),
                 getOrEmpty(event, "title"),
                 getOrEmpty(event, "description"),
-                Integer.parseInt(getOrEmpty(event, "color").replaceAll("#", ""), 16)
+                colour.startsWith("#") ? Integer.parseInt(getOrEmpty(event, "colour").replaceAll("#", ""), 16) : Integer.parseInt(colour)
             );
         }
     }
 
     private static String getOrEmpty(final SlashCommandEvent event, String name) {
         return event.getOption(name, "", OptionMapping::getAsString);
+    }
+
+    private static String getOr(final ModalInteractionEvent event, String id, String or) {
+        final var m = event.getValue(id);
+        return m == null ? or : m.getAsString();
+    }
+
+    private static String getOrEmpty(final ModalInteractionEvent event, String name) {
+        return getOr(event, name, "");
     }
 }

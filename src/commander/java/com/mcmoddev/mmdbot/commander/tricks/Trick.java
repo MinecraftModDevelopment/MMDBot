@@ -21,7 +21,11 @@
 package com.mcmoddev.mmdbot.commander.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.Modal;
 
 import java.util.List;
 
@@ -70,9 +74,7 @@ public interface Trick {
          *
          * @return arg names
          */
-        default List<String> getArgNames() {
-            return getArgs().stream().map(OptionData::getName).toList();
-        }
+        List<String> getArgNames();
 
         /**
          * Create a trick from string arguments.
@@ -83,18 +85,18 @@ public interface Trick {
         T createFromArgs(String args);
 
         /**
-         * Get arguments for slash commands
+         * Gets the arguments that will be sent in a modal.
          *
-         * @return a list of arguments as OptionData
+         * @return the arguments
          */
-        List<OptionData> getArgs();
+        List<ActionRow> getModalArguments();
 
         /**
-         * Create from args t.
+         * Creates the trick from a modal.
          *
-         * @param event the command event
+         * @param modal the modal event
          * @return the trick
          */
-        T createFromCommand(SlashCommandEvent event);
+        T createFromModal(ModalInteractionEvent modal);
     }
 }

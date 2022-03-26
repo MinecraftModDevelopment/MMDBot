@@ -29,7 +29,15 @@ import com.mcmoddev.mmdbot.commander.tricks.ScriptTrick;
 import com.mcmoddev.mmdbot.commander.tricks.Trick;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
+import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.gist.GistUtils;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Modal;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -53,14 +61,18 @@ import java.util.function.Supplier;
 public final class AddTrickCommand extends SlashCommand {
 
     public static final Supplier<String[]> BOT_MAINTAINERS_GETTER = () -> TheCommander.getInstance().getGeneralConfig().roles().getBotMaintainers().toArray(String[]::new);
+    public static final SubcommandGroupData GROUP = new SubcommandGroupData("add", "Adds a trick.");
+
+    private final String trickTypeName;
     private final Trick.TrickType<?> trickType;
 
     public AddTrickCommand(String name, Trick.TrickType<?> trickType) {
+        this.trickTypeName = name;
         this.trickType = trickType;
-        this.name = "create-" + name;
-        this.help = "Add or create a " + name + "-type trick.";
+        this.name = name;
+        subcommandGroup = GROUP;
+        this.help = "Add or edit %s %s-type trick.".formatted(Utils.startWithVowel(name) ? "an" : "a", name);
         this.guildOnly = true;
-        this.options = trickType.getArgs();
         enabledRoles = BOT_MAINTAINERS_GETTER.get();
     }
 
@@ -76,30 +88,49 @@ public final class AddTrickCommand extends SlashCommand {
             return;
         }
 
-        if (!TheCommanderUtilities.memberHasRoles(event.getMember(), enabledRoles)) {
+        if (!TheCommanderUtilities.memberHasRoles(event.getMember(), BOT_MAINTAINERS_GETTER.get())) {
             event.deferReply(true).setContent("Only Bot Maintainers can use this command.").queue();
             return;
         }
 
-        Trick trick = trickType.createFromCommand(event);
-        Optional<Trick> originalTrick = Tricks.getTricks().stream()
-            .filter(t -> t.getNames().stream().anyMatch(n -> trick.getNames().contains(n))).findAny();
+        final var modal = Modal.create(ModalListener.MODAL_ID_PREFIX + trickTypeName, "Create %s %s trick".formatted(Utils.startWithVowel(trickTypeName) ? "an" : "a", trickTypeName))
+            .addActionRows(trickType.getModalArguments())
+            .build();
+        event.replyModal(modal).queue();
+    }
 
-        originalTrick.ifPresentOrElse(original -> {
-            Tricks.replaceTrick(original, trick);
-            event.reply("Updated trick!").mentionRepliedUser(false).setEphemeral(true).queue();
-        }, () -> {
-            Tricks.addTrick(trick);
-            event.reply("Added trick!").mentionRepliedUser(false).setEphemeral(true).queue();
-        });
+    public static final class ModalListener extends ListenerAdapter {
+        public static final String MODAL_ID_PREFIX = "addtrick_";
+
+        public ModalListener() {}
+
+        @Override
+        public void onModalInteraction(@NotNull final ModalInteractionEvent event) {
+            if (!event.getModalId().startsWith(MODAL_ID_PREFIX)) return;
+            final var trickTypeStr = event.getModalId().replace(MODAL_ID_PREFIX, "");
+            final var type = Tricks.getTrickType(trickTypeStr);
+            if (type != null) {
+                final var trick = type.createFromModal(event);
+                Optional<Trick> originalTrick = Tricks.getTricks().stream()
+                    .filter(t -> t.getNames().stream().anyMatch(n -> trick.getNames().contains(n))).findAny();
+
+                originalTrick.ifPresentOrElse(original -> {
+                    Tricks.replaceTrick(original, trick);
+                    event.reply("Updated trick!").mentionRepliedUser(false).setEphemeral(true).queue();
+                }, () -> {
+                    Tricks.addTrick(trick);
+                    event.reply("Added trick!").mentionRepliedUser(false).setEphemeral(true).queue();
+                });
+            } else {
+                event.reply("Unknown trick type: **%s**".formatted(trickTypeStr)).queue();
+            }
+        }
     }
 
     public static final class Prefix extends Command {
 
         public Prefix() {
             name = "addtrick";
-            arguments = "(<string> <trick content body> (or) <embed> <title> "
-                + "<description> <colour-as-hex-code>";
             aliases = new String[]{"add-trick"};
             requiredRole = "Bot Maintainer";
             guildOnly = true;

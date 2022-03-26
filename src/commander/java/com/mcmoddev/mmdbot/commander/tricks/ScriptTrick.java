@@ -20,11 +20,12 @@
  */
 package com.mcmoddev.mmdbot.commander.tricks;
 
-import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import io.github.matyrobbrt.eventdispatcher.LazySupplier;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 
 import java.util.Arrays;
 import java.util.List;
@@ -68,19 +69,38 @@ public record ScriptTrick(List<String> names, String script) implements Trick {
             return new ScriptTrick(Arrays.asList(argsArray[0].split(" ")), script);
         }
 
+        private static final List<String> ARG_NAMES = List.of("names", "script");
+
         @Override
-        public List<OptionData> getArgs() {
-            return List.of(
-                new OptionData(OptionType.STRING, "names", "Name(s) for the trick. Separate with spaces.").setRequired(true),
-                new OptionData(OptionType.STRING, "script", "The script of the trick.").setRequired(true)
-            );
+        public List<String> getArgNames() {
+            return ARG_NAMES;
+        }
+
+        private static final LazySupplier<List<ActionRow>> MODAL_ARGS = LazySupplier.of(() -> {
+            final var names = TextInput.create("names", "Names", TextInputStyle.SHORT)
+                .setRequired(true)
+                .setRequiredRange(1, TextInput.TEXT_INPUT_MAX_LENGTH)
+                .setPlaceholder("Name(s) for the trick. Separate with spaces.")
+                .build();
+
+            final var script = TextInput.create("script", "Script", TextInputStyle.PARAGRAPH)
+                .setRequired(true)
+                .setRequiredRange(1, TextInput.TEXT_INPUT_MAX_LENGTH)
+                .setPlaceholder("The script of the trick.")
+                .build();
+
+            return List.of(ActionRow.of(names), ActionRow.of(script));
+        });
+
+        @Override
+        public List<ActionRow> getModalArguments() {
+            return MODAL_ARGS.get();
         }
 
         @Override
-        public ScriptTrick createFromCommand(final SlashCommandEvent event) {
-            return new ScriptTrick(Arrays.asList(
-                event.getOption("names", "", OptionMapping::getAsString).split(" ")
-            ), event.getOption("script", "", OptionMapping::getAsString));
+        public ScriptTrick createFromModal(final ModalInteractionEvent event) {
+            return new ScriptTrick(Arrays.asList(event.getValue("names").getAsString()
+                .split(" ")), event.getValue("script").getAsString());
         }
     }
 }

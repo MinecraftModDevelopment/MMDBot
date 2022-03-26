@@ -20,12 +20,13 @@
  */
 package com.mcmoddev.mmdbot.commander.tricks;
 
-import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 
 import java.util.Arrays;
 import java.util.List;
@@ -95,18 +96,38 @@ public record StringTrick(List<String> names, String body) implements Trick {
             return new StringTrick(Arrays.asList(argsArray[0].split(" ")), argsArray[1]);
         }
 
+        private static final List<String> ARG_NAMES = List.of("names", "content");
+
         @Override
-        public List<OptionData> getArgs() {
-            return List.of(
-                new OptionData(OptionType.STRING, "names", "Name(s) for the trick. Separate with spaces.").setRequired(true),
-                new OptionData(OptionType.STRING, "content", "The content of the trick.").setRequired(true)
-            );
+        public List<String> getArgNames() {
+            return ARG_NAMES;
+        }
+
+        private static final LazySupplier<List<ActionRow>> MODAL_ARGS = LazySupplier.of(() -> {
+           final var names = TextInput.create("names", "Names", TextInputStyle.SHORT)
+               .setRequired(true)
+               .setRequiredRange(1, TextInput.TEXT_INPUT_MAX_LENGTH)
+               .setPlaceholder("Name(s) for the trick. Separate with spaces.")
+               .build();
+
+           final var content = TextInput.create("content", "Content", TextInputStyle.PARAGRAPH)
+               .setRequired(true)
+               .setRequiredRange(1, TextInput.TEXT_INPUT_MAX_LENGTH)
+               .setPlaceholder("The content of the trick.")
+               .build();
+
+           return List.of(ActionRow.of(names), ActionRow.of(content));
+        });
+
+        @Override
+        public List<ActionRow> getModalArguments() {
+            return MODAL_ARGS.get();
         }
 
         @Override
-        public StringTrick createFromCommand(final SlashCommandEvent event) {
-            return new StringTrick(Arrays.asList(event.getOption("names", "", OptionMapping::getAsString)
-                .split(" ")), event.getOption("content", "", OptionMapping::getAsString));
+        public StringTrick createFromModal(final ModalInteractionEvent event) {
+            return new StringTrick(Arrays.asList(event.getValue("names").getAsString()
+                .split(" ")), event.getValue("content").getAsString());
         }
     }
 }

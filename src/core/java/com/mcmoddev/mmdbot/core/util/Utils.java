@@ -94,4 +94,28 @@ public final class Utils {
         service.schedule(task, date.atOffset(ZoneOffset.UTC).toEpochSecond() -
             Instant.now().atOffset(ZoneOffset.UTC).toEpochSecond(), TimeUnit.SECONDS);
     }
+
+    /**
+     * Checks if a word starts with a vowel.
+     * @param word the word to check
+     * @return if the word starts with a vowel
+     */
+    public static boolean startWithVowel(String word) {
+        if (word.length() < 1) return false;
+        switch (word.charAt(0)) {
+            case 'a':
+            case 'e':
+            case 'i':
+            case 'o':
+            case 'u':
+            case 'A':
+            case 'E':
+            case 'I':
+            case 'O':
+            case 'U':
+                return true;
+            default:
+                return false;
+        }
+    }
 }

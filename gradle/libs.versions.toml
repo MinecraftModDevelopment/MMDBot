@@ -7,7 +7,8 @@ kotlin = { id = "org.jetbrains.kotlin.jvm", version = "1.6.10" }
 launch4j = { id = 'edu.sc.seis.launch4j', version = '2.5.2'}
 
 [versions]
-jda = "5.0.0-alpha.9"
+# jda = "5.0.0-alpha.9"
+jda = "6adee1e"
 chewtils = "2.0-SNAPSHOT"
 guava = "31.1-jre"
 gson = "2.9.0"
@@ -34,7 +35,9 @@ netty = "4.1.74.Final"
 asmutils = "0.3.1"
 
 [libraries]
-jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
+# jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
+# TODO switch back when JDA has modals
+jda = { module = "com.github.xirado:JDA", version.ref = "jda" }
 chewtils = { module = "pw.chew:jda-chewtils", version.ref = "chewtils" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
