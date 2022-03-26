@@ -62,10 +62,8 @@ import java.util.function.Consumer;
 
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.ALLOWED_MENTIONS;
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.createGuild;
-import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.createMember;
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.createMessageChannel;
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.createTextChannel;
-import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.createUser;
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.getEmbedFromValue;
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.validateArgs;
 
@@ -294,40 +292,40 @@ public class EvaluateCommand extends SlashCommand {
         context.set("channel", createMessageChannel(evalContext.getMessageChannel(), true)
             .setFunctionVoid("sendMessage", args -> {
                 validateArgs(args, 1);
-                executeAndAddColldown(evalContext.getMessageChannel(), c -> c.sendMessage(args.get(0).asString()).allowedMentions(ALLOWED_MENTIONS).queue());
+                executeAndAddCooldown(evalContext.getMessageChannel(), c -> c.sendMessage(args.get(0).asString()).allowedMentions(ALLOWED_MENTIONS).queue());
             })
             .setFunctionVoid("sendEmbed", args -> {
                 validateArgs(args, 1);
                 final var v = args.get(0);
                 final var embed = getEmbedFromValue(v);
                 if (embed != null) {
-                    executeAndAddColldown(evalContext.getMessageChannel(), c -> c.sendMessageEmbeds(embed).allowedMentions(ALLOWED_MENTIONS).queue());
+                    executeAndAddCooldown(evalContext.getMessageChannel(), c -> c.sendMessageEmbeds(embed).allowedMentions(ALLOWED_MENTIONS).queue());
                 }
             })
-            .setFunctionVoid("sendEmbeds", args -> executeAndAddColldown(evalContext.getMessageChannel(), c -> c.sendMessageEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
+            .setFunctionVoid("sendEmbeds", args -> executeAndAddCooldown(evalContext.getMessageChannel(), c -> c.sendMessageEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
                 .filter(Objects::nonNull).limit(3).toList()).allowedMentions(ALLOWED_MENTIONS).queue())));
         context.set("textChannel", evalContext.getTextChannel() == null ? null : createTextChannel(evalContext.getTextChannel(), true)
             .setFunctionVoid("sendMessage", args -> {
                 validateArgs(args, 1);
-                executeAndAddColldown(evalContext.getTextChannel(), c -> c.sendMessage(args.get(0).asString()).allowedMentions(ALLOWED_MENTIONS).queue());
+                executeAndAddCooldown(evalContext.getTextChannel(), c -> c.sendMessage(args.get(0).asString()).allowedMentions(ALLOWED_MENTIONS).queue());
             })
             .setFunctionVoid("sendEmbed", args -> {
                 validateArgs(args, 1);
                 final var v = args.get(0);
                 final var embed = getEmbedFromValue(v);
                 if (embed != null) {
-                    executeAndAddColldown(evalContext.getTextChannel(), c -> c.sendMessageEmbeds(embed).allowedMentions(ALLOWED_MENTIONS).queue());
+                    executeAndAddCooldown(evalContext.getTextChannel(), c -> c.sendMessageEmbeds(embed).allowedMentions(ALLOWED_MENTIONS).queue());
                 }
             })
-            .setFunctionVoid("sendEmbeds", args -> executeAndAddColldown(evalContext.getTextChannel(), c -> c.sendMessageEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
+            .setFunctionVoid("sendEmbeds", args -> executeAndAddCooldown(evalContext.getTextChannel(), c -> c.sendMessageEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
                 .filter(Objects::nonNull).toList()).allowedMentions(ALLOWED_MENTIONS).queue())));
         context.setFunctionVoid("reply", args -> {
             validateArgs(args, 1);
-            executeAndAddColldown(evalContext.getMessageChannel(), c -> evalContext.reply(args.get(0).asString()));
+            executeAndAddCooldown(evalContext.getMessageChannel(), c -> evalContext.reply(args.get(0).asString()));
         });
         if (canSendEmbed) {
             context.setFunctionVoid("replyEmbeds", args -> {
-                executeAndAddColldown(evalContext.getMessageChannel(), c -> evalContext.replyEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
+                executeAndAddCooldown(evalContext.getMessageChannel(), c -> evalContext.replyEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
                     .filter(Objects::nonNull).limit(3).toArray(MessageEmbed[]::new)));
             });
             context.setFunctionVoid("replyEmbed", args -> {
@@ -335,7 +333,7 @@ public class EvaluateCommand extends SlashCommand {
                 final var v = args.get(0);
                 final var embed = getEmbedFromValue(v);
                 if (embed != null) {
-                    executeAndAddColldown(evalContext.getMessageChannel(), c -> evalContext.replyEmbeds(embed));
+                    executeAndAddCooldown(evalContext.getMessageChannel(), c -> evalContext.replyEmbeds(embed));
                 }
             });
         }
@@ -398,7 +396,46 @@ public class EvaluateCommand extends SlashCommand {
         return context;
     }
 
-    public static void executeAndAddColldown(MessageChannel channel, Consumer<MessageChannel> consumer) {
+    public static ScriptingContext createMember(Member member, boolean canDm) {
+        return ScriptingUtils.createMember(member, canDm)
+            .set("user", createUser(member.getUser(), canDm));
+    }
+
+    public static ScriptingContext createUser(final User user, final boolean canDm) {
+        return ScriptingUtils.createUser(user, canDm)
+            .setFunction("openPrivateChannel", args -> {
+                validateArgs(args, 0);
+                final var privateChannel = user.openPrivateChannel().complete();
+                return privateChannel == null ? null : overwriteDm(privateChannel, canDm);
+            });
+    }
+
+    public static ScriptingContext overwriteDm(final MessageChannel channel, final boolean canDm) {
+        final var context = ScriptingUtils.createMessageChannel(channel, canDm);
+        if (canDm) {
+            context.setFunctionVoid("sendMessage", args -> {
+                validateArgs(args, 1);
+                executeAndAddCooldown(channel, ch -> {
+                    ch.sendMessage(args.get(0).asString()).allowedMentions(ALLOWED_MENTIONS).queue();
+                });
+            });
+            context.setFunctionVoid("sendEmbed", args -> {
+                validateArgs(args, 1);
+                executeAndAddCooldown(channel, ch -> {
+                    final var v = args.get(0);
+                    final var embed = getEmbedFromValue(v);
+                    if (embed != null) {
+                        channel.sendMessageEmbeds(embed).allowedMentions(ALLOWED_MENTIONS).queue();
+                    }
+                });
+            });
+            context.setFunctionVoid("sendEmbeds", args -> executeAndAddCooldown(channel, ch -> ch.sendMessageEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
+                .filter(Objects::nonNull).limit(3).toList()).allowedMentions(ALLOWED_MENTIONS).queue()));
+        }
+        return context;
+    }
+
+    public static void executeAndAddCooldown(MessageChannel channel, Consumer<MessageChannel> consumer) {
         if (!USED_CHANNELS.contains(channel.getIdLong())) {
             consumer.accept(channel);
             USED_CHANNELS.add(channel.getIdLong());
