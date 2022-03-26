@@ -478,6 +478,43 @@ public final class ScriptingUtils {
             }
             return String.format(args.get(0).asString(), args.subList(1, args.size()).stream().map(Value::asString).toArray(Object[]::new));
         }));
+
+        context.setFunction("getFunctions", executeIfArgsValid(args -> {
+            final var member = args.get(0);
+            final var memberKeys = member.getMemberKeys();
+            if (args.size() < 2) {
+                return memberKeys.stream().filter(k -> member.getMember(k).canExecute()).toList();
+            } else {
+                final var blacklist = List.of(args.get(1).as(String[].class));
+                return memberKeys.stream().filter(k -> member.getMember(k).canExecute() && !blacklist.contains(k)).toList();
+            }
+        }, 1, 2));
+        context.setFunction("getConstructors", executeIfArgsValid(args -> {
+            final var member = args.get(0);
+            final var memberKeys = member.getMemberKeys();
+            if (args.size() < 2) {
+                return memberKeys.stream().filter(k -> member.getMember(k).canInstantiate()).toList();
+            } else {
+                final var blacklist = List.of(args.get(1).as(String[].class));
+                return memberKeys.stream().filter(k -> member.getMember(k).canInstantiate() && !blacklist.contains(k)).toList();
+            }
+        }, 1, 2));
+        context.setFunction("getFields", executeIfArgsValid(args -> {
+            final var member = args.get(0);
+            final var memberKeys = member.getMemberKeys();
+            if (args.size() < 2) {
+                return memberKeys.stream().filter(k -> {
+                    final var m = member.getMember(k);
+                    return !m.canExecute() && !m.canInstantiate();
+                }).toList();
+            } else {
+                final var blacklist = List.of(args.get(1).as(String[].class));
+                return memberKeys.stream().filter(k -> {
+                    final var m = member.getMember(k);
+                    return !m.canExecute() && !m.canInstantiate() && !blacklist.contains(k);
+                }).toList();
+            }
+        }, 1, 2));
     });
 
     public static final ScriptingContext INSTANT_CLASS = makeContext("Instant", context -> {
