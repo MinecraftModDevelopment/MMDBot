@@ -88,7 +88,7 @@ public record Reminder(String content, long channelId, boolean isPrivateChannel,
             return;
         }
         channel.sendMessage(new MessageBuilder()
-                .setContent(user.getAsMention())
+                .setContent(isPrivateChannel() ? null : user.getAsMention())
                 .setEmbeds(
                     new EmbedBuilder()
                         .setAuthor(jda.getSelfUser().getName(), null, jda.getSelfUser().getAvatarUrl())

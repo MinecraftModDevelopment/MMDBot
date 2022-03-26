@@ -120,12 +120,12 @@ public class RemindCommand {
 
         public static final DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder()
             .appendValue(ChronoField.YEAR, 4)
-            .appendLiteral('-')
-            .appendValue(ChronoField.MONTH_OF_YEAR, 2)
-            .appendLiteral('-')
+            .appendLiteral('/')
             .appendValue(ChronoField.DAY_OF_MONTH, 2)
+            .appendLiteral('/')
+            .appendValue(ChronoField.MONTH_OF_YEAR, 2)
                 .optionalStart()
-                    .appendLiteral('_')
+                    .appendLiteral('-')
                     .appendValue(ChronoField.HOUR_OF_DAY, 2)
                         .optionalStart()
                             .appendLiteral(':')
@@ -143,7 +143,7 @@ public class RemindCommand {
             name = "at";
             help = "Adds a reminder relative to an absolute time.";
             options = List.of(
-                new OptionData(OptionType.STRING, "time", "The time of the reminder. The format is: uuuu-MM-dd_HH:mm+timezone. Example: 2022-03-25_21:17+02:00", true),
+                new OptionData(OptionType.STRING, "time", "The time of the reminder. The format is: uuuu/dd/MM-HH:mm+timezone. Example: 2022/25/03-21:17+02:00", true),
                 new OptionData(OptionType.STRING, "content", "The content of the reminder.")
             );
             cooldown = 20;
