@@ -115,6 +115,10 @@ public class RunBots {
                             bot.start();
                             botsAmount.incrementAndGet();
                             bot.getLogger().warn("Bot {} has been found, and it has been launched!", botEntry.name());
+                        }).exceptionally(t -> {
+                            bot.getLogger().error("Exception starting bot up: ", t);
+                            botsAmount.incrementAndGet();
+                            return null;
                         });
                     } else {
                         LOG.warn("Bot {} was null! Skipping...", botEntry.name);
