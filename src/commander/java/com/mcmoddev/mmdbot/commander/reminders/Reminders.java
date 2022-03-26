@@ -90,7 +90,7 @@ public class Reminders {
             final var db = VersionedDatabase.<Map<Long, List<Reminder>>>fromFile(NO_PRETTY_PRINTING, path, TYPE, CURRENT_SCHEMA_VERSION, new HashMap<>());
             if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
                 MIGRATOR.migrate(CURRENT_SCHEMA_VERSION, path);
-                final var newDb = VersionedDatabase.<Map<Long, List<Reminder>>>fromFile(NO_PRETTY_PRINTING, path, TYPE);
+                final var newDb = VersionedDatabase.<Map<Long, List<Reminder>>>fromFile(NO_PRETTY_PRINTING, path, TYPE, CURRENT_SCHEMA_VERSION, new HashMap<>());
                 return reminders = newDb.getData();
             } else {
                 return reminders = db.getData();

@@ -182,19 +182,18 @@ public final class MMDBot implements Bot {
         }
 
         try {
-            jda.set(JDABuilder
+            final var jdaBuilder = JDABuilder
                 .create(config.getToken(), MMDBot.INTENTS)
                 .disableCache(CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY)
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
-                .addEventListeners(new ThreadedEventListener(new MiscEvents(), GENERAL_EVENT_THREAD_POOL))
-                .build().awaitReady());
+                .addEventListeners(new ThreadedEventListener(new MiscEvents(), GENERAL_EVENT_THREAD_POOL));
 
-            CommandModule.setupCommandModule();
+            CommandModule.setupCommandModule(jdaBuilder);
             LoggingModule.setupLoggingModule();
 
-            jda.get().getPresence().setActivity(Activity.of(config.getActivityType(), config.getActivityName()));
+            jda.set(jdaBuilder.build().awaitReady());
         } catch (final LoginException exception) {
             MMDBot.LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.", exception);
             System.exit(1);
