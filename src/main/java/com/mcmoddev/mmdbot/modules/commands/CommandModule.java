@@ -24,6 +24,7 @@ import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.core.util.jda.CommandUpserter;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRestart;
@@ -38,6 +39,8 @@ import com.mcmoddev.mmdbot.modules.commands.moderation.CmdUnmute;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdWarning;
 import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
@@ -72,15 +75,17 @@ public class CommandModule {
     /**
      * Setup and load the bots command module.
      */
-    public static void setupCommandModule() {
+    public static void setupCommandModule(final JDABuilder jda) {
 
-        commandClient = new CommandClientBuilder()
+        final var builder = new CommandClientBuilder()
             .setOwnerId(MMDBot.getConfig().getOwnerID())
             .setPrefix(MMDBot.getConfig().getMainPrefix())
             .setAlternativePrefix(MMDBot.getConfig().getAlternativePrefix())
-            .useHelpBuilder(false).setManualUpsert(true).build();
+            .setActivity(Activity.of(MMDBot.getConfig().getActivityType(), MMDBot.getConfig().getActivityName()))
+            .useHelpBuilder(false)
+            .setManualUpsert(true);
 
-        addSlashCommand(
+        builder.addSlashCommands(
             new CmdMute(),
             new CmdUnmute(),
             new CmdCommunityChannel(),
@@ -93,15 +98,18 @@ public class CommandModule {
             new CmdWarning(),
             new CmdInvite());
 
+        commandClient = builder.build();
+
         commandClient.addCommand(new CmdReact());
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
+            final var upserter = new CommandUpserter(commandClient, false, String.valueOf(MMDBot.getConfig().getGuildID()));
+            jda.addEventListeners(upserter);
             // Wrap the command and button listener in another thread, so that if a runtime exception
             // occurs while executing a command, the event thread will not be stopped
             // Commands and buttons are separated so that they do not interfere with each other
-            MMDBot.getJDA().addEventListener(new ThreadedEventListener((EventListener) commandClient, COMMAND_LISTENER_THREAD_POOL));
-            MMDBot.getJDA().addEventListener(buttonListener(CmdInvite.ListCmd.getButtonListener()));
-            MMDBot.getJDA().addEventListener(buttonListener(new DismissListener()));
+            jda.addEventListeners(new ThreadedEventListener((EventListener) commandClient, COMMAND_LISTENER_THREAD_POOL),
+                buttonListener(CmdInvite.ListCmd.getButtonListener()), buttonListener(new DismissListener()));
         } else {
             MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");
         }
@@ -109,30 +117,5 @@ public class CommandModule {
 
     private static EventListener buttonListener(final EventListener listener) {
         return new ThreadedEventListener(listener, BUTTON_LISTENER_THREAD_POOL);
-    }
-
-    /**
-     * Adds and upserts a slash command.
-     *
-     * @param cmds the command(s) to upsert
-     */
-    public static void addSlashCommand(final SlashCommand... cmds) {
-        for (final var cmd : cmds) {
-            commandClient.addSlashCommand(cmd);
-            upsertCommand(cmd.buildCommandData(), cmd.isGuildOnly());
-        }
-    }
-
-    public static void upsertCommand(final CommandData data, boolean guildOnly) {
-        if (guildOnly) {
-            var guild = MMDBot.getJDA().getGuildById(MMDBot.getConfig().getGuildID());
-            if (guild == null) {
-                throw new NullPointerException("No Guild found!");
-            }
-
-            guild.upsertCommand(data).queue();
-        } else {
-            MMDBot.getJDA().upsertCommand(data).queue();
-        }
     }
 }

@@ -117,9 +117,9 @@ public class TheCommanderUtilities {
         embed.addField("Users id:", member.getId(), true);
 
         if (member.getNickname() == null) {
-            embed.addField("Users nickname:", "No nickname applied.", true);
+            embed.addField("User's nickname:", "No nickname applied.", true);
         } else {
-            embed.addField("Users nickname:", member.getNickname(), true);
+            embed.addField("User's nickname:", member.getNickname(), true);
         }
 
         final var date = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.ENGLISH);
