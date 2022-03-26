@@ -38,8 +38,8 @@ public final class GistCommand extends Command {
     public GistCommand() {
         name = "gist";
         help = "Creates a gist from the referenced message.";
-        cooldown = 120;
-        cooldownScope = CooldownScope.USER_GUILD;
+        cooldown = 10;
+        cooldownScope = CooldownScope.USER;
         guildOnly = false;
     }
 

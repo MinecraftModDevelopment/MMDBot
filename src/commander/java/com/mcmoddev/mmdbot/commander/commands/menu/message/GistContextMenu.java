@@ -46,8 +46,8 @@ public class GistContextMenu extends MessageContextMenu {
 
     public GistContextMenu() {
         name = "Gist";
-        cooldown = 120;
-        cooldownScope = CooldownScope.USER_GUILD;
+        cooldown = 10;
+        cooldownScope = CooldownScope.USER;
     }
 
     @Override
