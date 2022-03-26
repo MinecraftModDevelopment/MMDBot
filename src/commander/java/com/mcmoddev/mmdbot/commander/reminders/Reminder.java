@@ -24,9 +24,11 @@ import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 import java.awt.Color;
@@ -84,29 +86,44 @@ public record Reminder(String content, long channelId, boolean isPrivateChannel,
         }
         final var canTalk = channel.canTalk();
         if (!canTalk) {
-            log.warn("Could not talk in channel with ID {}, so a reminder could not be sent!", channelId);
+            if (!isPrivateChannel()) {
+                // If we can't DM the user, then log
+                user.openPrivateChannel().queue(pv -> {
+                    pv.sendMessage(buildMessage(jda, user)
+                            .append(System.lineSeparator())
+                            .appendCodeLine("Could not send reminder in <#%s>.".formatted(channelId()))
+                            .build())
+                        .queue(m -> SnoozingListener.INSTANCE.addSnoozeListener(m.getIdLong(), this),
+                            error -> log.error("Exception while trying to send reminder!", error));
+                }, e -> log.warn("Could not talk in channel with ID {}, so a reminder could not be sent!", channelId));
+            } else {
+                log.warn("Could not talk in channel with ID {}, so a reminder could not be sent!", channelId);
+            }
             return;
         }
-        channel.sendMessage(new MessageBuilder()
-                .setContent(isPrivateChannel() ? null : user.getAsMention())
-                .setEmbeds(
-                    new EmbedBuilder()
-                        .setAuthor(jda.getSelfUser().getName(), null, jda.getSelfUser().getAvatarUrl())
-                        .setTitle("Reminder")
-                        .setFooter(user.getName(), user.getAvatarUrl())
-                        .setDescription(content.isBlank() ? "No Content." : content)
-                        .setTimestamp(Instant.now())
-                        .setColor(COLOUR)
-                        .build()
-                )
-                .setAllowedMentions(ALLOWED_MENTIONS)
-                .setActionRows(getActionRows())
-                .build())
+        channel.sendMessage(buildMessage(jda, user).build())
             .queue(m -> SnoozingListener.INSTANCE.addSnoozeListener(m.getIdLong(), this),
                 error -> log.error("Exception while trying to send reminder!", error));
     }
 
-    private List<ActionRow> getActionRows() {
+    public MessageBuilder buildMessage(final JDA jda, final User user) {
+        return new MessageBuilder()
+            .setContent(isPrivateChannel() ? null : user.getAsMention())
+            .setEmbeds(
+                new EmbedBuilder()
+                    .setAuthor(jda.getSelfUser().getName(), null, jda.getSelfUser().getAvatarUrl())
+                    .setTitle("Reminder")
+                    .setFooter(user.getName(), user.getAvatarUrl())
+                    .setDescription(content.isBlank() ? "No Content." : content)
+                    .setTimestamp(Instant.now())
+                    .setColor(COLOUR)
+                    .build()
+            )
+            .setAllowedMentions(ALLOWED_MENTIONS)
+            .setActionRows(getActionRows());
+    }
+
+    public List<ActionRow> getActionRows() {
         final var list = new ArrayList<ActionRow>();
         final var snoozers = TheCommander.getInstance().getGeneralConfig().features().reminders().getSnoozingTimes();
         if (!snoozers.isEmpty()) {
