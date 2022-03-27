@@ -103,7 +103,9 @@ public class CFProjectCommand {
         public void onAutoComplete1(final CommandAutoCompleteInteractionEvent event) throws CurseForgeException {
             if (Objects.equals(event.getFocusedOption().getName(), "game")) {
                 final var cSelection = event.getFocusedOption().getValue();
-                event.replyChoices(getGameChoices(cSelection)).queue();
+                event.replyChoices(getGameChoices(cSelection))
+                    .setCheck(() -> !event.isAcknowledged())
+                    .queue();
             }
             if (Objects.equals(event.getFocusedOption().getName(), "category")) {
                 final var cSelection = event.getFocusedOption().getValue();
@@ -117,6 +119,7 @@ public class CFProjectCommand {
                                     .limit(20)
                                     .map(c -> new Command.Choice(c.name(), c.id()))
                                     .toArray(Command.Choice[]::new))
+                                .setCheck(() -> !event.isAcknowledged())
                                 .queue();
                         }));
                 }
