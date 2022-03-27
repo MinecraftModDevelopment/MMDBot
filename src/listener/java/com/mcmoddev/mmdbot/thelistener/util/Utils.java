@@ -56,7 +56,6 @@ public final class Utils {
 
     public static void executeInLoggingChannel(final Snowflake guild, LoggingType type, Consumer<MessageChannel> consumer) {
         if (TheListener.getClient() != null) {
-            // Hardcoded until configs
             final var channels = type.getChannels(guild);
             channels.forEach(channelId -> {
                 TheListener.getClient().getChannelById(channelId)

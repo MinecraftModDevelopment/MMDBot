@@ -30,6 +30,7 @@ import com.mcmoddev.mmdbot.thelistener.events.LeaveJoinEvents;
 import com.mcmoddev.mmdbot.thelistener.events.MessageEvents;
 import com.mcmoddev.mmdbot.thelistener.events.ModerationEvents;
 import com.mcmoddev.mmdbot.thelistener.events.RoleEvents;
+import com.mcmoddev.mmdbot.thelistener.events.TrickEvents;
 import com.mcmoddev.mmdbot.thelistener.util.EventListener;
 import com.mcmoddev.mmdbot.thelistener.util.GuildConfig;
 import com.mcmoddev.mmdbot.thelistener.util.ThreadedEventListener;
@@ -73,6 +74,8 @@ public final class TheListener implements Bot {
     static {
         Events.MODERATION_BUS.register(ModerationEvents.INSTANCE);
         Events.MODERATION_BUS.register(MessageEvents.INSTANCE);
+
+        Events.CUSTOM_AUDIT_LOG_BUS.register(TrickEvents.class);
     }
 
     private static TheListener instance;

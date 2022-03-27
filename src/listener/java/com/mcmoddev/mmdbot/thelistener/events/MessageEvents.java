@@ -163,8 +163,7 @@ public final class MessageEvents extends ListenerAdapter {
             channel -> channel.createMessage(MessageCreateSpec.builder()
                 .embeds(embed)
                 .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {
-            }, t -> {
-            }));
+            }, t -> {}));
     }
 
     @SubscribeEvent
@@ -185,7 +184,6 @@ public final class MessageEvents extends ListenerAdapter {
             .build();
 
         if (TheListener.getClient() != null) {
-            // Hardcoded until configs
             final var channels = TheListener.getInstance().getConfigForGuild(Snowflake.of(event.getGuildId())).getScamLoggingChannels();
             channels.forEach(channelId -> {
                 TheListener.getClient()
