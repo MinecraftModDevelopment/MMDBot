@@ -151,6 +151,19 @@ public final class Tricks {
     }
 
     /**
+     * Gets the name of a trick type.
+     * @param type the type whose name to search.
+     * @return the name of the trick type, or null if no such type exists
+     */
+    public static @Nullable String getTrickTypeName(final TrickType<?> type) {
+        return TRICK_TYPES.entrySet().stream()
+            .filter(e -> e.getValue() == type)
+            .map(Map.Entry::getKey)
+            .findFirst()
+            .orElse(null);
+    }
+
+    /**
      * Adds a trick.
      *
      * @param trick the trick to add.
@@ -163,7 +176,6 @@ public final class Tricks {
         if (cfg.prefixEnabled()) {
             TheCommander.getInstance().getCommandClient().addCommand(new RunTrickCommand.Prefix(trick));
         }
-        // addOrRestoreCommand(trick);
     }
 
     /**
@@ -204,9 +216,9 @@ public final class Tricks {
     }
 
     static {
-        Tricks.registerTrickType("string", new StringTrick.Type());
-        Tricks.registerTrickType("embed", new EmbedTrick.Type());
-        Tricks.registerTrickType("script", new ScriptTrick.Type());
+        Tricks.registerTrickType("string", StringTrick.TYPE);
+        Tricks.registerTrickType("embed", EmbedTrick.TYPE);
+        Tricks.registerTrickType("script", ScriptTrick.TYPE);
 
         GSON = new GsonBuilder()
             .registerTypeAdapterFactory(new RecordTypeAdapterFactory())

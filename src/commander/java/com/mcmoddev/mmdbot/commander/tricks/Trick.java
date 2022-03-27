@@ -56,6 +56,11 @@ public interface Trick {
     String getRaw();
 
     /**
+     * @return the type of the trick
+     */
+    TrickType<?> getType();
+
+    /**
      * The TrickType interface. Every trick requires a trick type to be registered
      *
      * @param <T> the trick

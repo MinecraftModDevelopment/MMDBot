@@ -25,6 +25,8 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
+import com.mcmoddev.mmdbot.core.event.Events;
+import com.mcmoddev.mmdbot.core.event.customlog.TrickEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -81,9 +83,19 @@ public final class RemoveTrickCommand extends SlashCommand {
             event.deferReply(true).setContent("Only Bot Maintainers can use this command.").queue();
             return;
         }
+        final var name = event.getOption("trick", "", OptionMapping::getAsString);
 
-        Tricks.getTrick(event.getOption("trick", "", OptionMapping::getAsString)).ifPresent(Tricks::removeTrick);
-        event.reply("Removed trick!").setEphemeral(true).queue();
+        Tricks.getTrick(name).ifPresentOrElse(trick -> {
+            Tricks.removeTrick(trick);
+            event.reply("Removed trick!").setEphemeral(false).queue();
+            Events.CUSTOM_AUDIT_LOG_BUS.post(new TrickEvent.Remove(
+                event.getGuild().getIdLong(),
+                event.getUser().getIdLong(),
+                Tricks.getTrickTypeName(trick.getType()),
+                trick.getNames(),
+                trick.getRaw()
+            ));
+        }, () -> event.deferReply(true).setContent("Unknown trick: " + name).queue());
     }
 
     @Override

@@ -42,6 +42,7 @@ import java.util.Set;
  * @author williambl
  */
 public class EmbedTrick implements Trick {
+    public static final TrickType<EmbedTrick> TYPE = new Type();
 
     /**
      * Name of the trick.
@@ -150,10 +151,16 @@ public class EmbedTrick implements Trick {
         return fields;
     }
 
+    @Override
+    public TrickType<?> getType() {
+        return TYPE;
+    }
+
     /**
      * The type Type.
      */
     public static class Type implements TrickType<EmbedTrick> {
+        private Type() {}
 
         /**
          * Gets clazz.

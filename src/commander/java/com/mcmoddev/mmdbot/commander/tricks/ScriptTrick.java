@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public record ScriptTrick(List<String> names, String script) implements Trick {
+    public static final TrickType<ScriptTrick> TYPE = new Type();
 
     @Override
     public List<String> getNames() {
@@ -51,7 +52,13 @@ public record ScriptTrick(List<String> names, String script) implements Trick {
         return script;
     }
 
-    public static class Type implements TrickType<ScriptTrick> {
+    @Override
+    public TrickType<?> getType() {
+        return TYPE;
+    }
+
+    public static final class Type implements TrickType<ScriptTrick> {
+        private Type() {}
 
         @Override
         public Class<ScriptTrick> getClazz() {

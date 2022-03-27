@@ -29,6 +29,8 @@ import com.mcmoddev.mmdbot.commander.tricks.ScriptTrick;
 import com.mcmoddev.mmdbot.commander.tricks.Trick;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
+import com.mcmoddev.mmdbot.core.event.Events;
+import com.mcmoddev.mmdbot.core.event.customlog.TrickEvent;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.gist.GistUtils;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -119,9 +121,22 @@ public final class EditTrickCommand extends SlashCommand {
                     .filter(t -> t.getNames().stream().anyMatch(n -> trick.getNames().contains(n))).findAny();
 
                 originalTrick.ifPresentOrElse(
-                    original -> {
-                        Tricks.replaceTrick(original, trick);
+                    old -> {
+                        Tricks.replaceTrick(old, trick);
                         event.reply("Updated trick!").mentionRepliedUser(false).setEphemeral(true).queue();
+                        Events.CUSTOM_AUDIT_LOG_BUS.post(new TrickEvent.Edit(
+                            // Old stuff
+                            event.getGuild().getIdLong(),
+                            event.getMember().getIdLong(),
+                            Tricks.getTrickTypeName(old.getType()),
+                            old.getNames(),
+                            old.getRaw(),
+
+                            // New stuff
+                            trickTypeStr,
+                            trick.getNames(),
+                            trick.getRaw()
+                        ));
                     },
                     () ->
                         event.reply("No trick with that name exists!").mentionRepliedUser(false).setEphemeral(true).queue()
@@ -150,9 +165,11 @@ public final class EditTrickCommand extends SlashCommand {
     }
 
     private static final class PrefixSubCmd extends Command {
+        private final String trickTypeName;
         private final Trick.TrickType<?> trickType;
 
         public PrefixSubCmd(String name, Trick.TrickType<?> trickType) {
+            this.trickTypeName = name;
             this.trickType = trickType;
             this.name = name;
             this.help = "Edits %s %s-type trick.".formatted(Utils.startWithVowel(name) ? "an" : "a", name);
@@ -190,9 +207,22 @@ public final class EditTrickCommand extends SlashCommand {
             Optional<Trick> originalTrick = Tricks.getTricks().stream()
                 .filter(t -> t.getNames().stream().anyMatch(n -> trick.getNames().contains(n))).findAny();
 
-            originalTrick.ifPresentOrElse(original -> {
-                Tricks.replaceTrick(original, trick);
+            originalTrick.ifPresentOrElse(old -> {
+                Tricks.replaceTrick(old, trick);
                 event.getMessage().reply("Updated trick!").mentionRepliedUser(false).queue();
+                Events.CUSTOM_AUDIT_LOG_BUS.post(new TrickEvent.Edit(
+                    // Old stuff
+                    event.getGuild().getIdLong(),
+                    event.getMember().getIdLong(),
+                    Tricks.getTrickTypeName(old.getType()),
+                    old.getNames(),
+                    old.getRaw(),
+
+                    // New stuff
+                    trickTypeName,
+                    trick.getNames(),
+                    trick.getRaw()
+                ));
             }, () -> event.getMessage().reply("No command with that name exists!").mentionRepliedUser(false).queue());
         }
     }

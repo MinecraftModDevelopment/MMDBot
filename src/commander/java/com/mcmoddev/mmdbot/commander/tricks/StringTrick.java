@@ -38,6 +38,7 @@ import java.util.Set;
  * @author williambl
  */
 public record StringTrick(List<String> names, String body) implements Trick {
+    public static final TrickType<StringTrick> TYPE = new Type();
 
     /**
      * Gets names.
@@ -69,10 +70,19 @@ public record StringTrick(List<String> names, String body) implements Trick {
         return getBody();
     }
 
+    @Override
+    public TrickType<?> getType() {
+        return TYPE;
+    }
+
     /**
      * The type Type.
      */
     public static class Type implements TrickType<StringTrick> {
+
+        private Type() {
+
+        }
 
         /**
          * Gets clazz.

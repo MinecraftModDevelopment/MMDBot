@@ -42,6 +42,7 @@ public @interface RegisterEventListener {
 
     enum BusType {
         MODERATION,
-        MISCELLANEOUS
+        MISCELLANEOUS,
+        CUSTOM_AUDIT_LOG
     }
 }

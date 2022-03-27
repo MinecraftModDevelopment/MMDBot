@@ -29,8 +29,11 @@ import com.mcmoddev.mmdbot.commander.tricks.ScriptTrick;
 import com.mcmoddev.mmdbot.commander.tricks.Trick;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
+import com.mcmoddev.mmdbot.core.event.Events;
+import com.mcmoddev.mmdbot.core.event.customlog.TrickEvent;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.gist.GistUtils;
+import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -106,7 +109,7 @@ public final class AddTrickCommand extends SlashCommand {
 
         @Override
         public void onModalInteraction(@NotNull final ModalInteractionEvent event) {
-            if (!event.getModalId().startsWith(MODAL_ID_PREFIX)) return;
+            if (!event.getModalId().startsWith(MODAL_ID_PREFIX) || !event.isFromGuild()) return;
             final var trickTypeStr = event.getModalId().replace(MODAL_ID_PREFIX, "");
             final var type = Tricks.getTrickType(trickTypeStr);
             if (type != null) {
@@ -114,12 +117,32 @@ public final class AddTrickCommand extends SlashCommand {
                 Optional<Trick> originalTrick = Tricks.getTricks().stream()
                     .filter(t -> t.getNames().stream().anyMatch(n -> trick.getNames().contains(n))).findAny();
 
-                originalTrick.ifPresentOrElse(original -> {
-                    Tricks.replaceTrick(original, trick);
-                    event.reply("Updated trick!").mentionRepliedUser(false).setEphemeral(true).queue();
+                originalTrick.ifPresentOrElse(old -> {
+                    Tricks.replaceTrick(old, trick);
+                    event.reply("Updated trick!").mentionRepliedUser(false).queue();
+                    Events.CUSTOM_AUDIT_LOG_BUS.post(new TrickEvent.Edit(
+                        // Old stuff
+                        event.getGuild().getIdLong(),
+                        event.getMember().getIdLong(),
+                        Tricks.getTrickTypeName(old.getType()),
+                        old.getNames(),
+                        old.getRaw(),
+
+                        // New stuff
+                        trickTypeStr,
+                        trick.getNames(),
+                        trick.getRaw()
+                    ));
                 }, () -> {
                     Tricks.addTrick(trick);
-                    event.reply("Added trick!").mentionRepliedUser(false).setEphemeral(true).queue();
+                    event.reply("Added trick!").mentionRepliedUser(false).queue();
+                    Events.CUSTOM_AUDIT_LOG_BUS.post(new TrickEvent.Add(
+                        event.getGuild().getIdLong(),
+                        event.getMember().getIdLong(),
+                        trickTypeStr,
+                        trick.getNames(),
+                        trick.getRaw()
+                    ));
                 });
             } else {
                 event.reply("Unknown trick type: **%s**".formatted(trickTypeStr)).queue();
@@ -145,11 +168,13 @@ public final class AddTrickCommand extends SlashCommand {
 
     private static final class PrefixSubCmd extends Command {
 
+        private final String trickTypeName;
         private final Trick.TrickType<?> trickType;
 
         private PrefixSubCmd(final String name, final Trick.TrickType<?> trickType) {
             this.trickType = trickType;
             this.name = name;
+            this.trickTypeName = name;
         }
 
         @Override
@@ -184,8 +209,38 @@ public final class AddTrickCommand extends SlashCommand {
                 }
             }
 
-            Tricks.addTrick(trickType.createFromArgs(args));
-            event.getMessage().reply("Added trick!").mentionRepliedUser(false).queue();
+            final var trick = trickType.createFromArgs(args);
+            Optional<Trick> originalTrick = Tricks.getTricks().stream()
+                .filter(t -> t.getNames().stream().anyMatch(n -> trick.getNames().contains(n))).findAny();
+
+            originalTrick.ifPresentOrElse(old -> {
+                Tricks.replaceTrick(old, trick);
+                event.getMessage().reply("Updated trick!").mentionRepliedUser(false).queue();
+                Events.CUSTOM_AUDIT_LOG_BUS.post(new TrickEvent.Edit(
+                    // Old stuff
+                    event.getGuild().getIdLong(),
+                    event.getMember().getIdLong(),
+                    Tricks.getTrickTypeName(old.getType()),
+                    old.getNames(),
+                    old.getRaw(),
+
+                    // New stuff
+                    trickTypeName,
+                    trick.getNames(),
+                    trick.getRaw()
+                ));
+            }, () -> {
+                Tricks.addTrick(trick);
+                event.getMessage().reply("Added trick!").mentionRepliedUser(false).queue();
+                Events.CUSTOM_AUDIT_LOG_BUS.post(new TrickEvent.Add(
+                    event.getGuild().getIdLong(),
+                    event.getMember().getIdLong(),
+                    trickTypeName,
+                    trick.getNames(),
+                    trick.getRaw()
+                ));
+            });
         }
     }
+
 }
