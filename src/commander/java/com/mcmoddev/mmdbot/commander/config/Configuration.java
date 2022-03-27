@@ -294,5 +294,35 @@ public final class Configuration {
                 return timeLimit;
             }
         }
+
+        @Required
+        @Setting("custom_pings")
+        @Comment("Custom pings configuration.")
+        private CustomPings customPings = new CustomPings();
+
+        public CustomPings customPings() {
+            return customPings;
+        }
+
+        @ConfigSerializable
+        public static final class CustomPings {
+            @Required
+            @Setting("enabled")
+            @Comment("If custom pings should be enabled.")
+            private boolean enabled = true;
+
+            public boolean areEnabled() {
+                return enabled;
+            }
+
+            @Required
+            @Setting("limit_per_user")
+            @Comment("The limit of custom pings per user, per guild.")
+            private int limitPerUser = 10;
+
+            public int getLimitPerUser() {
+                return limitPerUser;
+            }
+        }
     }
 }

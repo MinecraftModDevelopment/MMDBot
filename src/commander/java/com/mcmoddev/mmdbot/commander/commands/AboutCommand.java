@@ -90,7 +90,7 @@ public final class AboutCommand extends SlashCommand {
             true);
         embed.addField("Current maintainers:", String.join(", ", MAINTAINERS),
             true);
-        embed.addField("I've been online for: ", TimeFormat.RELATIVE.format(TheCommander.getStartupTime()), false);
+        embed.addField("Online since: ", TimeFormat.RELATIVE.format(TheCommander.getStartupTime()), false);
         embed.setTimestamp(Instant.now());
 
         if (event.isFromGuild() && TheCommanderUtilities.memberHasRoles(Objects.requireNonNull(event.getMember()),

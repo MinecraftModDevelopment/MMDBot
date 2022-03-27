@@ -26,6 +26,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
+import com.mcmoddev.mmdbot.commander.commands.CustomPingsCommand;
 import com.mcmoddev.mmdbot.commander.commands.DictionaryCommand;
 import com.mcmoddev.mmdbot.commander.commands.EvaluateCommand;
 import com.mcmoddev.mmdbot.commander.commands.GistCommand;
@@ -42,6 +43,9 @@ import com.mcmoddev.mmdbot.commander.commands.tricks.EditTrickCommand;
 import com.mcmoddev.mmdbot.commander.commands.tricks.ListTricksCommand;
 import com.mcmoddev.mmdbot.commander.commands.tricks.RunTrickCommand;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
+import com.mcmoddev.mmdbot.commander.custompings.CustomPing;
+import com.mcmoddev.mmdbot.commander.custompings.CustomPings;
+import com.mcmoddev.mmdbot.commander.custompings.CustomPingsListener;
 import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
 import com.mcmoddev.mmdbot.commander.eventlistener.ReferencingListener;
 import com.mcmoddev.mmdbot.commander.eventlistener.ThreadListener;
@@ -73,6 +77,8 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.events.Event;
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -107,7 +113,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 public final class TheCommander implements Bot {
     static final TypeSerializerCollection ADDED_SERIALIZERS = TypeSerializerCollection.defaults()
@@ -322,7 +330,8 @@ public final class TheCommander implements Bot {
 
         // Button listeners
         EventListeners.COMMANDS_LISTENER.addListeners(DictionaryCommand.listener, new DismissListener(),
-            QuoteCommand.ListQuotes.getQuoteListener(), RolesCommand.getListener(), HelpCommand.getListener());
+            QuoteCommand.ListQuotes.getQuoteListener(), RolesCommand.getListener(), HelpCommand.getListener(),
+            CustomPingsCommand.ListCmd.getListener());
 
         if (generalConfig.features().isReferencingEnabled()) {
             EventListeners.MISC_LISTENER.addListener(new ReferencingListener());
@@ -336,13 +345,10 @@ public final class TheCommander implements Bot {
         try {
             final var builder = JDABuilder
                 .create(dotenv.get("BOT_TOKEN"), INTENTS)
-                .addEventListeners(new ListenerAdapter() {
-                    @Override
-                    public void onReady(@NotNull final ReadyEvent event) {
-                        startupTime = Instant.now();
-                        getLogger().warn("The Commander is ready to work! Logged in as {}", event.getJDA().getSelfUser().getAsTag());
-                    }
-                })
+                .addEventListeners(listenerConsumer((ReadyEvent event) -> {
+                    startupTime = Instant.now();
+                    getLogger().warn("The Commander is ready to work! Logged in as {}", event.getJDA().getSelfUser().getAsTag());
+                }), CustomPingsListener.LISTENER.get())
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
                 .disableCache(CacheFlag.VOICE_STATE)
@@ -395,6 +401,7 @@ public final class TheCommander implements Bot {
         new TricksMigrator(runPath).migrate();
         new QuotesMigrator(runPath).migrate();
         Reminders.MIGRATOR.migrate(Reminders.CURRENT_SCHEMA_VERSION, Reminders.PATH_RESOLVER.apply(runPath));
+        CustomPings.MIGRATOR.migrate(CustomPings.CURRENT_SCHEMA_VERSION, CustomPings.PATH_RESOLVER.apply(runPath));
     }
 
     @Override
@@ -449,5 +456,15 @@ public final class TheCommander implements Bot {
 
     public String getGithubToken() {
         return githubToken;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <E extends Event> EventListener listenerConsumer(final Consumer<E> listener) {
+        return event -> {
+            final var type = (Class<E>) net.jodah.typetools.TypeResolver.resolveRawArgument(Consumer.class, listener.getClass());
+            if (type.isInstance(event)) {
+                listener.accept((E) event);
+            }
+        };
     }
 }

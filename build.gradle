@@ -122,6 +122,7 @@ dependencies {
   global libs.webhooks
   global libs.eventdispatcher
   global libs.asmutils
+  global libs.typetools
 
   globalCompile libs.annotations
   globalCompile libs.lombok

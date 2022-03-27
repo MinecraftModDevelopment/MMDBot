@@ -33,6 +33,7 @@ webhooks = "0.8.0"
 eventdispatcher = "1.2.1"
 netty = "4.1.74.Final"
 asmutils = "0.3.1"
+typetools = "0.6.3"
 
 [libraries]
 # jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
@@ -64,3 +65,4 @@ webhooks = {module = "club.minnced:discord-webhooks", version.ref = "webhooks"}
 eventdispatcher = {module = "io.github.matyrobbrt:eventdispatcher", version.ref = "eventdispatcher"}
 netty = {module = "io.netty:netty-all", version.ref = "netty"}
 asmutils = {module = "io.github.matyrobbrt:asmutils", version.ref = "asmutils"}
+typetools = {module = "net.jodah:typetools", version.ref = "typetools"}

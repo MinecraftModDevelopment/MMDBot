@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.commander.cfwebhooks;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import io.github.matyrobbrt.curseforgeapi.request.AsyncRequest;
 import io.github.matyrobbrt.curseforgeapi.request.Response;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -33,13 +34,13 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public record CFProject(int projectId, Set<Long> channels, AtomicInteger lastFoundFile) implements Runnable {
-    private static final Collection<Message.MentionType> ALLOWED_MENTIONS = List.of();
+    private static final Collection<Message.MentionType> ALLOWED_MENTIONS = Set.of();
 
     @Override
     public void run() {
-        final var $$1 = TheCommander.getInstance().getCurseForgeManager().orElseThrow();
-        final var api = $$1.api();
-        final var allProjects = $$1.projects();
+        final var manager = TheCommander.getInstance().getCurseForgeManager().orElseThrow();
+        final var api = manager.api();
+        final var allProjects = manager.projects();
 
         try {
             api.getAsyncHelper().getMod(projectId)
@@ -57,12 +58,12 @@ public record CFProject(int projectId, Set<Long> channels, AtomicInteger lastFou
                     }, AsyncRequest::empty, t -> AsyncRequest.empty())
                 )
                 .queue(embed -> {
-                    if (channels.isEmpty()) {
-                        return;
-                    }
                     channels.forEach(channelId -> {
                         CFUtils.getWebhookClient(channelId)
-                            .send(embed.build())
+                            .send(new MessageBuilder()
+                                .setEmbeds(embed.build())
+                                .setAllowedMentions(ALLOWED_MENTIONS)
+                                .build())
                             .thenAccept(msg -> {
                                 final var channel = TheCommander.getJDA().getChannelById(MessageChannel.class, msg.getChannelId());
                                 if (channel != null && channel.getType() == ChannelType.NEWS) {

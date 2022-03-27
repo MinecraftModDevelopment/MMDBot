@@ -145,7 +145,7 @@ public class Reminders {
      * @return if the user reached the max pending reminders.
      */
     public static boolean userReachedMax(final long userId) {
-        return getRemindersForUser(userId).size() > TheCommander.getInstance().getGeneralConfig().features().reminders().getLimitPerUser();
+        return getRemindersForUser(userId).size() >= TheCommander.getInstance().getGeneralConfig().features().reminders().getLimitPerUser();
     }
 
     /**
