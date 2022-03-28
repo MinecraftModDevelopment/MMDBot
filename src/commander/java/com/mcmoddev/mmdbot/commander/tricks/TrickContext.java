@@ -183,4 +183,58 @@ public interface TrickContext {
             event.getMessage().reply(message).setActionRow(DismissListener.createDismissButton(getUser())).queue();
         }
     }
+
+    record DelegateWithArguments(@Nonnull TrickContext context, @Nonnull String[] args) implements TrickContext {
+
+        @Nullable
+        @Override
+        public Member getMember() {
+            return context.getMember();
+        }
+
+        @NotNull
+        @Override
+        public User getUser() {
+            return context.getUser();
+        }
+
+        @NotNull
+        @Override
+        public MessageChannel getChannel() {
+            return context.getChannel();
+        }
+
+        @Nullable
+        @Override
+        public TextChannel getTextChannel() {
+            return context.getTextChannel();
+        }
+
+        @Nullable
+        @Override
+        public Guild getGuild() {
+            return context.getGuild();
+        }
+
+        @NotNull
+        @Override
+        public String[] getArgs() {
+            return args;
+        }
+
+        @Override
+        public void reply(final String content) {
+            context.reply(content);
+        }
+
+        @Override
+        public void replyEmbeds(final MessageEmbed... embeds) {
+            context.replyEmbeds(embeds);
+        }
+
+        @Override
+        public void replyWithMessage(final Message message) {
+            context.replyWithMessage(message);
+        }
+    }
 }
