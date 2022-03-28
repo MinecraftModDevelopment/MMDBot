@@ -191,9 +191,9 @@ public final class MMDBot implements Bot {
                 .addEventListeners(new ThreadedEventListener(new MiscEvents(), GENERAL_EVENT_THREAD_POOL));
 
             CommandModule.setupCommandModule(jdaBuilder);
-            LoggingModule.setupLoggingModule();
 
             jda.set(jdaBuilder.build().awaitReady());
+            LoggingModule.setupLoggingModule();
         } catch (final LoginException exception) {
             MMDBot.LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.", exception);
             System.exit(1);
