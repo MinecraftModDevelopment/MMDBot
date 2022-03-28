@@ -64,46 +64,43 @@ public record Reminder(String content, long channelId, boolean isPrivateChannel,
         if (!TheCommander.getInstance().getGeneralConfig().features().reminders().areEnabled()) {
             return;
         }
-        final var user = jda.getUserById(ownerId);
-        if (user == null) {
-            log.warn("Could not find user with ID {} for a reminder.", ownerId);
-            return;
-        }
-        final MessageChannel channel = io.github.matyrobbrt.curseforgeapi.util.Utils.makeWithSupplier(() -> {
-           if (isPrivateChannel()) {
-               return jda.getPrivateChannelById(channelId);
-           } else {
-               final var ch = jda.getChannelById(MessageChannel.class, channelId);
-               if (ch == null) {
-                   return jda.getThreadChannelById(channelId);
-               }
-               return ch;
-           }
-        });
-        if (channel == null) {
-            log.warn("Could not find channel with ID {} for reminder.", channelId);
-            return;
-        }
-        final var canTalk = channel.canTalk();
-        if (!canTalk) {
-            if (!isPrivateChannel()) {
-                // If we can't DM the user, then log
-                user.openPrivateChannel().queue(pv -> {
-                    pv.sendMessage(buildMessage(jda, user)
-                            .append(System.lineSeparator())
-                            .appendCodeLine("Could not send reminder in <#%s>.".formatted(channelId()))
-                            .build())
-                        .queue(m -> SnoozingListener.INSTANCE.addSnoozeListener(m.getIdLong(), this),
-                            error -> log.error("Exception while trying to send reminder!", error));
-                }, e -> log.warn("Could not talk in channel with ID {}, so a reminder could not be sent!", channelId));
-            } else {
-                log.warn("Could not talk in channel with ID {}, so a reminder could not be sent!", channelId);
+        jda.retrieveUserById(ownerId).queue(user -> {
+            final MessageChannel channel = io.github.matyrobbrt.curseforgeapi.util.Utils.makeWithSupplier(() -> {
+                if (isPrivateChannel()) {
+                    return jda.getPrivateChannelById(channelId);
+                } else {
+                    final var ch = jda.getChannelById(MessageChannel.class, channelId);
+                    if (ch == null) {
+                        return jda.getThreadChannelById(channelId);
+                    }
+                    return ch;
+                }
+            });
+            if (channel == null) {
+                log.warn("Could not find channel with ID {} for reminder.", channelId);
+                return;
             }
-            return;
-        }
-        channel.sendMessage(buildMessage(jda, user).build())
-            .queue(m -> SnoozingListener.INSTANCE.addSnoozeListener(m.getIdLong(), this),
-                error -> log.error("Exception while trying to send reminder!", error));
+            final var canTalk = channel.canTalk();
+            if (!canTalk) {
+                if (!isPrivateChannel()) {
+                    // If we can't DM the user, then log
+                    user.openPrivateChannel().queue(pv -> {
+                        pv.sendMessage(buildMessage(jda, user)
+                                .append(System.lineSeparator())
+                                .appendCodeLine("Could not send reminder in <#%s>.".formatted(channelId()))
+                                .build())
+                            .queue(m -> SnoozingListener.INSTANCE.addSnoozeListener(m.getIdLong(), this),
+                                error -> log.error("Exception while trying to send reminder!", error));
+                    }, e -> log.warn("Could not talk in channel with ID {}, so a reminder could not be sent!", channelId));
+                } else {
+                    log.warn("Could not talk in channel with ID {}, so a reminder could not be sent!", channelId);
+                }
+                return;
+            }
+            channel.sendMessage(buildMessage(jda, user).build())
+                .queue(m -> SnoozingListener.INSTANCE.addSnoozeListener(m.getIdLong(), this),
+                    error -> log.error("Exception while trying to send reminder!", error));
+        }, $ -> log.warn("Could not find user with ID {} for a reminder.", ownerId));
     }
 
     public MessageBuilder buildMessage(final JDA jda, final User user) {
