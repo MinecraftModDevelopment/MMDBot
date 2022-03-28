@@ -18,7 +18,7 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.core.util.data;
+package com.mcmoddev.mmdbot.core.database;
 
 import com.google.gson.JsonElement;
 

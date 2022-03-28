@@ -22,8 +22,8 @@ package com.mcmoddev.mmdbot.tests;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.mcmoddev.mmdbot.core.util.data.MigratorCluster;
-import com.mcmoddev.mmdbot.core.util.data.VersionedDataMigrator;
+import com.mcmoddev.mmdbot.core.database.MigratorCluster;
+import com.mcmoddev.mmdbot.core.database.VersionedDataMigrator;
 import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import lombok.experimental.UtilityClass;
 

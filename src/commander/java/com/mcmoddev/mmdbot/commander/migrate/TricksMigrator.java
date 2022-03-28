@@ -26,7 +26,7 @@ import com.mcmoddev.mmdbot.commander.tricks.EmbedTrick;
 import com.mcmoddev.mmdbot.commander.tricks.ScriptTrick;
 import com.mcmoddev.mmdbot.commander.tricks.StringTrick;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
-import com.mcmoddev.mmdbot.core.util.data.VersionedDatabase;
+import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileReader;
