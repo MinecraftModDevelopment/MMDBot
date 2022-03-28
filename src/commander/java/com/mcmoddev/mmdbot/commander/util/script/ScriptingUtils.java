@@ -259,8 +259,13 @@ public final class ScriptingUtils {
             }
         });
         context.setFunctionVoid("runTrick", args -> {
-            validateArgs(args, 1);
-            Tricks.getTrick(args.get(0).asString()).ifPresent(trick -> trick.execute(trickContext));
+            validateArgs(args, 1, 2);
+            if (args.size() == 1) {
+                Tricks.getTrick(args.get(0).asString()).ifPresent(trick -> trick.execute(trickContext));
+            } else if (args.size() > 1) {
+                Tricks.getTrick(args.get(0).asString())
+                    .ifPresent(trick -> trick.execute(new TrickContext.DelegateWithArguments(trickContext, args.get(1).as(String[].class))));
+            }
         });
         return context;
     }

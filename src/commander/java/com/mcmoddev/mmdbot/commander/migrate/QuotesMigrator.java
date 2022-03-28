@@ -25,7 +25,7 @@ import com.google.gson.JsonObject;
 import com.mcmoddev.mmdbot.commander.quotes.NullQuote;
 import com.mcmoddev.mmdbot.commander.quotes.Quotes;
 import com.mcmoddev.mmdbot.commander.quotes.StringQuote;
-import com.mcmoddev.mmdbot.core.util.data.VersionedDatabase;
+import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileReader;

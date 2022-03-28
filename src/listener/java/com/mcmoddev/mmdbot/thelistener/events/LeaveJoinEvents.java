@@ -44,7 +44,7 @@ public final class LeaveJoinEvents extends ListenerAdapter {
             .color(Color.GREEN)
             .title("User Joined")
             .footer("User ID: " + event.getMember().getId().asLong(), null)
-            .addField("User:", event.getMember().getTag(), true)
+            .addField("User:", "%s (%s)".formatted(event.getMember().getTag(), event.getMember().getMention()), true)
             .thumbnail(event.getMember().getAvatarUrl())
             .addField("Joined Discord:", "<t:%s:f>".formatted(event.getMember().getId().getTimestamp()
                 .getEpochSecond()), true)
