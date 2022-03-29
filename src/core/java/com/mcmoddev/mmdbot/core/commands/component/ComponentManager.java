@@ -20,65 +20,93 @@
  */
 package com.mcmoddev.mmdbot.core.commands.component;
 
+import lombok.NonNull;
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.hooks.EventListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
+import java.time.temporal.TemporalUnit;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class ComponentManager extends ListenerAdapter {
+import static com.mcmoddev.mmdbot.core.commands.component.Component.ID_SPLITTER;
+
+public class ComponentManager implements EventListener {
+
     private final ComponentStorage storage;
     final Map<String, ComponentListener> listeners = new HashMap<>();
 
-    public ComponentManager(final ComponentStorage storage, final ScheduledExecutorService service, final Period deletionPeriod) {
+    public ComponentManager(final ComponentStorage storage, final List<ComponentListener> listeners) {
         this.storage = storage;
-
-        service.scheduleAtFixedRate(() -> getStorage().removeComponentsLastUsedBefore(Instant.now().minus(deletionPeriod.time(), deletionPeriod.unit().toChronoUnit())), 0, deletionPeriod.time(), deletionPeriod.unit());
+        listeners.forEach(this::addListener);
     }
 
     public ComponentStorage getStorage() {
         return storage;
     }
 
-    public ComponentListener.Builder createListener(final String featureId) {
-        if (listeners.containsKey(featureId)) {
-            throw new IllegalArgumentException("Listener with feature ID \"" + featureId + "\" exists already!");
+    public void removeComponentsOlderThan(final long time, final TemporalUnit unit) {
+        getStorage().removeComponentsLastUsedBefore(Instant.now().minus(time, unit));
+    }
+
+    public void addListener(final ComponentListener listener) {
+        final var id = listener.getName();
+        if (listeners.containsKey(id)) {
+            throw new IllegalArgumentException("Listener with feature ID \"" + id + "\" exists already!");
         }
-        return new ComponentListener.Builder(featureId, this);
+        listener.setManager(this);
+        listeners.put(id, listener);
     }
 
     @Override
+    public void onEvent(@NotNull final GenericEvent event) {
+        if (event instanceof ButtonInteractionEvent btn) {
+            onButtonInteraction(btn);
+        }
+    }
+
     public void onButtonInteraction(@NotNull final ButtonInteractionEvent event) {
         try {
             if (event.getButton().getId() != null) {
-                final var id = UUID.fromString(event.getButton().getId());
+                final var buttonArguments = event.getButton().getId().split(ID_SPLITTER);
+                final var id = UUID.fromString(buttonArguments[0]);
                 getStorage().getComponent(id).ifPresent(component -> {
                     final var listener = listeners.get(component.featureId());
                     if (listener == null) {
                         event.deferReply(true).setContent("It seems like I can't handle this button anymore due to its listener being deleted.").queue();
                     } else {
+                        List<String> buttonArgsList = buttonArguments.length == 1 ? List.of() : Arrays.asList(Arrays.copyOfRange(buttonArguments, 1, buttonArguments.length));
                         listener.onButtonInteraction(new ButtonInteractionContext() {
+                            @NotNull
                             @Override
                             public ButtonInteractionEvent getEvent() {
                                 return event;
                             }
 
+                            @NotNull
                             @Override
                             public ComponentManager getManager() {
                                 return ComponentManager.this;
                             }
 
+                            @NotNull
                             @Override
                             public List<String> getArguments() {
                                 return component.arguments();
                             }
 
+                            @Override
+                            public @NonNull List<String> getButtonArguments() {
+                                return buttonArgsList;
+                            }
+
+                            @NotNull
                             @Override
                             public UUID getComponentId() {
                                 return component.uuid();
@@ -87,12 +115,12 @@ public class ComponentManager extends ListenerAdapter {
                     }
                 });
             }
-        } catch (IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException | IndexOutOfBoundsException ignored) {
 
         }
     }
 
-    record Period(long time, TimeUnit unit) {
+    public record Period(long time, TimeUnit unit) {
 
     }
 }

@@ -25,11 +25,34 @@ import java.util.UUID;
 
 public record Component(String featureId, UUID uuid, List<String> arguments, Lifespan lifespan) {
 
+    /**
+     * Button IDs will be split on this string, and only the first one will be used as the component ID,
+     * in order to allow other arguments in the button itself, or to allow multiple buttons
+     * with the same component ID.
+     */
+    public static final String ID_SPLITTER = "//";
+
+    /**
+     * Creates a button ID with the specified {@code id} as the component ID, and
+     * the other arguments being split from the component ID using the {@link #ID_SPLITTER}.
+     *
+     * @param id        the component id
+     * @param arguments other arguments
+     * @return a composed ID, with the arguments being split from the component ID using the {@link #ID_SPLITTER}
+     */
+    public static String createIdWithArguments(final String id, final String... arguments) {
+        StringBuilder actualId = new StringBuilder(id);
+        for (final var arg : arguments) {
+            actualId.append(ID_SPLITTER).append(arg);
+        }
+        return actualId.toString();
+    }
+
     public Component(String featureId, UUID uuid, List<String> arguments) {
         this(featureId, uuid, arguments, Lifespan.TEMPORARY);
     }
 
-    enum Lifespan {
+    public enum Lifespan {
         PERMANENT,
         TEMPORARY
     }

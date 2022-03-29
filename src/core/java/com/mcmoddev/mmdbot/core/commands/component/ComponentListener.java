@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.core.commands.component;
 
+import lombok.NonNull;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -32,46 +33,69 @@ import java.util.function.Consumer;
 
 public abstract class ComponentListener {
     private final String name;
-    private final ComponentManager manager;
+    private ComponentManager manager;
 
-    ComponentListener(final String name, final ComponentManager manager) {
+    ComponentListener(final String name) {
         this.name = name;
-        this.manager = manager;
     }
 
-    public Button createButton(@Nonnull ButtonStyle style, @Nullable String label, @Nullable Emoji emoji, @Nonnull Component.Lifespan lifespan, String... args) {
-        final var comp = new Component(name, UUID.randomUUID(), List.of(args), lifespan);
-        manager.getStorage().insertComponent(comp);
+    @NonNull
+    public Button createButton(@Nonnull ButtonStyle style, @Nullable String label, @Nullable Emoji emoji, @Nonnull Component.Lifespan lifespan, List<String> args) {
+        final var comp = new Component(name, UUID.randomUUID(), args, lifespan);
+        insertComponent(comp);
         return Button.of(style, comp.uuid().toString(), label, emoji);
+    }
+
+    @NonNull
+    public Button createButton(@Nonnull ButtonStyle style, @Nullable Emoji emoji, @Nonnull Component.Lifespan lifespan, List<String> args) {
+        return createButton(style, null, emoji, lifespan, args);
+    }
+
+    public void insertComponent(final Component component) {
+        manager.getStorage().insertComponent(component);
+    }
+
+    void setManager(final ComponentManager manager) {
+        this.manager = manager;
     }
 
     public abstract void onButtonInteraction(final ButtonInteractionContext context);
 
+    public static Builder builder(String featureId, Consumer<? super ComponentListener> whenBuilt) {
+        return new Builder(featureId, whenBuilt);
+    }
+
     public static final class Builder {
         private final String name;
-        private final ComponentManager manager;
-        private Consumer<ButtonInteractionContext> onButton;
+        private final Consumer<? super ComponentListener> whenBuilt;
+        private Consumer<? super ButtonInteractionContext> onButton;
 
-        Builder(final String name, final ComponentManager manager) {
+        Builder(final String name, final Consumer<? super ComponentListener> whenBuilt) {
             this.name = name;
-            this.manager = manager;
+            this.whenBuilt = whenBuilt;
         }
 
-        public Builder onButtonInteraction(final Consumer<ButtonInteractionContext> onButton) {
+        public Builder onButtonInteraction(final Consumer<? super ButtonInteractionContext> onButton) {
             this.onButton = onButton;
             return this;
         }
 
         public ComponentListener build() {
-            final Consumer<ButtonInteractionContext> onButton = this.onButton == null ? b -> {} : this.onButton;
-            final var lis = new ComponentListener(name, manager) {
+            final Consumer<? super ButtonInteractionContext> onButton = this.onButton == null ? b -> {} : this.onButton;
+            final var lis = new ComponentListener(name) {
                 @Override
                 public void onButtonInteraction(final ButtonInteractionContext context) {
                     onButton.accept(context);
                 }
             };
-            manager.listeners.put(name, lis);
+            if (whenBuilt != null) {
+                whenBuilt.accept(lis);
+            }
             return lis;
         }
+    }
+
+    public String getName() {
+        return name;
     }
 }

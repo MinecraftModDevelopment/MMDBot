@@ -102,6 +102,13 @@ public class ComponentStorage {
             .execute());
     }
 
+    public void removeComponent(UUID id) {
+        jdbi.useHandle(handle -> handle.createUpdate("delete from %s where %s = :id".formatted(
+                tableName, ID_ROW_NAME
+            ))
+            .bind("id", id));
+    }
+
     public void removeComponentsLastUsedBefore(Instant before) {
         jdbi.useHandle(handle -> handle.createUpdate("delete from %s where %s <= :before and %s != %s".formatted(
                 tableName, LAST_USED_ROW_NAME, LIFESPAN_ROW_NAME, Component.Lifespan.PERMANENT.toString()

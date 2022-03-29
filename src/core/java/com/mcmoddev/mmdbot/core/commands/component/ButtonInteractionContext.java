@@ -20,18 +20,68 @@
  */
 package com.mcmoddev.mmdbot.core.commands.component;
 
+import lombok.NonNull;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public interface ButtonInteractionContext {
 
+    @NonNull
     ButtonInteractionEvent getEvent();
 
+    @NonNull
     ComponentManager getManager();
 
+    @NonNull
     List<String> getArguments();
 
+    @Nullable
+    default <T> T getArgument(final int index, final Function<? super String, ? extends T> resolver) {
+        if (index >= getArguments().size()) {
+            return null;
+        } else {
+            return resolver.apply(getArguments().get(index));
+        }
+    }
+
+    /**
+     * Gets the arguments from the button id. Those arguments are split from the component id
+     * using the {@link Component#ID_SPLITTER}.
+     *
+     * @return the arguments from the button id.
+     */
+    @NonNull
+    List<String> getButtonArguments();
+
+    @NonNull
+    default <T> T getArgument(final int index, final Supplier<T> defaultValue, final Function<? super String, ? extends T> resolver) {
+        if (index >= getArguments().size()) {
+            return defaultValue.get();
+        } else {
+            return resolver.apply(getArguments().get(index));
+        }
+    }
+
+    @NonNull
     UUID getComponentId();
+
+    default void updateArguments(@NonNull final List<String> newArguments) {
+        getManager().getStorage().updateArguments(getComponentId(), newArguments);
+    }
+
+    default void updateArgument(final int index, @NonNull final String argument) {
+        final var list = new ArrayList<>(getArguments());
+        list.set(index, argument);
+        updateArguments(list);
+    }
+
+    default void deleteComponent() {
+        getManager().getStorage().removeComponent(getComponentId());
+    }
 }

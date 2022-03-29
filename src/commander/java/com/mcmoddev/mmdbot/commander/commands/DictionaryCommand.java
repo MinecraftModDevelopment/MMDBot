@@ -24,6 +24,10 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
+import com.mcmoddev.mmdbot.core.commands.component.ButtonInteractionContext;
+import com.mcmoddev.mmdbot.core.commands.component.Component;
+import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
+import com.mcmoddev.mmdbot.core.commands.component.ComponentManager;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryEntry;
 import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryUtils;
@@ -35,25 +39,27 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 public final class DictionaryCommand extends SlashCommand {
 
     @RegisterSlashCommand
-    public static final SlashCommand COMMAND = new DictionaryCommand();
-
-    public static ListenerAdapter listener;
+    public static final DictionaryCommand COMMAND = new DictionaryCommand();
+    public static final ComponentListener COMPONENT_LISTENER = TheCommander.getComponentListener("dictionary-cmd")
+        .onButtonInteraction(COMMAND::onButtonInteraction)
+        .build();
 
     public DictionaryCommand() {
         name = "dictionary";
         help = "Looks up a word";
         options = List.of(new OptionData(OptionType.STRING, "word", "The word to lookup").setRequired(true));
         guildOnly = false;
-        listener = new ButtonListener();
     }
 
     @Override
@@ -89,7 +95,8 @@ public final class DictionaryCommand extends SlashCommand {
     public static EmbedBuilder getEmbed(final DictionaryEntry entry, final int pageNumber) {
         final var embed = new EmbedBuilder()
             .setTitle("Dictionary lookup of " + entry.word()).setColor(Color.CYAN)
-            .setTimestamp(Instant.now()).setFooter("Powered by OwlBot", "https://owlbot.info/static/owlbot/img/logo.png");
+            .setTimestamp(Instant.now())
+            .setFooter("Powered by OwlBot", "https://owlbot.info/static/owlbot/img/logo.png");
         final var definition = entry.definitions().get(pageNumber);
 
         if (definition.type() != null) {
@@ -117,11 +124,12 @@ public final class DictionaryCommand extends SlashCommand {
         return embed;
     }
 
-    private static ItemComponent[] createScrollButtons(int start, String word, int maximum) {
-        Button backward = Button.primary(ButtonListener.BUTTON_ID + "-" + start + "-prev-" + word + "-" + maximum,
-            Emoji.fromUnicode("◀️")).asDisabled();
-        Button forward = Button.primary(ButtonListener.BUTTON_ID + "-" + start + "-next-" + word + "-" + maximum,
-            Emoji.fromUnicode("▶️")).asDisabled();
+    private static final Emoji NEXT_EMOJI = Emoji.fromUnicode("▶️");
+    private static final Emoji PREVIOUS_EMOJI = Emoji.fromUnicode("◀️");
+
+    private static ItemComponent[] createScrollButtons(String buttonId, int start, String word, int maximum) {
+        var backward = Button.primary(Component.createIdWithArguments(buttonId, "prev"), PREVIOUS_EMOJI).asDisabled();
+        var forward = Button.primary(Component.createIdWithArguments(buttonId, "next"), NEXT_EMOJI).asDisabled();
 
         if (start != 0) {
             backward = backward.asEnabled();
@@ -134,45 +142,59 @@ public final class DictionaryCommand extends SlashCommand {
         return new ItemComponent[]{backward, forward};
     }
 
-    private final class ButtonListener extends ListenerAdapter {
+    private static ItemComponent[] createScrollButtons(int start, String word, int maximum) {
+        final var id = UUID.randomUUID();
+        final var comp = new Component(COMPONENT_LISTENER.getName(), id, createButtonArgs(
+            start, word, maximum
+        ));
+        COMPONENT_LISTENER.insertComponent(comp);
+        final var idString = id.toString();
+        var backward = Button.primary(Component.createIdWithArguments(idString, "prev"), PREVIOUS_EMOJI).asDisabled();
+        var forward = Button.primary(Component.createIdWithArguments(idString, "next"), NEXT_EMOJI).asDisabled();
 
-        public static final String BUTTON_ID = "dictionary";
-
-        @Override
-        public void onButtonInteraction(@NotNull final ButtonInteractionEvent event) {
-            var button = event.getButton();
-            if (button.getId() == null) {
-                return;
-            }
-
-            String[] idParts = button.getId().split("-");
-            // dictionary-pageNumber-operation-word-maximum
-            if (idParts.length != 5) {
-                return;
-            }
-
-            if (!idParts[0].equals(BUTTON_ID)) {
-                return;
-            }
-
-            final int current = Integer.parseInt(idParts[1]);
-            final var word = idParts[3];
-            final int maximum = Integer.parseInt(idParts[4]);
-
-            if (idParts[2].equals("next")) {
-                event
-                    .editMessageEmbeds(getEmbed(word, current + 1).build())
-                    .setActionRow(createScrollButtons(current + 1, word, maximum))
-                    .queue();
-            } else {
-                if (idParts[2].equals("prev")) {
-                    event
-                        .editMessageEmbeds(getEmbed(word, current - 1).build())
-                        .setActionRow(createScrollButtons(current - 1, word, maximum))
-                        .queue();
-                }
-            }
+        if (start != 0) {
+            backward = backward.asEnabled();
         }
 
+        if (start + 1 < maximum) {
+            forward = forward.asEnabled();
+        }
+
+        return new ItemComponent[]{
+            backward, forward
+        };
     }
+
+    public static List<String> createButtonArgs(final int pageNumber, final String word, final int maximum) {
+        return List.of(
+            String.valueOf(pageNumber), word, String.valueOf(maximum)
+        );
+    }
+
+    public void onButtonInteraction(final ButtonInteractionContext context) {
+        final var event = context.getEvent();
+        // pageNumber, word, max
+        final int pageNumber = context.getArgument(0, () -> 0, Integer::parseInt);
+        final var word = context.getArguments().get(1);
+        final int maximum = context.getArgument(2, () -> DictionaryUtils.getDefinitionNoException(word).definitions().size(), Integer::parseInt);
+
+        final var id = context.getComponentId().toString();
+        switch (context.getButtonArguments().get(0)) {
+            case "next" -> {
+                event.editMessageEmbeds(getEmbed(word, pageNumber + 1).build())
+                    .setActionRow(createScrollButtons(id, pageNumber + 1, word, maximum))
+                    .queue();
+
+                context.updateArgument(0, String.valueOf(pageNumber + 1));
+            }
+            case "prev" -> {
+                event.editMessageEmbeds(getEmbed(word, pageNumber - 1).build())
+                    .setActionRow(createScrollButtons(id, pageNumber - 1, word, maximum))
+                    .queue();
+
+                context.updateArgument(0, String.valueOf(pageNumber - 1));
+            }
+        }
+    }
+
 }

@@ -61,14 +61,19 @@ import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
+import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
+import com.mcmoddev.mmdbot.core.commands.component.ComponentManager;
+import com.mcmoddev.mmdbot.core.commands.component.ComponentStorage;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
 import com.mcmoddev.mmdbot.core.util.MessageUtilities;
 import com.mcmoddev.mmdbot.core.util.ReflectionsUtils;
+import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryUtils;
 import com.mcmoddev.mmdbot.core.commands.CommandUpserter;
+import com.mcmoddev.mmdbot.core.util.event.OneTimeEventListener;
 import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
@@ -84,6 +89,8 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.utils.AllowedMentions;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.flywaydb.core.Flyway;
+import org.jdbi.v3.core.Jdbi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.configurate.CommentedConfigurationNode;
@@ -92,16 +99,21 @@ import org.spongepowered.configurate.ConfigurationOptions;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 import org.spongepowered.configurate.reference.ConfigurationReference;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
+import org.sqlite.SQLiteDataSource;
 
 import javax.annotation.Nullable;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -208,8 +220,27 @@ public final class TheCommander implements Bot {
         return getInstance() == null ? null : getInstance().getJda();
     }
 
+    private static final List<ComponentListener> DEFERRED_COMPONENT_LISTENERS = new ArrayList<>();
+    public static ComponentListener.Builder getComponentListener(final String featureId) {
+        if (getInstance() == null) {
+            return ComponentListener.builder(featureId, DEFERRED_COMPONENT_LISTENERS::add);
+        } else {
+            return ComponentListener.builder(featureId, getInstance().getComponentManager()::addListener);
+        }
+    }
+
+    private static final OneTimeEventListener<TaskScheduler.CollectTasksEvent> COLLECT_TASKS_LISTENER = new OneTimeEventListener<>(event -> {
+        event.addTask(() -> {
+            if (getInstance() != null) {
+                getInstance().getComponentManager().removeComponentsOlderThan(30, ChronoUnit.MINUTES);
+            }
+        }, 0, 15, TimeUnit.MINUTES);
+    });
+
     private JDA jda;
+    private Jdbi jdbi;
     private CommandClient commandClient;
+    private ComponentManager componentManager;
     @Nullable
     private CurseForgeManager curseForgeManager;
     private ConfigurationReference<CommentedConfigurationNode> config;
@@ -251,8 +282,39 @@ public final class TheCommander implements Bot {
             throw new RuntimeException(e);
         }
 
+        // Setup database
+        {
+            final var dbPath = getRunPath().resolve("data.db");
+            if (!Files.exists(dbPath)) {
+                try {
+                    Files.createFile(dbPath);
+                } catch (IOException e) {
+                    throw new RuntimeException("Exception creating database!", e);
+                }
+            }
+            final var url = "jdbc:sqlite:" + dbPath;
+            SQLiteDataSource dataSource = new SQLiteDataSource();
+            dataSource.setUrl(url);
+            dataSource.setDatabaseName(BotRegistry.THE_COMMANDER_NAME);
+
+            final var flyway = Flyway.configure()
+                .dataSource(dataSource)
+                .locations("classpath:commander/db")
+                .load();
+            flyway.migrate();
+
+            jdbi = Jdbi.create(dataSource);
+        }
+
         MessageAction.setDefaultMentionRepliedUser(false);
         MessageAction.setDefaultMentions(DEFAULT_MENTIONS);
+
+        // Setup components
+        {
+            final var storage = new ComponentStorage(jdbi, "components");
+            componentManager = new ComponentManager(storage, DEFERRED_COMPONENT_LISTENERS);
+            EventListeners.COMMANDS_LISTENER.addListener(componentManager);
+        }
 
         if (generalConfig.bot().getOwners().isEmpty()) {
             LOGGER.warn("Please provide at least one bot owner!");
@@ -324,7 +386,7 @@ public final class TheCommander implements Bot {
         }
 
         // Button listeners
-        EventListeners.COMMANDS_LISTENER.addListeners(DictionaryCommand.listener, new DismissListener(),
+        EventListeners.COMMANDS_LISTENER.addListeners(new DismissListener(),
             QuoteCommand.ListQuotes.getQuoteListener(), RolesCommand.getListener(), HelpCommand.getListener(),
             CustomPingsCommand.ListCmd.getListener());
 
@@ -334,6 +396,8 @@ public final class TheCommander implements Bot {
 
         EventListeners.MISC_LISTENER.addListeners(new ThreadListener(),
             new ThreadChannelCreatorEvents(this::getGeneralConfig));
+
+        COLLECT_TASKS_LISTENER.register(Events.MISC_BUS);
         CurseForgeCommand.RG_TASK_SCHEDULER_LISTENER.register(Events.MISC_BUS);
         MCVersions.REFRESHER_TASK.register(Events.MISC_BUS);
 
@@ -420,6 +484,10 @@ public final class TheCommander implements Bot {
         return commandClient;
     }
 
+    public ComponentManager getComponentManager() {
+        return componentManager;
+    }
+
     public Optional<CurseForgeManager> getCurseForgeManager() {
         return Optional.ofNullable(curseForgeManager);
     }
@@ -428,11 +496,15 @@ public final class TheCommander implements Bot {
         return generalConfig;
     }
 
+    public Jdbi getJdbi() {
+        return jdbi;
+    }
+
     @Nullable
     public RestAction<Message> getMessageByLink(final String link) throws MessageUtilities.MessageLinkException {
         final AtomicReference<RestAction<Message>> returnAtomic = new AtomicReference<>();
         MessageUtilities.decodeMessageLink(link, (guildId, channelId, messageId) -> {
-            final var guild = getJDA().getGuildById(guildId);
+            final var guild = getJda().getGuildById(guildId);
             if (guild == null) return;
             final var channel = guild.getChannelById(MessageChannel.class, channelId);
             if (channel != null) {
