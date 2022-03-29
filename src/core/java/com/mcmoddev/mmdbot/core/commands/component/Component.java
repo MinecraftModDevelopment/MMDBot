@@ -23,6 +23,10 @@ package com.mcmoddev.mmdbot.core.commands.component;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * A component has an ID, and represents an {@link net.dv8tion.jda.api.interactions.components.ItemComponent}.<br>
+ * It is used for saving the arguments that an {@link net.dv8tion.jda.api.interactions.components.ItemComponent} needs for later use.
+ */
 public record Component(String featureId, UUID uuid, List<String> arguments, Lifespan lifespan) {
 
     /**
@@ -48,12 +52,28 @@ public record Component(String featureId, UUID uuid, List<String> arguments, Lif
         return actualId.toString();
     }
 
+    /**
+     * Creates a component with a {@link Lifespan#TEMPORARY temporary lifespan}.
+     *
+     * @param featureId the ID of the feature that owns the component
+     * @param uuid      the ID of the component
+     * @param arguments the arguments used by the component
+     */
     public Component(String featureId, UUID uuid, List<String> arguments) {
         this(featureId, uuid, arguments, Lifespan.TEMPORARY);
     }
 
+    /**
+     * An enum representing the lifespan of a component. <br>
+     */
     public enum Lifespan {
+        /**
+         * The component will not be deleted on a regular schedule.
+         */
         PERMANENT,
+        /**
+         * The component will be deleted on a regular schedule.
+         */
         TEMPORARY
     }
 }

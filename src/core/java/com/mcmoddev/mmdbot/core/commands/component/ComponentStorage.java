@@ -106,14 +106,17 @@ public class ComponentStorage {
         jdbi.useHandle(handle -> handle.createUpdate("delete from %s where %s = :id".formatted(
                 tableName, ID_ROW_NAME
             ))
-            .bind("id", id));
+            .bind("id", id)
+            .execute());
     }
 
     public void removeComponentsLastUsedBefore(Instant before) {
-        jdbi.useHandle(handle -> handle.createUpdate("delete from %s where %s <= :before and %s != %s".formatted(
-                tableName, LAST_USED_ROW_NAME, LIFESPAN_ROW_NAME, Component.Lifespan.PERMANENT.toString()
+        jdbi.useHandle(handle -> handle.createUpdate("delete from %s where %s <= :before and %s == :lifespan".formatted(
+                tableName, LAST_USED_ROW_NAME, LIFESPAN_ROW_NAME
             ))
-            .bind("before", before));
+            .bind("before", before)
+            .bind("lifespan", Component.Lifespan.TEMPORARY.toString())
+            .execute());
     }
 
     private static final Type STRING_LIST_TYPE = new TypeToken<List<String>>() {}.getType();

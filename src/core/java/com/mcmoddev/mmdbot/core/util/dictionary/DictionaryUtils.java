@@ -27,6 +27,7 @@ import com.google.common.util.concurrent.ExecutionError;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.gson.JsonObject;
 import com.mcmoddev.mmdbot.core.util.Constants;
+import io.github.matyrobbrt.curseforgeapi.util.Utils;
 import lombok.NonNull;
 
 import javax.annotation.Nullable;
@@ -110,7 +111,8 @@ public final class DictionaryUtils {
         try {
             return getDefinition(token, word);
         } catch (DictionaryException e) {
-            throw new IllegalArgumentException(e);
+            Utils.sneakyThrow(e);
+            return null;
         }
     }
 

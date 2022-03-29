@@ -37,6 +37,10 @@ import java.util.concurrent.TimeUnit;
 
 import static com.mcmoddev.mmdbot.core.commands.component.Component.ID_SPLITTER;
 
+/**
+ * A {@link ComponentManager} is responsible for tracking {@link Component Components} and dispatching events affecing them to
+ * the correct listeners, based on the {@link Component#featureId() component feature ID}.
+ */
 public class ComponentManager implements EventListener {
 
     private final ComponentStorage storage;
@@ -47,14 +51,27 @@ public class ComponentManager implements EventListener {
         listeners.forEach(this::addListener);
     }
 
+    /**
+     * @return the storage of this manager
+     */
     public ComponentStorage getStorage() {
         return storage;
     }
 
+    /**
+     * Removes {@link com.mcmoddev.mmdbot.core.commands.component.Component.Lifespan#TEMPORARY temporary} components that are older than the time specified.
+     *
+     * @param time the time
+     * @param unit the unit
+     */
     public void removeComponentsOlderThan(final long time, final TemporalUnit unit) {
         getStorage().removeComponentsLastUsedBefore(Instant.now().minus(time, unit));
     }
 
+    /**
+     * Adds a listener to this manager.
+     * @param listener the listener
+     */
     public void addListener(final ComponentListener listener) {
         final var id = listener.getName();
         if (listeners.containsKey(id)) {
@@ -118,9 +135,5 @@ public class ComponentManager implements EventListener {
         } catch (IllegalArgumentException | IndexOutOfBoundsException ignored) {
 
         }
-    }
-
-    public record Period(long time, TimeUnit unit) {
-
     }
 }
