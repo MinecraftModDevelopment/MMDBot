@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.commander.quotes;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
@@ -30,6 +31,8 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.migrate.QuotesMigrator;
+import com.mcmoddev.mmdbot.core.database.MigratorCluster;
+import com.mcmoddev.mmdbot.core.database.VersionedDataMigrator;
 import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -40,12 +43,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -65,11 +72,6 @@ public final class Quotes {
     }
 
     /**
-     * The current version of the database schema.
-     */
-    public static final int CURRENT_SCHEMA_VERSION = 1;
-
-    /**
      * Location to the quote storage file.
      */
     private static final Supplier<Path> QUOTE_STORAGE = () -> TheCommander.getInstance().getRunPath().resolve("quotes.json");
@@ -82,17 +84,41 @@ public final class Quotes {
         .create();
 
     /**
+     * The current version of the database schema.
+     */
+    public static final int CURRENT_SCHEMA_VERSION = 2;
+
+    /**
+     * The migrator used for migrating data.
+     */
+    public static final VersionedDataMigrator MIGRATOR = VersionedDataMigrator.builder()
+        .addCluster(2, MigratorCluster.builder()
+            .addMigrator(1, (current, target, data) -> {
+                // Move to a Map
+                final JsonObject newData = new JsonObject();
+                newData.add(String.valueOf(0L), data);
+                return newData;
+            })
+            .build())
+        .build();
+
+    /**
+     * The type of the quotes' data.
+     */
+    private static final Type TYPE = new com.google.common.reflect.TypeToken<Map<Long, List<Quote>>>() {}.getType();
+
+    /**
      * The static instance of NullQuote used as the reference for nulls.
      * Stops the GSON parser from entering an infinite loop.
      */
     public static final NullQuote NULL = new NullQuote();
 
     /**
-     * The list of Quote instances held by this container.
+     * A map of guild IDs to a list of Quote instances held by this container.
      * Quote metadata ID should sync with the index in this list.
      * This greatly simplifies access operations.
      */
-    private static List<Quote> quotes = null;
+    private static Map<Long, List<Quote>> quotes = null;
 
     /**
      * The message used for when quotes are null, or do not exist.
@@ -105,18 +131,15 @@ public final class Quotes {
         .build();
 
     /**
-     * Given a numeric ID, fetch the quote at that index, or null.
+     * Given a numeric ID, fetch the quote at that index, from that guild, or null.
      *
-     * @param id The index to fetch the quote from.
-     * @return The Quote object at that index.
+     * @param guildId the id of the guild to fetch the quote for.
+     * @param id the index to fetch the quote from.
+     * @return the Quote object at that index.
      */
     @Nullable
-    public static Quote getQuote(final int id) {
-        if (quotes == null) {
-            loadQuotes();
-        }
-
-        return quotes.get(id);
+    public static Quote getQuote(final long guildId, final int id) {
+        return getQuotesForGuild(guildId).get(id);
     }
 
     /**
@@ -131,23 +154,29 @@ public final class Quotes {
 
         final var path = QUOTE_STORAGE.get();
         if (!Files.exists(path)) {
-            quotes = new ArrayList<>();
+            quotes = Collections.synchronizedMap(new HashMap<>());
         }
-        final var listType = new TypeToken<List<Quote>>() {
-        }.getType();
         try {
-            final var db = VersionedDatabase.<List<Quote>>fromFile(GSON, path, listType);
+            final var db = VersionedDatabase.<Map<Long, List<Quote>>>fromFile(GSON, path, TYPE);
             if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
                 new QuotesMigrator(TheCommander.getInstance().getRunPath()).migrate();
-                final var newDb = VersionedDatabase.<List<Quote>>fromFile(GSON, path, listType);
-                quotes = newDb.getData();
+                final var newDb = VersionedDatabase.<Map<Long, List<Quote>>>fromFile(GSON, path, TYPE);
+                quotes = Collections.synchronizedMap(newDb.getData());
             } else {
-                quotes = db.getData();
+                quotes = Collections.synchronizedMap(db.getData());
             }
 
         } catch (final IOException exception) {
             TheCommander.LOGGER.trace("Failed to read quote file...", exception);
-            quotes = new ArrayList<>();
+            quotes = Collections.synchronizedMap(new HashMap<>());
+        }
+
+        if (quotes.get(0L) != null) {
+            // Migrate to the new guild-specific quotes
+            final var guildId = Long.parseLong(TheCommander.getInstance().getGeneralConfig().bot().guild());
+            final var oldQuotes = quotes.get(0L);
+            getQuotesForGuild(guildId).addAll(oldQuotes);
+            quotes.remove(0L);
         }
     }
 
@@ -173,14 +202,11 @@ public final class Quotes {
     /**
      * Add the specified quote to the list at the specified index.
      *
+     * @param guildId the ID of the guild for which to add the quote.
      * @param quote The quote to add.
      */
-    public static void addQuote(final Quote quote) {
-        if (quotes == null) {
-            loadQuotes();
-        }
-
-        quotes.add(quote.getID(), quote);
+    public static void addQuote(final long guildId, final Quote quote) {
+        getQuotesForGuild(guildId).add(quote.getID(), quote);
         syncQuotes();
     }
 
@@ -191,12 +217,11 @@ public final class Quotes {
      * If the quote is at the start of a null gap and the null gap is at the end of the list, it will close the gap.
      * If the quote is after the end of the list, it will have no effect.
      *
+     * @param guildId the ID of the guild for which to remove the quote.
      * @param id the ID of the item to remove.
      */
-    public static void removeQuote(final int id) {
-        if (quotes == null)
-            loadQuotes();
-
+    public static void removeQuote(final long guildId, final int id) {
+        final var quotes = getQuotesForGuild(guildId);
         quotes.set(id, NULL);
 
         // Count the number of nulls at the end of the list
@@ -227,15 +252,19 @@ public final class Quotes {
      * TODO: Make this fill holes
      * For generating the next Quote ID.
      *
-     * @return The index of the next empty slot in the list.
+     * @param guildId the ID of the guild to get the slot for
+     * @return the index of the next empty slot in the list
      */
-    public static int getQuoteSlot() {
-        if (quotes == null)
-            loadQuotes();
-
-        return quotes.size();
+    public static int getQuoteSlot(final long guildId) {
+        return getQuotesForGuild(guildId).size();
     }
 
+    public static List<Quote> getQuotesForGuild(final long guildId) {
+        if (quotes == null) {
+            loadQuotes();
+        }
+        return quotes.computeIfAbsent(guildId, k -> new ArrayList<>());
+    }
 
     /**
      * @return The message used for when quotes are null, or do not exist.
@@ -243,7 +272,6 @@ public final class Quotes {
     public static MessageEmbed getQuoteNotPresent() {
         return QUOTE_NOT_PRESENT;
     }
-
 
     static final class QuoteSerializer implements TypeAdapterFactory {
 

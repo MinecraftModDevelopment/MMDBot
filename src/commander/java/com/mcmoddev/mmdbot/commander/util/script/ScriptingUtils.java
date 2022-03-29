@@ -304,7 +304,7 @@ public final class ScriptingUtils {
         });
         context.setFunction("getQuotes", args -> {
             validateArgs(args, 0);
-            return IntStream.range(0, Quotes.getQuoteSlot()).mapToObj(Quotes::getQuote).toList();
+            return IntStream.range(0, Quotes.getQuotesForGuild(guild.getIdLong()).size()).mapToObj(i -> Quotes.getQuote(guild.getIdLong(), i)).toList();
         });
         context.setFunction("getMembers", a -> guild.getMembers().stream().map(m -> createMember(m).toProxyObject()).toList());
         context.setFunction("getRoles", a -> guild.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList());

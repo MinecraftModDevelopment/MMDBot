@@ -30,6 +30,8 @@ import com.mcmoddev.mmdbot.commander.quotes.Quote;
 import com.mcmoddev.mmdbot.commander.quotes.Quotes;
 import com.mcmoddev.mmdbot.commander.quotes.StringQuote;
 import com.mcmoddev.mmdbot.commander.quotes.UserReference;
+import com.mcmoddev.mmdbot.commander.tricks.Tricks;
+import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
 import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -126,6 +128,7 @@ public class QuoteCommand extends SlashCommand {
                 event.deferReply(true).setContent("Quotes are not enabled!").queue();
                 return;
             }
+            final var guildId = event.getGuild().getIdLong();
             final var text = event.getOption("quote", "", OptionMapping::getAsString);
             final var quoteeUser = event.getOption("quotee");
             final var quoteeText = event.getOption("quoteetext");
@@ -158,11 +161,11 @@ public class QuoteCommand extends SlashCommand {
                 }
             }
 
-            var quoteID = Quotes.getQuoteSlot();
+            var quoteID = Quotes.getQuoteSlot(guildId);
             finishedQuote.setID(quoteID);
 
             // All execution leads to here, where finishedQuote is valid.
-            Quotes.addQuote(finishedQuote);
+            Quotes.addQuote(guildId, finishedQuote);
 
             event.reply("Added quote " + quoteID + "!").mentionRepliedUser(false).queue();
         }
@@ -206,17 +209,18 @@ public class QuoteCommand extends SlashCommand {
                 event.deferReply(true).setContent("Quotes are not enabled!").queue();
                 return;
             }
+            final var guildId = event.getGuild().getIdLong();
             final var index = event.getOption("index");
 
             // Check whether any parameters given.
             if (index != null) {
                 // We have something to parse.
-                if (index.getAsLong() >= Quotes.getQuoteSlot()) {
+                if (index.getAsInt() >= Quotes.getQuoteSlot(guildId)) {
                     event.replyEmbeds(Quotes.getQuoteNotPresent()).mentionRepliedUser(false).queue();
                     return;
                 }
 
-                var fetched = Quotes.getQuote((int) index.getAsLong());
+                var fetched = Quotes.getQuote(guildId, index.getAsInt());
                 // Check if the quote exists.
                 if (fetched == Quotes.NULL) {
                     // Send the standard message
@@ -233,8 +237,8 @@ public class QuoteCommand extends SlashCommand {
             Quote fetched;
             Random rand = new Random();
             do {
-                int id = rand.nextInt(Quotes.getQuoteSlot());
-                fetched = Quotes.getQuote(id);
+                int id = rand.nextInt(Quotes.getQuoteSlot(guildId));
+                fetched = Quotes.getQuote(guildId, id);
             } while (fetched == null);
 
             // It exists, so get the content and send it.
@@ -278,7 +282,7 @@ public class QuoteCommand extends SlashCommand {
                 return;
             }
             final var index = event.getOption("index", 0, OptionMapping::getAsInt);
-            Quotes.removeQuote(index);
+            Quotes.removeQuote(event.getGuild().getIdLong(), index);
             event.reply("Quote " + index + " removed.").mentionRepliedUser(false).setEphemeral(true).queue();
         }
     }
@@ -295,24 +299,21 @@ public class QuoteCommand extends SlashCommand {
      *
      * @author Curle
      */
-    public class ListQuotes extends PaginatedCommand {
-        private static ButtonListener quoteListener;
+    public static class ListQuotes extends PaginatedCommand {
 
         /**
          * Create the command.
          * Sets all the usual flags.
          */
         private ListQuotes() {
-            super("list", "Get all quotes.", true, new ArrayList<>(), 10);
+            super(TheCommander.getComponentListener("list-quotes-cmd"), Component.Lifespan.TEMPORARY, 10);
+            name = "list";
+            help = "Get all quotes.";
             category = new Category("Fun");
             guildOnly = true;
-
-            this.listener = new QuoteListener();
-            quoteListener = this.listener;
-        }
-
-        public static ButtonListener getQuoteListener() {
-            return quoteListener;
+            options = List.of(
+                new OptionData(OptionType.INTEGER, "page", "The index of the page to display. 1 if not specified.")
+            );
         }
 
         @Override
@@ -321,21 +322,25 @@ public class QuoteCommand extends SlashCommand {
                 event.deferReply(true).setContent("Quotes are not enabled!").queue();
                 return;
             }
-            updateMaximum(Quotes.getQuoteSlot() - 1);
-            createPaginatedMessage(event).addActionRows(ActionRow.of(DismissListener.createDismissButton(event))).queue();
+            final var guildId = event.getGuild().getIdLong();
+            final var pgIndex = event.getOption("page", 1, OptionMapping::getAsInt);
+            final var startingIndex = (pgIndex - 1) * itemsPerPage;
+            final var maximum = Quotes.getQuotesForGuild(guildId).size();
+            if (maximum <= startingIndex) {
+                event.deferReply().setContent("The page index provided (%s) was too big! There are only %s pages."
+                    .formatted(pgIndex, getPagesNumber(maximum))).queue();
+                return;
+            }
+            createPaginatedMessage(event, startingIndex, maximum, event.getGuild().getId())
+                .addActionRows(ActionRow.of(DismissListener.createDismissButton(event))).queue();
         }
 
-        /**
-         * Gather a page of quotes, as an embed.
-         *
-         * @param start The quote number at the start of the current page.
-         * @return An EmbedBuilder which is ready to be sent.
-         */
         @Override
-        protected EmbedBuilder getEmbed(int start) {
+        protected EmbedBuilder getEmbed(final int start, final int maximum, final List<String> arguments) {
             EmbedBuilder embed;
             // We have to make sure that this doesn't crash if we list a fresh bot.
-            if (Quotes.getQuoteSlot() == 0) {
+            final long guildId = Long.parseLong(arguments.get(0));
+            if (Quotes.getQuoteSlot(guildId) == 0) {
                 embed = new EmbedBuilder()
                     .setColor(Color.GREEN)
                     .setDescription("There are no quotes loaded currently.")
@@ -343,19 +348,19 @@ public class QuoteCommand extends SlashCommand {
             } else {
                 embed = new EmbedBuilder()
                     .setColor(Color.GREEN)
-                    .setTitle("Quote Page " + ((start / itemsPerPage) + 1))
+                    .setTitle("Quote Page %s/%s".formatted(start / itemsPerPage + 1, getPagesNumber(maximum)))
                     .setTimestamp(Instant.now());
             }
 
             // From the specified starting point until the end of the page.
             for (int x = start; x < start + itemsPerPage; x++) {
                 // But stop early if we hit the end of the list,
-                if (x >= Quotes.getQuoteSlot()) {
+                if (x >= Quotes.getQuoteSlot(guildId)) {
                     break;
                 }
 
                 // Get the current Quote
-                Quote fetchedQuote = Quotes.getQuote(x);
+                Quote fetchedQuote = Quotes.getQuote(guildId, x);
 
                 if (fetchedQuote instanceof NullQuote || fetchedQuote == null) {
                     embed.addField(String.valueOf(x), "Quote does not exist.", false);
@@ -370,11 +375,8 @@ public class QuoteCommand extends SlashCommand {
             return embed;
         }
 
-        public class QuoteListener extends PaginatedCommand.ButtonListener {
-            @Override
-            public String getButtonID() {
-                return "quotelist";
-            }
+        private int getPagesNumber(final int maximum) {
+            return maximum % itemsPerPage == 0 ? maximum / itemsPerPage : maximum / itemsPerPage + 1;
         }
     }
 }

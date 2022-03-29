@@ -24,6 +24,9 @@ import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.commands.CommandUpserter;
+import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
+import com.mcmoddev.mmdbot.core.commands.component.ComponentManager;
+import com.mcmoddev.mmdbot.core.commands.component.ComponentStorage;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRestart;
@@ -42,6 +45,8 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.hooks.EventListener;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -57,6 +62,7 @@ public class CommandModule {
      * The constant commandClient.
      */
     private static CommandClient commandClient;
+    private static ComponentManager componentManager;
 
     /**
      * Gets command client.
@@ -67,8 +73,21 @@ public class CommandModule {
         return commandClient;
     }
 
+    public static ComponentManager getComponentManager() {
+        return componentManager;
+    }
+
     public static final Executor COMMAND_LISTENER_THREAD_POOL = Executors.newFixedThreadPool(2, r -> Utils.setThreadDaemon(new Thread(r, "CommandListener"), true));
     public static final Executor BUTTON_LISTENER_THREAD_POOL = Executors.newSingleThreadExecutor(r -> Utils.setThreadDaemon(new Thread(r, "ButtonListener"), true));
+
+    private static final List<ComponentListener> DEFERRED_COMPONENT_LISTENERS = new ArrayList<>();
+    public static ComponentListener.Builder getComponentListener(final String featureId) {
+        if (getComponentManager() == null) {
+            return ComponentListener.builder(featureId, DEFERRED_COMPONENT_LISTENERS::add);
+        } else {
+            return ComponentListener.builder(featureId, getComponentManager()::addListener);
+        }
+    }
 
     /**
      * Setup and load the bots command module.
@@ -101,13 +120,20 @@ public class CommandModule {
         commandClient.addCommand(new CmdReact());
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
+            // Setup components
+            {
+                final var storage = new ComponentStorage(MMDBot.getDatabaseManager().jdbi(), "components");
+                componentManager = new ComponentManager(storage, DEFERRED_COMPONENT_LISTENERS);
+                jda.addEventListeners(buttonListener(componentManager));
+            }
+
             final var upserter = new CommandUpserter(commandClient, false, String.valueOf(MMDBot.getConfig().getGuildID()));
             jda.addEventListeners(upserter);
             // Wrap the command and button listener in another thread, so that if a runtime exception
             // occurs while executing a command, the event thread will not be stopped
             // Commands and buttons are separated so that they do not interfere with each other
             jda.addEventListeners(new ThreadedEventListener((EventListener) commandClient, COMMAND_LISTENER_THREAD_POOL),
-                buttonListener(CmdInvite.ListCmd.getButtonListener()), buttonListener(new DismissListener()));
+                 buttonListener(new DismissListener()));
         } else {
             MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");
         }

@@ -20,55 +20,71 @@
  */
 package com.mcmoddev.mmdbot.core.util.command;
 
+import com.google.common.collect.Lists;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.core.commands.component.ButtonInteractionContext;
+import com.mcmoddev.mmdbot.core.commands.component.Component;
+import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
+import com.mcmoddev.mmdbot.core.util.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * A wrapper for Slash Commands which require a paginated embed.
  * It handles the buttons and interactions for you.
  * <p>
  * To use this, the developer needs to:
- * - implement {@link #getEmbed(int)} as per the javadoc.
- * - implement {@link ButtonListener} in the child class, along with the {@link ButtonListener#getButtonID()} method.
- * - register their implementation of {@link ButtonListener} to the {@link com.jagrosh.jdautilities.command.CommandClient}.
- * - call {@link #updateMaximum(int)} as required - usually once per invocation
- * - call {@link #sendPaginatedMessage(SlashCommandEvent)} in the execute method when a paginated embed is wanted.
- *
- * TODO Add a context to the {@link #updateMaximum(int)}, might need a refactor
+ * - implement {@link #getEmbed(int, int, List)} as per the javadoc.
+ * - make sure that the {@link #getListener()} is registered to a {@link com.mcmoddev.mmdbot.core.commands.component.ComponentManager}.
+ * - call {@link #sendPaginatedMessage(SlashCommandEvent, int, String...)} in the execute method when a paginated embed is wanted.
+ * <p>
  *
  * @author Curle
+ * @author matyrobbrt
  */
 public abstract class PaginatedCommand extends SlashCommand {
+    public static final String FORWARD_BUTTON_ID = "next";
+    public static final String BACKWARD_BUTTON_ID = "prev";
 
-    // How many items should be sent per individual page. Defaults to the maximum field count for an Embed, 25.
-    protected int itemsPerPage = 25;
-    // The maximum number of items in the list. Update with #updateMaximum
-    protected int maximum = 0;
-    protected PaginatedCommand.ButtonListener listener = new ButtonListener();
+    protected final ComponentListener componentListener;
+    protected final Component.Lifespan lifespan;
+    protected final boolean ownerOnlyButton;
+    // How many items should be sent per individual page.
+    protected final int itemsPerPage;
 
-    public PaginatedCommand(String name, String help, boolean guildOnly, List<OptionData> options, int items) {
+    public PaginatedCommand(ComponentListener.Builder componentListenerBuilder, final Component.Lifespan lifespan, int itemsPerPage, boolean ownerOnlyButton) {
         super();
-        this.name = name;
-        this.help = help;
+        this.componentListener = componentListenerBuilder
+            .onButtonInteraction(this::onButtonInteraction)
+            .build();
+        this.lifespan = lifespan;
+        this.ownerOnlyButton = ownerOnlyButton;
+        this.itemsPerPage = itemsPerPage;
+    }
 
-        this.guildOnly = guildOnly;
+    public PaginatedCommand(ComponentListener.Builder componentListenerBuilder, final Component.Lifespan lifespan, int itemsPerPage) {
+        this(componentListenerBuilder, lifespan, itemsPerPage, false);
+    }
 
-        itemsPerPage = items;
-
-        this.options = options;
+    /**
+     * Gets the component listener for handling the pagination. <br>
+     * <strong>The listener has to be registered to a {@link com.mcmoddev.mmdbot.core.commands.component.ComponentManager}
+     * before the command can be used.</strong>
+     *
+     * @return the component listener.
+     */
+    public final ComponentListener getListener() {
+        return componentListener;
     }
 
     /**
@@ -76,41 +92,68 @@ public abstract class PaginatedCommand extends SlashCommand {
      * This is where the implementation of the paginated command steps in.
      *
      * @param startingIndex the index of the first item in the list.
+     * @param maximum the maximum amount of items to be displayed
+     * @param arguments the arguments of the button
      * @return an unbuilt embed that can be sent.
      */
-    protected abstract EmbedBuilder getEmbed(int startingIndex);
-
-    /**
-     * Set a new maximum index into the paginated list.
-     * Updates the point at which buttons are created in new queries.
-     */
-    protected void updateMaximum(int newMaxmimum) {
-        maximum = newMaxmimum;
-    }
+    protected abstract EmbedBuilder getEmbed(int startingIndex, int maximum, final List<String> arguments);
 
     /**
      * Create and queue a {@link ReplyCallbackAction} which, if the number of items requires, also contains buttons for scrolling.
      *
      * @param event the active SlashCommandEvent.
+     * @param maximum the maximum amount of items
+     * @param arguments the arguments that will be saved in the database, bound to the button's component ID
      */
-    protected void sendPaginatedMessage(SlashCommandEvent event) {
-        createPaginatedMessage(event).queue();
+    protected void sendPaginatedMessage(SlashCommandEvent event, final int maximum, final String... arguments) {
+        createPaginatedMessage(event, maximum, arguments).queue();
+    }
+
+    /**
+     * Create a {@link ReplyCallbackAction} with the starting index of 0, which, if the number of items requires, also contains buttons for scrolling.
+     *
+     * @param event the active SlashCommandEvent.
+     * @param maximum the maximum amount of items
+     * @param args the arguments that will be saved in the database, bound to the button's component ID
+     * @return the ReplyAction
+     */
+    protected ReplyCallbackAction createPaginatedMessage(SlashCommandEvent event, final int maximum, final String... args) {
+        return createPaginatedMessage(event, 0, maximum, args);
     }
 
     /**
      * Create a {@link ReplyCallbackAction} which, if the number of items requires, also contains buttons for scrolling.
      *
      * @param event the active SlashCommandEvent.
+     * @param startingIndex the index of the first item to display
+     * @param maximum the maximum of items
+     * @param args arguments the arguments that will be saved in the database, bound to the button's component ID
      * @return the ReplyAction
      */
-    protected ReplyCallbackAction createPaginatedMessage(SlashCommandEvent event) {
-        var reply = event.deferReply().addEmbeds(getEmbed(0).build());
-        var buttons = createScrollButtons(0);
+    protected ReplyCallbackAction createPaginatedMessage(SlashCommandEvent event, final int startingIndex, final int maximum, final String... args) {
+        final var id = UUID.randomUUID();
+        final var argsList = Lists.newArrayList(args);
+        var reply = event.deferReply().addEmbeds(getEmbed(startingIndex, maximum, argsList).build());
+        final var startStr = String.valueOf(startingIndex);
+        final var maxStr = String.valueOf(maximum);
+        if (argsList.size() == 0) {
+            argsList.add(startStr);
+            argsList.add(maxStr);
+        } else {
+            argsList.add(0, startStr);
+            argsList.add(1, maxStr);
+        }
+        final var component = new Component(componentListener.getName(), id, argsList, Component.Lifespan.TEMPORARY);
+        componentListener.insertComponent(component);
+        var buttons = createScrollButtons(id.toString(), startingIndex, maximum);
         if (buttons.length > 0) {
             reply = reply.addActionRow(buttons);
         }
         return reply;
     }
+
+    private static final Emoji NEXT_EMOJI = Emoji.fromUnicode("▶️");
+    private static final Emoji PREVIOUS_EMOJI = Emoji.fromUnicode("◀️");
 
     /**
      * Create the row of Component interaction buttons.
@@ -118,14 +161,14 @@ public abstract class PaginatedCommand extends SlashCommand {
      * Currently, this just creates a left and right arrow.
      * Left arrow scrolls back a page. Right arrow scrolls forward a page.
      *
-     * @param start The quote number at the start of the current page.
+     * @param id the component ID of the buttons
+     * @param start the index of the item at the start of the current page.
+     * @param maximum the maximum amount of items
      * @return A row of buttons to go back and forth by one page.
      */
-    private ItemComponent[] createScrollButtons(int start) {
-        Button backward = Button.primary(listener.getButtonID() + "-" + start + "-prev",
-            Emoji.fromUnicode("◀️")).asDisabled();
-        Button forward = Button.primary(listener.getButtonID() + "-" + start + "-next",
-            Emoji.fromUnicode("▶️")).asDisabled();
+    private ItemComponent[] createScrollButtons(String id, int start, int maximum) {
+        Button backward = Button.primary(Component.createIdWithArguments(id, BACKWARD_BUTTON_ID), PREVIOUS_EMOJI).asDisabled();
+        Button forward = Button.primary(Component.createIdWithArguments(id, FORWARD_BUTTON_ID), NEXT_EMOJI).asDisabled();
 
         if (start != 0) {
             backward = backward.asEnabled();
@@ -135,60 +178,53 @@ public abstract class PaginatedCommand extends SlashCommand {
             forward = forward.asEnabled();
         }
 
-        return new ItemComponent[]{backward, forward};
+        return new ItemComponent[]{
+            backward, forward
+        };
     }
 
-
-    /**
-     * Listens for interactions with the scroll buttons on the paginated message.
-     * Extend and implement as a child class of the Paginated Message.
-     * <p>
-     * Implement the {@link #getButtonID()} function in any way you like.
-     * Make sure that this listener is registered to the {@link com.jagrosh.jdautilities.command.CommandClient}.
-     */
-    public class ButtonListener extends ListenerAdapter {
-
-        public String getButtonID() {
-            return PaginatedCommand.this.getName();
+    protected void onButtonInteraction(final ButtonInteractionContext context) {
+        final var event = context.getEvent();
+        final var interaction = event.getMessage().getInteraction();
+        if (ownerOnlyButton && interaction != null && event.getUser().getIdLong() != interaction.getUser().getIdLong()) {
+            event.deferReply(true).setContent("You are not the author of this interaction!").queue();
+            return;
         }
+        final int current = context.getArgument(0, () -> 0, Integer::parseInt);
+        final int maximum = context.getArgument(1, () -> 0, Integer::parseInt);
+        final List<String> newArgs = context.getArguments().size() == 2 ? List.of() : context.getArguments().subList(2, context.getArguments().size());
 
-        @Override
-        public void onButtonInteraction(@NotNull final ButtonInteractionEvent event) {
-            var button = event.getButton();
-            if (button.getId() == null) {
-                return;
-            }
+        // If it has action rows already, don't delete them
+        final var oldActionRowsSize = event.getMessage().getActionRows().size();
+        final var oldActionRows = oldActionRowsSize < 2 ? new ArrayList<ActionRow>() :
+            new ArrayList<>(event.getMessage().getActionRows().subList(1, oldActionRowsSize));
 
-            String[] idParts = button.getId().split("-");
-            if (idParts.length != 3) {
-                return;
-            }
+        final var buttonId = context.getComponentId().toString();
 
-            if (!idParts[0].equals(getButtonID())) {
-                return;
-            }
+        switch (context.getButtonArguments().get(0)) {
+            case FORWARD_BUTTON_ID -> {
+                final var start = current + itemsPerPage;
 
-            int current = Integer.parseInt(idParts[1]);
-
-            // If it has action rows already, DON'T delete them
-
-            final var oldActionRowsSize = event.getMessage().getActionRows().size();
-            final var oldActionRows = oldActionRowsSize < 2 ? new ArrayList<ActionRow>() :
-                new ArrayList<>(event.getMessage().getActionRows().subList(1, oldActionRowsSize));
-
-            if (idParts[2].equals("next")) {
-                oldActionRows.add(0, ActionRow.of(createScrollButtons(current + itemsPerPage)));
-                event
-                    .editMessageEmbeds(getEmbed(current + itemsPerPage).build())
+                oldActionRows.add(0, ActionRow.of(createScrollButtons(buttonId,start, maximum)));
+                event.editMessageEmbeds(getEmbed(start, maximum, newArgs).build())
                     .setActionRows(oldActionRows)
                     .queue();
-            } else if (idParts[2].equals("prev")) {
-                oldActionRows.add(0, ActionRow.of(createScrollButtons(current - itemsPerPage)));
-                event
-                    .editMessageEmbeds(getEmbed(current - itemsPerPage).build())
+
+                // Argument 0 == current index
+                context.updateArgument(0, String.valueOf(start));
+            }
+            case BACKWARD_BUTTON_ID -> {
+                final var start = current - itemsPerPage;
+
+                oldActionRows.add(0, ActionRow.of(createScrollButtons(buttonId, start, maximum)));
+                event.editMessageEmbeds(getEmbed(start, maximum, newArgs).build())
                     .setActionRows(oldActionRows)
                     .queue();
+
+                // Argument 0 == current index
+                context.updateArgument(0, String.valueOf(start));
             }
         }
     }
+
 }

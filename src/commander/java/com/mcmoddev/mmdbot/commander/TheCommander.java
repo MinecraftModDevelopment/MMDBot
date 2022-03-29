@@ -368,7 +368,7 @@ public final class TheCommander implements Bot {
         if (generalConfig.features().tricks().tricksEnabled()) {
             commandClient.addCommand(new AddTrickCommand.Prefix());
             commandClient.addCommand(new EditTrickCommand.Prefix());
-            EventListeners.COMMANDS_LISTENER.addListeners(ListTricksCommand.getListListener(), new AddTrickCommand.ModalListener());
+            EventListeners.COMMANDS_LISTENER.addListeners(new AddTrickCommand.ModalListener());
             if (generalConfig.features().tricks().prefixEnabled()) {
                 Tricks.getTricks().stream().map(RunTrickCommand.Prefix::new).forEach(commandClient::addCommand);
             }
@@ -386,9 +386,7 @@ public final class TheCommander implements Bot {
         }
 
         // Button listeners
-        EventListeners.COMMANDS_LISTENER.addListeners(new DismissListener(),
-            QuoteCommand.ListQuotes.getQuoteListener(), RolesCommand.getListener(), HelpCommand.getListener(),
-            CustomPingsCommand.ListCmd.getListener());
+        EventListeners.COMMANDS_LISTENER.addListeners(new DismissListener());
 
         if (generalConfig.features().isReferencingEnabled()) {
             EventListeners.MISC_LISTENER.addListener(new ReferencingListener());

@@ -24,7 +24,9 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.BotConfig;
+import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
+import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.database.dao.Invites;
@@ -180,32 +182,20 @@ public class CmdInvite extends SlashCommand {
 
     public static final class ListCmd extends PaginatedCommand {
 
-        private static ButtonListener buttonListener;
-
         public ListCmd() {
-            super("list", "Lists all the invites", false, List.of(), 10);
-            this.listener = new ButtonListener() {
-                @Override
-                public String getButtonID() {
-                    return "listinvites";
-                }
-            };
-            buttonListener = this.listener;
-        }
-
-        public static ButtonListener getButtonListener() {
-            return buttonListener;
+            super(CommandModule.getComponentListener("invites-list-cmd"), Component.Lifespan.TEMPORARY, 10);
+            name = "list";
+            help = "Lists all the invites";
+            guildOnly = true;
         }
 
         @Override
         protected void execute(final SlashCommandEvent event) {
-            updateMaximum(withExtension(Invites::getAllNames).size());
-            sendPaginatedMessage(event);
+            sendPaginatedMessage(event, withExtension(Invites::getAllNames).size());
         }
 
-
         @Override
-        protected EmbedBuilder getEmbed(final int from) {
+        protected EmbedBuilder getEmbed(final int from, final int maximum, final List<String> arguments) {
             return new EmbedBuilder()
                 .setTitle("Invites")
                 .setDescription(withExtension(i -> i.getAllNames().stream()

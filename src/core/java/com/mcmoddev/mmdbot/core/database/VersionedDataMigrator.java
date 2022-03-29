@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.core.database;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -57,7 +58,7 @@ public class VersionedDataMigrator implements DataMigrator {
     private VersionedDataMigrator(final Int2ObjectMap<MigratorCluster> clusters, @Nullable final Function<JsonElement, IntObjectPair<JsonElement>> whenNoVersion, final @Nullable Supplier<IntObjectPair<JsonElement>> onFileNotFound) {
         this.clusters = clusters;
         this.whenNoVersion = whenNoVersion == null ? j -> new IntObjectImmutablePair<>(getLatestTargetVersion(), j) : whenNoVersion;
-        this.onFileNotFound = onFileNotFound == null ? () -> new IntObjectImmutablePair<>(getLatestTargetVersion(), null) : onFileNotFound;
+        this.onFileNotFound = onFileNotFound == null ? () -> new IntObjectImmutablePair<>(getLatestTargetVersion(), new JsonObject()) : onFileNotFound;
     }
 
     public int getLatestTargetVersion() {

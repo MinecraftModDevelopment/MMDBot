@@ -40,6 +40,7 @@ public class AddQuoteContextMenu extends MessageContextMenu {
             return;
         }
         final var text = event.getTarget().getContentRaw();
+        final var guildId = event.getGuild().getIdLong();
 
         // Fetch the user who created the quote.
         final var author = new UserReference(event.getUser().getIdLong());
@@ -47,11 +48,11 @@ public class AddQuoteContextMenu extends MessageContextMenu {
         final var quotee = new UserReference(event.getTarget().getAuthor().getIdLong());
         final var finishedQuote = new StringQuote(quotee, text, author);
 
-        var quoteID = Quotes.getQuoteSlot();
+        var quoteID = Quotes.getQuoteSlot(guildId);
         finishedQuote.setID(quoteID);
 
         // All execution leads to here, where finishedQuote is valid.
-        Quotes.addQuote(finishedQuote);
+        Quotes.addQuote(guildId, finishedQuote);
 
         event.replyEmbeds(new EmbedBuilder(finishedQuote.getQuoteMessage())
                 .setTitle("Added quote " + quoteID)

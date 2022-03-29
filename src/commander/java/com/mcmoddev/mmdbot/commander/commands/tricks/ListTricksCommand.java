@@ -24,12 +24,17 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
+import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * List all registered tricks.
@@ -42,21 +47,18 @@ import java.util.ArrayList;
  * @author matyrobbrt
  */
 public final class ListTricksCommand extends PaginatedCommand {
-    private static ButtonListener listListener;
 
     /**
      * Instantiates a new Cmd list tricks.
      */
     public ListTricksCommand() {
-        super("list", "List all registered tricks.", true, new ArrayList<>(), 10);
+        super(TheCommander.getComponentListener("list-tricks-cmd"), Component.Lifespan.TEMPORARY, 10);
+        name = "list";
+        help = "List all registered tricks.";
         category = new Category("Fun");
-        guildOnly = true;
-        this.listener = new TrickListListener();
-        listListener = this.listener;
-    }
-
-    public static ButtonListener getListListener() {
-        return listListener;
+        options = List.of(
+            new OptionData(OptionType.INTEGER, "page", "The index of the page to display. 1 if not specified.")
+        );
     }
 
     /**
@@ -74,15 +76,23 @@ public final class ListTricksCommand extends PaginatedCommand {
             event.deferReply(true).setContent("Tricks are not enabled!").queue();
             return;
         }
+        final var pgIndex = event.getOption("page", 1, OptionMapping::getAsInt);
+        final var startingIndex = (pgIndex - 1) * itemsPerPage;
+        final var maximum = Tricks.getTricks().size();
+        if (maximum <= startingIndex) {
+            event.deferReply().setContent("The page index provided (%s) was too big! There are only %s pages."
+                .formatted(pgIndex, getPagesNumber(maximum))).queue();
+            return;
+        }
 
-        updateMaximum(Tricks.getTricks().size());
-        createPaginatedMessage(event).addActionRows(ActionRow.of(DismissListener.createDismissButton(event))).queue();
+        createPaginatedMessage(event, startingIndex, maximum)
+            .addActionRows(ActionRow.of(DismissListener.createDismissButton(event))).queue();
     }
 
     @Override
-    protected EmbedBuilder getEmbed(int from) {
+    protected EmbedBuilder getEmbed(final int from, final int maximum, final List<String> arguments) {
         return new EmbedBuilder()
-            .setTitle("Tricks")
+            .setTitle("Tricks page %s/%s".formatted(from / itemsPerPage + 1, getPagesNumber(maximum)))
             .setDescription(Tricks.getTricks()
                 .subList(from, Math.min(from + itemsPerPage, maximum))
                 .stream()
@@ -91,11 +101,7 @@ public final class ListTricksCommand extends PaginatedCommand {
             .setTimestamp(Instant.now());
     }
 
-    public class TrickListListener extends ButtonListener {
-        @Override
-        public String getButtonID() {
-            return "listtricks";
-        }
+    private int getPagesNumber(final int maximum) {
+        return maximum % itemsPerPage == 0 ? maximum / itemsPerPage : maximum / itemsPerPage + 1;
     }
-
 }

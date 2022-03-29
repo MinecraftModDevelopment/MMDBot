@@ -32,7 +32,9 @@ import com.mcmoddev.mmdbot.commander.reminders.Reminder;
 import com.mcmoddev.mmdbot.commander.reminders.Reminders;
 import com.mcmoddev.mmdbot.commander.reminders.SnoozingListener;
 import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
+import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.util.builder.SlashCommandBuilder;
+import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Emoji;
@@ -104,106 +106,48 @@ public class CustomPingsCommand {
         }
     }
 
-    public static final class ListCmd extends SlashCommand {
-
-        private static ListenerAdapter listener;
-
-        public static ListenerAdapter getListener() {
-            return listener;
-        }
+    public static final class ListCmd extends PaginatedCommand {
 
         private ListCmd() {
+            super(TheCommander.getComponentListener("list-custom-pings-cmd"), Component.Lifespan.TEMPORARY, 20, true);
             this.name = "list";
             this.help = "Lists all your custom pings.";
-            listener = new ButtonListener();
             guildOnly = true;
         }
 
         @Override
         protected void execute(final SlashCommandEvent event) {
             if (!checkEnabled(event)) return;
-            final var userId = event.getUser().getIdLong();
-            var reply = event.replyEmbeds(getEmbed(userId, event.getGuild().getIdLong(), 0).build());
-            var buttons = createScrollButtons(0, userId, Reminders.getRemindersForUser(userId).size());
-            if (buttons.length > 0) {
-                reply = reply.addActionRow(buttons);
-            }
-            reply.queue();
+
+            // Args:
+            // guildId, userId
+            createPaginatedMessage(
+                event,
+                CustomPings.getPingsForUser(event.getGuild().getIdLong(), event.getUser().getIdLong()).size(),
+                event.getGuild().getId(),
+                event.getUser().getId()
+            ).addActionRow(DismissListener.createDismissButton(event.getUser())).queue();
         }
 
-        private static final int ITEMS_PER_PAGE = 20;
-
-        public static EmbedBuilder getEmbed(final long userId, final long guildId, final int index) {
-            EmbedBuilder embed = new EmbedBuilder();
+        @Override
+        protected EmbedBuilder getEmbed(final int index, final int maximum, final List<String> arguments) {
+            if (!TheCommander.getInstance().getGeneralConfig().features().areQuotesEnabled()) {
+                return new EmbedBuilder().setDescription("Quotes are not enabled!");
+            }
+            final long guildId = Long.parseLong(arguments.get(0));
+            final long userId = Long.parseLong(arguments.get(1));
+            final var embed = new EmbedBuilder();
             embed.setTitle("Your custom pings:");
             final var pings = CustomPings.getPingsForUser(guildId, userId);
 
-            for (var i = index; i < (pings.size() <= ITEMS_PER_PAGE ? pings.size() : index + ITEMS_PER_PAGE); i++) {
-                final var ping = pings.get(i);
-                embed.appendDescription(System.lineSeparator());
-                embed.appendDescription("%s) `%s` | %s".formatted(i, ping.pattern(), ping.text()));
+            for (var i = index; i < index + itemsPerPage - 1; i++) {
+                if (i < pings.size()) {
+                    final var ping = pings.get(i);
+                    embed.appendDescription(System.lineSeparator());
+                    embed.appendDescription("%s) `%s` | %s".formatted(i, ping.pattern(), ping.text()));
+                }
             }
             return embed;
-        }
-
-        private static ItemComponent[] createScrollButtons(int start, long userId, int maximum) {
-            Button backward = Button.primary(ButtonListener.BUTTON_ID + "-" + start + "-prev-" + userId + "-" + maximum,
-                Emoji.fromUnicode("◀️")).asDisabled();
-            Button forward = Button.primary(ButtonListener.BUTTON_ID + "-" + start + "-next-" + userId + "-" + maximum,
-                Emoji.fromUnicode("▶️")).asDisabled();
-
-            if (start != 0) {
-                backward = backward.asEnabled();
-            }
-
-            if (start + 1 < maximum) {
-                forward = forward.asEnabled();
-            }
-
-            return new ItemComponent[]{backward, forward};
-        }
-
-        private static final class ButtonListener extends ListenerAdapter {
-
-            public static final String BUTTON_ID = "custom_pings_list";
-
-            @Override
-            public void onButtonInteraction(@NotNull final ButtonInteractionEvent event) {
-                if (!checkEnabled(event)) return;
-                final var button = event.getButton();
-                if (button.getId() == null) {
-                    return;
-                }
-
-                String[] idParts = button.getId().split("-");
-                // custom_pings_list-pageNumber-operation-userid-maximum
-                if (idParts.length != 5) {
-                    return;
-                }
-
-                if (!idParts[0].equals(BUTTON_ID)) {
-                    return;
-                }
-
-                final int current = Integer.parseInt(idParts[1]);
-                final var userId = Long.parseLong(idParts[3]);
-                final int maximum = Integer.parseInt(idParts[4]);
-
-                if (idParts[2].equals("next")) {
-                    event
-                        .editMessageEmbeds(getEmbed(userId, event.getGuild().getIdLong(), current + 1).build())
-                        .setActionRow(createScrollButtons(current + 1, userId, maximum))
-                        .queue();
-                } else {
-                    if (idParts[2].equals("prev")) {
-                        event
-                            .editMessageEmbeds(getEmbed(userId, event.getGuild().getIdLong(), current - 1).build())
-                            .setActionRow(createScrollButtons(current - 1, userId, maximum))
-                            .queue();
-                    }
-                }
-            }
-
         }
 
     }

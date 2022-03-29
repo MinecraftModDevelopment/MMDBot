@@ -22,41 +22,27 @@ package com.mcmoddev.mmdbot.commander.commands;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
+import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Role;
 
 import java.awt.Color;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public final class RolesCommand extends PaginatedCommand {
     @RegisterSlashCommand
     public static final SlashCommand COMMAND = new RolesCommand();
 
-    private static RolesListener listener;
-    private List<Role> roles = new ArrayList<>();
-
     private RolesCommand() {
-        super("roles",
-            "Shows how many users are in each role.",
-            true,
-            new ArrayList<>(),
-            25);
+        super(TheCommander.getComponentListener("roles-cmd"), Component.Lifespan.TEMPORARY, 25);
+        name = "roles";
+        help = "Shows how many users are in each role.";
+        guildOnly = true;
 
-        listener = new RolesListener();
         category = new Category("Info");
-    }
-
-    /**
-     * Returns the instance of our button listener.
-     * Used for handling the pagination buttons.
-     */
-    public static ButtonListener getListener() {
-        return listener;
     }
 
     /**
@@ -70,7 +56,7 @@ public final class RolesCommand extends PaginatedCommand {
      * - Populate the role list, in case it updated
      * - Set the maximum index with the size of the list
      * - Hand off to the Paginated Message handler, which will
-     * - Call the {@link #getEmbed(int)} function
+     * - Call the {@link #getEmbed(int, int, List)} method
      * - Build it
      * - Compare the entries against the saved maximum
      * - Add buttons to scroll if necessary.
@@ -79,38 +65,42 @@ public final class RolesCommand extends PaginatedCommand {
      */
     @Override
     protected void execute(final SlashCommandEvent event) {
-        roles = event.getGuild().getRoles()
+        final var rolesSize = event.getGuild().getRoles()
             .stream()
             .filter(role -> !role.isManaged()) // Filter out managed roles
-            .collect(Collectors.toList());
+            .count();
 
-        updateMaximum(roles.size() - 1);
-
-        sendPaginatedMessage(event);
+        sendPaginatedMessage(event, (int) rolesSize - 1, event.getGuild().getId());
     }
 
     @Override
-    protected EmbedBuilder getEmbed(final int startingIndex) {
+    protected EmbedBuilder getEmbed(final int startingIndex, final int maximum, final List<String> arguments) {
+        final var guild = TheCommander.getInstance().getJda().getGuildById(arguments.get(0));
+        if (guild == null) {
+            return new EmbedBuilder().setDescription("Unknown guild.");
+        }
+        final var roles = guild.getRoles()
+            .stream()
+            .filter(role -> !role.isManaged())
+            .toList();
+
         final var embed = new EmbedBuilder();
         embed.setColor(Color.GREEN);
         embed.setTitle("Users With Roles");
-        embed.setDescription("A count of how many members have been assigned some of MMD's many roles.");
+        embed.setDescription("A count of how many members have been assigned each role.");
         embed.addField("Role count:", String.valueOf(roles.size()), true);
         StringBuilder str = new StringBuilder();
         for (int i = startingIndex; i < startingIndex + itemsPerPage - 1; i++)
-            if (i <= maximum)
-                str.append(roles.get(i).getAsMention() + ": " + roles.get(i).getGuild().getMembersWithRoles(roles.get(i)).size() + "\n");
+            if (i <= maximum) {
+                str.append(roles.get(i).getAsMention())
+                    .append(": ")
+                    .append(roles.get(i).getGuild().getMembersWithRoles(roles.get(i)).size())
+                    .append("\n");
+            }
 
         embed.addField("", str.toString(), false);
         embed.setTimestamp(Instant.now());
 
         return embed;
-    }
-
-    public class RolesListener extends PaginatedCommand.ButtonListener {
-        @Override
-        public String getButtonID() {
-            return getName();
-        }
     }
 }

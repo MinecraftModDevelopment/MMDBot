@@ -24,6 +24,9 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
+import com.mcmoddev.mmdbot.core.commands.component.Component;
+import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -47,40 +50,23 @@ import java.util.function.Supplier;
  */
 public class HelpCommand extends PaginatedCommand {
 
+    @RegisterSlashCommand
     public static final SlashCommand COMMAND = new HelpCommand();
 
     private List<Command> commands;
-    private static ButtonListener helpListener;
 
     private static final String NAME = "The Commander";
     public static final String ISSUE_TRACKER = "https://github.com/MinecraftModDevelopment/MMDBot/issues";
 
     private HelpCommand() {
-        super("help",
-            "Show all commands, or detailed information about a particular command.",
-            false,
-            List.of(new OptionData(OptionType.STRING, "command", "A command to get detailed information on").setRequired(false)),
-            25);
-
+        super(TheCommander.getComponentListener("help-cmd"), Component.Lifespan.TEMPORARY, 25);
+        name = "help";
+        help = "Show all commands, or detailed information about a particular command.";
+        guildOnly = false;
+        options = List.of(new OptionData(OptionType.STRING, "command", "A command to get detailed information on").setRequired(false));
         arguments = "[command]";
-        this.listener = new PaginatedCommand.ButtonListener();
-        helpListener = this.listener;
     }
 
-    /**
-     * Returns the instance of our button listener.
-     * Used for handling the pagination buttons.
-     */
-    public static ButtonListener getListener() {
-        return helpListener;
-    }
-
-    /**
-     * Prepare the potential scrolling buttons for a help command,
-     * and send the message with the proper embeds.
-     * <p>
-     * See {@link #getEmbed(int)} for the implementation.
-     */
     @Override
     public void execute(SlashCommandEvent e) {
         OptionMapping commandName = e.getOption("command");
@@ -88,11 +74,10 @@ public class HelpCommand extends PaginatedCommand {
 
         commands = client.getCommands();
         commands.addAll(client.getSlashCommands());
-        updateMaximum(commands.size());
 
         // If no command specified, show all.
         if (commandName == null) {
-            sendPaginatedMessage(e);
+            sendPaginatedMessage(e, commands.size());
         } else {
             Command command = client.getCommands().stream()
                 .filter(com -> com.getName().equals(commandName.getAsString())) // Find the command with the matching name
@@ -117,13 +102,8 @@ public class HelpCommand extends PaginatedCommand {
         }
     }
 
-    /**
-     * Given a starting index, build an embed that we can display for users
-     * to summarise all available commands.
-     * Intended to be used with pagination in the case of servers with LOTS of commands.
-     */
     @Override
-    protected EmbedBuilder getEmbed(int index) {
+    protected EmbedBuilder getEmbed(final int index, final int max, final List<String> arguments) {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setAuthor(NAME, ISSUE_TRACKER, TheCommander.getJDA().getSelfUser().getAvatarUrl());
         embed.setDescription("All registered commands:");

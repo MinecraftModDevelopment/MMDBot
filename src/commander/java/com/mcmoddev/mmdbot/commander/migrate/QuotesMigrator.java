@@ -71,6 +71,7 @@ public record QuotesMigrator(Path runPath) {
                     }
                 }
             }
+            Quotes.MIGRATOR.migrate(Quotes.CURRENT_SCHEMA_VERSION, filePath);
         } catch (IOException e) {
             log.error("Exception while trying to migrate old quotes file: ", e);
         }
