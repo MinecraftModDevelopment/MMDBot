@@ -201,7 +201,7 @@ public abstract class PaginatedCommand extends SlashCommand {
 
         final var buttonId = context.getComponentId().toString();
 
-        switch (context.getButtonArguments().get(0)) {
+        switch (context.getItemComponentArguments().get(0)) {
             case FORWARD_BUTTON_ID -> {
                 final var start = current + itemsPerPage;
 

@@ -20,11 +20,11 @@
  */
 package com.mcmoddev.mmdbot.core.commands.component;
 
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 
 /**
- * A class representing the context in a button interaction.
+ * A class representing the context in a {@link net.dv8tion.jda.api.interactions.components.selections.SelectMenu} interaction.
  */
-public interface ButtonInteractionContext extends BaseItemComponentInteractionContext<ButtonInteractionEvent> {
+public interface SelectMenuInteractionContext extends BaseItemComponentInteractionContext<SelectMenuInteractionEvent> {
 
 }

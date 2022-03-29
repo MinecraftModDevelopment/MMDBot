@@ -33,6 +33,7 @@ import com.mcmoddev.mmdbot.commander.commands.GistCommand;
 import com.mcmoddev.mmdbot.commander.commands.HelpCommand;
 import com.mcmoddev.mmdbot.commander.commands.QuoteCommand;
 import com.mcmoddev.mmdbot.commander.commands.RemindCommand;
+import com.mcmoddev.mmdbot.commander.commands.RoleSelectCommand;
 import com.mcmoddev.mmdbot.commander.commands.RolesCommand;
 import com.mcmoddev.mmdbot.commander.commands.curseforge.CurseForgeCommand;
 import com.mcmoddev.mmdbot.commander.commands.menu.message.AddQuoteContextMenu;

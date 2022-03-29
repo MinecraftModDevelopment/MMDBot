@@ -22,7 +22,9 @@ package com.mcmoddev.mmdbot.core.commands.component;
 
 import lombok.NonNull;
 import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import org.jetbrains.annotations.NotNull;
 
@@ -85,6 +87,10 @@ public class ComponentManager implements EventListener {
     public void onEvent(@NotNull final GenericEvent event) {
         if (event instanceof ButtonInteractionEvent btn) {
             onButtonInteraction(btn);
+        } else if (event instanceof SelectMenuInteractionEvent sEvent) {
+            onSelectMenuInteraction(sEvent);
+        } else if (event instanceof ModalInteractionEvent mEvent) {
+            onModalInteraction(mEvent);
         }
     }
 
@@ -119,7 +125,7 @@ public class ComponentManager implements EventListener {
                             }
 
                             @Override
-                            public @NonNull List<String> getButtonArguments() {
+                            public @NonNull List<String> getItemComponentArguments() {
                                 return buttonArgsList;
                             }
 
@@ -132,6 +138,103 @@ public class ComponentManager implements EventListener {
                     }
                 });
             }
+        } catch (IllegalArgumentException | IndexOutOfBoundsException ignored) {
+
+        }
+    }
+
+    public void onSelectMenuInteraction(@NotNull final SelectMenuInteractionEvent event) {
+        try {
+            if (event.getSelectMenu().getId() != null) {
+                final var buttonArguments = event.getSelectMenu().getId().split(ID_SPLITTER);
+                final var id = UUID.fromString(buttonArguments[0]);
+                getStorage().getComponent(id).ifPresent(component -> {
+                    final var listener = listeners.get(component.featureId());
+                    if (listener == null) {
+                        event.deferReply(true).setContent("It seems like I can't handle this select menu anymore due to its listener being deleted.").queue();
+                    } else {
+                        List<String> buttonArgsList = buttonArguments.length == 1 ? List.of() : Arrays.asList(Arrays.copyOfRange(buttonArguments, 1, buttonArguments.length));
+                        listener.onSelectMenuInteraction(new SelectMenuInteractionContext() {
+                            @NotNull
+                            @Override
+                            public SelectMenuInteractionEvent getEvent() {
+                                return event;
+                            }
+
+                            @NotNull
+                            @Override
+                            public ComponentManager getManager() {
+                                return ComponentManager.this;
+                            }
+
+                            @NotNull
+                            @Override
+                            public List<String> getArguments() {
+                                return component.arguments();
+                            }
+
+                            @Override
+                            public @NonNull List<String> getItemComponentArguments() {
+                                return buttonArgsList;
+                            }
+
+                            @NotNull
+                            @Override
+                            public UUID getComponentId() {
+                                return component.uuid();
+                            }
+                        });
+                    }
+                });
+            }
+        } catch (IllegalArgumentException | IndexOutOfBoundsException ignored) {
+
+        }
+    }
+
+    public void onModalInteraction(@NotNull final ModalInteractionEvent event) {
+        try {
+            event.getModalId();
+            final var modalArgs = event.getModalId().split(ID_SPLITTER);
+            final var id = UUID.fromString(modalArgs[0]);
+            getStorage().getComponent(id).ifPresent(component -> {
+                final var listener = listeners.get(component.featureId());
+                if (listener == null) {
+                    event.deferReply(true).setContent("It seems like I can't handle this select menu anymore due to its listener being deleted.").queue();
+                } else {
+                    List<String> modalArgsList = modalArgs.length == 1 ? List.of() : Arrays.asList(Arrays.copyOfRange(modalArgs, 1, modalArgs.length));
+                    listener.onModalInteraction(new ModalInteractionContext() {
+                        @NotNull
+                        @Override
+                        public ModalInteractionEvent getEvent() {
+                            return event;
+                        }
+
+                        @NotNull
+                        @Override
+                        public ComponentManager getManager() {
+                            return ComponentManager.this;
+                        }
+
+                        @NotNull
+                        @Override
+                        public List<String> getArguments() {
+                            return component.arguments();
+                        }
+
+                        @Override
+                        public @NonNull List<String> getItemComponentArguments() {
+                            return modalArgsList;
+                        }
+
+                        @NotNull
+                        @Override
+                        public UUID getComponentId() {
+                            return component.uuid();
+                        }
+                    });
+                }
+            });
         } catch (IllegalArgumentException | IndexOutOfBoundsException ignored) {
 
         }

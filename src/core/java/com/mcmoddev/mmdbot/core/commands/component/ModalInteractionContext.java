@@ -20,11 +20,11 @@
  */
 package com.mcmoddev.mmdbot.core.commands.component;
 
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 
 /**
- * A class representing the context in a button interaction.
+ * A class representing the context in a {@link net.dv8tion.jda.api.interactions.components.Modal} interaction.
  */
-public interface ButtonInteractionContext extends BaseItemComponentInteractionContext<ButtonInteractionEvent> {
+public interface ModalInteractionContext extends BaseItemComponentInteractionContext<ModalInteractionEvent> {
 
 }

@@ -22,11 +22,14 @@ package com.mcmoddev.mmdbot.core.commands.component;
 
 import lombok.NonNull;
 import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.interactions.components.Modal;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -51,6 +54,27 @@ public abstract class ComponentListener {
         return createButton(style, null, emoji, lifespan, args);
     }
 
+    @NonNull
+    public SelectMenu.Builder createMenu(@NonNull Component.Lifespan lifespan, final String... args) {
+        final var comp = new Component(name, UUID.randomUUID(), Arrays.asList(args), lifespan);
+        insertComponent(comp);
+        return SelectMenu.create(comp.uuid().toString());
+    }
+
+    @NonNull
+    public SelectMenu.Builder createMenu(@NonNull final String[] componentArgs, @NonNull Component.Lifespan lifespan, final String... args) {
+        final var comp = new Component(name, UUID.randomUUID(), Arrays.asList(args), lifespan);
+        insertComponent(comp);
+        return SelectMenu.create(Component.createIdWithArguments(comp.uuid().toString(), componentArgs));
+    }
+
+    @NonNull
+    public Modal.Builder createModal(@NonNull final String label, @NonNull final Component.Lifespan lifespan, final String... args) {
+        final var comp = new Component(name, UUID.randomUUID(), Arrays.asList(args), lifespan);
+        insertComponent(comp);
+        return Modal.create(comp.uuid().toString(), label);
+    }
+
     public void insertComponent(final Component component) {
         manager.getStorage().insertComponent(component);
     }
@@ -60,6 +84,8 @@ public abstract class ComponentListener {
     }
 
     public abstract void onButtonInteraction(final ButtonInteractionContext context);
+    public abstract void onSelectMenuInteraction(final SelectMenuInteractionContext context);
+    public abstract void onModalInteraction(final ModalInteractionContext context);
 
     public static Builder builder(String featureId, Consumer<? super ComponentListener> whenBuilt) {
         return new Builder(featureId, whenBuilt);
@@ -69,6 +95,8 @@ public abstract class ComponentListener {
         private final String name;
         private final Consumer<? super ComponentListener> whenBuilt;
         private Consumer<? super ButtonInteractionContext> onButton;
+        private Consumer<? super SelectMenuInteractionContext> onSelectMenu;
+        private Consumer<? super ModalInteractionContext> onModal;
 
         Builder(final String name, final Consumer<? super ComponentListener> whenBuilt) {
             this.name = name;
@@ -76,7 +104,7 @@ public abstract class ComponentListener {
         }
 
         /**
-         * Sets the action that should be executed on button interaction.
+         * Sets the action that should be executed on {@link Button} interaction.
          * @param onButton the action that should be executed on button interaction
          * @return the builder instance
          */
@@ -86,15 +114,47 @@ public abstract class ComponentListener {
         }
 
         /**
+         * Sets the action that should be executed on {@link net.dv8tion.jda.api.interactions.components.selections.SelectMenu} interaction.
+         * @param onSelectMenu the action that should be executed on select menu interaction
+         * @return the builder instance
+         */
+        public Builder onSelectMenuInteraction(final Consumer<? super SelectMenuInteractionContext> onSelectMenu) {
+            this.onSelectMenu = onSelectMenu;
+            return this;
+        }
+
+        /**
+         * Sets the action that should be executed on {@link net.dv8tion.jda.api.interactions.components.Modal} interaction.
+         * @param onModal the action that should be executed on modal interaction
+         * @return the builder instance
+         */
+        public Builder onModalInteraction(final Consumer<? super ModalInteractionContext> onModal) {
+            this.onModal = onModal;
+            return this;
+        }
+
+        /**
          * Builds the listener.
          * @return the built listener
          */
         public ComponentListener build() {
             final Consumer<? super ButtonInteractionContext> onButton = this.onButton == null ? b -> {} : this.onButton;
+            final Consumer<? super SelectMenuInteractionContext> onSelectMenu = this.onSelectMenu == null ? b -> {} : this.onSelectMenu;
+            final Consumer<? super ModalInteractionContext> onModal = this.onModal == null ? b -> {} : this.onModal;
             final var lis = new ComponentListener(name) {
                 @Override
                 public void onButtonInteraction(final ButtonInteractionContext context) {
                     onButton.accept(context);
+                }
+
+                @Override
+                public void onSelectMenuInteraction(final SelectMenuInteractionContext context) {
+                    onSelectMenu.accept(context);
+                }
+
+                @Override
+                public void onModalInteraction(final ModalInteractionContext context) {
+                    onModal.accept(context);
                 }
             };
             if (whenBuilt != null) {
