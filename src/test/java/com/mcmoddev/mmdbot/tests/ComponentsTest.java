@@ -29,6 +29,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.sqlite.SQLiteDataSource;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
@@ -56,9 +59,14 @@ public class ComponentsTest {
     }
 
     @BeforeAll
-    static void setupStorage() {
+    static void setupStorage() throws IOException {
+        final var path = Path.of("run").resolve("tests").resolve("data.db");
+        if (!Files.exists(path)) {
+            Files.createDirectories(path.getParent());
+            Files.createFile(path);
+        }
         SQLiteDataSource dataSource = new SQLiteDataSource();
-        dataSource.setUrl("jdbc:sqlite:./run/tests/data.db");
+        dataSource.setUrl("jdbc:sqlite:" + path);
 
         final Flyway flyway = Flyway.configure()
             .dataSource(dataSource)

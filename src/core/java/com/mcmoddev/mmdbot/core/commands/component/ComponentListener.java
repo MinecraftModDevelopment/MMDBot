@@ -75,11 +75,20 @@ public abstract class ComponentListener {
             this.whenBuilt = whenBuilt;
         }
 
+        /**
+         * Sets the action that should be executed on button interaction.
+         * @param onButton the action that should be executed on button interaction
+         * @return the builder instance
+         */
         public Builder onButtonInteraction(final Consumer<? super ButtonInteractionContext> onButton) {
             this.onButton = onButton;
             return this;
         }
 
+        /**
+         * Builds the listener.
+         * @return the built listener
+         */
         public ComponentListener build() {
             final Consumer<? super ButtonInteractionContext> onButton = this.onButton == null ? b -> {} : this.onButton;
             final var lis = new ComponentListener(name) {
