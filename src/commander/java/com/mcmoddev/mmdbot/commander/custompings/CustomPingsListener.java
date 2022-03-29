@@ -27,6 +27,7 @@ import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import lombok.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ChannelType; 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -48,7 +49,7 @@ public class CustomPingsListener extends ListenerAdapter {
     private CustomPingsListener() {}
     @Override
     public void onMessageReceived(@NotNull final MessageReceivedEvent event) {
-        if (event.isFromGuild() && TheCommander.getInstance().getGeneralConfig().features().customPings().areEnabled()
+        if (event.isFromGuild() && event.getMessage().getChannel() == CHANNELTYPE.TEXT && TheCommander.getInstance().getGeneralConfig().features().customPings().areEnabled()
             && event.getAuthor().getIdLong() != event.getJDA().getSelfUser().getIdLong()) {
             handlePings(event.getGuild(), event.getMessage());
         }
@@ -91,6 +92,7 @@ public class CustomPingsListener extends ListenerAdapter {
     }
 
     public static boolean canViewChannel(Guild guild, Member member, TextChannel channel) {
+        // TODO allow threads as well
         return member.getPermissions(channel).contains(Permission.VIEW_CHANNEL);
     }
 }
