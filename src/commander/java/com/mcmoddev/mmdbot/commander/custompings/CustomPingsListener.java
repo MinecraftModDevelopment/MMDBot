@@ -49,7 +49,7 @@ public class CustomPingsListener extends ListenerAdapter {
     private CustomPingsListener() {}
     @Override
     public void onMessageReceived(@NotNull final MessageReceivedEvent event) {
-        if (event.isFromGuild() && event.getMessage().getChannel() == ChannelType.TEXT && TheCommander.getInstance().getGeneralConfig().features().customPings().areEnabled()
+        if (event.isFromGuild() && event.getMessage().getChannel().getType() == ChannelType.TEXT && TheCommander.getInstance().getGeneralConfig().features().customPings().areEnabled()
             && event.getAuthor().getIdLong() != event.getJDA().getSelfUser().getIdLong()) {
             handlePings(event.getGuild(), event.getMessage());
         }
