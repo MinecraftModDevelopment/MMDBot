@@ -26,6 +26,8 @@ import com.google.gson.JsonObject;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -81,7 +83,7 @@ public final class VersionedDatabase<T> {
      * @throws IOException if an exception occurred reading the file
      */
     public static <T> VersionedDatabase<T> fromFile(Gson gson, Path filePath, java.lang.reflect.Type dataType, int defaultSchemaVersion, T defaultValue) throws IOException {
-        try (final var reader = new FileReader(filePath.toFile())) {
+        try (final var reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8)) {
             final var json = gson.fromJson(reader, JsonObject.class);
             if (json == null || !json.has(DATA_TAG)) {
                 return new VersionedDatabase<>(defaultSchemaVersion, defaultValue);

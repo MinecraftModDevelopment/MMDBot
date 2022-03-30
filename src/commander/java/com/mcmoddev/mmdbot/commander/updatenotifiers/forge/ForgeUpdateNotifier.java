@@ -27,8 +27,15 @@ import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
 import java.awt.Color;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.stream.Stream;
 
 import static com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers.LOGGER;
 import static com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers.MARKER;
@@ -104,10 +111,16 @@ public final class ForgeUpdateNotifier implements Runnable {
                     changed = true;
                     logMsg.append("Latest, from none to ").append(latest.getLatest());
                 } else if (!latest.getLatest().equals(lastForgeVersions.getLatest())) {
-                    embed.addField("Latest", String.format("**%s** -> **%s**%n", lastForgeVersions.getLatest(),
-                        latest.getLatest()), true);
-                    embed.setDescription(Utils.makeHyperlink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE, mcVersion,
-                        latest.getLatest())));
+                    final var start = lastForgeVersions.getLatest();
+                    final var end = latest.getLatest();
+                    embed.addField("Latest", String.format("**%s** -> **%s**%n", start,
+                        end), true);
+                    embed.setDescription("""
+                        [Changelog](%s):
+                        ```
+                        %s
+                        ```""".formatted(CHANGELOG_URL_TEMPLATE.formatted(mcVersion, end),
+                        getChangelogBetweenVersions(mcVersion, start, mcVersion, end)));
                     changed = true;
                     logMsg.append("Latest, from ").append(lastForgeVersions.getLatest()).append(" to ")
                         .append(latest.getLatest());
@@ -119,17 +132,24 @@ public final class ForgeUpdateNotifier implements Runnable {
                     logMsg.append("; ");
                 }
                 if (lastForgeVersions.getRecommended() == null) {
-                    embed.addField("Recommended", String.format("*none* -> **%s**%n", latest.getRecommended()),
+                    final var version = latest.getRecommended();
+                    embed.addField("Recommended", String.format("*none* -> **%s**%n", version),
                         true);
                     embed.setDescription(Utils.makeHyperlink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE,
                         mcVersion, latest.getRecommended())));
                     changed = true;
                     logMsg.append("Recommended, from none to ").append(latest.getLatest());
                 } else if (!latest.getRecommended().equals(lastForgeVersions.getRecommended())) {
+                    final var start = lastForgeVersions.getRecommended();
+                    final var end = latest.getRecommended();
                     embed.addField("Recommended", String.format("**%s** -> **%s**%n",
-                        lastForgeVersions.getRecommended(), latest.getRecommended()), true);
-                    embed.setDescription(Utils.makeHyperlink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE,
-                        mcVersion, latest.getRecommended())));
+                        start, end), true);
+                    embed.setDescription("""
+                        [Changelog](%s):
+                        ```
+                        %s
+                        ```""".formatted(CHANGELOG_URL_TEMPLATE.formatted(mcVersion, end),
+                        getChangelogBetweenVersions(mcVersion, start, mcVersion, end)));
                     changed = true;
                     logMsg.append("Recommended, from ").append(lastForgeVersions.getLatest()).append(" to ")
                         .append(latest.getLatest());
@@ -158,6 +178,36 @@ public final class ForgeUpdateNotifier implements Runnable {
         } catch (Exception ex) {
             LOGGER.error(MARKER, "Error while running", ex);
             ex.printStackTrace();
+        }
+    }
+
+    public static String getChangelogBetweenVersions(final String startMc, final String startForge, final String endMc, final String endForge) throws IOException {
+        final var startUrl = new URL(CHANGELOG_URL_TEMPLATE.formatted(startMc, startForge));
+        final var endUrl = new URL(CHANGELOG_URL_TEMPLATE.formatted(endMc, endForge));
+
+        final var startMcVersionSplit = startMc.split("\\.");
+        final var startForgeVersionSplit = startForge.split("\\.");
+        final var startChangelog = getUrlAsString(startUrl).replace("""
+            %s.%s.x Changelog
+            %s.%s
+            ====""".formatted(startMcVersionSplit[0], startMcVersionSplit[1], startForgeVersionSplit[0], startForgeVersionSplit[1]), "");
+
+        final var endChangelog = getUrlAsString(endUrl);
+        var changelog = endChangelog.replace(startChangelog, "");
+
+        final var endMcVersionSplit = endMc.split("\\.");
+        final var endForgeVersionSplit = endForge.split("\\.");
+        changelog = changelog.replace("""
+            %s.%s.x Changelog
+            %s.%s
+            ====""".formatted(endMcVersionSplit[0], endMcVersionSplit[1], endForgeVersionSplit[0], endForgeVersionSplit[1]), "");
+
+        return changelog;
+    }
+
+    public static String getUrlAsString(URL u) throws IOException {
+        try (final var in = u.openStream()) {
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
         }
     }
 }

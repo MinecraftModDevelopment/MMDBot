@@ -47,6 +47,7 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -189,10 +190,8 @@ public final class Quotes {
         if (quotes == null) {
             loadQuotes();
         }
-        final File quoteFile = QUOTE_STORAGE.get().toFile();
         final var db = VersionedDatabase.inMemory(CURRENT_SCHEMA_VERSION, quotes);
-        try (OutputStreamWriter writer =
-                 new OutputStreamWriter(new FileOutputStream(quoteFile), StandardCharsets.UTF_8)) {
+        try (final var writer = Files.newBufferedWriter(QUOTE_STORAGE.get(), StandardCharsets.UTF_8, StandardOpenOption.CREATE)) {
             GSON.toJson(db.toJson(GSON), writer);
         } catch (Exception exception) {
             TheCommander.LOGGER.error("Failed to write quote file...", exception);

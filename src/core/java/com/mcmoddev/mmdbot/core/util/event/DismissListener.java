@@ -37,7 +37,7 @@ import java.util.function.Supplier;
  */
 public final class DismissListener extends ListenerAdapter {
 
-    public static final Supplier<Button> BUTTON_FACTORY = LazySupplier.of(() -> Button.primary("dismiss", "✖ Dismiss"));
+    public static final Supplier<Button> BUTTON_FACTORY = LazySupplier.of(() -> Button.secondary("dismiss", "\uD83D\uDEAE️ Dismiss"));
 
     @Override
     public void onButtonInteraction(@javax.annotation.Nonnull final ButtonInteractionEvent event) {

@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.tests;
 
 import com.mcmoddev.mmdbot.core.commands.component.Component;
+import com.mcmoddev.mmdbot.core.commands.component.storage.ComponentStorage;
 import com.mcmoddev.mmdbot.core.commands.component.storage.SQLComponentStorage;
 import org.flywaydb.core.Flyway;
 import org.jdbi.v3.core.Jdbi;
@@ -36,7 +37,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class ComponentsTest {
-    static SQLComponentStorage storage;
+    static ComponentStorage storage;
 
     @Test
     void testFeatureIdIsSame() {
@@ -74,7 +75,7 @@ public class ComponentsTest {
             .load();
         flyway.migrate();
 
-        storage = new SQLComponentStorage(Jdbi.create(dataSource), "components");
+        storage = ComponentStorage.sql(Jdbi.create(dataSource), "components");
     }
 
 }
