@@ -80,7 +80,7 @@ public class CustomPingsCommand {
                 CustomPings.addPing(event.getGuild().getIdLong(), event.getUser().getIdLong(), ping);
                 event.deferReply().setContent("Custom ping added!").addActionRow(DismissListener.createDismissButton()).queue();
             } catch (PatternSyntaxException e) {
-                event.deferReply().setContent("Invalid regex pattern: `%s`!".formatted(patternText)).queue();
+                event.deferReply().setContent("Invalid regex pattern: `%s`!".formatted(patternText)).addActionRow(DismissListener.createDismissButton()).queue();
             }
         }
     }
