@@ -22,7 +22,7 @@ package com.mcmoddev.mmdbot.commander.tricks;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
+import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;

@@ -23,7 +23,7 @@ package com.mcmoddev.mmdbot.commander.commands;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
-import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
+import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
@@ -50,6 +50,7 @@ public final class DictionaryCommand extends PaginatedCommand {
         help = "Looks up a word";
         options = List.of(new OptionData(OptionType.STRING, "word", "The word to lookup").setRequired(true));
         guildOnly = false;
+        dismissibleMessage = true;
     }
 
     @Override
@@ -61,9 +62,7 @@ public final class DictionaryCommand extends PaginatedCommand {
         final var word = event.getOption("word", "", OptionMapping::getAsString).split(" ")[0];
         try {
             final var definition = DictionaryUtils.getDefinition(word);
-            createPaginatedMessage(event, definition.definitions().size(), word)
-                .addActionRow(DismissListener.createDismissButton(event.getUser().getIdLong()))
-                .queue();
+            sendPaginatedMessage(event, definition.definitions().size(), word);
         } catch (DictionaryUtils.DictionaryException e) {
             if (e.getErrorCode() == 404) {
                 event.deferReply().setContent("Unknown word: " + word).queue();

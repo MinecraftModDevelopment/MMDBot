@@ -24,7 +24,7 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
-import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
+import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.commander.tricks.Trick;
 import com.mcmoddev.mmdbot.commander.tricks.TrickContext;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;

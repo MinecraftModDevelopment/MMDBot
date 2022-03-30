@@ -187,6 +187,7 @@ public class CmdInvite extends SlashCommand {
             name = "list";
             help = "Lists all the invites";
             guildOnly = true;
+            dismissibleMessage = true;
         }
 
         @Override

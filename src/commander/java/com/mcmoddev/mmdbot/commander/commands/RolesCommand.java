@@ -43,6 +43,7 @@ public final class RolesCommand extends PaginatedCommand {
         guildOnly = true;
 
         category = new Category("Info");
+        dismissibleMessage = true;
     }
 
     /**

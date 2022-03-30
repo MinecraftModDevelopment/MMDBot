@@ -22,7 +22,7 @@ package com.mcmoddev.mmdbot.commander.commands.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
-import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
+import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
@@ -33,7 +33,6 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -59,6 +58,7 @@ public final class ListTricksCommand extends PaginatedCommand {
         options = List.of(
             new OptionData(OptionType.INTEGER, "page", "The index of the page to display. 1 if not specified.")
         );
+        dismissibleMessage = true;
     }
 
     /**
@@ -85,8 +85,7 @@ public final class ListTricksCommand extends PaginatedCommand {
             return;
         }
 
-        createPaginatedMessage(event, startingIndex, maximum)
-            .addActionRows(ActionRow.of(DismissListener.createDismissButton(event))).queue();
+        sendPaginatedMessage(event, startingIndex, maximum);
     }
 
     @Override

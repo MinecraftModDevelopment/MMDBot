@@ -20,45 +20,24 @@
  */
 package com.mcmoddev.mmdbot.commander.commands;
 
-import com.jagrosh.jdautilities.command.CooldownScope;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.custompings.CustomPing;
 import com.mcmoddev.mmdbot.commander.custompings.CustomPings;
-import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
-import com.mcmoddev.mmdbot.commander.reminders.Reminder;
-import com.mcmoddev.mmdbot.commander.reminders.Reminders;
-import com.mcmoddev.mmdbot.commander.reminders.SnoozingListener;
-import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
+import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.util.builder.SlashCommandBuilder;
 import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.Emoji;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.utils.TimeFormat;
-import org.jetbrains.annotations.NotNull;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.LongSupplier;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -113,6 +92,7 @@ public class CustomPingsCommand {
             this.name = "list";
             this.help = "Lists all your custom pings.";
             guildOnly = true;
+            dismissibleMessage = true;
         }
 
         @Override
@@ -121,12 +101,12 @@ public class CustomPingsCommand {
 
             // Args:
             // guildId, userId
-            createPaginatedMessage(
+            sendPaginatedMessage(
                 event,
-                CustomPings.getPingsForUser(event.getGuild().getIdLong(), event.getUser().getIdLong()).size(),
+                CustomPings.getPingsForUser(Objects.requireNonNull(event.getGuild()).getIdLong(), event.getUser().getIdLong()).size(),
                 event.getGuild().getId(),
                 event.getUser().getId()
-            ).addActionRow(DismissListener.createDismissButton(event.getUser())).queue();
+            );
         }
 
         @Override

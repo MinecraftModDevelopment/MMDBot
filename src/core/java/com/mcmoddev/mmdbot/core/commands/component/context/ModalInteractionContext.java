@@ -18,13 +18,13 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.core.commands.component;
+package com.mcmoddev.mmdbot.core.commands.component.context;
 
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 
 /**
- * A class representing the context in a {@link net.dv8tion.jda.api.interactions.components.selections.SelectMenu} interaction.
+ * A class representing the context in a {@link net.dv8tion.jda.api.interactions.components.Modal} interaction.
  */
-public interface SelectMenuInteractionContext extends BaseItemComponentInteractionContext<SelectMenuInteractionEvent> {
+public interface ModalInteractionContext extends BaseItemComponentInteractionContext<ModalInteractionEvent> {
 
 }

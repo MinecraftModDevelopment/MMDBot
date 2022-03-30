@@ -65,6 +65,7 @@ public class HelpCommand extends PaginatedCommand {
         guildOnly = false;
         options = List.of(new OptionData(OptionType.STRING, "command", "A command to get detailed information on").setRequired(false));
         arguments = "[command]";
+        dismissibleMessage = true;
     }
 
     @Override

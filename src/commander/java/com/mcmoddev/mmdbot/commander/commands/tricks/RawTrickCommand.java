@@ -23,7 +23,7 @@ package com.mcmoddev.mmdbot.commander.commands.tricks;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
-import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
+import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.commander.tricks.ScriptTrick;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import net.dv8tion.jda.api.EmbedBuilder;

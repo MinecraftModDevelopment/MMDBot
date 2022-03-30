@@ -18,9 +18,10 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.core.commands.component;
+package com.mcmoddev.mmdbot.core.commands.component.storage;
 
 import com.google.common.reflect.TypeToken;
+import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.database.jdbi.JdbiFactories;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import org.jdbi.v3.core.Jdbi;
@@ -34,7 +35,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class ComponentStorage {
+@SuppressWarnings("ClassCanBeRecord")
+public class SQLComponentStorage implements ComponentStorage {
+
     public static final String FEATURE_ROW_NAME = "feature";
     public static final String ID_ROW_NAME = "id";
     public static final String ARGUMENTS_ROW_NAME = "arguments";
@@ -44,7 +47,7 @@ public class ComponentStorage {
     private final Jdbi jdbi;
     private final String tableName;
 
-    public ComponentStorage(final Jdbi jdbi, final String tableName) {
+    SQLComponentStorage(final Jdbi jdbi, final String tableName) {
         this.jdbi = jdbi;
         this.tableName = tableName;
 
@@ -60,6 +63,7 @@ public class ComponentStorage {
         jdbi.getConfig(TimestampedConfig.class).setTimezone(ZoneOffset.UTC);
     }
 
+    @Override
     public void insertComponent(Component component) {
         jdbi.useHandle(handle -> handle.createUpdate("insert into %s (%s, %s, %s, %s, %s) values (:feature, :id, :arguments, :lifespan, :last_used)".formatted(
                 tableName, FEATURE_ROW_NAME, ID_ROW_NAME, ARGUMENTS_ROW_NAME, LIFESPAN_ROW_NAME, LAST_USED_ROW_NAME
@@ -72,6 +76,7 @@ public class ComponentStorage {
             .execute());
     }
 
+    @Override
     public Optional<Component> getComponent(UUID id) {
         final var comp = jdbi.withHandle(handle -> handle.createQuery("select %s, %s, %s, %s from %s where %s = :id".formatted(
                 FEATURE_ROW_NAME, ID_ROW_NAME, ARGUMENTS_ROW_NAME, LIFESPAN_ROW_NAME, tableName, ID_ROW_NAME
@@ -83,6 +88,7 @@ public class ComponentStorage {
         return comp;
     }
 
+    @Override
     public void updateArguments(UUID id, List<String> newArguments) {
         jdbi.useHandle(handle -> handle.createUpdate("update %s set %s = :args, %s = :last_used where %s = :id".formatted(
                 tableName, ARGUMENTS_ROW_NAME, LAST_USED_ROW_NAME, ID_ROW_NAME
@@ -93,6 +99,7 @@ public class ComponentStorage {
             .execute());
     }
 
+    @Override
     public void setLastUsed(UUID id, Instant lastUsed) {
         jdbi.useHandle(handle -> handle.createUpdate("update %s set %s = :last_used where %s = :id".formatted(
                 tableName, LAST_USED_ROW_NAME, ID_ROW_NAME
@@ -102,6 +109,7 @@ public class ComponentStorage {
             .execute());
     }
 
+    @Override
     public void removeComponent(UUID id) {
         jdbi.useHandle(handle -> handle.createUpdate("delete from %s where %s = :id".formatted(
                 tableName, ID_ROW_NAME
@@ -110,6 +118,7 @@ public class ComponentStorage {
             .execute());
     }
 
+    @Override
     public void removeComponentsLastUsedBefore(Instant before) {
         jdbi.useHandle(handle -> handle.createUpdate("delete from %s where %s <= :before and %s == :lifespan".formatted(
                 tableName, LAST_USED_ROW_NAME, LIFESPAN_ROW_NAME

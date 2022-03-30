@@ -24,13 +24,12 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
-import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
+import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.commander.quotes.NullQuote;
 import com.mcmoddev.mmdbot.commander.quotes.Quote;
 import com.mcmoddev.mmdbot.commander.quotes.Quotes;
 import com.mcmoddev.mmdbot.commander.quotes.StringQuote;
 import com.mcmoddev.mmdbot.commander.quotes.UserReference;
-import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
 import io.github.matyrobbrt.eventdispatcher.LazySupplier;
@@ -42,7 +41,6 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 import java.awt.Color;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -314,6 +312,7 @@ public class QuoteCommand extends SlashCommand {
             options = List.of(
                 new OptionData(OptionType.INTEGER, "page", "The index of the page to display. 1 if not specified.")
             );
+            dismissibleMessage = true;
         }
 
         @Override
@@ -331,8 +330,7 @@ public class QuoteCommand extends SlashCommand {
                     .formatted(pgIndex, getPagesNumber(maximum))).queue();
                 return;
             }
-            createPaginatedMessage(event, startingIndex, maximum, event.getGuild().getId())
-                .addActionRows(ActionRow.of(DismissListener.createDismissButton(event))).queue();
+            sendPaginatedMessage(event, startingIndex, maximum, event.getGuild().getId());
         }
 
         @Override

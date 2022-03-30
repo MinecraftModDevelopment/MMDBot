@@ -20,6 +20,9 @@
  */
 package com.mcmoddev.mmdbot.core.commands.component;
 
+import com.mcmoddev.mmdbot.core.commands.component.context.ButtonInteractionContext;
+import com.mcmoddev.mmdbot.core.commands.component.context.ModalInteractionContext;
+import com.mcmoddev.mmdbot.core.commands.component.context.SelectMenuInteractionContext;
 import lombok.NonNull;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.interactions.components.Modal;

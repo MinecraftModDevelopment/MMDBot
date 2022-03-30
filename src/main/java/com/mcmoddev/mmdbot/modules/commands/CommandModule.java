@@ -26,7 +26,9 @@ import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.commands.CommandUpserter;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentManager;
-import com.mcmoddev.mmdbot.core.commands.component.ComponentStorage;
+import com.mcmoddev.mmdbot.core.commands.component.storage.ComponentStorage;
+import com.mcmoddev.mmdbot.core.commands.component.storage.SQLComponentStorage;
+import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdAvatar;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRename;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRestart;
@@ -122,7 +124,7 @@ public class CommandModule {
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
             // Setup components
             {
-                final var storage = new ComponentStorage(MMDBot.getDatabaseManager().jdbi(), "components");
+                final var storage = ComponentStorage.sql(MMDBot.getDatabaseManager().jdbi(), "components");
                 componentManager = new ComponentManager(storage, DEFERRED_COMPONENT_LISTENERS);
                 jda.addEventListeners(buttonListener(componentManager));
             }

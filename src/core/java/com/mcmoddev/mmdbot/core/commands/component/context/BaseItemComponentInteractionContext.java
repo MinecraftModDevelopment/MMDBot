@@ -18,8 +18,10 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.core.commands.component;
+package com.mcmoddev.mmdbot.core.commands.component.context;
 
+import com.mcmoddev.mmdbot.core.commands.component.Component;
+import com.mcmoddev.mmdbot.core.commands.component.ComponentManager;
 import lombok.NonNull;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.Interaction;
@@ -76,11 +78,11 @@ public interface BaseItemComponentInteractionContext<T extends Interaction> {
      *
      * @param index    the index of the argument to get
      * @param resolver a function that resolves the argument, if present
-     * @param <T>      the type of the resolved argument
+     * @param <Z>      the type of the resolved argument
      * @return if an argument with the {@code index} exists, that argument resolved, otherwise {@code null}
      */
     @Nullable
-    default <T> T getArgument(final int index, final Function<? super String, ? extends T> resolver) {
+    default <Z> Z getArgument(final int index, final Function<? super String, ? extends Z> resolver) {
         if (index >= getArguments().size()) {
             return null;
         } else {
@@ -94,11 +96,11 @@ public interface BaseItemComponentInteractionContext<T extends Interaction> {
      * @param index        the index of the argument to get
      * @param defaultValue the default value of the argument
      * @param resolver     a function that resolves the argument, if present
-     * @param <T>          the type of the resolved argument
+     * @param <Z>          the type of the resolved argument
      * @return if an argument with the {@code index} exists, that argument resolved, otherwise the {@code defaultValue}
      */
     @NonNull
-    default <T> T getArgument(final int index, final Supplier<T> defaultValue, final Function<? super String, ? extends T> resolver) {
+    default <Z> Z getArgument(final int index, final Supplier<Z> defaultValue, final Function<? super String, ? extends Z> resolver) {
         if (index >= getArguments().size()) {
             return defaultValue.get();
         } else {

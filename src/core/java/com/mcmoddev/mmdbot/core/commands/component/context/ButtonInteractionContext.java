@@ -18,7 +18,7 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.core.commands.component;
+package com.mcmoddev.mmdbot.core.commands.component.context;
 
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 

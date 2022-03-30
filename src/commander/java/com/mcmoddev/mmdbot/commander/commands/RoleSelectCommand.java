@@ -24,11 +24,11 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
-import com.mcmoddev.mmdbot.core.commands.component.ButtonInteractionContext;
+import com.mcmoddev.mmdbot.core.commands.component.context.ButtonInteractionContext;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
-import com.mcmoddev.mmdbot.core.commands.component.ModalInteractionContext;
-import com.mcmoddev.mmdbot.core.commands.component.SelectMenuInteractionContext;
+import com.mcmoddev.mmdbot.core.commands.component.context.ModalInteractionContext;
+import com.mcmoddev.mmdbot.core.commands.component.context.SelectMenuInteractionContext;
 import lombok.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -120,7 +120,7 @@ public class RoleSelectCommand extends SlashCommand {
 
         final var roles = guildRoles.subList(guildRoles.indexOf(highestBotRole) + 1, guildRoles.size());
 
-        if (null != minValues) {
+        if (minValues != null) {
             menu.setMinValues(minValues);
         }
 

@@ -21,7 +21,7 @@
 package com.mcmoddev.mmdbot.commander.reminders;
 
 import com.mcmoddev.mmdbot.commander.TheCommander;
-import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
+import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;

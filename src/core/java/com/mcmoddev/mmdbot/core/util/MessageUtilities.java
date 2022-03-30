@@ -20,15 +20,45 @@
  */
 package com.mcmoddev.mmdbot.core.util;
 
+import lombok.NonNull;
 import lombok.experimental.UtilityClass;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.io.Serial;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @UtilityClass
 public class MessageUtilities {
 
     public static final Pattern MESSAGE_LINK_PATTERN = Pattern.compile("https://discord.com/channels/");
+
+    /**
+     * Disables all the buttons that a message has. Disabling buttons deems it as not clickable to
+     * the user who sees it.
+     * <p>
+     * This method already queues the changes for you and does not block in any way.
+     *
+     * @param message the message that contains at least one button
+     * @throws IllegalArgumentException when the given message does not contain any action row
+     */
+    public static void disableButtons(@NonNull Message message) {
+        if (message.getActionRows().isEmpty()) {
+            throw new IllegalArgumentException("Message must contain at least one action row!");
+        }
+        final List<ActionRow> newRows = new ArrayList<>(message.getActionRows().size());
+        for (final var row : message.getActionRows()) {
+            newRows.add(ActionRow.of(row.getComponents().stream().map(item -> item instanceof Button button ? button.asDisabled() : item).toList()));
+        }
+
+        message
+            .editMessageComponents(newRows)
+            .queue();
+    }
 
     public static void decodeMessageLink(final String link, MessageInfo consumer)
         throws MessageLinkException {

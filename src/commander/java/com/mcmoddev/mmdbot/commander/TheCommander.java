@@ -26,27 +26,21 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
-import com.mcmoddev.mmdbot.commander.commands.CustomPingsCommand;
-import com.mcmoddev.mmdbot.commander.commands.DictionaryCommand;
 import com.mcmoddev.mmdbot.commander.commands.EvaluateCommand;
 import com.mcmoddev.mmdbot.commander.commands.GistCommand;
-import com.mcmoddev.mmdbot.commander.commands.HelpCommand;
-import com.mcmoddev.mmdbot.commander.commands.QuoteCommand;
 import com.mcmoddev.mmdbot.commander.commands.RemindCommand;
-import com.mcmoddev.mmdbot.commander.commands.RoleSelectCommand;
-import com.mcmoddev.mmdbot.commander.commands.RolesCommand;
 import com.mcmoddev.mmdbot.commander.commands.curseforge.CurseForgeCommand;
 import com.mcmoddev.mmdbot.commander.commands.menu.message.AddQuoteContextMenu;
 import com.mcmoddev.mmdbot.commander.commands.menu.message.GistContextMenu;
 import com.mcmoddev.mmdbot.commander.commands.menu.user.UserInfoContextMenu;
 import com.mcmoddev.mmdbot.commander.commands.tricks.AddTrickCommand;
 import com.mcmoddev.mmdbot.commander.commands.tricks.EditTrickCommand;
-import com.mcmoddev.mmdbot.commander.commands.tricks.ListTricksCommand;
 import com.mcmoddev.mmdbot.commander.commands.tricks.RunTrickCommand;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.commander.custompings.CustomPings;
 import com.mcmoddev.mmdbot.commander.custompings.CustomPingsListener;
-import com.mcmoddev.mmdbot.commander.eventlistener.DismissListener;
+import com.mcmoddev.mmdbot.core.commands.component.storage.ComponentStorage;
+import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.commander.eventlistener.ReferencingListener;
 import com.mcmoddev.mmdbot.commander.eventlistener.ThreadListener;
 import com.mcmoddev.mmdbot.commander.migrate.QuotesMigrator;
@@ -64,7 +58,7 @@ import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentManager;
-import com.mcmoddev.mmdbot.core.commands.component.ComponentStorage;
+import com.mcmoddev.mmdbot.core.commands.component.storage.SQLComponentStorage;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
@@ -312,7 +306,7 @@ public final class TheCommander implements Bot {
 
         // Setup components
         {
-            final var storage = new ComponentStorage(jdbi, "components");
+            final var storage = ComponentStorage.sql(jdbi, "components");
             componentManager = new ComponentManager(storage, DEFERRED_COMPONENT_LISTENERS);
             EventListeners.COMMANDS_LISTENER.addListener(componentManager);
         }
