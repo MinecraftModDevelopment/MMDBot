@@ -23,8 +23,11 @@ package com.mcmoddev.mmdbot.modules.commands.moderation;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
+import com.mcmoddev.mmdbot.core.commands.PaginatedCommand;
+import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.event.moderation.WarningEvent;
+import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
 import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import com.mcmoddev.mmdbot.utilities.Utils;
@@ -136,14 +139,17 @@ public class CmdWarning extends SlashCommand {
         }
     }
 
-    public static final class ListWarns extends SlashCommand {
+    public static final class ListWarns extends PaginatedCommand {
 
         public ListWarns() {
+            super(CommandModule.getComponentListener("list-warns-cmd"), Component.Lifespan.TEMPORARY, 10, true);
             this.name = "list";
             help = "Lists the warnings of a user.";
             options = List
-                .of(new OptionData(OptionType.USER, "user", "The user to remove the warn from").setRequired(true));
+                .of(new OptionData(OptionType.USER, "user", "The user whose warnings to see.").setRequired(true));
             requiredRole = "Staff";
+            dismissibleMessage = true;
+            guildOnly = true;
         }
 
         @Override
@@ -153,18 +159,26 @@ public class CmdWarning extends SlashCommand {
 
             final var warnings = MMDBot.database().withExtension(Warnings.class, db -> db.getWarningsForUser(userID, event.getGuild().getIdLong()));
 
+            // Args: userId, guildId
+            sendPaginatedMessage(event, warnings.size(), userToSee.getId(), event.getGuild().getId());
+        }
+
+        @Override
+        protected EmbedBuilder getEmbed(final int startingIndex, final int maximum, final List<String> arguments) {
+            final var userID = Long.parseLong(arguments.get(0));
+            final var warnings = MMDBot.database().withExtension(Warnings.class, db -> db.getWarningsForUser(userID, Long.parseLong(arguments.get(1))));
+
             final EmbedBuilder embed = new EmbedBuilder()
                 .setDescription("The warnings of " + mentionAndID(userID) + ":")
                 .setTimestamp(Instant.now()).setColor(Color.MAGENTA);
-            for (final String id : warnings) {
+            for (var i = startingIndex; i < Math.min(startingIndex + itemsPerPage, maximum); i++) {
+                final var id = warnings.get(i);
                 embed.addField("Warning " + id + ":",
                     "Reason: **" + withExtension(db -> db.getReason(id)) + "**; Warner: " + mentionAndID(withExtension(db -> db.getModerator(id))) + "; Timestamp: "
-                        + new Timestamp(TimeFormat.DATE_TIME_LONG, withExtension(db -> db.getTimestamp(id).toEpochMilli())) {
-                    }.toString(),
+                        + TimeFormat.DATE_TIME_LONG.format(withExtension(db -> db.getTimestamp(id))),
                     false);
             }
-
-            event.getInteraction().replyEmbeds(embed.build()).queue();
+            return embed;
         }
     }
 
