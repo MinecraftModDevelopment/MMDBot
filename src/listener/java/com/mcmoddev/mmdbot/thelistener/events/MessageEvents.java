@@ -172,7 +172,7 @@ public final class MessageEvents extends ListenerAdapter {
         final var embed = EmbedCreateSpec.builder()
             .title("Scam link detected!")
             .description(String.format("User <@%s> sent a scam link in <#%s>%s. Their message was deleted, and they were muted.",
-                event.getTargetId(), event.getChannelId(), event.isMessageEdited() ? "" : ", by editing an old message"))
+                event.getTargetId(), event.getChannelId(), event.isMessageEdited() ? ", by editing an old message" : ""))
             .addField("Message Content", """
                 ```
                 %s

@@ -379,7 +379,7 @@ public final class TheCommander implements Bot {
         // Reminders
         if (generalConfig.features().reminders().areEnabled()) {
             Reminders.scheduleAllReminders();
-            EventListeners.COMMANDS_LISTENER.addListeners(SnoozingListener.INSTANCE, RemindCommand.ListCmd.getListener());
+            EventListeners.COMMANDS_LISTENER.addListeners(SnoozingListener.INSTANCE);
         }
 
         // Button listeners

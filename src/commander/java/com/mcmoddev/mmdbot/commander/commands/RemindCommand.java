@@ -25,6 +25,8 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
+import com.mcmoddev.mmdbot.core.commands.component.Component;
+import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.commander.reminders.Reminder;
 import com.mcmoddev.mmdbot.commander.reminders.Reminders;
@@ -104,7 +106,7 @@ public class RemindCommand {
                 Reminders.addReminder(new Reminder(event.getOption("content", "", OptionMapping::getAsString),
                     event.getChannel().getIdLong(), event.isFromType(ChannelType.PRIVATE), userId, remTime));
                 event.deferReply().setContent("Successfully scheduled reminder on %s (%s)!".formatted(TimeFormat.DATE_TIME_LONG.format(remTime),
-                    TimeFormat.RELATIVE.format(remTime)))
+                        TimeFormat.RELATIVE.format(remTime)))
                     .addActionRow(DismissListener.createDismissButton(userId))
                     .queue();
             } catch (NumberFormatException | IndexOutOfBoundsException e) {
@@ -121,18 +123,18 @@ public class RemindCommand {
             .appendValue(ChronoField.DAY_OF_MONTH, 2)
             .appendLiteral('/')
             .appendValue(ChronoField.MONTH_OF_YEAR, 2)
-                .optionalStart()
-                    .appendLiteral('-')
-                    .appendValue(ChronoField.HOUR_OF_DAY, 2)
-                        .optionalStart()
-                            .appendLiteral(':')
-                            .appendValue(ChronoField.MINUTE_OF_HOUR, 2)
-                            .optionalStart()
-                                .appendLiteral(':')
-                                .appendValue(ChronoField.SECOND_OF_MINUTE, 2)
-                            .optionalEnd()
-                        .optionalEnd()
-                .optionalEnd()
+            .optionalStart()
+            .appendLiteral('-')
+            .appendValue(ChronoField.HOUR_OF_DAY, 2)
+            .optionalStart()
+            .appendLiteral(':')
+            .appendValue(ChronoField.MINUTE_OF_HOUR, 2)
+            .optionalStart()
+            .appendLiteral(':')
+            .appendValue(ChronoField.SECOND_OF_MINUTE, 2)
+            .optionalEnd()
+            .optionalEnd()
+            .optionalEnd()
             .appendOffsetId()
             .toFormatter();
 
@@ -185,106 +187,38 @@ public class RemindCommand {
         }
     }
 
-    public static final class ListCmd extends SlashCommand {
-
-        private static ListenerAdapter listener;
-
-        public static ListenerAdapter getListener() {
-            return listener;
-        }
+    public static final class ListCmd extends PaginatedCommand {
 
         private ListCmd() {
+            super(TheCommander.getComponentListener("list-reminders-cmd"), Component.Lifespan.TEMPORARY, 10, true);
             this.name = "list";
             this.help = "Lists all of your reminders.";
-            listener = new ButtonListener();
             guildOnly = false;
+            dismissibleMessage = true;
         }
 
         @Override
         protected void execute(final SlashCommandEvent event) {
             if (!checkEnabled(event)) return;
-            final var userId = event.getUser().getIdLong();
-            var reply = event.replyEmbeds(getEmbed(userId, 0).build());
-            var buttons = createScrollButtons(0, userId, Reminders.getRemindersForUser(userId).size());
-            if (buttons.length > 0) {
-                reply = reply.addActionRow(buttons);
-            }
-            reply.queue();
+            createPaginatedMessage(event, Reminders.getRemindersForUser(event.getUser().getIdLong()).size(), event.getUser().getId());
         }
 
-        private static final int ITEMS_PER_PAGE = 10;
-
-        public static EmbedBuilder getEmbed(final long userId, final int index) {
-            EmbedBuilder embed = new EmbedBuilder();
+        @Override
+        protected EmbedBuilder getEmbed(final int index, final int maximum, final List<String> arguments) {
+            if (!TheCommander.getInstance().getGeneralConfig().features().reminders().areEnabled()) {
+                return new EmbedBuilder().setDescription("Reminders are disabled!");
+            }
+            final var embed = new EmbedBuilder();
             embed.setTitle("Your reminders:");
-            final var reminders = Reminders.getRemindersForUser(userId);
+            final var reminders = Reminders.getRemindersForUser(Long.parseLong(arguments.get(0)));
 
-            for (var i = index; i < (reminders.size() <= ITEMS_PER_PAGE ? reminders.size() : index + ITEMS_PER_PAGE); i++) {
+            for (var i = index; i < index + itemsPerPage - 1; i++) {
                 final var reminder = reminders.get(i);
                 embed.appendDescription(System.lineSeparator());
                 embed.appendDescription("**%s**: *%s* - <#%s> at %s (%s)".formatted(i, reminder.content().isBlank() ? "No Content." : reminder.content(), reminder.channelId(),
                     TimeFormat.DATE_TIME_LONG.format(reminder.time()), TimeFormat.RELATIVE.format(reminder.time())));
             }
             return embed;
-        }
-
-        private static ItemComponent[] createScrollButtons(int start, long userId, int maximum) {
-            Button backward = Button.primary(ButtonListener.BUTTON_ID + "-" + start + "-prev-" + userId + "-" + maximum,
-                Emoji.fromUnicode("◀️")).asDisabled();
-            Button forward = Button.primary(ButtonListener.BUTTON_ID + "-" + start + "-next-" + userId + "-" + maximum,
-                Emoji.fromUnicode("▶️")).asDisabled();
-
-            if (start != 0) {
-                backward = backward.asEnabled();
-            }
-
-            if (start + 1 < maximum) {
-                forward = forward.asEnabled();
-            }
-
-            return new ItemComponent[]{backward, forward};
-        }
-
-        private static final class ButtonListener extends ListenerAdapter {
-
-            public static final String BUTTON_ID = "remind_list";
-
-            @Override
-            public void onButtonInteraction(@NotNull final ButtonInteractionEvent event) {
-                var button = event.getButton();
-                if (button.getId() == null) {
-                    return;
-                }
-
-                String[] idParts = button.getId().split("-");
-                // remind_list-pageNumber-operation-userid-maximum
-                if (idParts.length != 5) {
-                    return;
-                }
-
-                if (!idParts[0].equals(BUTTON_ID)) {
-                    return;
-                }
-
-                final int current = Integer.parseInt(idParts[1]);
-                final var userId = Long.parseLong(idParts[3]);
-                final int maximum = Integer.parseInt(idParts[4]);
-
-                if (idParts[2].equals("next")) {
-                    event
-                        .editMessageEmbeds(getEmbed(userId, current + 1).build())
-                        .setActionRow(createScrollButtons(current + 1, userId, maximum))
-                        .queue();
-                } else {
-                    if (idParts[2].equals("prev")) {
-                        event
-                            .editMessageEmbeds(getEmbed(userId, current - 1).build())
-                            .setActionRow(createScrollButtons(current - 1, userId, maximum))
-                            .queue();
-                    }
-                }
-            }
-
         }
 
     }
