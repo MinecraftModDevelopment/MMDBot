@@ -22,12 +22,16 @@ package com.mcmoddev.mmdbot.core.util.event;
 
 import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.requests.RestAction;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -37,7 +41,8 @@ import java.util.function.Supplier;
  */
 public final class DismissListener extends ListenerAdapter {
 
-    public static final Supplier<Button> BUTTON_FACTORY = LazySupplier.of(() -> Button.secondary("dismiss", "\uD83D\uDEAE️ Dismiss"));
+    public static final ButtonStyle BUTTON_STYLE = ButtonStyle.SECONDARY;
+    public static final String LABEL = "\uD83D\uDEAE️ Dismiss";
 
     @Override
     public void onButtonInteraction(@javax.annotation.Nonnull final ButtonInteractionEvent event) {
@@ -52,24 +57,33 @@ public final class DismissListener extends ListenerAdapter {
             return;
         }
 
-        if (idParts.length < 2) {
-            if (event.getMessage().getInteraction() != null) {
-                final var owner = event.getMessage().getInteraction().getUser();
-                deleteIf(owner.getIdLong(), event);
+        switch (idParts.length) {
+            // dismiss
+            case 1 -> {
+                if (event.getMessage().getInteraction() != null) {
+                    final var owner = event.getMessage().getInteraction().getUser();
+                    deleteIf(owner.getId(), event).queue();
+                }
             }
-        } else {
-            final long buttonOwner = Long.parseLong(idParts[1]);
-            deleteIf(buttonOwner, event);
+            // dismiss-userId
+            case 2 -> deleteIf(idParts[1], event).queue();
+            // dismiss-userId-commandMessageId
+            case 3 -> deleteIf(idParts[1], event)
+                .and(event.getChannel().retrieveMessageById(idParts[2])
+                    .flatMap(m -> m.delete().reason("User dismissed the command")))
+                .queue($ -> {}, e -> {});
         }
     }
 
-    private static void deleteIf(final long targetId, final ButtonInteractionEvent event) {
-        if (targetId == event.getUser().getIdLong() && !event.getMessage().isEphemeral()) {
-            event.getMessage().delete().reason("User dismissed the message").queue();
+    private static RestAction<?> deleteIf(final String targetId, final ButtonInteractionEvent event) {
+        if (targetId.equals(event.getUser().getId()) && !event.getMessage().isEphemeral()) {
+            return event.getMessage().delete().reason("User dismissed the message");
         } else {
-            event.deferEdit().queue();
+            return event.deferEdit();
         }
     }
+
+    public static final Supplier<Button> NO_OWNER_FACTORY = LazySupplier.of(() -> Button.of(BUTTON_STYLE, "dismiss", LABEL));
 
     /**
      * Creates a dismission {@link Button} which <strong>only</strong> works
@@ -78,12 +92,26 @@ public final class DismissListener extends ListenerAdapter {
      * @return the button.
      */
     public static Button createDismissButton() {
-        return BUTTON_FACTORY.get();
+        return NO_OWNER_FACTORY.get();
     }
 
     public static Button createDismissButton(final long buttonOwner) {
-        final var btn = BUTTON_FACTORY.get();
-        return btn.withId("dismiss-" + buttonOwner);
+        return Button.of(BUTTON_STYLE, "dismiss-" + buttonOwner, LABEL);
+    }
+
+    /**
+     * Creates a dismiss button which will also delete the message that invoked the command.
+     *
+     * @param buttonOwner      the owner of the button
+     * @param commandMessageId the message that invoked the command
+     * @return the button
+     */
+    public static Button createDismissButton(final long buttonOwner, final long commandMessageId) {
+        return Button.of(BUTTON_STYLE, "dismiss-" + buttonOwner + "-" + commandMessageId, LABEL);
+    }
+
+    public static Button createDismissButton(final User buttonOwner, final Message commandMessage) {
+        return createDismissButton(buttonOwner.getIdLong(), commandMessage.getIdLong());
     }
 
     public static Button createDismissButton(final Member buttonOwner) {

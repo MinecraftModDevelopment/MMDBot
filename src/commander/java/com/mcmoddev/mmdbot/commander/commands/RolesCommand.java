@@ -25,7 +25,7 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
-import com.mcmoddev.mmdbot.core.util.command.PaginatedCommand;
+import com.mcmoddev.mmdbot.core.commands.PaginatedCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.Color;

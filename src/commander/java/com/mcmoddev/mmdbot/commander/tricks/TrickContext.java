@@ -169,18 +169,18 @@ public interface TrickContext {
         @Override
         public void reply(final String content) {
             event.getMessage().reply(new MessageBuilder(content).setAllowedMentions(ALLOWED_MENTIONS).build())
-                .setActionRow(DismissListener.createDismissButton(getUser())).mentionRepliedUser(false).queue();
+                .setActionRow(DismissListener.createDismissButton(getUser(), event().getMessage())).mentionRepliedUser(false).queue();
         }
 
         @Override
         public void replyEmbeds(final MessageEmbed... embeds) {
             event.getMessage().reply(new MessageBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
-                .setActionRow(DismissListener.createDismissButton(getUser())).mentionRepliedUser(false).queue();
+                .setActionRow(DismissListener.createDismissButton(getUser(), event.getMessage())).mentionRepliedUser(false).queue();
         }
 
         @Override
         public void replyWithMessage(final Message message) {
-            event.getMessage().reply(message).setActionRow(DismissListener.createDismissButton(getUser())).queue();
+            event.getMessage().reply(message).setActionRow(DismissListener.createDismissButton(getUser(), event.getMessage())).queue();
         }
     }
 

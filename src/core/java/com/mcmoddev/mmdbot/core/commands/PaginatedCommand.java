@@ -18,7 +18,7 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.core.util.command;
+package com.mcmoddev.mmdbot.core.commands;
 
 import com.google.common.collect.Lists;
 import com.jagrosh.jdautilities.command.SlashCommand;
