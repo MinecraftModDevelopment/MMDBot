@@ -34,9 +34,11 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.jetbrains.annotations.NotNull;
@@ -48,6 +50,7 @@ public class CustomPingsListener extends ListenerAdapter {
         new CustomPingsListener()));
 
     private CustomPingsListener() {}
+
     @Override
     public void onMessageReceived(@NotNull final MessageReceivedEvent event) {
         if (event.isFromGuild() && event.getMessage().getChannel().getType() == ChannelType.TEXT && TheCommander.getInstance().getGeneralConfig().features().customPings().areEnabled()
@@ -75,18 +78,12 @@ public class CustomPingsListener extends ListenerAdapter {
                     .map(p -> sendPingMessage(p, message, privateChannel))
                     .toList();
                 if (!dmActions.isEmpty()) {
-                    RestAction.allOf(dmActions).queue(null, e -> {
-                        if (e instanceof ErrorResponseException er) {
-                            if (er.getErrorCode() == 50007) {
-                                TheCommander.LOGGER.warn("Removing custom pings for user {} as they don't accept DMs.", userId);
-                                /* Can't DM, so clear pings */ CustomPings.clearPings(guild.getIdLong(), userId);
-                            } else {
-                                RestAction.getDefaultFailure().accept(e);
-                            }
-                        } else {
-                            RestAction.getDefaultFailure().accept(e);
-                        }
-                    });
+                    RestAction.allOf(dmActions).queue(null, new ErrorHandler()
+                        .handle(ErrorResponse.CANNOT_SEND_TO_USER, e -> {
+                            // Can't DM, so clear pings
+                            TheCommander.LOGGER.warn("Removing custom pings for user {} as they don't accept DMs.", userId);
+                            CustomPings.clearPings(guild.getIdLong(), userId);
+                        }));
                 }
             }, $ -> /* Can't DM, so clear pings */ CustomPings.clearPings(guild.getIdLong(), userId));
         });
