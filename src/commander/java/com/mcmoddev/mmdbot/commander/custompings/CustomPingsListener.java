@@ -27,13 +27,14 @@ import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import lombok.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.ChannelType; 
+import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -74,7 +75,18 @@ public class CustomPingsListener extends ListenerAdapter {
                     .map(p -> sendPingMessage(p, message, privateChannel))
                     .toList();
                 if (!dmActions.isEmpty()) {
-                    RestAction.allOf(dmActions).queue();
+                    RestAction.allOf(dmActions).queue(null, e -> {
+                        if (e instanceof ErrorResponseException er) {
+                            if (er.getErrorCode() == 50007) {
+                                TheCommander.LOGGER.warn("Removing custom pings for user {} as they don't accept DMs.", userId);
+                                /* Can't DM, so clear pings */ CustomPings.clearPings(guild.getIdLong(), userId);
+                            } else {
+                                RestAction.getDefaultFailure().accept(e);
+                            }
+                        } else {
+                            RestAction.getDefaultFailure().accept(e);
+                        }
+                    });
                 }
             }, $ -> /* Can't DM, so clear pings */ CustomPings.clearPings(guild.getIdLong(), userId));
         });
