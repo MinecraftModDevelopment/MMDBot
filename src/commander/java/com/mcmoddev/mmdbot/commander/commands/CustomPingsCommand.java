@@ -78,9 +78,9 @@ public class CustomPingsCommand {
                 final var text = event.getOption("text", "", OptionMapping::getAsString);
                 final var ping = new CustomPing(pattern, text);
                 CustomPings.addPing(event.getGuild().getIdLong(), event.getUser().getIdLong(), ping);
-                event.deferReply().setContent("Custom ping added!").queue();
+                event.deferReply().setContent("Custom ping added!").addActionRow(DismissListener.createDismissButton()).queue();
             } catch (PatternSyntaxException e) {
-                event.deferReply().setContent("Invalid regex pattern: `%s`!".formatted(patternText)).queue();
+                event.deferReply().setContent("Invalid regex pattern: `%s`!".formatted(patternText)).addActionRow(DismissListener.createDismissButton()).queue();
             }
         }
     }
@@ -156,11 +156,11 @@ public class CustomPingsCommand {
             }
             if (index == -1) {
                 CustomPings.clearPings(gId, userId);
-                event.deferReply().setContent("Removed all custom pings!").queue();
+                event.deferReply().setContent("Removed all custom pings!").addActionRow(DismissListener.createDismissButton()).queue();
             } else {
                 final var cp = userRems.get(index);
                 CustomPings.removePing(gId, userId, cp);
-                event.deferReply().setContent("Removed custom ping with the index: **%s**!".formatted(index)).queue();
+                event.deferReply().setContent("Removed custom ping with the index: **%s**!".formatted(index)).addActionRow(DismissListener.createDismissButton()).queue();
             }
         }
     }
