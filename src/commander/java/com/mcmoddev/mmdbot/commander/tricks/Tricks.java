@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * The Tricks Module.
@@ -89,6 +90,15 @@ public final class Tricks {
      */
     public static Optional<Trick> getTrick(final String name) {
         return getTricks().stream().filter(trick -> trick.getNames().contains(name)).findAny();
+    }
+
+    /**
+     * Gets all the trick names.
+     *
+     * @return a stream containing all the trick names
+     */
+    public static Stream<String> getAllNames() {
+        return getTricks().stream().flatMap(t -> t.getNames().stream());
     }
 
     /**

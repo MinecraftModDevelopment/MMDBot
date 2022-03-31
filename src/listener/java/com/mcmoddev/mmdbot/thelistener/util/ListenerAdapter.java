@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.thelistener.util;
 
-import com.mcmoddev.mmdbot.core.util.ClassWalker;
 import discord4j.core.event.domain.Event;
 import discord4j.core.event.domain.WebhooksUpdateEvent;
 import discord4j.core.event.domain.guild.BanEvent;
@@ -43,6 +42,7 @@ import discord4j.core.event.domain.message.ReactionAddEvent;
 import discord4j.core.event.domain.message.ReactionRemoveAllEvent;
 import discord4j.core.event.domain.message.ReactionRemoveEmojiEvent;
 import discord4j.core.event.domain.message.ReactionRemoveEvent;
+import io.github.matyrobbrt.eventdispatcher.util.ClassWalker;
 
 import javax.annotation.Nonnull;
 import java.lang.invoke.MethodHandle;

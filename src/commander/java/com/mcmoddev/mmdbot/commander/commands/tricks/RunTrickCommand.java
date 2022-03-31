@@ -24,6 +24,7 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.mcmoddev.mmdbot.core.util.StringUtilities;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.commander.tricks.Trick;
 import com.mcmoddev.mmdbot.commander.tricks.TrickContext;
@@ -76,10 +77,17 @@ public final class RunTrickCommand extends SlashCommand {
             event.deferReply(true).setContent("Tricks are not enabled!").queue();
             return;
         }
+        final var name = event.getOption("name", "", OptionMapping::getAsString);
         event.deferReply().queue(hook -> {
-            Tricks.getTrick(event.getOption("name", "", OptionMapping::getAsString)).ifPresentOrElse(
+            Tricks.getTrick(name).ifPresentOrElse(
                 trick -> trick.execute(new TrickContext.Slash(event, hook, event.getOption("args", "", OptionMapping::getAsString).split(" "))),
-                () -> hook.editOriginal("No trick with that name was found.").setActionRow(DismissListener.createDismissButton(event)).queue()
+                () -> {
+                    final var closesMatch = StringUtilities.closestMatch(name, Tricks.getAllNames())
+                        .map(" Did you mean **%s**?"::formatted)
+                        .orElse("");
+                    hook.editOriginal("No trick with that name was found.%s".formatted(closesMatch))
+                        .setActionRow(DismissListener.createDismissButton(event)).queue();
+                }
             );
         });
     }
