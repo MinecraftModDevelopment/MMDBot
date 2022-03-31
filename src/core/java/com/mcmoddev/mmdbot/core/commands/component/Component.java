@@ -44,7 +44,7 @@ public record Component(String featureId, UUID uuid, List<String> arguments, Lif
      * @param arguments other arguments
      * @return a composed ID, with the arguments being split from the component ID using the {@link #ID_SPLITTER}
      */
-    public static String createIdWithArguments(final String id, final String... arguments) {
+    public static String createIdWithArguments(final String id, final Object... arguments) {
         StringBuilder actualId = new StringBuilder(id);
         for (final var arg : arguments) {
             actualId.append(ID_SPLITTER).append(arg);

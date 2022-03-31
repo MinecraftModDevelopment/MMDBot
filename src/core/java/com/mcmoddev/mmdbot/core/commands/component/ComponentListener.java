@@ -82,6 +82,12 @@ public abstract class ComponentListener {
         manager.getStorage().insertComponent(component);
     }
 
+    public Component insertComponent(final UUID id, final Component.Lifespan lifespan, final String... args) {
+        final var comp = new Component(getName(), id, Arrays.asList(args), lifespan);
+        insertComponent(comp);
+        return comp;
+    }
+
     void setManager(final ComponentManager manager) {
         this.manager = manager;
     }
