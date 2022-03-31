@@ -116,7 +116,7 @@ public class ScamDetector extends ListenerAdapter {
         return false;
     }
 
-    private static final List<String> IGNORED = List.of("discordapp.co", "witch.tv");
+    private static final List<String> IGNORED = List.of("discordapp.co", "witch.tv", "steamcommunity.co");
 
     public static void onCollectTasks(final TaskScheduler.CollectTasksEvent event) {
         event.addTask(() -> {
