@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.core.event;
 import com.mcmoddev.mmdbot.core.annotation.RegisterEventListener;
 import com.mcmoddev.mmdbot.core.event.customlog.CustomAuditLogEvent;
 import com.mcmoddev.mmdbot.core.event.moderation.ModerationEvent;
+import com.mcmoddev.mmdbot.core.util.ReflectionsUtils;
 import io.github.matyrobbrt.eventdispatcher.Event;
 import io.github.matyrobbrt.eventdispatcher.EventBus;
 import io.github.matyrobbrt.eventdispatcher.reflections.AnnotationProvider;
@@ -61,6 +62,6 @@ public class Events {
         .build();
 
     private static AnnotationProvider forBusProvider(final RegisterEventListener.BusType bus) {
-        return new AnnotationProvider(new AnnotationFilter<>(RegisterEventListener.class, l -> l.bus() == bus));
+        return new AnnotationProvider(() -> ReflectionsUtils.REFLECTIONS, new AnnotationFilter<>(RegisterEventListener.class, l -> l.bus() == bus));
     }
 }
