@@ -56,6 +56,7 @@ import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import com.mcmoddev.mmdbot.core.commands.CommandUpserter;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentManager;
+import com.mcmoddev.mmdbot.core.commands.component.DeferredComponentListenerRegistry;
 import com.mcmoddev.mmdbot.core.commands.component.storage.ComponentStorage;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.ConfigurateUtils;
@@ -213,13 +214,9 @@ public final class TheCommander implements Bot {
         return getInstance() == null ? null : getInstance().getJda();
     }
 
-    private static final List<ComponentListener> DEFERRED_COMPONENT_LISTENERS = new ArrayList<>();
+    private static final DeferredComponentListenerRegistry LISTENER_REGISTRY = new DeferredComponentListenerRegistry();
     public static ComponentListener.Builder getComponentListener(final String featureId) {
-        if (getInstance() == null) {
-            return ComponentListener.builder(featureId, DEFERRED_COMPONENT_LISTENERS::add);
-        } else {
-            return ComponentListener.builder(featureId, getInstance().getComponentManager()::addListener);
-        }
+        return LISTENER_REGISTRY.createListener(featureId);
     }
 
     private static final OneTimeEventListener<TaskScheduler.CollectTasksEvent> COLLECT_TASKS_LISTENER = new OneTimeEventListener<>(event -> {
@@ -305,7 +302,7 @@ public final class TheCommander implements Bot {
         // Setup components
         {
             final var storage = ComponentStorage.sql(jdbi, "components");
-            componentManager = new ComponentManager(storage, DEFERRED_COMPONENT_LISTENERS);
+            componentManager = LISTENER_REGISTRY.createManager(storage);
             EventListeners.COMMANDS_LISTENER.addListener(componentManager);
         }
 
