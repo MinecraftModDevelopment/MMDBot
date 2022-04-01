@@ -24,7 +24,7 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
-import com.mcmoddev.mmdbot.core.commands.PaginatedCommand;
+import com.mcmoddev.mmdbot.core.commands.paginate.PaginatedCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -56,7 +56,6 @@ public final class ListTricksCommand extends PaginatedCommand {
         options = List.of(
             new OptionData(OptionType.INTEGER, "page", "The index of the page to display. 1 if not specified.")
         );
-        dismissibleMessage = true;
     }
 
     /**
@@ -75,7 +74,7 @@ public final class ListTricksCommand extends PaginatedCommand {
             return;
         }
         final var pgIndex = event.getOption("page", 1, OptionMapping::getAsInt);
-        final var startingIndex = (pgIndex - 1) * itemsPerPage;
+        final var startingIndex = (pgIndex - 1) * getItemsPerPage();
         final var maximum = Tricks.getTricks().size();
         if (maximum <= startingIndex) {
             event.deferReply().setContent("The page index provided (%s) was too big! There are only %s pages."
@@ -89,9 +88,9 @@ public final class ListTricksCommand extends PaginatedCommand {
     @Override
     protected EmbedBuilder getEmbed(final int from, final int maximum, final List<String> arguments) {
         return new EmbedBuilder()
-            .setTitle("Tricks page %s/%s".formatted(from / itemsPerPage + 1, getPagesNumber(maximum)))
+            .setTitle("Tricks page %s/%s".formatted(from / getItemsPerPage() + 1, getPagesNumber(maximum)))
             .setDescription(Tricks.getTricks()
-                .subList(from, Math.min(from + itemsPerPage, maximum))
+                .subList(from, Math.min(from + getItemsPerPage(), maximum))
                 .stream()
                 .map(it -> it.getNames().stream().reduce("", (a, b) -> (a.isEmpty() ? a : a + " / ") + b))
                 .reduce("", (a, b) -> a + "\n" + b))
@@ -99,6 +98,6 @@ public final class ListTricksCommand extends PaginatedCommand {
     }
 
     private int getPagesNumber(final int maximum) {
-        return maximum % itemsPerPage == 0 ? maximum / itemsPerPage : maximum / itemsPerPage + 1;
+        return maximum % getItemsPerPage() == 0 ? maximum / getItemsPerPage() : maximum / getItemsPerPage() + 1;
     }
 }

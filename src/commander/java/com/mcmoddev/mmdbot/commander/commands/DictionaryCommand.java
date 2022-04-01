@@ -25,7 +25,7 @@ import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.util.Utils;
-import com.mcmoddev.mmdbot.core.commands.PaginatedCommand;
+import com.mcmoddev.mmdbot.core.commands.paginate.PaginatedCommand;
 import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryEntry;
 import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -49,7 +49,6 @@ public final class DictionaryCommand extends PaginatedCommand {
         help = "Looks up a word";
         options = List.of(new OptionData(OptionType.STRING, "word", "The word to lookup").setRequired(true));
         guildOnly = false;
-        dismissibleMessage = true;
     }
 
     @Override

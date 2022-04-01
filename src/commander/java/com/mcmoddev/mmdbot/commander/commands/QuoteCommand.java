@@ -30,7 +30,7 @@ import com.mcmoddev.mmdbot.commander.quotes.Quotes;
 import com.mcmoddev.mmdbot.commander.quotes.StringQuote;
 import com.mcmoddev.mmdbot.commander.quotes.UserReference;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
-import com.mcmoddev.mmdbot.core.commands.PaginatedCommand;
+import com.mcmoddev.mmdbot.core.commands.paginate.PaginatedCommand;
 import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -310,7 +310,6 @@ public class QuoteCommand extends SlashCommand {
             options = List.of(
                 new OptionData(OptionType.INTEGER, "page", "The index of the page to display. 1 if not specified.")
             );
-            dismissibleMessage = true;
         }
 
         @Override
@@ -321,7 +320,7 @@ public class QuoteCommand extends SlashCommand {
             }
             final var guildId = event.getGuild().getIdLong();
             final var pgIndex = event.getOption("page", 1, OptionMapping::getAsInt);
-            final var startingIndex = (pgIndex - 1) * itemsPerPage;
+            final var startingIndex = (pgIndex - 1) * getItemsPerPage();
             final var maximum = Quotes.getQuotesForGuild(guildId).size();
             if (maximum <= startingIndex) {
                 event.deferReply().setContent("The page index provided (%s) was too big! There are only %s pages."
@@ -344,12 +343,12 @@ public class QuoteCommand extends SlashCommand {
             } else {
                 embed = new EmbedBuilder()
                     .setColor(Color.GREEN)
-                    .setTitle("Quote Page %s/%s".formatted(start / itemsPerPage + 1, getPagesNumber(maximum)))
+                    .setTitle("Quote Page %s/%s".formatted(start / getItemsPerPage() + 1, getPagesNumber(maximum)))
                     .setTimestamp(Instant.now());
             }
 
             // From the specified starting point until the end of the page.
-            for (int x = start; x < start + itemsPerPage; x++) {
+            for (int x = start; x < start + getItemsPerPage(); x++) {
                 // But stop early if we hit the end of the list,
                 if (x >= Quotes.getQuoteSlot(guildId)) {
                     break;
@@ -372,7 +371,7 @@ public class QuoteCommand extends SlashCommand {
         }
 
         private int getPagesNumber(final int maximum) {
-            return maximum % itemsPerPage == 0 ? maximum / itemsPerPage : maximum / itemsPerPage + 1;
+            return maximum % getItemsPerPage() == 0 ? maximum / getItemsPerPage() : maximum / getItemsPerPage() + 1;
         }
     }
 }

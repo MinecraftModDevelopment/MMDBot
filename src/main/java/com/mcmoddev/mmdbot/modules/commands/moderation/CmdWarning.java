@@ -23,7 +23,7 @@ package com.mcmoddev.mmdbot.modules.commands.moderation;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
-import com.mcmoddev.mmdbot.core.commands.PaginatedCommand;
+import com.mcmoddev.mmdbot.core.commands.paginate.PaginatedCommand;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.event.moderation.WarningEvent;
@@ -41,7 +41,6 @@ import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.TimeFormat;
-import net.dv8tion.jda.api.utils.Timestamp;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -148,7 +147,6 @@ public class CmdWarning extends SlashCommand {
             options = List
                 .of(new OptionData(OptionType.USER, "user", "The user whose warnings to see.").setRequired(true));
             requiredRole = "Staff";
-            dismissibleMessage = true;
             guildOnly = true;
         }
 
@@ -171,7 +169,7 @@ public class CmdWarning extends SlashCommand {
             final EmbedBuilder embed = new EmbedBuilder()
                 .setDescription("The warnings of " + mentionAndID(userID) + ":")
                 .setTimestamp(Instant.now()).setColor(Color.MAGENTA);
-            for (var i = startingIndex; i < Math.min(startingIndex + itemsPerPage, maximum); i++) {
+            for (var i = startingIndex; i < Math.min(startingIndex + paginator.getItemsPerPage(), maximum); i++) {
                 final var id = warnings.get(i);
                 embed.addField("Warning " + id + ":",
                     "Reason: **" + withExtension(db -> db.getReason(id)) + "**; Warner: " + mentionAndID(withExtension(db -> db.getModerator(id))) + "; Timestamp: "

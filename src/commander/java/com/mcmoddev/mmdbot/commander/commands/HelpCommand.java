@@ -26,7 +26,7 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
-import com.mcmoddev.mmdbot.core.commands.PaginatedCommand;
+import com.mcmoddev.mmdbot.core.commands.paginate.PaginatedCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -63,7 +63,6 @@ public class HelpCommand extends PaginatedCommand {
         guildOnly = false;
         options = List.of(new OptionData(OptionType.STRING, "command", "A command to get detailed information on").setRequired(false));
         arguments = "[command]";
-        dismissibleMessage = true;
     }
 
     @Override
@@ -108,12 +107,12 @@ public class HelpCommand extends PaginatedCommand {
         embed.setDescription("All registered commands:");
 
         // Embeds have a 25 field limit. We need to make sure we don't exceed that.
-        if (commands.size() < itemsPerPage) {
+        if (commands.size() < getItemsPerPage()) {
             for (Command c : commands)
                 embed.addField(c.getName(), c.getHelp(), true);
         } else {
             // Make sure we only go up to the limit.
-            for (int i = index; i < index + itemsPerPage; i++)
+            for (int i = index; i < index + getItemsPerPage(); i++)
                 if (i < commands.size())
                     embed.addField(commands.get(i).getName(), commands.get(i).getHelp(), true);
         }

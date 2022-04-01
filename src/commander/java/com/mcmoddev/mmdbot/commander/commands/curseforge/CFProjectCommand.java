@@ -22,6 +22,8 @@ package com.mcmoddev.mmdbot.commander.commands.curseforge;
 
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
+import com.mcmoddev.mmdbot.core.commands.paginate.Paginator;
+import com.mcmoddev.mmdbot.core.commands.paginate.PaginatorImpl;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import io.github.matyrobbrt.curseforgeapi.request.query.ModSearchQuery;
 import io.github.matyrobbrt.curseforgeapi.schemas.mod.ModAuthor;
@@ -29,16 +31,22 @@ import io.github.matyrobbrt.curseforgeapi.schemas.mod.ModLoaderType;
 import io.github.matyrobbrt.curseforgeapi.util.Constants;
 import io.github.matyrobbrt.curseforgeapi.util.CurseForgeException;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import net.dv8tion.jda.api.utils.TimeFormat;
+import org.apache.commons.compress.utils.Lists;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -49,6 +57,14 @@ public class CFProjectCommand {
     public static final SubcommandGroupData GROUP = new SubcommandGroupData("project", "Commands related CurseForge projects.");
 
     static final class Search extends CurseForgeCommand {
+        static final Paginator PAGINATOR = Paginator.builder(TheCommander.getComponentListener("cf-project-search-cmd"))
+            .itemsPerPage(40)
+            .message(Search::getMessage)
+            .buttonsOwnerOnly(true)
+            .build();
+        static final ErrorHandler ERROR_HANDLER = new ErrorHandler()
+            .ignore(IllegalStateException.class);
+
         Search() {
             name = "search";
             help = "Searches a project using the provided parameters";
@@ -84,19 +100,31 @@ public class CFProjectCommand {
                 query.categoryId(category);
             }
             manager.api().getAsyncHelper().searchMods(query)
-                .queue(response -> {
-                    response.ifPresentOrElse(mods -> {
-                        final var embed = new EmbedBuilder()
-                            .setTimestamp(Instant.now())
-                            .setColor(Color.GREEN)
-                            .setFooter("Requested by: " + context.getUser().getAsTag(), context.getUser().getAvatarUrl())
-                            .setTitle("Project Search Result");
-                        setEmbedAuthor(embed);
-                        mods.forEach(mod -> embed.appendDescription("%s (id: %s)".formatted(mod.name(), mod.id()))
-                            .appendDescription(System.lineSeparator()));
-                        context.replyEmbeds(embed.build());
-                    }, () -> context.reply("API responded with status code **%s**".formatted(response.getStatusCode())));
-                });
+                .queue(response -> response.ifPresentOrElse(mods -> {
+                    final var args = new ArrayList<String>();
+                    args.add(context.getUser().getId());
+                    mods.stream().map(m -> "%s (id: %s)".formatted(m.name(), m.id())).forEach(args::add);
+                    final var msg = PAGINATOR.createPaginatedMessage(0, mods.size(), context.getUser().getIdLong(), args);
+                    context.replyMessageAsAction(msg).queue();
+                }, () -> context.reply("API responded with status code **%s**".formatted(response.getStatusCode()))));
+        }
+
+        // Args: user, mods...
+        public static @NotNull MessageBuilder getMessage(int startingIndex, int maximum, final List<String> arguments) {
+            final var embed = new EmbedBuilder()
+                .setTimestamp(Instant.now())
+                .setColor(Color.GREEN)
+                .setTitle("Project Search Result");
+            setEmbedAuthor(embed);
+            final var user = TheCommander.getJDA().getUserById(arguments.get(0));
+            if (user != null) {
+               embed.setFooter("Requested by: " + user.getAsTag(), user.getAvatarUrl());
+            }
+            if (arguments.size() > startingIndex + 1) {
+                arguments.subList(startingIndex + 1, Math.min(maximum, arguments.size()))
+                    .forEach(d -> embed.appendDescription(d).appendDescription(System.lineSeparator()));
+            }
+            return new MessageBuilder().setEmbeds(embed.build());
         }
 
         @Override
@@ -105,7 +133,7 @@ public class CFProjectCommand {
                 final var cSelection = event.getFocusedOption().getValue();
                 event.replyChoices(getGameChoices(cSelection))
                     .setCheck(() -> !event.isAcknowledged())
-                    .queue();
+                    .queue(null, ERROR_HANDLER);
             }
             if (Objects.equals(event.getFocusedOption().getName(), "category")) {
                 final var cSelection = event.getFocusedOption().getValue();

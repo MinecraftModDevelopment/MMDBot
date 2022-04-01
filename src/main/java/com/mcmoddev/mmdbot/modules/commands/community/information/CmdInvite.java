@@ -25,7 +25,7 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.MMDBot;
 import com.mcmoddev.mmdbot.core.BotConfig;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
-import com.mcmoddev.mmdbot.core.commands.PaginatedCommand;
+import com.mcmoddev.mmdbot.core.commands.paginate.PaginatedCommand;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.utilities.CommandUtilities;
 import com.mcmoddev.mmdbot.utilities.Utils;
@@ -187,7 +187,6 @@ public class CmdInvite extends SlashCommand {
             name = "list";
             help = "Lists all the invites";
             guildOnly = true;
-            dismissibleMessage = true;
         }
 
         @Override
@@ -202,7 +201,7 @@ public class CmdInvite extends SlashCommand {
                 .setDescription(withExtension(i -> i.getAllNames().stream()
                     .map(n -> Utils.makeHyperlink(Utils.uppercaseFirstLetter(n),
                         withExtension(db -> db.getLink(n)).get())).toList())
-                    .subList(from, Math.min(from + itemsPerPage, maximum))
+                    .subList(from, Math.min(from + paginator.getItemsPerPage(), maximum))
                     .stream()
                     .reduce("", (a, b) -> a + "\n" + b))
                 .setTimestamp(Instant.now());

@@ -26,7 +26,7 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
-import com.mcmoddev.mmdbot.core.commands.PaginatedCommand;
+import com.mcmoddev.mmdbot.core.commands.paginate.PaginatedCommand;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.commander.reminders.Reminder;
 import com.mcmoddev.mmdbot.commander.reminders.Reminders;
@@ -188,7 +188,6 @@ public class RemindCommand {
             this.name = "list";
             this.help = "Lists all of your reminders.";
             guildOnly = false;
-            dismissibleMessage = true;
         }
 
         @Override
@@ -206,7 +205,7 @@ public class RemindCommand {
             embed.setTitle("Your reminders:");
             final var reminders = Reminders.getRemindersForUser(Long.parseLong(arguments.get(0)));
 
-            for (var i = index; i < index + itemsPerPage - 1; i++) {
+            for (var i = index; i < index + getItemsPerPage() - 1; i++) {
                 final var reminder = reminders.get(i);
                 embed.appendDescription(System.lineSeparator());
                 embed.appendDescription("**%s**: *%s* - <#%s> at %s (%s)".formatted(i, reminder.content().isBlank() ? "No Content." : reminder.content(), reminder.channelId(),

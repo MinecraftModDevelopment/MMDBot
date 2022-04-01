@@ -25,7 +25,7 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
-import com.mcmoddev.mmdbot.core.commands.PaginatedCommand;
+import com.mcmoddev.mmdbot.core.commands.paginate.PaginatedCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.Color;
@@ -43,7 +43,6 @@ public final class RolesCommand extends PaginatedCommand {
         guildOnly = true;
 
         category = new Category("Info");
-        dismissibleMessage = true;
     }
 
     /**
@@ -91,7 +90,7 @@ public final class RolesCommand extends PaginatedCommand {
         embed.setDescription("A count of how many members have been assigned each role.");
         embed.addField("Role count:", String.valueOf(roles.size()), true);
         StringBuilder str = new StringBuilder();
-        for (int i = startingIndex; i < startingIndex + itemsPerPage - 1; i++)
+        for (int i = startingIndex; i < startingIndex + getItemsPerPage() - 1; i++)
             if (i <= maximum) {
                 str.append(roles.get(i).getAsMention())
                     .append(": ")

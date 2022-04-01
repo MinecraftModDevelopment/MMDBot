@@ -99,6 +99,10 @@ public final class DismissListener extends ListenerAdapter {
         return Button.of(BUTTON_STYLE, "dismiss-" + buttonOwner, LABEL);
     }
 
+    public static Button createDismissButton(final String buttonOwner) {
+        return Button.of(BUTTON_STYLE, "dismiss-" + buttonOwner, LABEL);
+    }
+
     /**
      * Creates a dismiss button which will also delete the message that invoked the command.
      *

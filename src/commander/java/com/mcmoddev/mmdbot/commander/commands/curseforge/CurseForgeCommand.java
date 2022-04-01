@@ -35,12 +35,14 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.requests.restaction.WebhookMessageUpdateAction;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -197,6 +199,10 @@ public abstract class CurseForgeCommand extends SlashCommand {
             getHook().editOriginalEmbeds(embeds)
                 .setActionRow(DismissListener.createDismissButton(getUser()))
                 .queue();
+        }
+
+        default WebhookMessageUpdateAction<Message> replyMessageAsAction(Message message) {
+            return getHook().editOriginal(message);
         }
     }
 }

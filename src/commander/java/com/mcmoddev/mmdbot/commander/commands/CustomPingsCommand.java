@@ -29,7 +29,7 @@ import com.mcmoddev.mmdbot.commander.custompings.CustomPings;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.util.builder.SlashCommandBuilder;
-import com.mcmoddev.mmdbot.core.commands.PaginatedCommand;
+import com.mcmoddev.mmdbot.core.commands.paginate.PaginatedCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -92,7 +92,6 @@ public class CustomPingsCommand {
             this.name = "list";
             this.help = "Lists all your custom pings.";
             guildOnly = true;
-            dismissibleMessage = true;
         }
 
         @Override
@@ -120,7 +119,7 @@ public class CustomPingsCommand {
             embed.setTitle("Your custom pings:");
             final var pings = CustomPings.getPingsForUser(guildId, userId);
 
-            for (var i = index; i < index + itemsPerPage - 1; i++) {
+            for (var i = index; i < index + getItemsPerPage() - 1; i++) {
                 if (i < pings.size()) {
                     final var ping = pings.get(i);
                     embed.appendDescription(System.lineSeparator());
