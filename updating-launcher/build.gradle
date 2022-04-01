@@ -1,5 +1,8 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 plugins {
     id 'application'
@@ -12,12 +15,12 @@ plugins {
 }
 
 group = "com.mcmoddev"
-archivesBaseName = "Updating-Launcher"
+archivesBaseName = "UpdatingLauncher"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 application {
-    mainClass.set('com.mcmoddev.mmdbot.dashboard.client.Startup')
+    mainClass.set('com.mcmoddev.updatinglauncher.Main')
 }
 
 repositories {
@@ -45,4 +48,38 @@ dependencies {
     implementation libs.gson
     implementation libs.logback
     implementation libs.configurate.hocon
+}
+
+tasks.named('shadowJar', ShadowJar).configure {
+    manifest.attributes(makeManifestAttributes())
+    classifier("all")
+    group("build")
+    description("Builds the whole project with its dependencies.")
+    dependsOn(tasks.getByName("updateLicenses"))
+}
+
+tasks.named(JavaPlugin.JAR_TASK_NAME, Jar).configure {
+    manifest.attributes(makeManifestAttributes())
+    classifier("no-deps")
+    description("Builds the project without its dependencies.")
+    dependsOn(tasks.getByName("updateLicenses"))
+}
+
+def makeManifestAttributes() {
+    final var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
+    final var currentDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(actualDateTime)
+    return [
+            'Maven-Artifact'          : "${project.group}:${archivesBaseName}:${project.bot_version}",
+            'Timestamp'               : currentDateTime,
+            'Specification-Title'     : archivesBaseName,
+            'Specification-Vendor'    : 'Minecraft Mod Development',
+            'Specification-Version'   : '1',
+            'Implementation-Title'    : archivesBaseName,
+            'Implementation-Version'  : "${project.bot_version}",
+            'Implementation-Vendor'   : 'Minecraft Mod Development',
+            'Implementation-Timestamp': currentDateTime,
+            'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
+            'Built-On'                : "${project.libs.versions.jda.get()}-${project.libs.versions.chewtils.get()}",
+            'Main-Class'              : application.getMainClass().get()
+    ]
 }
