@@ -1,2 +1,3 @@
 rootProject.name = 'MMDBot'
 include 'dashboard'
+include 'updating-launcher'

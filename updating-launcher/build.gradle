@@ -1,0 +1,48 @@
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+
+plugins {
+    id 'application'
+    id 'java-library'
+    // id 'maven'
+    id 'eclipse'
+    id 'idea'
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.licenser)
+}
+
+group = "com.mcmoddev"
+archivesBaseName = "Updating-Launcher"
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+application {
+    mainClass.set('com.mcmoddev.mmdbot.dashboard.client.Startup')
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://clojars.org/repo/"
+    }
+    maven { url 'https://jitpack.io' }
+}
+
+license {
+    ignoreFailures = true // Temporarily downgrade license header violations to warnings, because in-flux development
+    header = rootProject.file('LicenseHeader.md')
+    include '**/*.java'
+    include '**/*.kt'
+    exclude '**/package-info.java'
+    exclude '**/module-info.java'
+    newLine = false
+    properties {
+        year = OffsetDateTime.now(ZoneOffset.UTC).withNano(0).getYear()
+    }
+}
+
+dependencies {
+    implementation libs.gson
+    implementation libs.logback
+    implementation libs.configurate.hocon
+}
