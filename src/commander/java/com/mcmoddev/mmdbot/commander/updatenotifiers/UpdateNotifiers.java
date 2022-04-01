@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.commander.updatenotifiers;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.fabric.FabricApiUpdateNotifier;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.forge.ForgeUpdateNotifier;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.minecraft.MinecraftUpdateNotifier;
+import com.mcmoddev.mmdbot.commander.updatenotifiers.quilt.QuiltUpdateNotifier;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import lombok.extern.slf4j.Slf4j;
@@ -68,6 +69,7 @@ public class UpdateNotifiers {
             log.error("Debugging: Checking for Minecraft and Fabric updates every 15 min...");
             event.addTask(new TaskScheduler.Task(new MinecraftUpdateNotifier(), 0, 15, TimeUnit.MINUTES));
             event.addTask(new TaskScheduler.Task(new FabricApiUpdateNotifier(), 0, 15, TimeUnit.MINUTES));
+            event.addTask(new TaskScheduler.Task(new QuiltUpdateNotifier(), 0, 15, TimeUnit.MINUTES));
         });
     }
 }
