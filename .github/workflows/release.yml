@@ -34,7 +34,7 @@ jobs:
         run: ./gradlew assemble
       - name: Publish
         id: publish_release_assets
-        run: ./gradlew publish
+        run: ./gradlew build
         env:
           BUILD_NUMBER: ${{ github.run_number }}
       - name: Upload release assets
