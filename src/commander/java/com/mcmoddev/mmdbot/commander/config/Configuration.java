@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.commander.config;
 
+import com.mcmoddev.mmdbot.core.database.SnowflakeStorage;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.Required;
@@ -150,6 +151,15 @@ public final class Configuration {
 
         @ConfigSerializable
         public static final class UpdateNotifiers {
+
+            @Required
+            @Setting("quilt")
+            @Comment("A list of Snowflake IDs of channels in which to send Quilt update notifiers.")
+            private List<String> quilt = new ArrayList<>();
+
+            public List<String> quilt() {
+                return quilt;
+            }
 
             @Required
             @Setting("fabric")

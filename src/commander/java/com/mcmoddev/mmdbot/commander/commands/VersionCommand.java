@@ -26,6 +26,7 @@ import com.mcmoddev.mmdbot.commander.updatenotifiers.fabric.FabricVersionHelper;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.forge.ForgeVersionHelper;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.forge.MinecraftForgeVersion;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.minecraft.MinecraftVersionHelper;
+import com.mcmoddev.mmdbot.commander.updatenotifiers.quilt.QuiltVersionHelper;
 import com.mcmoddev.mmdbot.core.util.builder.SlashCommandBuilder;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -76,12 +77,41 @@ public final class VersionCommand {
                         embed.addField("Latest", latestForge, true);
                         embed.addField("Recommended", recommendedForge, true);
                         embed.setDescription(cgLink);
-                        embed.setColor(Color.ORANGE);
+                        embed.setColor(Color.BLUE);
                         embed.setTimestamp(Instant.now());
                         event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
                     } catch (NullPointerException e) {
                         event.reply("The given Minecraft version " + version.getAsString() + " is invalid.").setEphemeral(true).queue();
                     }
+                }),
+
+            SlashCommandBuilder.builder()
+                .name("quilt")
+                .help("Get the latest Quilt versions.")
+                .options(new OptionData(OptionType.STRING, "version",
+                    "The version of Minecraft to check for."))
+                .executes(event -> {
+                    var minecraft = MinecraftVersionHelper.getLatest();
+                    final var version = event.getOption("version");
+                    if (version != null) {
+                        minecraft = version.getAsString();
+                    }
+
+                    var quiltMappingsVersion = QuiltVersionHelper.getLatestQuiltMappingsVersion(minecraft);
+                    if (quiltMappingsVersion == null) {
+                        quiltMappingsVersion = "None";
+                    }
+                    final var embed = new EmbedBuilder();
+
+                    embed.setTitle("Quilt Versions for Minecraft " + minecraft);
+                    embed.addField("Latest Quilt Mappings", quiltMappingsVersion, true);
+                    embed.addField("Latest Quilt Standard Libraries",
+                        QuiltVersionHelper.getLatestQuiltStandardLibraries(), true);
+                    embed.addField("Latest Quilt Loader",
+                        QuiltVersionHelper.getLatestLoaderVersion(), true);
+                    embed.setColor(Color.MAGENTA);
+                    embed.setTimestamp(Instant.now());
+                    event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
                 }),
 
             SlashCommandBuilder.builder()
