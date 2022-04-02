@@ -20,10 +20,10 @@
  */
 package com.mcmoddev.mmdbot.commander.reminders;
 
+import com.google.common.base.Suppliers;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.core.database.VersionedDataMigrator;
 import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
-import com.mcmoddev.mmdbot.core.util.LazySupplier;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import lombok.experimental.UtilityClass;
 
@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import static com.mcmoddev.mmdbot.core.util.Constants.Gsons.NO_PRETTY_PRINTING;
@@ -66,7 +67,7 @@ public class Reminders {
     /**
      * The path of the reminders file.
      */
-    public static final LazySupplier<Path> PATH = LazySupplier.of(() -> PATH_RESOLVER.apply(TheCommander.getInstance().getRunPath()));
+    public static final Supplier<Path> PATH = Suppliers.memoize(() -> PATH_RESOLVER.apply(TheCommander.getInstance().getRunPath()));
 
     /**
      * The timer that runs reminders.

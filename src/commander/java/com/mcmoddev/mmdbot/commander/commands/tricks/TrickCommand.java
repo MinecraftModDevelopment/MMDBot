@@ -20,11 +20,11 @@
  */
 package com.mcmoddev.mmdbot.commander.commands.tricks;
 
+import com.google.common.base.Suppliers;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
-import com.mcmoddev.mmdbot.core.util.LazySupplier;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ import java.util.function.Supplier;
 public final class TrickCommand extends SlashCommand {
 
     @RegisterSlashCommand // lazy as it has role requirements
-    public static final Supplier<SlashCommand> COMMAND = LazySupplier.of(TrickCommand::new);
+    public static final Supplier<SlashCommand> COMMAND = Suppliers.memoize(TrickCommand::new);
 
     private TrickCommand() {
         name = "trick";
