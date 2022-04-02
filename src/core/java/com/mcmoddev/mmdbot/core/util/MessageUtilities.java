@@ -20,20 +20,22 @@
  */
 package com.mcmoddev.mmdbot.core.util;
 
+import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 @UtilityClass
 public class MessageUtilities {
 
+    // TODO: expand this, see JDA's Message.JUMP_URL_PATTERN
     public static final Pattern MESSAGE_LINK_PATTERN = Pattern.compile("https://discord.com/channels/");
 
     /**
@@ -59,56 +61,21 @@ public class MessageUtilities {
             .queue();
     }
 
-    public static void decodeMessageLink(final String link, MessageInfo consumer)
-        throws MessageLinkException {
-        final var matcher = MESSAGE_LINK_PATTERN.matcher(link);
-        if (matcher.find()) {
-            try {
-                var originalWithoutLink = matcher.replaceAll("");
-                if (originalWithoutLink.indexOf('/') > -1) {
-                    final long guildId = Long
-                        .parseLong(originalWithoutLink.substring(0, originalWithoutLink.indexOf('/')));
-                    originalWithoutLink = originalWithoutLink.substring(originalWithoutLink.indexOf('/') + 1);
-                    if (originalWithoutLink.indexOf('/') > -1) {
-                        final long channelId = Long
-                            .parseLong(originalWithoutLink.substring(0, originalWithoutLink.indexOf('/')));
-                        originalWithoutLink = originalWithoutLink.substring(originalWithoutLink.indexOf('/') + 1);
-                        final long messageId = Long.parseLong(originalWithoutLink);
-                        consumer.accept(guildId, channelId, messageId);
-                    } else {
-                        throw new MessageLinkException("Invalid Link");
-                    }
-                } else {
-                    throw new MessageLinkException("Invalid Link");
-                }
-            } catch (NumberFormatException e) {
-                throw new MessageLinkException(e);
-            }
-        } else {
-            throw new MessageLinkException("Invalid Link");
+    public static Optional<MessageLinkInformation> decodeMessageLink(final String link) {
+        final var matcher = Message.JUMP_URL_PATTERN.matcher(link);
+        if (!matcher.find()) return Optional.empty();
+
+        try {
+            final long guildId = SafeIdUtil.safeConvert(matcher.group("guild"));
+            final long channelId = SafeIdUtil.safeConvert(matcher.group("channel"));
+            final long messageId = SafeIdUtil.safeConvert(matcher.group("message"));
+
+            return Optional.of(new MessageLinkInformation(guildId, channelId, messageId));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
         }
     }
 
-    public static class MessageLinkException extends Exception {
-
-        @Serial
-        private static final long serialVersionUID = -2805786147679905681L;
-
-        public MessageLinkException(Throwable e) {
-            super(e);
-        }
-
-        public MessageLinkException(String message) {
-            super(message);
-        }
-
+    public record MessageLinkInformation(long guildId, long channelId, long messageId) {
     }
-
-    @FunctionalInterface
-    public interface MessageInfo {
-
-        void accept(final long guildId, final long channelId, final long messageId);
-
-    }
-
 }
