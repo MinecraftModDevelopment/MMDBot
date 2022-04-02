@@ -30,35 +30,41 @@ import java.awt.Color;
 import java.nio.file.Files;
 import java.time.Instant;
 import java.util.function.Supplier;
+import java.util.jar.JarFile;
 
-public class StartCommand extends ULCommand {
+public class StatusCommand extends ULCommand {
     private final Supplier<JarUpdater> jarUpdater;
-    public StartCommand(final Supplier<JarUpdater> jarUpdater, final Config.Discord config) {
+    public StatusCommand(final Supplier<JarUpdater> jarUpdater, final Config.Discord config) {
         super(config);
         this.jarUpdater = jarUpdater;
-        name = "start";
-        help = "Starts the process.";
+        name = "status";
+        help = "Gets information about the process status.";
     }
 
     @Override
     protected void execute(final SlashCommandEvent event) {
         final var updater = jarUpdater.get();
         final var process = updater.getProcess();
-        if (process != null) {
-            event.deferReply().setContent("A process is running already! Use `/shutdown` to stop it.").queue();
-            return;
+        final var version = updater.getJarVersion();
+        if (process == null) {
+            event.deferReply().addEmbeds(
+                new EmbedBuilder()
+                    .setColor(Color.RED)
+                    .setTitle("Process is not running")
+                    .addField("Jar Version", version.orElse("Unknown"), true)
+                    .setTimestamp(Instant.now())
+                    .build()
+            ).queue();
+        } else {
+            event.deferReply().addEmbeds(
+                new EmbedBuilder()
+                    .setColor(Color.GREEN)
+                    .setTitle("Process is running.")
+                    .addField("Jar Version", version.orElse("Unknown"), true)
+                    .addField("Running Since", process.process().info().startInstant().map(TimeFormat.RELATIVE::format).orElse("Unknown startup time"), true)
+                    .setTimestamp(Instant.now())
+                    .build()
+            ).queue();
         }
-        if (!Files.exists(updater.getJarPath())) {
-            event.deferReply().setContent("Cannot start the process due its jar file missing. Use `/update` to update to a version.").queue();
-            return;
-        }
-        event.deferReply()
-            .setContent("Starting the process!")
-            .flatMap(hook -> {
-                JarUpdater.LOGGER.warn("Starting process at the request of {} via Discord.", event.getUser().getAsTag());
-                updater.runProcess();
-                return hook.editOriginal("Successfully started the process.");
-            })
-            .queue();
     }
 }

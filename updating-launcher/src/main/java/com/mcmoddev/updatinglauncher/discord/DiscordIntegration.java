@@ -25,6 +25,7 @@ import com.mcmoddev.updatinglauncher.Config;
 import com.mcmoddev.updatinglauncher.JarUpdater;
 import com.mcmoddev.updatinglauncher.discord.commands.ShutdownCommand;
 import com.mcmoddev.updatinglauncher.discord.commands.StartCommand;
+import com.mcmoddev.updatinglauncher.discord.commands.StatusCommand;
 import com.mcmoddev.updatinglauncher.discord.commands.UpdateCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -53,7 +54,8 @@ public class DiscordIntegration {
             .addSlashCommands(
                 new UpdateCommand(() -> updater, config),
                 new ShutdownCommand(() -> updater, config),
-                new StartCommand(() -> updater, config)
+                new StartCommand(() -> updater, config),
+                new StatusCommand(() -> updater, config)
             )
             .build();
 

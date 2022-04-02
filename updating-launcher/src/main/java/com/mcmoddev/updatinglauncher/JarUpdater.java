@@ -35,8 +35,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
+// TODO memorize the last version
 public class JarUpdater implements Runnable {
     public static final Logger LOGGER = LoggerFactory.getLogger("JarUpdater");
 
@@ -129,6 +132,7 @@ public class JarUpdater implements Runnable {
     public void tryFirstStart() {
         if (Files.exists(jarPath)) {
             process = new ProcessInfo(createProcess(), null);
+            LOGGER.warn("Starting process after launcher start.");
         }
     }
 
@@ -162,6 +166,22 @@ public class JarUpdater implements Runnable {
 
     public Path getJarPath() {
         return jarPath;
+    }
+
+    public Optional<String> getJarVersion() {
+        if (!Files.exists(jarPath)) {
+            if (process == null) {
+                return Optional.empty();
+            }
+            return Optional.ofNullable(process.release()).map(r -> r.name);
+        } else {
+            try {
+                final var jFile = new JarFile(jarPath.toFile());
+                return Optional.ofNullable(jFile.getManifest()).flatMap(m -> Optional.ofNullable(m.getMainAttributes().getValue("Implementation-Version")));
+            } catch (IOException e) {
+                return Optional.empty();
+            }
+        }
     }
 
     @Nullable
