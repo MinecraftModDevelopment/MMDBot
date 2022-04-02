@@ -24,7 +24,7 @@ jobs:
           check-latest: true
       - uses: burrunan/gradle-cache-action@v1
         with:
-          arguments: clean build createExe
+          arguments: clean build
           # Read-only cache if not on repo's default branch: https://stackoverflow.com/a/68414395
           read-only: ${{ format('refs/heads/{0}', github.event.repository.default_branch) != github.ref }}
           gradle-dependencies-cache-key: |
