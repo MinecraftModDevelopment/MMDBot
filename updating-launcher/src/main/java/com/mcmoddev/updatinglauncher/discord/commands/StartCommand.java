@@ -24,37 +24,37 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.updatinglauncher.Config;
 import com.mcmoddev.updatinglauncher.JarUpdater;
 
+import java.nio.file.Files;
 import java.util.function.Supplier;
 
-public class ShutdownCommand extends ULCommand {
+public class StartCommand extends ULCommand {
     private final Supplier<JarUpdater> jarUpdater;
-    public ShutdownCommand(final Supplier<JarUpdater> jarUpdater, final Config.Discord config) {
+    public StartCommand(final Supplier<JarUpdater> jarUpdater, final Config.Discord config) {
         super(config);
         this.jarUpdater = jarUpdater;
-        name = "shutdown";
-        help = "Shuts down the process.";
+        name = "start";
+        help = "Starts the process.";
     }
 
     @Override
     protected void execute(final SlashCommandEvent event) {
         final var updater = jarUpdater.get();
         final var process = updater.getProcess();
-        if (process == null) {
-            event.deferReply().setContent("No process is running! Use `/start` to start it.").queue();
+        if (process != null) {
+            event.deferReply().setContent("A process is running already! Use `/shutdown` to stop it.").queue();
+            return;
+        }
+        if (!Files.exists(updater.getJarPath())) {
+            event.deferReply().setContent("Cannot start the process due its jar file missing. Use `/update` to update to a version.").queue();
             return;
         }
         event.deferReply()
-            .setContent("Shutting down the process!")
-            .queue(hook -> {
-                JarUpdater.LOGGER.warn("Destroying process at the request of {} via Discord.", event.getUser().getAsTag());
-                process.process().onExit().whenComplete(($, $$) -> {
-                    if ($$ != null) {
-                        hook.editOriginal("Exception destroying process: " + $$.getLocalizedMessage()).queue();
-                    }
-                    hook.editOriginal("Successfully destroyed process!").queue();
-                });
-                process.process().destroy();
-                updater.clearProcess();
-            });
+            .setContent("Starting the process!")
+            .flatMap(hook -> {
+                JarUpdater.LOGGER.warn("Starting process at the request of {} via Discord.", event.getUser().getAsTag());
+                updater.runProcess();
+                return hook.editOriginal("Successfully started the process.");
+            })
+            .queue();
     }
 }

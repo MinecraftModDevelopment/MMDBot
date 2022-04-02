@@ -26,6 +26,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URL;
@@ -44,6 +45,7 @@ public class JarUpdater implements Runnable {
     private final Pattern jarNamePattern;
     private final List<String> javaArgs;
 
+    @Nullable
     private ProcessInfo process;
 
     public JarUpdater(@NonNull final Path jarPath, @NonNull final UpdateChecker updateChecker, @NonNull final Pattern jarNamePattern, @NonNull final List<String> javaArgs) {
@@ -139,6 +141,14 @@ public class JarUpdater implements Runnable {
         return command;
     }
 
+    public void runProcess() {
+        process = new ProcessInfo(createProcess(), updateChecker.getLatestFound());
+    }
+
+    public void clearProcess() {
+        process = null;
+    }
+
     public UpdateChecker getUpdateChecker() {
         return updateChecker;
     }
@@ -150,19 +160,23 @@ public class JarUpdater implements Runnable {
             .findFirst();
     }
 
+    public Path getJarPath() {
+        return jarPath;
+    }
+
     @Nullable
     public ProcessInfo getProcess() {
         return process;
     }
 
-    public record ProcessInfo(Process process, @Nullable Release release) {
+    public record ProcessInfo(@Nonnull Process process, @Nullable Release release) {
 
         public ProcessInfo {
             process.onExit().whenComplete(($, e) -> {
                if (e != null) {
-                   JarUpdater.LOGGER.error("Exception exitting process: ", e);
+                   JarUpdater.LOGGER.error("Exception exiting process: ", e);
                } else {
-                   LOGGER.error("Process exited successfully.");
+                   LOGGER.warn("Process exited successfully.");
                }
             });
         }
