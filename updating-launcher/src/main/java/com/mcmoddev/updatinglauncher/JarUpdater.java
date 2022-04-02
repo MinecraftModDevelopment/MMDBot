@@ -122,7 +122,9 @@ public class JarUpdater implements Runnable {
     private Process createProcess() {
         try {
             LOGGER.info("Starting process...");
-            return new ProcessBuilder(getStartCommand()).inheritIO().start();
+            return new ProcessBuilder(getStartCommand())
+                .inheritIO()
+                .start();
         } catch(IOException e) {
             LOGGER.error("Starting process failed, used start command {}", getStartCommand(), e);
         }
@@ -138,11 +140,15 @@ public class JarUpdater implements Runnable {
 
     private List<String> getStartCommand() {
         List<String> command = new ArrayList<>(javaArgs.size() + 2);
-        command.add("java");
+        command.add(findJavaBinary());
         command.addAll(javaArgs);
         command.add("-jar");
         command.add(jarPath.toString());
         return command;
+    }
+
+    private static String findJavaBinary() {
+        return ProcessHandle.current().info().command().orElse("java");
     }
 
     public void runProcess() {
