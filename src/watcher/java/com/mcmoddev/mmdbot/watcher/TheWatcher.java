@@ -22,7 +22,6 @@ package com.mcmoddev.mmdbot.watcher;
 
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
-import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
@@ -30,10 +29,8 @@ import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import com.mcmoddev.mmdbot.core.commands.CommandUpserter;
 import com.mcmoddev.mmdbot.core.util.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
-import com.mcmoddev.mmdbot.core.util.ReflectionsUtils;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.util.event.ThreadedEventListener;
-import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import com.mcmoddev.mmdbot.watcher.util.Configuration;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.util.Utils;
@@ -61,15 +58,12 @@ import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.EnumSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public final class TheWatcher implements Bot {
 
@@ -265,13 +259,6 @@ public final class TheWatcher implements Bot {
 
     public JDA getJda() {
         return jda;
-    }
-
-    @Override
-    public BotUserData getBotUserData() {
-        final var selfUser = jda.getSelfUser();
-        return new BotUserData(selfUser.getName(), selfUser.getDiscriminator(),
-            selfUser.getAvatarUrl() == null ? selfUser.getDefaultAvatarUrl() : selfUser.getAvatarUrl());
     }
 
     public Configuration getConfig() {

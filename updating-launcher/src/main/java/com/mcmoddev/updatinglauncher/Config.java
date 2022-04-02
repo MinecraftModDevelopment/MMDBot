@@ -75,13 +75,46 @@ public class Config {
     public static final class CheckerInfo {
         @Required
         @Setting("rate")
-        @Comment("The rate (in minutes) at which to check for updates.")
+        @Comment("The rate (in minutes) at which to check for updates. Set to -1 to disable regular checking.")
         public long rate = 10;
 
         @Required
         @Setting("file_pattern")
         @Comment("A regex that will match the file to use for updating the jar when a release is found.")
         public String filePattern = ".jar";
+    }
+
+    @Required
+    @Setting("discord")
+    @Comment("Configuration for Discord integration.")
+    public Discord discord = new Discord();
+
+    @ConfigSerializable
+    public static final class Discord {
+        @Required
+        @Setting("enabled")
+        @Comment("If Discord integration should be enabled.")
+        public boolean enabled = true;
+
+        @Required
+        @Setting("bot_token")
+        @Comment("If Discord integration is enabled, the token to use for the bot.")
+        public String botToken = "";
+
+        @Required
+        @Setting("guild_id")
+        @Comment("The ID of the guild in which the bot will work.")
+        public String guildId = "";
+
+        @Required
+        @Setting("prefixes")
+        @Comment("A list of prefixes the bot uses.")
+        public List<String> prefixes = List.of("+");
+
+        @Required
+        @Setting("roles")
+        @Comment("A list of roles which have access to the integration commands.")
+        public List<String> roles = List.of();
     }
 
     public static Config load(final Path path) throws ConfigurateException {

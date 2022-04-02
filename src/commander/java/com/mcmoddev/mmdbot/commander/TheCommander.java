@@ -68,7 +68,6 @@ import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryUtils;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.util.event.OneTimeEventListener;
-import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
 import net.dv8tion.jda.api.JDA;
@@ -105,9 +104,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -500,13 +497,6 @@ public final class TheCommander implements Bot {
             }
         });
         return returnAtomic.get();
-    }
-
-    @Override
-    public BotUserData getBotUserData() {
-        final var selfUser = jda.getSelfUser();
-        return new BotUserData(selfUser.getName(), selfUser.getDiscriminator(),
-            selfUser.getAvatarUrl() == null ? selfUser.getDefaultAvatarUrl() : selfUser.getAvatarUrl());
     }
 
     public String getGithubToken() {

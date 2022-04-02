@@ -28,13 +28,10 @@ import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
-import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
-import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import lombok.experimental.UtilityClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -149,12 +146,16 @@ public class RunBots {
         }
         */
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> LOG.warn("The bot(s) are shutting down!")));
-
         final var botsTarget = BotRegistry.getBotTypes().size();
         while (botsAmount.get() < botsTarget) {
             // Block thread
         }
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            LOG.warn("The bot(s) are shutting down!");
+            loadedBots.forEach(Bot::shutdown);
+        }));
+
 
         Events.MISC_BUS.addListener(ScamDetector::onCollectTasks);
         TaskScheduler.init();
@@ -162,25 +163,6 @@ public class RunBots {
 
     public static List<Bot> getLoadedBots() {
         return loadedBots;
-    }
-
-    public static boolean isBotLoaded(BotTypeEnum botTypeEnum) {
-        return loadedBots.stream().map(b -> BotRegistry.getBotTypeName(b.getType()))
-            .anyMatch(s -> s.equals(botTypeEnum.getName()));
-    }
-
-    @Nullable
-    public static Bot getBotByType(BotTypeEnum botTypeEnum) {
-        return loadedBots.stream().filter(b -> BotRegistry.getBotTypeName(b.getType()).equals(botTypeEnum.getName()))
-            .findFirst().orElse(null);
-    }
-
-    public static void shutdownBot(BotTypeEnum botTypeEnum) {
-        loadedBots.stream().map(b -> Pair.of(b, BotRegistry.getBotTypeName(b.getType())))
-            .filter(p -> p.second().equals(botTypeEnum.getName()))
-            .map(Pair::first)
-            .findAny()
-            .ifPresent(Bot::shutdown);
     }
 
     private static Path createDirectory(String path) {

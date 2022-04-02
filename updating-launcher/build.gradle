@@ -28,6 +28,10 @@ repositories {
     maven {
         url "https://clojars.org/repo/"
     }
+    maven {
+        name 'jda-chewtils'
+        url 'https://m2.chew.pro/snapshots'
+    }
     maven { url 'https://jitpack.io' }
 }
 
@@ -48,6 +52,10 @@ dependencies {
     implementation libs.gson
     implementation libs.logback
     implementation libs.configurate.hocon
+
+    // Discord stuff
+    implementation libs.jda
+    implementation libs.chewtils.command
 }
 
 tasks.named('shadowJar', ShadowJar).configure {

@@ -21,7 +21,6 @@
 package com.mcmoddev.mmdbot.commander.util.script;
 
 import com.google.common.collect.Lists;
-import com.mcmoddev.mmdbot.commander.quotes.IQuote;
 import com.mcmoddev.mmdbot.commander.quotes.Quotes;
 import com.mcmoddev.mmdbot.commander.tricks.TrickContext;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;

@@ -20,13 +20,8 @@
  */
 package com.mcmoddev.mmdbot.core.bot;
 
-import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
-import com.mcmoddev.mmdbot.dashboard.util.GenericResponse;
-import com.mcmoddev.mmdbot.dashboard.util.UpdateConfigContext;
-import lombok.NonNull;
 import org.slf4j.Logger;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 
 public interface Bot {
@@ -54,17 +49,5 @@ public interface Bot {
      */
     default boolean blocksStartupThread() {
         return false;
-    }
-
-    BotUserData getBotUserData();
-
-    @Nullable
-    default Object getConfigValue(String configName, String path) {
-        return null;
-    }
-
-    @NonNull
-    default GenericResponse updateConfig(UpdateConfigContext context) {
-        return GenericResponse.Type.INVALID_REQUEST.noMessage();
     }
 }

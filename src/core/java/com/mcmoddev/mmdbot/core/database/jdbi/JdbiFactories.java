@@ -20,10 +20,6 @@
  */
 package com.mcmoddev.mmdbot.core.database.jdbi;
 
-import com.google.common.reflect.TypeToken;
-import com.google.gson.JsonArray;
-import com.mcmoddev.mmdbot.core.util.Constants;
-import io.github.matyrobbrt.curseforgeapi.util.Utils;
 import org.jdbi.v3.core.argument.AbstractArgumentFactory;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.ArgumentFactory;
@@ -35,7 +31,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;

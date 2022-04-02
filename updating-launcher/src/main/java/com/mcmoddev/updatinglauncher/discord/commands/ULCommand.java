@@ -18,22 +18,20 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.dashboard.client.scenes.bot;
+package com.mcmoddev.updatinglauncher.discord.commands;
 
-import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
-import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
+import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.updatinglauncher.Config;
 
-import java.util.Map;
+public abstract class ULCommand extends SlashCommand {
 
-public interface BotStage {
+    protected ULCommand(final Config.Discord config) {
+        this.enabledRoles = config.roles.toArray(String[]::new);
+        guildOnly = true;
+    }
 
-    Map<BotTypeEnum, BotStage> STAGES = Map.of(
-        BotTypeEnum.MMDBOT, new MMDBotStage(),
-        BotTypeEnum.THE_WATCHER, new TheWatcherStage(),
-        BotTypeEnum.THE_COMMANDER, new TheCommanderStage(),
-        BotTypeEnum.THE_LISTENER, new TheListenerStage()
-    );
-
-    void createAndShowStage(BotUserData botUserData);
-
+    @Override
+    protected void execute(final SlashCommandEvent event) {
+    }
 }

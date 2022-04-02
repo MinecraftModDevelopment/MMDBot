@@ -20,10 +20,10 @@
  */
 package com.mcmoddev.mmdbot.commander.custompings;
 
+import com.google.common.base.Suppliers;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.core.database.VersionedDataMigrator;
 import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
-import com.mcmoddev.mmdbot.dashboard.util.LazySupplier;
 import lombok.experimental.UtilityClass;
 
 import java.io.FileOutputStream;
@@ -38,10 +38,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-import static java.util.Collections.synchronizedMap;
 import static com.mcmoddev.mmdbot.core.util.Constants.Gsons.NO_PRETTY_PRINTING;
+import static java.util.Collections.synchronizedMap;
 
 @UtilityClass
 public class CustomPings {
@@ -65,7 +66,7 @@ public class CustomPings {
     /**
      * The path of the custom pings file.
      */
-    public static final LazySupplier<Path> PATH = LazySupplier.of(() -> CustomPings.PATH_RESOLVER.apply(TheCommander.getInstance().getRunPath()));
+    public static final Supplier<Path> PATH = Suppliers.memoize(() -> CustomPings.PATH_RESOLVER.apply(TheCommander.getInstance().getRunPath()));
 
     /**
      * The type of the custom pings.

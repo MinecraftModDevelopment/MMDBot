@@ -25,9 +25,6 @@ import com.mcmoddev.mmdbot.core.References;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
-import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
-import com.mcmoddev.mmdbot.dashboard.util.GenericResponse;
-import com.mcmoddev.mmdbot.dashboard.util.UpdateConfigContext;
 import com.mcmoddev.mmdbot.modules.commands.CommandModule;
 import com.mcmoddev.mmdbot.modules.logging.LoggingModule;
 import com.mcmoddev.mmdbot.modules.logging.misc.MiscEvents;
@@ -35,10 +32,8 @@ import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
 import com.mcmoddev.mmdbot.utilities.database.DatabaseManager;
 import com.mcmoddev.mmdbot.utilities.database.JSONDataMigrator;
-import lombok.NonNull;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.AllowedMentions;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -46,7 +41,6 @@ import org.jdbi.v3.core.Jdbi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import javax.security.auth.login.LoginException;
 import java.nio.file.Path;
 import java.util.Set;
@@ -218,27 +212,7 @@ public final class MMDBot implements Bot {
         return BOT_TYPE;
     }
 
-    @Override
-    public BotUserData getBotUserData() {
-        final var selfUser = jda.get().getSelfUser();
-        return new BotUserData(selfUser.getName(), selfUser.getDiscriminator(),
-            selfUser.getAvatarUrl() == null ? selfUser.getDefaultAvatarUrl() : selfUser.getAvatarUrl());
-    }
-
     public Path getRunPath() {
         return runPath;
-    }
-
-    @Nullable
-    @Override
-    public Object getConfigValue(final String configName, final String path) {
-        return config.getConfig().get(path);
-    }
-
-    @Override
-    public @NonNull GenericResponse updateConfig(final UpdateConfigContext context) {
-        config.getConfig().set(context.path(), context.newValue());
-        config.getConfig().save();
-        return GenericResponse.Type.SUCCESS.noMessage();
     }
 }

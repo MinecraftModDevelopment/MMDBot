@@ -31,10 +31,6 @@ import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.awt.Color;
 import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Objects;
 
 /**

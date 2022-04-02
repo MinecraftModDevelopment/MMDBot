@@ -31,7 +31,6 @@ cfapi = "1.7.1"
 jsoup = "1.14.3"
 webhooks = "0.8.0"
 eventdispatcher = "1.4.0"
-netty = "4.1.74.Final"
 asmutils = "0.3.1"
 typetools = "0.6.3"
 javadocapi = "21ad5c1759"
@@ -41,6 +40,7 @@ javadocapi = "21ad5c1759"
 # TODO switch back when JDA has modals
 jda = { module = "com.github.xirado:JDA", version.ref = "jda" }
 chewtils = { module = "pw.chew:jda-chewtils", version.ref = "chewtils" }
+chewtils-command = { module = "pw.chew:jda-chewtils-command", version.ref = "chewtils" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
@@ -64,7 +64,6 @@ cfapi = {module = "io.github.matyrobbrt:curseforgeapi", version.ref = "cfapi"}
 jsoup = {module = "org.jsoup:jsoup", version.ref = "jsoup"}
 webhooks = {module = "club.minnced:discord-webhooks", version.ref = "webhooks"}
 eventdispatcher = {module = "io.github.matyrobbrt:eventdispatcher", version.ref = "eventdispatcher"}
-netty = {module = "io.netty:netty-all", version.ref = "netty"}
 asmutils = {module = "io.github.matyrobbrt:asmutils", version.ref = "asmutils"}
 typetools = {module = "net.jodah:typetools", version.ref = "typetools"}
 javadocapi = { module = "com.github.I-Al-Istannen:JavadocApi", version.ref = "javadocapi" }

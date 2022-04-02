@@ -98,8 +98,6 @@ dependencies {
   coreRuntimeOnly sourceSets.commander.output
   coreRuntimeOnly sourceSets.watcher.output
 
-  global project(':dashboard')
-
   jda libs.jda
   jda libs.chewtils
 
@@ -123,7 +121,7 @@ dependencies {
   global libs.eventdispatcher
   global libs.asmutils
   global libs.typetools
-  global libs.javadocapi
+  // global libs.javadocapi
 
   globalCompile libs.annotations
   globalCompile libs.lombok
