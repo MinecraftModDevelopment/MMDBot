@@ -146,12 +146,16 @@ public class RunBots {
         }
         */
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> LOG.warn("The bot(s) are shutting down!")));
-
         final var botsTarget = BotRegistry.getBotTypes().size();
         while (botsAmount.get() < botsTarget) {
             // Block thread
         }
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            LOG.warn("The bot(s) are shutting down!");
+            loadedBots.forEach(Bot::shutdown);
+        }));
+
 
         Events.MISC_BUS.addListener(ScamDetector::onCollectTasks);
         TaskScheduler.init();
