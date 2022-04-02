@@ -26,12 +26,14 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class JarUpdater implements Runnable {
@@ -42,7 +44,7 @@ public class JarUpdater implements Runnable {
     private final Pattern jarNamePattern;
     private final List<String> javaArgs;
 
-    private Process process;
+    private ProcessInfo process;
 
     public JarUpdater(@NonNull final Path jarPath, @NonNull final UpdateChecker updateChecker, @NonNull final Pattern jarNamePattern, @NonNull final List<String> javaArgs) {
         this.jarPath = jarPath;
@@ -52,7 +54,7 @@ public class JarUpdater implements Runnable {
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (process != null) {
-                process.destroyForcibly();
+                process.process().destroyForcibly();
             }
         }));
     }
@@ -70,25 +72,7 @@ public class JarUpdater implements Runnable {
                     .findFirst();
                 if (as.isPresent()) {
                     LOGGER.warn("Found new update to version \"{}\"!", release.name);
-                    if (process != null) {
-                        process.onExit().whenComplete(($, $$) -> {
-                            if ($$ != null) {
-                                LOGGER.error("Exception trying to destroy old process: ", $$);
-                                return;
-                            }
-                            try {
-                                update(as.get());
-                            } catch (Exception e) {
-                                LOGGER.warn("Exception trying to update jar: ",e);
-                            }
-                            process = createProcess();
-                            LOGGER.warn("Old process was destroyed!");
-                        });
-                        process.destroy();
-                    } else {
-                        update(as.get());
-                        process = createProcess();
-                    }
+                    killAndUpdate(release, as.get());
                 }
             } else {
                 LOGGER.info("No updates were found.");
@@ -98,7 +82,28 @@ public class JarUpdater implements Runnable {
         }
     }
 
-    private void update(final Release.Asset asset) throws Exception {
+    public void killAndUpdate(final Release release, final Release.Asset asset) throws Exception {
+        if (process != null) {
+            process.process().onExit().whenComplete(($, $$) -> {
+                if ($$ != null) {
+                    return;
+                }
+                try {
+                    update(asset);
+                } catch (Exception e) {
+                    LOGGER.warn("Exception trying to update jar: ",e);
+                }
+                process = new ProcessInfo(createProcess(), release);
+                LOGGER.warn("Old process was destroyed!");
+            });
+            process.process().destroy();
+        } else {
+            update(asset);
+            process = new ProcessInfo(createProcess(), release);
+        }
+    }
+
+    public void update(final Release.Asset asset) throws Exception {
         final var parent = jarPath.toAbsolutePath().getParent();
         if (parent != null) {
             Files.createDirectories(parent);
@@ -119,6 +124,12 @@ public class JarUpdater implements Runnable {
         return null;
     }
 
+    public void tryFirstStart() {
+        if (Files.exists(jarPath)) {
+            process = new ProcessInfo(createProcess(), null);
+        }
+    }
+
     private List<String> getStartCommand() {
         List<String> command = new ArrayList<>(javaArgs.size() + 2);
         command.add("java");
@@ -126,5 +137,35 @@ public class JarUpdater implements Runnable {
         command.add("-jar");
         command.add(jarPath.toString());
         return command;
+    }
+
+    public UpdateChecker getUpdateChecker() {
+        return updateChecker;
+    }
+
+    public Optional<Release.Asset> resolveAssetFromRelease(final Release release) {
+        return release.assets.stream()
+            .filter(asst -> asst.name.endsWith(".jar"))
+            .filter(p -> jarNamePattern.matcher(p.name).find())
+            .findFirst();
+    }
+
+    @Nullable
+    public ProcessInfo getProcess() {
+        return process;
+    }
+
+    public record ProcessInfo(Process process, @Nullable Release release) {
+
+        public ProcessInfo {
+            process.onExit().whenComplete(($, e) -> {
+               if (e != null) {
+                   JarUpdater.LOGGER.error("Exception exitting process: ", e);
+               } else {
+                   LOGGER.error("Process exited successfully.");
+               }
+            });
+        }
+
     }
 }

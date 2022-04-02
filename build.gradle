@@ -121,7 +121,7 @@ dependencies {
   global libs.eventdispatcher
   global libs.asmutils
   global libs.typetools
-  global libs.javadocapi
+  // global libs.javadocapi
 
   globalCompile libs.annotations
   globalCompile libs.lombok

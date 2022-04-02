@@ -102,4 +102,15 @@ public class UpdateChecker {
         return latestFound;
     }
 
+    public String getOwner() {
+        return owner;
+    }
+
+    public String getRepo() {
+        return repo;
+    }
+
+    public HttpClient getHttpClient() {
+        return httpClient;
+    }
 }

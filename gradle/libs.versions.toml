@@ -40,6 +40,7 @@ javadocapi = "21ad5c1759"
 # TODO switch back when JDA has modals
 jda = { module = "com.github.xirado:JDA", version.ref = "jda" }
 chewtils = { module = "pw.chew:jda-chewtils", version.ref = "chewtils" }
+chewtils-command = { module = "pw.chew:jda-chewtils-command", version.ref = "chewtils" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
