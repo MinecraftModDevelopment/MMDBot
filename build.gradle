@@ -98,8 +98,6 @@ dependencies {
   coreRuntimeOnly sourceSets.commander.output
   coreRuntimeOnly sourceSets.watcher.output
 
-  global project(':dashboard')
-
   jda libs.jda
   jda libs.chewtils
 

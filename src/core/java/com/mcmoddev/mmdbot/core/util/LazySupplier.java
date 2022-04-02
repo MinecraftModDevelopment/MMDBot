@@ -18,22 +18,29 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.dashboard.client.scenes.bot;
+package com.mcmoddev.mmdbot.core.util;
 
-import com.mcmoddev.mmdbot.dashboard.BotTypeEnum;
-import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
+import java.util.function.Supplier;
 
-import java.util.Map;
+public final class LazySupplier<T> implements Supplier<T> {
 
-public interface BotStage {
+    private final Supplier<T> supplier;
+    private T value = null;
 
-    Map<BotTypeEnum, BotStage> STAGES = Map.of(
-        BotTypeEnum.MMDBOT, new MMDBotStage(),
-        BotTypeEnum.THE_WATCHER, new TheWatcherStage(),
-        BotTypeEnum.THE_COMMANDER, new TheCommanderStage(),
-        BotTypeEnum.THE_LISTENER, new TheListenerStage()
-    );
+    private LazySupplier(Supplier<T> supplier) {
+        this.supplier = supplier;
+    }
 
-    void createAndShowStage(BotUserData botUserData);
+    public static <T> LazySupplier<T> of(Supplier<T> supplier) {
+        return new LazySupplier<>(supplier);
+    }
+
+    @Override
+    public T get() {
+        if (value == null) {
+            value = supplier.get();
+        }
+        return value;
+    }
 
 }

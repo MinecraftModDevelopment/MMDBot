@@ -25,7 +25,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonWriter;
 import com.mcmoddev.mmdbot.core.util.Constants;
-import com.mcmoddev.mmdbot.dashboard.util.RunnableQueue;
+import com.mcmoddev.mmdbot.core.util.RunnableQueue;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileInputStream;

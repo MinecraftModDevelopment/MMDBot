@@ -24,7 +24,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
-import com.mcmoddev.mmdbot.dashboard.util.LazySupplier;
+import com.mcmoddev.mmdbot.core.util.LazySupplier;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 
 import java.util.ArrayList;

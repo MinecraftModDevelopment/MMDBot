@@ -18,41 +18,45 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.dashboard.client.builder.abstracts;
+package com.mcmoddev.mmdbot.core.util;
 
-import javafx.scene.Node;
-
+import java.util.LinkedList;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
-public abstract class NodeBuilder<N extends Node, B extends NodeBuilder<N, B>> implements Supplier<N> {
+public final class RunnableQueue<T> implements Runnable {
 
-    private final N node;
+    private final Consumer<T> runner;
+    private final LinkedList<T> queue = new LinkedList<>();
 
-    protected NodeBuilder(final N node) {
-        this.node = node;
+    private RunnableQueue(final Consumer<T> runner) {
+        this.runner = runner;
     }
 
-    public N build() {
-        return node;
+    public static <T> RunnableQueue<T> create(Consumer<T> runner) {
+        return new RunnableQueue<>(runner);
     }
 
-    public B setStyle(String value) {
-        return doAndCast(n -> n.setStyle(value + System.lineSeparator() + n.getStyle()));
+    public static RunnableQueue<Runnable> createRunnable() {
+        return new RunnableQueue<>(Runnable::run);
+    }
+
+    @SafeVarargs
+    public final RunnableQueue<T> addLast(T... toRun) {
+        for (var r : toRun) {
+            queue.addLast(r);
+        }
+        return this;
+    }
+
+    public RunnableQueue<T> addFirst(T toRun) {
+        queue.addFirst(toRun);
+        return this;
     }
 
     @Override
-    public final N get() {
-        return build();
-    }
-
-    @SuppressWarnings("unchecked")
-    protected final B castThis() {
-        return (B) this;
-    }
-
-    protected final B doAndCast(Consumer<N> toDo) {
-        toDo.accept(node);
-        return castThis();
+    public void run() {
+        while (!queue.isEmpty()) {
+            runner.accept(queue.poll());
+        }
     }
 }

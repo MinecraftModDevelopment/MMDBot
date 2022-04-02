@@ -24,7 +24,7 @@ import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.database.VersionedDataMigrator;
 import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
-import com.mcmoddev.mmdbot.dashboard.util.LazySupplier;
+import com.mcmoddev.mmdbot.core.util.LazySupplier;
 import lombok.experimental.UtilityClass;
 
 import java.io.FileOutputStream;

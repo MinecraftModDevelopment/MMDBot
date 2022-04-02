@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.core.bot;
 
-import com.mcmoddev.mmdbot.dashboard.common.listener.PacketListener;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
@@ -30,20 +29,4 @@ public interface BotType<B extends Bot> {
     B createBot(Path runPath);
 
     Logger getLogger();
-
-    default PacketListener getPacketListener(B bot) {
-        return ($, $2) -> {
-        };
-    }
-
-    /**
-     * @param bot
-     * @return
-     * @deprecated For internal user only.
-     */
-    @Deprecated(forRemoval = false)
-    @SuppressWarnings("unchecked")
-    default PacketListener getPacketListenerUnsafe(Object bot) {
-        return getPacketListener((B) bot);
-    }
 }

@@ -25,7 +25,6 @@ import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import com.mcmoddev.mmdbot.core.event.Events;
-import com.mcmoddev.mmdbot.dashboard.util.BotUserData;
 import com.mcmoddev.mmdbot.thelistener.events.LeaveJoinEvents;
 import com.mcmoddev.mmdbot.thelistener.events.MessageEvents;
 import com.mcmoddev.mmdbot.thelistener.events.ModerationEvents;
@@ -163,14 +162,5 @@ public final class TheListener implements Bot {
 
     public static GatewayDiscordClient getClient() {
         return instance == null ? null : instance.client;
-    }
-
-    @Override
-    public BotUserData getBotUserData() {
-        final var selfUser = client.getSelf().block();
-        if (selfUser != null) {
-            return new BotUserData(selfUser.getUsername(), selfUser.getDiscriminator(), selfUser.getAvatarUrl());
-        }
-        return null;
     }
 }
