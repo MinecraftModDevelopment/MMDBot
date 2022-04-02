@@ -40,8 +40,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
-import static java.util.Collections.synchronizedMap;
 import static com.mcmoddev.mmdbot.core.util.Constants.Gsons.NO_PRETTY_PRINTING;
+import static java.util.Collections.synchronizedMap;
 
 @UtilityClass
 public class CustomPings {

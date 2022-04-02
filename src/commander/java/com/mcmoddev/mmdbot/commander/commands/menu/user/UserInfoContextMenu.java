@@ -22,8 +22,8 @@ package com.mcmoddev.mmdbot.commander.commands.menu.user;
 
 import com.jagrosh.jdautilities.command.UserContextMenu;
 import com.jagrosh.jdautilities.command.UserContextMenuEvent;
-import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
+import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 
 public class UserInfoContextMenu extends UserContextMenu {
 

@@ -31,7 +31,6 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.RestAction;
 
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**

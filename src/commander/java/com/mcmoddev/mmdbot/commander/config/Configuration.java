@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.commander.config;
 
-import com.mcmoddev.mmdbot.core.database.SnowflakeStorage;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.Required;

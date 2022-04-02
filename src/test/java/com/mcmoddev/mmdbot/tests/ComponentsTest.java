@@ -22,7 +22,6 @@ package com.mcmoddev.mmdbot.tests;
 
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.storage.ComponentStorage;
-import com.mcmoddev.mmdbot.core.commands.component.storage.SQLComponentStorage;
 import org.flywaydb.core.Flyway;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.Assertions;

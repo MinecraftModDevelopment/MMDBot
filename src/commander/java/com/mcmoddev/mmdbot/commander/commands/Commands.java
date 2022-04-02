@@ -26,7 +26,6 @@ import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
 import com.mcmoddev.mmdbot.commander.util.mc.MCVersions;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.builder.SlashCommandBuilder;
-import lombok.experimental.Helper;
 import lombok.experimental.UtilityClass;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.Command;
@@ -34,7 +33,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.net.http.HttpClient;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneOffset;
