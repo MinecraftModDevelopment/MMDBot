@@ -31,10 +31,10 @@ jobs:
       - name: Assemble jar with Gradle
         env:
           BUILD_NUMBER: ${{ github.run_number }}
-        run: ./gradlew assemble -version=${{ github.ref }} 
+        run: ./gradlew assemble -bot_version=${{ github.ref }} 
       - name: Release
         id: publish_release_assets
-        run: ./gradlew build -version=${{ github.ref }}
+        run: ./gradlew build -bot_version=${{ github.ref }}
         env:
           BUILD_NUMBER: ${{ github.run_number }}
       - name: Upload release assets
