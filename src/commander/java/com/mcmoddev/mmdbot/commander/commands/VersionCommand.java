@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.commander.commands;
 
+import static com.mcmoddev.mmdbot.core.util.Constants.MAVEN_CENTRAL;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.fabric.FabricVersionHelper;
@@ -27,13 +28,26 @@ import com.mcmoddev.mmdbot.commander.updatenotifiers.forge.ForgeVersionHelper;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.forge.MinecraftForgeVersion;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.minecraft.MinecraftVersionHelper;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.quilt.QuiltVersionHelper;
+import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.builder.SlashCommandBuilder;
+import com.mcmoddev.mmdbot.core.util.event.DismissListener;
+import io.github.matyrobbrt.curseforgeapi.util.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.utils.TimeFormat;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.Color;
+import java.io.StringReader;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Instant;
 
 public final class VersionCommand {
@@ -151,9 +165,62 @@ public final class VersionCommand {
                     embed.setColor(Color.GREEN);
                     embed.setTimestamp(Instant.now());
                     event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
+                }),
+
+            SlashCommandBuilder.builder()
+                .name("maven")
+                .help("Get the latest versions for a maven artifact.")
+                .options(
+                    new OptionData(OptionType.STRING, "id", "The ID of the artifact. Format: groupId:artifactId", true),
+                    new OptionData(OptionType.STRING, "repository", "The repository of the artifact. Defaults to maven central.")
+                )
+                .executes(event -> {
+                    final var repo = event.getOption("repository", MAVEN_CENTRAL, s -> URI.create(s.getAsString()));
+                    final var matcher = Constants.ARTIFACT_LOCATION_PATTERN.matcher(event.getOption("id", "", OptionMapping::getAsString));
+                    if (!matcher.find()) {
+                        event.deferReply(true).setContent("Invalid artifact ID provided. Please make sure it follows the format **group:id**.").queue();
+                        return;
+                    }
+                    final var group = matcher.group("group");
+                    final var id = matcher.group("id");
+                    event.deferReply()
+                        .addEmbeds(getMavenInfo(repo, group, id)
+                            .setFooter("Requested by: " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                            .setTimestamp(Instant.now())
+                            .build()
+                        )
+                        .addActionRow(DismissListener.createDismissButton())
+                        .queue();
                 })
         )
         .guildOnly(false)
         .build();
+
+    public static final DocumentBuilder DOCUMENT_BUILDER = Utils.rethrowSupplier(() -> DocumentBuilderFactory.newInstance().newDocumentBuilder()).get();
+
+    private static EmbedBuilder getMavenInfo(final URI repo, final String groupId, final String artifactId) throws Exception {
+        final var embed = new EmbedBuilder();
+        final var g = groupId.replace('.', '/') + '/';
+        final var uri = repo.resolve(g).resolve(artifactId + '/').resolve("maven-metadata.xml");
+        final var request = HttpRequest.newBuilder(uri).GET().build();
+        final var response = Constants.HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+            return embed.setDescription("Could not find artifact **%s** on repository <%s>. Searched at <%s>".formatted(groupId + ':' + artifactId, repo, uri))
+                .setColor(Color.RED);
+        } else if (response.statusCode() != HttpURLConnection.HTTP_OK) {
+            return embed.setColor(Color.DARK_GRAY)
+                .setDescription("Request returned with status code: " + response.statusCode());
+        }
+        final var xml = DOCUMENT_BUILDER.parse(new InputSource(new StringReader(response.body())));
+        xml.getDocumentElement().normalize();
+        final var metadata = (Element) xml.getElementsByTagName("metadata").item(0);
+        final var versioning = (Element) metadata.getElementsByTagName("versioning").item(0);
+        embed.setColor(Color.GREEN);
+        embed.setTitle("Maven Artifact Information");
+        embed.setDescription("Information for artifact **%s** on repository <%s>:".formatted(groupId + ':' + artifactId, repo));
+        embed.addField("Latest", versioning.getElementsByTagName("latest").item(0).getTextContent(), true);
+        embed.addField("Release", versioning.getElementsByTagName("release").item(0).getTextContent(), true);
+        return embed;
+    }
 
 }

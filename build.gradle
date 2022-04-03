@@ -98,7 +98,9 @@ dependencies {
   coreRuntimeOnly sourceSets.commander.output
   coreRuntimeOnly sourceSets.watcher.output
 
-  jda libs.jda
+  jda(libs.jda) {
+    exclude module: 'jackson-databind' // their jackson version is outdated
+  }
   jda libs.chewtils
 
   d4j libs.discord4j
@@ -117,10 +119,10 @@ dependencies {
   global libs.configurate.hocon
   global libs.cfapi
   global libs.jsoup
-  global libs.webhooks
   global libs.eventdispatcher
   global libs.asmutils
   global libs.typetools
+  global libs.webhooks
   // global libs.javadocapi
 
   globalCompile libs.annotations

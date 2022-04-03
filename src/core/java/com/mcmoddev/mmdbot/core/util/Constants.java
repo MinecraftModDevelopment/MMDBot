@@ -29,6 +29,7 @@ import io.github.matyrobbrt.curseforgeapi.util.gson.RecordTypeAdapterFactory;
 import lombok.experimental.UtilityClass;
 import org.spongepowered.configurate.reference.WatchServiceListener;
 
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.time.Instant;
 import java.util.Random;
@@ -53,6 +54,39 @@ public final class Constants {
     public static final Random RANDOM = new Random();
 
     public static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
+
+    /**
+     * The URI of the maven central repo.
+     */
+    public static final URI MAVEN_CENTRAL = URI.create("https://repo1.maven.org/maven2/");
+
+    /**
+     * A pattern that matches a maven artifact location, like com.example:example
+     * <h4>Groups</h4>
+     * <table>
+     *     <tr>
+     *         <th>Index</th>
+     *         <th>Name</th>
+     *         <th>Description</th>
+     *     </tr>
+     *     <tr>
+     *         <td>0</td>
+     *         <td>N/A</td>
+     *         <td>The entire location</td>
+     *     </tr>
+     *     <tr>
+     *         <td>1</td>
+     *         <td>group</td>
+     *         <td>The group of the artifact</td>
+     *     </tr>
+     *     <tr>
+     *         <td>2</td>
+     *         <td>id</td>
+     *         <td>The ID of the artifact</td>
+     *     </tr>
+     * </table>
+     */
+    public static final Pattern ARTIFACT_LOCATION_PATTERN = Pattern.compile("(?<group>.*):(?<id>.*)");
 
     public static final class Gsons {
         public static final Gson NO_PRETTY_PRINTING = new GsonBuilder()
