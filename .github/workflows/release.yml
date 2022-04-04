@@ -43,4 +43,4 @@ jobs:
         with:
           release-tag: ${{ env.TAG }}
           repo-token: ${{ github.token }}
-          files: 'build/libs/*[-all].jar'
+          files: 'build/libs/*'
