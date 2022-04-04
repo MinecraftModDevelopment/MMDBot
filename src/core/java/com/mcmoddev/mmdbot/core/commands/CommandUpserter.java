@@ -27,13 +27,21 @@ import com.mcmoddev.mmdbot.core.util.EmptyRestAction;
 import com.mcmoddev.mmdbot.core.util.Pair;
 import lombok.NonNull;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -46,11 +54,13 @@ import java.util.stream.LongStream;
  * @author matyrobbrt
  */
 public class CommandUpserter implements EventListener {
+    private static final Logger LOG = LoggerFactory.getLogger("CommandUpserter");
 
     private final CommandClient client;
     private final boolean forceGuild;
     @Nullable
     private final String guildId;
+    private final Collection<Permission> invitePermissions;
 
     /**
      * Instantiates a new upserter. <br>
@@ -65,6 +75,24 @@ public class CommandUpserter implements EventListener {
         this.client = client;
         this.forceGuild = forceGuild;
         this.guildId = guildId;
+        this.invitePermissions = List.of();
+    }
+
+    /**
+     * Instantiates a new upserter. <br>
+     * If {@code forceGuild} is false, but a guild ID is still specified,
+     * all the commands from that guild will be removed.
+     *
+     * @param client     the client that contains the command to upsert
+     * @param forceGuild if commands should be forced to be guild-only
+     * @param guildId    the ID of the guild commands should be upserted to
+     * @param invitePermissions a list of permissions the bot needs. This list will be used for generating an invite URL if the bot doesn't have the required scope in the forced guild.
+     */
+    public CommandUpserter(final CommandClient client, final boolean forceGuild, final @Nullable String guildId, final @NonNull Collection<Permission> invitePermissions) {
+        this.client = client;
+        this.forceGuild = forceGuild;
+        this.guildId = guildId;
+        this.invitePermissions = invitePermissions;
     }
 
     @Override
@@ -95,7 +123,8 @@ public class CommandUpserter implements EventListener {
                         .map(SlashCommand::buildCommandData)
                         .map(guild::upsertCommand)
                         .collect(Collectors.toSet()))
-                    .queue();
+                    .queue(cmds -> LOG.info("Registered {} commands to guild '{}' ({})", cmds.size(), guild.getName(), guild.getId())
+                        , createErrorHandler(guild));
 
                 if (!client.getContextMenus().isEmpty()) {
                     // Upsert menus
@@ -103,7 +132,7 @@ public class CommandUpserter implements EventListener {
                             .map(ContextMenu::buildCommandData)
                             .map(guild::upsertCommand)
                             .collect(Collectors.toSet()))
-                        .queue();
+                        .queue(cmds -> LOG.info("Registered {} context menus to guild '{}' ({})", cmds.size(), guild.getName(), guild.getId()), createErrorHandler(guild));
                 }
             });
         } else {
@@ -132,7 +161,7 @@ public class CommandUpserter implements EventListener {
                         .map(SlashCommand::buildCommandData)
                         .map(jda::upsertCommand)
                         .collect(Collectors.toSet()))
-                    .queue();
+                    .queue(cmds -> LOG.info("Registered {} global commands.", cmds.size()));
 
                 if (!client.getContextMenus().isEmpty()) {
                     // Upsert menus
@@ -140,10 +169,36 @@ public class CommandUpserter implements EventListener {
                             .map(ContextMenu::buildCommandData)
                             .map(jda::upsertCommand)
                             .collect(Collectors.toSet()))
-                        .queue();
+                        .queue(cmds -> LOG.info("Registered {} context menus.", cmds.size()));
                 }
             });
         }
+    }
+
+    public ErrorHandler createErrorHandler(final Guild guild) {
+        return new ErrorHandler().handle(ErrorResponse.MISSING_ACCESS, e -> {
+            // Find the first channel in which the bot can talk to send the information message
+            final var reportChannel = guild.getTextChannels()
+                .stream()
+                .filter(TextChannel::canTalk)
+                .findFirst();
+
+            reportChannel.map(channel -> channel.sendMessage("""
+                    I require the `application.commands` scope. Please invite me correctly.
+                    A direct message with a valid invite URL will be sent to the guild owner.
+                    I will now leave this guild."""))
+                .map(action -> action.flatMap($ -> guild.retrieveOwner()))
+                    .map(action -> action.flatMap(m -> m.getUser().openPrivateChannel()))
+                    .map(action -> action.flatMap(dm -> dm.sendMessage("""
+                        I could not register guild-forced commands in the server you own, %s.
+                        Below is an invite URL that invites the bot with the required scopes:
+                        %s"""
+                        .formatted(guild.getName(), guild.getJDA().getInviteUrl(invitePermissions)))))
+                .map(action -> action.flatMap($ -> guild.leave()))
+                .ifPresent(action -> action.queue(null, new ErrorHandler().ignore(ErrorResponse.CANNOT_SEND_TO_USER)));
+
+            LOG.error("Guild '{}' does not have the required scope. Unable to register forced guild commands. Leaving the guild...", guild.getId());
+        });
     }
 
     private long[] getCommandsToRemove(final List<Command> existingCommands) {
