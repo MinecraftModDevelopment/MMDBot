@@ -17,8 +17,9 @@ jobs:
       - name: Build Changelog
         id: build_changelog
         uses: mikepenz/release-changelog-builder-action@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          commitMode: true
+          token: ${{ github.token }}
       - name: Setup ENV
         run: echo "TAG=${GITHUB_REF:10}" >> $GITHUB_ENV
       - name: Grant execute permission for gradlew
@@ -34,7 +35,7 @@ jobs:
         with:
           token: ${{ github.token }}
           tag: ${{ github.ref }}
-          name: Release ${{ github.ref }}
+          name: Release ${{ env.TAG }}
           body: ${{steps.build_changelog.outputs.changelog}}
           artifactErrorsFailBuild: true
           artifacts: 'build/libs/*[-all].jar'
