@@ -77,13 +77,13 @@ def makeManifestAttributes() {
     final var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
     final var currentDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(actualDateTime)
     return [
-            'Maven-Artifact'          : "${project.group}:${archivesBaseName}:${project.bot_version}",
+            'Maven-Artifact'          : "${project.group}:${archivesBaseName}:${project.version}",
             'Timestamp'               : currentDateTime,
             'Specification-Title'     : archivesBaseName,
             'Specification-Vendor'    : 'Minecraft Mod Development',
             'Specification-Version'   : '1',
             'Implementation-Title'    : archivesBaseName,
-            'Implementation-Version'  : "${project.bot_version}",
+            'Implementation-Version'  : "${project.version}",
             'Implementation-Vendor'   : 'Minecraft Mod Development',
             'Implementation-Timestamp': currentDateTime,
             'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
