@@ -38,6 +38,10 @@ import com.mcmoddev.mmdbot.commander.commands.tricks.RunTrickCommand;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.commander.custompings.CustomPings;
 import com.mcmoddev.mmdbot.commander.custompings.CustomPingsListener;
+import com.mcmoddev.mmdbot.commander.docs.ConfigBasedElementLoader;
+import com.mcmoddev.mmdbot.commander.docs.DocsCommand;
+import com.mcmoddev.mmdbot.commander.docs.DocsConfig;
+import com.mcmoddev.mmdbot.commander.docs.NormalDocsSender;
 import com.mcmoddev.mmdbot.commander.eventlistener.ReferencingListener;
 import com.mcmoddev.mmdbot.commander.eventlistener.ThreadListener;
 import com.mcmoddev.mmdbot.commander.migrate.QuotesMigrator;
@@ -68,6 +72,7 @@ import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryUtils;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.util.event.OneTimeEventListener;
+import de.ialistannen.javadocapi.querying.FuzzyElementQuery;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
 import net.dv8tion.jda.api.JDA;
@@ -370,6 +375,17 @@ public final class TheCommander implements Bot {
         if (generalConfig.features().reminders().areEnabled()) {
             Reminders.scheduleAllReminders();
             EventListeners.COMMANDS_LISTENER.addListeners(SnoozingListener.INSTANCE);
+        }
+
+        // Docs
+        {
+            try {
+                final var loader = new ConfigBasedElementLoader(runPath.resolve("docs"));
+                final var command = new DocsCommand(new FuzzyElementQuery(), loader, new NormalDocsSender(), getComponentListener("docs-cmd"));
+                commandClient.addSlashCommand(command);
+            } catch (Exception e) {
+                LOGGER.error("Exception trying to load docs command! ", e);
+            }
         }
 
         // Button listeners

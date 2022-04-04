@@ -24,6 +24,7 @@ import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentManager;
 import lombok.NonNull;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.Interaction;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,6 +56,16 @@ public interface BaseItemComponentInteractionContext<T extends Interaction> {
     @Nullable
     default Member getMember() {
         return getEvent().getMember();
+    }
+
+    /**
+     * The {@link User} who caused this interaction.
+     *
+     * @return The {@link User}
+     */
+    @NonNull
+    default User getUser() {
+        return getEvent().getUser();
     }
 
     /**
