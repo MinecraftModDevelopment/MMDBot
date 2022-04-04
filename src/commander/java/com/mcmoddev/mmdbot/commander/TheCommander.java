@@ -72,6 +72,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
@@ -163,11 +164,20 @@ public final class TheCommander implements Bot {
         GatewayIntent.GUILD_EMOJIS,
         GatewayIntent.GUILD_MESSAGE_REACTIONS,
         GatewayIntent.GUILD_MESSAGES,
-        GatewayIntent.GUILD_MEMBERS);
+        GatewayIntent.GUILD_MEMBERS
+    );
 
     private static final Set<Message.MentionType> DEFAULT_MENTIONS = EnumSet.of(
         Message.MentionType.EMOTE,
-        Message.MentionType.CHANNEL);
+        Message.MentionType.CHANNEL
+    );
+
+    private static final Set<Permission> PERMISSIONS = EnumSet.of(
+        Permission.MESSAGE_MANAGE,
+        Permission.MANAGE_WEBHOOKS,
+        Permission.MANAGE_THREADS,
+        Permission.MANAGE_ROLES
+    );
 
     /**
      * The instance.
@@ -343,7 +353,7 @@ public final class TheCommander implements Bot {
         }
 
         final var upserter = new CommandUpserter(commandClient, generalConfig.bot().areCommandsForcedGuildOnly(),
-            generalConfig.bot().guild());
+            generalConfig.bot().guild(), PERMISSIONS);
         EventListeners.COMMANDS_LISTENER.addListeners(upserter);
 
         // Evaluation
