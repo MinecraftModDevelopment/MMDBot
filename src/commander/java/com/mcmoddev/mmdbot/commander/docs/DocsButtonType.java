@@ -1,7 +1,9 @@
 package com.mcmoddev.mmdbot.commander.docs;
 
+import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.context.ButtonInteractionContext;
 
+import java.util.UUID;
 import java.util.function.BiConsumer;
 
 public enum DocsButtonType {
@@ -81,6 +83,29 @@ public enum DocsButtonType {
                 true,
                 () -> hook.editOriginal("Query has no result.").queue())
             );
+    }),
+    MULTIPLE_RESULTS("Multiple Results", (context, command) -> {
+        final var data = MultipleResultsButtonData.fromArguments(context.getArguments());
+        if (notOwner(data.userId(), context)) return;
+        final var buttonIndex = Integer.parseInt(context.getItemComponentArguments().get(1));
+        final var query = data.queries().get(buttonIndex);
+        context.getEvent().deferEdit().queue();
+
+        command.query(
+            query,
+            context.getUser().getIdLong(),
+            context.getComponentId(),
+            m -> context.getEvent().getMessage().editMessage(m)
+                .content(null)
+                .map(msg -> {
+                    final var compData = new DocsButtonData(context.getUser().getIdLong(), query, true, false);
+                    final var component = new Component(command.componentListener.getName(), UUID.randomUUID(), compData.toArguments(), Component.Lifespan.TEMPORARY);
+                    command.componentListener.insertComponent(component);
+                    return msg;
+                }),
+            true,
+            true,
+            () -> context.getEvent().getHook().editOriginal("Query has no result.").queue());
     });
 
     public final String name;

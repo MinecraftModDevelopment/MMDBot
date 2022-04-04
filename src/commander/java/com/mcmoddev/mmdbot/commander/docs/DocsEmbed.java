@@ -2,7 +2,7 @@ package com.mcmoddev.mmdbot.commander.docs;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
-import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.mcmoddev.mmdbot.core.util.StringReader;
 import de.ialistannen.javadocapi.model.JavadocElement;
 import de.ialistannen.javadocapi.model.comment.JavadocComment;
@@ -15,6 +15,7 @@ import de.ialistannen.javadocapi.rendering.MarkdownCommentRenderer;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jdt.internal.compiler.ast.Javadoc;
 
 import java.awt.Color;
 import java.time.Duration;
@@ -26,37 +27,85 @@ import java.util.regex.Pattern;
 
 public class DocsEmbed {
 
+    public static final List<ElementTypeDisplayData> DISPLAY_DATA_LIST = List.of(
+        // abstract class
+        new ElementTypeDisplayData(
+            new Color(255, 99, 71),
+            "https://www.jetbrains.com/help/img/idea/2019.1/Groovy.icons.groovy.abstractClass@2x.png",
+            testType(JavadocType.Type.CLASS, elem -> elem.getModifiers().contains("abstract"))
+        ),
+        // exception
+        new ElementTypeDisplayData(
+            new Color(255, 99, 71),
+            "https://www.jetbrains.com/help/img/idea/2019.1/icons.nodes.exceptionClass.svg@2x.png",
+            testType(JavadocType.Type.CLASS, elem -> elem.getQualifiedName()
+                .asString()
+                .endsWith("Exception"))
+        ),
+        // fallback class
+        new ElementTypeDisplayData(
+            new Color(255, 99, 71),
+            "https://www.jetbrains.com/help/img/idea/2019.1/Groovy.icons.groovy.class@2x.png",
+            testType(JavadocType.Type.CLASS)
+        ),
+        // enums
+        new ElementTypeDisplayData(
+            new Color(102, 51, 153),
+            "https://www.jetbrains.com/help/img/idea/2019.1/icons.nodes.enum.svg@2x.png",
+            testType(JavadocType.Type.ENUM)
+        ),
+        // interfaces
+        new ElementTypeDisplayData(
+            Color.GREEN,
+            "https://www.jetbrains.com/help/img/idea/2019.1/icons.nodes.interface.svg@2x.png",
+            testType(JavadocType.Type.INTERFACE)
+        ),
+        // Fallback, for things like records
+        new ElementTypeDisplayData(
+            new Color(255, 99, 71),
+            "https://www.jetbrains.com/help/img/idea/2019.1/Groovy.icons.groovy.class@2x.png",
+            elem -> elem instanceof JavadocType
+        ),
+        // methods
+        new ElementTypeDisplayData(
+            Color.YELLOW,
+            "https://www.jetbrains.com/help/img/idea/2019.1/icons.nodes.method.svg@2x.png",
+            elem -> elem instanceof JavadocMethod
+        ),
+        // fields
+        new ElementTypeDisplayData(
+            new Color(65, 105, 225),
+            "https://www.jetbrains.com/help/img/idea/2019.1/icons.nodes.field.svg@2x.png",
+            elem -> elem instanceof JavadocField
+        )
+    );
+
     private final EmbedBuilder embedBuilder;
     private final MarkdownCommentRenderer renderer;
     private final JavadocElement element;
     private final String baseUrl;
-    private final JavaDocFormatter declarationFormatter;
+    private final DocFormatter formatter;
 
-    public DocsEmbed(MarkdownCommentRenderer renderer, JavadocElement element, String baseUrl) {
+    public DocsEmbed(MarkdownCommentRenderer renderer, JavadocElement element, String baseUrl, final DocFormatter formatter) {
         this.renderer = renderer;
         this.element = element;
         this.baseUrl = baseUrl;
+        this.formatter = formatter;
 
         this.embedBuilder = new EmbedBuilder();
-        this.declarationFormatter = new JavaDocFormatter(56);
     }
 
     public DocsEmbed addDeclaration() {
-        String declaration = element.getDeclaration(JavadocElement.DeclarationStyle.SHORT);
-
-        try {
-            declaration = declarationFormatter.formatDeclaration(element);
-        } catch (UnsupportedOperationException e) {
-            TheCommander.LOGGER.error("Exception trying to format element declaration: ", e);
-        }
-
         embedBuilder.getDescriptionBuilder()
-            .append("```java\n")
-            .append(declaration)
-            .append("\n```\n");
+            .append("```java")
+            .append(System.lineSeparator())
+            .append(formatter.format(element, JavadocElement.DeclarationStyle.SHORT))
+            .append(System.lineSeparator())
+            .append("```");
         return this;
     }
 
+    @CanIgnoreReturnValue
     public DocsEmbed addShortDescription() {
         element.getComment()
             .ifPresent(comment -> embedBuilder.getDescriptionBuilder()
@@ -69,6 +118,7 @@ public class DocsEmbed {
         return this;
     }
 
+    @CanIgnoreReturnValue
     public DocsEmbed addLongDescription() {
         element.getComment()
             .ifPresent(comment -> embedBuilder.getDescriptionBuilder()
@@ -81,6 +131,7 @@ public class DocsEmbed {
         return this;
     }
 
+    @CanIgnoreReturnValue
     private String renderParagraphs(JavadocComment comment, int maxLength, int maxNewlines) {
         return trimMarkdown(
             renderer.render(comment.getContent(), baseUrl),
@@ -89,6 +140,7 @@ public class DocsEmbed {
         );
     }
 
+    @CanIgnoreReturnValue
     public DocsEmbed addTags() {
         element.getComment().ifPresent(comment -> {
             Map<String, List<JavadocCommentTag>> tags = comment.getTags()
@@ -126,18 +178,21 @@ public class DocsEmbed {
         return this;
     }
 
+    public static final String TAG_PATTERN = "(\\[.+?])\\(.+?\\)";
+
+    @CanIgnoreReturnValue
     private boolean shouldInlineTag(String tagName, String rendered) {
         if (tagName.equals("implNote")) {
             return false;
         }
 
-        return rendered.replaceAll("(\\[.+?])\\(.+?\\)", "$1").length() <= 100;
+        return rendered.replaceAll(TAG_PATTERN, "$1").length() <= 100;
     }
 
     public DocsEmbed addIcon(LinkResolveStrategy linkResolveStrategy) {
-        String iconUrl = displayDatas()
+        final var iconUrl = DISPLAY_DATA_LIST
             .stream()
-            .filter(it -> it.matches(element))
+            .filter(it -> it.test(element))
             .findFirst()
             .map(ElementTypeDisplayData::getIconUrl)
             .orElse("");
@@ -155,9 +210,10 @@ public class DocsEmbed {
         return this;
     }
 
+    @CanIgnoreReturnValue
     public DocsEmbed addColor() {
-        displayDatas().stream()
-            .filter(it -> it.matches(element))
+        DISPLAY_DATA_LIST.stream()
+            .filter(it -> it.test(element))
             .findFirst()
             .map(ElementTypeDisplayData::getColor)
             .ifPresent(embedBuilder::setColor);
@@ -165,6 +221,7 @@ public class DocsEmbed {
         return this;
     }
 
+    @CanIgnoreReturnValue
     public DocsEmbed addFooter(String source, Duration queryDuration) {
         embedBuilder.setFooter(
             "Query resolved from index '" + source + "' in " + queryDuration.toMillis() + "ms"
@@ -173,10 +230,12 @@ public class DocsEmbed {
         return this;
     }
 
+    @CanIgnoreReturnValue
     public MessageEmbed build() {
         return embedBuilder.build();
     }
 
+    @CanIgnoreReturnValue
     private String limitSize(String input, int max) {
         if (input.length() <= max) {
             return input;
@@ -184,66 +243,8 @@ public class DocsEmbed {
         return input.substring(0, max - 3) + "...";
     }
 
-    private List<ElementTypeDisplayData> displayDatas() {
-        return List.of(
-            new ElementTypeDisplayData(
-                new Color(255, 99, 71), // tomato
-                "https://www.jetbrains.com/help/img/idea/2019.1/Groovy.icons.groovy.abstractClass@2x.png",
-                isType(it -> it.getType() == JavadocType.Type.CLASS && it.getModifiers().contains("abstract"))
-            ),
-            new ElementTypeDisplayData(
-                new Color(255, 99, 71), // tomato
-                "https://www.jetbrains.com/help/img/idea/2019.1/icons.nodes.exceptionClass.svg@2x.png",
-                isType(it -> it.getType() == JavadocType.Type.CLASS && it.getQualifiedName()
-                    .asString()
-                    .endsWith("Exception"))
-            ),
-            new ElementTypeDisplayData(
-                new Color(255, 99, 71), // tomato
-                "https://www.jetbrains.com/help/img/idea/2019.1/Groovy.icons.groovy.class@2x.png",
-                isType(it -> it.getType() == JavadocType.Type.CLASS)
-            ),
-            new ElementTypeDisplayData(
-                new Color(102, 51, 153), // rebecca purple
-                "https://www.jetbrains.com/help/img/idea/2019.1/icons.nodes.enum.svg@2x.png",
-                isType(it -> it.getType() == JavadocType.Type.ENUM)
-            ),
-            new ElementTypeDisplayData(
-                Color.GREEN,
-                "https://www.jetbrains.com/help/img/idea/2019.1/icons.nodes.interface.svg@2x.png",
-                isType(it -> it.getType() == JavadocType.Type.INTERFACE)
-            ),
-            // Fallback
-            new ElementTypeDisplayData(
-                new Color(255, 99, 71), // tomato
-                "https://www.jetbrains.com/help/img/idea/2019.1/Groovy.icons.groovy.class@2x.png",
-                isType(it -> true)
-            ),
-            new ElementTypeDisplayData(
-                Color.YELLOW,
-                "https://www.jetbrains.com/help/img/idea/2019.1/icons.nodes.method.svg@2x.png",
-                isMethod(it -> true)
-            ),
-            new ElementTypeDisplayData(
-                new Color(65, 105, 225), // royal blue,
-                "https://www.jetbrains.com/help/img/idea/2019.1/icons.nodes.field.svg@2x.png",
-                isField(it -> true)
-            )
-        );
-    }
-
-    private static class ElementTypeDisplayData {
-
-        private final Color color;
-        private final String iconUrl;
-        private final Predicate<JavadocElement> predicate;
-
-        private ElementTypeDisplayData(Color color, String iconUrl,
-                                       Predicate<JavadocElement> predicate) {
-            this.color = color;
-            this.iconUrl = iconUrl;
-            this.predicate = predicate;
-        }
+    private record ElementTypeDisplayData(Color color, String iconUrl,
+                                          Predicate<JavadocElement> predicate) implements Predicate<JavadocElement> {
 
         public Color getColor() {
             return color;
@@ -253,21 +254,18 @@ public class DocsEmbed {
             return iconUrl;
         }
 
-        public boolean matches(JavadocElement element) {
+        @Override
+        public boolean test(JavadocElement element) {
             return predicate.test(element);
         }
     }
 
-    private static Predicate<JavadocElement> isType(Predicate<JavadocType> inner) {
-        return element -> element instanceof JavadocType && inner.test((JavadocType) element);
+    private static Predicate<JavadocElement> testType(final JavadocType.Type type) {
+        return element -> element instanceof JavadocType jType && jType.getType() == type;
     }
 
-    private static Predicate<JavadocElement> isMethod(Predicate<JavadocMethod> inner) {
-        return element -> element instanceof JavadocMethod && inner.test((JavadocMethod) element);
-    }
-
-    private static Predicate<JavadocElement> isField(Predicate<JavadocField> inner) {
-        return element -> element instanceof JavadocField && inner.test((JavadocField) element);
+    private static Predicate<JavadocElement> testType(final JavadocType.Type type, Predicate<JavadocType> and) {
+        return element -> element instanceof JavadocType jType && jType.getType() == type && and.test(jType);
     }
 
     /**
@@ -331,4 +329,8 @@ public class DocsEmbed {
         return result.toString();
     }
 
+    @FunctionalInterface
+    public interface DocFormatter {
+        String format(JavadocElement element, JavadocElement.DeclarationStyle style);
+    }
 }

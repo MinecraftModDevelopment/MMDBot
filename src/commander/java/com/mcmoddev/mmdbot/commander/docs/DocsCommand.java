@@ -5,6 +5,7 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.commands.component.context.ButtonInteractionContext;
+import com.mcmoddev.mmdbot.core.commands.component.context.SelectMenuInteractionContext;
 import de.ialistannen.javadocapi.model.QualifiedName;
 import de.ialistannen.javadocapi.querying.FuzzyQueryResult;
 import de.ialistannen.javadocapi.querying.QueryApi;
@@ -22,8 +23,10 @@ import net.dv8tion.jda.api.requests.RestAction;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -42,6 +45,7 @@ public class DocsCommand extends SlashCommand {
         this.docsSender = docsSender;
         this.componentListener = componentListener
             .onButtonInteraction(this::onButtonInteraction)
+            .onSelectMenuInteraction(this::onSelectMenuInteraction)
             .build();
 
         name = "docs";
@@ -69,6 +73,34 @@ public class DocsCommand extends SlashCommand {
         );
     }
 
+    protected void onSelectMenuInteraction(final SelectMenuInteractionContext context) {
+        final var event = context.getEvent();
+        final var data = MultipleResultsButtonData.fromArguments(context.getArguments());
+        if (event.getUser().getIdLong() != data.userId()) {
+            event.deferEdit().queue();
+            return;
+        }
+        final var cmdIndex = Integer.parseInt(event.getSelectedOptions().get(0).getValue());
+        final var query = data.queries().get(cmdIndex);
+        context.getEvent().deferEdit().queue();
+
+        query(
+            query,
+            context.getUser().getIdLong(),
+            context.getComponentId(),
+            m -> context.getEvent().getMessage().editMessage(m)
+                .content(null)
+                .map(msg -> {
+                    final var compData = new DocsButtonData(context.getUser().getIdLong(), query, true, false);
+                    final var component = new Component(componentListener.getName(), UUID.randomUUID(), compData.toArguments(), Component.Lifespan.TEMPORARY);
+                    componentListener.insertComponent(component);
+                    return msg;
+                }),
+            true,
+            true,
+            () -> context.getEvent().getHook().editOriginal("Query has no result.").queue());
+    }
+
     protected void onButtonInteraction(final ButtonInteractionContext context) {
         DocsButtonType.valueOf(context.getItemComponentArguments().get(0)).handleClick(context, this);
     }
@@ -93,11 +125,17 @@ public class DocsCommand extends SlashCommand {
 
         final var buttonId = UUID.randomUUID();
         event.deferReply().queue(hook -> query(
-            query, event.getUser().getIdLong(), buttonId, m -> hook.editOriginal(m)
+            query, event.getUser().getIdLong(), buttonId, (m, multipleResult) -> hook.editOriginal(m)
                 .map(msg -> {
-                    final var data = new DocsButtonData(event.getUser().getIdLong(), query, shortDescription, omitTags);
-                    final var component = new Component(componentListener.getName(), buttonId, data.toArguments(), Component.Lifespan.TEMPORARY);
-                    componentListener.insertComponent(component);
+                    if (multipleResult != null && multipleResult.size() > 1) {
+                        final var data = new MultipleResultsButtonData(event.getUser().getIdLong(), multipleResult);
+                        final var component = new Component(componentListener.getName(), buttonId, data.toArguments(), Component.Lifespan.TEMPORARY);
+                        componentListener.insertComponent(component);
+                    } else {
+                        final var data = new DocsButtonData(event.getUser().getIdLong(), query, shortDescription, omitTags);
+                        final var component = new Component(componentListener.getName(), buttonId, data.toArguments(), Component.Lifespan.TEMPORARY);
+                        componentListener.insertComponent(component);
+                    }
                     return msg;
                 }),
             shortDescription, omitTags,
@@ -106,6 +144,10 @@ public class DocsCommand extends SlashCommand {
     }
 
     void query(String query, long userId, UUID buttonId, Function<Message, RestAction<Message>> replier, boolean shortDescription, boolean omitTags, Runnable whenNoResult) {
+        query(query, userId, buttonId, (message, fuzzyQueryResults) -> replier.apply(message), shortDescription, omitTags, whenNoResult);
+    }
+
+    void query(String query, long userId, UUID buttonId, BiFunction<Message, Collection<FuzzyQueryResult>, RestAction<Message>> replier, boolean shortDescription, boolean omitTags, Runnable whenNoResult) {
         final var start = Instant.now();
 
         List<FuzzyQueryResult> results = queryApi.query(loader, query.strip())
@@ -116,6 +158,7 @@ public class DocsCommand extends SlashCommand {
         final var duration = Duration.between(start, Instant.now());
 
         if (results.size() == 1) {
+            replyResult(userId, buttonId, replier, results.get(0), shortDescription, omitTags, duration);
             return;
         }
 
@@ -142,16 +185,17 @@ public class DocsCommand extends SlashCommand {
             whenNoResult.run();
             return;
         }
-        // TODO multiple results?
+
+        docsSender.replyMultipleResults(message -> replier.apply(message, results), shortDescription, omitTags, results, userId, buttonId);
     }
 
-    void replyResult(long userId, UUID buttonId, Function<Message, RestAction<Message>> replier, FuzzyQueryResult result, boolean shortDescription, boolean omitTags, Duration queryDuration) {
+    void replyResult(long userId, UUID buttonId, BiFunction<Message, Collection<FuzzyQueryResult>, RestAction<Message>> replier, FuzzyQueryResult result, boolean shortDescription, boolean omitTags, Duration queryDuration) {
         final var elements = loader.findByQualifiedName(result.getQualifiedName());
 
         if (elements.size() == 1) {
             final var loadResult = elements.iterator().next();
             docsSender.replyWithResult(
-                replier,
+                msg -> replier.apply(msg, List.of()),
                 loadResult,
                 shortDescription,
                 omitTags,
@@ -161,7 +205,7 @@ public class DocsCommand extends SlashCommand {
                 buttonId
             );
         } else {
-            replier.apply(new MessageBuilder("Multiple results have been found for this qualified name.").build()).queue();
+            replier.apply(new MessageBuilder("Multiple results have been found for this qualified name.").build(), List.of()).queue();
         }
     }
 

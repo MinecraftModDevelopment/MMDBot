@@ -53,6 +53,22 @@ public record Component(String featureId, UUID uuid, List<String> arguments, Lif
     }
 
     /**
+     * Creates a button ID with the specified {@code id} as the component ID, and
+     * the other arguments being split from the component ID using the {@link #ID_SPLITTER}.
+     *
+     * @param id        the component id
+     * @param arguments other arguments
+     * @return a composed ID, with the arguments being split from the component ID using the {@link #ID_SPLITTER}
+     */
+    public static String createIdWithArguments(final UUID id, final Object... arguments) {
+        StringBuilder actualId = new StringBuilder(id.toString());
+        for (final var arg : arguments) {
+            actualId.append(ID_SPLITTER).append(arg);
+        }
+        return actualId.toString();
+    }
+
+    /**
      * Creates a component with a {@link Lifespan#TEMPORARY temporary lifespan}.
      *
      * @param featureId the ID of the feature that owns the component
