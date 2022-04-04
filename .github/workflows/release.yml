@@ -31,10 +31,11 @@ jobs:
       - name: Assemble jar with Gradle
         env:
           BUILD_NUMBER: ${{ github.run_number }}
-        run: ./gradlew assemble -Pbot_version=${{ github.ref }} 
+        run: ./gradlew assemble -Pbot_version="${{ github.ref }}"
       - name: Release
         id: publish_release_assets
-        run: ./gradlew build -Pbot_version=${{ github.ref }}
+        run: ./gradlew build -Pbot_version="${{ github.ref }}"
+
         env:
           BUILD_NUMBER: ${{ github.run_number }}
       - name: Upload release assets
@@ -43,4 +44,4 @@ jobs:
         with:
           release-tag: ${{ env.TAG }}
           repo-token: ${{ github.token }}
-          files: 'build/libs/*'
+          files: 'build/libs/*[-all].jar'
