@@ -69,17 +69,23 @@ public final class DismissListener extends ListenerAdapter {
             // dismiss-userId-commandMessageId
             case 3 -> deleteIf(idParts[1], event)
                 .and(event.getChannel().retrieveMessageById(idParts[2])
-                    .flatMap(m -> m.delete().reason("User dismissed the command")))
+                    .flatMap(m -> m.delete().reason("User dismissed the command"))
+                    .addCheck(() -> canDelete(idParts[1], event))
+                )
                 .queue($ -> {}, e -> {});
         }
     }
 
     private static RestAction<?> deleteIf(final String targetId, final ButtonInteractionEvent event) {
-        if (targetId.equals(event.getUser().getId()) && !event.getMessage().isEphemeral()) {
+        if (canDelete(targetId, event)) {
             return event.getMessage().delete().reason("User dismissed the message");
         } else {
             return event.deferEdit();
         }
+    }
+
+    private static boolean canDelete(final String targetId, final ButtonInteractionEvent event) {
+        return targetId.equals(event.getUser().getId()) && !event.getMessage().isEphemeral();
     }
 
     public static final Supplier<Button> NO_OWNER_FACTORY = LazySupplier.of(() -> Button.of(BUTTON_STYLE, "dismiss", LABEL));
