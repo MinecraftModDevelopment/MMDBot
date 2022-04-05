@@ -39,7 +39,6 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
-// TODO memorize the last version
 public class JarUpdater implements Runnable {
     public static final Logger LOGGER = LoggerFactory.getLogger("JarUpdater");
 
@@ -59,7 +58,7 @@ public class JarUpdater implements Runnable {
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (process != null) {
-                process.process().destroyForcibly();
+                process.process().destroy();
             }
         }));
     }

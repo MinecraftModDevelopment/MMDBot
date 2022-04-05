@@ -115,6 +115,16 @@ public class Config {
         @Setting("roles")
         @Comment("A list of roles which have access to the integration commands.")
         public List<String> roles = List.of();
+
+        @Required
+        @Setting("file_pattern")
+        @Comment("""
+        Regex patterns used to test a file name against in order to see if a file can be accessed through the Discord command.
+        An empty list will result in a pattern that will never match a name.
+        A '!' in front of a pattern will invert it.
+        '*' will make the pattern match any file.
+        Patterns are tested in the order they've been defined in: if one of them tests as true, the remaining will not be tested anymore""")
+        public List<String> filePatterns = List.of();
     }
 
     public static Config load(final Path path) throws ConfigurateException {

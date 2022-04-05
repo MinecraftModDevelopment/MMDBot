@@ -23,6 +23,7 @@ package com.mcmoddev.updatinglauncher.discord;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.updatinglauncher.Config;
 import com.mcmoddev.updatinglauncher.JarUpdater;
+import com.mcmoddev.updatinglauncher.discord.commands.file.FileCommand;
 import com.mcmoddev.updatinglauncher.discord.commands.ShutdownCommand;
 import com.mcmoddev.updatinglauncher.discord.commands.StartCommand;
 import com.mcmoddev.updatinglauncher.discord.commands.StatusCommand;
@@ -30,11 +31,11 @@ import com.mcmoddev.updatinglauncher.discord.commands.UpdateCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
+import java.nio.file.Path;
 
 public class DiscordIntegration {
     private final Logger logger = LoggerFactory.getLogger("ULDiscordIntegration");
@@ -42,7 +43,7 @@ public class DiscordIntegration {
     private final JarUpdater updater;
     private final JDA jda;
 
-    public DiscordIntegration(final Config.Discord config, final JarUpdater updater) {
+    public DiscordIntegration(final Path basePath, final Config.Discord config, final JarUpdater updater) {
         this.config = config;
         this.updater = updater;
 
@@ -55,7 +56,8 @@ public class DiscordIntegration {
                 new UpdateCommand(() -> updater, config),
                 new ShutdownCommand(() -> updater, config),
                 new StartCommand(() -> updater, config),
-                new StatusCommand(() -> updater, config)
+                new StatusCommand(() -> updater, config),
+                new FileCommand(basePath, config)
             )
             .build();
 

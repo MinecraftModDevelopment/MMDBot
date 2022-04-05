@@ -37,8 +37,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class Main {
-    private static final Logger LOG = LoggerFactory.getLogger("UpdatingLauncher");
-    private static final Path CONFIG_PATH = Path.of("updating_launcher.conf");
+    public static final Logger LOG = LoggerFactory.getLogger("UpdatingLauncher");
+    public static final Path CONFIG_PATH = Path.of("updating_launcher.conf");
 
     private static final ThreadGroup THREAD_GROUP = new ThreadGroup("UpdatingLauncher");
     private static final ExecutorService HTTP_CLIENT_EXECUTOR = Executors.newSingleThreadExecutor(r -> {
@@ -74,7 +74,7 @@ public class Main {
         }
 
         if (config.discord.enabled) {
-            discordIntegration = new DiscordIntegration(config.discord, updater);
+            discordIntegration = new DiscordIntegration(Paths.get(""), config.discord, updater);
             LOG.warn("Discord integration is active!");
         }
     }
