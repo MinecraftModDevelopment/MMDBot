@@ -63,33 +63,6 @@ public class StringReader {
     }
 
     /**
-     * Reads while the given {@code predicate} matches.
-     * @param predicate the predicate to test
-     * @return the read string
-     */
-    public String peekWhile(Predicate<Character> predicate) {
-        int start = getPosition();
-        String result = readWhile(predicate);
-        reset(start);
-
-        return result;
-    }
-
-    public String assertRead(String string) {
-        if (!readChars(string.length()).equals(string)) {
-            throw new UnsupportedOperationException("Expected '" + string + "'");
-        }
-        return string;
-    }
-
-    public char assertRead(char character) {
-        if (readChar() != character) {
-            throw new UnsupportedOperationException("Expected '" + character + "'");
-        }
-        return character;
-    }
-
-    /**
      * Returns the next {@code amount} chars or less, if the input ends before it
      *
      * @param amount the amount of chars to peek at
@@ -166,7 +139,7 @@ public class StringReader {
     /**
      * Reads the remaining string.
      *
-     * @return the reamining string
+     * @return the remaining string
      */
     public String readRemaining() {
         return readWhile(it -> true);
@@ -181,23 +154,6 @@ public class StringReader {
         return underlying;
     }
 
-    /**
-     * Returns the current position of this reader.
-     *
-     * @return the current position of this reader
-     */
-    public int getPosition() {
-        return position;
-    }
-
-    /**
-     * Sets the position of the reader.
-     *
-     * @param position the new position
-     */
-    public void reset(int position) {
-        this.position = position;
-    }
 
     /**
      * Returns a copy of this reader which is at the same position.
@@ -206,9 +162,5 @@ public class StringReader {
      */
     public StringReader copy() {
         return new StringReader(underlying, position);
-    }
-
-    public int remaining() {
-        return underlying.length() - position - 1;
     }
 }

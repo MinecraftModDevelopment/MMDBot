@@ -6,9 +6,12 @@ import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.commands.component.context.ButtonInteractionContext;
 import com.mcmoddev.mmdbot.core.commands.component.context.SelectMenuInteractionContext;
+import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import de.ialistannen.javadocapi.model.QualifiedName;
 import de.ialistannen.javadocapi.querying.FuzzyQueryResult;
 import de.ialistannen.javadocapi.querying.QueryApi;
+import de.ialistannen.javadocapi.rendering.Java11PlusLinkResolver;
+import de.ialistannen.javadocapi.rendering.LinkResolveStrategy;
 import de.ialistannen.javadocapi.storage.ElementLoader;
 import de.ialistannen.javadocapi.util.BaseUrlElementLoader;
 import de.ialistannen.javadocapi.util.NameShortener;
@@ -19,6 +22,7 @@ import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import java.time.Duration;
@@ -76,20 +80,16 @@ public class DocsCommand extends SlashCommand {
     protected void onSelectMenuInteraction(final SelectMenuInteractionContext context) {
         final var event = context.getEvent();
         final var data = MultipleResultsButtonData.fromArguments(context.getArguments());
-        if (event.getUser().getIdLong() != data.userId()) {
-            event.deferEdit().queue();
-            return;
-        }
+        context.getEvent().deferEdit().queue();
+        if (event.getUser().getIdLong() != data.userId()) return;
         final var cmdIndex = Integer.parseInt(event.getSelectedOptions().get(0).getValue());
         final var query = data.queries().get(cmdIndex);
-        context.getEvent().deferEdit().queue();
 
         query(
             query,
             context.getUser().getIdLong(),
             context.getComponentId(),
-            m -> context.getEvent().getMessage().editMessage(m)
-                .content(null)
+            m -> context.getEvent().getMessage().editMessage(new MessageBuilder(m).setContent(null).build())
                 .map(msg -> {
                     final var compData = new DocsButtonData(context.getUser().getIdLong(), query, true, false);
                     final var component = new Component(componentListener.getName(), UUID.randomUUID(), compData.toArguments(), Component.Lifespan.TEMPORARY);
@@ -98,7 +98,10 @@ public class DocsCommand extends SlashCommand {
                 }),
             true,
             true,
-            () -> context.getEvent().getHook().editOriginal("Query has no result.").queue());
+            () -> context.getEvent().getHook()
+                .editOriginal("Query has no result.")
+                .setActionRow(DismissListener.createDismissButton())
+                .queue());
     }
 
     protected void onButtonInteraction(final ButtonInteractionContext context) {
@@ -116,7 +119,9 @@ public class DocsCommand extends SlashCommand {
 
         final var query = event.getOption("query", "", OptionMapping::getAsString);
         if (query.length() <= 2) {
-            event.deferReply(true).setContent("Expected at least 2 characters for the query!");
+            event.deferReply(true)
+                .setContent("Expected at least 2 characters for the query!")
+                .queue();
             return;
         }
 
@@ -139,7 +144,9 @@ public class DocsCommand extends SlashCommand {
                     return msg;
                 }),
             shortDescription, omitTags,
-            () -> hook.editOriginal("Could not find any result for query: '" + query + "'").queue()
+            () -> hook.editOriginal("Could not find any result for query: '" + query + "'")
+                .setActionRow(DismissListener.createDismissButton())
+                .queue()
         ));
     }
 
@@ -163,7 +170,7 @@ public class DocsCommand extends SlashCommand {
         }
 
         if (results.stream().filter(FuzzyQueryResult::isExact).count() == 1) {
-            FuzzyQueryResult result = results.stream()
+            final var result = results.stream()
                 .filter(FuzzyQueryResult::isExact)
                 .findFirst()
                 .orElseThrow();
@@ -172,7 +179,7 @@ public class DocsCommand extends SlashCommand {
             return;
         }
         if (results.stream().filter(FuzzyQueryResult::isCaseSensitiveExact).count() == 1) {
-            FuzzyQueryResult result = results.stream()
+            final var result = results.stream()
                 .filter(FuzzyQueryResult::isCaseSensitiveExact)
                 .findFirst()
                 .orElseThrow();
@@ -189,6 +196,8 @@ public class DocsCommand extends SlashCommand {
         docsSender.replyMultipleResults(message -> replier.apply(message, results), shortDescription, omitTags, results, userId, buttonId);
     }
 
+    private static final LinkResolveStrategy LINK_RESOLVE_STRATEGY = new Java11PlusLinkResolver();
+
     void replyResult(long userId, UUID buttonId, BiFunction<Message, Collection<FuzzyQueryResult>, RestAction<Message>> replier, FuzzyQueryResult result, boolean shortDescription, boolean omitTags, Duration queryDuration) {
         final var elements = loader.findByQualifiedName(result.getQualifiedName());
 
@@ -200,12 +209,14 @@ public class DocsCommand extends SlashCommand {
                 shortDescription,
                 omitTags,
                 queryDuration,
-                ((BaseUrlElementLoader) loadResult.getLoader()).getLinkResolveStrategy(),
+                loadResult.getLoader() instanceof BaseUrlElementLoader bUrl ? bUrl.getLinkResolveStrategy() : LINK_RESOLVE_STRATEGY,
                 userId,
                 buttonId
             );
         } else {
-            replier.apply(new MessageBuilder("Multiple results have been found for this qualified name.").build(), List.of()).queue();
+            replier.apply(new MessageBuilder("Multiple results have been found for this qualified name.")
+                    .setActionRows(ActionRow.of(DismissListener.createDismissButton(userId)))
+                    .build(), List.of()).queue();
         }
     }
 

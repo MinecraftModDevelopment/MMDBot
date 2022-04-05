@@ -4,9 +4,9 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.mcmoddev.mmdbot.core.util.StringReader;
+import com.mcmoddev.mmdbot.core.util.StringUtilities;
 import de.ialistannen.javadocapi.model.JavadocElement;
 import de.ialistannen.javadocapi.model.comment.JavadocComment;
-import de.ialistannen.javadocapi.model.comment.JavadocCommentTag;
 import de.ialistannen.javadocapi.model.types.JavadocField;
 import de.ialistannen.javadocapi.model.types.JavadocMethod;
 import de.ialistannen.javadocapi.model.types.JavadocType;
@@ -15,30 +15,28 @@ import de.ialistannen.javadocapi.rendering.MarkdownCommentRenderer;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jdt.internal.compiler.ast.Javadoc;
 
 import java.awt.Color;
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 import java.util.StringJoiner;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-public class DocsEmbed {
+public class DocsEmbed extends EmbedBuilder {
 
     public static final List<ElementTypeDisplayData> DISPLAY_DATA_LIST = List.of(
         // abstract class
         new ElementTypeDisplayData(
             new Color(255, 99, 71),
             "https://www.jetbrains.com/help/img/idea/2019.1/Groovy.icons.groovy.abstractClass@2x.png",
-            testType(JavadocType.Type.CLASS, elem -> elem.getModifiers().contains("abstract"))
+            testClass(elem -> elem.getModifiers().contains("abstract"))
         ),
         // exception
         new ElementTypeDisplayData(
             new Color(255, 99, 71),
             "https://www.jetbrains.com/help/img/idea/2019.1/icons.nodes.exceptionClass.svg@2x.png",
-            testType(JavadocType.Type.CLASS, elem -> elem.getQualifiedName()
+            testClass(elem -> elem.getQualifiedName()
                 .asString()
                 .endsWith("Exception"))
         ),
@@ -80,7 +78,6 @@ public class DocsEmbed {
         )
     );
 
-    private final EmbedBuilder embedBuilder;
     private final MarkdownCommentRenderer renderer;
     private final JavadocElement element;
     private final String baseUrl;
@@ -91,12 +88,10 @@ public class DocsEmbed {
         this.element = element;
         this.baseUrl = baseUrl;
         this.formatter = formatter;
-
-        this.embedBuilder = new EmbedBuilder();
     }
 
     public DocsEmbed addDeclaration() {
-        embedBuilder.getDescriptionBuilder()
+        getDescriptionBuilder()
             .append("```java")
             .append(System.lineSeparator())
             .append(formatter.format(element, JavadocElement.DeclarationStyle.SHORT))
@@ -108,10 +103,10 @@ public class DocsEmbed {
     @CanIgnoreReturnValue
     public DocsEmbed addShortDescription() {
         element.getComment()
-            .ifPresent(comment -> embedBuilder.getDescriptionBuilder()
+            .ifPresent(comment -> getDescriptionBuilder()
                 .append(limitSize(
                     renderParagraphs(comment, 800, 8),
-                    MessageEmbed.DESCRIPTION_MAX_LENGTH - embedBuilder.getDescriptionBuilder().length()
+                    MessageEmbed.DESCRIPTION_MAX_LENGTH - getDescriptionBuilder().length()
                 ))
             );
 
@@ -121,10 +116,10 @@ public class DocsEmbed {
     @CanIgnoreReturnValue
     public DocsEmbed addLongDescription() {
         element.getComment()
-            .ifPresent(comment -> embedBuilder.getDescriptionBuilder()
+            .ifPresent(comment -> getDescriptionBuilder()
                 .append(limitSize(
                     renderParagraphs(comment, Integer.MAX_VALUE, Integer.MAX_VALUE),
-                    MessageEmbed.DESCRIPTION_MAX_LENGTH - embedBuilder.getDescriptionBuilder().length()
+                    MessageEmbed.DESCRIPTION_MAX_LENGTH - getDescriptionBuilder().length()
                 ))
             );
 
@@ -142,23 +137,23 @@ public class DocsEmbed {
 
     @CanIgnoreReturnValue
     public DocsEmbed addTags() {
-        element.getComment().ifPresent(comment -> {
-            Map<String, List<JavadocCommentTag>> tags = comment.getTags()
-                .stream()
-                .collect(groupingBy(
-                    tag -> tag.getTagName() + tag.getArgument().map(it -> " " + it).orElse(""),
-                    toList()
-                ));
-
-            for (var entry : tags.entrySet()) {
-                String title = entry.getKey();
-
-                StringJoiner bodyJoiner = new StringJoiner(", ");
-                for (int i = 0; i < entry.getValue().size(); i++) {
-                    JavadocCommentTag tag = entry.getValue().get(i);
-                    String rendered = renderer.render(tag.getContent(), baseUrl);
+        if (element.getComment().isEmpty()) return this;
+        element.getComment().get().getTags()
+            .stream()
+            .collect(groupingBy(
+                tag -> tag.getTagName() + tag.getArgument().map(it -> " " + it).orElse(""),
+                toList()
+            ))
+            .forEach((title, tags) -> {
+                final var bodyJoiner = new StringJoiner(", ");
+                if (title.equals("author") && tags.size() > 1) {
+                    title = "authors";
+                }
+                for (int i = 0; i < tags.size(); i++) {
+                    final var tag = tags.get(i);
+                    final var rendered = renderer.render(tag.getContent(), baseUrl);
                     if (bodyJoiner.length() + rendered.length() > MessageEmbed.VALUE_MAX_LENGTH) {
-                        if (i < entry.getValue().size() - 1) {
+                        if (i < tags.size() - 1) {
                             bodyJoiner.add("... and more");
                         }
                         break;
@@ -166,21 +161,19 @@ public class DocsEmbed {
                     bodyJoiner.add(rendered);
                 }
 
-                String body = limitSize(bodyJoiner.toString(), MessageEmbed.VALUE_MAX_LENGTH);
-                embedBuilder.addField(
-                    title,
+                final var body = limitSize(bodyJoiner.toString(), MessageEmbed.VALUE_MAX_LENGTH);
+                addField(
+                    StringUtilities.uppercaseFirstLetter(title),
                     body,
-                    shouldInlineTag(entry.getValue().get(0).getTagName(), body)
+                    shouldInlineTag(tags.get(0).getTagName(), body)
                 );
-            }
-        });
+            });
 
         return this;
     }
 
     public static final String TAG_PATTERN = "(\\[.+?])\\(.+?\\)";
 
-    @CanIgnoreReturnValue
     private boolean shouldInlineTag(String tagName, String rendered) {
         if (tagName.equals("implNote")) {
             return false;
@@ -189,15 +182,16 @@ public class DocsEmbed {
         return rendered.replaceAll(TAG_PATTERN, "$1").length() <= 100;
     }
 
+    @CanIgnoreReturnValue
     public DocsEmbed addIcon(LinkResolveStrategy linkResolveStrategy) {
         final var iconUrl = DISPLAY_DATA_LIST
             .stream()
             .filter(it -> it.test(element))
             .findFirst()
-            .map(ElementTypeDisplayData::getIconUrl)
-            .orElse("");
+            .map(ElementTypeDisplayData::iconUrl)
+            .orElse(null);
 
-        embedBuilder.setAuthor(
+        setAuthor(
             StringUtils.abbreviateMiddle(
                 element.getQualifiedName().asStringWithModule(),
                 "...",
@@ -215,24 +209,16 @@ public class DocsEmbed {
         DISPLAY_DATA_LIST.stream()
             .filter(it -> it.test(element))
             .findFirst()
-            .map(ElementTypeDisplayData::getColor)
-            .ifPresent(embedBuilder::setColor);
+            .map(ElementTypeDisplayData::colour)
+            .ifPresent(this::setColor);
 
         return this;
     }
 
     @CanIgnoreReturnValue
     public DocsEmbed addFooter(String source, Duration queryDuration) {
-        embedBuilder.setFooter(
-            "Query resolved from index '" + source + "' in " + queryDuration.toMillis() + "ms"
-        );
-
+        setFooter("Query resolved from source '%s' in %sms".formatted(source, queryDuration.toMillis()));
         return this;
-    }
-
-    @CanIgnoreReturnValue
-    public MessageEmbed build() {
-        return embedBuilder.build();
     }
 
     @CanIgnoreReturnValue
@@ -243,17 +229,8 @@ public class DocsEmbed {
         return input.substring(0, max - 3) + "...";
     }
 
-    private record ElementTypeDisplayData(Color color, String iconUrl,
+    private record ElementTypeDisplayData(Color colour, String iconUrl,
                                           Predicate<JavadocElement> predicate) implements Predicate<JavadocElement> {
-
-        public Color getColor() {
-            return color;
-        }
-
-        public String getIconUrl() {
-            return iconUrl;
-        }
-
         @Override
         public boolean test(JavadocElement element) {
             return predicate.test(element);
@@ -264,9 +241,11 @@ public class DocsEmbed {
         return element -> element instanceof JavadocType jType && jType.getType() == type;
     }
 
-    private static Predicate<JavadocElement> testType(final JavadocType.Type type, Predicate<JavadocType> and) {
-        return element -> element instanceof JavadocType jType && jType.getType() == type && and.test(jType);
+    private static Predicate<JavadocElement> testClass(Predicate<JavadocType> and) {
+        return element -> element instanceof JavadocType jType && jType.getType() == JavadocType.Type.CLASS && and.test(jType);
     }
+
+    private static final Pattern CLOSING_BRACKET = Pattern.compile(".+?]\\(.+?\\)");
 
     /**
      * Trims the input markdown to approximately a given length. Might be longer as it tries to finish
@@ -278,28 +257,28 @@ public class DocsEmbed {
      * @return the trimmed markdown
      */
     public static String trimMarkdown(String input, int maxLength, int maxNewlines) {
-        StringBuilder result = new StringBuilder();
+        var builder = new StringBuilder();
 
-        StringReader inputReader = new StringReader(input);
-        int encounteredNewlines = 0;
-        boolean inCodeBlock = false;
+        final var reader = new StringReader(input);
+        var encounteredNewlines = 0;
+        var inCodeBlock = false;
 
-        while (inputReader.canRead()) {
-            if (!inCodeBlock && (encounteredNewlines >= maxNewlines || result.length() >= maxLength)) {
+        while (reader.canRead()) {
+            if (!inCodeBlock && (encounteredNewlines >= maxNewlines || builder.length() >= maxLength)) {
                 break;
             }
 
-            char next = inputReader.readChar();
-            result.append(next);
+            char next = reader.readChar();
+            builder.append(next);
 
-            if (next == '`' && inputReader.canRead(2) && inputReader.peek(2).equals("``")) {
+            if (next == '`' && reader.canRead(2) && reader.peek(2).equals("``")) {
                 inCodeBlock = !inCodeBlock;
-                result.append(inputReader.readChars(2));
+                builder.append(reader.readChars(2));
                 continue;
             }
 
             if (next == '[') {
-                result.append(inputReader.readRegex(Pattern.compile(".+?]\\(.+?\\)")));
+                builder.append(reader.readRegex(CLOSING_BRACKET));
             }
 
             if (next == '\n') {
@@ -307,26 +286,26 @@ public class DocsEmbed {
             }
         }
 
-        String text = result.toString();
-        result = new StringBuilder(text.strip());
+        var text = builder.toString();
+        builder = new StringBuilder(text.strip());
 
-        if (inputReader.canRead()) {
-            int skippedLines = (int) inputReader.readRemaining().chars().filter(c -> c == '\n').count();
-            result.append("\n\n*Skipped ");
+        if (reader.canRead()) {
+            int skippedLines = (int) reader.readRemaining().chars().filter(c -> c == '\n').count();
+            builder.append("\n\n*Skipped ");
             if (skippedLines > 0) {
-                result.append("**");
-                result.append(skippedLines);
-                result.append("** line");
+                builder.append("**");
+                builder.append(skippedLines);
+                builder.append("** line");
                 if (skippedLines > 1) {
-                    result.append("s");
+                    builder.append("s");
                 }
             } else {
-                result.append("**the rest of the line**");
+                builder.append("**the rest of the line**");
             }
-            result.append(". Click `Expand` if you are intrigued.*");
+            builder.append(". Click `Expand` to show more.*");
         }
 
-        return result.toString();
+        return builder.toString();
     }
 
     @FunctionalInterface

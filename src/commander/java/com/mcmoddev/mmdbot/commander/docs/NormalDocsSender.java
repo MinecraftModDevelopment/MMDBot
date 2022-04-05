@@ -49,9 +49,10 @@ public class NormalDocsSender implements DocsSender {
         final var embed = new DocsEmbed(
             new MarkdownCommentRenderer(linkResolveStrategy),
             loadResult.getResult(),
-            ((BaseUrlElementLoader) loadResult.getLoader()).getBaseUrl(),
+            loadResult.getLoader() instanceof BaseUrlElementLoader urlLoader ? urlLoader.getBaseUrl() : "",
             formatter
-        )
+        );
+        embed
             .addColor()
             .addIcon(linkResolveStrategy)
             .addDeclaration()
@@ -78,12 +79,13 @@ public class NormalDocsSender implements DocsSender {
         } else {
             buttons.add(button(btnId, DocsButtonType.REMOVE_TAGS, ButtonStyle.SECONDARY));
         }
-        buttons.add(DismissListener.createDismissButton(userId));
+        buttons.add(DismissListener.createDismissButton(userId, ButtonStyle.DANGER, "\uD83D\uDDD1️ Dismiss"));
 
         replier.apply(new MessageBuilder(embed.build())
+            .setContent(null)
             .setActionRows(ActionRow.of(buttons))
             .build())
-            .queue();
+        .queue();
     }
 
     public static Button button(final String id, final DocsButtonType type, ButtonStyle style) {
@@ -91,7 +93,7 @@ public class NormalDocsSender implements DocsSender {
     }
 
     @Override
-    public void replyMultipleResults(final Function<Message, RestAction<Message>> replier, final boolean shortDescription, final boolean omitTags, final Collection<FuzzyQueryResult> results, final long userId, final UUID buttonId) {
+    public void replyMultipleResults(final Function<Message, RestAction<Message>> replier, final boolean shortDescription, final boolean omitTags, final List<FuzzyQueryResult> results, final long userId, final UUID buttonId) {
         final var nameResultMap = results.stream().collect(Collectors.toMap(
             it -> it.getQualifiedName().asString(),
             it -> it,
@@ -101,11 +103,14 @@ public class NormalDocsSender implements DocsSender {
             nameResultMap.keySet().stream().map(QualifiedName::new).collect(Collectors.toSet())
         );
         final var labelResultList = shortenedNameMap.entrySet().stream()
-            .map(it -> Map.entry(it.getValue(), nameResultMap.get(it.getKey())))
+            .map(it -> {
+                final var value = nameResultMap.get(it.getKey());
+                return new IndexedPair<>(results.indexOf(value), it.getValue(), nameResultMap.get(it.getKey()));
+            })
             .sorted(
-                Comparator.<Map.Entry<String, FuzzyQueryResult>, Boolean>comparing(it -> it.getValue().isExact())
+                Comparator.<IndexedPair<String, FuzzyQueryResult>, Boolean>comparing(it -> it.getValue().isExact())
                     .reversed()
-                    .thenComparing(Map.Entry::getKey)
+                    .thenComparing(IndexedPair::getKey)
             )
             .toList();
 
@@ -123,9 +128,8 @@ public class NormalDocsSender implements DocsSender {
         replier.apply(message).queue();
     }
 
-    private List<ActionRow> buildRowsButton(List<Map.Entry<String, FuzzyQueryResult>> results, UUID id, long user) {
+    private List<ActionRow> buildRowsButton(List<IndexedPair<String, FuzzyQueryResult>> results, UUID id, long user) {
         final var buttonId = id.toString();
-        final var counter = new AtomicInteger();
 
         return results.stream()
             .limit(net.dv8tion.jda.api.interactions.components.Component.Type.BUTTON.getMaxPerRow() * 5L)
@@ -133,16 +137,14 @@ public class NormalDocsSender implements DocsSender {
             .values()
             .stream()
             .map(items -> {
-                List<Button> buttons = new ArrayList<>();
+                final List<Button> buttons = new ArrayList<>();
 
-                for (Entry<String, FuzzyQueryResult> entry : items) {
-                    boolean exact = entry.getValue().isExact();
-                    String label = entry.getKey();
-                    String command = createIdWithArguments(buttonId, DocsButtonType.MULTIPLE_RESULTS.toString(), counter.getAndIncrement());
+                for (final var entry : items) {
+                    final var exact = entry.getValue().isExact();
                     buttons.add(Button.of(
                         exact ? ButtonStyle.PRIMARY : ButtonStyle.SECONDARY,
-                        command,
-                        StringUtils.abbreviate(label, 80),
+                        createIdWithArguments(buttonId, DocsButtonType.MULTIPLE_RESULTS.toString(), entry.index()),
+                        StringUtils.abbreviate(entry.getKey(), 80),
                         getEmoji(entry.getValue())
                     ));
                 }
@@ -152,17 +154,14 @@ public class NormalDocsSender implements DocsSender {
             .toList();
     }
 
-    private List<ActionRow> buildRowsMenu(List<Map.Entry<String, FuzzyQueryResult>> results,
+    private List<ActionRow> buildRowsMenu(List<IndexedPair<String, FuzzyQueryResult>> results,
                                           UUID id, long user) {
-        final var counter = new AtomicInteger();
-
         final var grouped = results.stream()
             .collect(groupingBy(
                 it -> it.getValue().getType(),
                 mapping(
                     it -> {
-                        QualifiedName name = it.getValue().getQualifiedName();
-                        String command = String.valueOf(counter.incrementAndGet());
+                        final var name = it.getValue().getQualifiedName();
 
                         String label;
                         if (name.asString().contains("#")) {
@@ -177,10 +176,7 @@ public class NormalDocsSender implements DocsSender {
                         label = StringUtils.abbreviateMiddle(label, "...", 25);
 
                         return SelectOption
-                            .of(
-                                label,
-                                command
-                            )
+                            .of(label, String.valueOf(it.index()))
                             .withDescription(StringUtils.abbreviate(it.getKey(), 50))
                             .withEmoji(getEmoji(it.getValue()));
                     },
@@ -223,4 +219,8 @@ public class NormalDocsSender implements DocsSender {
         );
     }
 
+    record IndexedPair<K, V>(int index, K key, V value) {
+        public K getKey() { return key; }
+        public V getValue() { return value; }
+    }
 }

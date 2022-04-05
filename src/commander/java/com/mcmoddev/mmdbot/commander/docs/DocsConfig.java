@@ -30,13 +30,13 @@ public class DocsConfig {
         @Required
         @Setting("path")
         @Comment("The path of the database on which to save indexed data. Relative to '/docs'")
-        private String path = "docs.db";
+        private String path = "gson_docs.db";
 
         @Getter
         @Required
         @Setting("baseUrl")
         @Comment("An URL for the javadocs to index.")
-        private String baseUrl = "https://docs.oracle.com/en/java/javase/17/docs/api/";
+        private String baseUrl = "https://javadoc.io/doc/com.google.code.gson/gson/latest/com.google.gson";
 
         @Getter
         @Required
@@ -48,7 +48,7 @@ public class DocsConfig {
         @Required
         @Setting("indexUrl")
         @Comment("An URL or a path relative to '/docs' which ")
-        private String indexUrl = "https://download.oracle.com/otn_software/java/jdk/17.0.2+8/dfd4a8d0985749f896bed50d7138ee7f/jdk-17.0.2_doc-all.zip";
+        private String indexUrl = "https://repo1.maven.org/maven2/com/google/code/gson/gson/2.9.0/gson-2.9.0-sources.jar/com";
     }
 
 }

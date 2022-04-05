@@ -120,7 +120,7 @@ public final class ConfigBasedElementLoader implements ElementLoader {
             }
         } else {
             final var path = resolve(basePath, indexUrl);
-            if (indexUrl.endsWith(".zip")) {
+            if (indexUrl.endsWith(".zip") || indexUrl.endsWith(".jar")) {
                 launcher.addInputResource(new ZipFolder(path.toFile()));
             } else {
                 launcher.addInputResource(path.toAbsolutePath().toString());
@@ -167,11 +167,11 @@ public final class ConfigBasedElementLoader implements ElementLoader {
             return List.of();
         }
 
-        OnlineJavadocIndexer indexer = new OnlineJavadocIndexer(Constants.HTTP_CLIENT);
-        List<ExternalJavadocReference> references = new ArrayList<>();
+        final var indexer = new OnlineJavadocIndexer(Constants.HTTP_CLIENT);
+        final var references = new ArrayList<ExternalJavadocReference>();
 
-        for (String url : urls) {
-            ExternalJavadocReference reference = indexer.fetchPackages(url);
+        for (final var url : urls) {
+            final var reference = indexer.fetchPackages(url);
             references.add(reference);
         }
 

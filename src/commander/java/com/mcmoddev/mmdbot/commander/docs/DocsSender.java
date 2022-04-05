@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 
 import java.time.Duration;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -17,5 +18,5 @@ public interface DocsSender {
 
     void replyWithResult(Function<Message, RestAction<Message>> replier, ElementLoader.LoadResult<JavadocElement> loadResult, boolean shortDescription, boolean omitTags, Duration queryDuration, LinkResolveStrategy linkResolveStrategy, long userId, UUID buttonId);
 
-    void replyMultipleResults(Function<Message, RestAction<Message>> replier, boolean shortDescription, boolean omitTags, Collection<FuzzyQueryResult> results, long userId, UUID buttonId);
+    void replyMultipleResults(Function<Message, RestAction<Message>> replier, boolean shortDescription, boolean omitTags, List<FuzzyQueryResult> results, long userId, UUID buttonId);
 }
