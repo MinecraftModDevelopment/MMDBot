@@ -48,7 +48,7 @@ public class DocsConfig {
         @Required
         @Setting("indexUrl")
         @Comment("An URL or a path relative to '/docs' which ")
-        private String indexUrl = "https://repo1.maven.org/maven2/com/google/code/gson/gson/2.9.0/gson-2.9.0-sources.jar/com";
+        private String indexUrl = "https://repo1.maven.org/maven2/com/google/code/gson/gson/2.9.0/gson-2.9.0-sources.jar";
     }
 
 }
