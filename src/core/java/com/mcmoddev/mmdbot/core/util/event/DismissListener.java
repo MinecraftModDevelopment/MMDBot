@@ -100,8 +100,12 @@ public final class DismissListener extends ListenerAdapter {
         return NO_OWNER_FACTORY.get();
     }
 
+    public static Button createDismissButton(final long buttonOwner, final ButtonStyle style, final String label) {
+        return Button.of(style, "dismiss-" + buttonOwner, LABEL);
+    }
+
     public static Button createDismissButton(final long buttonOwner) {
-        return Button.of(BUTTON_STYLE, "dismiss-" + buttonOwner, LABEL);
+        return createDismissButton(buttonOwner, BUTTON_STYLE, LABEL);
     }
 
     public static Button createDismissButton(final String buttonOwner) {

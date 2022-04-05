@@ -63,7 +63,8 @@ public class DiscordIntegration {
             jda = JDABuilder.createLight(config.botToken)
                 .setStatus(OnlineStatus.OFFLINE)
                 .addEventListeners(commandClient)
-                .build();
+                .build()
+                .setRequiredScopes("applications.commands", "bot");
 
             Runtime.getRuntime().addShutdownHook(new Thread(jda::shutdownNow));
         } catch (LoginException e) {

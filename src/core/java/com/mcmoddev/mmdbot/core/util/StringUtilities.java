@@ -25,6 +25,7 @@ import lombok.experimental.UtilityClass;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -138,6 +139,11 @@ public class StringUtilities {
         }
 
         return table;
+    }
+
+    public static String uppercaseFirstLetter(final String string) {
+        if (string.isEmpty()) return string;
+        return string.substring(0, 1).toUpperCase(Locale.ROOT) + string.substring(1);
     }
 
 }
