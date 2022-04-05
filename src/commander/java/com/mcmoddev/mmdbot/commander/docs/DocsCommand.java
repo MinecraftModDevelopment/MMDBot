@@ -53,6 +53,7 @@ public class DocsCommand extends SlashCommand {
             .build();
 
         name = "docs";
+        guildOnly = false;
         help = "Fetches Javadoc for methods, classes and fields.";
         options = List.of(
             new OptionData(
@@ -157,7 +158,7 @@ public class DocsCommand extends SlashCommand {
     void query(String query, long userId, UUID buttonId, BiFunction<Message, Collection<FuzzyQueryResult>, RestAction<Message>> replier, boolean shortDescription, boolean omitTags, Runnable whenNoResult) {
         final var start = Instant.now();
 
-        List<FuzzyQueryResult> results = queryApi.query(loader, query.strip())
+        final var results = queryApi.query(loader, query.strip())
             .stream()
             .distinct()
             .toList();
