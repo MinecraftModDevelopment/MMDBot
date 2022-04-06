@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
+import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
@@ -87,6 +88,7 @@ public class ComponentManager implements EventListener {
     }
 
     @Override
+    @SubscribeEvent
     public void onEvent(@NotNull final GenericEvent event) {
         if (event instanceof ButtonInteractionEvent btn) {
             onButtonInteraction(btn);

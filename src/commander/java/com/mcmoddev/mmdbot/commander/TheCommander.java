@@ -66,6 +66,7 @@ import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
 import com.mcmoddev.mmdbot.core.util.MessageUtilities;
+import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.core.util.ReflectionsUtils;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.Utils;
@@ -341,13 +342,20 @@ public final class TheCommander implements Bot {
             ReflectionsUtils.getFieldsAnnotatedWith(RegisterSlashCommand.class)
                 .stream()
                 .peek(f -> f.setAccessible(true))
-                .map(io.github.matyrobbrt.curseforgeapi.util.Utils.rethrowFunction(f -> f.get(null)))
-                .map(object -> {
+                .map(io.github.matyrobbrt.curseforgeapi.util.Utils.rethrowFunction(f -> Pair.of(f.get(null), f.getAnnotation(RegisterSlashCommand.class))))
+                .map(pair -> {
+                    final var object = pair.first();
                     if (object instanceof SlashCommand slash) {
+                        if (pair.second().asPrefixCommand()) {
+                            commandClient.addCommand(slash);
+                        }
                         return slash;
                     } else if (object instanceof Supplier<?> sup) {
                         final var obj = sup.get();
                         if (obj instanceof SlashCommand slash) {
+                            if (pair.second().asPrefixCommand()) {
+                                commandClient.addCommand(slash);
+                            }
                             return slash;
                         }
                     }

@@ -226,7 +226,9 @@ public class DocsCommand extends SlashCommand {
         if (event.getFocusedOption().getName().equals("query")) {
             final String query = event.getFocusedOption().getValue().strip();
             if (query.length() <= 2) {
-                event.replyChoices(List.of()).queue();
+                event.replyChoices(List.of())
+                    .setCheck(() -> !event.getInteraction().isAcknowledged())
+                    .queue();
                 return;
             }
 

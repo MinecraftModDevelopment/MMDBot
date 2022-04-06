@@ -41,6 +41,7 @@ import static com.mcmoddev.mmdbot.core.commands.component.Component.createIdWith
 public class NormalDocsSender implements DocsSender {
 
     // TODO maybe remove the `abstract` part from interfaces, and other similar cases
+    // Maybe also add the parameters an annotation can have
     private final DocsEmbed.DocFormatter formatter = JavadocElement::getDeclaration;
     private final NameShortener nameShortener = new NameShortener();
 
@@ -105,6 +106,7 @@ public class NormalDocsSender implements DocsSender {
         final var labelResultList = shortenedNameMap.entrySet().stream()
             .map(it -> {
                 final var value = nameResultMap.get(it.getKey());
+                // keep the index, as it's needed for component IDs to be exact
                 return new IndexedPair<>(results.indexOf(value), it.getValue(), nameResultMap.get(it.getKey()));
             })
             .sorted(

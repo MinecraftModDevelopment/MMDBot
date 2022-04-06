@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,6 +44,11 @@ public class SlashCommandBuilder {
     public static final class Builder {
 
         private final List<SlashCommand> children = new ArrayList<>();
+
+        public Builder aliases(String... aliases) {
+            this.aliases = aliases;
+            return this;
+        }
 
         public Builder children(SlashCommand... children) {
             this.children.addAll(Arrays.asList(children));
@@ -66,12 +72,13 @@ public class SlashCommandBuilder {
 
         public SlashCommand build() {
             return new Cmd() {
-                private Map<String, SlashCommand> byNameMap = Builder.this.children.stream()
-                    .collect(Collectors.toMap(Command::getName, s -> s));
+                private final Map<String, SlashCommand> byNameMap = Builder.this.children.stream()
+                    .collect(Collectors.toMap(Command::getName, Function.identity()));
 
                 @Override
                 public void init() {
                     this.name = Builder.this.name;
+                    this.aliases = Builder.this.aliases;
                     this.guildOnly = Builder.this.guildOnly;
                     this.userPermissions = Builder.this.userPermissions == null ? new Permission[]{} : Builder.this.userPermissions;
                     this.children = Builder.this.children.toArray(SlashCommand[]::new);
@@ -103,6 +110,7 @@ public class SlashCommandBuilder {
     }
 
     private final String name;
+    private final String[] aliases;
     private final Permission[] userPermissions;
     private final String help;
     private final List<OptionData> options;

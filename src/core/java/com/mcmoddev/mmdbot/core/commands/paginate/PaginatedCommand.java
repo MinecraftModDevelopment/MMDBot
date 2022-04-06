@@ -20,12 +20,14 @@
  */
 package com.mcmoddev.mmdbot.core.commands.paginate;
 
+import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 
 import java.util.List;
@@ -54,10 +56,12 @@ public abstract class PaginatedCommand extends SlashCommand {
     }
 
     public PaginatedCommand(ComponentListener.Builder componentListenerBuilder, final Component.Lifespan lifespan, int itemsPerPage, boolean ownerOnlyButton) {
-        this(Paginator.builder(componentListenerBuilder)
-            .buttonsOwnerOnly(ownerOnlyButton)
-            .itemsPerPage(itemsPerPage)
-            .lifespan(lifespan));
+        this(
+            Paginator.builder(componentListenerBuilder)
+                .buttonsOwnerOnly(ownerOnlyButton)
+                .itemsPerPage(itemsPerPage)
+                .lifespan(lifespan)
+        );
     }
 
     public PaginatedCommand(ComponentListener.Builder componentListenerBuilder, final Component.Lifespan lifespan, int itemsPerPage) {
@@ -139,11 +143,26 @@ public abstract class PaginatedCommand extends SlashCommand {
      * @return the ReplyAction
      */
     protected ReplyCallbackAction createPaginatedMessage(SlashCommandEvent event, final int startingIndex, final int maximum, final String... args) {
-        final var message = paginator.createPaginatedMessage(startingIndex, maximum, event.getIdLong(), args);
+        final var message = paginator.createPaginatedMessage(startingIndex, maximum, event.getUser().getIdLong(), args);
         return event.deferReply()
             .setContent(message.getContentRaw())
             .addActionRows(message.getActionRows())
             .addEmbeds(message.getEmbeds());
+    }
+
+    /**
+     * Create a {@link MessageAction} which, if the number of items requires, also contains buttons for scrolling.
+     *
+     * @param event         the active CommandEvent.
+     * @param startingIndex the index of the first item to display
+     * @param maximum       the maximum of items
+     * @param args          arguments the arguments that will be saved in the database, bound to the button's component ID
+     * @return the MessageAction
+     */
+    protected MessageAction createPaginatedMessage(CommandEvent event, final int startingIndex, final int maximum, final String... args) {
+        final var message = paginator.createPaginatedMessage(startingIndex, maximum, event.getAuthor().getIdLong(), args);
+        return event.getMessage()
+            .reply(message);
     }
 
     protected int getItemsPerPage() {

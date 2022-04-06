@@ -290,6 +290,10 @@ public class DocsEmbed extends EmbedBuilder {
         builder = new StringBuilder(text.strip());
 
         if (reader.canRead()) {
+            if (inCodeBlock) {
+                // finish code block
+                builder.append("`");
+            }
             int skippedLines = (int) reader.readRemaining().chars().filter(c -> c == '\n').count();
             builder.append("\n\n*Skipped ");
             if (skippedLines > 0) {

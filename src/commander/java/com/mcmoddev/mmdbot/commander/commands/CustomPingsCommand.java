@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.commander.commands;
 
+import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
@@ -27,14 +28,18 @@ import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.custompings.CustomPing;
 import com.mcmoddev.mmdbot.commander.custompings.CustomPings;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
+import com.mcmoddev.mmdbot.core.commands.context.CommandContext;
 import com.mcmoddev.mmdbot.core.commands.paginate.PaginatedCommand;
 import com.mcmoddev.mmdbot.core.util.builder.SlashCommandBuilder;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 import java.util.List;
 import java.util.Objects;
@@ -43,9 +48,10 @@ import java.util.regex.PatternSyntaxException;
 
 public class CustomPingsCommand {
 
-    @RegisterSlashCommand
+    @RegisterSlashCommand(asPrefixCommand = true)
     public static final SlashCommand COMMAND = SlashCommandBuilder.builder()
         .name("custom-pings")
+        .aliases("custompings", "cpings")
         .guildOnly(true)
         .help("Custom ping related commands.")
         .children(new Add(), new ListCmd(), new Remove())
@@ -109,6 +115,21 @@ public class CustomPingsCommand {
         }
 
         @Override
+        protected void execute(final CommandEvent event) {
+            if (!checkEnabled(event)) return;
+
+            // Args:
+            // guildId, userId
+            createPaginatedMessage(
+                event,
+                0,
+                CustomPings.getPingsForUser(Objects.requireNonNull(event.getGuild()).getIdLong(), event.getAuthor().getIdLong()).size(),
+                event.getGuild().getId(),
+                event.getAuthor().getId()
+            ).queue();
+        }
+
+        @Override
         protected EmbedBuilder getEmbed(final int index, final int maximum, final List<String> arguments) {
             if (!TheCommander.getInstance().getGeneralConfig().features().areQuotesEnabled()) {
                 return new EmbedBuilder().setDescription("Quotes are not enabled!");
@@ -136,6 +157,9 @@ public class CustomPingsCommand {
         private Remove() {
             name = "remove";
             help = "Removes a custom ping.";
+            aliases = new String[] {
+                "delete", "clear"
+            };
             options = List.of(
                 new OptionData(OptionType.INTEGER, "index", "The index of the ping to remove. Do not provide to clear all pings.")
             );
@@ -145,21 +169,38 @@ public class CustomPingsCommand {
         @Override
         protected void execute(final SlashCommandEvent event) {
             if (!checkEnabled(event)) return;
-            final var gId = event.getGuild().getIdLong();
             final var index = event.getOption("index", -1, OptionMapping::getAsInt);
-            final var userId = event.getUser().getIdLong();
+            execute(CommandContext.fromSlashCommandEvent(event), index);
+        }
+
+        @Override
+        protected void execute(final CommandEvent event) {
+            if (!checkEnabled(event)) return;
+            var index = -1;
+            if (!event.getArgs().isBlank()) {
+                try {
+                    index = Integer.parseInt(event.getArgs().split(" ")[0]);
+                } catch (NumberFormatException ignored) {}
+            }
+            execute(CommandContext.fromCommandEvent(event), index);
+        }
+
+        private void execute(final CommandContext context, final int index) {
+            final var gId = Objects.requireNonNull(context.getGuild()).getIdLong();
+            final var userId = context.getUser().getIdLong();
             final var userRems = CustomPings.getPingsForUser(gId, userId);
             if (index != -1 && userRems.size() <= index) {
-                event.deferReply(true).setContent("Unknown index: **" + index + "**").queue();
+                context.replyOrEdit(buildMessage(context, "Unknown index: **" + index + "**"))
+                    .queue();
                 return;
             }
             if (index == -1) {
                 CustomPings.clearPings(gId, userId);
-                event.deferReply().setContent("Removed all custom pings!").addActionRow(DismissListener.createDismissButton()).queue();
+                context.replyOrEdit(buildMessage(context, "Removed all custom pings!")).queue();
             } else {
                 final var cp = userRems.get(index);
                 CustomPings.removePing(gId, userId, cp);
-                event.deferReply().setContent("Removed custom ping with the index: **%s**!".formatted(index)).addActionRow(DismissListener.createDismissButton()).queue();
+                context.replyOrEdit(buildMessage(context, "Removed custom ping with the index: **%s**!".formatted(index)));
             }
         }
     }
@@ -170,5 +211,26 @@ public class CustomPingsCommand {
             event.deferReply(true).setContent("Custom Pings are disabled!").queue();
         }
         return enabled;
+    }
+
+    private static boolean checkEnabled(final CommandEvent event) {
+        final var enabled = TheCommander.getInstance().getGeneralConfig().features().customPings().areEnabled();
+        if (!enabled) {
+            event.getMessage()
+                .reply("Custom Pings are disabled!")
+                .setActionRow(DismissListener.createDismissButton(event.getAuthor(), event.getMessage()))
+                .queue();
+        }
+        return enabled;
+    }
+
+    private static Message buildMessage(final CommandContext context, final String content) {
+        final var builder = new MessageBuilder(content);
+        if (context.asCommandEvent() != null) {
+            builder.setActionRows(ActionRow.of(DismissListener.createDismissButton(context.getUser(), context.asCommandEvent().getMessage())));
+        } else {
+            builder.setActionRows(ActionRow.of(DismissListener.createDismissButton(context.getUser())));
+        }
+        return builder.build();
     }
 }
