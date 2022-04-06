@@ -27,6 +27,7 @@ import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.paginate.PaginatedCommand;
+import com.mcmoddev.mmdbot.core.commands.paginate.Paginator;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -57,7 +58,12 @@ public class HelpCommand extends PaginatedCommand {
     public static final String ISSUE_TRACKER = "https://github.com/MinecraftModDevelopment/MMDBot/issues";
 
     private HelpCommand() {
-        super(TheCommander.getComponentListener("help-cmd"), Component.Lifespan.TEMPORARY, 25);
+        super(
+            Paginator.builder(TheCommander.getComponentListener("help-cmd"))
+                .buttonOrder(Paginator.NATURAL_BUTTON_ORDER)
+                .lifespan(Component.Lifespan.TEMPORARY)
+                .itemsPerPage(25)
+        );
         name = "help";
         help = "Show all commands, or detailed information about a particular command.";
         guildOnly = false;

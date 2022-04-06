@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.Random;
 
 @Slf4j
-public class XkcdCommand extends PaginatedCommand {
+public final class XkcdCommand extends PaginatedCommand {
 
     public static final URL LATEST_COMIC = Utils.rethrowSupplier(() -> new URL("https://xkcd.com/info.0.json")).get();
     public static final Random RANDOM = new Random();
@@ -73,7 +73,8 @@ public class XkcdCommand extends PaginatedCommand {
             return new EmbedBuilder()
                 .setTitle(xkcd.safe_title())
                 .setDescription(xkcd.alt())
-                .setImage(xkcd.img());
+                .setImage(xkcd.img())
+                .addField("Date", xkcd.day() + "/" + xkcd.month() + "/" + xkcd.year(), true);
         } catch (IOException e) {
             log.warn("Exception trying to resolve comic ", e);
             return new EmbedBuilder()

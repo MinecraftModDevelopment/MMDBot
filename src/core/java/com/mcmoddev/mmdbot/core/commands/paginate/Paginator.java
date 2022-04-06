@@ -44,6 +44,7 @@ import static net.dv8tion.jda.api.entities.Emoji.fromMarkdown;
 public interface Paginator {
     ButtonFactory DEFAULT_BUTTON_FACTORY = ButtonFactory.emoji(ButtonStyle.PRIMARY, fromMarkdown("◀️"), fromMarkdown("▶️"), fromMarkdown("⏮️"), fromMarkdown("⏭️"));
     List<ButtonType> DEFAULT_BUTTON_ORDER = List.of(ButtonType.PREVIOUS, ButtonType.DISMISS, ButtonType.NEXT);
+    List<ButtonType> NATURAL_BUTTON_ORDER = List.of(ButtonType.FIRST, ButtonType.PREVIOUS, ButtonType.DISMISS, ButtonType.NEXT, ButtonType.LAST);
 
     /**
      * Gets the component listener for handling the pagination. <br>
