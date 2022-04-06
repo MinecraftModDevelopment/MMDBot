@@ -31,6 +31,7 @@ import com.mcmoddev.mmdbot.commander.quotes.StringQuote;
 import com.mcmoddev.mmdbot.commander.quotes.UserReference;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.paginate.PaginatedCommand;
+import com.mcmoddev.mmdbot.core.commands.paginate.Paginator;
 import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -302,7 +303,14 @@ public class QuoteCommand extends SlashCommand {
          * Sets all the usual flags.
          */
         private ListQuotes() {
-            super(TheCommander.getComponentListener("list-quotes-cmd"), Component.Lifespan.TEMPORARY, 10);
+            super(Paginator
+                .builder(TheCommander.getComponentListener("list-quotes-cmd"))
+                .buttonsOwnerOnly(false)
+                .itemsPerPage(10)
+                .lifespan(Component.Lifespan.TEMPORARY)
+                .dismissible(true)
+                .buttonOrder(Paginator.ButtonType.FIRST, Paginator.ButtonType.PREVIOUS, Paginator.ButtonType.DISMISS, Paginator.ButtonType.NEXT, Paginator.ButtonType.LAST)
+            );
             name = "list";
             help = "Get all quotes.";
             category = new Category("Fun");

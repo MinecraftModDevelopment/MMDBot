@@ -34,6 +34,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -44,8 +45,10 @@ public final class PaginatorImpl implements Paginator {
     private final boolean dismissible;
     private final boolean buttonsOwnerOnly;
     private final MessageGetter embedGetter;
+    private final ButtonFactory buttonFactory;
+    private final List<ButtonType> buttonOrder;
 
-    PaginatorImpl(final ComponentListener.Builder listener, @Nullable final Consumer<? super ButtonInteractionContext> buttonInteractionHandler, final Component.Lifespan lifespan, final int itemsPerPage, final boolean dismissible, final boolean buttonsOwnerOnly, final MessageGetter embedGetter) {
+    PaginatorImpl(final ComponentListener.Builder listener, @Nullable final Consumer<? super ButtonInteractionContext> buttonInteractionHandler, final Component.Lifespan lifespan, final int itemsPerPage, final boolean dismissible, final boolean buttonsOwnerOnly, final MessageGetter embedGetter, final ButtonFactory buttonFactory, final List<ButtonType> buttonOrder) {
         this.embedGetter = embedGetter;
         this.listener = listener
             .onButtonInteraction(buttonInteractionHandler == null ? this::onButtonInteraction : buttonInteractionHandler)
@@ -54,6 +57,14 @@ public final class PaginatorImpl implements Paginator {
         this.itemsPerPage = itemsPerPage;
         this.dismissible = dismissible;
         this.buttonsOwnerOnly = buttonsOwnerOnly;
+        this.buttonFactory = buttonFactory;
+        this.buttonOrder = buttonOrder;
+    }
+
+    @NotNull
+    @Override
+    public List<ButtonType> getButtonOrder() {
+        return buttonOrder;
     }
 
     /**
@@ -85,8 +96,11 @@ public final class PaginatorImpl implements Paginator {
 
         final var buttonId = context.getComponentId().toString();
 
-        switch (context.getItemComponentArguments().get(0)) {
-            case FORWARD_BUTTON_ID -> {
+        final var buttonType = ButtonType.byId(context.getItemComponentArguments().get(0));
+        if (buttonType == null) return;
+
+        switch (buttonType) {
+            case NEXT -> {
                 final var start = current + itemsPerPage;
 
                 oldActionRows.add(0, createScrollButtons(buttonId, start, maximum, owner));
@@ -97,8 +111,30 @@ public final class PaginatorImpl implements Paginator {
                 // Argument 0 == current index
                 context.updateArgument(0, String.valueOf(start));
             }
-            case BACKWARD_BUTTON_ID -> {
+            case LAST -> {
+                final var start = maximum - Math.min(maximum, itemsPerPage);
+                oldActionRows.add(0, createScrollButtons(buttonId, start, maximum, owner));
+                event.editMessage(getMessage(start, maximum, newArgs).build())
+                    .setActionRows(oldActionRows)
+                    .queue();
+
+                // Argument 0 == current index
+                context.updateArgument(0, String.valueOf(start));
+            }
+
+            case PREVIOUS -> {
                 final var start = current - itemsPerPage;
+
+                oldActionRows.add(0, createScrollButtons(buttonId, start, maximum, owner));
+                event.editMessage(getMessage(start, maximum, newArgs).build())
+                    .setActionRows(oldActionRows)
+                    .queue();
+
+                // Argument 0 == current index
+                context.updateArgument(0, String.valueOf(start));
+            }
+            case FIRST -> {
+                final var start = 0;
 
                 oldActionRows.add(0, createScrollButtons(buttonId, start, maximum, owner));
                 event.editMessage(getMessage(start, maximum, newArgs).build())
@@ -144,22 +180,63 @@ public final class PaginatorImpl implements Paginator {
 
     @Override
     public ActionRow createScrollButtons(final String id, final int start, final int maximum, @Nullable final Long buttonOwner) {
-        Button backward = Button.primary(Component.createIdWithArguments(id, areButtonsOwnerOnly() ? new Object[]{BACKWARD_BUTTON_ID, buttonOwner} : new Object[]{BACKWARD_BUTTON_ID}), PREVIOUS_EMOJI).asDisabled();
-        Button forward = Button.primary(Component.createIdWithArguments(id, areButtonsOwnerOnly() ? new Object[]{FORWARD_BUTTON_ID, buttonOwner} : new Object[]{FORWARD_BUTTON_ID}), NEXT_EMOJI).asDisabled();
+        final var buttons = new ArrayList<Button>();
+        buttonOrder.forEach(type -> {
+            final var btn = createButton(type, start, maximum, id, buttonOwner);
+            if (btn != null) {
+                buttons.add(btn);
+            }
+        });
+        return ActionRow.of(buttons);
+    }
 
-        if (start != 0) {
-            backward = backward.asEnabled();
-        }
+    @Nullable
+    private Button createButton(final ButtonType type, final int start, final int maximum, final String id, @Nullable final Long buttonOwner) {
+        return switch (type) {
+            case DISMISS -> {
+                if (isDismissible()) {
+                    yield buttonOwner == null ? buttonFactory.build(ButtonType.DISMISS, "dismiss") : buttonFactory.build(ButtonType.DISMISS, "dismiss-" + buttonOwner);
+                } else {
+                    yield null;
+                }
+            }
 
-        if (start + getItemsPerPage() < maximum) {
-            forward = forward.asEnabled();
-        }
+            case NEXT -> {
+                final var btn = buttonFactory.build(ButtonType.NEXT, Component.createIdWithArguments(id, areButtonsOwnerOnly() ? new Object[]{ButtonType.NEXT.toString(), buttonOwner} : new Object[]{ButtonType.NEXT.toString()})).asDisabled();
+                if (start + getItemsPerPage() < maximum) {
+                    yield btn.asEnabled();
+                }
+                yield btn;
+            }
+            case LAST -> {
+                final var btn = buttonFactory.build(ButtonType.LAST, Component.createIdWithArguments(id, areButtonsOwnerOnly() ? new Object[]{ButtonType.LAST.toString(), buttonOwner} : new Object[]{ButtonType.LAST.toString()})).asDisabled();
+                if (start + getItemsPerPage() < maximum) {
+                    yield btn.asEnabled();
+                }
+                yield btn;
+            }
 
-        if (isDismissible()) {
-            return ActionRow.of(backward, buttonOwner == null ? DismissListener.createDismissButton() : DismissListener.createDismissButton(buttonOwner), forward);
-        }
+            case PREVIOUS -> {
+                final var btn = buttonFactory.build(ButtonType.PREVIOUS, Component.createIdWithArguments(id, areButtonsOwnerOnly() ? new Object[]{ButtonType.PREVIOUS.toString(), buttonOwner} : new Object[]{ButtonType.PREVIOUS.toString()})).asDisabled();
+                if (start != 0) {
+                    yield btn.asEnabled();
+                }
+                yield btn;
+            }
+            case FIRST -> {
+                final var btn = buttonFactory.build(ButtonType.FIRST, Component.createIdWithArguments(id, areButtonsOwnerOnly() ? new Object[]{ButtonType.FIRST.toString(), buttonOwner} : new Object[]{ButtonType.FIRST.toString()})).asDisabled();
+                if (start != 0) {
+                    yield btn.asEnabled();
+                }
+                yield btn;
+            }
+        };
+    }
 
-        return ActionRow.of(backward, forward);
+    @NotNull
+    @Override
+    public Paginator.ButtonFactory getButtonFactory() {
+        return buttonFactory;
     }
 
     @Override

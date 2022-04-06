@@ -22,26 +22,28 @@ package com.mcmoddev.mmdbot.core.commands.paginate;
 
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
+import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 
+import static net.dv8tion.jda.api.entities.Emoji.fromMarkdown;
+
 /**
  * Utility class for paginating messages, using {@link Component Components}. <br>
  * There should be only one {@link Paginator} instance per feature, which should be reused.
  */
 public interface Paginator {
-    Emoji NEXT_EMOJI = Emoji.fromUnicode("▶️");
-    Emoji PREVIOUS_EMOJI = Emoji.fromUnicode("◀️");
-
-    String FORWARD_BUTTON_ID = "next";
-    String BACKWARD_BUTTON_ID = "prev";
+    ButtonFactory DEFAULT_BUTTON_FACTORY = ButtonFactory.emoji(ButtonStyle.PRIMARY, fromMarkdown("◀️"), fromMarkdown("▶️"), fromMarkdown("⏮️"), fromMarkdown("⏭️"));
+    List<ButtonType> DEFAULT_BUTTON_ORDER = List.of(ButtonType.PREVIOUS, ButtonType.DISMISS, ButtonType.NEXT);
 
     /**
      * Gets the component listener for handling the pagination. <br>
@@ -91,6 +93,21 @@ public interface Paginator {
     }
 
     /**
+     * Gets the {@link ButtonFactory factory} used for creating the buttons.
+     *
+     * @return the factory
+     */
+    @Nonnull
+    default ButtonFactory getButtonFactory() {
+        return DEFAULT_BUTTON_FACTORY;
+    }
+
+    @Nonnull
+    default List<ButtonType> getButtonOrder() {
+        return DEFAULT_BUTTON_ORDER;
+    }
+
+    /**
      * Given the index of the start of the message, get the next {@link #getItemsPerPage() items}. <br>
      * Before being sent, the message will have the pagination buttons added.
      *
@@ -105,8 +122,7 @@ public interface Paginator {
     /**
      * Create the row of Component interaction buttons.
      * <p>
-     * Currently, this just creates a left and right arrow, and if the message {@link #isDismissible()} a dismiss button.
-     * Left arrow scrolls back a page. Right arrow scrolls forward a page.
+     * This creates the buttons based on the {@link #getButtonOrder() button order}.
      *
      * @param id          the component ID of the buttons
      * @param start       the index of the item at the start of the current page.
@@ -154,5 +170,75 @@ public interface Paginator {
     interface MessageGetter {
         @Nonnull
         MessageBuilder getMessage(int startingIndex, int maximum, final List<String> arguments);
+    }
+
+    @FunctionalInterface
+    interface ButtonFactory {
+
+        /**
+         * Creates a button.
+         *
+         * @param type     the type of the button to create
+         * @param buttonId the ID of the button to create
+         * @return the created button
+         */
+        Button build(ButtonType type, String buttonId);
+
+        /**
+         * A {@link ButtonFactory} implementation which builds buttons with emojis as labels.
+         *
+         * @param style the style of the buttons
+         * @param previous the emoji to use for the "previous" button
+         * @param next     the emoji to use for the "next" button
+         * @param first     the emoji to use for the "first" button
+         * @param last     the emoji to use for the "last" button
+         * @return the factory
+         */
+        static ButtonFactory emoji(ButtonStyle style, Emoji previous, Emoji next, Emoji first, Emoji last) {
+            return (type, buttonId) -> switch (type) {
+                case NEXT -> Button.of(style, buttonId, null, next);
+                case PREVIOUS -> Button.of(style, buttonId, null, previous);
+                case FIRST -> Button.of(style, buttonId, null, first);
+                case LAST -> Button.of(style, buttonId, null, last);
+                case DISMISS -> Button.of(DismissListener.BUTTON_STYLE, buttonId, DismissListener.LABEL, null);
+            };
+        }
+    }
+
+    /**
+     * The logical order of the types is:
+     * first, previous, next, last
+     * <<|, <, >, |>>
+     */
+    enum ButtonType {
+        FIRST("first"),
+        PREVIOUS("prev"),
+
+        NEXT("next"),
+        LAST("last"),
+
+        DISMISS("dismiss");
+
+        private final String id;
+
+        ButtonType(final String id) {
+            this.id = id;
+        }
+
+        @Override
+        public String toString() {
+            return id;
+        }
+
+        @Nullable
+        public static ButtonType byId(String id) {
+            return switch (id) {
+                case "prev" -> PREVIOUS;
+                case "next" -> NEXT;
+                case "last" -> LAST;
+                case "first" -> FIRST;
+                default -> null;
+            };
+        }
     }
 }

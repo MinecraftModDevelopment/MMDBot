@@ -24,6 +24,7 @@ import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageType;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -83,6 +84,9 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
             return;
         }
         final var threadTypeStr = threadType.toString();
+        if (event.getMessage().getType() != MessageType.DEFAULT) {
+            return;
+        }
         event.getMessage().createThreadChannel("Discussion of %s’s %s".formatted(author.getUser().getName(), threadTypeStr)).queue(thread -> {
             thread.addThreadMember(author).queue($ -> {
                 thread.sendMessageEmbeds(new EmbedBuilder().setTitle("%s discussion thread".formatted(Utils.uppercaseFirstLetter(threadTypeStr)))
@@ -91,7 +95,7 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
                             %s""".formatted(author.getAsMention(), threadTypeStr, threadTypeStr, event.getMessage().getContentRaw())).build())
                     .queue(msg -> msg.pin().queue());
                 caches.computeIfAbsent(threadType, k -> new ArrayList<>()).add(author.getIdLong());
-                TaskScheduler.scheduleTask(() -> caches.get(threadType).remove(author.getIdLong()), 100, TimeUnit.MINUTES);
+                TaskScheduler.scheduleTask(() -> caches.get(threadType).remove(author.getIdLong()), 30, TimeUnit.MINUTES);
             });
         });
     }

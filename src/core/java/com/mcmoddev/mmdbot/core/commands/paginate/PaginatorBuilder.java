@@ -27,8 +27,11 @@ import lombok.NonNull;
 import net.dv8tion.jda.api.MessageBuilder;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 
+@SuppressWarnings("unused")
 public class PaginatorBuilder {
     private final ComponentListener.Builder componentListener;
     private Consumer<? super ButtonInteractionContext> buttonInteractionHandler;
@@ -37,6 +40,8 @@ public class PaginatorBuilder {
     private boolean dismissible = true;
     private boolean buttonsOwnerOnly;
     private Paginator.MessageGetter messageGetter = (startingIndex, maximum, arguments) -> new MessageBuilder("Unknown page.");
+    private Paginator.ButtonFactory buttonFactory = Paginator.DEFAULT_BUTTON_FACTORY;
+    private List<Paginator.ButtonType> buttonOrder = Paginator.DEFAULT_BUTTON_ORDER;
 
     PaginatorBuilder(final ComponentListener.Builder componentListener) {
         this.componentListener = componentListener;
@@ -99,6 +104,43 @@ public class PaginatorBuilder {
     }
 
     /**
+     * Sets the {@link com.mcmoddev.mmdbot.core.commands.paginate.Paginator.ButtonFactory factory} used for creating the pagination buttons.
+     *
+     * @param factory the factory used for the pagination buttons
+     * @return the builder instance
+     */
+    public PaginatorBuilder buttonFactory(@NonNull final Paginator.ButtonFactory factory) {
+        this.buttonFactory = factory;
+        return this;
+    }
+
+    /**
+     * Sets the order of the buttons. Not including a button type in the list will make it not generate.
+     *
+     * @param order the button order
+     * @return the builder instance
+     * @throws IllegalArgumentException if the order contains duplicate elements
+     */
+    public PaginatorBuilder buttonOrder(@NonNull final List<Paginator.ButtonType> order) {
+        this.buttonOrder = order;
+        if (buttonOrder.size() != buttonOrder.stream().distinct().count()) {
+            throw new IllegalArgumentException("Cannot have duplicate elements in the button order!");
+        }
+        return this;
+    }
+
+    /**
+     * Sets the order of the buttons. Not including a button type in the list will make it not generate.
+     *
+     * @param order the button order
+     * @return the builder instance
+     * @throws IllegalArgumentException if the order contains duplicate elements
+     */
+    public PaginatorBuilder buttonOrder(@NonNull final Paginator.ButtonType... order) {
+        return buttonOrder(Arrays.asList(order));
+    }
+
+    /**
      * Sets the handler that will paginate messages. <br>
      * If {@code null} or not set, the handler will be the default one. <br>
      * Most implementations don't need to mess with it.
@@ -117,6 +159,6 @@ public class PaginatorBuilder {
      * @return the built paginator
      */
     public Paginator build() {
-        return new PaginatorImpl(componentListener, buttonInteractionHandler, lifespan, itemsPerPage, dismissible, buttonsOwnerOnly, messageGetter);
+        return new PaginatorImpl(componentListener, buttonInteractionHandler, lifespan, itemsPerPage, dismissible, buttonsOwnerOnly, messageGetter, buttonFactory, buttonOrder);
     }
 }
