@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.core.commands.component.context;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentManager;
 import lombok.NonNull;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.Interaction;
@@ -46,6 +47,17 @@ public interface BaseItemComponentInteractionContext<T extends Interaction> {
      */
     @NonNull
     T getEvent();
+
+    /**
+     * The {@link Guild} this interaction happened in.
+     * <br>This is null in direct messages.
+     *
+     * @return The {@link Guild} or null
+     */
+    @Nullable
+    default Guild getGuild() {
+        return getEvent().getGuild();
+    }
 
     /**
      * The {@link Member} who caused this interaction.

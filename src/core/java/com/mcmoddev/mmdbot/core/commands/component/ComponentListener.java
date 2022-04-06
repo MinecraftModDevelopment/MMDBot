@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.core.commands.component;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.mcmoddev.mmdbot.core.commands.component.context.ButtonInteractionContext;
 import com.mcmoddev.mmdbot.core.commands.component.context.ModalInteractionContext;
 import com.mcmoddev.mmdbot.core.commands.component.context.SelectMenuInteractionContext;
@@ -65,15 +66,13 @@ public abstract class ComponentListener {
     }
 
     @NonNull
-    public SelectMenu.Builder createMenu(@NonNull final String[] componentArgs, @NonNull Component.Lifespan lifespan, final String... args) {
-        final var comp = new Component(name, UUID.randomUUID(), Arrays.asList(args), lifespan);
-        insertComponent(comp);
-        return SelectMenu.create(Component.createIdWithArguments(comp.uuid().toString(), componentArgs));
+    public Modal.Builder createModal(@NonNull final String label, @NonNull final Component.Lifespan lifespan, final String... args) {
+        return createModal(label, lifespan, Arrays.asList(args));
     }
 
     @NonNull
-    public Modal.Builder createModal(@NonNull final String label, @NonNull final Component.Lifespan lifespan, final String... args) {
-        final var comp = new Component(name, UUID.randomUUID(), Arrays.asList(args), lifespan);
+    public Modal.Builder createModal(@NonNull final String label, @NonNull final Component.Lifespan lifespan, final List<String> args) {
+        final var comp = new Component(name, UUID.randomUUID(), args, lifespan);
         insertComponent(comp);
         return Modal.create(comp.uuid().toString(), label);
     }
@@ -82,6 +81,7 @@ public abstract class ComponentListener {
         manager.getStorage().insertComponent(component);
     }
 
+    @CanIgnoreReturnValue
     public Component insertComponent(final UUID id, final Component.Lifespan lifespan, final String... args) {
         final var comp = new Component(getName(), id, Arrays.asList(args), lifespan);
         insertComponent(comp);

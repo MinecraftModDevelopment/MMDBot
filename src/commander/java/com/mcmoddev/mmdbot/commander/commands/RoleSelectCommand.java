@@ -35,8 +35,8 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -48,13 +48,13 @@ import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 
-import javax.annotation.Nullable;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class RoleSelectCommand extends SlashCommand {
 
@@ -67,8 +67,6 @@ public class RoleSelectCommand extends SlashCommand {
         .onModalInteraction(COMMAND::onModalInteraction)
         .build();
 
-    private static final Color COLOUR = new Color(24, 221, 136, 255);
-
     private RoleSelectCommand() {
         this.name = "role-select";
         this.guildOnly = true;
@@ -80,99 +78,97 @@ public class RoleSelectCommand extends SlashCommand {
             Permission.MANAGE_ROLES
         };
         options = List.of(
+            new OptionData(OptionType.STRING, "roles", "Mention the roles to add to the panel.", true),
             new OptionData(OptionType.BOOLEAN, "dropdown", "If the role selection panel should be a dropdown rather than buttons.")
         );
     }
 
     @Override
     protected void execute(final SlashCommandEvent event) {
+        final var selfMember = Objects.requireNonNull(event.getGuild()).getSelfMember();
+        Objects.requireNonNull(event.getMember());
+        final var args = event.getOption("roles", List.<String>of(), m -> m.getMentionedRoles()
+            .stream()
+            .filter(r -> !r.isManaged() && selfMember.canInteract(r) && event.getMember().canInteract(r))
+            .map(Role::getId)
+            .collect(Collectors.toList()));
+
+        if (args.isEmpty()) {
+            event
+                .deferReply(true)
+                .setContent("Please provide at least one role for the panel.")
+                .queue();
+            return;
+        } else if (args.size() > 25) {
+            event
+                .deferReply(true)
+                .setContent("Please provide less than 25 roles for the panel.")
+                .queue();
+        }
+        args.add(0, String.valueOf(event.getOption("dropdown", false, OptionMapping::getAsBoolean)));
+
         final var title = TextInput.create("title", "Title", TextInputStyle.SHORT)
             .setRequired(false)
+            .setMaxLength(MessageEmbed.TITLE_MAX_LENGTH)
             .setPlaceholder("The title of the role panel to create.")
             .build();
 
         final var description = TextInput.create("description", "Description", TextInputStyle.PARAGRAPH)
             .setRequired(false)
+            .setMaxLength(Math.min(MessageEmbed.DESCRIPTION_MAX_LENGTH, TextInput.TEXT_INPUT_MAX_LENGTH))
             .setPlaceholder("The description role panel to create.")
             .build();
 
-        // TODO implement mappings for role icons and add colour option
+        final var colour = TextInput.create("colour", "Colour", TextInputStyle.SHORT)
+            .setRequired(false)
+            .setPlaceholder("The colour the embed will have. Example: #ffffff")
+            .build();
 
-        final var modal = COMPONENT_LISTENER.createModal("Role selection panel creation", Component.Lifespan.TEMPORARY,
-                String.valueOf(event.getOption("dropdown", false, OptionMapping::getAsBoolean)))
+        final var modal = COMPONENT_LISTENER.createModal("Role selection panel creation", Component.Lifespan.TEMPORARY, args)
             .addActionRows(
                 ActionRow.of(title),
-                ActionRow.of(description)
+                ActionRow.of(description),
+                ActionRow.of(colour)
             )
             .build();
 
         event.replyModal(modal).queue();
     }
 
-    private static void addMenuOptions(@NonNull final Interaction interaction,
-                                       @NonNull final SelectMenu.Builder menu,
-                                       @NonNull final String placeHolder,
-                                       @Nullable final Integer minValues) {
-
-        final var guild = Objects.requireNonNull(interaction.getGuild());
-        final var highestBotRole = guild.getSelfMember().getRoles().get(0);
-        final var guildRoles = guild.getRoles();
-
-        final var roles = guildRoles.subList(guildRoles.indexOf(highestBotRole) + 1, guildRoles.size());
-
-        if (minValues != null) {
-            menu.setMinValues(minValues);
-        }
-
-        menu.setPlaceholder(placeHolder)
-            .setMaxValues(roles.size())
-            .addOptions(roles.stream()
-                .filter(role -> !role.isPublicRole())
-                .filter(role -> !role.getTags().isBot())
-                .map(RoleSelectCommand::roleToSelection)
-                .toList());
-    }
-
-    @NonNull
-    private static SelectOption roleToSelection(@NonNull final Role role) {
-        final var roleIcon = role.getIcon();
-
-        if (roleIcon == null || !roleIcon.isEmoji() || !roleIcon.isEmoji()) {
-            return SelectOption.of(role.getName(), role.getId());
-        } else {
-            return SelectOption.of(role.getName(), role.getId())
-                .withEmoji(Emoji.fromUnicode(Objects.requireNonNull(roleIcon.getEmoji())));
-        }
-    }
-
     public void onModalInteraction(final ModalInteractionContext context) {
         final var event = context.getEvent();
         if (!event.isFromGuild()) return;
-        final var menu = COMPONENT_LISTENER.createMenu(new String[]{MenuType.IN_CREATION.toString()},
-            Component.Lifespan.TEMPORARY,
-            // Parse the isDropdown
-            context.getArguments().get(0));
-
-        addMenuOptions(event, menu, "Select the roles to display", 1);
+        Objects.requireNonNull(context.getGuild());
 
         final var titleOption = event.getValue("title");
         final var descriptionOption = event.getValue("description");
+        final var colourOption = event.getValue("colour");
 
         final var title = titleOption == null ? null : titleOption.getAsString();
         final var description = descriptionOption == null ? null : descriptionOption.getAsString();
+        final var colour = colourOption == null ? null : Color.decode(colourOption.getAsString());
 
-        event.reply(new MessageBuilder()
-                .setEmbeds(
-                    new EmbedBuilder()
-                        .setTitle(title)
-                        .setColor(COLOUR)
-                        .setDescription(description)
-                        .build()
-                )
-                .setActionRows(ActionRow.of(menu.build()))
-                .build())
-            .setEphemeral(true)
-            .queue();
+        final var isDropdown = Boolean.parseBoolean(context.getArguments().get(0));
+        final var roles = context.getArguments().subList(1, context.getArguments().size())
+            .stream()
+            .map(context.getGuild()::getRoleById)
+            .toList();
+
+        final var message = new MessageBuilder()
+            .setEmbeds(
+                new EmbedBuilder()
+                    .setTitle(title)
+                    .setColor(colour)
+                    .setDescription(description)
+                    .build()
+            )
+            .setActionRows();
+
+        if (isDropdown) {
+            handleDropdownCreation(context, message, roles);
+        } else {
+            handleButtonOption(context, message, roles);
+        }
     }
 
     protected void onSelectMenu(final SelectMenuInteractionContext context) {
@@ -187,21 +183,10 @@ public class RoleSelectCommand extends SlashCommand {
             .filter(selfMember::canInteract)
             .toList();
 
-        final boolean isDropdown = Boolean.parseBoolean(context.getArguments().get(0));
-
-        switch (MenuType.valueOf(context.getItemComponentArguments().get(0))) {
-            case IN_CREATION -> {
-                if (isDropdown) {
-                    handleDropdownCreation(context, selectedRoles);
-                } else {
-                    handleButtonOption(context, selectedRoles);
-                }
-            }
-            case ROLE_PANEL -> handleRoleSelection(context, selectedRoles, guild);
-        }
+        handleRoleSelection(context, selectedRoles, guild);
     }
 
-    private static void handleButtonOption(final @NonNull SelectMenuInteractionContext context, final List<Role> selectedRoles) {
+    private static void handleButtonOption(final @NonNull ModalInteractionContext context, final MessageBuilder builder, final List<Role> selectedRoles) {
         final UUID id = UUID.randomUUID();
         final var idString = id.toString();
         final List<ActionRow> rows = new ArrayList<>();
@@ -222,47 +207,39 @@ public class RoleSelectCommand extends SlashCommand {
                     .toList()
             ));
         }
-        /* TODO what's the actual limit?
-        if (rows.size() > 5) {
-            context.getEvent().deferReply(true).setContent("Too many roles selected!");
-            return;
-        }
-         */
 
         final var component = new Component(COMPONENT_LISTENER.getName(), id, List.of(), Component.Lifespan.PERMANENT);
         COMPONENT_LISTENER.insertComponent(component);
 
-        context.getEvent().getChannel()
-            .sendMessageEmbeds(context.getEvent().getMessage().getEmbeds().get(0))
-            .setActionRows(rows)
+        context.getEvent().getMessageChannel()
+            .sendMessage(builder.setActionRows(rows).build())
+            .flatMap($ -> context.getEvent().reply("Message created and sent successfully!").setEphemeral(true))
             .queue();
-
-        context.getEvent().reply("Message created and sent successfully!").setEphemeral(true).queue();
     }
 
     private static Button createButtonForRole(final String id, final Role role) {
         final var icon = role.getIcon();
         final var bId = Component.createIdWithArguments(id, role.getId());
         if (icon != null && icon.isEmoji()) {
-            return Button.of(ButtonStyle.PRIMARY, bId, role.getName(), Emoji.fromUnicode(icon.getEmoji()));
+            return Button.of(ButtonStyle.PRIMARY, bId, role.getName(), Emoji.fromUnicode(Objects.requireNonNull(icon.getEmoji())));
         }
         return Button.primary(bId, role.getName());
     }
 
-    private static void handleDropdownCreation(final @NonNull SelectMenuInteractionContext context, final List<Role> selectedRoles) {
-        SelectMenu.Builder menu = COMPONENT_LISTENER.createMenu(new String[] {MenuType.ROLE_PANEL.toString()}, Component.Lifespan.PERMANENT, String.valueOf(true))
+    private static void handleDropdownCreation(final @NonNull ModalInteractionContext context, final MessageBuilder message, final List<Role> selectedRoles) {
+        SelectMenu.Builder menu = COMPONENT_LISTENER.createMenu(Component.Lifespan.PERMANENT)
             .setPlaceholder("Select your roles")
             .setMaxValues(selectedRoles.size())
             .setMinValues(0);
 
         selectedRoles.forEach(role -> menu.addOption(role.getName(), role.getId()));
 
-        context.getEvent().getChannel()
-            .sendMessageEmbeds(context.getEvent().getMessage().getEmbeds().get(0))
-            .setActionRow(menu.build())
+        context.getEvent().getMessageChannel()
+            .sendMessage(message
+                .setActionRows(ActionRow.of(menu.build()))
+                .build())
+            .flatMap($ -> context.getEvent().reply("Message created and sent successfully!").setEphemeral(true))
             .queue();
-
-        context.getEvent().reply("Message created and sent successfully!").setEphemeral(true).queue();
     }
 
     private static void handleRoleSelection(final @NonNull SelectMenuInteractionContext context, final @NonNull Collection<Role> selectedRoles, final Guild guild) {
@@ -323,10 +300,5 @@ public class RoleSelectCommand extends SlashCommand {
                 .flatMap($ -> event.deferReply(true).setContent("Successfully updated your roles!"))
                 .queue();
         }
-    }
-
-    enum MenuType {
-        IN_CREATION,
-        ROLE_PANEL
     }
 }
