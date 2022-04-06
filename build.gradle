@@ -128,6 +128,9 @@ dependencies {
   globalCompile libs.annotations
   globalCompile libs.lombok
 
+  listenerCompileOnly libs.immutables.value
+  listenerCompileOnly libs.immutables.builder
+
   global libs.jdbi.core
   global libs.jdbi.sqlobject
 

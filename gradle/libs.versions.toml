@@ -34,6 +34,7 @@ asmutils = "0.3.1"
 typetools = "0.6.3"
 javadocapi = "21ad5c1759"
 commons-io = "2.11.0"
+immutables = "2.9.0-rc1"
 
 [libraries]
 # jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
@@ -68,3 +69,5 @@ asmutils = {module = "io.github.matyrobbrt:asmutils", version.ref = "asmutils"}
 typetools = {module = "net.jodah:typetools", version.ref = "typetools"}
 javadocapi = { module = "com.github.I-Al-Istannen:JavadocApi", version.ref = "javadocapi" }
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
+immutables-value = { module = "org.immutables:value", version.ref = "immutables" }
+immutables-builder = { module = "org.immutables:builder", version.ref = "immutables" }

@@ -71,7 +71,7 @@ public final class XkcdCommand extends PaginatedCommand {
         try {
             final var xkcd = getComic(startingIndex + 1);
             return new EmbedBuilder()
-                .setTitle(xkcd.safe_title())
+                .setTitle(xkcd.safe_title() + " #" + xkcd.num())
                 .setDescription(xkcd.alt())
                 .setImage(xkcd.img())
                 .addField("Date", xkcd.day() + "/" + xkcd.month() + "/" + xkcd.year(), true);
