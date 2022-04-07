@@ -193,6 +193,10 @@ public class RemindCommand {
         @Override
         protected void execute(final SlashCommandEvent event) {
             if (!checkEnabled(event)) return;
+            if (Reminders.getRemindersForUser(event.getUser().getIdLong()).size() == 0) {
+                event.deferReply(true).setContent("You have no reminders.").queue();
+                return;
+            }
             createPaginatedMessage(event, Reminders.getRemindersForUser(event.getUser().getIdLong()).size(), event.getUser().getId());
         }
 

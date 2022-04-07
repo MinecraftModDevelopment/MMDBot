@@ -78,7 +78,7 @@ public class SlashCommandBuilder {
                 @Override
                 public void init() {
                     this.name = Builder.this.name;
-                    this.aliases = Builder.this.aliases;
+                    this.aliases = Builder.this.aliases == null ? new String[0] : Builder.this.aliases;
                     this.guildOnly = Builder.this.guildOnly;
                     this.userPermissions = Builder.this.userPermissions == null ? new Permission[]{} : Builder.this.userPermissions;
                     this.children = Builder.this.children.toArray(SlashCommand[]::new);
