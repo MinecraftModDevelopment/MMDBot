@@ -21,6 +21,11 @@
 package com.mcmoddev.mmdbot.commander.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.JsonOps;
 import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -32,9 +37,12 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * The type Embed trick.
@@ -160,6 +168,53 @@ public class EmbedTrick implements Trick {
      * The type Type.
      */
     public static class Type implements TrickType<EmbedTrick> {
+        public static final Codec<MessageEmbed.Field> FIELD_CODEC = new Codec<>() {
+            @Override
+            public <T> DataResult<Pair<MessageEmbed.Field, T>> decode(final DynamicOps<T> ops, final T input) {
+                return ops.getMap(input).map(map -> Pair.of(new MessageEmbed.Field(
+                    ops.getStringValue(map.get(ops.createString("name"))).get().orThrow(),
+                    ops.getStringValue(map.get(ops.createString("value"))).get().orThrow(),
+                    ops.getBooleanValue(map.get(ops.createString("inline"))).result().orElse(false)
+                ), input));
+            }
+
+            @Override
+            public <T> DataResult<T> encode(final MessageEmbed.Field input, final DynamicOps<T> ops, final T prefix) {
+                return ops.mergeToMap(prefix, Map.of(
+                    ops.createString("name"), ops.createString(input.getName()),
+                    ops.createString("value"), ops.createString(input.getValue()),
+                    ops.createString("inline"), ops.createBoolean(input.isInline())
+                ));
+            }
+        };
+        public static final Codec<EmbedTrick> CODEC = new Codec<>() {
+            @Override
+            public <T> DataResult<Pair<EmbedTrick, T>> decode(final DynamicOps<T> ops, final T input) {
+                return ops.getMap(input).map(map -> {
+                    final var names = new ArrayList<String>();
+                    ops.getList(map.get(ops.createString("names"))).get().orThrow().accept(t -> names.add(ops.getStringValue(t).get().orThrow()));
+                    return Pair.of(new EmbedTrick(
+                        names,
+                        ops.getStringValue(map.get(ops.createString("title"))).get().orThrow(),
+                        ops.getStringValue(map.get(ops.createString("description"))).get().orThrow(),
+                        ops.getNumberValue(map.get(ops.createString("color"))).get().orThrow().intValue(),
+                        ops.getStream(map.get(ops.createString("fields"))).result().orElse(Stream.empty()).map(t -> FIELD_CODEC.decode(ops, t).get().orThrow().getFirst()).toArray(MessageEmbed.Field[]::new)
+                    ), input);
+                });
+            }
+
+            @Override
+            public <T> DataResult<T> encode(final EmbedTrick input, final DynamicOps<T> ops, final T prefix) {
+                return ops.mergeToMap(prefix, Map.of(
+                    ops.createString("names"), ops.createList(input.getNames().stream().map(ops::createString)),
+                    ops.createString("description"), ops.createString(input.getDescription()),
+                    ops.createString("title"), ops.createString(input.getTitle()),
+                    ops.createString("color"), ops.createInt(input.getColor()),
+                    ops.createString("fields"), ops.createList(input.getFields().stream().map(f -> FIELD_CODEC.encodeStart(ops, f).result().orElseThrow()))
+                ));
+            }
+        };
+
         private Type() {}
 
         /**
@@ -237,6 +292,11 @@ public class EmbedTrick implements Trick {
                 getOrEmpty(event, "description"),
                 colour.startsWith("#") ? Integer.parseInt(getOrEmpty(event, "colour").replaceAll("#", ""), 16) : Integer.parseInt(colour)
             );
+        }
+
+        @Override
+        public Codec<EmbedTrick> getCodec() {
+            return CODEC;
         }
     }
 

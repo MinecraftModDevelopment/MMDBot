@@ -83,8 +83,15 @@ repositories {
   maven {
     url "https://clojars.org/repo/"
   }
-  maven { url 'https://jitpack.io' }
-  maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+  maven {
+    url 'https://jitpack.io'
+  }
+  maven {
+    url 'https://oss.sonatype.org/content/repositories/snapshots'
+  }
+  maven {
+    url 'https://libraries.minecraft.net'
+  }
 }
 
 dependencies {
@@ -107,6 +114,9 @@ dependencies {
 
   global libs.guava
   global libs.gson
+  global(libs.dfu) {
+    exclude module: 'slf4j-api'
+  }
   global libs.logback
   global libs.nightconfig
   global libs.sqlite

@@ -20,6 +20,10 @@
  */
 package com.mcmoddev.mmdbot.commander.tricks;
 
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -28,8 +32,10 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -79,6 +85,26 @@ public record StringTrick(List<String> names, String body) implements Trick {
      * The type Type.
      */
     public static class Type implements TrickType<StringTrick> {
+        public static final Codec<StringTrick> CODEC = new Codec<>() {
+            @Override
+            public <T> DataResult<T> encode(final StringTrick input, final DynamicOps<T> ops, final T prefix) {
+                return ops.mergeToMap(prefix, Map.of(
+                    ops.createString("names"), ops.createList(input.getNames().stream().map(ops::createString)),
+                    ops.createString("body"), ops.createString(input.body())
+                ));
+            }
+
+            @Override
+            public <T> DataResult<Pair<StringTrick, T>> decode(final DynamicOps<T> ops, final T input) {
+                return ops.getMap(input).map(map -> {
+                    final var names = new ArrayList<String>();
+                    ops.getList(map.get(ops.createString("names"))).get().orThrow().accept(t -> names.add(ops.getStringValue(t).get().orThrow()));
+                    return Pair.of(
+                        new StringTrick(names, ops.getStringValue(map.get(ops.createString("body"))).get().orThrow()),
+                        input);
+                });
+            }
+        };
 
         private Type() {
 
@@ -138,6 +164,11 @@ public record StringTrick(List<String> names, String body) implements Trick {
         public StringTrick createFromModal(final ModalInteractionEvent event) {
             return new StringTrick(Arrays.asList(event.getValue("names").getAsString()
                 .split(" ")), event.getValue("content").getAsString());
+        }
+
+        @Override
+        public Codec<StringTrick> getCodec() {
+            return CODEC;
         }
     }
 }

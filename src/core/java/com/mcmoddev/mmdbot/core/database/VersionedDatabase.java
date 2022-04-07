@@ -23,6 +23,11 @@ package com.mcmoddev.mmdbot.core.database;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mcmoddev.mmdbot.core.util.Constants;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -34,6 +39,7 @@ import java.nio.file.Path;
  *
  * @param <T> the type of the stored data
  */
+@Slf4j
 public final class VersionedDatabase<T> {
     private T data;
     private int schemaVersion;
@@ -91,6 +97,28 @@ public final class VersionedDatabase<T> {
         }
     }
 
+    /**
+     * Reads a database from a file.
+     *
+     * @param filePath             the path of the file to read
+     * @param codec                the codec to use for deserializing the data
+     * @param defaultSchemaVersion the schema version which the database will have if the json is empty
+     * @param defaultValue         the value of the database if the json is empty
+     * @param <T>                  the type of the data
+     * @return the database, as a {@link com.mojang.serialization.DataResult}. This result will be an error one, if an IO exception occurred
+     */
+    public static <T> DataResult<VersionedDatabase<T>> fromFile(Path filePath, Codec<T> codec, int defaultSchemaVersion, T defaultValue) {
+        try (final var reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8)) {
+            final var json = Constants.Gsons.NO_PRETTY_PRINTING.fromJson(reader, JsonObject.class);
+            if (json == null || !json.has(DATA_TAG)) {
+                return DataResult.success(new VersionedDatabase<>(defaultSchemaVersion, defaultValue));
+            }
+            return codec.decode(JsonOps.INSTANCE, json.get(DATA_TAG)).map(p -> new VersionedDatabase<>(json.get(SCHEMA_VERSION_TAG).getAsInt(), p.getFirst()));
+        } catch (IOException e) {
+            return DataResult.error(e.getMessage(), new VersionedDatabase<>(defaultSchemaVersion, defaultValue));
+        }
+    }
+
     public static final String SCHEMA_VERSION_TAG = "schemaVersion";
     public static final String DATA_TAG = "data";
 
@@ -107,6 +135,16 @@ public final class VersionedDatabase<T> {
         obj.addProperty(SCHEMA_VERSION_TAG, schemaVersion);
         obj.add(DATA_TAG, gson.fromJson(gson.toJson(data), JsonElement.class));
         return obj;
+    }
+
+    public DataResult<JsonObject> toJson(final Codec<T> codec) {
+        final var obj = new JsonObject();
+        obj.addProperty(SCHEMA_VERSION_TAG, schemaVersion);
+        return codec.encodeStart(JsonOps.INSTANCE, data)
+                .map(elem -> {
+                    obj.add(DATA_TAG, elem);
+                    return obj;
+                });
     }
 
     public int getSchemaVersion() {

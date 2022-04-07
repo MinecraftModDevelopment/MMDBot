@@ -20,6 +20,8 @@
  */
 package com.mcmoddev.mmdbot.commander.tricks;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
@@ -32,6 +34,8 @@ import com.mcmoddev.mmdbot.commander.commands.tricks.RunTrickCommand;
 import com.mcmoddev.mmdbot.commander.migrate.TricksMigrator;
 import com.mcmoddev.mmdbot.commander.tricks.Trick.TrickType;
 import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import io.github.matyrobbrt.curseforgeapi.util.gson.RecordTypeAdapterFactory;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,9 +47,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -73,9 +75,14 @@ public final class Tricks {
     public static final Gson GSON;
 
     /**
+     * The codec that serializes and deserializes the tricks.
+     */
+    public static final Codec<List<Trick>> CODEC = Codec.list(new TrickCodec());
+
+    /**
      * All registered {@link TrickType}s.
      */
-    private static final Map<String, Trick.TrickType<?>> TRICK_TYPES = new HashMap<>();
+    private static final BiMap<String, TrickType<?>> TRICK_TYPES = HashBiMap.create();
 
     /**
      * All registered tricks.
@@ -112,20 +119,23 @@ public final class Tricks {
             if (!Files.exists(path)) {
                 return tricks = new ArrayList<>();
             }
-            final var typeOfList = new TypeToken<List<Trick>>() {
-            }.getType();
-            try {
-                final var db = VersionedDatabase.<List<Trick>>fromFile(GSON, path, typeOfList);
-                if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
-                    new TricksMigrator(TheCommander.getInstance().getRunPath()).migrate();
-                    final var newDb = VersionedDatabase.<List<Trick>>fromFile(GSON, path, typeOfList);
-                    return tricks = newDb.getData();
-                } else {
-                    return tricks = db.getData();
-                }
-            } catch (final IOException exception) {
-                TheCommander.LOGGER.error("Failed to read tricks file...", exception);
+            final var data = VersionedDatabase.fromFile(path, CODEC, CURRENT_SCHEMA_VERSION, new ArrayList<>())
+                .flatMap(db -> {
+                    if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
+                        new TricksMigrator(TheCommander.getInstance().getRunPath()).migrate();
+                        final var newDb = VersionedDatabase.fromFile(path, CODEC, CURRENT_SCHEMA_VERSION, new ArrayList<>());
+                        return newDb.map(VersionedDatabase::getData);
+                    } else {
+                        return DataResult.success(db.getData());
+                    }
+                });
+            if (data.result().isPresent()) {
+                return tricks = new ArrayList<>(data.result().get());
+            } else if (data.error().isPresent()) {
+                TheCommander.LOGGER.error("Reading tricks file encountered an error: {}", data.error().get().message());
                 tricks = new ArrayList<>();
+            } else {
+                tricks = new ArrayList<>(); // this shouldn't be reached
             }
         }
         return tricks;
@@ -146,8 +156,8 @@ public final class Tricks {
      *
      * @return a map where the values are the trick types and the keys are their names
      */
-    public static Map<String, Trick.TrickType<?>> getTrickTypes() {
-        return new HashMap<>(TRICK_TYPES);
+    public static BiMap<String, Trick.TrickType<?>> getTrickTypes() {
+        return HashBiMap.create(TRICK_TYPES);
     }
 
     /**
@@ -166,11 +176,7 @@ public final class Tricks {
      * @return the name of the trick type, or null if no such type exists
      */
     public static @Nullable String getTrickTypeName(final TrickType<?> type) {
-        return TRICK_TYPES.entrySet().stream()
-            .filter(e -> e.getValue() == type)
-            .map(Map.Entry::getKey)
-            .findFirst()
-            .orElse(null);
+        return TRICK_TYPES.inverse().get(type);
     }
 
     /**
@@ -217,7 +223,14 @@ public final class Tricks {
         final var tricks = getTricks();
         final var db = VersionedDatabase.inMemory(CURRENT_SCHEMA_VERSION, tricks);
         try (var writer = new OutputStreamWriter(new FileOutputStream(tricksFile), StandardCharsets.UTF_8)) {
-            GSON.toJson(db.toJson(GSON), writer);
+            final var result = db.toJson(CODEC);
+            GSON.toJson(result.result()
+                .orElseThrow(
+                    () -> new IOException(result.error()
+                        .orElseThrow() // throw if the message doesn't exist... that would be weird
+                        .message())
+                ),
+                writer);
         } catch (final FileNotFoundException exception) {
             TheCommander.LOGGER.error("A FileNotFoundException occurred saving tricks...", exception);
         } catch (final IOException exception) {

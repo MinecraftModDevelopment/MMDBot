@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.commander.tricks;
 
+import com.mojang.serialization.Codec;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 
@@ -55,6 +56,10 @@ public interface Trick {
      * @return the type of the trick
      */
     TrickType<?> getType();
+
+    default Codec<?> getCodec() {
+        return getType().getCodec();
+    }
 
     /**
      * The TrickType interface. Every trick requires a trick type to be registered
@@ -99,5 +104,9 @@ public interface Trick {
          * @return the trick
          */
         T createFromModal(ModalInteractionEvent modal);
+
+        default Codec<T> getCodec() {
+            return null;
+        }
     }
 }
