@@ -53,13 +53,12 @@ import java.util.Random;
  * - List
  * <p>
  * Each is documented more thoroughly in the appropriate subclass.
- * <p>
- * TODO use actual role IDs
  *
  * @author Curle
  */
 public class QuoteCommand extends SlashCommand {
 
+    // This needs to be a supplier due to it having role requirements
     @RegisterSlashCommand
     public static final LazySupplier<SlashCommand> CMD = LazySupplier.of(QuoteCommand::new);
 
@@ -255,7 +254,7 @@ public class QuoteCommand extends SlashCommand {
      *
      * @author Curle
      */
-    public final class RemoveQuote extends SlashCommand {
+    public static final class RemoveQuote extends SlashCommand {
 
         /**
          * Create the command.
@@ -305,10 +304,11 @@ public class QuoteCommand extends SlashCommand {
         private ListQuotes() {
             super(Paginator
                 .builder(TheCommander.getComponentListener("list-quotes-cmd"))
-                .buttonsOwnerOnly(false)
                 .itemsPerPage(10)
-                .lifespan(Component.Lifespan.TEMPORARY)
                 .dismissible(true)
+                .buttonsOwnerOnly(false)
+                .lifespan(Component.Lifespan.TEMPORARY)
+                .buttonFactory(XkcdCommand.BUTTON_FACTORY)
                 .buttonOrder(Paginator.ButtonType.FIRST, Paginator.ButtonType.PREVIOUS, Paginator.ButtonType.DISMISS, Paginator.ButtonType.NEXT, Paginator.ButtonType.LAST)
             );
             name = "list";

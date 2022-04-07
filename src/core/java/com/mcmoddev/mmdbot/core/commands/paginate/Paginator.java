@@ -34,15 +34,16 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
-import static net.dv8tion.jda.api.entities.Emoji.fromMarkdown;
+import static net.dv8tion.jda.api.entities.Emoji.fromUnicode;
 
 /**
  * Utility class for paginating messages, using {@link Component Components}. <br>
  * There should be only one {@link Paginator} instance per feature, which should be reused.
  */
 public interface Paginator {
-    ButtonFactory DEFAULT_BUTTON_FACTORY = ButtonFactory.emoji(ButtonStyle.PRIMARY, fromMarkdown("◀️"), fromMarkdown("▶️"), fromMarkdown("⏮️"), fromMarkdown("⏭️"));
+    ButtonFactory DEFAULT_BUTTON_FACTORY = ButtonFactory.emoji(ButtonStyle.PRIMARY, fromUnicode("◀️"), fromUnicode("▶️"), fromUnicode("⏮️"), fromUnicode("⏭️"));
     List<ButtonType> DEFAULT_BUTTON_ORDER = List.of(ButtonType.PREVIOUS, ButtonType.DISMISS, ButtonType.NEXT);
     List<ButtonType> NATURAL_BUTTON_ORDER = List.of(ButtonType.FIRST, ButtonType.PREVIOUS, ButtonType.DISMISS, ButtonType.NEXT, ButtonType.LAST);
 
@@ -202,6 +203,16 @@ public interface Paginator {
                 case FIRST -> Button.of(style, buttonId, null, first);
                 case LAST -> Button.of(style, buttonId, null, last);
                 case DISMISS -> Button.of(DismissListener.BUTTON_STYLE, buttonId, DismissListener.LABEL, null);
+            };
+        }
+
+        default ButtonFactory with(ButtonType type, Function<String, Button> other) {
+            return (type1, buttonId) -> {
+                if (type1 == type) {
+                    return other.apply(buttonId);
+                } else {
+                    return this.build(type1, buttonId);
+                }
             };
         }
     }

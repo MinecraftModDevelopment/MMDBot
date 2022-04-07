@@ -104,7 +104,7 @@ public class ComponentManager implements EventListener {
             if (event.getButton().getId() != null) {
                 final var buttonArguments = event.getButton().getId().split(ID_SPLITTER);
                 final var id = UUID.fromString(buttonArguments[0]);
-                getStorage().getComponent(id).ifPresent(component -> {
+                getStorage().getComponent(id).ifPresentOrElse(component -> {
                     final var listener = listeners.get(component.featureId());
                     if (listener == null) {
                         event.deferReply(true).setContent("It seems like I can't handle this button anymore due to its listener being deleted.").queue();
@@ -141,7 +141,7 @@ public class ComponentManager implements EventListener {
                             }
                         });
                     }
-                });
+                }, () -> event.deferReply(true).setContent("I am sorry. It seems like I don't know what this button does anymore. <:sadge:926848859668353055>").queue());
             }
         } catch (IllegalArgumentException | IndexOutOfBoundsException ignored) {
 
@@ -153,7 +153,7 @@ public class ComponentManager implements EventListener {
             if (event.getSelectMenu().getId() != null) {
                 final var buttonArguments = event.getSelectMenu().getId().split(ID_SPLITTER);
                 final var id = UUID.fromString(buttonArguments[0]);
-                getStorage().getComponent(id).ifPresent(component -> {
+                getStorage().getComponent(id).ifPresentOrElse(component -> {
                     final var listener = listeners.get(component.featureId());
                     if (listener == null) {
                         event.deferReply(true).setContent("It seems like I can't handle this select menu anymore due to its listener being deleted.").queue();
@@ -190,7 +190,7 @@ public class ComponentManager implements EventListener {
                             }
                         });
                     }
-                });
+                }, () -> event.deferReply(true).setContent("I am sorry. It seems like I don't know what this select menu does anymore. <:sadge:926848859668353055>").queue());
             }
         } catch (IllegalArgumentException | IndexOutOfBoundsException ignored) {
 
@@ -199,13 +199,12 @@ public class ComponentManager implements EventListener {
 
     public void onModalInteraction(@NotNull final ModalInteractionEvent event) {
         try {
-            event.getModalId();
             final var modalArgs = event.getModalId().split(ID_SPLITTER);
             final var id = UUID.fromString(modalArgs[0]);
-            getStorage().getComponent(id).ifPresent(component -> {
+            getStorage().getComponent(id).ifPresentOrElse(component -> {
                 final var listener = listeners.get(component.featureId());
                 if (listener == null) {
-                    event.deferReply(true).setContent("It seems like I can't handle this select menu anymore due to its listener being deleted.").queue();
+                    event.deferReply(true).setContent("It seems like I can't handle this modal anymore due to its listener being deleted.").queue();
                 } else {
                     List<String> modalArgsList = modalArgs.length == 1 ? List.of() : Arrays.asList(Arrays.copyOfRange(modalArgs, 1, modalArgs.length));
                     listener.onModalInteraction(new ModalInteractionContext() {
@@ -239,7 +238,7 @@ public class ComponentManager implements EventListener {
                         }
                     });
                 }
-            });
+            }, () -> event.deferReply(true).setContent("I am sorry. It seems like I don't know what this modal does anymore. <:sadge:926848859668353055>").queue());
         } catch (IllegalArgumentException | IndexOutOfBoundsException ignored) {
 
         }

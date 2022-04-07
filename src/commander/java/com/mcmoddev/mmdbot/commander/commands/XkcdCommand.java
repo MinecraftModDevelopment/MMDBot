@@ -31,6 +31,7 @@ import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import io.github.matyrobbrt.curseforgeapi.util.Utils;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -45,6 +46,7 @@ import java.util.Random;
 @Slf4j
 public final class XkcdCommand extends PaginatedCommand {
 
+    public static final Paginator.ButtonFactory BUTTON_FACTORY = Paginator.DEFAULT_BUTTON_FACTORY.with(Paginator.ButtonType.DISMISS, id -> Button.secondary(id, Emoji.fromUnicode("\uD83D\uDEAE")));
     public static final URL LATEST_COMIC = Utils.rethrowSupplier(() -> new URL("https://xkcd.com/info.0.json")).get();
     public static final Random RANDOM = new Random();
 
@@ -54,6 +56,7 @@ public final class XkcdCommand extends PaginatedCommand {
         .dismissible(true)
         .buttonsOwnerOnly(true)
         .buttonOrder(Paginator.ButtonType.FIRST, Paginator.ButtonType.PREVIOUS, Paginator.ButtonType.DISMISS, Paginator.ButtonType.NEXT, Paginator.ButtonType.LAST)
+        .buttonFactory(BUTTON_FACTORY)
     );
 
     private XkcdCommand(final PaginatorBuilder paginator) {
@@ -71,7 +74,7 @@ public final class XkcdCommand extends PaginatedCommand {
         try {
             final var xkcd = getComic(startingIndex + 1);
             return new EmbedBuilder()
-                .setTitle(xkcd.safe_title() + " #" + xkcd.num())
+                .setTitle(xkcd.safe_title() + " #" + xkcd.num(), "https://xkcd.com/" + xkcd.num())
                 .setDescription(xkcd.alt())
                 .setImage(xkcd.img())
                 .addField("Date", xkcd.day() + "/" + xkcd.month() + "/" + xkcd.year(), true);
