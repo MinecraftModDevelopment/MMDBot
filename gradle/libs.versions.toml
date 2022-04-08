@@ -11,7 +11,7 @@ jda = "6adee1e"
 chewtils = "2.0-SNAPSHOT"
 guava = "31.1-jre"
 gson = "2.9.0"
-dfu = "4.1.27"
+dfu = "documentation-SNAPSHOT"
 logback = "1.2.11"
 nightconfig = "3.6.5"
 sqlite = "3.36.0.3"
@@ -45,7 +45,8 @@ chewtils = { module = "pw.chew:jda-chewtils", version.ref = "chewtils" }
 chewtils-command = { module = "pw.chew:jda-chewtils-command", version.ref = "chewtils" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
-dfu = { module = "com.mojang:datafixerupper", version.ref = "dfu" }
+# Use the documented version of DFU
+dfu = { module = "com.matyrobbrt:Documented-DataFixerUpper", version.ref = "dfu" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 nightconfig = { module = "com.electronwill.night-config:toml", version.ref = "nightconfig" }
 sqlite = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite" }

@@ -21,11 +21,12 @@
 package com.mcmoddev.mmdbot.commander.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.core.dfu.ExtendedCodec;
+import com.mcmoddev.mmdbot.core.dfu.ExtendedDynamicOps;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.JsonOps;
 import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -42,7 +43,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * The type Embed trick.
@@ -187,31 +187,34 @@ public class EmbedTrick implements Trick {
                 ));
             }
         };
-        public static final Codec<EmbedTrick> CODEC = new Codec<>() {
+        public static final Codec<EmbedTrick> CODEC = new ExtendedCodec<>() {
             @Override
-            public <T> DataResult<Pair<EmbedTrick, T>> decode(final DynamicOps<T> ops, final T input) {
-                return ops.getMap(input).map(map -> {
+            public <T> DataResult<Pair<EmbedTrick, T>> decode(final ExtendedDynamicOps<T> ops, final T input) {
+                return ops.getOpsMap(input).map(map -> {
                     final var names = new ArrayList<String>();
                     ops.getList(map.get(ops.createString("names"))).get().orThrow().accept(t -> names.add(ops.getStringValue(t).get().orThrow()));
                     return Pair.of(new EmbedTrick(
                         names,
-                        ops.getStringValue(map.get(ops.createString("title"))).get().orThrow(),
-                        ops.getStringValue(map.get(ops.createString("description"))).get().orThrow(),
-                        ops.getNumberValue(map.get(ops.createString("color"))).get().orThrow().intValue(),
-                        ops.getStream(map.get(ops.createString("fields"))).result().orElse(Stream.empty()).map(t -> FIELD_CODEC.decode(ops, t).get().orThrow().getFirst()).toArray(MessageEmbed.Field[]::new)
+                        map.getAsString("title").get().orThrow(),
+                        map.getAsString("description").get().orThrow(),
+                        map.getAsNumber("color").get().orThrow().intValue(),
+                        map.getAsListOrThrow("fields", t -> FIELD_CODEC.decode(ops, t).get().orThrow().getFirst(), true).toArray(MessageEmbed.Field[]::new)
                     ), input);
                 });
             }
 
             @Override
-            public <T> DataResult<T> encode(final EmbedTrick input, final DynamicOps<T> ops, final T prefix) {
-                return ops.mergeToMap(prefix, Map.of(
-                    ops.createString("names"), ops.createList(input.getNames().stream().map(ops::createString)),
-                    ops.createString("description"), ops.createString(input.getDescription()),
-                    ops.createString("title"), ops.createString(input.getTitle()),
-                    ops.createString("color"), ops.createInt(input.getColor()),
-                    ops.createString("fields"), ops.createList(input.getFields().stream().map(f -> FIELD_CODEC.encodeStart(ops, f).result().orElseThrow()))
-                ));
+            public <T> DataResult<T> encode(final EmbedTrick input, final ExtendedDynamicOps<T> ops, final T prefix) {
+                return ops.mergeToMap(prefix, ops.createOpsMap()
+                    .put("names", ops.createList(input.getNames().stream().map(ops::createString)))
+                    .put("description", ops.createString(input.getDescription()))
+                    .put("title", ops.createString(input.getTitle()))
+                    .put("color", ops.createInt(input.getColor()))
+                    .put("fields", ops.createList(input.getFields().stream()
+                        .map(f -> FIELD_CODEC.encodeStart(ops, f)
+                        .result()
+                        .orElseThrow())))
+                );
             }
         };
 
@@ -298,10 +301,6 @@ public class EmbedTrick implements Trick {
         public Codec<EmbedTrick> getCodec() {
             return CODEC;
         }
-    }
-
-    private static String getOrEmpty(final SlashCommandEvent event, String name) {
-        return event.getOption(name, "", OptionMapping::getAsString);
     }
 
     private static String getOr(final ModalInteractionEvent event, String id, String or) {
