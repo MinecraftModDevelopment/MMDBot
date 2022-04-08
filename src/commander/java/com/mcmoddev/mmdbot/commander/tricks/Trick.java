@@ -105,8 +105,10 @@ public interface Trick {
          */
         T createFromModal(ModalInteractionEvent modal);
 
-        default Codec<T> getCodec() {
-            return null;
-        }
+        /**
+         * Gets the codec used for deserializing and serializing the trick.
+         * @return the codec
+         */
+        Codec<T> getCodec();
     }
 }
