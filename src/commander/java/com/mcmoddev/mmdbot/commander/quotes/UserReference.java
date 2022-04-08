@@ -22,6 +22,11 @@ package com.mcmoddev.mmdbot.commander.quotes;
 
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.core.annotation.ExposeScripting;
+import com.mcmoddev.mmdbot.core.dfu.ExtendedCodec;
+import com.mcmoddev.mmdbot.core.dfu.ExtendedDynamicOps;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import net.dv8tion.jda.api.entities.User;
 
 /**
@@ -34,6 +39,31 @@ import net.dv8tion.jda.api.entities.User;
  * @author Curle
  */
 public final class UserReference {
+
+    /**
+     * The {@link Codec} that serializes an {@link UserReference}.
+     */
+    public static final Codec<UserReference> CODEC = new ExtendedCodec<>() {
+        @Override
+        public <T> DataResult<Pair<UserReference, T>> decode(final ExtendedDynamicOps<T> ops, final T input) {
+            return ops.getOpsMap(input).map(map -> {
+                final var reference = new UserReference();
+                reference.setReferenceType(ReferenceType.of(map.getAsString("referenceType").get().orThrow()));
+                reference.setSnowflakeData(map.getAsNumber("snowflakeData").get().orThrow().longValue());
+                reference.setStringData(map.getAsString("stringData").get().orThrow());
+                return Pair.of(reference, input);
+            });
+        }
+
+        @Override
+        public <T> DataResult<T> encode(final UserReference input, final ExtendedDynamicOps<T> ops, final T prefix) {
+            return ops.mergeToMap(prefix, ops.createOpsMap()
+                .put("referenceType", ops.createString(input.getReferenceType().getName()))
+                .put("snowflakeData", ops.createLong(input.getSnowflakeData()))
+                .put("stringData", ops.createString(input.getStringData()))
+            );
+        }
+    };
 
     /**
      * Identifies which of the fields in this class should be read to retrieve the proper data.

@@ -22,21 +22,14 @@ package com.mcmoddev.mmdbot.commander.tricks;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.commands.tricks.RunTrickCommand;
 import com.mcmoddev.mmdbot.commander.migrate.TricksMigrator;
 import com.mcmoddev.mmdbot.commander.tricks.Trick.TrickType;
 import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
+import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import io.github.matyrobbrt.curseforgeapi.util.gson.RecordTypeAdapterFactory;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.FileNotFoundException;
@@ -68,11 +61,6 @@ public final class Tricks {
      * The storage location for the tricks file.
      */
     private static final Supplier<Path> TRICK_STORAGE_PATH = () -> TheCommander.getInstance().getRunPath().resolve("tricks.json");
-
-    /**
-     * The GSON instance.
-     */
-    public static final Gson GSON;
 
     /**
      * The codec that serializes and deserializes the tricks.
@@ -133,9 +121,9 @@ public final class Tricks {
                 return tricks = new ArrayList<>(data.result().get());
             } else if (data.error().isPresent()) {
                 TheCommander.LOGGER.error("Reading tricks file encountered an error: {}", data.error().get().message());
-                tricks = new ArrayList<>();
+                return tricks = new ArrayList<>();
             } else {
-                tricks = new ArrayList<>(); // this shouldn't be reached
+                return tricks = new ArrayList<>(); // this shouldn't be reached
             }
         }
         return tricks;
@@ -172,6 +160,7 @@ public final class Tricks {
 
     /**
      * Gets the name of a trick type.
+     *
      * @param type the type whose name to search.
      * @return the name of the trick type, or null if no such type exists
      */
@@ -224,12 +213,12 @@ public final class Tricks {
         final var db = VersionedDatabase.inMemory(CURRENT_SCHEMA_VERSION, tricks);
         try (var writer = new OutputStreamWriter(new FileOutputStream(tricksFile), StandardCharsets.UTF_8)) {
             final var result = db.toJson(CODEC);
-            GSON.toJson(result.result()
-                .orElseThrow(
-                    () -> new IOException(result.error()
-                        .orElseThrow() // throw if the message doesn't exist... that would be weird
-                        .message())
-                ),
+            Constants.Gsons.NO_PRETTY_PRINTING.toJson(result.result()
+                    .orElseThrow(
+                        () -> new IOException(result.error()
+                            .orElseThrow() // throw if the message doesn't exist... that would be weird
+                            .message())
+                    ),
                 writer);
         } catch (final FileNotFoundException exception) {
             TheCommander.LOGGER.error("A FileNotFoundException occurred saving tricks...", exception);
@@ -242,60 +231,5 @@ public final class Tricks {
         Tricks.registerTrickType("string", StringTrick.TYPE);
         Tricks.registerTrickType("embed", EmbedTrick.TYPE);
         Tricks.registerTrickType("script", ScriptTrick.TYPE);
-
-        GSON = new GsonBuilder()
-            .registerTypeAdapterFactory(new RecordTypeAdapterFactory())
-            .registerTypeAdapterFactory(new TrickSerializer())
-            .create();
-    }
-
-    /**
-     * Handles serializing tricks to JSON.
-     */
-    static final class TrickSerializer implements TypeAdapterFactory {
-        /**
-         * Create type adapter.
-         *
-         * @param <T>  the type parameter
-         * @param gson the gson
-         * @param type the type
-         * @return the type adapter
-         */
-        @Override
-        public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
-            if (!Trick.class.isAssignableFrom(type.getRawType())) {
-                return null;
-            }
-            final TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
-            return new TypeAdapter<>() {
-                @Override
-                public void write(final JsonWriter out, final T value) throws IOException {
-                    out.beginObject();
-                    out.name("$type");
-                    out.value(type.toString());
-                    out.name("value");
-                    delegate.write(out, value);
-                    out.endObject();
-                }
-
-                @Override
-                public T read(final JsonReader in) throws IOException {
-                    in.beginObject();
-                    if (!"$type".equals(in.nextName())) {
-                        return null;
-                    }
-                    try {
-                        @SuppressWarnings("unchecked") Class<T> clazz = (Class<T>) Class.forName(in.nextString());
-                        TypeToken<T> readType = TypeToken.get(clazz);
-                        in.nextName();
-                        var result = gson.getDelegateAdapter(TrickSerializer.this, readType).read(in);
-                        in.endObject();
-                        return result;
-                    } catch (ClassNotFoundException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            };
-        }
     }
 }

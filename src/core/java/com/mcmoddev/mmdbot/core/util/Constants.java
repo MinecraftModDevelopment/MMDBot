@@ -93,7 +93,6 @@ public final class Constants {
             .registerTypeAdapter(Instant.class, new InstantTypeAdapter())
             .registerTypeAdapter(Pattern.class, new PatternTypeAdapter())
             .registerTypeAdapterFactory(new RecordTypeAdapterFactory())
-            .disableHtmlEscaping()
             .setLenient()
             .create();
         public static final Gson GSON = new GsonBuilder()
@@ -101,7 +100,6 @@ public final class Constants {
             .registerTypeAdapter(Pattern.class, new PatternTypeAdapter())
             .registerTypeAdapterFactory(new RecordTypeAdapterFactory())
             .setPrettyPrinting()
-            .disableHtmlEscaping()
             .create();
     }
 }

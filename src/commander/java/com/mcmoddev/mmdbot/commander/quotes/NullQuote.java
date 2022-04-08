@@ -21,6 +21,11 @@
 package com.mcmoddev.mmdbot.commander.quotes;
 
 import com.mcmoddev.mmdbot.core.annotation.ExposeScripting;
+import com.mcmoddev.mmdbot.core.dfu.ExtendedCodec;
+import com.mcmoddev.mmdbot.core.dfu.ExtendedDynamicOps;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 /**
@@ -29,6 +34,26 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
  * @author Curle
  */
 public final class NullQuote extends Quote {
+
+    public static final Codec<NullQuote> CODEC = new ExtendedCodec<>() {
+        @Override
+        public <T> DataResult<Pair<NullQuote, T>> decode(final ExtendedDynamicOps<T> ops, final T input) {
+            return ops.getOpsMap(input).map(map -> {
+                final var quote = new NullQuote();
+                quote.setID(map.getAsNumber("id").get().orThrow().intValue());
+                return Pair.of(quote, input);
+            });
+        }
+
+        @Override
+        public <T> DataResult<T> encode(final NullQuote input, final ExtendedDynamicOps<T> ops, final T prefix) {
+            return ops.mergeToMap(prefix, ops.createOpsMap()
+                .put("id", ops.createInt(input.getID()))
+            );
+        }
+    };
+
+    public static final IQuote.QuoteType<NullQuote> TYPE = () -> CODEC;
 
     @Override
     public MessageEmbed getQuoteMessage() {
@@ -47,5 +72,10 @@ public final class NullQuote extends Quote {
     public NullQuote() {
         this.setQuotee(null);
         this.setQuoteAuthor(null);
+    }
+
+    @Override
+    public QuoteType<?> getType() {
+        return TYPE;
     }
 }

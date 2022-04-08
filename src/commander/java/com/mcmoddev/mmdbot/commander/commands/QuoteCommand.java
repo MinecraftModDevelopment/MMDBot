@@ -24,6 +24,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
+import com.mcmoddev.mmdbot.commander.quotes.IQuote;
 import com.mcmoddev.mmdbot.commander.quotes.NullQuote;
 import com.mcmoddev.mmdbot.commander.quotes.Quote;
 import com.mcmoddev.mmdbot.commander.quotes.Quotes;
@@ -230,7 +231,7 @@ public class QuoteCommand extends SlashCommand {
                 return;
             }
 
-            Quote fetched;
+            IQuote fetched;
             Random rand = new Random();
             do {
                 int id = rand.nextInt(Quotes.getQuoteSlot(guildId));
@@ -363,7 +364,7 @@ public class QuoteCommand extends SlashCommand {
                 }
 
                 // Get the current Quote
-                Quote fetchedQuote = Quotes.getQuote(guildId, x);
+                IQuote fetchedQuote = Quotes.getQuote(guildId, x);
 
                 if (fetchedQuote instanceof NullQuote || fetchedQuote == null) {
                     embed.addField(String.valueOf(x), "Quote does not exist.", false);

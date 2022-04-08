@@ -20,27 +20,24 @@
  */
 package com.mcmoddev.mmdbot.commander.quotes;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.gson.JsonObject;
-import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
 import com.mcmoddev.mmdbot.commander.TheCommander;
-import com.mcmoddev.mmdbot.commander.migrate.QuotesMigrator;
+import com.mcmoddev.mmdbot.commander.migrate.TricksMigrator;
+import com.mcmoddev.mmdbot.commander.tricks.Trick;
 import com.mcmoddev.mmdbot.core.database.MigratorCluster;
 import com.mcmoddev.mmdbot.core.database.VersionedDataMigrator;
 import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
+import com.mcmoddev.mmdbot.core.util.Constants;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -75,13 +72,6 @@ public final class Quotes {
     private static final Supplier<Path> QUOTE_STORAGE = () -> TheCommander.getInstance().getRunPath().resolve("quotes.json");
 
     /**
-     * The Gson instance used for serialization and deserialization.
-     */
-    private static final Gson GSON = new GsonBuilder()
-        .registerTypeAdapterFactory(new QuoteSerializer())
-        .create();
-
-    /**
      * The current version of the database schema.
      */
     public static final int CURRENT_SCHEMA_VERSION = 2;
@@ -101,9 +91,9 @@ public final class Quotes {
         .build();
 
     /**
-     * The type of the quotes' data.
+     * The codec used for serializing quotes.
      */
-    private static final Type TYPE = new com.google.common.reflect.TypeToken<Map<Long, List<Quote>>>() {}.getType();
+    public static final Codec<Map<Long, List<IQuote>>> CODEC = Codec.unboundedMap(Codec.LONG, Codec.list(new QuoteCodec()));
 
     /**
      * The static instance of NullQuote used as the reference for nulls.
@@ -116,7 +106,7 @@ public final class Quotes {
      * Quote metadata ID should sync with the index in this list.
      * This greatly simplifies access operations.
      */
-    private static Map<Long, List<Quote>> quotes = null;
+    private static Map<Long, List<IQuote>> quotes = null;
 
     /**
      * The message used for when quotes are null, or do not exist.
@@ -129,14 +119,59 @@ public final class Quotes {
         .build();
 
     /**
+     * All registered {@link com.mcmoddev.mmdbot.commander.quotes.IQuote.QuoteType}s
+     */
+    private static final BiMap<String, IQuote.QuoteType<?>> QUOTE_TYPES = HashBiMap.create();
+
+    /**
+     * Register a new {@link Trick.TrickType}.
+     *
+     * @param name the name to register the type under
+     * @param type the type
+     */
+    public static void registerQuoteType(final String name, final IQuote.QuoteType<?> type) {
+        QUOTE_TYPES.put(name, type);
+    }
+
+    /**
+     * Gets all quote types.
+     *
+     * @return a map where the values are the quote types and the keys are their names
+     */
+    public static BiMap<String, IQuote.QuoteType<?>> getQuoteTypes() {
+        return HashBiMap.create(QUOTE_TYPES);
+    }
+
+    /**
+     * Gets a quote type by name.
+     *
+     * @param name the name
+     * @return the quote type, or null if no such type exists
+     */
+    public static @Nullable IQuote.QuoteType<?> getQuoteType(final String name) {
+        return QUOTE_TYPES.get(name);
+    }
+
+    /**
+     * Gets the name of a quote type.
+     *
+     * @param type the type whose name to search.
+     * @return the name of the quote type, or null if no such type exists
+     */
+    public static @Nullable String getQuoteTypeName(final IQuote.QuoteType<?> type) {
+        return QUOTE_TYPES.inverse().get(type);
+    }
+
+
+    /**
      * Given a numeric ID, fetch the quote at that index, from that guild, or null.
      *
      * @param guildId the id of the guild to fetch the quote for.
-     * @param id the index to fetch the quote from.
+     * @param id      the index to fetch the quote from.
      * @return the Quote object at that index.
      */
     @Nullable
-    public static Quote getQuote(final long guildId, final int id) {
+    public static IQuote getQuote(final long guildId, final int id) {
         return getQuotesForGuild(guildId).get(id);
     }
 
@@ -154,19 +189,23 @@ public final class Quotes {
         if (!Files.exists(path)) {
             quotes = Collections.synchronizedMap(new HashMap<>());
         }
-        try {
-            final var db = VersionedDatabase.<Map<Long, List<Quote>>>fromFile(GSON, path, TYPE);
-            if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
-                new QuotesMigrator(TheCommander.getInstance().getRunPath()).migrate();
-                final var newDb = VersionedDatabase.<Map<Long, List<Quote>>>fromFile(GSON, path, TYPE);
-                quotes = Collections.synchronizedMap(newDb.getData());
-            } else {
-                quotes = Collections.synchronizedMap(db.getData());
-            }
-
-        } catch (final IOException exception) {
-            TheCommander.LOGGER.trace("Failed to read quote file...", exception);
+        final var data = VersionedDatabase.fromFile(path, CODEC, true, CURRENT_SCHEMA_VERSION, new HashMap<>())
+            .flatMap(db -> {
+                if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
+                    new TricksMigrator(TheCommander.getInstance().getRunPath()).migrate();
+                    final var newDb = VersionedDatabase.fromFile(path, CODEC, true, CURRENT_SCHEMA_VERSION, new HashMap<>());
+                    return newDb.map(VersionedDatabase::getData);
+                } else {
+                    return DataResult.success(db.getData());
+                }
+            });
+        if (data.result().isPresent()) {
+            quotes = Collections.synchronizedMap(new HashMap<>(data.result().get()));
+        } else if (data.error().isPresent()) {
+            TheCommander.LOGGER.error("Reading quotes file encountered an error: {}", data.error().get().message());
             quotes = Collections.synchronizedMap(new HashMap<>());
+        } else {
+            quotes = Collections.synchronizedMap(new HashMap<>()); // this shouldn't be reached
         }
 
         if (quotes.get(0L) != null) {
@@ -189,7 +228,14 @@ public final class Quotes {
         }
         final var db = VersionedDatabase.inMemory(CURRENT_SCHEMA_VERSION, quotes);
         try (final var writer = Files.newBufferedWriter(QUOTE_STORAGE.get(), StandardCharsets.UTF_8, StandardOpenOption.CREATE)) {
-            GSON.toJson(db.toJson(GSON), writer);
+            final var result = db.toJson(CODEC, true);
+            Constants.Gsons.NO_PRETTY_PRINTING.toJson(result.result()
+                    .orElseThrow(
+                        () -> new IOException(result.error()
+                            .orElseThrow() // throw if the message doesn't exist... that would be weird
+                            .message())
+                    ),
+                writer);
         } catch (Exception exception) {
             TheCommander.LOGGER.error("Failed to write quote file...", exception);
         }
@@ -199,7 +245,7 @@ public final class Quotes {
      * Add the specified quote to the list at the specified index.
      *
      * @param guildId the ID of the guild for which to add the quote.
-     * @param quote The quote to add.
+     * @param quote   The quote to add.
      */
     public static void addQuote(final long guildId, final Quote quote) {
         getQuotesForGuild(guildId).add(quote.getID(), quote);
@@ -214,7 +260,7 @@ public final class Quotes {
      * If the quote is after the end of the list, it will have no effect.
      *
      * @param guildId the ID of the guild for which to remove the quote.
-     * @param id the ID of the item to remove.
+     * @param id      the ID of the item to remove.
      */
     public static void removeQuote(final long guildId, final int id) {
         final var quotes = getQuotesForGuild(guildId);
@@ -255,11 +301,16 @@ public final class Quotes {
         return getQuotesForGuild(guildId).size();
     }
 
-    public static List<Quote> getQuotesForGuild(final long guildId) {
+    public static List<IQuote> getQuotesForGuild(final long guildId) {
         if (quotes == null) {
             loadQuotes();
         }
         return quotes.computeIfAbsent(guildId, k -> new ArrayList<>());
+    }
+
+    static {
+        registerQuoteType("string", StringQuote.TYPE);
+        registerQuoteType("null", NullQuote.TYPE);
     }
 
     /**
@@ -267,65 +318,6 @@ public final class Quotes {
      */
     public static MessageEmbed getQuoteNotPresent() {
         return QUOTE_NOT_PRESENT;
-    }
-
-    static final class QuoteSerializer implements TypeAdapterFactory {
-
-        public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
-            if (!Quote.class.isAssignableFrom(type.getRawType()))
-                return null;
-
-            // Fetch the Gson adapter that'd otherwise be used to serialize/deserialize this object
-            final TypeAdapter<T> adapter = gson.getDelegateAdapter(this, type);
-
-            // Create a new TypeAdapter, that.
-            return new TypeAdapter<>() {
-
-                // When asked to serialize.
-                @Override
-                public void write(final JsonWriter out, final T value) throws IOException {
-                    out.beginObject();
-                    // Writes { "type": "StringQuote" }
-                    out.name("type").value(type.toString());
-                    // Writes { "value": DATA }
-                    out.name("value");
-                    // And passes the serialization onto Gson's internal handlers.
-                    adapter.write(out, value);
-                    out.endObject();
-                }
-
-                // And when asked to read...
-                @Override
-                @SuppressWarnings("unchecked")
-                public T read(final JsonReader in) throws IOException {
-                    if (in.peek() == JsonToken.NULL)
-                        return null;
-
-                    in.beginObject();
-
-
-                    // Makes sure the type we wrote is there,
-                    if (!"type".equals(in.nextName()))
-                        return null;
-
-                    try {
-                        // Retrieves the class name we wrote,
-                        Class<T> clazz = (Class<T>) Class.forName(in.nextString());
-                        // Retrieves the TypeToken for the class,
-                        TypeToken<T> readerType = TypeToken.get(clazz);
-
-                        in.nextName(); // Skip value
-                        // And passes on reading to Gson's internal handlers.
-                        T result = gson.getDelegateAdapter(QuoteSerializer.this, readerType).read(in);
-                        in.endObject();
-                        return result;
-                        // Except, when the class doesn't exist, it passes on the RuntimeError.
-                    } catch (ClassNotFoundException exception) {
-                        throw new RuntimeException(exception);
-                    }
-                }
-            };
-        }
     }
 
 }

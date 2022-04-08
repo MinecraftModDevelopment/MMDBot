@@ -98,7 +98,8 @@ public final class VersionedDatabase<T> {
     }
 
     /**
-     * Reads a database from a file.
+     * Reads a database from a file. <br>
+     * The {@link JsonOps} used is <strong>not</strong> compressed.
      *
      * @param filePath             the path of the file to read
      * @param codec                the codec to use for deserializing the data
@@ -108,12 +109,27 @@ public final class VersionedDatabase<T> {
      * @return the database, as a {@link com.mojang.serialization.DataResult}. This result will be an error one, if an IO exception occurred
      */
     public static <T> DataResult<VersionedDatabase<T>> fromFile(Path filePath, Codec<T> codec, int defaultSchemaVersion, T defaultValue) {
+        return fromFile(filePath, codec, false, defaultSchemaVersion, defaultValue);
+    }
+
+    /**
+     * Reads a database from a file.
+     *
+     * @param filePath             the path of the file to read
+     * @param codec                the codec to use for deserializing the data
+     * @param compressed           if the {@link JsonOps} used for deserializing the data is a compressed one
+     * @param defaultSchemaVersion the schema version which the database will have if the json is empty
+     * @param defaultValue         the value of the database if the json is empty
+     * @param <T>                  the type of the data
+     * @return the database, as a {@link com.mojang.serialization.DataResult}. This result will be an error one, if an IO exception occurred
+     */
+    public static <T> DataResult<VersionedDatabase<T>> fromFile(Path filePath, Codec<T> codec, boolean compressed, int defaultSchemaVersion, T defaultValue) {
         try (final var reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8)) {
             final var json = Constants.Gsons.NO_PRETTY_PRINTING.fromJson(reader, JsonObject.class);
             if (json == null || !json.has(DATA_TAG)) {
                 return DataResult.success(new VersionedDatabase<>(defaultSchemaVersion, defaultValue));
             }
-            return codec.decode(JsonOps.INSTANCE, json.get(DATA_TAG)).map(p -> new VersionedDatabase<>(json.get(SCHEMA_VERSION_TAG).getAsInt(), p.getFirst()));
+            return codec.decode(compressed ? JsonOps.COMPRESSED : JsonOps.INSTANCE, json.get(DATA_TAG)).map(p -> new VersionedDatabase<>(json.get(SCHEMA_VERSION_TAG).getAsInt(), p.getFirst()));
         } catch (IOException e) {
             return DataResult.error(e.getMessage(), new VersionedDatabase<>(defaultSchemaVersion, defaultValue));
         }
@@ -138,13 +154,17 @@ public final class VersionedDatabase<T> {
     }
 
     public DataResult<JsonObject> toJson(final Codec<T> codec) {
+        return toJson(codec, false);
+    }
+
+    public DataResult<JsonObject> toJson(final Codec<T> codec, final boolean compressed) {
         final var obj = new JsonObject();
         obj.addProperty(SCHEMA_VERSION_TAG, schemaVersion);
-        return codec.encodeStart(JsonOps.INSTANCE, data)
-                .map(elem -> {
-                    obj.add(DATA_TAG, elem);
-                    return obj;
-                });
+        return codec.encodeStart(compressed ? JsonOps.COMPRESSED : JsonOps.INSTANCE, data)
+            .map(elem -> {
+                obj.add(DATA_TAG, elem);
+                return obj;
+            });
     }
 
     public int getSchemaVersion() {

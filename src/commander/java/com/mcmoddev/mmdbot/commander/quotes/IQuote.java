@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.commander.quotes;
 
 import com.mcmoddev.mmdbot.core.annotation.ExposeScripting;
+import com.mojang.serialization.Codec;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 /**
@@ -95,4 +96,24 @@ public interface IQuote {
     @ExposeScripting
     String getQuoteText();
 
+    /**
+     * @return the type of the quote
+     */
+    QuoteType<?> getType();
+
+    /**
+     * An interface representing the type of a quote.
+     *
+     * @param <Q> the quote that this type represents
+     */
+    interface QuoteType<Q extends IQuote> {
+
+        /**
+         * Gets the codec used for deserializing and serializing the quote.
+         *
+         * @return the codec
+         */
+        Codec<Q> getCodec();
+
+    }
 }

@@ -21,6 +21,11 @@
 package com.mcmoddev.mmdbot.commander.quotes;
 
 import com.mcmoddev.mmdbot.core.annotation.ExposeScripting;
+import com.mcmoddev.mmdbot.core.dfu.ExtendedCodec;
+import com.mcmoddev.mmdbot.core.dfu.ExtendedDynamicOps;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
@@ -38,6 +43,36 @@ import java.time.Instant;
  * @author Curle
  */
 public final class StringQuote extends Quote {
+
+    /**
+     * The codec used for serializing this quote type.
+     */
+    public static final Codec<StringQuote> CODEC = new ExtendedCodec<>() {
+        @Override
+        public <T> DataResult<Pair<StringQuote, T>> decode(final ExtendedDynamicOps<T> ops, final T input) {
+            return ops.getOpsMap(input).map(map -> {
+                final var quote = new StringQuote(
+                    UserReference.CODEC.decode(ops, map.get("quotee")).get().orThrow().getFirst(),
+                    map.getAsString("data").get().orThrow(),
+                    UserReference.CODEC.decode(ops, map.get("creator")).get().orThrow().getFirst()
+                );
+                quote.setID(map.getAsNumber("id").get().orThrow().intValue());
+                return Pair.of(quote, input);
+            });
+        }
+
+        @Override
+        public <T> DataResult<T> encode(final StringQuote input, final ExtendedDynamicOps<T> ops, final T prefix) {
+            return ops.mergeToMap(prefix, ops.createOpsMap()
+                .put("data", ops.createString(input.getData()))
+                .put("id", ops.createInt(input.getID()))
+                .put("quotee", UserReference.CODEC.encodeStart(ops, input.getQuotee()).get().orThrow())
+                .put("creator", UserReference.CODEC.encodeStart(ops, input.getQuoteAuthor()).get().orThrow())
+            );
+        }
+    };
+
+    public static final IQuote.QuoteType<StringQuote> TYPE = () -> CODEC;
 
     /**
      * The String that is the message or content being quoted.
@@ -89,5 +124,10 @@ public final class StringQuote extends Quote {
         this.setQuotee(quotee);
         this.setData(quote);
         this.setQuoteAuthor(creator);
+    }
+
+    @Override
+    public QuoteType<?> getType() {
+        return TYPE;
     }
 }
