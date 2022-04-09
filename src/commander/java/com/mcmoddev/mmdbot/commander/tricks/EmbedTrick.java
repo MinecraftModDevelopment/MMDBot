@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.commander.tricks;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.core.dfu.Codecs;
 import com.mcmoddev.mmdbot.core.dfu.ExtendedCodec;
 import com.mcmoddev.mmdbot.core.dfu.ExtendedDynamicOps;
 import com.mojang.datafixers.util.Pair;
@@ -39,6 +40,7 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -94,6 +96,24 @@ public class EmbedTrick implements Trick {
         this.description = description;
         this.color = color;
         this.fields = Arrays.asList(fields);
+    }
+
+    /**
+     * Instantiates a new Embed trick.
+     *
+     * @param names       Name of the trick.
+     * @param title       Trick title.
+     * @param description The description of the trick.
+     * @param color       The embed edge color for the trick.
+     * @param fields      the fields
+     */
+    public EmbedTrick(final List<String> names, final String title, final String description, final int color,
+                      final List<MessageEmbed.Field> fields) {
+        this.names = names;
+        this.title = title;
+        this.description = description;
+        this.color = color;
+        this.fields = fields;
     }
 
     /**
@@ -175,36 +195,13 @@ public class EmbedTrick implements Trick {
             Codec.BOOL.optionalFieldOf("inline", true).forGetter(MessageEmbed.Field::isInline)
         ).apply(instance, MessageEmbed.Field::new));
 
-        public static final Codec<EmbedTrick> CODEC = new ExtendedCodec<>() {
-            @Override
-            public <T> DataResult<Pair<EmbedTrick, T>> decode(final ExtendedDynamicOps<T> ops, final T input) {
-                return ops.getOpsMap(input).map(map -> {
-                    final var names = new ArrayList<String>();
-                    ops.getList(map.get(ops.createString("names"))).get().orThrow().accept(t -> names.add(ops.getStringValue(t).get().orThrow()));
-                    return Pair.of(new EmbedTrick(
-                        names,
-                        map.getAsString("title").get().orThrow(),
-                        map.getAsString("description").get().orThrow(),
-                        map.getAsNumber("color").get().orThrow().intValue(),
-                        map.getAsListOrThrow("fields", t -> FIELD_CODEC.decode(ops, t).get().orThrow().getFirst(), true).toArray(MessageEmbed.Field[]::new)
-                    ), input);
-                });
-            }
-
-            @Override
-            public <T> DataResult<T> encode(final EmbedTrick input, final ExtendedDynamicOps<T> ops, final T prefix) {
-                return ops.mergeToMap(prefix, ops.createOpsMap()
-                    .put("names", ops.createList(input.getNames().stream().map(ops::createString)))
-                    .put("description", ops.createString(input.getDescription()))
-                    .put("title", ops.createString(input.getTitle()))
-                    .put("color", ops.createInt(input.getColor()))
-                    .put("fields", ops.createList(input.getFields().stream()
-                        .map(f -> FIELD_CODEC.encodeStart(ops, f)
-                        .result()
-                        .orElseThrow())))
-                );
-            }
-        };
+        public static final Codec<EmbedTrick> CODEC = RecordCodecBuilder.create(in -> in.group(
+            Codec.STRING.listOf().fieldOf("names").forGetter(EmbedTrick::getNames),
+            Codec.STRING.fieldOf("title").forGetter(EmbedTrick::getTitle),
+            Codec.STRING.fieldOf("description").forGetter(EmbedTrick::getDescription),
+            Codec.INT.optionalFieldOf("color", Color.GRAY.getRGB()).forGetter(EmbedTrick::getColor),
+            FIELD_CODEC.listOf().optionalFieldOf("fields", List.of()).forGetter(EmbedTrick::getFields)
+        ).apply(in, EmbedTrick::new));
 
         private Type() {}
 

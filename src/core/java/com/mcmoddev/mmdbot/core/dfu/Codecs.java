@@ -5,6 +5,7 @@ import com.mojang.serialization.Keyable;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.UnboundedMapCodec;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +24,11 @@ public interface Codecs {
      * A codec used for {@link Pattern patterns}.
      */
     Codec<Pattern> PATTERN = Codec.STRING.xmap(Pattern::compile, Pattern::toString);
+
+    /**
+     * A codec used for {@link Color colours}.
+     */
+    Codec<Color> COLOR = Codec.INT.xmap(Color::new, Color::getRGB);
 
     /**
      * Creates a codec for mutable lists.

@@ -22,12 +22,11 @@ package com.mcmoddev.mmdbot.commander.quotes;
 
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.core.annotation.ExposeScripting;
-import com.mcmoddev.mmdbot.core.dfu.ExtendedCodec;
-import com.mcmoddev.mmdbot.core.dfu.ExtendedDynamicOps;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.dv8tion.jda.api.entities.User;
+
+import java.util.Objects;
 
 /**
  * The information containing "who" or "what" a quote is referencing.
@@ -43,27 +42,11 @@ public final class UserReference {
     /**
      * The {@link Codec} that serializes an {@link UserReference}.
      */
-    public static final Codec<UserReference> CODEC = new ExtendedCodec<>() {
-        @Override
-        public <T> DataResult<Pair<UserReference, T>> decode(final ExtendedDynamicOps<T> ops, final T input) {
-            return ops.getOpsMap(input).map(map -> {
-                final var reference = new UserReference();
-                reference.setReferenceType(ReferenceType.of(map.getAsString("referenceType").get().orThrow()));
-                reference.setSnowflakeData(map.getAsNumber("snowflakeData").get().orThrow().longValue());
-                reference.setStringData(map.getAsString("stringData").get().orThrow());
-                return Pair.of(reference, input);
-            });
-        }
-
-        @Override
-        public <T> DataResult<T> encode(final UserReference input, final ExtendedDynamicOps<T> ops, final T prefix) {
-            return ops.mergeToMap(prefix, ops.createOpsMap()
-                .put("referenceType", ops.createString(input.getReferenceType().getName()))
-                .put("snowflakeData", ops.createLong(input.getSnowflakeData()))
-                .put("stringData", ops.createString(input.getStringData()))
-            );
-        }
-    };
+    public static final Codec<UserReference> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+        Codec.STRING.xmap(ReferenceType::of, ReferenceType::getName).optionalFieldOf("referenceType", ReferenceType.ANONYMOUS).forGetter(UserReference::getReferenceType),
+        Codec.LONG.fieldOf("snowflakeData").forGetter(UserReference::getSnowflakeData),
+        Codec.STRING.fieldOf("stringData").forGetter(UserReference::getStringData)
+    ).apply(instance, UserReference::new));
 
     /**
      * Identifies which of the fields in this class should be read to retrieve the proper data.
@@ -89,7 +72,7 @@ public final class UserReference {
      * <p>
      * Encodes the string "Anonymous" which is always returned as the source.
      */
-    private static final String anonymousData = "Anonymous";
+    private static final String ANONYMOUS_DATA = "Anonymous";
 
     /**
      * Identifies which of the fields in this class should be read to retrieve the proper data.
@@ -161,7 +144,7 @@ public final class UserReference {
      */
     @ExposeScripting
     public String getAnonymousData() {
-        return anonymousData;
+        return ANONYMOUS_DATA;
     }
 
     /**
@@ -176,7 +159,7 @@ public final class UserReference {
         switch (getReferenceType()) {
             case SNOWFLAKE:
                 // Try to find the user's data in a server
-                User user = TheCommander.getJDA().getUserById(getSnowflakeData());
+                User user = Objects.requireNonNull(TheCommander.getJDA()).getUserById(getSnowflakeData());
                 // If we have it...
                 if (user != null) {
                     return user.getAsTag();
@@ -298,4 +281,9 @@ public final class UserReference {
         setSnowflakeData(0);
     }
 
+    public UserReference(final ReferenceType referenceType, final long snowflakeData, final String stringData) {
+        this.referenceType = referenceType;
+        this.snowflakeData = snowflakeData;
+        this.stringData = stringData;
+    }
 }

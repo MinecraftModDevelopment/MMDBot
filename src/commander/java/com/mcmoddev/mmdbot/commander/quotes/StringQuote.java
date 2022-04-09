@@ -26,6 +26,7 @@ import com.mcmoddev.mmdbot.core.dfu.ExtendedDynamicOps;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
@@ -47,30 +48,12 @@ public final class StringQuote extends Quote {
     /**
      * The codec used for serializing this quote type.
      */
-    public static final Codec<StringQuote> CODEC = new ExtendedCodec<>() {
-        @Override
-        public <T> DataResult<Pair<StringQuote, T>> decode(final ExtendedDynamicOps<T> ops, final T input) {
-            return ops.getOpsMap(input).map(map -> {
-                final var quote = new StringQuote(
-                    UserReference.CODEC.decode(ops, map.get("quotee")).get().orThrow().getFirst(),
-                    map.getAsString("data").get().orThrow(),
-                    UserReference.CODEC.decode(ops, map.get("creator")).get().orThrow().getFirst()
-                );
-                quote.setID(map.getAsNumber("id").get().orThrow().intValue());
-                return Pair.of(quote, input);
-            });
-        }
-
-        @Override
-        public <T> DataResult<T> encode(final StringQuote input, final ExtendedDynamicOps<T> ops, final T prefix) {
-            return ops.mergeToMap(prefix, ops.createOpsMap()
-                .put("data", ops.createString(input.getData()))
-                .put("id", ops.createInt(input.getID()))
-                .put("quotee", UserReference.CODEC.encodeStart(ops, input.getQuotee()).get().orThrow())
-                .put("creator", UserReference.CODEC.encodeStart(ops, input.getQuoteAuthor()).get().orThrow())
-            );
-        }
-    };
+    public static final Codec<StringQuote> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+        UserReference.CODEC.fieldOf("quotee").forGetter(StringQuote::getQuotee),
+        Codec.STRING.fieldOf("data").forGetter(StringQuote::getData),
+        UserReference.CODEC.fieldOf("creator").forGetter(StringQuote::getQuoteAuthor),
+        Codec.INT.optionalFieldOf("id", 0).forGetter(StringQuote::getID)
+    ).apply(instance, StringQuote::new));
 
     public static final IQuote.QuoteType<StringQuote> TYPE = () -> CODEC;
 
@@ -124,6 +107,21 @@ public final class StringQuote extends Quote {
         this.setQuotee(quotee);
         this.setData(quote);
         this.setQuoteAuthor(creator);
+    }
+
+    /**
+     * Construct a new StringQuote with all the necessary data.
+     *
+     * @param quotee  A Reference to the User being Quoted.
+     * @param quote   The message or content being Quoted.
+     * @param creator A Reference to the User that created the Quote.
+     * @param id      The ID of the quote
+     */
+    public StringQuote(final UserReference quotee, final String quote, final UserReference creator, final int id) {
+        this.setQuotee(quotee);
+        this.setData(quote);
+        this.setQuoteAuthor(creator);
+        this.setID(id);
     }
 
     @Override
