@@ -22,6 +22,9 @@ package com.mcmoddev.mmdbot.commander.reminders;
 
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -42,6 +45,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public record Reminder(String content, long channelId, boolean isPrivateChannel, long ownerId,
                        Instant time, AtomicBoolean removed) implements Runnable {
+
+    /**
+     * The {@link Codec codec} used for serializing and deserializing {@link Reminder reminders}.
+     */
+    public static final Codec<Reminder> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+        Codec.STRING.fieldOf("content").forGetter(Reminder::content),
+        Codec.LONG.fieldOf("channelId").forGetter(Reminder::channelId),
+        Codec.BOOL.fieldOf("isPrivateChannel").forGetter(Reminder::isPrivateChannel),
+        Codec.LONG.fieldOf("ownerId").forGetter(Reminder::channelId),
+        Codec.LONG.xmap(Instant::ofEpochSecond, Instant::getEpochSecond).fieldOf("time").forGetter(Reminder::time),
+        Codec.BOOL.xmap(AtomicBoolean::new, AtomicBoolean::get).fieldOf("removed").forGetter(Reminder::removed)
+    ).apply(instance, Reminder::new));
 
     public Reminder(String content, long channelId, boolean isPrivateChannel, long ownerId,
                     Instant time) {

@@ -48,6 +48,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -93,7 +94,11 @@ public final class Quotes {
     /**
      * The codec used for serializing quotes.
      */
-    public static final Codec<Map<Long, List<IQuote>>> CODEC = Codec.unboundedMap(Codec.LONG, Codec.list(new QuoteCodec()));
+    public static final Codec<Map<Long, List<IQuote>>> CODEC = Codec.unboundedMap(
+        Codec.LONG,
+        Codec.list(new QuoteCodec())
+            .<List<IQuote>>xmap(ArrayList::new, Function.identity()) // make the list mutable
+    ).xmap(HashMap::new, Function.identity()); // make the map mutable
 
     /**
      * The static instance of NullQuote used as the reference for nulls.
@@ -200,7 +205,7 @@ public final class Quotes {
                 }
             });
         if (data.result().isPresent()) {
-            quotes = Collections.synchronizedMap(new HashMap<>(data.result().get()));
+            quotes = Collections.synchronizedMap(data.result().get());
         } else if (data.error().isPresent()) {
             TheCommander.LOGGER.error("Reading quotes file encountered an error: {}", data.error().get().message());
             quotes = Collections.synchronizedMap(new HashMap<>());

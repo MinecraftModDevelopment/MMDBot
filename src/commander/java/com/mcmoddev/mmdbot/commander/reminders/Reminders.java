@@ -20,17 +20,21 @@
  */
 package com.mcmoddev.mmdbot.commander.reminders;
 
+import static java.util.Collections.synchronizedMap;
 import com.google.common.base.Suppliers;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.core.database.VersionedDataMigrator;
 import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
+import com.mcmoddev.mmdbot.core.dfu.Codecs;
+import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.Utils;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import lombok.experimental.UtilityClass;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,10 +44,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-
-import static com.mcmoddev.mmdbot.core.util.Constants.Gsons.NO_PRETTY_PRINTING;
 
 @UtilityClass
 public class Reminders {
@@ -75,29 +78,42 @@ public class Reminders {
     private static final ScheduledExecutorService TIMER = Executors.newSingleThreadScheduledExecutor(r -> Utils.setThreadDaemon(new Thread(r, "Reminders"), true));
 
     /**
-     * The type of the reminders.
+     * The codec used for serializing reminders.
      */
-    private static final Type TYPE = new com.google.common.reflect.TypeToken<Map<Long, List<Reminder>>>() {}.getType();
+    private static final Codec<Map<Long, List<Reminder>>> CODEC = Codec.unboundedMap(
+        Codecs.LONG_FROM_STRING, // We can't use a compressed JsonOps, so map from and to a string
+        Codec.list(Reminder.CODEC).<List<Reminder>>xmap(ArrayList::new, Function.identity()) // Make the list mutable
+    ).xmap(HashMap::new, Function.identity()); // Make the map mutable
+
     private static Map<Long, List<Reminder>> reminders;
 
     public static Map<Long, List<Reminder>> getReminders() {
         if (reminders != null) return reminders;
         final var path = PATH.get();
         if (!Files.exists(path)) {
-            return reminders = new HashMap<>();
+            return reminders = synchronizedMap(new HashMap<>());
         }
-        try {
-            final var db = VersionedDatabase.<Map<Long, List<Reminder>>>fromFile(NO_PRETTY_PRINTING, path, TYPE, CURRENT_SCHEMA_VERSION, new HashMap<>());
-            if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
-                MIGRATOR.migrate(CURRENT_SCHEMA_VERSION, path);
-                final var newDb = VersionedDatabase.<Map<Long, List<Reminder>>>fromFile(NO_PRETTY_PRINTING, path, TYPE, CURRENT_SCHEMA_VERSION, new HashMap<>());
-                return reminders = newDb.getData();
-            } else {
-                return reminders = db.getData();
-            }
-        } catch (final IOException exception) {
-            TheCommander.LOGGER.error("Failed to read reminders file...", exception);
-            return reminders = new HashMap<>();
+        final var data = VersionedDatabase.fromFile(path, CODEC, CURRENT_SCHEMA_VERSION, new HashMap<>())
+            .flatMap(db -> {
+                if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
+                    try {
+                        MIGRATOR.migrate(CURRENT_SCHEMA_VERSION, path);
+                    } catch (IOException e) {
+                        TheCommander.LOGGER.error("Exception migrating reminders: ", e);
+                    }
+                    final var newDb = VersionedDatabase.fromFile(path, CODEC, CURRENT_SCHEMA_VERSION, new HashMap<>());
+                    return newDb.map(VersionedDatabase::getData);
+                } else {
+                    return DataResult.success(db.getData());
+                }
+            });
+        if (data.result().isPresent()) {
+            return reminders = synchronizedMap(data.result().get());
+        } else if (data.error().isPresent()) {
+            TheCommander.LOGGER.error("Reading reminders file encountered an error: {}", data.error().get().message());
+            return reminders = synchronizedMap(new HashMap<>());
+        } else {
+            return reminders = synchronizedMap(new HashMap<>()); // this shouldn't be reached
         }
     }
 
@@ -109,7 +125,14 @@ public class Reminders {
         final var rems = getReminders();
         final var db = VersionedDatabase.inMemory(CURRENT_SCHEMA_VERSION, rems);
         try (var writer = new OutputStreamWriter(new FileOutputStream(path.toFile()), StandardCharsets.UTF_8)) {
-            NO_PRETTY_PRINTING.toJson(db.toJson(NO_PRETTY_PRINTING), writer);
+            final var result = db.toJson(CODEC);
+            Constants.Gsons.NO_PRETTY_PRINTING.toJson(result.result()
+                    .orElseThrow(
+                        () -> new IOException(result.error()
+                            .orElseThrow() // throw if the message doesn't exist... that would be weird
+                            .message())
+                    ),
+                writer);
         } catch (final IOException e) {
             TheCommander.LOGGER.error("An IOException occurred saving reminders...", e);
         }
@@ -124,6 +147,7 @@ public class Reminders {
 
     /**
      * Gets all the reminders a user has.
+     *
      * @param userId the ID of the user to query the reminders from
      * @return the user's reminders
      */
@@ -133,6 +157,7 @@ public class Reminders {
 
     /**
      * Clears all reminders from a user.
+     *
      * @param userId the id of the user to clear reminders from
      */
     public static void clearAllUserReminders(final long userId) {
@@ -141,6 +166,7 @@ public class Reminders {
 
     /**
      * Checks if a user reached the max pending reminders.
+     *
      * @param userId the id of the user to search reminders
      * @return if the user reached the max pending reminders.
      */
@@ -150,6 +176,7 @@ public class Reminders {
 
     /**
      * Removes a reminder.
+     *
      * @param reminder the reminder to remove.
      */
     public static void removeReminder(final Reminder reminder) {
@@ -160,6 +187,7 @@ public class Reminders {
 
     /**
      * Adds and schedules a reminder.
+     *
      * @param reminder the reminder to add.
      */
     public static void addReminder(final Reminder reminder) {
@@ -170,6 +198,7 @@ public class Reminders {
 
     /**
      * Schedules a reminder.
+     *
      * @param reminder the reminder to schedule
      */
     public static void registerReminder(final Reminder reminder) {

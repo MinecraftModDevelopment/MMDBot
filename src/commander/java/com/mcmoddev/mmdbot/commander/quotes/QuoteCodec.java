@@ -1,5 +1,7 @@
 package com.mcmoddev.mmdbot.commander.quotes;
 
+import com.mcmoddev.mmdbot.core.dfu.ExtendedCodec;
+import com.mcmoddev.mmdbot.core.dfu.ExtendedDynamicOps;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -7,7 +9,7 @@ import com.mojang.serialization.DynamicOps;
 
 import java.util.Map;
 
-public class QuoteCodec implements Codec<IQuote> {
+public class QuoteCodec implements ExtendedCodec<IQuote> {
 
     public static final Map<String, IQuote.QuoteType<?>> CLASS_TO_TYPE_CONVERSION = Map.of(
         StringQuote.class.getTypeName(), StringQuote.TYPE,
@@ -15,9 +17,10 @@ public class QuoteCodec implements Codec<IQuote> {
     );
 
     @Override
-    public <T> DataResult<Pair<IQuote, T>> decode(final DynamicOps<T> ops, final T input) {
-        return ops.getStringValue(ops.get(input, "type").get().orThrow())
-            .flatMap(typeName -> {
+    public <T> DataResult<Pair<IQuote, T>> decode(final ExtendedDynamicOps<T> ops, final T input) {
+        return ops.getOpsMap(input).map(map -> map.getAsString("type"))
+            .flatMap(tN -> {
+                final var typeName = tN.get().orThrow();
                 var type = Quotes.getQuoteType(typeName);
                 if (type == null) {
                     type = CLASS_TO_TYPE_CONVERSION.get(typeName); // try to convert from a class
@@ -32,11 +35,11 @@ public class QuoteCodec implements Codec<IQuote> {
     }
 
     @Override
-    public <T> DataResult<T> encode(final IQuote input, final DynamicOps<T> ops, final T prefix) {
-        return ops.mergeToMap(prefix, Map.of(
-            ops.createString("type"), ops.createString(Quotes.getQuoteTypeName(input.getType())),
-            ops.createString("value"), encodeUnsafe(input.getType().getCodec(), input, ops).get().orThrow()
-        ));
+    public <T> DataResult<T> encode(final IQuote input, final ExtendedDynamicOps<T> ops, final T prefix) {
+        return ops.mergeToMap(prefix, ops.createOpsMap()
+            .put("type", ops.createString(Quotes.getQuoteTypeName(input.getType())))
+            .put("value", encodeUnsafe(input.getType().getCodec(), input, ops).get().orThrow())
+        );
     }
 
     @SuppressWarnings("unchecked")
