@@ -30,7 +30,7 @@ import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.event.customlog.TrickEvent;
-import com.mcmoddev.mmdbot.core.util.Utils;
+import com.mcmoddev.mmdbot.core.util.StringUtilities;
 import com.mcmoddev.mmdbot.core.util.gist.GistUtils;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -91,13 +91,13 @@ public final class EditTrickCommand extends SlashCommand {
             this.trickTypeName = name;
             this.trickType = trickType;
             this.name = name;
-            this.help = "Edits %s %s-type trick.".formatted(Utils.startWithVowel(name) ? "an" : "a", name);
+            this.help = "Edits %s %s-type trick.".formatted(StringUtilities.startWithVowel(name) ? "an" : "a", name);
             this.guildOnly = true;
         }
 
         @Override
         protected void execute(final SlashCommandEvent event) {
-            final var modal = Modal.create(ModalListener.MODAL_ID_PREFIX + trickTypeName, "Edit %s %s trick".formatted(Utils.startWithVowel(trickTypeName) ? "an" : "a", trickTypeName))
+            final var modal = Modal.create(ModalListener.MODAL_ID_PREFIX + trickTypeName, "Edit %s %s trick".formatted(StringUtilities.startWithVowel(trickTypeName) ? "an" : "a", trickTypeName))
                 .addActionRows(trickType.getModalArguments())
                 .build();
             event.replyModal(modal).queue();
@@ -171,7 +171,7 @@ public final class EditTrickCommand extends SlashCommand {
             this.trickTypeName = name;
             this.trickType = trickType;
             this.name = name;
-            this.help = "Edits %s %s-type trick.".formatted(Utils.startWithVowel(name) ? "an" : "a", name);
+            this.help = "Edits %s %s-type trick.".formatted(StringUtilities.startWithVowel(name) ? "an" : "a", name);
             this.guildOnly = true;
         }
 

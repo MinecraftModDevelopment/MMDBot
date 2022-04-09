@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.core.util;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -90,26 +91,23 @@ public final class Utils {
     }
 
     /**
-     * Checks if a word starts with a vowel.
-     * @param word the word to check
-     * @return if the word starts with a vowel
+     * Converts a given amount of bytes into friendlier data.<br>
+     * Example: 2048 => 2 KB
+     *
+     * @param bytes the amount of bytes
+     * @return the formatted string
      */
-    public static boolean startWithVowel(String word) {
-        if (word.length() < 1) return false;
-        switch (word.charAt(0)) {
-            case 'a':
-            case 'e':
-            case 'i':
-            case 'o':
-            case 'u':
-            case 'A':
-            case 'E':
-            case 'I':
-            case 'O':
-            case 'U':
-                return true;
-            default:
-                return false;
+    public static String bytesToFriendly(long bytes) {
+        // Find size of repo and list it
+        int k = 1024;
+        String[] measure = new String[]{"B", "KB", "MB", "GB", "TB"};
+        double i;
+        if (bytes == 0) {
+            i = 0;
+        } else {
+            i = Math.floor(Math.log(bytes) / Math.log(k));
         }
+        final var df = new DecimalFormat("#.##");
+        return df.format(bytes / Math.pow(k, i)) + " " + measure[(int) i + 1];
     }
 }
