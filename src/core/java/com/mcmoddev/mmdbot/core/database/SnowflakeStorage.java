@@ -20,15 +20,25 @@
  */
 package com.mcmoddev.mmdbot.core.database;
 
+import com.mcmoddev.mmdbot.core.dfu.Codecs;
+import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
 import net.dv8tion.jda.api.entities.ISnowflake;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 public record SnowflakeStorage<T>(Map<Long, T> data) {
+
+    public static <T> Codec<SnowflakeStorage<T>> codec(Codec<T> valueCodec) {
+        return Codecs.unboundedMutableMap(
+            Codecs.LONG_FROM_STRING,
+            valueCodec
+        ).xmap(m -> new SnowflakeStorage<>(Collections.synchronizedMap(m)), SnowflakeStorage::data);
+    }
 
     public SnowflakeStorage() {
         this(Collections.synchronizedMap(new HashMap<>()));
@@ -59,6 +69,12 @@ public record SnowflakeStorage<T>(Map<Long, T> data) {
     public void forEach(final LongAndObjectBiConsumer<? super T> consumer) {
         synchronized (data) {
             data.forEach(consumer::accept);
+        }
+    }
+
+    public Collection<T> values() {
+        synchronized (data) {
+            return data.values();
         }
     }
 

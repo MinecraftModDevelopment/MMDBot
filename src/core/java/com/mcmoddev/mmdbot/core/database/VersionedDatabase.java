@@ -24,9 +24,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mcmoddev.mmdbot.core.util.Constants;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.Lifecycle;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -124,15 +127,46 @@ public final class VersionedDatabase<T> {
      * @return the database, as a {@link com.mojang.serialization.DataResult}. This result will be an error one, if an IO exception occurred
      */
     public static <T> DataResult<VersionedDatabase<T>> fromFile(Path filePath, Codec<T> codec, boolean compressed, int defaultSchemaVersion, T defaultValue) {
+
         try (final var reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8)) {
             final var json = Constants.Gsons.NO_PRETTY_PRINTING.fromJson(reader, JsonObject.class);
             if (json == null || !json.has(DATA_TAG)) {
-                return DataResult.success(new VersionedDatabase<>(defaultSchemaVersion, defaultValue));
+                return DataResult.error("No data tag is present.", new VersionedDatabase<>(defaultSchemaVersion, defaultValue), Lifecycle.experimental());
             }
-            return codec.decode(compressed ? JsonOps.COMPRESSED : JsonOps.INSTANCE, json.get(DATA_TAG)).map(p -> new VersionedDatabase<>(json.get(SCHEMA_VERSION_TAG).getAsInt(), p.getFirst()));
+            return codec(codec, defaultSchemaVersion, defaultValue).decode(compressed ? JsonOps.COMPRESSED : JsonOps.INSTANCE, json).map(Pair::getFirst);
         } catch (IOException e) {
             return DataResult.error(e.getMessage(), new VersionedDatabase<>(defaultSchemaVersion, defaultValue));
         }
+    }
+
+    /**
+     * Creates a codec for a {@link VersionedDatabase}.
+     *
+     * @param dataCodec the codec to use for the data
+     * @param <T>       the type of the data
+     * @return the codec
+     */
+    public static <T> Codec<VersionedDatabase<T>> codec(Codec<T> dataCodec) {
+        return RecordCodecBuilder.create(instance -> instance.group(
+            Codec.INT.fieldOf(SCHEMA_VERSION_TAG).forGetter(VersionedDatabase::getSchemaVersion),
+            dataCodec.fieldOf(DATA_TAG).forGetter(VersionedDatabase::getData)
+        ).apply(instance, VersionedDatabase::new));
+    }
+
+    /**
+     * Creates a codec for a {@link VersionedDatabase}.
+     *
+     * @param dataCodec            the codec to use for the data
+     * @param defaultSchemaVersion the default version of the schema
+     * @param defaultData          the default data
+     * @param <T>                  the type of the data
+     * @return the codec
+     */
+    public static <T> Codec<VersionedDatabase<T>> codec(Codec<T> dataCodec, int defaultSchemaVersion, T defaultData) {
+        return RecordCodecBuilder.create(instance -> instance.group(
+            Codec.INT.optionalFieldOf(SCHEMA_VERSION_TAG, defaultSchemaVersion).forGetter(VersionedDatabase::getSchemaVersion),
+            dataCodec.optionalFieldOf(DATA_TAG, defaultData).forGetter(VersionedDatabase::getData)
+        ).apply(instance, VersionedDatabase::new));
     }
 
     public static final String SCHEMA_VERSION_TAG = "schemaVersion";

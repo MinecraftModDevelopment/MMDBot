@@ -29,6 +29,7 @@ import com.mcmoddev.mmdbot.commander.tricks.Trick;
 import com.mcmoddev.mmdbot.core.database.MigratorCluster;
 import com.mcmoddev.mmdbot.core.database.VersionedDataMigrator;
 import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
+import com.mcmoddev.mmdbot.core.dfu.Codecs;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -48,7 +49,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -94,11 +94,10 @@ public final class Quotes {
     /**
      * The codec used for serializing quotes.
      */
-    public static final Codec<Map<Long, List<IQuote>>> CODEC = Codec.unboundedMap(
-        Codec.LONG,
-        Codec.list(new QuoteCodec())
-            .<List<IQuote>>xmap(ArrayList::new, Function.identity()) // make the list mutable
-    ).xmap(HashMap::new, Function.identity()); // make the map mutable
+    public static final Codec<Map<Long, List<IQuote>>> CODEC = Codecs.unboundedMutableMap(
+        Codecs.LONG_FROM_STRING,
+        Codecs.mutableList(new QuoteCodec())
+    );
 
     /**
      * The static instance of NullQuote used as the reference for nulls.
@@ -136,15 +135,6 @@ public final class Quotes {
      */
     public static void registerQuoteType(final String name, final IQuote.QuoteType<?> type) {
         QUOTE_TYPES.put(name, type);
-    }
-
-    /**
-     * Gets all quote types.
-     *
-     * @return a map where the values are the quote types and the keys are their names
-     */
-    public static BiMap<String, IQuote.QuoteType<?>> getQuoteTypes() {
-        return HashBiMap.create(QUOTE_TYPES);
     }
 
     /**
@@ -194,11 +184,11 @@ public final class Quotes {
         if (!Files.exists(path)) {
             quotes = Collections.synchronizedMap(new HashMap<>());
         }
-        final var data = VersionedDatabase.fromFile(path, CODEC, true, CURRENT_SCHEMA_VERSION, new HashMap<>())
+        final var data = VersionedDatabase.fromFile(path, CODEC, CURRENT_SCHEMA_VERSION, new HashMap<>())
             .flatMap(db -> {
                 if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
                     new TricksMigrator(TheCommander.getInstance().getRunPath()).migrate();
-                    final var newDb = VersionedDatabase.fromFile(path, CODEC, true, CURRENT_SCHEMA_VERSION, new HashMap<>());
+                    final var newDb = VersionedDatabase.fromFile(path, CODEC, CURRENT_SCHEMA_VERSION, new HashMap<>());
                     return newDb.map(VersionedDatabase::getData);
                 } else {
                     return DataResult.success(db.getData());
@@ -233,7 +223,7 @@ public final class Quotes {
         }
         final var db = VersionedDatabase.inMemory(CURRENT_SCHEMA_VERSION, quotes);
         try (final var writer = Files.newBufferedWriter(QUOTE_STORAGE.get(), StandardCharsets.UTF_8, StandardOpenOption.CREATE)) {
-            final var result = db.toJson(CODEC, true);
+            final var result = db.toJson(CODEC);
             Constants.Gsons.NO_PRETTY_PRINTING.toJson(result.result()
                     .orElseThrow(
                         () -> new IOException(result.error()

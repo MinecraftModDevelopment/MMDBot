@@ -24,6 +24,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -85,26 +86,11 @@ public record StringTrick(List<String> names, String body) implements Trick {
      * The type Type.
      */
     public static class Type implements TrickType<StringTrick> {
-        public static final Codec<StringTrick> CODEC = new Codec<>() {
-            @Override
-            public <T> DataResult<T> encode(final StringTrick input, final DynamicOps<T> ops, final T prefix) {
-                return ops.mergeToMap(prefix, Map.of(
-                    ops.createString("names"), ops.createList(input.getNames().stream().map(ops::createString)),
-                    ops.createString("body"), ops.createString(input.body())
-                ));
-            }
 
-            @Override
-            public <T> DataResult<Pair<StringTrick, T>> decode(final DynamicOps<T> ops, final T input) {
-                return ops.getMap(input).map(map -> {
-                    final var names = new ArrayList<String>();
-                    ops.getList(map.get(ops.createString("names"))).get().orThrow().accept(t -> names.add(ops.getStringValue(t).get().orThrow()));
-                    return Pair.of(
-                        new StringTrick(names, ops.getStringValue(map.get(ops.createString("body"))).get().orThrow()),
-                        input);
-                });
-            }
-        };
+        public static final Codec<StringTrick> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.STRING.listOf().fieldOf("names").forGetter(StringTrick::names),
+            Codec.STRING.fieldOf("body").forGetter(StringTrick::body)
+        ).apply(instance, StringTrick::new));
 
         private Type() {
 

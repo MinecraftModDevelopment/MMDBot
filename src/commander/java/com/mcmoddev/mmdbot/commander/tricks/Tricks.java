@@ -27,6 +27,7 @@ import com.mcmoddev.mmdbot.commander.commands.tricks.RunTrickCommand;
 import com.mcmoddev.mmdbot.commander.migrate.TricksMigrator;
 import com.mcmoddev.mmdbot.commander.tricks.Trick.TrickType;
 import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
+import com.mcmoddev.mmdbot.core.dfu.Codecs;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -65,7 +66,7 @@ public final class Tricks {
     /**
      * The codec that serializes and deserializes the tricks.
      */
-    public static final Codec<List<Trick>> CODEC = Codec.list(new TrickCodec());
+    public static final Codec<List<Trick>> CODEC = Codecs.mutableList(new TrickCodec());
 
     /**
      * All registered {@link TrickType}s.
@@ -118,7 +119,7 @@ public final class Tricks {
                     }
                 });
             if (data.result().isPresent()) {
-                return tricks = new ArrayList<>(data.result().get());
+                return tricks = data.result().get();
             } else if (data.error().isPresent()) {
                 TheCommander.LOGGER.error("Reading tricks file encountered an error: {}", data.error().get().message());
                 return tricks = new ArrayList<>();

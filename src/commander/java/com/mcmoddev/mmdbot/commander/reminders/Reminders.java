@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.commander.reminders;
 import static java.util.Collections.synchronizedMap;
 import com.google.common.base.Suppliers;
 import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.mcmoddev.mmdbot.core.database.SnowflakeStorage;
 import com.mcmoddev.mmdbot.core.database.VersionedDataMigrator;
 import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
 import com.mcmoddev.mmdbot.core.dfu.Codecs;
@@ -80,20 +81,17 @@ public class Reminders {
     /**
      * The codec used for serializing reminders.
      */
-    private static final Codec<Map<Long, List<Reminder>>> CODEC = Codec.unboundedMap(
-        Codecs.LONG_FROM_STRING, // We can't use a compressed JsonOps, so map from and to a string
-        Codec.list(Reminder.CODEC).<List<Reminder>>xmap(ArrayList::new, Function.identity()) // Make the list mutable
-    ).xmap(HashMap::new, Function.identity()); // Make the map mutable
+    private static final Codec<SnowflakeStorage<List<Reminder>>> CODEC = SnowflakeStorage.codec(Codecs.mutableList(Reminder.CODEC));
 
-    private static Map<Long, List<Reminder>> reminders;
+    private static SnowflakeStorage<List<Reminder>> reminders;
 
-    public static Map<Long, List<Reminder>> getReminders() {
+    public static SnowflakeStorage<List<Reminder>> getReminders() {
         if (reminders != null) return reminders;
         final var path = PATH.get();
         if (!Files.exists(path)) {
-            return reminders = synchronizedMap(new HashMap<>());
+            return reminders = new SnowflakeStorage<>();
         }
-        final var data = VersionedDatabase.fromFile(path, CODEC, CURRENT_SCHEMA_VERSION, new HashMap<>())
+        final var data = VersionedDatabase.fromFile(path, CODEC, CURRENT_SCHEMA_VERSION, new SnowflakeStorage<>())
             .flatMap(db -> {
                 if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
                     try {
@@ -101,19 +99,19 @@ public class Reminders {
                     } catch (IOException e) {
                         TheCommander.LOGGER.error("Exception migrating reminders: ", e);
                     }
-                    final var newDb = VersionedDatabase.fromFile(path, CODEC, CURRENT_SCHEMA_VERSION, new HashMap<>());
+                    final var newDb = VersionedDatabase.fromFile(path, CODEC, CURRENT_SCHEMA_VERSION, new SnowflakeStorage<>());
                     return newDb.map(VersionedDatabase::getData);
                 } else {
                     return DataResult.success(db.getData());
                 }
             });
         if (data.result().isPresent()) {
-            return reminders = synchronizedMap(data.result().get());
+            return reminders = data.result().get();
         } else if (data.error().isPresent()) {
             TheCommander.LOGGER.error("Reading reminders file encountered an error: {}", data.error().get().message());
-            return reminders = synchronizedMap(new HashMap<>());
+            return reminders = new SnowflakeStorage<>();
         } else {
-            return reminders = synchronizedMap(new HashMap<>()); // this shouldn't be reached
+            return reminders = new SnowflakeStorage<>(); // this shouldn't be reached
         }
     }
 

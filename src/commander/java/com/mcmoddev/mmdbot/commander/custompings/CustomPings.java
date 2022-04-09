@@ -22,8 +22,13 @@ package com.mcmoddev.mmdbot.commander.custompings;
 
 import com.google.common.base.Suppliers;
 import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.mcmoddev.mmdbot.commander.migrate.TricksMigrator;
+import com.mcmoddev.mmdbot.core.database.SnowflakeStorage;
 import com.mcmoddev.mmdbot.core.database.VersionedDataMigrator;
 import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
+import com.mcmoddev.mmdbot.core.dfu.Codecs;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import lombok.experimental.UtilityClass;
 
 import java.io.FileOutputStream;
@@ -74,6 +79,13 @@ public class CustomPings {
     private static final Type TYPE = new com.google.common.reflect.TypeToken<Map<Long, Map<Long, List<CustomPing>>>>() {}.getType();
 
     /**
+     * The codec used for serializing custom pings.
+     */
+    public static final Codec<SnowflakeStorage<SnowflakeStorage<List<CustomPing>>>> CODEC = SnowflakeStorage.codec(
+        SnowflakeStorage.codec(Codecs.mutableList(CustomPing.CODEC))
+    );
+
+    /**
      * Example data:
      * guildId: {
      *     memberId: [
@@ -98,26 +110,31 @@ public class CustomPings {
      *     ]
      * }
      */
-    private static Map<Long, Map<Long, List<CustomPing>>> pings;
+    private static SnowflakeStorage<SnowflakeStorage<List<CustomPing>>> pings;
 
-    public static Map<Long, Map<Long, List<CustomPing>>> getPings() {
+    public static SnowflakeStorage<SnowflakeStorage<List<CustomPing>>> getPings() {
         if (pings != null) return pings;
         final var path = PATH.get();
         if (!Files.exists(path)) {
-            return pings = synchronizedMap(new HashMap<>());
+            return pings = new SnowflakeStorage<>();
         }
-        try {
-            final var db = VersionedDatabase.<Map<Long, Map<Long, List<CustomPing>>>>fromFile(NO_PRETTY_PRINTING, path, TYPE, CURRENT_SCHEMA_VERSION, new HashMap<>());
-            if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
-                MIGRATOR.migrate(CURRENT_SCHEMA_VERSION, path);
-                final var newDb = VersionedDatabase.<Map<Long, Map<Long, List<CustomPing>>>>fromFile(NO_PRETTY_PRINTING, path, TYPE, CURRENT_SCHEMA_VERSION, new HashMap<>());
-                return pings = synchronizedMap(newDb.getData());
-            } else {
-                return pings = synchronizedMap(db.getData());
-            }
-        } catch (final IOException exception) {
-            TheCommander.LOGGER.error("Failed to read custom pings file...", exception);
-            return pings = synchronizedMap(new HashMap<>());
+        final var data = VersionedDatabase.fromFile(path, CODEC, CURRENT_SCHEMA_VERSION, new SnowflakeStorage<>())
+            .flatMap(db -> {
+                if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
+                    new TricksMigrator(TheCommander.getInstance().getRunPath()).migrate();
+                    final var newDb = VersionedDatabase.fromFile(path, CODEC, CURRENT_SCHEMA_VERSION, new SnowflakeStorage<>());
+                    return newDb.map(VersionedDatabase::getData);
+                } else {
+                    return DataResult.success(db.getData());
+                }
+            });
+        if (data.result().isPresent()) {
+            return pings = data.result().get();
+        } else if (data.error().isPresent()) {
+            TheCommander.LOGGER.error("Reading quotes file encountered an error: {}", data.error().get().message());
+            return pings = new SnowflakeStorage<>();
+        } else {
+            return pings = new SnowflakeStorage<>(); // this shouldn't be reached
         }
     }
 
@@ -135,8 +152,8 @@ public class CustomPings {
         }
     }
 
-    public static Map<Long, List<CustomPing>> getAllPingsInGuild(final long guildId) {
-        return getPings().computeIfAbsent(guildId, k -> synchronizedMap(new HashMap<>()));
+    public static SnowflakeStorage<List<CustomPing>> getAllPingsInGuild(final long guildId) {
+        return getPings().computeIfAbsent(guildId, k -> new SnowflakeStorage<>());
     }
 
     public static void addPing(final long guildId, final long memberId, final CustomPing ping) {

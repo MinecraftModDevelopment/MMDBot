@@ -25,6 +25,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -64,26 +65,11 @@ public record ScriptTrick(List<String> names, String script) implements Trick {
     }
 
     public static final class Type implements TrickType<ScriptTrick> {
-        public static final Codec<ScriptTrick> CODEC = new Codec<>() {
-            @Override
-            public <T> DataResult<T> encode(final ScriptTrick input, final DynamicOps<T> ops, final T prefix) {
-                return ops.mergeToMap(prefix, Map.of(
-                    ops.createString("names"), ops.createList(input.getNames().stream().map(ops::createString)),
-                    ops.createString("script"), ops.createString(input.script())
-                ));
-            }
 
-            @Override
-            public <T> DataResult<Pair<ScriptTrick, T>> decode(final DynamicOps<T> ops, final T input) {
-                return ops.getMap(input).map(map -> {
-                    final var names = new ArrayList<String>();
-                    ops.getList(map.get(ops.createString("names"))).get().orThrow().accept(t -> names.add(ops.getStringValue(t).get().orThrow()));
-                    return Pair.of(
-                        new ScriptTrick(names, ops.getStringValue(map.get(ops.createString("script"))).get().orThrow()),
-                    input);
-                });
-            }
-        };
+        public static final Codec<ScriptTrick> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+           Codec.STRING.listOf().fieldOf("names").forGetter(ScriptTrick::names),
+           Codec.STRING.fieldOf("script").forGetter(ScriptTrick::script)
+        ).apply(instance, ScriptTrick::new));
 
         private Type() {}
 

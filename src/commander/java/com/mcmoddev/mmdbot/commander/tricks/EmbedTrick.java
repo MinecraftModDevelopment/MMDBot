@@ -27,6 +27,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -168,25 +169,12 @@ public class EmbedTrick implements Trick {
      * The type Type.
      */
     public static class Type implements TrickType<EmbedTrick> {
-        public static final Codec<MessageEmbed.Field> FIELD_CODEC = new Codec<>() {
-            @Override
-            public <T> DataResult<Pair<MessageEmbed.Field, T>> decode(final DynamicOps<T> ops, final T input) {
-                return ops.getMap(input).map(map -> Pair.of(new MessageEmbed.Field(
-                    ops.getStringValue(map.get(ops.createString("name"))).get().orThrow(),
-                    ops.getStringValue(map.get(ops.createString("value"))).get().orThrow(),
-                    ops.getBooleanValue(map.get(ops.createString("inline"))).result().orElse(false)
-                ), input));
-            }
+        public static final Codec<MessageEmbed.Field> FIELD_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.STRING.fieldOf("name").forGetter(MessageEmbed.Field::getName),
+            Codec.STRING.fieldOf("value").forGetter(MessageEmbed.Field::getValue),
+            Codec.BOOL.optionalFieldOf("inline", true).forGetter(MessageEmbed.Field::isInline)
+        ).apply(instance, MessageEmbed.Field::new));
 
-            @Override
-            public <T> DataResult<T> encode(final MessageEmbed.Field input, final DynamicOps<T> ops, final T prefix) {
-                return ops.mergeToMap(prefix, Map.of(
-                    ops.createString("name"), ops.createString(input.getName()),
-                    ops.createString("value"), ops.createString(input.getValue()),
-                    ops.createString("inline"), ops.createBoolean(input.isInline())
-                ));
-            }
-        };
         public static final Codec<EmbedTrick> CODEC = new ExtendedCodec<>() {
             @Override
             public <T> DataResult<Pair<EmbedTrick, T>> decode(final ExtendedDynamicOps<T> ops, final T input) {

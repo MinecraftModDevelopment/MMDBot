@@ -28,6 +28,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
+import java.util.Map;
+
 /**
  * Used in place of null in the serialized list of quotes.
  *
@@ -38,18 +40,12 @@ public final class NullQuote extends Quote {
     public static final Codec<NullQuote> CODEC = new ExtendedCodec<>() {
         @Override
         public <T> DataResult<Pair<NullQuote, T>> decode(final ExtendedDynamicOps<T> ops, final T input) {
-            return ops.getOpsMap(input).map(map -> {
-                final var quote = new NullQuote();
-                quote.setID(map.getAsNumber("id").get().orThrow().intValue());
-                return Pair.of(quote, input);
-            });
+            return DataResult.success(Pair.of(Quotes.NULL, input));
         }
 
         @Override
         public <T> DataResult<T> encode(final NullQuote input, final ExtendedDynamicOps<T> ops, final T prefix) {
-            return ops.mergeToMap(prefix, ops.createOpsMap()
-                .put("id", ops.createInt(input.getID()))
-            );
+            return ops.mergeToMap(prefix, Map.of());
         }
     };
 
