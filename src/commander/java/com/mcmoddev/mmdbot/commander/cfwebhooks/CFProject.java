@@ -21,6 +21,8 @@
 package com.mcmoddev.mmdbot.commander.cfwebhooks;
 
 import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.matyrobbrt.curseforgeapi.request.AsyncRequest;
 import io.github.matyrobbrt.curseforgeapi.request.Response;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -29,11 +31,23 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 public record CFProject(int projectId, Set<Long> channels, AtomicInteger lastFoundFile) implements Runnable {
     private static final Collection<Message.MentionType> ALLOWED_MENTIONS = Set.of();
+
+    /**
+     * The codec used for serializing projects.
+     */
+    public static final Codec<CFProject> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+        Codec.INT.fieldOf("projectId").forGetter(CFProject::projectId),
+        Codec.LONG.listOf().<Set<Long>>xmap(HashSet::new, s -> s.stream().toList()).fieldOf("channels").forGetter(CFProject::channels),
+        Codec.INT.xmap(AtomicInteger::new, AtomicInteger::get).fieldOf("lastFoundFile").forGetter(CFProject::lastFoundFile)
+    ).apply(instance, CFProject::new));
 
     @Override
     public void run() {

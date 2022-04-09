@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.commander.custompings;
 
+import static com.mcmoddev.mmdbot.core.util.Constants.Gsons.NO_PRETTY_PRINTING;
 import com.google.common.base.Suppliers;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.migrate.TricksMigrator;
@@ -27,27 +28,24 @@ import com.mcmoddev.mmdbot.core.database.SnowflakeStorage;
 import com.mcmoddev.mmdbot.core.database.VersionedDataMigrator;
 import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
 import com.mcmoddev.mmdbot.core.dfu.Codecs;
+import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import lombok.experimental.UtilityClass;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-
-import static com.mcmoddev.mmdbot.core.util.Constants.Gsons.NO_PRETTY_PRINTING;
-import static java.util.Collections.synchronizedMap;
+import java.util.regex.Pattern;
 
 @UtilityClass
 public class CustomPings {
@@ -72,11 +70,6 @@ public class CustomPings {
      * The path of the custom pings file.
      */
     public static final Supplier<Path> PATH = Suppliers.memoize(() -> CustomPings.PATH_RESOLVER.apply(TheCommander.getInstance().getRunPath()));
-
-    /**
-     * The type of the custom pings.
-     */
-    private static final Type TYPE = new com.google.common.reflect.TypeToken<Map<Long, Map<Long, List<CustomPing>>>>() {}.getType();
 
     /**
      * The codec used for serializing custom pings.
@@ -146,7 +139,14 @@ public class CustomPings {
         final var rems = getPings();
         final var db = VersionedDatabase.inMemory(CURRENT_SCHEMA_VERSION, rems);
         try (var writer = new OutputStreamWriter(new FileOutputStream(path.toFile()), StandardCharsets.UTF_8)) {
-            NO_PRETTY_PRINTING.toJson(db.toJson(NO_PRETTY_PRINTING), writer);
+            final var result = db.toJson(CODEC);
+            Constants.Gsons.NO_PRETTY_PRINTING.toJson(result.result()
+                    .orElseThrow(
+                        () -> new IOException(result.error()
+                            .orElseThrow() // throw if the message doesn't exist... that would be weird
+                            .message())
+                    ),
+                writer);
         } catch (final IOException e) {
             TheCommander.LOGGER.error("An IOException occurred saving custom pings...", e);
         }

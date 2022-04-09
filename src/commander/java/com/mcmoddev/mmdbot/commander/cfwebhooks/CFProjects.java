@@ -24,7 +24,10 @@ import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonWriter;
+import com.mcmoddev.mmdbot.core.dfu.Codecs;
 import com.mcmoddev.mmdbot.core.util.Constants;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileInputStream;
@@ -43,6 +46,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public final class CFProjects implements Runnable {
+
+    public static final Codec<List<CFProject>> CODEC = Codecs.mutableList(CFProject.CODEC);
+
     private final Path filePath;
     private List<CFProject> projects;
 
@@ -92,9 +98,13 @@ public final class CFProjects implements Runnable {
         try {
             createFileIfNotExists();
             try (InputStreamReader reader = new InputStreamReader(new FileInputStream(filePath.toFile()), StandardCharsets.UTF_8)) {
-                Type typeOfList = new TypeToken<List<CFProject>>() {
-                }.getType();
-                projects = Constants.Gsons.NO_PRETTY_PRINTING.fromJson(reader, typeOfList);
+                final var array = Constants.Gsons.NO_PRETTY_PRINTING.fromJson(reader, JsonArray.class);
+                final var data = CODEC.decode(JsonOps.INSTANCE, array);
+                if (data.result().isPresent()) {
+                    projects = data.result().get().getFirst();
+                } else {
+                    throw new IOException(data.error().orElseThrow().message());
+                }
             }
         } catch (IOException e) {
             log.error("Exception while reading CurseForgeProjects file", e);
@@ -106,7 +116,12 @@ public final class CFProjects implements Runnable {
             createFileIfNotExists();
             final var projects$ = getProjects();
             try (var writer = new OutputStreamWriter(new FileOutputStream(filePath.toFile()), StandardCharsets.UTF_8)) {
-                Constants.Gsons.NO_PRETTY_PRINTING.toJson(projects$, writer);
+                final var data = CODEC.encodeStart(JsonOps.INSTANCE, projects$);
+                if (data.result().isPresent()) {
+                    Constants.Gsons.NO_PRETTY_PRINTING.toJson(data.result().get(), writer);
+                } else {
+                    throw new IOException(data.error().orElseThrow().message());
+                }
             }
         } catch (IOException e) {
             log.error("Exception while saving CurseForgeProjects file", e);
