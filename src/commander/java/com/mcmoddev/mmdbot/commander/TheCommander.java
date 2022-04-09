@@ -228,6 +228,7 @@ public final class TheCommander implements Bot {
     }
 
     private static final DeferredComponentListenerRegistry LISTENER_REGISTRY = new DeferredComponentListenerRegistry();
+
     public static ComponentListener.Builder getComponentListener(final String featureId) {
         return LISTENER_REGISTRY.createListener(featureId);
     }
