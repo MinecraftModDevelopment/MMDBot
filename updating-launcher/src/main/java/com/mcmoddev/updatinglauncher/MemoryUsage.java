@@ -20,15 +20,7 @@
  */
 package com.mcmoddev.updatinglauncher;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
+import java.io.Serializable;
 
-public interface ProcessConnector extends Remote {
-
-    int PORT = 6291;
-    String NAME = "ULProcessConnector";
-
-    ThreadInfo[] getThreads() throws RemoteException;
-    double getCPULoad() throws RemoteException;
-    MemoryUsage getMemoryUsage() throws RemoteException;
+public record MemoryUsage(long totalMemory, long freeMemory) implements Serializable {
 }

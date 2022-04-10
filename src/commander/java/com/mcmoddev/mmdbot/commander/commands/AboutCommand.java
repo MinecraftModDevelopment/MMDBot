@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.commander.commands;
 
-import static com.mcmoddev.mmdbot.core.util.Utils.bytesToFriendly;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
@@ -28,26 +27,13 @@ import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
-import com.mcmoddev.mmdbot.core.commands.component.context.ButtonInteractionContext;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.awt.Color;
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.OperatingSystemMXBean;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-import java.time.DateTimeException;
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -69,10 +55,6 @@ public final class AboutCommand extends SlashCommand {
 
     @RegisterSlashCommand
     public static final AboutCommand CMD = new AboutCommand();
-
-    public static final ComponentListener COMPONENT_LISTENER = TheCommander.getComponentListener("about-cmd")
-        .onButtonInteraction(CMD::onButtonInteraction)
-        .build();
 
     /**
      * Instantiates a new Cmd about.
@@ -109,9 +91,6 @@ public final class AboutCommand extends SlashCommand {
         embed.addField("Current maintainers:", String.join(", ", MAINTAINERS),
             true);
         embed.addField("Online since: ", TimeFormat.RELATIVE.format(TheCommander.getStartupTime()), false);
-        embed.addField("Memory Usage: ", getMemoryUsage(), true);
-        embed.addField("CPU Load: ", ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getCpuLoad() * 100 + "%", true);
-        embed.setTimestamp(Instant.now());
 
         if (event.isFromGuild() && TheCommanderUtilities.memberHasRoles(Objects.requireNonNull(event.getMember()),
             TheCommander.getInstance().getGeneralConfig().roles().getBotMaintainers())) {
@@ -122,77 +101,11 @@ public final class AboutCommand extends SlashCommand {
                 });
             });
         } else {
-            final var id = UUID.randomUUID();
-            COMPONENT_LISTENER.insertComponent(id, Component.Lifespan.TEMPORARY);
             event.replyEmbeds(embed.build())
                 .addActionRows(ActionRow.of(
-                    DismissListener.createDismissButton(), Button.primary(Component.createIdWithArguments(id.toString(), ButtonType.THREAD_DUMP.toString()), "Thread Dump")
+                    DismissListener.createDismissButton()
                 ))
                 .queue();
         }
-    }
-
-    public void onButtonInteraction(final ButtonInteractionContext context) {
-        final var type = ButtonType.valueOf(context.getItemComponentArguments().get(0));
-        if (type == ButtonType.THREAD_DUMP) {
-            final var dumpPath = TheCommander.getInstance().getRunPath().resolve("thread_dumps").resolve(Instant.now().getEpochSecond() + ".md");
-            try (final var writer = Files.newBufferedWriter(dumpPath, StandardOpenOption.CREATE)) {
-                writer.write(getThreadDump());
-                context.getEvent().replyFile(dumpPath.toFile(), "dump.md").queue();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public String getThreadDump() {
-        final var builder = new StringBuilder();
-        final var traces = Thread.getAllStackTraces();
-        builder.append("# Thread dump at ")
-            .append(DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
-            .append(System.lineSeparator())
-            .append(System.lineSeparator());
-        builder.append("## All active threads:");
-        traces.keySet().forEach(thread -> builder
-            .append(System.lineSeparator())
-            .append("- ")
-            .append(thread.getName())
-            .append(thread.getThreadGroup() == null ? "" : "[" + thread.getThreadGroup().getName() + "]")
-            .append('@')
-            .append(thread.getId())
-        );
-        builder.append(System.lineSeparator())
-                .append(System.lineSeparator())
-                .append("## Detailed information about each thread:")
-                .append(System.lineSeparator());
-        traces.forEach((thread, stacks) -> {
-            builder.append(System.lineSeparator());
-            builder.append(buildThreadInfo(thread));
-            for (final var stack : stacks) {
-                builder.append(System.lineSeparator())
-                    .append("  ")
-                    .append("at ")
-                    .append(stack.toString());
-            }
-        });
-        return builder.toString();
-    }
-
-    public String buildThreadInfo(final Thread thread) {
-        return "\"%s@%s\" %sprio=%s %s".formatted(
-            thread.getThreadGroup() == null ? thread.getName() : thread.getName() + " [" + thread.getThreadGroup().getName() + "]",
-            thread.getId(),
-            thread.isDaemon() ? "daemon" : "", thread.getPriority(), thread.getState().toString().toLowerCase(Locale.ROOT)
-        );
-    }
-
-    enum ButtonType {
-        THREAD_DUMP
-    }
-
-    public static String getMemoryUsage() {
-        final var runtime = Runtime.getRuntime();
-        final var memoryUsed = runtime.totalMemory() - runtime.freeMemory();
-        return bytesToFriendly(memoryUsed / 1024) + "/" + bytesToFriendly(runtime.totalMemory() / 1024);
     }
 }

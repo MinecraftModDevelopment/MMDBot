@@ -90,24 +90,4 @@ public final class Utils {
             Instant.now().atOffset(ZoneOffset.UTC).toEpochSecond(), TimeUnit.SECONDS);
     }
 
-    /**
-     * Converts a given amount of bytes into friendlier data.<br>
-     * Example: 2048 => 2 KB
-     *
-     * @param bytes the amount of bytes
-     * @return the formatted string
-     */
-    public static String bytesToFriendly(long bytes) {
-        // Find size of repo and list it
-        int k = 1024;
-        String[] measure = new String[]{"B", "KB", "MB", "GB", "TB"};
-        double i;
-        if (bytes == 0) {
-            i = 0;
-        } else {
-            i = Math.floor(Math.log(bytes) / Math.log(k));
-        }
-        final var df = new DecimalFormat("#.##");
-        return df.format(bytes / Math.pow(k, i)) + " " + measure[(int) i + 1];
-    }
 }

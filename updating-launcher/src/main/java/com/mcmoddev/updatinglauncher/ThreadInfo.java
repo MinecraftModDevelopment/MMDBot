@@ -36,6 +36,6 @@ public record ThreadInfo(Group group, long id, String name, int priority, boolea
         );
     }
 
-    record Group(String name) implements Serializable {}
+    public record Group(String name) implements Serializable {}
 
 }

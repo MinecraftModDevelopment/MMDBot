@@ -36,6 +36,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarFile;
@@ -136,7 +137,7 @@ public class JarUpdater implements Runnable {
             return new ProcessBuilder(getStartCommand())
                 .inheritIO()
                 .start();
-        } catch(IOException e) {
+        } catch (IOException e) {
             LOGGER.error("Starting process failed, used start command {}", getStartCommand(), e);
         }
         return null;
@@ -144,7 +145,7 @@ public class JarUpdater implements Runnable {
 
     public void tryFirstStart() {
         if (Files.exists(jarPath)) {
-            process = new ProcessInfo(createProcess(), null);
+            process = new ProcessInfo(Objects.requireNonNull(createProcess()), null);
             LOGGER.warn("Starting process after launcher start.");
         }
     }
@@ -152,7 +153,7 @@ public class JarUpdater implements Runnable {
     private List<String> getStartCommand() {
         List<String> command = new ArrayList<>(javaArgs.size() + 2);
         command.add(findJavaBinary());
-        command.add("-javaagent:agent.jar");
+        command.add("-javaagent:" + Main.AGENT_PATH.toAbsolutePath().toString());
         command.addAll(javaArgs);
         command.add("-jar");
         command.add(jarPath.toString());

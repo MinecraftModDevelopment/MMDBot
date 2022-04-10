@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.updatinglauncher;
 
+import java.lang.management.ManagementFactory;
 import java.rmi.RemoteException;
 
 public class ProcessConnectorServer implements ProcessConnector {
@@ -27,5 +28,16 @@ public class ProcessConnectorServer implements ProcessConnector {
     public ThreadInfo[] getThreads() throws RemoteException {
         final var all = Thread.getAllStackTraces();
         return all.entrySet().stream().map(e -> ThreadInfo.fromThread(e.getKey(), e.getValue())).toArray(ThreadInfo[]::new);
+    }
+
+    @Override
+    public double getCPULoad() throws RemoteException {
+        return ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getCpuLoad();
+    }
+
+    @Override
+    public MemoryUsage getMemoryUsage() throws RemoteException {
+        final var runtime = Runtime.getRuntime();
+        return new MemoryUsage(runtime.totalMemory(), runtime.freeMemory());
     }
 }

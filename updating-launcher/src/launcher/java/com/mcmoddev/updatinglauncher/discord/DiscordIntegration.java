@@ -47,6 +47,7 @@ public class DiscordIntegration {
         this.config = config;
         this.updater = updater;
 
+        final var statusCmd = new StatusCommand(() -> updater, config);
         final var commandClient = new CommandClientBuilder()
             .setOwnerId("0000000000")
             .setActivity(null)
@@ -56,7 +57,7 @@ public class DiscordIntegration {
                 new UpdateCommand(() -> updater, config),
                 new ShutdownCommand(() -> updater, config),
                 new StartCommand(() -> updater, config),
-                new StatusCommand(() -> updater, config),
+                statusCmd,
                 new FileCommand(basePath, config)
             )
             .build();
@@ -64,7 +65,7 @@ public class DiscordIntegration {
         try {
             jda = JDABuilder.createLight(config.botToken)
                 .setStatus(OnlineStatus.OFFLINE)
-                .addEventListeners(commandClient)
+                .addEventListeners(commandClient, statusCmd)
                 .build()
                 .setRequiredScopes("applications.commands", "bot");
 

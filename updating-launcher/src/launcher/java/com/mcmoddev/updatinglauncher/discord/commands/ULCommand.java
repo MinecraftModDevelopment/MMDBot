@@ -29,6 +29,7 @@ public abstract class ULCommand extends SlashCommand {
     protected ULCommand(final Config.Discord config) {
         this.enabledRoles = config.roles.toArray(String[]::new);
         guildOnly = true;
+        defaultEnabled = false;
     }
 
     @Override
