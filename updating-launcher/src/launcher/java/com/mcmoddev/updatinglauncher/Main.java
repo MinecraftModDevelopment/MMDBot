@@ -27,6 +27,9 @@ import org.slf4j.LoggerFactory;
 import org.spongepowered.configurate.ConfigurateException;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -64,7 +67,8 @@ public class Main {
 
     private static DiscordIntegration discordIntegration;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnknownHostException {
+        System.setProperty("java.rmi.server.hostname", InetAddress.getLocalHost().getHostAddress());
         try {
             copyAgent();
         } catch (IOException e) {

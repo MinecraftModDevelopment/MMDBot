@@ -21,6 +21,7 @@
 package com.mcmoddev.updatinglauncher;
 
 import java.lang.instrument.Instrumentation;
+import java.net.InetAddress;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -35,6 +36,7 @@ public class Agent {
     public static void premain(String agentArgs, Instrumentation inst) {
         System.err.println("Starting RMI on port " + ProcessConnector.PORT);
         try {
+            System.setProperty("java.rmi.server.hostname", InetAddress.getLocalHost().getHostAddress());
             registry = LocateRegistry.createRegistry(ProcessConnector.PORT);
             server = new ProcessConnectorServer();
 
