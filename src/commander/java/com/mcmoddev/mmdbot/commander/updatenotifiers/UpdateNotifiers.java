@@ -60,13 +60,13 @@ public class UpdateNotifiers {
         wasRegistered = true;
         Events.MISC_BUS.addListener((TaskScheduler.CollectTasksEvent event) -> {
             try {
-                log.error("Debugging: Checking for Forge updates every 15 min...");
+                log.info("Checking for Forge updates every 15 min...");
                 event.addTask(new TaskScheduler.Task(new ForgeUpdateNotifier(), 0, 15, TimeUnit.MINUTES));
             } catch (Exception ex) {
-                log.error("Unable to schedule job Forge Update Notifier", ex);
+                log.warn("Unable to schedule job Forge Update Notifier", ex);
                 ex.printStackTrace();
             }
-            log.error("Debugging: Checking for Minecraft and Fabric updates every 15 min...");
+            log.info("Checking for Minecraft, Quilt and Fabric updates every 15 min...");
             event.addTask(new TaskScheduler.Task(new MinecraftUpdateNotifier(), 0, 15, TimeUnit.MINUTES));
             event.addTask(new TaskScheduler.Task(new FabricApiUpdateNotifier(), 0, 15, TimeUnit.MINUTES));
             event.addTask(new TaskScheduler.Task(new QuiltUpdateNotifier(), 0, 15, TimeUnit.MINUTES));

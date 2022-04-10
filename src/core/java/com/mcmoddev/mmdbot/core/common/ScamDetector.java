@@ -121,15 +121,15 @@ public class ScamDetector extends ListenerAdapter {
     public static void onCollectTasks(final TaskScheduler.CollectTasksEvent event) {
         event.addTask(() -> {
             if (setupScamLinks()) {
-                log.error("Successfully refreshed scam links");
+                log.info("Successfully refreshed scam links");
             } else {
-                log.error("Scam links could not be automatically refreshed");
+                log.warn("Scam links could not be automatically refreshed");
             }
         }, 0, 14, TimeUnit.DAYS);
     }
 
     public static boolean setupScamLinks() {
-        log.debug("Setting up scam links! Receiving data from {}.", SCAM_LINKS_DATA_URL);
+        log.info("Setting up scam links! Receiving data from {}.", SCAM_LINKS_DATA_URL);
         try (var is = new URL(SCAM_LINKS_DATA_URL).openStream()) {
             final String result = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             SCAM_LINKS.clear();
