@@ -28,7 +28,10 @@ import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.awt.Color;
 import java.nio.file.Files;
+import java.rmi.RemoteException;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.jar.JarFile;
 
@@ -65,6 +68,13 @@ public class StatusCommand extends ULCommand {
                     .setTimestamp(Instant.now())
                     .build()
             ).queue();
+        }
+
+        try {
+            assert process != null;
+            System.out.println(Arrays.toString(Objects.requireNonNull(process.connector()).getThreads()));
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
     }
 }

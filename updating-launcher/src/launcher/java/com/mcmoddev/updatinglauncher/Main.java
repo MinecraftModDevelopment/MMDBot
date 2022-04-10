@@ -26,30 +26,52 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.configurate.ConfigurateException;
 
+import java.io.IOException;
 import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class Main {
+    private static final ThreadGroup THREAD_GROUP = new ThreadGroup("UpdatingLauncher");
+
     public static final Logger LOG = LoggerFactory.getLogger("UpdatingLauncher");
     public static final Path CONFIG_PATH = Path.of("updating_launcher.conf");
+    public static final Path AGENT_PATH = Path.of("agent.jar");
+    public static final ScheduledThreadPoolExecutor SERVICE;
 
-    private static final ThreadGroup THREAD_GROUP = new ThreadGroup("UpdatingLauncher");
+    static {
+        final var service = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1, r -> new Thread(THREAD_GROUP, r, "UpdatingLauncher"));
+        service.setKeepAliveTime(1, TimeUnit.HOURS);
+        SERVICE = service;
+    }
+
     private static final ExecutorService HTTP_CLIENT_EXECUTOR = Executors.newSingleThreadExecutor(r -> {
-       final var thread = new Thread(THREAD_GROUP, r, "UpdatingLauncherHttpClient");
-       thread.setDaemon(true);
-       return thread;
+        final var thread = new Thread(THREAD_GROUP, r, "UpdatingLauncherHttpClient");
+        thread.setDaemon(true);
+        return thread;
     });
 
     private static DiscordIntegration discordIntegration;
 
     public static void main(String[] args) {
+        try {
+            copyAgent();
+        } catch (IOException e) {
+            LOG.error("Exception copying agent JAR: ", e);
+            throw new RuntimeException(e);
+        }
+
         final var cfgExists = Files.exists(CONFIG_PATH);
         Config config;
         try {
@@ -66,11 +88,11 @@ public class Main {
             .build());
         final var updater = new JarUpdater(Paths.get(config.jarPath), updateChecker, Pattern.compile(config.checkingInfo.filePattern), config.jvmArgs);
         if (config.checkingInfo.rate > -1) {
-            final var service = Executors.newSingleThreadScheduledExecutor(r -> new Thread(THREAD_GROUP, r, "UpdatingLauncher"));
-            service.scheduleAtFixedRate(updater, 0, config.checkingInfo.rate, TimeUnit.MINUTES);
+            SERVICE.scheduleAtFixedRate(updater, 0, config.checkingInfo.rate, TimeUnit.MINUTES);
             LOG.warn("Scheduled updater. Will run every {} minutes.", config.checkingInfo.rate);
         } else {
             updater.tryFirstStart();
+            SERVICE.allowCoreThreadTimeOut(true);
         }
 
         if (config.discord.enabled) {
@@ -83,4 +105,12 @@ public class Main {
         return discordIntegration;
     }
 
+    public static void copyAgent() throws IOException {
+        var agent = Main.class.getResourceAsStream("/agent.jar");
+        if (agent == null) {
+            // If it isn't a .jar, try finding a .zip
+            agent = Main.class.getResourceAsStream("/agent.zip");
+        }
+        Files.copy(Objects.requireNonNull(agent), AGENT_PATH, StandardCopyOption.REPLACE_EXISTING);
+    }
 }

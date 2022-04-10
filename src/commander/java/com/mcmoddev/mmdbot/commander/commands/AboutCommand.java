@@ -38,9 +38,12 @@ import net.dv8tion.jda.api.utils.MarkdownUtil;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -132,21 +135,27 @@ public final class AboutCommand extends SlashCommand {
     public void onButtonInteraction(final ButtonInteractionContext context) {
         final var type = ButtonType.valueOf(context.getItemComponentArguments().get(0));
         if (type == ButtonType.THREAD_DUMP) {
-            context.getEvent().replyFile(getThreadDump().getBytes(), "dump.txt").queue();
+            final var dumpPath = TheCommander.getInstance().getRunPath().resolve("thread_dumps").resolve(Instant.now().getEpochSecond() + ".md");
+            try (final var writer = Files.newBufferedWriter(dumpPath, StandardOpenOption.CREATE)) {
+                writer.write(getThreadDump());
+                context.getEvent().replyFile(dumpPath.toFile(), "dump.md").queue();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public String getThreadDump() {
         final var builder = new StringBuilder();
         final var traces = Thread.getAllStackTraces();
-        builder.append("Thread dump at ")
+        builder.append("# Thread dump at ")
             .append(DateTimeFormatter.ISO_INSTANT.format(Instant.now()))
             .append(System.lineSeparator())
             .append(System.lineSeparator());
-        builder.append("All active threads:");
+        builder.append("## All active threads:");
         traces.keySet().forEach(thread -> builder
-            .append("    ")
             .append(System.lineSeparator())
+            .append("- ")
             .append(thread.getName())
             .append(thread.getThreadGroup() == null ? "" : "[" + thread.getThreadGroup().getName() + "]")
             .append('@')
@@ -154,14 +163,14 @@ public final class AboutCommand extends SlashCommand {
         );
         builder.append(System.lineSeparator())
                 .append(System.lineSeparator())
-                .append("Detailed information about each thread:")
+                .append("## Detailed information about each thread:")
                 .append(System.lineSeparator());
         traces.forEach((thread, stacks) -> {
             builder.append(System.lineSeparator());
             builder.append(buildThreadInfo(thread));
-            builder.append(System.lineSeparator());
             for (final var stack : stacks) {
-                builder.append("  ")
+                builder.append(System.lineSeparator())
+                    .append("  ")
                     .append("at ")
                     .append(stack.toString());
             }

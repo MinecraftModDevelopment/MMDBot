@@ -32,9 +32,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.regex.Pattern;
@@ -120,6 +123,15 @@ public class JarUpdater implements Runnable {
 
     private Process createProcess() {
         try {
+            if (!Files.exists(Main.AGENT_PATH)) {
+                try {
+                    Main.copyAgent();
+                } catch (IOException e) {
+                    LOGGER.error("Exception copying agent JAR: ", e);
+                    throw new RuntimeException(e);
+                }
+            }
+
             LOGGER.info("Starting process...");
             return new ProcessBuilder(getStartCommand())
                 .inheritIO()
@@ -140,6 +152,7 @@ public class JarUpdater implements Runnable {
     private List<String> getStartCommand() {
         List<String> command = new ArrayList<>(javaArgs.size() + 2);
         command.add(findJavaBinary());
+        command.add("-javaagent:agent.jar");
         command.addAll(javaArgs);
         command.add("-jar");
         command.add(jarPath.toString());
@@ -194,9 +207,15 @@ public class JarUpdater implements Runnable {
         return process;
     }
 
-    public record ProcessInfo(@Nonnull Process process, @Nullable Release release) {
+    public static class ProcessInfo {
+        private final Process process;
+        @Nullable
+        private final Release release;
+        private ProcessConnector connector;
 
-        public ProcessInfo {
+        public ProcessInfo(final Process process, @Nullable final Release release) {
+            this.process = process;
+            this.release = release;
             process.onExit().whenComplete(($, e) -> {
                if (e != null) {
                    JarUpdater.LOGGER.error("Exception exiting process: ", e);
@@ -204,7 +223,30 @@ public class JarUpdater implements Runnable {
                    LOGGER.warn("Process exited successfully.");
                }
             });
+
+            Main.SERVICE.schedule(() -> {
+                try {
+                    final var registry = LocateRegistry.getRegistry(ProcessConnector.PORT);
+                    connector = (ProcessConnector) registry.lookup(ProcessConnector.NAME);
+                    LOGGER.warn("RMI connector has been successfully setup at port {}", ProcessConnector.PORT);
+                } catch (Exception e) {
+                    LOGGER.error("Exception setting up RMI connector: ", e);
+                }
+            }, 30, TimeUnit.SECONDS);
         }
 
+        public Process process() {
+            return process;
+        }
+
+        @Nullable
+        public Release release() {
+            return release;
+        }
+
+        @Nullable
+        public ProcessConnector connector() {
+            return connector;
+        }
     }
 }

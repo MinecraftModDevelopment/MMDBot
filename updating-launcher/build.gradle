@@ -19,6 +19,16 @@ archivesBaseName = "UpdatingLauncher"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
+sourceSets {
+    agent {}
+    launcher {}
+}
+
+configurations {
+    shade
+    launcherImplementation.extendsFrom(shade)
+}
+
 application {
     mainClass.set('com.mcmoddev.updatinglauncher.Main')
 }
@@ -49,25 +59,74 @@ license {
 }
 
 dependencies {
-    implementation libs.gson
-    implementation libs.logback
-    implementation libs.configurate.hocon
-    implementation libs.commons.io
+    shade sourceSets.main.output
+    agentImplementation sourceSets.main.output
+
+    shade libs.gson
+    shade libs.logback
+    shade libs.configurate.hocon
+    shade libs.commons.io
 
     // Discord stuff
-    implementation libs.jda
-    implementation libs.chewtils.command
+    shade libs.jda
+    shade libs.chewtils.command
+}
+
+tasks.create("agentJar", Jar).configure {
+    from sourceSets.main.output
+    from sourceSets.agent.output
+    classifier("agent")
+    group("build")
+    description("Builds the agent JAR")
+
+    final var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
+    final var currentDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(actualDateTime)
+    manifest {
+        attributes([
+                'Timestamp'               : currentDateTime,
+                'Specification-Title'     : archivesBaseName,
+                'Specification-Vendor'    : 'Minecraft Mod Development',
+                'Specification-Version'   : '1',
+                'Implementation-Title'    : archivesBaseName,
+                'Implementation-Version'  : "${project.version}",
+                'Implementation-Vendor'   : 'Minecraft Mod Development',
+                'Implementation-Timestamp': currentDateTime,
+                'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
+                "Premain-Class"           : "com.mcmoddev.updatinglauncher.Agent"
+        ])
+    }
+}
+
+tasks.create("copyAgentJar", Copy) {
+    dependsOn("agentJar")
+    mustRunAfter(tasks.getByName("agentJar"))
+    from "$buildDir/libs/$archivesBaseName-$version-agent.jar"
+    into "$buildDir/resources/launcher/"
+    rename "$archivesBaseName-$version-agent.jar", "agent.zip"
+}
+
+tasks.getByName('launcherClasses').configure {
+    dependsOn("copyAgentJar")
+    mustRunAfter(tasks.getByName("copyAgentJar"))
+}
+
+tasks.named('build').configure {
+    dependsOn("copyAgentJar")
 }
 
 tasks.named('shadowJar', ShadowJar).configure {
-    manifest.attributes(makeManifestAttributes())
+    dependsOn("copyAgentJar")
+    from sourceSets.main.output
+    from sourceSets.launcher.output
+    configurations = [project.configurations.shade]
     classifier("all")
     group("build")
     description("Builds the whole project with its dependencies.")
-    dependsOn(tasks.getByName("updateLicenses"))
 }
 
 tasks.named(JavaPlugin.JAR_TASK_NAME, Jar).configure {
+    from sourceSets.main.output
+    from sourceSets.launcher.output
     manifest.attributes(makeManifestAttributes())
     classifier("no-deps")
     description("Builds the project without its dependencies.")
@@ -89,6 +148,7 @@ def makeManifestAttributes() {
             'Implementation-Timestamp': currentDateTime,
             'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
             'Built-On'                : "${project.libs.versions.jda.get()}-${project.libs.versions.chewtils.get()}",
-            'Main-Class'              : application.getMainClass().get()
+            'Main-Class'              : application.getMainClass().get(),
+            "Premain-Class"           : "com.mcmoddev.updatinglauncher.Agent"
     ]
 }
