@@ -122,7 +122,7 @@ public class StatusCommand extends ULCommand implements EventListener {
         if (connector != null) {
             try {
                 final var threads = connector.getThreads();
-                final var dumpPath = Path.of(".threadDumps").resolve(Instant.now().getEpochSecond() + ".md");
+                final var dumpPath = Main.UL_DIRECTORY.resolve("thread-dumps").resolve(Instant.now().getEpochSecond() + ".md");
                 if (!Files.exists(dumpPath.getParent())) {
                     Files.createDirectories(dumpPath.getParent());
                 }

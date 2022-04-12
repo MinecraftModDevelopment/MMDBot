@@ -100,6 +100,7 @@ tasks.create("agentJar", Jar).configure {
 tasks.create("copyAgentJar", Copy) {
     dependsOn("agentJar")
     mustRunAfter(tasks.getByName("agentJar"))
+    mustRunAfter(tasks.getByName("processLauncherResources"))
     from "$buildDir/libs/$archivesBaseName-$version-agent.jar"
     into "$buildDir/resources/launcher/"
     rename "$archivesBaseName-$version-agent.jar", "agent.zip"

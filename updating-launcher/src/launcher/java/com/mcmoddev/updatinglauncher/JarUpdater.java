@@ -227,7 +227,7 @@ public class JarUpdater implements Runnable {
 
             Main.SERVICE.schedule(() -> {
                 try {
-                    final var registry = LocateRegistry.getRegistry(ProcessConnector.PORT);
+                    final var registry = LocateRegistry.getRegistry("127.0.0.1", ProcessConnector.PORT);
                     connector = (ProcessConnector) registry.lookup(ProcessConnector.NAME);
                     LOGGER.warn("RMI connector has been successfully setup at port {}", ProcessConnector.PORT);
                 } catch (Exception e) {

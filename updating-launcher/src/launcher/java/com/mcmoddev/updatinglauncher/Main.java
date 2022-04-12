@@ -28,19 +28,14 @@ import org.spongepowered.configurate.ConfigurateException;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.util.Objects;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -49,8 +44,9 @@ public class Main {
     private static final ThreadGroup THREAD_GROUP = new ThreadGroup("UpdatingLauncher");
 
     public static final Logger LOG = LoggerFactory.getLogger("UpdatingLauncher");
-    public static final Path CONFIG_PATH = Path.of("updating_launcher.conf");
-    public static final Path AGENT_PATH = Path.of("agent.jar");
+    public static final Path UL_DIRECTORY = Path.of(".updating-launcher");
+    public static final Path CONFIG_PATH = UL_DIRECTORY.resolve("config.conf");
+    public static final Path AGENT_PATH = UL_DIRECTORY.resolve("agent.jar");
     public static final ScheduledThreadPoolExecutor SERVICE;
 
     static {
@@ -67,8 +63,12 @@ public class Main {
 
     private static DiscordIntegration discordIntegration;
 
-    public static void main(String[] args) throws UnknownHostException {
-        System.setProperty("java.rmi.server.hostname", InetAddress.getLocalHost().getHostAddress());
+    public static void main(String[] args) throws IOException {
+        System.setProperty("java.rmi.server.hostname", "127.0.0.1");
+        if (!Files.exists(UL_DIRECTORY)) {
+            Files.createDirectories(UL_DIRECTORY);
+        }
+
         try {
             copyAgent();
         } catch (IOException e) {
