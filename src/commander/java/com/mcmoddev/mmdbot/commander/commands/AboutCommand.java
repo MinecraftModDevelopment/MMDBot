@@ -25,8 +25,6 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
-import com.mcmoddev.mmdbot.core.commands.component.Component;
-import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -35,7 +33,6 @@ import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.awt.Color;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Shows information about the bot.

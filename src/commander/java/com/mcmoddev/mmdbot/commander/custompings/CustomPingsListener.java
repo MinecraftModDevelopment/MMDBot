@@ -48,7 +48,8 @@ public class CustomPingsListener extends ListenerAdapter {
     public static final LazySupplier<EventListener> LISTENER = LazySupplier.of(() -> new ThreadedEventListener(Executors.newSingleThreadExecutor(r -> Utils.setThreadDaemon(new Thread(r, "CustomPingsListener"), true)),
         new CustomPingsListener()));
 
-    private CustomPingsListener() {}
+    private CustomPingsListener() {
+    }
 
     @Override
     public void onMessageReceived(@NotNull final MessageReceivedEvent event) {

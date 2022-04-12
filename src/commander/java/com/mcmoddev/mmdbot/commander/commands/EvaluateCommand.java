@@ -146,6 +146,7 @@ public class EvaluateCommand extends SlashCommand {
 
     public static final class ModalListener extends ListenerAdapter {
         public static final String MODAL_ID = "evaluate";
+
         @Override
         public void onModalInteraction(@NotNull final ModalInteractionEvent event) {
             if (event.getModalId().equals(MODAL_ID)) {

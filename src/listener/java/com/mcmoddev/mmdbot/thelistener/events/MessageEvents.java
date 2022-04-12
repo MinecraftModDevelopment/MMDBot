@@ -163,7 +163,8 @@ public final class MessageEvents extends ListenerAdapter {
             channel -> channel.createMessage(MessageCreateSpec.builder()
                 .embeds(embed)
                 .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {
-            }, t -> {}));
+            }, t -> {
+            }));
     }
 
     @SubscribeEvent

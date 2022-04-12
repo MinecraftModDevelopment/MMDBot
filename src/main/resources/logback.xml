@@ -34,11 +34,11 @@
     </root>
 
     <!--Disable the weird D4J stuffs -->
-    <logger name="discord4j.gateway.payload.JacksonPayloadReader" level="ERROR" additivity="false" />
+    <logger name="discord4j.gateway.payload.JacksonPayloadReader" level="ERROR" additivity="false"/>
     <!--Make all useless loggers shut up -->
-    <logger name="io.netty.buffer.AbstractByteBufAllocator" level = "WARN" additivity="false" />
-    <logger name="discord4j.rest.request.RequestStream" level = "WARN" additivity="false" />
-    <logger name="reactor.netty.resources.DefaultPooledConnectionProvider" level = "WARN" additivity="false" />
-    <logger name="reactor.netty.ReactorNetty" level = "WARN" additivity="false" />
-    <logger name="io.netty.buffer.PooledByteBufAllocator" level = "WARN" additivity="false" />
+    <logger name="io.netty.buffer.AbstractByteBufAllocator" level="WARN" additivity="false"/>
+    <logger name="discord4j.rest.request.RequestStream" level="WARN" additivity="false"/>
+    <logger name="reactor.netty.resources.DefaultPooledConnectionProvider" level="WARN" additivity="false"/>
+    <logger name="reactor.netty.ReactorNetty" level="WARN" additivity="false"/>
+    <logger name="io.netty.buffer.PooledByteBufAllocator" level="WARN" additivity="false"/>
 </configuration>

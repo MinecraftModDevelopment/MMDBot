@@ -107,7 +107,8 @@ public final class EditTrickCommand extends SlashCommand {
     public static final class ModalListener extends ListenerAdapter {
         public static final String MODAL_ID_PREFIX = "edittrick_";
 
-        public ModalListener() {}
+        public ModalListener() {
+        }
 
         @Override
         public void onModalInteraction(@NotNull final ModalInteractionEvent event) {

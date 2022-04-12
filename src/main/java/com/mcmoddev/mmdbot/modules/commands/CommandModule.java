@@ -80,6 +80,7 @@ public class CommandModule {
     public static final Executor BUTTON_LISTENER_THREAD_POOL = Executors.newSingleThreadExecutor(r -> Utils.setThreadDaemon(new Thread(r, "ButtonListener"), true));
 
     private static final List<ComponentListener> DEFERRED_COMPONENT_LISTENERS = new ArrayList<>();
+
     public static ComponentListener.Builder getComponentListener(final String featureId) {
         if (getComponentManager() == null) {
             return ComponentListener.builder(featureId, DEFERRED_COMPONENT_LISTENERS::add);
@@ -130,7 +131,7 @@ public class CommandModule {
             // occurs while executing a command, the event thread will not be stopped
             // Commands and buttons are separated so that they do not interfere with each other
             jda.addEventListeners(new ThreadedEventListener((EventListener) commandClient, COMMAND_LISTENER_THREAD_POOL),
-                 buttonListener(new DismissListener()));
+                buttonListener(new DismissListener()));
         } else {
             MMDBot.LOGGER.warn("Command module disabled via config, commands will not work at this time!");
         }

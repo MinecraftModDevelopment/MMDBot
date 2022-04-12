@@ -67,8 +67,9 @@ public class VersionedDataMigrator implements DataMigrator {
 
     /**
      * Attempts to migrate the data from the file to the target version.
+     *
      * @param target the target version
-     * @param file the file to migrate
+     * @param file   the file to migrate
      */
     public void migrate(final int target, @NonNull final Path file) throws IOException {
         if (!Files.exists(file)) {

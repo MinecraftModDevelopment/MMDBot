@@ -160,7 +160,8 @@ public class EmbedTrick implements Trick {
      * The type Type.
      */
     public static class Type implements TrickType<EmbedTrick> {
-        private Type() {}
+        private Type() {
+        }
 
         /**
          * Gets clazz.

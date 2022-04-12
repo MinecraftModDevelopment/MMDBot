@@ -283,6 +283,7 @@ public final class Configuration {
             private List<String> snoozingTimes = List.of(
                 "5m", "1h", "1d"
             );
+
             public List<String> getSnoozingTimes() {
                 return snoozingTimes;
             }
@@ -291,6 +292,7 @@ public final class Configuration {
             @Setting("limit_per_user")
             @Comment("The maximum amount of reminders a user can have.")
             private int limitPerUser = 100;
+
             public int getLimitPerUser() {
                 return limitPerUser;
             }
@@ -299,6 +301,7 @@ public final class Configuration {
             @Setting("time_limit")
             @Comment("The maximum time (in seconds) that a reminder can be scheduled for.")
             private long timeLimit = 60 * 60 * 24 * 365;
+
             public long getTimeLimit() {
                 return timeLimit;
             }

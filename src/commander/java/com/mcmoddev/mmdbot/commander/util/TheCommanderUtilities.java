@@ -73,7 +73,7 @@ public class TheCommanderUtilities {
     /**
      * Checks if the given member any of the given roles
      *
-     * @param member the member to check
+     * @param member  the member to check
      * @param roleIds the IDs of the roles to check for
      * @return if the member has any of the role
      */
@@ -87,7 +87,7 @@ public class TheCommanderUtilities {
     /**
      * Checks if the given member any of the given roles
      *
-     * @param member the member to check
+     * @param member  the member to check
      * @param roleIds the IDs of the roles to check for
      * @return if the member has any of the role
      */

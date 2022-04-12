@@ -35,7 +35,9 @@ import java.time.Instant;
 
 public class TrickEvents {
     public static final AllowedMentions ALLOWED_MENTIONS_DATA = AllowedMentions.builder().repliedUser(false).build();
-    private TrickEvents() {}
+
+    private TrickEvents() {
+    }
 
     @SubscribeEvent
     public static void onTrickAdded(@NonNull final TrickEvent.Add event) {
@@ -64,7 +66,8 @@ public class TrickEvents {
                     channel -> channel.createMessage(MessageCreateSpec.builder()
                         .embeds(embed)
                         .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {
-                    }, t -> {}));
+                    }, t -> {
+                    }));
             });
     }
 
@@ -94,7 +97,8 @@ public class TrickEvents {
                     channel -> channel.createMessage(MessageCreateSpec.builder()
                         .embeds(embed)
                         .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {
-                    }, t -> {}));
+                    }, t -> {
+                    }));
             });
     }
 
@@ -131,7 +135,8 @@ public class TrickEvents {
                     channel -> channel.createMessage(MessageCreateSpec.builder()
                         .embeds(embed)
                         .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {
-                    }, t -> {}));
+                    }, t -> {
+                    }));
             });
     }
 

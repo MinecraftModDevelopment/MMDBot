@@ -30,6 +30,7 @@ import java.util.List;
 /**
  * Data access object for the role persistence table.
  * TODO make them work after the bot split
+ *
  * @author sciwhiz12
  */
 public interface PersistedRoles extends Transactional<PersistedRoles> {

@@ -71,31 +71,32 @@ public class CustomPings {
     /**
      * The type of the custom pings.
      */
-    private static final Type TYPE = new com.google.common.reflect.TypeToken<Map<Long, Map<Long, List<CustomPing>>>>() {}.getType();
+    private static final Type TYPE = new com.google.common.reflect.TypeToken<Map<Long, Map<Long, List<CustomPing>>>>() {
+    }.getType();
 
     /**
      * Example data:
      * guildId: {
-     *     memberId: [
-     *         {
-     *             pattern: pattern1,
-     *             text: text1
-     *         },
-     *         {
-     *             pattern: pattern2,
-     *             text: text2
-     *         }
-     *     ],
-     *     memberId2: [
-     *         {
-     *             pattern: pattern1,
-     *             text: text1
-     *         },
-     *         {
-     *             pattern: pattern2,
-     *             text: text2
-     *         }
-     *     ]
+     * memberId: [
+     * {
+     * pattern: pattern1,
+     * text: text1
+     * },
+     * {
+     * pattern: pattern2,
+     * text: text2
+     * }
+     * ],
+     * memberId2: [
+     * {
+     * pattern: pattern1,
+     * text: text1
+     * },
+     * {
+     * pattern: pattern2,
+     * text: text2
+     * }
+     * ]
      * }
      */
     private static Map<Long, Map<Long, List<CustomPing>>> pings;

@@ -93,7 +93,9 @@ public abstract class ComponentListener {
     }
 
     public abstract void onButtonInteraction(final ButtonInteractionContext context);
+
     public abstract void onSelectMenuInteraction(final SelectMenuInteractionContext context);
+
     public abstract void onModalInteraction(final ModalInteractionContext context);
 
     public static Builder builder(String featureId, Consumer<? super ComponentListener> whenBuilt) {
@@ -114,6 +116,7 @@ public abstract class ComponentListener {
 
         /**
          * Sets the action that should be executed on {@link Button} interaction.
+         *
          * @param onButton the action that should be executed on button interaction
          * @return the builder instance
          */
@@ -124,6 +127,7 @@ public abstract class ComponentListener {
 
         /**
          * Sets the action that should be executed on {@link net.dv8tion.jda.api.interactions.components.selections.SelectMenu} interaction.
+         *
          * @param onSelectMenu the action that should be executed on select menu interaction
          * @return the builder instance
          */
@@ -134,6 +138,7 @@ public abstract class ComponentListener {
 
         /**
          * Sets the action that should be executed on {@link net.dv8tion.jda.api.interactions.components.Modal} interaction.
+         *
          * @param onModal the action that should be executed on modal interaction
          * @return the builder instance
          */
@@ -144,12 +149,16 @@ public abstract class ComponentListener {
 
         /**
          * Builds the listener.
+         *
          * @return the built listener
          */
         public ComponentListener build() {
-            final Consumer<? super ButtonInteractionContext> onButton = this.onButton == null ? b -> {} : this.onButton;
-            final Consumer<? super SelectMenuInteractionContext> onSelectMenu = this.onSelectMenu == null ? b -> {} : this.onSelectMenu;
-            final Consumer<? super ModalInteractionContext> onModal = this.onModal == null ? b -> {} : this.onModal;
+            final Consumer<? super ButtonInteractionContext> onButton = this.onButton == null ? b -> {
+            } : this.onButton;
+            final Consumer<? super SelectMenuInteractionContext> onSelectMenu = this.onSelectMenu == null ? b -> {
+            } : this.onSelectMenu;
+            final Consumer<? super ModalInteractionContext> onModal = this.onModal == null ? b -> {
+            } : this.onModal;
             final var lis = new ComponentListener(name) {
                 @Override
                 public void onButtonInteraction(final ButtonInteractionContext context) {

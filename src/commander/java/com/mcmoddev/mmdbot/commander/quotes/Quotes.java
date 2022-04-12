@@ -103,7 +103,8 @@ public final class Quotes {
     /**
      * The type of the quotes' data.
      */
-    private static final Type TYPE = new com.google.common.reflect.TypeToken<Map<Long, List<Quote>>>() {}.getType();
+    private static final Type TYPE = new com.google.common.reflect.TypeToken<Map<Long, List<Quote>>>() {
+    }.getType();
 
     /**
      * The static instance of NullQuote used as the reference for nulls.
@@ -132,7 +133,7 @@ public final class Quotes {
      * Given a numeric ID, fetch the quote at that index, from that guild, or null.
      *
      * @param guildId the id of the guild to fetch the quote for.
-     * @param id the index to fetch the quote from.
+     * @param id      the index to fetch the quote from.
      * @return the Quote object at that index.
      */
     @Nullable
@@ -199,7 +200,7 @@ public final class Quotes {
      * Add the specified quote to the list at the specified index.
      *
      * @param guildId the ID of the guild for which to add the quote.
-     * @param quote The quote to add.
+     * @param quote   The quote to add.
      */
     public static void addQuote(final long guildId, final Quote quote) {
         getQuotesForGuild(guildId).add(quote.getID(), quote);
@@ -214,7 +215,7 @@ public final class Quotes {
      * If the quote is after the end of the list, it will have no effect.
      *
      * @param guildId the ID of the guild for which to remove the quote.
-     * @param id the ID of the item to remove.
+     * @param id      the ID of the item to remove.
      */
     public static void removeQuote(final long guildId, final int id) {
         final var quotes = getQuotesForGuild(guildId);

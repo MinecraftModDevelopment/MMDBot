@@ -37,6 +37,7 @@ public abstract class CustomAuditLogEvent implements Event {
 
     /**
      * Gets the ID of the guild in which this event happened.
+     *
      * @return the ID of the guild in which this event happened
      */
     public long getGuildId() {
@@ -45,6 +46,7 @@ public abstract class CustomAuditLogEvent implements Event {
 
     /**
      * Gets the ID of the user responsible for this event.
+     *
      * @return the ID of the user responsible for this event
      */
     public long getResponsibleUserId() {

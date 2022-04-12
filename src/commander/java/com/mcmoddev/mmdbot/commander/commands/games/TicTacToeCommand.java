@@ -59,9 +59,9 @@ public class TicTacToeCommand extends SlashCommand {
     public static final int ZERO = 2;
 
     public static final int[][] DEFAULT_GAME = {
-        { UNKNOWN, UNKNOWN, UNKNOWN },
-        { UNKNOWN, UNKNOWN, UNKNOWN },
-        { UNKNOWN, UNKNOWN, UNKNOWN }
+        {UNKNOWN, UNKNOWN, UNKNOWN},
+        {UNKNOWN, UNKNOWN, UNKNOWN},
+        {UNKNOWN, UNKNOWN, UNKNOWN}
     };
 
     @RegisterSlashCommand
@@ -121,9 +121,9 @@ public class TicTacToeCommand extends SlashCommand {
                 .flatMap(m1 -> {
                     MessageUtilities.disableButtons(m1);
                     return m1.reply("""
-                        Challenge accepted!
-                        %s is **X**
-                        %s is **0**"""
+                            Challenge accepted!
+                            %s is **X**
+                            %s is **0**"""
                             .formatted(x.getAsMention(), zero.getAsMention()))
                         .allowedMentions(List.of())
                         .flatMap(m -> {
@@ -206,7 +206,8 @@ public class TicTacToeCommand extends SlashCommand {
                 if (context.getArguments().get(0).equals(context.getEvent().getUser().getId())) {
                     Objects.requireNonNull(context.getEvent().getGuild())
                         .retrieveMemberById(context.getArguments().get(1))
-                        .queue(opponent -> setupGame(context, opponent.getUser()), e -> {});
+                        .queue(opponent -> setupGame(context, opponent.getUser()), e -> {
+                        });
                 } else {
                     context.getEvent().deferEdit().queue();
                 }

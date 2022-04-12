@@ -40,14 +40,11 @@ import spoon.Launcher;
 import spoon.OutputType;
 import spoon.support.compiler.ZipFolder;
 
-import java.io.File;
 import java.io.FileOutputStream;
-import java.net.URI;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -61,6 +58,7 @@ import java.util.concurrent.TimeUnit;
 public final class ConfigBasedElementLoader implements ElementLoader {
 
     private static final Executor INDEX_EXECUTOR;
+
     static {
         final var group = new ThreadGroup("JavaDocIndexer");
         final var ex = (ThreadPoolExecutor) Executors.newFixedThreadPool(5, r -> new Thread(group, r, "JavaDocIndexer #" + group.activeCount()));
@@ -85,7 +83,8 @@ public final class ConfigBasedElementLoader implements ElementLoader {
             .prettyPrinting(true)
             .path(cfgPath)
             .build();
-        final var config = ConfigurateUtils.loadConfig(loader, cfgPath, e -> {}, DocsConfig.class, DocsConfig.DEFAULT).first().get();
+        final var config = ConfigurateUtils.loadConfig(loader, cfgPath, e -> {
+        }, DocsConfig.class, DocsConfig.DEFAULT).first().get();
         Objects.requireNonNull(config);
 
         final var gson = ConfiguredGson.create();
@@ -109,7 +108,7 @@ public final class ConfigBasedElementLoader implements ElementLoader {
                 indexedAmount++;
             }
             loaders.add(new BaseUrlElementLoader(
-               storage, database.getBaseUrl(), indexExternalJavadoc(database.getExternalJavadocs()),  new Java11PlusLinkResolver()
+                storage, database.getBaseUrl(), indexExternalJavadoc(database.getExternalJavadocs()), new Java11PlusLinkResolver()
             ));
         }
         loadersSize = loaders.size();
