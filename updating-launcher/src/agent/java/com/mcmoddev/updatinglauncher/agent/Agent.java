@@ -47,16 +47,15 @@ public final class Agent {
     private static ProcessConnector server;
 
     public static void premain(String agentArgs, Instrumentation inst) {
-        final var name = System.getProperty(ProcessConnector.NAME_PROPERTY);
         System.out.println(colour("Updating Launcher Agent v" + VERSION + " installed."));
-        System.out.println(colour("Starting RMI on port " + ProcessConnector.PORT + " with name '" + name + "'"));
+        System.out.println(colour("Starting RMI on port " + ProcessConnector.PORT + " with name '" + agentArgs + "'"));
         try {
             System.setProperty("java.rmi.server.hostname", "127.0.0.1");
             registry = LocateRegistry.createRegistry(ProcessConnector.PORT);
             server = new ProcessConnectorServer();
 
             final ProcessConnector stub = (ProcessConnector) UnicastRemoteObject.exportObject(server, ProcessConnector.PORT);
-            registry.rebind(name, stub);
+            registry.rebind(agentArgs, stub);
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {

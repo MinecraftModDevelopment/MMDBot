@@ -150,8 +150,7 @@ public class JarUpdater implements Runnable {
     private List<String> getStartCommand() {
         List<String> command = new ArrayList<>(javaArgs.size() + 2);
         command.add(findJavaBinary());
-        command.add("-javaagent:" + Main.AGENT_PATH.toAbsolutePath());
-        command.add("-D" + ProcessConnector.NAME_PROPERTY + "=" + '"' + Main.RMI_NAME + '"');
+        command.add("-javaagent:" + Main.AGENT_PATH.toAbsolutePath() + "=" + Main.RMI_NAME);
         command.addAll(javaArgs);
         command.add("-jar");
         command.add(jarPath.toString());

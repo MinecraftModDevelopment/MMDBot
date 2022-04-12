@@ -28,6 +28,7 @@ import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentManager;
 import com.mcmoddev.mmdbot.core.commands.component.storage.ComponentStorage;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
+import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdRefreshScamLinks;
 import com.mcmoddev.mmdbot.modules.commands.bot.management.CmdShutdown;
 import com.mcmoddev.mmdbot.modules.commands.community.information.CmdInvite;
 import com.mcmoddev.mmdbot.modules.commands.moderation.CmdCommunityChannel;
@@ -113,6 +114,7 @@ public class CommandModule {
         commandClient = builder.build();
 
         commandClient.addCommand(new CmdReact());
+        commandClient.addCommand(new CmdRefreshScamLinks());
 
         if (MMDBot.getConfig().isCommandModuleEnabled()) {
             // Setup components
