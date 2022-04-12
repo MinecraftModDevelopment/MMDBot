@@ -200,7 +200,7 @@ public class CustomPingsCommand {
             } else {
                 final var cp = userRems.get(index);
                 CustomPings.removePing(gId, userId, cp);
-                context.replyOrEdit(buildMessage(context, "Removed custom ping with the index: **%s**!".formatted(index)));
+                context.replyOrEdit(buildMessage(context, "Removed custom ping with the index: **%s**!".formatted(index))).queue();
             }
         }
     }
