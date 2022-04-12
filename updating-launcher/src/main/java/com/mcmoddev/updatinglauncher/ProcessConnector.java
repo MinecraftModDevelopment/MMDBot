@@ -26,7 +26,8 @@ import java.rmi.RemoteException;
 public interface ProcessConnector extends Remote {
 
     int PORT = 6291;
-    String NAME = "ULProcessConnector";
+    String NAME_PROPERTY = "com.mcmodedev.updatinglauncher.connector.name";
+    String BASE_NAME = "ULProcessConnector";
 
     ThreadInfo[] getThreads() throws RemoteException;
     double getCPULoad() throws RemoteException;

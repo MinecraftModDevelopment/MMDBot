@@ -18,7 +18,11 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.updatinglauncher;
+package com.mcmoddev.updatinglauncher.agent;
+
+import com.mcmoddev.updatinglauncher.MemoryUsage;
+import com.mcmoddev.updatinglauncher.ProcessConnector;
+import com.mcmoddev.updatinglauncher.ThreadInfo;
 
 import java.lang.management.ManagementFactory;
 import java.rmi.RemoteException;

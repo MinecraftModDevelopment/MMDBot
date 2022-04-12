@@ -26,13 +26,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +38,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
 public class JarUpdater implements Runnable {
@@ -154,6 +151,7 @@ public class JarUpdater implements Runnable {
         List<String> command = new ArrayList<>(javaArgs.size() + 2);
         command.add(findJavaBinary());
         command.add("-javaagent:" + Main.AGENT_PATH.toAbsolutePath());
+        command.add("-D" + ProcessConnector.NAME_PROPERTY + "=" + '"' + Main.RMI_NAME + '"');
         command.addAll(javaArgs);
         command.add("-jar");
         command.add(jarPath.toString());
@@ -228,7 +226,7 @@ public class JarUpdater implements Runnable {
             Main.SERVICE.schedule(() -> {
                 try {
                     final var registry = LocateRegistry.getRegistry("127.0.0.1", ProcessConnector.PORT);
-                    connector = (ProcessConnector) registry.lookup(ProcessConnector.NAME);
+                    connector = (ProcessConnector) registry.lookup(Main.RMI_NAME);
                     LOGGER.warn("RMI connector has been successfully setup at port {}", ProcessConnector.PORT);
                 } catch (Exception e) {
                     LOGGER.error("Exception setting up RMI connector: ", e);

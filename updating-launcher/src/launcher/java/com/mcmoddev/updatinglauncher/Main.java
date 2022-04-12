@@ -43,6 +43,7 @@ import java.util.regex.Pattern;
 public class Main {
     private static final ThreadGroup THREAD_GROUP = new ThreadGroup("UpdatingLauncher");
 
+    public static final String RMI_NAME = ProcessConnector.BASE_NAME + "#" + (int) ProcessHandle.current().pid();
     public static final Logger LOG = LoggerFactory.getLogger("UpdatingLauncher");
     public static final Path UL_DIRECTORY = Path.of(".updating-launcher");
     public static final Path CONFIG_PATH = UL_DIRECTORY.resolve("config.conf");

@@ -29,6 +29,8 @@ configurations {
     launcherImplementation.extendsFrom(shade)
 }
 
+def agentClass = "com.mcmoddev.updatinglauncher.agent.Agent"
+
 application {
     mainClass.set('com.mcmoddev.updatinglauncher.Main')
 }
@@ -92,7 +94,9 @@ tasks.create("agentJar", Jar).configure {
                 'Implementation-Vendor'   : 'Minecraft Mod Development',
                 'Implementation-Timestamp': currentDateTime,
                 'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
-                "Premain-Class"           : "com.mcmoddev.updatinglauncher.Agent"
+                "Premain-Class"           : agentClass,
+                "Can-Redefine-Classes"    : false,
+                "Can-Retransform-Classes" : false
         ])
     }
 }
