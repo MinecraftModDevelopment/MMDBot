@@ -38,8 +38,4 @@ public final class TaskScheduler {
             event.addTask(new Task(new ChannelMessageChecker(), 0, 1, TimeUnit.DAYS));
         });
     }
-
-    public static void scheduleTask(Runnable toRun, long delay, TimeUnit unit) {
-        com.mcmoddev.mmdbot.core.util.TaskScheduler.scheduleTask(toRun, delay, unit);
-    }
 }

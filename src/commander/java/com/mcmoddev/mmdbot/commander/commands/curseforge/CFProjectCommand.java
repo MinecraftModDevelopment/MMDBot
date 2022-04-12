@@ -115,7 +115,7 @@ public class CFProjectCommand {
             setEmbedAuthor(embed);
             final var user = TheCommander.getJDA().getUserById(arguments.get(0));
             if (user != null) {
-               embed.setFooter("Requested by: " + user.getAsTag(), user.getAvatarUrl());
+                embed.setFooter("Requested by: " + user.getAsTag(), user.getAvatarUrl());
             }
             if (arguments.size() > startingIndex + 1) {
                 arguments.subList(startingIndex + 1, Math.min(maximum, arguments.size()))

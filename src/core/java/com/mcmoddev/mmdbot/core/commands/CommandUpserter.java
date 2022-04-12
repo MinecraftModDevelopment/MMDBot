@@ -83,9 +83,9 @@ public class CommandUpserter implements EventListener {
      * If {@code forceGuild} is false, but a guild ID is still specified,
      * all the commands from that guild will be removed.
      *
-     * @param client     the client that contains the command to upsert
-     * @param forceGuild if commands should be forced to be guild-only
-     * @param guildId    the ID of the guild commands should be upserted to
+     * @param client            the client that contains the command to upsert
+     * @param forceGuild        if commands should be forced to be guild-only
+     * @param guildId           the ID of the guild commands should be upserted to
      * @param invitePermissions a list of permissions the bot needs. This list will be used for generating an invite URL if the bot doesn't have the required scope in the forced guild.
      */
     public CommandUpserter(final CommandClient client, final boolean forceGuild, final @Nullable String guildId, final @NonNull Collection<Permission> invitePermissions) {
@@ -188,12 +188,12 @@ public class CommandUpserter implements EventListener {
                     A direct message with a valid invite URL will be sent to the guild owner.
                     I will now leave this guild."""))
                 .map(action -> action.flatMap($ -> guild.retrieveOwner()))
-                    .map(action -> action.flatMap(m -> m.getUser().openPrivateChannel()))
-                    .map(action -> action.flatMap(dm -> dm.sendMessage("""
-                        I could not register guild-forced commands in the server you own, %s.
-                        Below is an invite URL that invites the bot with the required scopes:
-                        %s"""
-                        .formatted(guild.getName(), guild.getJDA().getInviteUrl(invitePermissions)))))
+                .map(action -> action.flatMap(m -> m.getUser().openPrivateChannel()))
+                .map(action -> action.flatMap(dm -> dm.sendMessage("""
+                    I could not register guild-forced commands in the server you own, %s.
+                    Below is an invite URL that invites the bot with the required scopes:
+                    %s"""
+                    .formatted(guild.getName(), guild.getJDA().getInviteUrl(invitePermissions)))))
                 .map(action -> action.flatMap($ -> guild.leave()))
                 .ifPresent(action -> action.queue(null, new ErrorHandler().ignore(ErrorResponse.CANNOT_SEND_TO_USER)));
 

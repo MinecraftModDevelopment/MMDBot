@@ -71,7 +71,7 @@ public final class MigratorCluster implements DataMigrator {
          * Adds a migrator to the cluster, which migrates from the {@code currentVersion}.
          *
          * @param currentVersion the origin version to migrate from
-         * @param migrator    the migrator
+         * @param migrator       the migrator
          * @return the builder instance
          */
         public Builder addMigrator(final int currentVersion, @NonNull final DataMigrator migrator) {

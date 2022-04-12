@@ -20,15 +20,12 @@
  */
 package com.mcmoddev.mmdbot.core;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.mcmoddev.mmdbot.MMDBot;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Random;
 
 /**
  * Store settings that don't really change in here.
@@ -62,11 +59,6 @@ public class References {
     }
 
     /**
-     * The issue tracker where bugs and crashes should be reported, and PR's made.
-     */
-    public static final String ISSUE_TRACKER = "https://github.com/MinecraftModDevelopment/MMDBot/issues/";
-
-    /**
      * The constant COMMUNITY_CHANNEL_OWNER_PERMISSIONS.
      */
     public static final String COMMUNITY_CHANNEL_OWNER_PERMISSIONS = "community_channels.owner_permissions";
@@ -80,8 +72,4 @@ public class References {
      * The constant STARTUP_TIME.
      */
     public static Instant STARTUP_TIME;
-
-    public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
-
-    public static final Random RANDOM = new Random();
 }

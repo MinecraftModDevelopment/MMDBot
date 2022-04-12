@@ -70,6 +70,7 @@ public abstract class PaginatedCommand extends SlashCommand {
 
     /**
      * Gets the paginator of the command.
+     *
      * @return the paginator
      */
     public final Paginator getPaginator() {

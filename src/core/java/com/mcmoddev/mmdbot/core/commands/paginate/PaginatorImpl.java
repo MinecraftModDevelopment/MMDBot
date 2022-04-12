@@ -24,7 +24,6 @@ import com.google.common.collect.Lists;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.commands.component.context.ButtonInteractionContext;
-import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -34,7 +33,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -263,6 +261,7 @@ public final class PaginatorImpl implements Paginator {
         public MessageBuilderWidener(final MessageBuilder builder) {
             super(builder);
         }
+
         public void addActionRow(final ActionRow actionRow) {
             components.add(actionRow);
         }

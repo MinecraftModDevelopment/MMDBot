@@ -40,7 +40,6 @@ import com.mcmoddev.mmdbot.commander.custompings.CustomPings;
 import com.mcmoddev.mmdbot.commander.custompings.CustomPingsListener;
 import com.mcmoddev.mmdbot.commander.docs.ConfigBasedElementLoader;
 import com.mcmoddev.mmdbot.commander.docs.DocsCommand;
-import com.mcmoddev.mmdbot.commander.docs.DocsConfig;
 import com.mcmoddev.mmdbot.commander.docs.NormalDocsSender;
 import com.mcmoddev.mmdbot.commander.eventlistener.ReferencingListener;
 import com.mcmoddev.mmdbot.commander.eventlistener.ThreadListener;

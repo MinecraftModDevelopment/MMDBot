@@ -157,7 +157,7 @@ public class CustomPingsCommand {
         private Remove() {
             name = "remove";
             help = "Removes a custom ping.";
-            aliases = new String[] {
+            aliases = new String[]{
                 "delete", "clear"
             };
             options = List.of(
@@ -180,7 +180,8 @@ public class CustomPingsCommand {
             if (!event.getArgs().isBlank()) {
                 try {
                     index = Integer.parseInt(event.getArgs().split(" ")[0]);
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException ignored) {
+                }
             }
             execute(CommandContext.fromCommandEvent(event), index);
         }

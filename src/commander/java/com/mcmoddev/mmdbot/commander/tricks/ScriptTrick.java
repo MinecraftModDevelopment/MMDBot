@@ -58,7 +58,8 @@ public record ScriptTrick(List<String> names, String script) implements Trick {
     }
 
     public static final class Type implements TrickType<ScriptTrick> {
-        private Type() {}
+        private Type() {
+        }
 
         @Override
         public Class<ScriptTrick> getClazz() {

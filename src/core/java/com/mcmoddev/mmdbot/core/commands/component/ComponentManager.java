@@ -76,6 +76,7 @@ public class ComponentManager implements EventListener {
 
     /**
      * Adds a listener to this manager.
+     *
      * @param listener the listener
      */
     public void addListener(final ComponentListener listener) {

@@ -189,10 +189,10 @@ public interface Paginator {
         /**
          * A {@link ButtonFactory} implementation which builds buttons with emojis as labels.
          *
-         * @param style the style of the buttons
+         * @param style    the style of the buttons
          * @param previous the emoji to use for the "previous" button
          * @param next     the emoji to use for the "next" button
-         * @param first     the emoji to use for the "first" button
+         * @param first    the emoji to use for the "first" button
          * @param last     the emoji to use for the "last" button
          * @return the factory
          */

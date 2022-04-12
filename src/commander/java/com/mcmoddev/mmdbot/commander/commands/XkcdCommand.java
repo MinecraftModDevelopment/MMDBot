@@ -117,6 +117,8 @@ public final class XkcdCommand extends PaginatedCommand {
         }
     }
 
-    public record Xkcd(String month, int num, String link, String year, String news, String safe_title, String transcript, String alt, String img, String title, String day) { }
+    public record Xkcd(String month, int num, String link, String year, String news, String safe_title,
+                       String transcript, String alt, String img, String title, String day) {
+    }
 
 }

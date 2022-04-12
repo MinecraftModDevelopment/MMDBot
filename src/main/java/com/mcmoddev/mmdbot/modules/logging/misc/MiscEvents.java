@@ -87,7 +87,7 @@ public final class MiscEvents extends ListenerAdapter {
             long disconnectTime = System.currentTimeMillis() - lastDisconnect;
             if (disconnectTime > DISCONNECT_WARN_THRESHOLD_MILLIS) {
                 MMDBot.LOGGER.warn(
-                    "Resumption of Discord connection took a longer time than expected (took {}s, threshold of {}s)",
+                    "Resuming connection to Discord took a longer time than expected (took {}s, threshold of {}s)",
                     disconnectTime / 1000.0D, DISCONNECT_WARN_THRESHOLD_MILLIS / 1000.0D);
             }
         }
@@ -101,12 +101,12 @@ public final class MiscEvents extends ListenerAdapter {
     @Override
     public void onReconnected(@NotNull final ReconnectedEvent event) {
         Utils.sleepTimer();
-        MMDBot.LOGGER.debug("Reconnected back to Discord");
+        MMDBot.LOGGER.debug("Reconnected to Discord");
         if (lastDisconnect != 0) {
             long disconnectTime = System.currentTimeMillis() - lastDisconnect;
             if (disconnectTime > DISCONNECT_WARN_THRESHOLD_MILLIS) {
                 MMDBot.LOGGER.warn(
-                    "Reconnection to Discord took a longer time than expected (took {}s, threshold of {}s)",
+                    "Reconnecting to Discord took a longer time than expected (took {}s, threshold of {}s)",
                     disconnectTime / 1000.0D, DISCONNECT_WARN_THRESHOLD_MILLIS / 1000.0D);
             }
         }

@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.commander.commands;
 
-import static com.mcmoddev.mmdbot.core.util.Constants.MAVEN_CENTRAL;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.fabric.FabricVersionHelper;
@@ -36,7 +35,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.utils.TimeFormat;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
@@ -49,6 +47,8 @@ import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Instant;
+
+import static com.mcmoddev.mmdbot.core.util.Constants.MAVEN_CENTRAL;
 
 public final class VersionCommand {
 

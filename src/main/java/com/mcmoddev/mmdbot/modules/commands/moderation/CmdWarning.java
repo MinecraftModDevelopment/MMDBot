@@ -52,10 +52,7 @@ import java.util.function.Function;
 public class CmdWarning extends SlashCommand {
 
     /**
-     * The constant REQUIRED_PERMISSIONS.
-     */
-    /**
-     * Instantiates a new Cmd mute.
+     * Instantiates a new Cmd Warning.
      */
     public CmdWarning() {
         super();

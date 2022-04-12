@@ -82,10 +82,10 @@ public interface ComponentStorage {
 
     /**
      * Creates a {@link SQLComponentStorage}.
-     * @param jdbi the {@link Jdbi} instance to use for accessing the database
+     *
+     * @param jdbi      the {@link Jdbi} instance to use for accessing the database
      * @param tableName the name of the table that will store components
      * @return the component storage
-     *
      * @apiNote The table holding the components needs to have 5 rows, whose names
      * are the first 5 constants in {@link SQLComponentStorage}. It is recommended
      * that a {@link org.flywaydb.core.Flyway} migration is used for creating the table.

@@ -45,6 +45,7 @@ public interface CommandContext {
     RestAction<SentMessage> replyOrEdit(final Message message);
 
     @Nullable SlashCommandEvent asSlashCommandEvent();
+
     @Nullable CommandEvent asCommandEvent();
 
     static CommandContext fromSlashCommandEvent(final SlashCommandEvent event) {

@@ -128,10 +128,13 @@ public class SQLComponentStorage implements ComponentStorage {
             .execute());
     }
 
-    private static final Type STRING_LIST_TYPE = new TypeToken<List<String>>() {}.getType();
+    private static final Type STRING_LIST_TYPE = new TypeToken<List<String>>() {
+    }.getType();
+
     private static String listToString(final List<String> list) {
         return Constants.Gsons.NO_PRETTY_PRINTING.toJson(list, STRING_LIST_TYPE);
     }
+
     private static List<String> listFromString(final String string) {
         return Constants.Gsons.NO_PRETTY_PRINTING.fromJson(string, STRING_LIST_TYPE);
     }

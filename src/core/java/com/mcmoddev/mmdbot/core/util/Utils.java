@@ -23,7 +23,6 @@ package com.mcmoddev.mmdbot.core.util;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -81,9 +80,10 @@ public final class Utils {
 
     /**
      * Schedules a task to run at the specified {@code date}.
+     *
      * @param service the service to schedule the task on.
-     * @param task the task to schedule.
-     * @param date the time at which to schedule the task.
+     * @param task    the task to schedule.
+     * @param date    the time at which to schedule the task.
      */
     public static void scheduleTask(final ScheduledExecutorService service, final Runnable task, final Instant date) {
         service.schedule(task, date.atOffset(ZoneOffset.UTC).toEpochSecond() -

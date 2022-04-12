@@ -77,7 +77,8 @@ public class Reminders {
     /**
      * The type of the reminders.
      */
-    private static final Type TYPE = new com.google.common.reflect.TypeToken<Map<Long, List<Reminder>>>() {}.getType();
+    private static final Type TYPE = new com.google.common.reflect.TypeToken<Map<Long, List<Reminder>>>() {
+    }.getType();
     private static Map<Long, List<Reminder>> reminders;
 
     public static Map<Long, List<Reminder>> getReminders() {
@@ -124,6 +125,7 @@ public class Reminders {
 
     /**
      * Gets all the reminders a user has.
+     *
      * @param userId the ID of the user to query the reminders from
      * @return the user's reminders
      */
@@ -133,6 +135,7 @@ public class Reminders {
 
     /**
      * Clears all reminders from a user.
+     *
      * @param userId the id of the user to clear reminders from
      */
     public static void clearAllUserReminders(final long userId) {
@@ -141,6 +144,7 @@ public class Reminders {
 
     /**
      * Checks if a user reached the max pending reminders.
+     *
      * @param userId the id of the user to search reminders
      * @return if the user reached the max pending reminders.
      */
@@ -150,6 +154,7 @@ public class Reminders {
 
     /**
      * Removes a reminder.
+     *
      * @param reminder the reminder to remove.
      */
     public static void removeReminder(final Reminder reminder) {
@@ -160,6 +165,7 @@ public class Reminders {
 
     /**
      * Adds and schedules a reminder.
+     *
      * @param reminder the reminder to add.
      */
     public static void addReminder(final Reminder reminder) {
@@ -170,6 +176,7 @@ public class Reminders {
 
     /**
      * Schedules a reminder.
+     *
      * @param reminder the reminder to schedule
      */
     public static void registerReminder(final Reminder reminder) {

@@ -72,7 +72,9 @@ public final class DismissListener extends ListenerAdapter {
                     .flatMap(m -> m.delete().reason("User dismissed the command"))
                     .addCheck(() -> canDelete(idParts[1], event))
                 )
-                .queue($ -> {}, e -> {});
+                .queue($ -> {
+                }, e -> {
+                });
         }
     }
 

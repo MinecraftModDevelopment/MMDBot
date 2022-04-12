@@ -36,7 +36,7 @@ public class EmptyRestAction<T> implements RestAction<T> {
      */
     private static final EmptyRestAction<?> EMPTY = new EmptyRestAction<>();
 
-    public static<T> RestAction<T> empty() {
+    public static <T> RestAction<T> empty() {
         @SuppressWarnings("unchecked")
         RestAction<T> t = (EmptyRestAction<T>) EMPTY;
         return t;

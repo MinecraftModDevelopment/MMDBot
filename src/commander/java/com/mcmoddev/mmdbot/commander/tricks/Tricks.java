@@ -162,6 +162,7 @@ public final class Tricks {
 
     /**
      * Gets the name of a trick type.
+     *
      * @param type the type whose name to search.
      * @return the name of the trick type, or null if no such type exists
      */

@@ -31,7 +31,6 @@ import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
 import com.mcmoddev.mmdbot.MMDBot;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Message;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -115,20 +114,6 @@ public final class BotConfig {
     @NotNull
     public String getToken() {
         return config.<String>getOptional("bot.token")
-            .filter(string -> string.indexOf('!') == -1 || string.isEmpty())
-            .orElse("");
-    }
-
-    @NotNull
-    public String getGithubToken() {
-        return config.<String>getOptional("bot.githubToken")
-            .filter(string -> string.indexOf('!') == -1 || string.isEmpty())
-            .orElse("");
-    }
-
-    @NotNull
-    public String getOwlbotToken() {
-        return config.<String>getOptional("bot.owlbotToken")
             .filter(string -> string.indexOf('!') == -1 || string.isEmpty())
             .orElse("");
     }
@@ -341,21 +326,6 @@ public final class BotConfig {
     }
 
     /**
-     * Returns the amount of time in hours since a request was created for it to be deleted upon the user leaving the
-     * server.
-     * <p>
-     * For example, a value of {@code 5} means all requests made by a user who leaves the server that is less than 5
-     * hours old will be deleted.
-     * <p>
-     * A value of {@code 0} disables this leave deletion functionality.
-     *
-     * @return The time in hours since request creation by a leaving user to be deleted
-     */
-    public int getRequestLeaveDeletionTime() {
-        return config.getIntOrElse("requests.leave_deletion", 0);
-    }
-
-    /**
      * Returns the amount of time in days; where a request is actionable using the requests warning and removal system.
      * <p>
      * A request that has existed for longer that this duration (a "stale request") will not cause the warning or
@@ -522,11 +492,7 @@ public final class BotConfig {
      * @return
      */
     public long getRoleForRolePanel(final long channelId, final long messageId, final String emote) {
-        return config.<Long>getOrElse("role_panels.%s-%s.%s".formatted(channelId, messageId, emote), 0l);
-    }
-
-    public long getRoleForRolePanel(final Message message, final String emote) {
-        return getRoleForRolePanel(message.getChannel().getIdLong(), message.getIdLong(), emote);
+        return config.<Long>getOrElse("role_panels.%s-%s.%s".formatted(channelId, messageId, emote), 0L);
     }
 
     public void addRolePanel(final long channelId, final long messageId, final String emote, final long roleId) {
