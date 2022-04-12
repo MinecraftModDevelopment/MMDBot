@@ -23,6 +23,7 @@ package com.mcmoddev.updatinglauncher.discord;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.updatinglauncher.Config;
 import com.mcmoddev.updatinglauncher.JarUpdater;
+import com.mcmoddev.updatinglauncher.discord.commands.ProfilingCommand;
 import com.mcmoddev.updatinglauncher.discord.commands.file.FileCommand;
 import com.mcmoddev.updatinglauncher.discord.commands.ShutdownCommand;
 import com.mcmoddev.updatinglauncher.discord.commands.StartCommand;
@@ -58,7 +59,8 @@ public class DiscordIntegration {
                 new ShutdownCommand(() -> updater, config),
                 new StartCommand(() -> updater, config),
                 statusCmd,
-                new FileCommand(basePath, config)
+                new FileCommand(basePath, config),
+                new ProfilingCommand(() -> updater, config)
             )
             .build();
 

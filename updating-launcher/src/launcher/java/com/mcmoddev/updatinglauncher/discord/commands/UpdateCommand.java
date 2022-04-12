@@ -38,12 +38,10 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class UpdateCommand extends ULCommand {
-    private final Supplier<JarUpdater> jarUpdater;
     public UpdateCommand(final Supplier<JarUpdater> jarUpdater, final Config.Discord config) {
-        super(config);
+        super(jarUpdater, config);
         name = "update";
         help = "Updates the process' jar.";
-        this.jarUpdater = jarUpdater;
         options = List.of(
             new OptionData(OptionType.STRING, "tag", "The tag to which to update. Don't provide to update to latest.")
         );

@@ -29,34 +29,27 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
-import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.rmi.RemoteException;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Supplier;
-import java.util.jar.JarFile;
 
 public class StatusCommand extends ULCommand implements EventListener {
 
     public static final String BUTTON_NAME = "thread_dump";
 
-    private final Supplier<JarUpdater> jarUpdater;
     public StatusCommand(final Supplier<JarUpdater> jarUpdater, final Config.Discord config) {
-        super(config);
-        this.jarUpdater = jarUpdater;
+        super(jarUpdater, config);
         name = "status";
         help = "Gets information about the process status.";
     }

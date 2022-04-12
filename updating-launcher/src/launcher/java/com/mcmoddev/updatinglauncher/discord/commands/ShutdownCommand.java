@@ -29,7 +29,7 @@ import java.util.function.Supplier;
 public class ShutdownCommand extends ULCommand {
     private final Supplier<JarUpdater> jarUpdater;
     public ShutdownCommand(final Supplier<JarUpdater> jarUpdater, final Config.Discord config) {
-        super(config);
+        super(jarUpdater, config);
         this.jarUpdater = jarUpdater;
         name = "shutdown";
         help = "Shuts down the process.";

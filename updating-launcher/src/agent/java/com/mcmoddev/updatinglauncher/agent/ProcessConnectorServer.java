@@ -22,10 +22,19 @@ package com.mcmoddev.updatinglauncher.agent;
 
 import com.mcmoddev.updatinglauncher.MemoryUsage;
 import com.mcmoddev.updatinglauncher.ProcessConnector;
+import com.mcmoddev.updatinglauncher.Properties;
 import com.mcmoddev.updatinglauncher.ThreadInfo;
 
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.rmi.RemoteException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.jar.JarFile;
 
 public class ProcessConnectorServer implements ProcessConnector {
     @Override
@@ -44,4 +53,40 @@ public class ProcessConnectorServer implements ProcessConnector {
         final var runtime = Runtime.getRuntime();
         return new MemoryUsage(runtime.totalMemory(), runtime.freeMemory());
     }
+
+    @Override
+    public HashMap<String, Object> getProcessInfoProfiling() throws RemoteException {
+        final var map = new HashMap<String, Object>();
+        map.put("agentVersion", Agent.VERSION);
+
+        final var runtimeBean = ManagementFactory.getRuntimeMXBean();
+        final var handle = ProcessHandle.current();
+
+        // App info
+        map.put("name", runtimeBean.getName());
+        map.put("epochMillis", System.currentTimeMillis());
+        map.put("pid", handle.pid());
+        try {
+            map.put("host", InetAddress.getLocalHost().getHostName());
+        } catch (UnknownHostException e) {
+            map.put("host", "unknown");
+        }
+        final var jar = System.getProperty(Properties.JAR_PATH);
+        map.put("appJar", jar);
+        try {
+            map.put("appClass", new JarFile(jar).getManifest().getMainAttributes().getValue("Main-Class"));
+        } catch (Exception e) {
+            map.put("appClass", "unknown");
+        }
+
+        map.put("jvmInputArguments", runtimeBean.getInputArguments() == null ? List.of() : new ArrayList<>(runtimeBean.getInputArguments()));
+        map.put("xmxBytes", ProfilingUtils.getJvmXmxBytes(runtimeBean.getInputArguments()));
+        map.put("command", handle.info().command().orElse(""));
+        map.put("commandLine", handle.info().commandLine().orElse(""));
+        map.put("start", handle.info().startInstant().map(Instant::toString).orElse("unknown"));
+        map.put("classpath", runtimeBean.getClassPath());
+
+        return map;
+    }
+
 }

@@ -23,19 +23,13 @@ package com.mcmoddev.updatinglauncher.discord.commands;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.updatinglauncher.Config;
 import com.mcmoddev.updatinglauncher.JarUpdater;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.utils.TimeFormat;
 
-import java.awt.Color;
 import java.nio.file.Files;
-import java.time.Instant;
 import java.util.function.Supplier;
 
 public class StartCommand extends ULCommand {
-    private final Supplier<JarUpdater> jarUpdater;
     public StartCommand(final Supplier<JarUpdater> jarUpdater, final Config.Discord config) {
-        super(config);
-        this.jarUpdater = jarUpdater;
+        super(jarUpdater, config);
         name = "start";
         help = "Starts the process.";
     }

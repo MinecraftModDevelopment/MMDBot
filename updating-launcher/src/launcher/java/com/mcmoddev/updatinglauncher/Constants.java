@@ -26,6 +26,7 @@ import com.google.gson.GsonBuilder;
 public class Constants {
 
     public static final Gson GSON = new GsonBuilder()
+        .setPrettyPrinting()
         .create();
 
 }

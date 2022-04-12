@@ -23,10 +23,16 @@ package com.mcmoddev.updatinglauncher.discord.commands;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.updatinglauncher.Config;
+import com.mcmoddev.updatinglauncher.JarUpdater;
+
+import java.util.function.Supplier;
 
 public abstract class ULCommand extends SlashCommand {
 
-    protected ULCommand(final Config.Discord config) {
+    protected final Supplier<JarUpdater> jarUpdater;
+
+    protected ULCommand(final Supplier<JarUpdater> jarUpdater, final Config.Discord config) {
+        this.jarUpdater = jarUpdater;
         this.enabledRoles = config.roles.toArray(String[]::new);
         guildOnly = true;
         defaultEnabled = false;

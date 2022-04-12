@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.rmi.registry.LocateRegistry;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -47,12 +48,13 @@ public class JarUpdater implements Runnable {
     private final UpdateChecker updateChecker;
     private final Pattern jarNamePattern;
     private final List<String> javaArgs;
+    private final Map<String, String> properties;
 
     @Nullable
     private ProcessInfo process;
 
     public JarUpdater(@NonNull final Path jarPath, @NonNull final UpdateChecker updateChecker, @NonNull final Pattern jarNamePattern, @NonNull final List<String> javaArgs) {
-        this.jarPath = jarPath;
+        this.jarPath = jarPath.toAbsolutePath();
         this.updateChecker = updateChecker;
         this.jarNamePattern = jarNamePattern;
         this.javaArgs = javaArgs;
@@ -62,6 +64,10 @@ public class JarUpdater implements Runnable {
                 process.process().destroy();
             }
         }));
+
+        properties = Map.of(
+            Properties.JAR_PATH, jarPath.toString()
+        );
     }
 
     @Override
@@ -109,7 +115,7 @@ public class JarUpdater implements Runnable {
     }
 
     public void update(final Release.Asset asset) throws Exception {
-        final var parent = jarPath.toAbsolutePath().getParent();
+        final var parent = jarPath.getParent();
         if (parent != null) {
             Files.createDirectories(parent);
         }
@@ -152,6 +158,7 @@ public class JarUpdater implements Runnable {
         command.add(findJavaBinary());
         command.add("-javaagent:" + Main.AGENT_PATH.toAbsolutePath() + "=" + Main.RMI_NAME);
         command.addAll(javaArgs);
+        properties.forEach((key, value) -> command.add("-D%s=\"%s\"".formatted(key, value)));
         command.add("-jar");
         command.add(jarPath.toString());
         return command;

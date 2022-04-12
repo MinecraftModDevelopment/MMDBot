@@ -29,7 +29,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -47,7 +46,7 @@ public class FileCommand extends ULCommand {
     private final List<Pred> predicates;
 
     public FileCommand(final Path basePath, final Config.Discord config) {
-        super(config);
+        super(() -> null, config);
         this.basePath = basePath;
         name = "file";
         help = "File management commands.";
