@@ -69,6 +69,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import static com.mcmoddev.mmdbot.core.util.event.DismissListener.createDismissButton;
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.ALLOWED_MENTIONS;
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.createGuild;
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.createMessageChannel;
@@ -121,13 +122,15 @@ public class EvaluateCommand extends SlashCommand {
                                 return;
                             }
                             hook.editOriginal("There was an exception evaluating "
-                                + exception.getLocalizedMessage()).queue();
+                                + exception.getLocalizedMessage())
+                                .setActionRow(createDismissButton())
+                                .queue();
                         }
                     });
                     TaskScheduler.scheduleTask(() -> {
                         if (!future.isDone()) {
                             future.cancel(true);
-                            hook.editOriginal("Evaluation was timed out!").queue();
+                            hook.editOriginal("Evaluation was timed out!").setActionRow(createDismissButton()).queue();
                         }
                     }, 4, TimeUnit.SECONDS);
                 });
@@ -161,13 +164,16 @@ public class EvaluateCommand extends SlashCommand {
                                 return;
                             }
                             hook.editOriginal("There was an exception evaluating "
-                                + exception.getLocalizedMessage()).queue();
+                                + exception.getLocalizedMessage())
+                                .setActionRow(createDismissButton(event))
+                                .queue();
                         }
                     });
                     TaskScheduler.scheduleTask(() -> {
                         if (!future.isDone()) {
                             future.cancel(true);
-                            hook.editOriginal("Evaluation was timed out!").queue();
+                            hook.editOriginal("Evaluation was timed out!")
+                                .setActionRow(createDismissButton(event)).queue();
                         }
                     }, 4, TimeUnit.SECONDS);
                 });
