@@ -20,8 +20,11 @@
  */
 package com.mcmoddev.mmdbot.commander;
 
+import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.CommandListener;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
@@ -184,6 +187,8 @@ public final class TheCommander implements Bot {
         Permission.MANAGE_ROLES
     );
 
+    private static final String COMMAND_RECEIVED = "☑️";
+
     /**
      * The instance.
      */
@@ -334,6 +339,12 @@ public final class TheCommander implements Bot {
             .setManualUpsert(true)
             .useHelpBuilder(false)
             .setActivity(null)
+            .setListener(new CommandListener() {
+                @Override
+                public void onCommand(final CommandEvent event, final Command command) {
+                    event.getMessage().addReaction(COMMAND_RECEIVED).queue();
+                }
+            })
             .build();
         EventListeners.COMMANDS_LISTENER.addListener((EventListener) commandClient);
 
