@@ -26,8 +26,10 @@ import com.mcmoddev.updatinglauncher.ProcessConnector;
 import com.mcmoddev.updatinglauncher.Properties;
 import com.mcmoddev.updatinglauncher.ThreadInfo;
 import com.mcmoddev.updatinglauncher.agent.logback.DiscordLogbackAppender;
+import com.mcmoddev.updatinglauncher.api.StatusListener;
 
 import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.RemoteException;
@@ -40,8 +42,10 @@ import java.util.jar.JarFile;
 public class ProcessConnectorServer implements ProcessConnector {
     @Override
     public ThreadInfo[] getThreads() throws RemoteException {
-        final var all = Thread.getAllStackTraces();
-        return all.entrySet().stream().map(e -> ThreadInfo.fromThread(e.getKey(), e.getValue())).toArray(ThreadInfo[]::new);
+        return Thread.getAllStackTraces()
+            .entrySet()
+            .stream()
+            .map(e -> ThreadInfo.fromThread(e.getKey(), e.getValue())).toArray(ThreadInfo[]::new);
     }
 
     @Override
@@ -51,17 +55,17 @@ public class ProcessConnectorServer implements ProcessConnector {
 
     @Override
     public MemoryUsage getMemoryUsage() throws RemoteException {
-        final var runtime = Runtime.getRuntime();
+        final Runtime runtime = Runtime.getRuntime();
         return new MemoryUsage(runtime.totalMemory(), runtime.freeMemory());
     }
 
     @Override
     public HashMap<String, Object> getProcessInfoProfiling() throws RemoteException {
-        final var map = new HashMap<String, Object>();
+        final HashMap<String, Object> map = new HashMap<>();
         map.put("agentVersion", Agent.VERSION);
 
-        final var runtimeBean = ManagementFactory.getRuntimeMXBean();
-        final var handle = ProcessHandle.current();
+        final RuntimeMXBean runtimeBean = ManagementFactory.getRuntimeMXBean();
+        final ProcessHandle handle = ProcessHandle.current();
 
         // App info
         map.put("name", runtimeBean.getName());
@@ -72,7 +76,7 @@ public class ProcessConnectorServer implements ProcessConnector {
         } catch (UnknownHostException e) {
             map.put("host", "unknown");
         }
-        final var jar = System.getProperty(Properties.JAR_PATH);
+        final String jar = System.getProperty(Properties.JAR_PATH);
         map.put("appJar", jar);
         try {
             map.put("appClass", new JarFile(jar).getManifest().getMainAttributes().getValue("Main-Class"));
@@ -98,5 +102,10 @@ public class ProcessConnectorServer implements ProcessConnector {
         } catch (ClassNotFoundException | ClassCastException e) {
             System.err.println("Cannot setup Discord webhook logging as Logback is not found on the classpath!");
         }
+    }
+
+    @Override
+    public void onShutdown() throws RemoteException {
+        Agent.executeOnListeners(StatusListener::onShutdown);
     }
 }

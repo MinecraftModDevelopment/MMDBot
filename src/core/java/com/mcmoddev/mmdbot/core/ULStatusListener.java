@@ -18,25 +18,14 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.updatinglauncher;
+package com.mcmoddev.mmdbot.core;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
-import java.util.HashMap;
+import com.mcmoddev.updatinglauncher.api.StatusListener;
 
-public interface ProcessConnector extends Remote {
+public class ULStatusListener implements StatusListener {
 
-    int PORT = 6291;
-    String BASE_NAME = "ULProcessConnector";
-
-    ThreadInfo[] getThreads() throws RemoteException;
-    double getCPULoad() throws RemoteException;
-    MemoryUsage getMemoryUsage() throws RemoteException;
-
-    // Profiling
-    HashMap<String, Object> getProcessInfoProfiling() throws RemoteException;
-
-    void setupDiscordLogging(String webhookId, String webhookToken) throws RemoteException;
-
-    void onShutdown() throws RemoteException;
+    @Override
+    public void onShutdown() {
+        RunBots.shutdown();
+    }
 }

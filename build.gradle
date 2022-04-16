@@ -21,6 +21,8 @@ version project.bot_version
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
+println "Bot Version: $version"
+
 final var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
 
 application {
@@ -97,6 +99,8 @@ dependencies {
   coreRuntimeOnly sourceSets.listener.output
   coreRuntimeOnly sourceSets.commander.output
   coreRuntimeOnly sourceSets.watcher.output
+
+  global project(':updating-launcher')
 
   jda(libs.jda) {
     exclude module: 'jackson-databind' // their jackson version is outdated

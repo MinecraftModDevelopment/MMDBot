@@ -16,10 +16,12 @@ plugins {
 
 group = "com.mcmoddev"
 archivesBaseName = "UpdatingLauncher"
+version = project.launcher_version
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 sourceSets {
+    api {}
     agent {}
     launcher {}
 }
@@ -61,10 +63,15 @@ license {
 }
 
 dependencies {
-    agentImplementation sourceSets.main.output
-    agentImplementation libs.logback
-    agentImplementation libs.jda // This is just a compat layer for jda mentionables. DO NOT USE FOR ANYTHING ELSE as the agent will not have it shaded
+    implementation sourceSets.api.output
+    api sourceSets.api.output
 
+    agentImplementation libs.jda // This is just a compat layer for jda mentionables. DO NOT USE FOR ANYTHING ELSE as the agent will not have it shaded
+    agentImplementation libs.logback
+    agentImplementation sourceSets.api.output
+    agentImplementation sourceSets.main.output
+
+    shade sourceSets.api.output
     shade sourceSets.main.output
     shade libs.gson
     shade libs.logback
@@ -77,6 +84,7 @@ dependencies {
 }
 
 tasks.create("agentJar", Jar).configure {
+    from sourceSets.api.output
     from sourceSets.main.output
     from sourceSets.agent.output
     classifier("agent")
@@ -92,7 +100,7 @@ tasks.create("agentJar", Jar).configure {
                 'Specification-Vendor'    : 'Minecraft Mod Development',
                 'Specification-Version'   : '1',
                 'Implementation-Title'    : archivesBaseName,
-                'Implementation-Version'  : "${project.version}",
+                'Implementation-Version'  : "${project.launcher_version}",
                 'Implementation-Vendor'   : 'Minecraft Mod Development',
                 'Implementation-Timestamp': currentDateTime,
                 'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
@@ -123,7 +131,6 @@ tasks.named('build').configure {
 
 tasks.named('shadowJar', ShadowJar).configure {
     dependsOn("copyAgentJar")
-    from sourceSets.main.output
     from sourceSets.launcher.output
     configurations = [project.configurations.shade]
     classifier("all")
@@ -132,6 +139,7 @@ tasks.named('shadowJar', ShadowJar).configure {
 }
 
 tasks.named(JavaPlugin.JAR_TASK_NAME, Jar).configure {
+    from sourceSets.api.output
     from sourceSets.main.output
     from sourceSets.launcher.output
     manifest.attributes(makeManifestAttributes())
@@ -144,13 +152,13 @@ def makeManifestAttributes() {
     final var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
     final var currentDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(actualDateTime)
     return [
-            'Maven-Artifact'          : "${project.group}:${archivesBaseName}:${project.version}",
+            'Maven-Artifact'          : "${project.group}:${archivesBaseName}:${project.launcher_version}",
             'Timestamp'               : currentDateTime,
             'Specification-Title'     : archivesBaseName,
             'Specification-Vendor'    : 'Minecraft Mod Development',
             'Specification-Version'   : '1',
             'Implementation-Title'    : archivesBaseName,
-            'Implementation-Version'  : "${project.version}",
+            'Implementation-Version'  : "${project.launcher_version}",
             'Implementation-Vendor'   : 'Minecraft Mod Development',
             'Implementation-Timestamp': currentDateTime,
             'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",

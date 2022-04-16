@@ -32,6 +32,7 @@ import lombok.experimental.UtilityClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -131,38 +132,30 @@ public class RunBots {
 
         loadedBots = bots.toList();
 
-        /* dashboard stuff
-        {
-            ServerBridge.setInstance(new ServerBridgeImpl());
-            final var dashConfig = getDashboardConfig();
-            try {
-                final var address = new InetSocketAddress("0.0.0.0", dashConfig.port);
-                final var listeners = new ArrayList<PacketListener>();
-                bots.map(b -> b.getType().getPacketListenerUnsafe(b)).forEach(listeners::add);
-                DashboardSever.setup(address, listeners.toArray(PacketListener[]::new));
-            } catch (Exception e) {
-                LOG.error("Error while trying to set up the dashboard endpoint!", e);
-            }
-        }
-        */
-
         final var botsTarget = BotRegistry.getBotTypes().size();
         while (botsAmount.get() < botsTarget) {
             // Block thread
         }
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            LOG.warn("The bot(s) are shutting down!");
-            loadedBots.forEach(Bot::shutdown);
-        }));
-
+        if (System.getProperty("com.mcmoddev.updatinglauncher.jar") == null) {
+            // Make sure we are not running in a launcher environment.
+            // We don't need to add the shutdown hook in such context as the listener will already
+            // shut the bots down.
+            Runtime.getRuntime().addShutdownHook(new Thread(RunBots::shutdown));
+        }
 
         Events.MISC_BUS.addListener(ScamDetector::onCollectTasks);
         TaskScheduler.init();
     }
 
+    @Nonnull
     public static List<Bot> getLoadedBots() {
         return loadedBots;
+    }
+
+    public static void shutdown() {
+        LOG.warn("Shutting down the bots!");
+        getLoadedBots().forEach(Bot::shutdown);
     }
 
     private static Path createDirectory(String path) {

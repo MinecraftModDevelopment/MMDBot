@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.util.ArrayList;
 import java.util.List;
@@ -228,7 +229,19 @@ public class JarUpdater implements Runnable {
         private ProcessConnector connector;
 
         public ProcessInfo(final Process process, @Nullable final Release release) {
-            this.process = process;
+            this.process = new DelegatedProcess(process) {
+                @Override
+                public void destroy() {
+                    if (connector != null) {
+                        try {
+                            connector.onShutdown();
+                        } catch (RemoteException e) {
+                            LOGGER.error("Exception trying to call shutdown listeners: ", e);
+                        }
+                    }
+                    super.destroy();
+                }
+            };
             this.release = release;
             process.onExit().whenComplete(($, e) -> {
                if (e != null) {

@@ -21,6 +21,7 @@
 package com.mcmoddev.updatinglauncher.agent;
 
 import com.mcmoddev.updatinglauncher.ProcessConnector;
+import com.mcmoddev.updatinglauncher.api.StatusListener;
 
 import java.lang.instrument.Instrumentation;
 import java.rmi.NotBoundException;
@@ -31,6 +32,8 @@ import java.rmi.server.UnicastRemoteObject;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ServiceLoader;
+import java.util.function.Consumer;
 
 public final class Agent {
     public static final String VERSION;
@@ -48,6 +51,8 @@ public final class Agent {
 
     public static void premain(String agentArgs, Instrumentation inst) {
         System.out.println(colour("Updating Launcher Agent v" + VERSION + " installed."));
+        executeOnListeners(l -> l.premain(inst));
+
         System.out.println(colour("Starting RMI on port " + ProcessConnector.PORT + " with name '" + agentArgs + "'"));
         try {
             System.setProperty("java.rmi.server.hostname", "127.0.0.1");
@@ -59,12 +64,14 @@ public final class Agent {
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
-                    registry.unbind(ProcessConnector.BASE_NAME);
+                    registry.unbind(agentArgs);
                 } catch (RemoteException | NotBoundException e) {
                     e.printStackTrace();
                 }
             }));
             System.out.println(colour("Process Connector ready!"));
+
+            executeOnListeners(StatusListener::onStartup);
         } catch (Exception e) {
             System.err.println("Exception starting RMI server: " + e.getLocalizedMessage());
             throw new RuntimeException(e);
@@ -74,6 +81,13 @@ public final class Agent {
     public static String colour(String text) {
         return "\033[94;1m==== \033[36;1m" + text
             + " \033[94;1m====\033[0m";
+    }
+
+    public static void executeOnListeners(Consumer<? super StatusListener> consumer) {
+        final ServiceLoader<StatusListener> loader = ServiceLoader.load(StatusListener.class);
+        for (final StatusListener listener : loader) {
+            consumer.accept(listener);
+        }
     }
 
     private Agent() {

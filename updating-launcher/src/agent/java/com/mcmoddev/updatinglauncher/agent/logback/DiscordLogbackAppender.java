@@ -1,3 +1,23 @@
+/*
+ * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
+ * Copyright (C) 2016-2022 <MMD - MinecraftModDevelopment>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ */
 package com.mcmoddev.updatinglauncher.agent.logback;
 
 import ch.qos.logback.classic.LoggerContext;
@@ -20,12 +40,12 @@ public class DiscordLogbackAppender extends AppenderBase<ILoggingEvent> {
 
     public static final String POST_URL = "https://discord.com/api/v9/webhooks/%s/%s";
     public static void setup(String webhookId, String webhookToken) throws ClassNotFoundException, ClassCastException {
-        final var context = (LoggerContext) LoggerFactory.getILoggerFactory();
+        final LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
 
-        final var appender = new DiscordLogbackAppender();
+        final DiscordLogbackAppender appender = new DiscordLogbackAppender();
         appender.setContext(context);
 
-        final var layout = new DiscordLogbackLayout();
+        final DiscordLogbackLayout layout = new DiscordLogbackLayout();
         layout.setContext(context);
         layout.start();
         appender.setLayout(layout);
@@ -33,7 +53,7 @@ public class DiscordLogbackAppender extends AppenderBase<ILoggingEvent> {
         appender.login(webhookId, webhookToken);
         appender.start();
 
-        final var rootLogger = context.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+        final ch.qos.logback.classic.Logger rootLogger = context.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
         rootLogger.addAppender(appender);
     }
 
@@ -44,7 +64,7 @@ public class DiscordLogbackAppender extends AppenderBase<ILoggingEvent> {
 
     private final HttpClient client = HttpClient.newBuilder()
         .executor(Executors.newSingleThreadExecutor(r -> {
-            final var thread = new Thread(r);
+            final Thread thread = new Thread(r);
             thread.setName("DiscordLoggingAppender");
             thread.setDaemon(true);
             return thread;
@@ -70,7 +90,7 @@ public class DiscordLogbackAppender extends AppenderBase<ILoggingEvent> {
     protected void append(final ILoggingEvent eventObject) {
         if (uri == null) return;
         try {
-            final var contentBuf = new StringBuffer();
+            final StringBuffer contentBuf = new StringBuffer();
             escape(getMessageContent(eventObject), contentBuf);
             final String body = '{' +
                 "\"content\":\"" + contentBuf + "\"," +
@@ -94,7 +114,7 @@ public class DiscordLogbackAppender extends AppenderBase<ILoggingEvent> {
 
     private static void escape(String s, StringBuffer sb) {
         final int len = s.length();
-        for(int i = 0; i < len; i++){
+        for (int i = 0; i < len; i++){
             char ch = s.charAt(i);
             switch (ch) {
                 case '"':

@@ -1,3 +1,23 @@
+/*
+ * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
+ * Copyright (C) 2016-2022 <MMD - MinecraftModDevelopment>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+ */
 package com.mcmoddev.updatinglauncher.agent.logback;
 
 import ch.qos.logback.classic.Level;
@@ -51,13 +71,13 @@ public class DiscordLogbackLayout extends LayoutBase<ILoggingEvent> {
 
     private static Object tryFormat(final Object obj) {
         if (JDA_EXISTS) {
-            final var jda = JDAFormatter.format(obj);
+            final Object jda = JDAFormatter.format(obj);
             if (jda != null) {
                 return jda;
             }
         }
-        if (obj instanceof Collection) {
-            final Stream<Object> stream = ((Collection<?>) obj).stream()
+        if (obj instanceof Collection<?> col) {
+            final Stream<Object> stream = col.stream()
                 .map(DiscordLogbackLayout::tryFormat);
             if (obj instanceof Set) {
                 return stream.collect(Collectors.toSet());
@@ -87,7 +107,7 @@ public class DiscordLogbackLayout extends LayoutBase<ILoggingEvent> {
      */
     @Override
     public String doLayout(final ILoggingEvent event) {
-        final var builder = new StringBuilder(2000);
+        final StringBuilder builder = new StringBuilder(2000);
         builder
             .append(LEVEL_TO_EMOTE.getOrDefault(event.getLevel(), UNKNOWN_EMOTE));
         builder
@@ -107,7 +127,7 @@ public class DiscordLogbackLayout extends LayoutBase<ILoggingEvent> {
             .append(CoreConstants.LINE_SEPARATOR);
 
         if (event.getThrowableProxy() != null) {
-            final var stacktrace = buildStacktrace(event.getThrowableProxy());
+            final String stacktrace = buildStacktrace(event.getThrowableProxy());
             builder.append("Stacktrace: ");
             if (stacktrace.length() > 1800) {
                 builder.append("*Too long to be displayed.*");
