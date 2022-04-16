@@ -61,9 +61,11 @@ license {
 }
 
 dependencies {
-    shade sourceSets.main.output
     agentImplementation sourceSets.main.output
+    agentImplementation libs.logback
+    agentImplementation libs.jda // This is just a compat layer for jda mentionables. DO NOT USE FOR ANYTHING ELSE as the agent will not have it shaded
 
+    shade sourceSets.main.output
     shade libs.gson
     shade libs.logback
     shade libs.configurate.hocon

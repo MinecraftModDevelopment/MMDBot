@@ -20,12 +20,13 @@
  */
 package com.mcmoddev.updatinglauncher.agent;
 
+import static com.mcmoddev.updatinglauncher.agent.Agent.colour;
 import com.mcmoddev.updatinglauncher.MemoryUsage;
 import com.mcmoddev.updatinglauncher.ProcessConnector;
 import com.mcmoddev.updatinglauncher.Properties;
 import com.mcmoddev.updatinglauncher.ThreadInfo;
+import com.mcmoddev.updatinglauncher.agent.logback.DiscordLogbackAppender;
 
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -89,4 +90,13 @@ public class ProcessConnectorServer implements ProcessConnector {
         return map;
     }
 
+    @Override
+    public void setupDiscordLogging(final String webhookId, final String webhookToken) {
+        try {
+            DiscordLogbackAppender.setup(webhookId, webhookToken);
+            System.out.println(colour("Discord Logging has been setup using webhook with ID " + webhookId));
+        } catch (ClassNotFoundException | ClassCastException e) {
+            System.err.println("Cannot setup Discord webhook logging as Logback is not found on the classpath!");
+        }
+    }
 }

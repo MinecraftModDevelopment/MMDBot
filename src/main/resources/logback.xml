@@ -1,8 +1,5 @@
 <configuration>
     <!--Log levels include ERROR, WARN, INFO, DEBUG, TRACE -->
-    <root level="DEBUG">
-        <appender-ref ref="FILE"/>
-    </root>
 
     <appender name="CONSOLE"
               class="ch.qos.logback.core.ConsoleAppender">
@@ -18,15 +15,6 @@
     <root level="DEBUG">
         <appender-ref ref="CONSOLE"/>
     </root>
-
-    <appender name="CHANNEL"
-              class="com.mcmoddev.mmdbot.utilities.console.ConsoleChannelAppender">
-        <allowMentions>false</allowMentions>
-        <layout
-                class="com.mcmoddev.mmdbot.utilities.console.ConsoleChannelLayout">
-            <prependLevelName>false</prependLevelName>
-        </layout>
-    </appender>
 
     <!--Log levels include ERROR, WARN, INFO, DEBUG, TRACE -->
     <root level="WARN">

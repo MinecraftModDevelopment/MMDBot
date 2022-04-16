@@ -125,6 +125,13 @@ public class Config {
         '*' will make the pattern match any file.
         Patterns are tested in the order they've been defined in: if one of them tests as true, the remaining will not be tested anymore""")
         public List<String> filePatterns = List.of();
+
+        @Required
+        @Setting("logging_webhook")
+        @Comment("""
+        The URL of the webhook to use for discord logging if the launched process has logback on the classpath.
+        Can be left empty.""")
+        public String loggingWebhook = "";
     }
 
     public static Config load(final Path path) throws ConfigurateException {

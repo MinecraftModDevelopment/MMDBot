@@ -23,6 +23,7 @@ package com.mcmoddev.updatinglauncher.discord;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.updatinglauncher.Config;
 import com.mcmoddev.updatinglauncher.JarUpdater;
+import com.mcmoddev.updatinglauncher.Main;
 import com.mcmoddev.updatinglauncher.discord.commands.ProfilingCommand;
 import com.mcmoddev.updatinglauncher.discord.commands.file.FileCommand;
 import com.mcmoddev.updatinglauncher.discord.commands.ShutdownCommand;
@@ -32,13 +33,15 @@ import com.mcmoddev.updatinglauncher.discord.commands.UpdateCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
+import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.nio.file.Path;
+import java.util.concurrent.Executors;
 
-public class DiscordIntegration {
+public final class DiscordIntegration {
     private final Logger logger = LoggerFactory.getLogger("ULDiscordIntegration");
     private final Config.Discord config;
     private final JarUpdater updater;
@@ -68,6 +71,12 @@ public class DiscordIntegration {
             jda = JDABuilder.createLight(config.botToken)
                 .setStatus(OnlineStatus.OFFLINE)
                 .addEventListeners(commandClient, statusCmd)
+                .setRateLimitPool(Executors.newScheduledThreadPool(1, r -> {
+                    final var t = new Thread(Main.THREAD_GROUP, r, "ULDiscordRateLimiter");
+                    t.setDaemon(true);
+                    return t;
+                }), true)
+                .setGatewayPool(Main.SERVICE)
                 .build()
                 .setRequiredScopes("applications.commands", "bot");
 

@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.spongepowered.configurate.ConfigurateException;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,8 +39,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-public class Main {
-    private static final ThreadGroup THREAD_GROUP = new ThreadGroup("UpdatingLauncher");
+public final class Main {
+    public static final ThreadGroup THREAD_GROUP = new ThreadGroup("UpdatingLauncher");
 
     public static final String RMI_NAME = ProcessConnector.BASE_NAME + "#" + (int) ProcessHandle.current().pid();
     public static final Logger LOG = LoggerFactory.getLogger("UpdatingLauncher");
@@ -56,7 +55,7 @@ public class Main {
         SERVICE = service;
     }
 
-    private static final ExecutorService HTTP_CLIENT_EXECUTOR = Executors.newSingleThreadExecutor(r -> {
+    public static final ExecutorService HTTP_CLIENT_EXECUTOR = Executors.newSingleThreadExecutor(r -> {
         final var thread = new Thread(THREAD_GROUP, r, "UpdatingLauncherHttpClient");
         thread.setDaemon(true);
         return thread;
@@ -91,7 +90,7 @@ public class Main {
         final var updateChecker = new UpdateChecker(config.gitHub.owner, config.gitHub.repo, HttpClient.newBuilder()
             .executor(HTTP_CLIENT_EXECUTOR)
             .build());
-        final var updater = new JarUpdater(Paths.get(config.jarPath), updateChecker, Pattern.compile(config.checkingInfo.filePattern), config.jvmArgs);
+        final var updater = new JarUpdater(Paths.get(config.jarPath), updateChecker, Pattern.compile(config.checkingInfo.filePattern), config.jvmArgs, config.discord.loggingWebhook);
         if (config.checkingInfo.rate > -1) {
             SERVICE.scheduleAtFixedRate(updater, 0, config.checkingInfo.rate, TimeUnit.MINUTES);
             LOG.warn("Scheduled updater. Will run every {} minutes.", config.checkingInfo.rate);
@@ -103,6 +102,7 @@ public class Main {
         if (config.discord.enabled) {
             discordIntegration = new DiscordIntegration(Paths.get(""), config.discord, updater);
             LOG.warn("Discord integration is active!");
+            SERVICE.setMaximumPoolSize(2);
         }
     }
 

@@ -56,7 +56,7 @@ public class RunBots {
     static {
         final var group = new ThreadGroup("Bot Threads");
         BOT_STARTER_EXECUTOR = (ThreadPoolExecutor) Executors.newFixedThreadPool(BotRegistry.getBotTypes().size(), r ->
-            new Thread(group, r, "BotThead #%s".formatted(group.activeCount())));
+            new Thread(group, r, "BotThread #%s".formatted(group.activeCount())));
         // Shut down inactive threads after 2 minutes, as if the thread isn't needed
         // at that point, it won't be needed again. The only bots that may freeze that
         // thread are D4J bots

@@ -131,8 +131,8 @@ public class CustomPingsCommand {
 
         @Override
         protected EmbedBuilder getEmbed(final int index, final int maximum, final List<String> arguments) {
-            if (!TheCommander.getInstance().getGeneralConfig().features().areQuotesEnabled()) {
-                return new EmbedBuilder().setDescription("Quotes are not enabled!");
+            if (!TheCommander.getInstance().getGeneralConfig().features().customPings().areEnabled()) {
+                return new EmbedBuilder().setDescription("Custom Pings are not enabled!");
             }
             final long guildId = Long.parseLong(arguments.get(0));
             final long userId = Long.parseLong(arguments.get(1));
@@ -170,39 +170,29 @@ public class CustomPingsCommand {
         protected void execute(final SlashCommandEvent event) {
             if (!checkEnabled(event)) return;
             final var index = event.getOption("index", -1, OptionMapping::getAsInt);
-            execute(CommandContext.fromSlashCommandEvent(event), index);
-        }
-
-        @Override
-        protected void execute(final CommandEvent event) {
-            if (!checkEnabled(event)) return;
-            var index = -1;
-            if (!event.getArgs().isBlank()) {
-                try {
-                    index = Integer.parseInt(event.getArgs().split(" ")[0]);
-                } catch (NumberFormatException ignored) {
-                }
-            }
-            execute(CommandContext.fromCommandEvent(event), index);
-        }
-
-        private void execute(final CommandContext context, final int index) {
-            final var gId = Objects.requireNonNull(context.getGuild()).getIdLong();
-            final var userId = context.getUser().getIdLong();
+            final var gId = Objects.requireNonNull(event.getGuild()).getIdLong();
+            final var userId = event.getUser().getIdLong();
             final var userRems = CustomPings.getPingsForUser(gId, userId);
-            if (index != -1 && userRems.size() <= index) {
-                context.replyOrEdit(buildMessage(context, "Unknown index: **" + index + "**"))
-                    .queue();
-                return;
-            }
-            if (index == -1) {
-                CustomPings.clearPings(gId, userId);
-                context.replyOrEdit(buildMessage(context, "Removed all custom pings!")).queue();
-            } else {
-                final var cp = userRems.get(index);
-                CustomPings.removePing(gId, userId, cp);
-                context.replyOrEdit(buildMessage(context, "Removed custom ping with the index: **%s**!".formatted(index))).queue();
-            }
+            event.deferReply().queue(hook -> {
+                if (index != -1 && userRems.size() <= index) {
+                    hook.editOriginal("Unknown index: **" + index + "**")
+                        .setActionRow(DismissListener.createDismissButton())
+                        .queue();
+                    return;
+                }
+                if (index == -1) {
+                    CustomPings.clearPings(gId, userId);
+                    hook.editOriginal("Removed all custom pings!")
+                        .setActionRow(DismissListener.createDismissButton())
+                        .queue();
+                } else {
+                    final var cp = userRems.get(index);
+                    CustomPings.removePing(gId, userId, cp);
+                    hook.editOriginal("Removed custom ping with the index: **%s**!".formatted(index))
+                        .setActionRow(DismissListener.createDismissButton())
+                        .queue();
+                }
+            });
         }
     }
 

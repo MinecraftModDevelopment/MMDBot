@@ -49,11 +49,12 @@ public class JarUpdater implements Runnable {
     private final Pattern jarNamePattern;
     private final List<String> javaArgs;
     private final Map<String, String> properties;
+    private final LoggingWebhook loggingWebhook;
 
     @Nullable
     private ProcessInfo process;
 
-    public JarUpdater(@NonNull final Path jarPath, @NonNull final UpdateChecker updateChecker, @NonNull final Pattern jarNamePattern, @NonNull final List<String> javaArgs) {
+    public JarUpdater(@NonNull final Path jarPath, @NonNull final UpdateChecker updateChecker, @NonNull final Pattern jarNamePattern, @NonNull final List<String> javaArgs, String webhookUrl) {
         this.jarPath = jarPath.toAbsolutePath();
         this.updateChecker = updateChecker;
         this.jarNamePattern = jarNamePattern;
@@ -68,6 +69,14 @@ public class JarUpdater implements Runnable {
         properties = Map.of(
             Properties.JAR_PATH, jarPath.toString()
         );
+
+        if (!webhookUrl.isBlank()) {
+            // maybe use a regex?
+            webhookUrl = webhookUrl.replace("https://discord.com/api/webhooks/", "");
+            loggingWebhook = new LoggingWebhook(webhookUrl.substring(0, webhookUrl.indexOf('/')), webhookUrl.substring(webhookUrl.indexOf('/')));
+        } else {
+            loggingWebhook = null;
+        }
     }
 
     @Override
@@ -149,7 +158,7 @@ public class JarUpdater implements Runnable {
     public void tryFirstStart() {
         if (Files.exists(jarPath)) {
             process = new ProcessInfo(Objects.requireNonNull(createProcess()), null);
-            LOGGER.warn("Starting process after launcher start.");
+            LOGGER.warn("Started process after launcher start.");
         }
     }
 
@@ -212,7 +221,7 @@ public class JarUpdater implements Runnable {
         return process;
     }
 
-    public static class ProcessInfo {
+    public class ProcessInfo {
         private final Process process;
         @Nullable
         private final Release release;
@@ -234,10 +243,13 @@ public class JarUpdater implements Runnable {
                     final var registry = LocateRegistry.getRegistry("127.0.0.1", ProcessConnector.PORT);
                     connector = (ProcessConnector) registry.lookup(Main.RMI_NAME);
                     LOGGER.warn("RMI connector has been successfully setup at port {}", ProcessConnector.PORT);
+                    if (loggingWebhook != null) {
+                        connector.setupDiscordLogging(loggingWebhook.id(), loggingWebhook.token());
+                    }
                 } catch (Exception e) {
                     LOGGER.error("Exception setting up RMI connector: ", e);
                 }
-            }, 30, TimeUnit.SECONDS);
+            }, 10, TimeUnit.SECONDS);
         }
 
         public Process process() {
@@ -254,4 +266,7 @@ public class JarUpdater implements Runnable {
             return connector;
         }
     }
+
+    record LoggingWebhook(String id, String token) {}
+
 }

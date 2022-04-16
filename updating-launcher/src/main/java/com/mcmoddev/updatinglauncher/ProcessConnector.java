@@ -35,4 +35,6 @@ public interface ProcessConnector extends Remote {
 
     // Profiling
     HashMap<String, Object> getProcessInfoProfiling() throws RemoteException;
+
+    void setupDiscordLogging(String webhookId, String webhookToken) throws RemoteException;
 }

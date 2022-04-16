@@ -25,7 +25,6 @@ import com.mcmoddev.mmdbot.core.common.ScamDetector;
 import com.mcmoddev.mmdbot.modules.logging.misc.EventReactionAdded;
 import com.mcmoddev.mmdbot.utilities.ThreadedEventListener;
 import com.mcmoddev.mmdbot.utilities.Utils;
-import com.mcmoddev.mmdbot.utilities.console.ConsoleChannelButtonListener;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.hooks.EventListener;
 
@@ -51,7 +50,6 @@ public class LoggingModule {
             MMDBot.getJDA()
                 .addEventListener(
                     loggingEvent(new EventReactionAdded()),
-                    loggingEvent(new ConsoleChannelButtonListener()),
                     loggingEvent(new ScamDetector()));
             MMDBot.LOGGER.warn("Event logging module enabled and loaded.");
         } else {

@@ -71,7 +71,7 @@ public final class Agent {
         }
     }
 
-    private static String colour(String text) {
+    public static String colour(String text) {
         return "\033[94;1m==== \033[36;1m" + text
             + " \033[94;1m====\033[0m";
     }
