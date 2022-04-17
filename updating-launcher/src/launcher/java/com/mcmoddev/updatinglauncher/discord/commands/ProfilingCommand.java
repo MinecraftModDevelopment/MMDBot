@@ -20,23 +20,19 @@
  */
 package com.mcmoddev.updatinglauncher.discord.commands;
 
-import com.google.gson.JsonObject;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.updatinglauncher.Config;
 import com.mcmoddev.updatinglauncher.Constants;
-import com.mcmoddev.updatinglauncher.JarUpdater;
+import com.mcmoddev.updatinglauncher.DefaultJarUpdater;
 import com.mcmoddev.updatinglauncher.Main;
-import net.dv8tion.jda.api.EmbedBuilder;
+import com.mcmoddev.updatinglauncher.api.JarUpdater;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.awt.Color;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.rmi.RemoteException;
 import java.time.Instant;
 import java.util.List;
 import java.util.function.Supplier;

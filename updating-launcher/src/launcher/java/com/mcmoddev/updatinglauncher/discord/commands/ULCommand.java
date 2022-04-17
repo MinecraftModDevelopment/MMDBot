@@ -23,7 +23,8 @@ package com.mcmoddev.updatinglauncher.discord.commands;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.updatinglauncher.Config;
-import com.mcmoddev.updatinglauncher.JarUpdater;
+import com.mcmoddev.updatinglauncher.DefaultJarUpdater;
+import com.mcmoddev.updatinglauncher.api.JarUpdater;
 
 import java.util.function.Supplier;
 

@@ -20,7 +20,7 @@
  */
 package com.mcmoddev.updatinglauncher.agent;
 
-import com.mcmoddev.updatinglauncher.ProcessConnector;
+import com.mcmoddev.updatinglauncher.api.connector.ProcessConnector;
 import com.mcmoddev.updatinglauncher.agent.logback.DiscordLogbackAppender;
 import com.mcmoddev.updatinglauncher.api.StatusListener;
 

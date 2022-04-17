@@ -22,15 +22,14 @@ package com.mcmoddev.updatinglauncher.discord.commands;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.updatinglauncher.Config;
-import com.mcmoddev.updatinglauncher.JarUpdater;
+import com.mcmoddev.updatinglauncher.DefaultJarUpdater;
+import com.mcmoddev.updatinglauncher.api.JarUpdater;
 
 import java.util.function.Supplier;
 
 public class ShutdownCommand extends ULCommand {
-    private final Supplier<JarUpdater> jarUpdater;
     public ShutdownCommand(final Supplier<JarUpdater> jarUpdater, final Config.Discord config) {
         super(jarUpdater, config);
-        this.jarUpdater = jarUpdater;
         name = "shutdown";
         help = "Shuts down the process.";
     }
@@ -46,7 +45,7 @@ public class ShutdownCommand extends ULCommand {
         event.deferReply()
             .setContent("Shutting down the process!")
             .queue(hook -> {
-                JarUpdater.LOGGER.warn("Destroying process at the request of {} via Discord.", event.getUser().getAsTag());
+                DefaultJarUpdater.LOGGER.warn("Destroying process at the request of {} via Discord.", event.getUser().getAsTag());
                 process.process().onExit().whenComplete(($, $$) -> {
                     if ($$ != null) {
                         hook.editOriginal("Exception destroying process: " + $$.getLocalizedMessage()).queue();

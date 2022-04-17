@@ -22,19 +22,16 @@ package com.mcmoddev.updatinglauncher.discord.commands;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.updatinglauncher.Config;
-import com.mcmoddev.updatinglauncher.Constants;
-import com.mcmoddev.updatinglauncher.JarUpdater;
-import com.mcmoddev.updatinglauncher.github.Release;
+import com.mcmoddev.updatinglauncher.DefaultJarUpdater;
+import com.mcmoddev.updatinglauncher.api.JarUpdater;
+import com.mcmoddev.updatinglauncher.api.Release;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.RestAction;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class UpdateCommand extends ULCommand {
@@ -60,12 +57,12 @@ public class UpdateCommand extends ULCommand {
                     } catch (IOException | InterruptedException e) {
                         return hook.editOriginal("Could not find latest release.");
                     }
-                    final var as = jarUpdater.resolveAssetFromRelease(latest);
-                    return as.map(asset -> hook.editOriginal("Found release \"%s\". Updating...".formatted(latest.name))
+                    return Optional.ofNullable(latest)
+                        .map(rel -> hook.editOriginal("Found release \"%s\". Updating...".formatted(latest.name()))
                         .flatMap(msg -> {
                             try {
-                                jarUpdater.killAndUpdate(latest, asset);
-                                return msg.editMessage("Successfully updated to release \"%s\"!".formatted(latest.name));
+                                jarUpdater.killAndUpdate(latest);
+                                return msg.editMessage("Successfully updated to release \"%s\"!".formatted(latest.name()));
                             } catch (Exception e) {
                                 return msg.editMessage("Exception while trying to update the old jar: " + e.getLocalizedMessage());
                             }
@@ -78,20 +75,17 @@ public class UpdateCommand extends ULCommand {
                 .setContent("Trying to update to tag: " + tag)
                 .map(hook -> {
                     try {
-                        final var release = getReleaseByTagName(tag);
-                        if (release == null) {
-                            return hook.editOriginal("Could not find release with tag **%s**.".formatted(tag));
-                        }
-                        final var as = jarUpdater.resolveAssetFromRelease(release);
-                        return as.map(asset -> hook.editOriginal("Found release \"%s\". Updating...".formatted(release.name))
+                        final var release = jarUpdater.getUpdateChecker().getReleaseByTagName(tag);
+                        return Optional.ofNullable(release)
+                            .map(asset -> hook.editOriginal("Found release \"%s\". Updating...".formatted(release.name()))
                             .flatMap(msg -> {
                                 try {
-                                    jarUpdater.killAndUpdate(release, asset);
-                                    return msg.editMessage("Successfully updated to release \"%s\"!".formatted(release.name));
+                                    jarUpdater.killAndUpdate(release);
+                                    return msg.editMessage("Successfully updated to release \"%s\"!".formatted(release.name()));
                                 } catch (Exception e) {
                                     return msg.editMessage("Exception while trying to update the old jar: " + e.getLocalizedMessage());
                                 }
-                            })).orElseGet(() -> hook.editOriginal("Cannot update to the specified tag as I can't find a matching asset in it."));
+                            })).orElseGet(() -> hook.editOriginal("Cannot update to the specified tag as I can't find a matching asset in it, or it doesn't exist."));
                     } catch (Exception e) {
                         return hook.editOriginal("Exception trying to find tag: " + e.getLocalizedMessage());
                     }
@@ -100,20 +94,4 @@ public class UpdateCommand extends ULCommand {
         }
     }
 
-    @Nullable
-    public Release getReleaseByTagName(final String tag) throws Exception {
-        final var jarUpdater = this.jarUpdater.get();
-        final var updateChecker = jarUpdater.getUpdateChecker();
-        final var uri = URI.create("https://api.github.com/repos/%s/%s/releases/tags/%s".formatted(updateChecker.getOwner(), updateChecker.getRepo(), tag));
-        final var request = HttpRequest.newBuilder(uri)
-            .GET()
-            .header("accept", "application/vnd.github.v3+json")
-            .build();
-
-        final var res = updateChecker.getHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-        if (res.statusCode() == 404) {
-            return null;
-        }
-        return Constants.GSON.fromJson(res.body(), Release.class);
-    }
 }

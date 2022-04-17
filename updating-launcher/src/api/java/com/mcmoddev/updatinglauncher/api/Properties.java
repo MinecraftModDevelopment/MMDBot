@@ -18,24 +18,12 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.updatinglauncher;
+package com.mcmoddev.updatinglauncher.api;
 
-import java.io.Serializable;
+public class Properties {
 
-public record ThreadInfo(Group group, long id, String name, int priority, boolean daemon, Thread.State state, StackTraceElement[] stackElements) implements Serializable {
+    private static final String PREFIX = "com.mcmoddev.updatinglauncher.";
 
-    public static ThreadInfo fromThread(Thread thread, StackTraceElement[] stackElements) {
-        return new ThreadInfo(
-            new Group(thread.getThreadGroup().getName()),
-            thread.getId(),
-            thread.getName(),
-            thread.getPriority(),
-            thread.isDaemon(),
-            thread.getState(),
-            stackElements
-        );
-    }
-
-    public record Group(String name) implements Serializable {}
+    public static final String JAR_PATH = PREFIX + "jar";
 
 }

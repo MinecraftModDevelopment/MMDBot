@@ -20,12 +20,10 @@
  */
 package com.mcmoddev.updatinglauncher.agent;
 
-import static com.mcmoddev.updatinglauncher.agent.Agent.colour;
-import com.mcmoddev.updatinglauncher.MemoryUsage;
-import com.mcmoddev.updatinglauncher.ProcessConnector;
-import com.mcmoddev.updatinglauncher.Properties;
-import com.mcmoddev.updatinglauncher.ThreadInfo;
-import com.mcmoddev.updatinglauncher.agent.logback.DiscordLogbackAppender;
+import com.mcmoddev.updatinglauncher.api.connector.MemoryUsage;
+import com.mcmoddev.updatinglauncher.api.connector.ProcessConnector;
+import com.mcmoddev.updatinglauncher.api.Properties;
+import com.mcmoddev.updatinglauncher.api.connector.ThreadInfo;
 import com.mcmoddev.updatinglauncher.api.StatusListener;
 
 import java.lang.management.ManagementFactory;

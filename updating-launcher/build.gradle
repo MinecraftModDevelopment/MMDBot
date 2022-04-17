@@ -29,6 +29,12 @@ sourceSets {
 configurations {
     shade
     launcherImplementation.extendsFrom(shade)
+
+    globalCompileOnly
+    apiCompileOnly.extendsFrom(globalCompileOnly)
+    agentCompileOnly.extendsFrom(globalCompileOnly)
+    launcherCompileOnly.extendsFrom(globalCompileOnly)
+    compileOnly.extendsFrom(globalCompileOnly)
 }
 
 def agentClass = "com.mcmoddev.updatinglauncher.agent.Agent"
@@ -69,10 +75,8 @@ dependencies {
     agentImplementation libs.jda // This is just a compat layer for jda mentionables. DO NOT USE FOR ANYTHING ELSE as the agent will not have it shaded
     agentImplementation libs.logback
     agentImplementation sourceSets.api.output
-    agentImplementation sourceSets.main.output
 
     shade sourceSets.api.output
-    shade sourceSets.main.output
     shade libs.gson
     shade libs.logback
     shade libs.configurate.hocon
@@ -81,11 +85,12 @@ dependencies {
     // Discord stuff
     shade libs.jda
     shade libs.chewtils.command
+
+    globalCompileOnly libs.annotations
 }
 
 tasks.create("agentJar", Jar).configure {
     from sourceSets.api.output
-    from sourceSets.main.output
     from sourceSets.agent.output
     classifier("agent")
     group("build")
@@ -140,7 +145,6 @@ tasks.named('shadowJar', ShadowJar).configure {
 
 tasks.named(JavaPlugin.JAR_TASK_NAME, Jar).configure {
     from sourceSets.api.output
-    from sourceSets.main.output
     from sourceSets.launcher.output
     manifest.attributes(makeManifestAttributes())
     classifier("no-deps")

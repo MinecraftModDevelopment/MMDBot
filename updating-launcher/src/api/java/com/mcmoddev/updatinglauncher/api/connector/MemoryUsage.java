@@ -18,12 +18,9 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.updatinglauncher;
+package com.mcmoddev.updatinglauncher.api.connector;
 
-public class Properties {
+import java.io.Serializable;
 
-    private static final String PREFIX = "com.mcmoddev.updatinglauncher.";
-
-    public static final String JAR_PATH = PREFIX + "jar";
-
+public record MemoryUsage(long totalMemory, long freeMemory) implements Serializable {
 }

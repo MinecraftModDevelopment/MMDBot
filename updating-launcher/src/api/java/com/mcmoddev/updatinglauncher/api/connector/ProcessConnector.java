@@ -18,7 +18,7 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.updatinglauncher;
+package com.mcmoddev.updatinglauncher.api.connector;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

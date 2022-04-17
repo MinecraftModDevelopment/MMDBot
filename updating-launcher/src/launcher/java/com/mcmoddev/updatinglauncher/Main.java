@@ -20,8 +20,10 @@
  */
 package com.mcmoddev.updatinglauncher;
 
+import com.mcmoddev.updatinglauncher.api.JarUpdater;
+import com.mcmoddev.updatinglauncher.api.connector.ProcessConnector;
 import com.mcmoddev.updatinglauncher.discord.DiscordIntegration;
-import com.mcmoddev.updatinglauncher.github.UpdateChecker;
+import com.mcmoddev.updatinglauncher.github.GithubUpdateChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.configurate.ConfigurateException;
@@ -63,6 +65,7 @@ public final class Main {
     });
 
     private static DiscordIntegration discordIntegration;
+    private static JarUpdater updater;
 
     public static void main(String[] args) throws IOException {
         System.setProperty("java.rmi.server.hostname", "127.0.0.1");
@@ -88,10 +91,17 @@ public final class Main {
             throw new RuntimeException("A new configuration file was created! Please configure it.");
         }
 
-        final var updateChecker = new UpdateChecker(config.gitHub.owner, config.gitHub.repo, HttpClient.newBuilder()
+        final var updateChecker = new GithubUpdateChecker(config.gitHub.owner, config.gitHub.repo, HttpClient.newBuilder()
             .executor(HTTP_CLIENT_EXECUTOR)
-            .build());
-        final var updater = new JarUpdater(Paths.get(config.jarPath), updateChecker, Pattern.compile(config.checkingInfo.filePattern), config.jvmArgs, config.discord.loggingWebhook);
+            .build(), Pattern.compile(config.checkingInfo.filePattern));
+
+        if (config.discord.enabled) {
+            discordIntegration = new DiscordIntegration(Paths.get(""), config.discord, () -> Main.updater);
+            LOG.warn("Discord integration is active!");
+            SERVICE.setMaximumPoolSize(2);
+        }
+
+        updater = new DefaultJarUpdater(Paths.get(config.jarPath), updateChecker, config.jvmArgs, config.discord.loggingWebhook, discordIntegration);
         if (config.checkingInfo.rate > -1) {
             SERVICE.scheduleAtFixedRate(updater, 0, config.checkingInfo.rate, TimeUnit.MINUTES);
             LOG.warn("Scheduled updater. Will run every {} minutes.", config.checkingInfo.rate);
@@ -99,23 +109,11 @@ public final class Main {
             updater.tryFirstStart();
             SERVICE.allowCoreThreadTimeOut(true);
         }
-
-        if (config.discord.enabled) {
-            discordIntegration = new DiscordIntegration(Paths.get(""), config.discord, updater);
-            LOG.warn("Discord integration is active!");
-            SERVICE.setMaximumPoolSize(2);
-        }
     }
 
     @Nullable
     public static DiscordIntegration getDiscordIntegration() {
         return discordIntegration;
-    }
-
-    public static void setDiscordActivity(boolean processRunning) {
-        if (discordIntegration != null) {
-            discordIntegration.setActivity(processRunning);
-        }
     }
 
     public static void copyAgent() throws IOException {

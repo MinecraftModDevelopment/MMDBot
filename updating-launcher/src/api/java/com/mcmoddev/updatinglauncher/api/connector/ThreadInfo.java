@@ -18,21 +18,24 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.updatinglauncher.github;
+package com.mcmoddev.updatinglauncher.api.connector;
 
-import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
-import java.util.List;
+public record ThreadInfo(Group group, long id, String name, int priority, boolean daemon, Thread.State state, StackTraceElement[] stackElements) implements Serializable {
 
-public class Release {
-
-    public int id;
-    public String name;
-    public List<Asset> assets;
-
-    public static final class Asset {
-        @SerializedName("browser_download_url")
-        public String browserDownloadUrl;
-        public String name;
+    public static ThreadInfo fromThread(Thread thread, StackTraceElement[] stackElements) {
+        return new ThreadInfo(
+            new Group(thread.getThreadGroup().getName()),
+            thread.getId(),
+            thread.getName(),
+            thread.getPriority(),
+            thread.isDaemon(),
+            thread.getState(),
+            stackElements
+        );
     }
+
+    public record Group(String name) implements Serializable {}
+
 }

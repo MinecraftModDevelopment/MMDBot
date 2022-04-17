@@ -22,8 +22,9 @@ package com.mcmoddev.updatinglauncher.discord;
 
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.updatinglauncher.Config;
-import com.mcmoddev.updatinglauncher.JarUpdater;
+import com.mcmoddev.updatinglauncher.DefaultJarUpdater;
 import com.mcmoddev.updatinglauncher.Main;
+import com.mcmoddev.updatinglauncher.api.JarUpdater;
 import com.mcmoddev.updatinglauncher.discord.commands.ProfilingCommand;
 import com.mcmoddev.updatinglauncher.discord.commands.file.FileCommand;
 import com.mcmoddev.updatinglauncher.discord.commands.ShutdownCommand;
@@ -34,37 +35,35 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
-import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 import java.nio.file.Path;
 import java.util.concurrent.Executors;
+import java.util.function.Supplier;
 
 public final class DiscordIntegration {
     private final Logger logger = LoggerFactory.getLogger("ULDiscordIntegration");
     private final Config.Discord config;
-    private final JarUpdater updater;
     private final JDA jda;
 
-    public DiscordIntegration(final Path basePath, final Config.Discord config, final JarUpdater updater) {
+    public DiscordIntegration(final Path basePath, final Config.Discord config, final Supplier<JarUpdater> updater) {
         this.config = config;
-        this.updater = updater;
 
-        final var statusCmd = new StatusCommand(() -> updater, config);
+        final var statusCmd = new StatusCommand(updater, config);
         final var commandClient = new CommandClientBuilder()
             .setOwnerId("0000000000")
             .setActivity(null)
             .forceGuildOnly(config.guildId)
             .setPrefixes(config.prefixes.toArray(String[]::new))
             .addSlashCommands(
-                new UpdateCommand(() -> updater, config),
-                new ShutdownCommand(() -> updater, config),
-                new StartCommand(() -> updater, config),
+                new UpdateCommand(updater, config),
+                new ShutdownCommand(updater, config),
+                new StartCommand(updater, config),
                 statusCmd,
                 new FileCommand(basePath, config),
-                new ProfilingCommand(() -> updater, config)
+                new ProfilingCommand(updater, config)
             )
             .build();
 
@@ -94,10 +93,6 @@ public final class DiscordIntegration {
 
     public Config.Discord getConfig() {
         return config;
-    }
-
-    public JarUpdater getUpdater() {
-        return updater;
     }
 
     public JDA getJda() {

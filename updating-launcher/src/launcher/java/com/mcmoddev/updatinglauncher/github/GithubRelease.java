@@ -18,9 +18,21 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.updatinglauncher;
+package com.mcmoddev.updatinglauncher.github;
 
-import java.io.Serializable;
+import com.google.gson.annotations.SerializedName;
 
-public record MemoryUsage(long totalMemory, long freeMemory) implements Serializable {
+import java.util.List;
+
+public class GithubRelease {
+
+    public int id;
+    public String name;
+    public List<Asset> assets;
+
+    public static final class Asset {
+        @SerializedName("browser_download_url")
+        public String browserDownloadUrl;
+        public String name;
+    }
 }

@@ -22,9 +22,10 @@ package com.mcmoddev.updatinglauncher.discord.commands;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.updatinglauncher.Config;
-import com.mcmoddev.updatinglauncher.JarUpdater;
+import com.mcmoddev.updatinglauncher.DefaultJarUpdater;
 import com.mcmoddev.updatinglauncher.Main;
-import com.mcmoddev.updatinglauncher.ThreadInfo;
+import com.mcmoddev.updatinglauncher.api.JarUpdater;
+import com.mcmoddev.updatinglauncher.api.connector.ThreadInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;

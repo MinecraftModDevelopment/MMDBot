@@ -21,7 +21,7 @@
 package com.mcmoddev.updatinglauncher.github;
 
 import com.mcmoddev.updatinglauncher.Constants;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import com.mcmoddev.updatinglauncher.api.Release;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
@@ -29,32 +29,32 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.regex.Pattern;
 
-public class UpdateChecker {
+public class GithubUpdateChecker implements com.mcmoddev.updatinglauncher.api.UpdateChecker {
     /**
      * owner, repo
      */
     public static final String REQUEST_URL = "https://api.github.com/repos/%s/%s/releases/latest";
-    /**
-     * owner, repo, releaseId
-     */
-    public static final String SPECIFIC_REQUEST_URL = "https://api.github.com/repos/%s/%s/releases/%s";
 
     private final String owner;
     private final String repo;
     private final HttpClient httpClient;
+    private final Pattern jarNamePattern;
 
-    private Release latestFound;
+    private GithubRelease latestFound;
 
-    public UpdateChecker(final String owner, final String repo, final HttpClient httpClient) {
+    public GithubUpdateChecker(final String owner, final String repo, final HttpClient httpClient, final Pattern jarNamePattern) {
         this.owner = owner;
         this.repo = repo;
         this.httpClient = httpClient;
+        this.jarNamePattern = jarNamePattern;
     }
 
+    @Override
     public boolean findNew() throws IOException, InterruptedException {
        final var old = latestFound;
-       final var newRel = resolveLatestRelease();
+       final var newRel = resolveLatestReleaseAsGithub();
         if (newRel == null) {
             return false;
         }
@@ -64,12 +64,8 @@ public class UpdateChecker {
        return newRel.id > old.id;
     }
 
-    /**
-     * Resolves the latest release.
-     * @return the latest release
-     */
     @Nullable
-    public Release resolveLatestRelease() throws IOException, InterruptedException {
+    public GithubRelease resolveLatestReleaseAsGithub() throws IOException, InterruptedException {
         final var uri = URI.create(REQUEST_URL.formatted(owner, repo));
         final var request = HttpRequest.newBuilder(uri)
             .GET()
@@ -77,37 +73,53 @@ public class UpdateChecker {
             .build();
 
         final var res = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return latestFound = Constants.GSON.fromJson(res.body(), Release.class);
+        return latestFound = Constants.GSON.fromJson(res.body(), GithubRelease.class);
     }
 
     @Nullable
-    public Release resolveRelease(int id) throws IOException, InterruptedException {
-        final var uri = URI.create(SPECIFIC_REQUEST_URL.formatted(owner, repo, id));
+    public GithubRelease getLatestGithubFound() {
+        return latestFound;
+    }
+
+    @Override
+    public @org.jetbrains.annotations.Nullable Release resolveLatestRelease() throws IOException, InterruptedException {
+        return resolveReleaseFromGh(resolveLatestReleaseAsGithub());
+    }
+
+    @javax.annotation.Nullable
+    @Override
+    public Release getLatestFound() {
+        return resolveReleaseFromGh(getLatestGithubFound());
+    }
+
+    @javax.annotation.Nullable
+    public GithubRelease getGhReleaseByTagName(final String tag) throws InterruptedException, IOException {
+        final var uri = URI.create("https://api.github.com/repos/%s/%s/releases/tags/%s".formatted(owner, repo, tag));
         final var request = HttpRequest.newBuilder(uri)
             .GET()
             .header("accept", "application/vnd.github.v3+json")
             .build();
 
-        final var res = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        System.out.println(res.statusCode());
-        return latestFound = Constants.GSON.fromJson(res.body(), Release.class);
+        final var res = getHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        if (res.statusCode() == 404) {
+            return null;
+        }
+        return Constants.GSON.fromJson(res.body(), GithubRelease.class);
     }
 
-    /**
-     * Gets the latest found release. This might not always be up-to-date.
-     * @return the latest found release
-     */
-    @Nullable
-    public Release getLatestFound() {
-        return latestFound;
+    @Override
+    public @org.jetbrains.annotations.Nullable Release getReleaseByTagName(final String tagName) throws IOException, InterruptedException {
+        return resolveReleaseFromGh(getGhReleaseByTagName(tagName));
     }
 
-    public String getOwner() {
-        return owner;
-    }
-
-    public String getRepo() {
-        return repo;
+    public Release resolveReleaseFromGh(@Nullable GithubRelease release) {
+        if (release == null) return null;
+        return release.assets.stream()
+            .filter(asst -> asst.name.endsWith(".jar"))
+            .filter(p -> jarNamePattern.matcher(p.name).find())
+            .findFirst()
+            .map(a -> new Release(release.name, a.browserDownloadUrl))
+            .orElse(null);
     }
 
     public HttpClient getHttpClient() {

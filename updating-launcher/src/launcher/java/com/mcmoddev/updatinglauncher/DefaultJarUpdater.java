@@ -20,8 +20,13 @@
  */
 package com.mcmoddev.updatinglauncher;
 
-import com.mcmoddev.updatinglauncher.github.Release;
-import com.mcmoddev.updatinglauncher.github.UpdateChecker;
+import com.mcmoddev.updatinglauncher.api.ProcessInfo;
+import com.mcmoddev.updatinglauncher.api.Properties;
+import com.mcmoddev.updatinglauncher.api.Release;
+import com.mcmoddev.updatinglauncher.api.UpdateChecker;
+import com.mcmoddev.updatinglauncher.api.connector.ProcessConnector;
+import com.mcmoddev.updatinglauncher.discord.DiscordIntegration;
+import net.dv8tion.jda.api.entities.Activity;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,26 +46,25 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarFile;
-import java.util.regex.Pattern;
 
-public class JarUpdater implements Runnable {
+public class DefaultJarUpdater implements com.mcmoddev.updatinglauncher.api.JarUpdater {
     public static final Logger LOGGER = LoggerFactory.getLogger("JarUpdater");
 
     private final Path jarPath;
     private final UpdateChecker updateChecker;
-    private final Pattern jarNamePattern;
     private final List<String> javaArgs;
     private final Map<String, String> properties;
     private final LoggingWebhook loggingWebhook;
+    private final DiscordIntegration integration;
 
     @Nullable
     private ProcessInfo process;
 
-    public JarUpdater(@NonNull final Path jarPath, @NonNull final UpdateChecker updateChecker, @NonNull final Pattern jarNamePattern, @NonNull final List<String> javaArgs, String webhookUrl) {
+    public DefaultJarUpdater(@NonNull final Path jarPath, @NonNull final UpdateChecker updateChecker, @NonNull final List<String> javaArgs, String webhookUrl, final DiscordIntegration integration) {
         this.jarPath = jarPath.toAbsolutePath();
         this.updateChecker = updateChecker;
-        this.jarNamePattern = jarNamePattern;
         this.javaArgs = javaArgs;
+        this.integration = integration;
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (process != null) {
@@ -87,14 +91,9 @@ public class JarUpdater implements Runnable {
         try {
             if (updateChecker.findNew()) {
                 final var release = updateChecker.getLatestFound();
-                if (release == null) return;
-                final var as = release.assets.stream()
-                    .filter(asst -> asst.name.endsWith(".jar"))
-                    .filter(p -> jarNamePattern.matcher(p.name).find())
-                    .findFirst();
-                if (as.isPresent()) {
-                    LOGGER.warn("Found new update to version \"{}\"!", release.name);
-                    killAndUpdate(release, as.get());
+                if (release != null) {
+                    LOGGER.warn("Found new update to version \"{}\"!", release.name());
+                    killAndUpdate(release);
                 }
             } else {
                 LOGGER.info("No updates were found.");
@@ -104,34 +103,39 @@ public class JarUpdater implements Runnable {
         }
     }
 
-    public void killAndUpdate(final Release release, final Release.Asset asset) throws Exception {
+    @Override
+    public void killAndUpdate(final Release release) throws Exception {
         if (process != null) {
             process.process().onExit().whenComplete(($, $$) -> {
                 if ($$ != null) {
                     return;
                 }
                 try {
-                    update(asset);
+                    update(release);
                 } catch (Exception e) {
                     LOGGER.warn("Exception trying to update jar: ",e);
                 }
-                process = new ProcessInfo(createProcess(), release);
+                process = new ProcessInfoImpl(createProcess(), release);
                 LOGGER.warn("Old process was destroyed!");
             });
             process.process().destroy();
         } else {
-            update(asset);
-            process = new ProcessInfo(createProcess(), release);
+            update(release);
+            process = new ProcessInfoImpl(createProcess(), release);
         }
     }
 
-    public void update(final Release.Asset asset) throws Exception {
+    public void update(final Release release) throws Exception {
+        if (integration != null) {
+            integration.getJda().getPresence().setActivity(Activity.of(Activity.ActivityType.CUSTOM_STATUS, "Updating a process \uD83D\uDD04"));
+        }
+
         final var parent = jarPath.getParent();
         if (parent != null) {
             Files.createDirectories(parent);
         }
         Files.deleteIfExists(jarPath);
-        try (final var is = new BufferedInputStream(new URL(asset.browserDownloadUrl).openStream())) {
+        try (final var is = new BufferedInputStream(new URL(release.url()).openStream())) {
             Files.copy(is, jarPath);
         }
     }
@@ -148,20 +152,25 @@ public class JarUpdater implements Runnable {
             }
 
             LOGGER.info("Starting process...");
-            Main.setDiscordActivity(true);
+            if (integration != null) {
+                integration.setActivity(true);
+            }
             return new ProcessBuilder(getStartCommand())
                 .inheritIO()
                 .start();
         } catch (IOException e) {
             LOGGER.error("Starting process failed, used start command {}", getStartCommand(), e);
         }
-        Main.setDiscordActivity(false); // exception in this case
+        if (integration != null) {
+            integration.setActivity(false); // exception in this case
+        }
         return null;
     }
 
+    @Override
     public void tryFirstStart() {
         if (Files.exists(jarPath)) {
-            process = new ProcessInfo(Objects.requireNonNull(createProcess()), null);
+            process = new ProcessInfoImpl(Objects.requireNonNull(createProcess()), null);
             LOGGER.warn("Started process after launcher start.");
         }
     }
@@ -182,35 +191,33 @@ public class JarUpdater implements Runnable {
         return ProcessHandle.current().info().command().orElse("java");
     }
 
-    public void runProcess() {
-        process = new ProcessInfo(createProcess(), updateChecker.getLatestFound());
+    @Override
+    public void startProcess() {
+        process = new ProcessInfoImpl(createProcess(), updateChecker.getLatestFound());
     }
 
+    @Override
     public void clearProcess() {
         process = null;
     }
 
+    @Override
     public UpdateChecker getUpdateChecker() {
         return updateChecker;
     }
 
-    public Optional<Release.Asset> resolveAssetFromRelease(final Release release) {
-        return release.assets.stream()
-            .filter(asst -> asst.name.endsWith(".jar"))
-            .filter(p -> jarNamePattern.matcher(p.name).find())
-            .findFirst();
-    }
-
+    @Override
     public Path getJarPath() {
         return jarPath;
     }
 
+    @Override
     public Optional<String> getJarVersion() {
         if (!Files.exists(jarPath)) {
             if (process == null) {
                 return Optional.empty();
             }
-            return Optional.ofNullable(process.release()).map(r -> r.name);
+            return Optional.ofNullable(process.release()).map(Release::name);
         } else {
             try {
                 final var jFile = new JarFile(jarPath.toFile());
@@ -221,22 +228,25 @@ public class JarUpdater implements Runnable {
         }
     }
 
+    @Override
     @Nullable
     public ProcessInfo getProcess() {
         return process;
     }
 
-    public class ProcessInfo {
+    private class ProcessInfoImpl implements ProcessInfo {
         private final Process process;
         @Nullable
         private final Release release;
         private ProcessConnector connector;
 
-        public ProcessInfo(final Process process, @Nullable final Release release) {
+        public ProcessInfoImpl(final Process process, @Nullable final Release release) {
             this.process = new DelegatedProcess(process) {
                 @Override
                 public void destroy() {
-                    Main.setDiscordActivity(false);
+                    if (integration != null) {
+                        integration.setActivity(false);
+                    }
                     if (connector != null) {
                         try {
                             connector.onShutdown();
@@ -249,14 +259,16 @@ public class JarUpdater implements Runnable {
 
                 @Override
                 public Process destroyForcibly() {
-                    Main.setDiscordActivity(false);
+                    if (integration != null) {
+                        integration.setActivity(false);
+                    }
                     return super.destroyForcibly();
                 }
             };
             this.release = release;
             process.onExit().whenComplete(($, e) -> {
                if (e != null) {
-                   JarUpdater.LOGGER.error("Exception exiting process: ", e);
+                   DefaultJarUpdater.LOGGER.error("Exception exiting process: ", e);
                } else {
                    LOGGER.warn("Process exited successfully.");
                }
@@ -273,15 +285,18 @@ public class JarUpdater implements Runnable {
             }, 20, TimeUnit.SECONDS);
         }
 
+        @Override
         public Process process() {
             return process;
         }
 
+        @Override
         @Nullable
         public Release release() {
             return release;
         }
 
+        @Override
         @Nullable
         public ProcessConnector connector() {
             return connector;

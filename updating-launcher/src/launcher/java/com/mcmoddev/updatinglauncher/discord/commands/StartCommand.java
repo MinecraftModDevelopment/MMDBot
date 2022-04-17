@@ -22,7 +22,8 @@ package com.mcmoddev.updatinglauncher.discord.commands;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.updatinglauncher.Config;
-import com.mcmoddev.updatinglauncher.JarUpdater;
+import com.mcmoddev.updatinglauncher.DefaultJarUpdater;
+import com.mcmoddev.updatinglauncher.api.JarUpdater;
 
 import java.nio.file.Files;
 import java.util.function.Supplier;
@@ -49,8 +50,8 @@ public class StartCommand extends ULCommand {
         event.deferReply()
             .setContent("Starting the process!")
             .flatMap(hook -> {
-                JarUpdater.LOGGER.warn("Starting process at the request of {} via Discord.", event.getUser().getAsTag());
-                updater.runProcess();
+                DefaultJarUpdater.LOGGER.warn("Starting process at the request of {} via Discord.", event.getUser().getAsTag());
+                updater.startProcess();
                 return hook.editOriginal("Successfully started the process.");
             })
             .queue();
