@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.configurate.ConfigurateException;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.http.HttpClient;
 import java.nio.file.Files;
@@ -106,8 +107,15 @@ public final class Main {
         }
     }
 
+    @Nullable
     public static DiscordIntegration getDiscordIntegration() {
         return discordIntegration;
+    }
+
+    public static void setDiscordActivity(boolean processRunning) {
+        if (discordIntegration != null) {
+            discordIntegration.setActivity(processRunning);
+        }
     }
 
     public static void copyAgent() throws IOException {

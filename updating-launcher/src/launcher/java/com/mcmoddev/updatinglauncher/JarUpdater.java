@@ -148,12 +148,14 @@ public class JarUpdater implements Runnable {
             }
 
             LOGGER.info("Starting process...");
+            Main.setDiscordActivity(true);
             return new ProcessBuilder(getStartCommand())
                 .inheritIO()
                 .start();
         } catch (IOException e) {
             LOGGER.error("Starting process failed, used start command {}", getStartCommand(), e);
         }
+        Main.setDiscordActivity(false); // exception in this case
         return null;
     }
 
@@ -167,7 +169,8 @@ public class JarUpdater implements Runnable {
     private List<String> getStartCommand() {
         List<String> command = new ArrayList<>(javaArgs.size() + 2);
         command.add(findJavaBinary());
-        command.add("-javaagent:" + Main.AGENT_PATH.toAbsolutePath() + "=" + Main.RMI_NAME);
+        final var webhookUrl = loggingWebhook == null ? "" : "/;/" + loggingWebhook.id() + "%%" + loggingWebhook.token();
+        command.add("-javaagent:" + Main.AGENT_PATH.toAbsolutePath() + "=" + Main.RMI_NAME + webhookUrl);
         command.addAll(javaArgs);
         properties.forEach((key, value) -> command.add("-D%s=\"%s\"".formatted(key, value)));
         command.add("-jar");
@@ -233,6 +236,7 @@ public class JarUpdater implements Runnable {
             this.process = new DelegatedProcess(process) {
                 @Override
                 public void destroy() {
+                    Main.setDiscordActivity(false);
                     if (connector != null) {
                         try {
                             connector.onShutdown();
@@ -241,6 +245,12 @@ public class JarUpdater implements Runnable {
                         }
                     }
                     super.destroy();
+                }
+
+                @Override
+                public Process destroyForcibly() {
+                    Main.setDiscordActivity(false);
+                    return super.destroyForcibly();
                 }
             };
             this.release = release;
@@ -257,13 +267,10 @@ public class JarUpdater implements Runnable {
                     final var registry = LocateRegistry.getRegistry("127.0.0.1", ProcessConnector.PORT);
                     connector = (ProcessConnector) registry.lookup(Main.RMI_NAME);
                     LOGGER.warn("RMI connector has been successfully setup at port {}", ProcessConnector.PORT);
-                    if (loggingWebhook != null) {
-                        connector.setupDiscordLogging(loggingWebhook.id(), loggingWebhook.token());
-                    }
                 } catch (Exception e) {
                     LOGGER.error("Exception setting up RMI connector: ", e);
                 }
-            }, 10, TimeUnit.SECONDS);
+            }, 20, TimeUnit.SECONDS);
         }
 
         public Process process() {

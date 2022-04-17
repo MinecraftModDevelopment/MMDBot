@@ -21,6 +21,7 @@
 package com.mcmoddev.updatinglauncher.agent;
 
 import com.mcmoddev.updatinglauncher.ProcessConnector;
+import com.mcmoddev.updatinglauncher.agent.logback.DiscordLogbackAppender;
 import com.mcmoddev.updatinglauncher.api.StatusListener;
 
 import java.lang.instrument.Instrumentation;
@@ -49,22 +50,34 @@ public final class Agent {
     private static Registry registry;
     private static ProcessConnector server;
 
-    public static void premain(String agentArgs, Instrumentation inst) {
+    public static void premain(String args, Instrumentation inst) {
+        final var split = args.split("/;/");
+        final var name = split[0];
+        if (split.length > 1) {
+            final var webhookInfo = split[1].split("%%");
+            try {
+                DiscordLogbackAppender.setup(webhookInfo[0], webhookInfo[1]);
+                System.out.println(colour("Discord Logging has been setup using webhook with ID " + webhookInfo[0]));
+            } catch (ClassNotFoundException | ClassCastException e) {
+                System.err.println("Cannot setup Discord webhook logging as Logback is not found on the classpath!");
+            }
+        }
+
         System.out.println(colour("Updating Launcher Agent v" + VERSION + " installed."));
         executeOnListeners(l -> l.premain(inst));
 
-        System.out.println(colour("Starting RMI on port " + ProcessConnector.PORT + " with name '" + agentArgs + "'"));
+        System.out.println(colour("Starting RMI on port " + ProcessConnector.PORT + " with name '" + name + "'"));
         try {
             System.setProperty("java.rmi.server.hostname", "127.0.0.1");
             registry = LocateRegistry.createRegistry(ProcessConnector.PORT);
             server = new ProcessConnectorServer();
 
             final ProcessConnector stub = (ProcessConnector) UnicastRemoteObject.exportObject(server, ProcessConnector.PORT);
-            registry.rebind(agentArgs, stub);
+            registry.rebind(name, stub);
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
-                    registry.unbind(agentArgs);
+                    registry.unbind(name);
                 } catch (RemoteException | NotBoundException e) {
                     e.printStackTrace();
                 }

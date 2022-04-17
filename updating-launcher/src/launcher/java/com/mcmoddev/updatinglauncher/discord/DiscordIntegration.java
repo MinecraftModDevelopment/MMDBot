@@ -33,6 +33,7 @@ import com.mcmoddev.updatinglauncher.discord.commands.UpdateCommand;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +70,7 @@ public final class DiscordIntegration {
 
         try {
             jda = JDABuilder.createLight(config.botToken)
-                .setStatus(OnlineStatus.OFFLINE)
+                .setStatus(OnlineStatus.IDLE)
                 .addEventListeners(commandClient, statusCmd)
                 .setRateLimitPool(Executors.newScheduledThreadPool(1, r -> {
                     final var t = new Thread(Main.THREAD_GROUP, r, "ULDiscordRateLimiter");
@@ -101,5 +102,10 @@ public final class DiscordIntegration {
 
     public JDA getJda() {
         return jda;
+    }
+
+    public void setActivity(boolean processRunning) {
+        getJda().getPresence()
+            .setActivity(Activity.of(Activity.ActivityType.WATCHING, processRunning ? "a process \uD83D\uDC40" : "nothing \uD83D\uDE22"));
     }
 }

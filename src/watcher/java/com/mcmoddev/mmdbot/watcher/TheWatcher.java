@@ -250,8 +250,8 @@ public final class TheWatcher implements Bot {
             .setManualUpsert(true)
             .useHelpBuilder(false)
             .setActivity(null)
-            .addSlashCommands(new CmdMute(), new CmdUnmute(), new CmdOldChannels(), new CmdCommunityChannel(), new CmdRolePanel(), new CmdWarning())
-            .addCommands(new CmdBan(), new CmdUnban(), new CmdReact(), new CmdKick(), new CmdInvite())
+            .addSlashCommands(new CmdMute(), new CmdUnmute(), new CmdOldChannels(), new CmdInvite(), new CmdCommunityChannel(), new CmdRolePanel(), new CmdWarning())
+            .addCommands(new CmdBan(), new CmdUnban(), new CmdReact(), new CmdKick())
             .build();
         COMMANDS_LISTENER.addListener((EventListener) commandClient);
 

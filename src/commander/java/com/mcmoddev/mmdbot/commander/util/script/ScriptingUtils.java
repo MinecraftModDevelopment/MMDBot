@@ -476,6 +476,14 @@ public final class ScriptingUtils {
             return Lists.newArrayList(IntStream.range(min, max + 1));
         }, 1, 2));
 
+        context.setFunction("codeblock", executeIfArgsValid(a -> {
+            if (a.size() == 1) {
+                return "```\n" + a.get(0).asString() + "```";
+            } else {
+                return "```" + a.get(1).asString() + "\n" + a.get(0).asString() + "```";
+            }
+        }, 1, 2));
+
         context.setFunction("format", executeIfArgsValid(args -> {
             if (args.size() < 2) {
                 throw new IllegalArgumentException("Invalid amount of arguments provided!");

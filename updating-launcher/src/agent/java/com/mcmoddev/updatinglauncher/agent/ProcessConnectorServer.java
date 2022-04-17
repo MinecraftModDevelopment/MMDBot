@@ -95,16 +95,6 @@ public class ProcessConnectorServer implements ProcessConnector {
     }
 
     @Override
-    public void setupDiscordLogging(final String webhookId, final String webhookToken) {
-        try {
-            DiscordLogbackAppender.setup(webhookId, webhookToken);
-            System.out.println(colour("Discord Logging has been setup using webhook with ID " + webhookId));
-        } catch (ClassNotFoundException | ClassCastException e) {
-            System.err.println("Cannot setup Discord webhook logging as Logback is not found on the classpath!");
-        }
-    }
-
-    @Override
     public void onShutdown() throws RemoteException {
         Agent.executeOnListeners(StatusListener::onShutdown);
     }
