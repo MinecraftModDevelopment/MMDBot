@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -130,7 +131,7 @@ public class JarUpdater implements Runnable {
             Files.createDirectories(parent);
         }
         Files.deleteIfExists(jarPath);
-        try (final var is = new URL(asset.browserDownloadUrl).openStream()) {
+        try (final var is = new BufferedInputStream(new URL(asset.browserDownloadUrl).openStream())) {
             Files.copy(is, jarPath);
         }
     }

@@ -174,7 +174,7 @@ public class FileCommand extends ULCommand {
 
     public boolean canAccessFile(final Path file) {
         final var ts = file.toAbsolutePath().toString();
-        if (file.equals(Main.CONFIG_PATH)) return false;
+        if (file.startsWith(Main.UL_DIRECTORY)) return false;
         for (final var pred : predicates) {
             final var res = pred.test(ts);
             if (!pred.ignore(res)) return res;

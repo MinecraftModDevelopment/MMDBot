@@ -142,6 +142,8 @@ public class RunBots {
             // We don't need to add the shutdown hook in such context as the listener will already
             // shut the bots down.
             Runtime.getRuntime().addShutdownHook(new Thread(RunBots::shutdown));
+        } else {
+            LOG.info("It seems like the bots are not ran by the UpdatingLauncher. It is recommended to use it for easier management.");
         }
 
         Events.MISC_BUS.addListener(ScamDetector::onCollectTasks);

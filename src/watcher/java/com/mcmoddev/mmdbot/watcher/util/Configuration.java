@@ -79,4 +79,23 @@ public class Configuration {
             return forceCommandsGuildOnly;
         }
     }
+
+    @Required
+    @Setting("roles")
+    private Roles roles = new Roles();
+    public Roles roles() {
+        return roles;
+    }
+
+    @ConfigSerializable
+    public static final class Roles {
+        @Required
+        @Setting("bot_maintainers")
+        @Comment("A list of Snowflake IDs representing the roles which are bot maintainers.")
+        private List<String> botMaintainers = new ArrayList<>();
+
+        public List<String> getBotMaintainers() {
+            return botMaintainers;
+        }
+    }
 }

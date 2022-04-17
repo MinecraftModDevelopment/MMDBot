@@ -90,4 +90,16 @@ public final class Utils {
             Instant.now().atOffset(ZoneOffset.UTC).toEpochSecond(), TimeUnit.SECONDS);
     }
 
+    /**
+     * Creates a discord link pointing to the specified message
+     *
+     * @param guildId   the ID of the guild of the message
+     * @param channelId the ID of the channel of the message
+     * @param messageId the message ID
+     * @return the message link
+     */
+    public static String makeMessageLink(final long guildId, final long channelId, final long messageId) {
+        return "https://discord.com/channels/%s/%s/%s".formatted(guildId, channelId, messageId);
+    }
+
 }

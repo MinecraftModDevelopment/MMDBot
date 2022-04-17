@@ -18,21 +18,28 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.updatinglauncher.github;
+package com.mcmoddev.mmdbot.watcher.util;
 
-import com.google.gson.annotations.SerializedName;
+/**
+ * Store settings that don't really change in here.
+ *
+ * @author KiriCattus
+ */
+public class References {
 
-import java.util.List;
+    /**
+     * The name of the bot in code.
+     */
+    public static final String NAME = "MMDBot";
 
-public class Release {
+    /**
+     * The constant COMMUNITY_CHANNEL_OWNER_PERMISSIONS.
+     */
+    public static final String COMMUNITY_CHANNEL_OWNER_PERMISSIONS = "community_channels.owner_permissions";
 
-    public int id;
-    public String name;
-    public List<Asset> assets;
+    /**
+     * The constant COMMANDS.
+     */
+    public static final String COMMANDS = "commands.";
 
-    public static final class Asset {
-        @SerializedName("browser_download_url")
-        public String browserDownloadUrl;
-        public String name;
-    }
 }
