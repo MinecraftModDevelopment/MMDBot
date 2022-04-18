@@ -137,7 +137,7 @@ public class RunBots {
             // Block thread
         }
 
-        if (System.getProperty("com.mcmoddev.updatinglauncher.jar") == null) {
+        if (System.getProperty("com.mcmoddev.relauncher.jar") == null) {
             // Make sure we are not running in a launcher environment.
             // We don't need to add the shutdown hook in such context as the listener will already
             // shut the bots down.
