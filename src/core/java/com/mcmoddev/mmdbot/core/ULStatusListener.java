@@ -20,7 +20,7 @@
  */
 package com.mcmoddev.mmdbot.core;
 
-import com.mcmoddev.updatinglauncher.api.StatusListener;
+import com.mcmoddev.relauncher.api.StatusListener;
 
 public class ULStatusListener implements StatusListener {
 
