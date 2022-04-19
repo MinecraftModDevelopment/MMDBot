@@ -26,7 +26,7 @@ import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.paginate.PaginatedCommand;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.watcher.TheWatcher;
-import com.mcmoddev.mmdbot.watcher.util.database.dao.Invites;
+import com.mcmoddev.mmdbot.watcher.util.database.Invites;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;

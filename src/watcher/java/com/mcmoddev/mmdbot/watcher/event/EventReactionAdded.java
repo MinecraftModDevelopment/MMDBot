@@ -79,7 +79,6 @@ public final class EventReactionAdded extends ListenerAdapter {
      */
     @Override
     public void onMessageReactionAdd(final MessageReactionAddEvent event) {
-        handleRolePanels(event);
         if (!event.isFromGuild() || !event.isFromType(ChannelType.TEXT)) return;
         final var channel = event.getTextChannel();
         final MessageHistory history = MessageHistory.getHistoryAround(channel,
@@ -242,39 +241,6 @@ public final class EventReactionAdded extends ListenerAdapter {
                 messagesAwaitingSignoff.remove(message.getIdLong());
             }
         }
-    }
-
-    private void handleRolePanels(@Nonnull final MessageReactionAddEvent event) {
-        doRolePanelStuff(event, false);
-    }
-
-    @Override
-    public void onMessageReactionRemove(@Nonnull final MessageReactionRemoveEvent event) {
-        doRolePanelStuff(event, true);
-    }
-
-    private void doRolePanelStuff(final GenericMessageReactionEvent event, final boolean isRemove) {
-        if (!event.isFromGuild() || event.getUser() != null && event.getUser().isBot() || event.getUser().isSystem()) {
-            return;
-        }
-        final var emote = getEmoteAsString(event.getReactionEmote());
-        final var role = event.getGuild().getRoleById(TheWatcher.getOldConfig().getRoleForRolePanel(event.getChannel().getIdLong(), event.getMessageIdLong(), emote));
-        if (role != null) {
-            final var member = event.getMember();
-            if (isRemove && !TheWatcher.getOldConfig().isRolePanelPermanent(event.getChannel().getIdLong(), event.getMessageIdLong())) {
-                if (member.getRoles().contains(role)) {
-                    event.getGuild().removeRoleFromMember(member, role).reason("Reaction Roles").queue();
-                }
-            } else if (!isRemove) {
-                if (!member.getRoles().contains(role)) {
-                    event.getGuild().addRoleToMember(member, role).reason("Reaction Roles").queue();
-                }
-            }
-        }
-    }
-
-    public static String getEmoteAsString(final MessageReaction.ReactionEmote reactionEmote) {
-        return reactionEmote.isEmoji() ? reactionEmote.getAsCodepoints() : reactionEmote.getEmote().getId();
     }
 
     /**

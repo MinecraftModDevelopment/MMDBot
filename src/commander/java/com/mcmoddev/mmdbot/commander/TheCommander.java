@@ -31,6 +31,7 @@ import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
 import com.mcmoddev.mmdbot.commander.commands.EvaluateCommand;
 import com.mcmoddev.mmdbot.commander.commands.GistCommand;
+import com.mcmoddev.mmdbot.commander.commands.RoleSelectCommand;
 import com.mcmoddev.mmdbot.commander.commands.curseforge.CurseForgeCommand;
 import com.mcmoddev.mmdbot.commander.commands.menu.message.AddQuoteContextMenu;
 import com.mcmoddev.mmdbot.commander.commands.menu.message.GistContextMenu;
@@ -418,7 +419,7 @@ public final class TheCommander implements Bot {
         }
 
         // Button listeners
-        EventListeners.COMMANDS_LISTENER.addListeners(new DismissListener());
+        EventListeners.COMMANDS_LISTENER.addListeners(new DismissListener(), RoleSelectCommand.COMMAND);
 
         if (generalConfig.features().isReferencingEnabled()) {
             EventListeners.MISC_LISTENER.addListener(new ReferencingListener());

@@ -18,7 +18,7 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.watcher.util.database.dao;
+package com.mcmoddev.mmdbot.watcher.util.database;
 
 import com.mcmoddev.mmdbot.core.util.WarningDocument;
 import org.jdbi.v3.sqlobject.customizer.Bind;

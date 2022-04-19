@@ -24,11 +24,13 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
+import com.mcmoddev.mmdbot.commander.util.dao.ReactionRolePanels;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.commands.component.context.ButtonInteractionContext;
 import com.mcmoddev.mmdbot.core.commands.component.context.ModalInteractionContext;
 import com.mcmoddev.mmdbot.core.commands.component.context.SelectMenuInteractionContext;
+import com.mcmoddev.mmdbot.core.util.Utils;
 import lombok.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -36,7 +38,13 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -47,6 +55,9 @@ import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.internal.requests.restaction.interactions.ModalCallbackActionImpl;
+import net.dv8tion.jda.internal.utils.EncodingUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -54,9 +65,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class RoleSelectCommand extends SlashCommand {
+public class RoleSelectCommand extends SlashCommand implements EventListener {
 
     @RegisterSlashCommand
     public static final RoleSelectCommand COMMAND = new RoleSelectCommand();
@@ -77,14 +90,57 @@ public class RoleSelectCommand extends SlashCommand {
         userPermissions = new Permission[]{
             Permission.MANAGE_ROLES
         };
-        options = List.of(
-            new OptionData(OptionType.STRING, "roles", "Mention the roles to add to the panel.", true),
-            new OptionData(OptionType.BOOLEAN, "dropdown", "If the role selection panel should be a dropdown rather than buttons.")
-        );
+        children = new SlashCommand[] {
+            command("buttons", "Creates a role panel with buttons.", event -> executeSub(event, false), new OptionData(OptionType.STRING, "roles", "Mention the roles to add to the panel.", true)),
+            command("dropdown", "Creates a dropdown role panel.", event -> executeSub(event, true), new OptionData(OptionType.STRING, "roles", "Mention the roles to add to the panel.", true)),
+            command("reaction", "Creates a reaction role panel.", event -> {
+                    try {
+                        Objects.requireNonNull(event.getGuild());
+                        var channel = event.getChannel();
+                        var msgIdStr = event.getOption("message", "", OptionMapping::getAsString);
+                        if (msgIdStr.contains("-")) {
+                            // Accept the `channelID-messageID` format Discord gives when using the Copy ID button
+                            final var newChannel = event.getGuild().getTextChannelById(msgIdStr.substring(0, msgIdStr.indexOf('-')));
+                            if (newChannel != null) {
+                                channel = newChannel;
+                            }
+                            msgIdStr = msgIdStr.substring(msgIdStr.indexOf('-') + 1);
+                        }
+                        final var channelId = channel.getIdLong(); // Field must be final for lambda usage
+                        final long messageId = Long.parseLong(msgIdStr);
+                        final var role = Objects.requireNonNull(event.getOption("role", OptionMapping::getAsRole));
+                        final var emote = Emoji.fromMarkdown(event.getOption("emote", "", OptionMapping::getAsString).replace(" ", ""));
+                        final var emoteStr = getEmoteAsString(emote);
+
+                        channel.addReactionById(messageId, emoteStr).flatMap($ -> {
+                            // Emote IDs are expected, but the emoteStr is also prefixed with :emojiName:
+                            TheCommander.getInstance()
+                                .getJdbi()
+                                .useExtension(ReactionRolePanels.class, db -> db.insert(channelId, messageId, emote.isCustom() ? emote.getId() : emoteStr, role.getIdLong(), event.getOption("permanent", false, OptionMapping::getAsBoolean)));
+                            return event.deferReply(true)
+                                .addEmbeds(new EmbedBuilder()
+                                    .setColor(Color.GREEN)
+                                    .setDescription("Action successful. [Jump to message.](%s)"
+                                        .formatted(Utils.makeMessageLink(event.getGuild().getIdLong(), channelId, messageId)))
+                                    .build())
+                                .mentionRepliedUser(false);
+                        }).queue(null, e -> event.deferReply(true).setContent("There was an exception while trying to execute that command: **%s**"
+                            .formatted(e.getLocalizedMessage())).mentionRepliedUser(false).queue());
+                    } catch (Exception e) {
+                        // Usually a NumberFormattingException, but in case something else throws
+                        event.deferReply(true).setContent("There was an exception while trying to execute that command: **%s**"
+                            .formatted(e.getLocalizedMessage())).mentionRepliedUser(false).queue();
+                        TheCommander.LOGGER.error("There was an error running the `/role-select reaction` command", e);
+                    }
+            }, new OptionData(OptionType.STRING, "message", "The ID of the message on which to create the panel.", true),
+                new OptionData(OptionType.ROLE, "role", "The role to add to the panel.", true),
+                new OptionData(OptionType.STRING, "emote", "The emote which will be associated with that role.", true),
+                new OptionData(OptionType.BOOLEAN, "permanent", "If the role assigned by the panel is permanent.")
+            )
+        };
     }
 
-    @Override
-    protected void execute(final SlashCommandEvent event) {
+    protected void executeSub(final SlashCommandEvent event, final boolean dropdown) {
         final var selfMember = Objects.requireNonNull(event.getGuild()).getSelfMember();
         Objects.requireNonNull(event.getMember());
         final var args = event.getOption("roles", List.<String>of(), m -> m.getMentionedRoles()
@@ -105,7 +161,7 @@ public class RoleSelectCommand extends SlashCommand {
                 .setContent("Please provide less than 25 roles for the panel.")
                 .queue();
         }
-        args.add(0, String.valueOf(event.getOption("dropdown", false, OptionMapping::getAsBoolean)));
+        args.add(0, String.valueOf(dropdown));
 
         final var title = TextInput.create("title", "Title", TextInputStyle.SHORT)
             .setRequired(false)
@@ -132,7 +188,11 @@ public class RoleSelectCommand extends SlashCommand {
             )
             .build();
 
-        event.replyModal(modal).queue();
+        new ModalCallbackActionImpl(event.getHook(), modal).queue();
+    }
+
+    @Override
+    protected void execute(final SlashCommandEvent event) {
     }
 
     public void onModalInteraction(final ModalInteractionContext context) {
@@ -300,5 +360,64 @@ public class RoleSelectCommand extends SlashCommand {
                 .flatMap($ -> event.deferReply(true).setContent("Successfully updated your roles!"))
                 .queue();
         }
+    }
+
+    private static SlashCommand command(String cmdName, String description, Consumer<? super SlashCommandEvent> consumer, OptionData... cmdOptions) {
+        return new SlashCommand() {
+            {
+                this.name = cmdName;
+                this.help = description;
+                this.options = List.of(cmdOptions);
+            }
+            @Override
+            protected void execute(final SlashCommandEvent event) {
+                consumer.accept(event);
+            }
+        };
+    }
+
+    public static String getEmoteAsString(final Emoji emoji) {
+        return emoji.isCustom() ? emoji.getAsMention().replaceAll("[<>]*", "")
+            /* this will give the emoji in the format emojiName:emojiId */ :
+            EncodingUtil.encodeCodepoints(emoji.getName());
+    }
+
+    @Override
+    public void onEvent(@NotNull final GenericEvent gE) {
+        if (gE instanceof MessageReactionAddEvent addEvent) {
+            doRolePanelStuff(addEvent, false);
+        } else if (gE instanceof MessageReactionRemoveEvent removeEvent) {
+            doRolePanelStuff(removeEvent, true);
+        }
+    }
+
+    private void doRolePanelStuff(final GenericMessageReactionEvent event, final boolean isRemove) {
+        if (!event.isFromGuild() || event.getUser() != null && event.getUser().isBot() || event.getUser().isSystem()) {
+            return;
+        }
+        final var emote = getEmoteAsString(event.getReactionEmote());
+        final var roleId = withExtension(db -> db.getRole(event.getChannel().getIdLong(), event.getMessageIdLong(), emote));
+        if (roleId == null) return;
+        final var role = event.getGuild().getRoleById(roleId);
+        if (role != null) {
+            final var member = event.getMember();
+            if (isRemove && !withExtension(db -> db.isPermanent(event.getChannel().getIdLong(), event.getMessageIdLong(), emote))) {
+                if (member.getRoles().contains(role)) {
+                    event.getGuild().removeRoleFromMember(member, role).reason("Reaction Roles").queue();
+                }
+            } else if (!isRemove) {
+                if (!member.getRoles().contains(role)) {
+                    event.getGuild().addRoleToMember(member, role).reason("Reaction Roles").queue();
+                }
+            }
+        }
+    }
+
+    public static String getEmoteAsString(final MessageReaction.ReactionEmote reactionEmote) {
+        return reactionEmote.isEmoji() ? reactionEmote.getAsCodepoints() : reactionEmote.getEmote().getId();
+    }
+
+    public static <R> R withExtension(Function<ReactionRolePanels, R> callback) {
+        return TheCommander.getInstance().getJdbi().withExtension(ReactionRolePanels.class, callback::apply);
     }
 }

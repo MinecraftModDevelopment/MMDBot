@@ -92,74 +92,12 @@ public final class BotConfig {
     }
 
     /**
-     * Returns whether the configuration file was newly generated (e.g. the bot was run for the first time).
-     *
-     * @return If the config file was newly generated
-     */
-    public boolean isNewlyGenerated() {
-        return newlyGenerated;
-    }
-
-    /**
-     * Returns the raw {@link CommentedFileConfig} object.
-     *
-     * @return The raw config object
-     */
-    public CommentedFileConfig getConfig() {
-        return config;
-    }
-
-    /**
-     * Returns the configured bot token, or {@code null} if there is none configured.
-     *
-     * @return The configured bot token, or {@code ""}
-     */
-    @NotNull
-    public String getToken() {
-        return config.<String>getOptional("bot.token")
-            .filter(string -> string.indexOf('!') == -1 || string.isEmpty())
-            .orElse("");
-    }
-
-    /**
-     * Returns the snowflake ID of the bot's owner.
-     * <p>
-     * The bot owner has access to special owner-only commands.
-     *
-     * @return The snowflake ID of the bot owner
-     */
-    public String getOwnerID() {
-        return getAliased("bot.owner", getAliases());
-    }
-
-    /**
      * Returns the snowflake ID of the guild where this bot resides, or {@code 0L} is none is configured.
      *
      * @return The snowflake ID of the guild
      */
     public long getGuildID() {
         return SafeIdUtil.safeConvert(getAliased("bot.guildId", getAliases()));
-    }
-
-    /**
-     * Returns the main commands prefix for bot commands.
-     *
-     * @return The main commands prefix
-     */
-    public String getMainPrefix() {
-        return config.getOrElse("commands.prefix.main", "!mmd-");
-    }
-
-    /**
-     * Returns the alternative commands prefix for bot commands.
-     * <p>
-     * This will usually be a shorter version of the {@linkplain #getMainPrefix() main commands prefix}, to be easier
-     * and quicker to type out commands.
-     *
-     * @return The alternative commands prefix
-     */
-    public String getAlternativePrefix() {
-        return config.getOrElse("commands.prefix.alternative", "!");
     }
 
     /**
@@ -188,131 +126,6 @@ public final class BotConfig {
                 .findFirst()
             )
             .map(UnmodifiableConfig.Entry::getKey);
-    }
-
-    /**
-     * Returns whether the given command is globally enabled for all guilds.
-     * <p>
-     * If there is no config entry for the command, this will default to returning {@code true}.
-     *
-     * @param commandName The command name
-     * @return If the command is globally enabled, or {@code true} if not configured
-     * @see #isEnabled(String, long) #isEnabled(String, long)#isEnabled(String, long)
-     */
-    public boolean isEnabled(final String commandName) {
-        return config.<Boolean>getOrElse(References.COMMANDS + commandName + ".enabled", true);
-    }
-
-    /**
-     * @return If tricks should be run using prefix commands
-     */
-    public boolean prefixTricksEnabled() {
-        return config.getOrElse("commands.prefix_tricks_enabled", false);
-    }
-
-    /**
-     * Returns whether the given command is enabled for the given guild.
-     * <p>
-     * If there is no config entry for the command and guild, this will default to returning the result of
-     * {@link #isEnabled(String)}.
-     *
-     * @param commandName The command name
-     * @param guildID     The guild's snowflake ID
-     * @return If the command is enabled for the guild, or the value of {@link #isEnabled(String)}
-     */
-    public boolean isEnabled(final String commandName, final long guildID) {
-        return config.<Boolean>getOptional(
-                References.COMMANDS + commandName + "."
-                    + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
-                    + ".enabled")
-            .orElseGet(() -> isEnabled(commandName));
-    }
-
-    /**
-     * Returns the list of blocked channels for the command in the given guild.
-     *
-     * @param commandName The command name
-     * @param guildID     The guild's snowflake ID
-     * @return The list of blocked channels for the command
-     */
-    public List<Long> getBlockedChannels(final String commandName, final long guildID) {
-        return getAliasedSnowflakeList(
-            References.COMMANDS + commandName + "."
-                + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
-                + ".blocked_channels", getAliases())
-            .orElseGet(Collections::emptyList);
-    }
-
-    /**
-     * Returns the list of allowed channels for the command in the given guild.
-     *
-     * @param commandName The command name
-     * @param guildID     The guild's snowflake ID
-     * @return The list of allowed channels for the command
-     */
-    public List<Long> getAllowedChannels(final String commandName, final long guildID) {
-        return getAliasedSnowflakeList(
-            References.COMMANDS + commandName + "."
-                + getAlias(guildID).orElseGet(() -> String.valueOf(guildID))
-                + ".allowed_channels", getAliases())
-            .orElseGet(Collections::emptyList);
-    }
-
-    /**
-     * Returns the list of hidden channels.
-     * <p>
-     * Hidden channels are channels which are not printed / hidden from the message when a command is run
-     * in a non-allowed channel.
-     *
-     * @return The list of hidden channels
-     */
-    public List<Long> getHiddenChannels() {
-        return getAliasedSnowflakeList(References.COMMANDS + "hidden_channels", getAliases())
-            .orElseGet(Collections::emptyList);
-    }
-
-    /**
-     * Returns the list of roles exempt from the blocklists and allowlists of commands.
-     * <p>
-     * Users with these roles bypass the block and allow lists of commands, allowing them to run (enabled) commands
-     * in any channel.
-     *
-     * @return The roles exempt from channel checking
-     */
-    public List<Long> getChannelExemptRoles() {
-        return getAliasedSnowflakeList(References.COMMANDS + "exempt_roles", getAliases())
-            .orElseGet(Collections::emptyList);
-    }
-
-    /**
-     * Returns the snowflake ID of the given role key based on the configuration, or {@code 0L} if none is configured.
-     * <p>
-     * The role key consists of ASCII letters, optionally separated by periods/full stops ({@code .}) for connoting
-     * categories.
-     *
-     * @param roleKey The role key
-     * @return The snowflake ID of the given role key, or {@code 0L}
-     */
-    public long getRole(final String roleKey) {
-        return SafeIdUtil.safeConvert(getAliased("roles." + roleKey, getAliases()));
-    }
-
-    public long getRole(final RoleType role) {
-        return getRole(role.toString());
-    }
-
-    public enum RoleType {
-        BOT_MAINTAINER("bot_maintainer");
-        private final String name;
-
-        RoleType(final String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
     }
 
     /**
@@ -465,27 +278,6 @@ public final class BotConfig {
         return config.<String>getOptional(key)
             .map(str -> aliases.flatMap(cfg -> cfg.<String>getOptional(str)).orElse(str))
             .orElse("");
-    }
-
-    /**
-     * Gets the role associated with the {@code emote} from the specified role panel
-     *
-     * @param channelId the channel ID of the role panel
-     * @param messageId the message ID of the role panel
-     * @param emote     the emote
-     * @return
-     */
-    public long getRoleForRolePanel(final long channelId, final long messageId, final String emote) {
-        return config.<Long>getOrElse("role_panels.%s-%s.%s".formatted(channelId, messageId, emote), 0L);
-    }
-
-    public void addRolePanel(final long channelId, final long messageId, final String emote, final long roleId) {
-        config.set("role_panels.%s-%s.%s".formatted(channelId, messageId, emote), roleId);
-        config.save();
-    }
-
-    public boolean isRolePanelPermanent(final long channelId, final long messageId) {
-        return config.<Boolean>getOrElse("role_panels.%s-%s.permanent".formatted(channelId, messageId), false);
     }
 
     public Activity.ActivityType getActivityType() {

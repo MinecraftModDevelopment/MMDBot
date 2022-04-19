@@ -28,7 +28,6 @@ import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import com.mcmoddev.mmdbot.core.commands.CommandUpserter;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
-import com.mcmoddev.mmdbot.core.commands.component.ComponentManager;
 import com.mcmoddev.mmdbot.core.commands.component.DeferredComponentListenerRegistry;
 import com.mcmoddev.mmdbot.core.commands.component.storage.ComponentStorage;
 import com.mcmoddev.mmdbot.core.common.ScamDetector;
@@ -45,7 +44,6 @@ import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdKick;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdMute;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdOldChannels;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdReact;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdRolePanel;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdUnban;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdUnmute;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdWarning;
@@ -250,7 +248,7 @@ public final class TheWatcher implements Bot {
             .setManualUpsert(true)
             .useHelpBuilder(false)
             .setActivity(null)
-            .addSlashCommands(new CmdMute(), new CmdUnmute(), new CmdOldChannels(), new CmdInvite(), new CmdCommunityChannel(), new CmdRolePanel(), new CmdWarning())
+            .addSlashCommands(new CmdMute(), new CmdUnmute(), new CmdOldChannels(), new CmdInvite(), new CmdCommunityChannel(), new CmdWarning())
             .addCommands(new CmdBan(), new CmdUnban(), new CmdReact(), new CmdKick())
             .build();
         COMMANDS_LISTENER.addListener((EventListener) commandClient);

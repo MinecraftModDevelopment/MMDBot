@@ -94,16 +94,3 @@ category = ""
 # Note: the bot can only assign permissions to channel owners if the bot has those permissions
 # Example: ["Manage Messages", "MANAGE_PERMISSIONS"]
 owner_permissions = []
-
-# This controls role panels. One role panel can be setup like this:
-# [role_panels.channelID-messageID]
-#     emoteIDOrName = roleID
-# Unicode codes have to be prefixed by an U+ AND any letters inside them have to be lowercase
-# Exmaple:
-# [role_panels.935833185072316506-935833199953707079]
-#        "U+1f54b" = 930844449838350486
-#
-# If you want the roles granted by the panel being permanent, you can toggle that on by using the permanent property
-# [role_panels.935833185072316506-935833199953707079]
-#        permanent = true
-[role_panels]

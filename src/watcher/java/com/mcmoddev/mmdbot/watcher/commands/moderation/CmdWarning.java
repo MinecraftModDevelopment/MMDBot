@@ -27,7 +27,7 @@ import com.mcmoddev.mmdbot.core.commands.paginate.PaginatedCommand;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.event.moderation.WarningEvent;
 import com.mcmoddev.mmdbot.watcher.TheWatcher;
-import com.mcmoddev.mmdbot.watcher.util.database.dao.Warnings;
+import com.mcmoddev.mmdbot.watcher.util.database.Warnings;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
