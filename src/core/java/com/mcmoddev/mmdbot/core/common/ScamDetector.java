@@ -28,23 +28,13 @@ import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.event.moderation.ScamLinkEvent;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
@@ -55,7 +45,7 @@ import java.util.stream.StreamSupport;
  * @author matyrobbrt
  */
 @Slf4j
-public class ScamDetector extends ListenerAdapter {
+public class ScamDetector {
 
     public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
     public static final String SCAM_LINKS_DATA_URL = "https://phish.sinking.yachts/v2/all";
@@ -66,41 +56,7 @@ public class ScamDetector extends ListenerAdapter {
         new Thread(ScamDetector::setupScamLinks, "ScamLinkCollector").start();
     }
 
-    @Override
-    public void onMessageReceived(@NotNull final MessageReceivedEvent event) {
-        if (event.isFromGuild()) {
-            takeActionIfScam(event.getMessage(), false);
-        }
-    }
-
-    @Override
-    public void onMessageUpdate(@NotNull final MessageUpdateEvent event) {
-        if (event.isFromGuild()) {
-            takeActionIfScam(event.getMessage(), true);
-        }
-    }
-
-    public static void takeActionIfScam(@Nonnull final Message msg, final boolean editedMessage) {
-        final var member = msg.getMember();
-        if (member == null || msg.getAuthor().isBot() || msg.getAuthor().isSystem() ||
-            member.hasPermission(Permission.MANAGE_CHANNEL)) {
-            // return;
-        }
-        if (containsScam(msg.getContentRaw().toLowerCase(Locale.ROOT))) {
-            final var guild = msg.getGuild();
-            msg.delete().reason("Scam link").queue($ -> {
-                postScamEvent(msg.getGuild().getIdLong(), msg.getAuthor().getIdLong(), msg.getChannel().getIdLong(),
-                    msg.getContentRaw(), msg.getAuthor().getEffectiveAvatarUrl(), editedMessage);
-                mute(guild, member);
-            });
-        }
-    }
-
-    private static void mute(final Guild guild, final Member member) {
-        guild.timeoutFor(member, 14, TimeUnit.DAYS).reason("Sent a scam link").queue(); // 2 weeks timeout
-    }
-
-    private static void postScamEvent(final long guildId, final long targetId, final long channelId,
+    public static void postScamEvent(final long guildId, final long targetId, final long channelId,
                                       final String messageContent, final String targetAvatar, final boolean editedMessage) {
         Events.MODERATION_BUS.post(new ScamLinkEvent(guildId, targetId, channelId, messageContent, targetAvatar, editedMessage));
     }

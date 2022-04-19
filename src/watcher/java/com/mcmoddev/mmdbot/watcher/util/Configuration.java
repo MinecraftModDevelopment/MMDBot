@@ -20,11 +20,14 @@
  */
 package com.mcmoddev.mmdbot.watcher.util;
 
+import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
+import org.spongepowered.configurate.objectmapping.meta.NodeKey;
 import org.spongepowered.configurate.objectmapping.meta.Required;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,5 +100,33 @@ public class Configuration {
         public List<String> getBotMaintainers() {
             return botMaintainers;
         }
+    }
+
+    @Required
+    @Setting("punishments")
+    @Comment("""
+    Punishments that will be applied to members when they do certain actions.
+    The punishment format is: action [duration].
+    Example:
+        "KICK" -> kicks the member
+        "BAN 5d" -> bans the member for 5 days
+        "MUTE 12m" -> times the member out for 12 minutes
+        """)
+    private Punishments punishments = new Punishments();
+    public Punishments punishments() {
+        return punishments;
+    }
+
+    @ConfigSerializable
+    public static final class Punishments {
+
+        @Required
+        @Setting("spam_pinging")
+        public Punishment spamPing = new Punishment(Punishment.ActionType.BAN, Duration.ofDays(2));
+
+        @Required
+        @Setting("scam_link")
+        public Punishment scamLink = new Punishment(Punishment.ActionType.KICK, null);
+
     }
 }

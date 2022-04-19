@@ -48,8 +48,10 @@ import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdUnban;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdUnmute;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdWarning;
 import com.mcmoddev.mmdbot.watcher.event.EventReactionAdded;
+import com.mcmoddev.mmdbot.watcher.punishments.PunishableActions;
 import com.mcmoddev.mmdbot.watcher.util.BotConfig;
 import com.mcmoddev.mmdbot.watcher.util.Configuration;
+import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
 import com.mcmoddev.mmdbot.watcher.util.oldchannels.ChannelMessageChecker;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.util.Utils;
@@ -80,6 +82,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -133,6 +136,10 @@ public final class TheWatcher implements Bot {
         poll.allowCoreThreadTimeOut(true);
         return new ThreadedEventListener(poll);
     });
+    public static final ThreadedEventListener PUNISHABLE_ACTIONS_LISTENER = new ThreadedEventListener(
+        Executors.newFixedThreadPool(2, r -> com.mcmoddev.mmdbot.core.util.Utils.setThreadDaemon(new Thread(TheWatcher.THREAD_GROUP, r, "PunishableActions"), true)),
+        PunishableActions.values()
+    );
 
     private static final Set<GatewayIntent> INTENTS = Set.of(
         GatewayIntent.DIRECT_MESSAGES,
@@ -193,7 +200,9 @@ public final class TheWatcher implements Bot {
                 .emitComments(true)
                 .prettyPrinting(true)
                 .path(configPath)
+                .defaultOptions(opts -> opts.serializers(build -> build.register(Punishment.class, new Punishment.Serializer())))
                 .build();
+            Objects.requireNonNull(loader.defaultOptions().serializers().get(Punishment.class));
             final var cPair =
                 ConfigurateUtils.loadConfig(loader, configPath, c -> config = c, Configuration.class, Configuration.EMPTY);
             configRef = cPair.second();
@@ -260,7 +269,7 @@ public final class TheWatcher implements Bot {
         // Buttons
         COMMANDS_LISTENER.addListener(new DismissListener());
 
-        MISC_LISTENER.addListeners(new EventReactionAdded(), new ScamDetector());
+        MISC_LISTENER.addListeners(new EventReactionAdded());
 
         MessageAction.setDefaultMentionRepliedUser(false);
         MessageAction.setDefaultMentions(DEFAULT_MENTIONS);
@@ -273,7 +282,7 @@ public final class TheWatcher implements Bot {
                     Events.MISC_BUS.addListener(-1, (TaskScheduler.CollectTasksEvent ctEvent) -> {
                         ctEvent.addTask(new TaskScheduler.Task(new ChannelMessageChecker(event.getJDA()), 0, 1, TimeUnit.DAYS));
                     });
-                }), COMMANDS_LISTENER, MISC_LISTENER)
+                }), COMMANDS_LISTENER, MISC_LISTENER, PUNISHABLE_ACTIONS_LISTENER)
                 .setActivity(Activity.of(oldConfig.getActivityType(), oldConfig.getActivityName()))
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)

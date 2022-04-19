@@ -25,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
+import org.spongepowered.configurate.objectmapping.ObjectMapper;
+import org.spongepowered.configurate.objectmapping.meta.NodeResolver;
 import org.spongepowered.configurate.reference.ConfigurationReference;
 import org.spongepowered.configurate.reference.ValueReference;
 
@@ -51,7 +53,6 @@ public class ConfigurateUtils {
      * @param defaultConfig the default config
      * @param <T>           the type of the config
      * @return a reference to the configuration node and the configuration reference
-     * @throws ConfigurateException
      */
     public static <T> Pair<ValueReference<T, CommentedConfigurationNode>, ConfigurationReference<CommentedConfigurationNode>> loadConfig(HoconConfigurationLoader loader, Path configPath, Consumer<T> configSetter, Class<T> configClass, T defaultConfig) throws ConfigurateException {
         final var configSerializer = Objects.requireNonNull(loader.defaultOptions().serializers().get(configClass));
@@ -72,7 +73,8 @@ public class ConfigurateUtils {
         final var configRef = loader.loadToReference();
 
         { // Add new values to the config
-            final var inMemoryNode = CommentedConfigurationNode.factory().createNode();
+            final var inMemoryNode = CommentedConfigurationNode
+                .root(loader.defaultOptions());
             configSerializer.serialize(type, defaultConfig, inMemoryNode);
             configRef.node().mergeFrom(inMemoryNode);
             configRef.save();
