@@ -28,6 +28,6 @@ import java.util.regex.Pattern;
 public record CustomPing(Pattern pattern, String text) implements Predicate<Message> {
     @Override
     public boolean test(final Message message) {
-        return pattern.matcher(message.getContentRaw()).find();
+        return pattern.asMatchPredicate().test(message.getContentRaw());
     }
 }

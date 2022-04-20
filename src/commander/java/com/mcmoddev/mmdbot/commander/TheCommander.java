@@ -578,6 +578,10 @@ public final class TheCommander implements Bot {
         }));
     }
 
+    public GuildConfiguration getConfigForGuild(Guild guild) {
+        return getConfigForGuild(guild.getIdLong());
+    }
+
     @SuppressWarnings("unchecked")
     private static <E extends Event> EventListener listenerConsumer(final Consumer<E> listener) {
         return event -> {

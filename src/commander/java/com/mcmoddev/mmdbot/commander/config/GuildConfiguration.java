@@ -32,6 +32,7 @@ import org.spongepowered.configurate.objectmapping.meta.Required;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Set;
 
 @ConfigSerializable
@@ -83,6 +84,49 @@ public final class GuildConfiguration {
             private String channelCreatedMessage = "Welcome {user} to your new channel ({channel}) here at {guild}. Enjoy your stay!";
             public String getChannelCreatedMessage() {
                 return channelCreatedMessage;
+            }
+        }
+    }
+
+    @Required
+    @Setting("features")
+    @Comment("Configuration for features.")
+    private Features features = new Features();
+
+    public Features features() {
+        return features;
+    }
+
+    @ConfigSerializable
+    public static final class Features {
+
+        @Required
+        @Setting("custom_pings")
+        @Comment("Custom pings configuration.")
+        private CustomPings customPings = new CustomPings();
+
+        public CustomPings customPings() {
+            return customPings;
+        }
+
+        @ConfigSerializable
+        public static final class CustomPings {
+            @Required
+            @Setting("enabled")
+            @Comment("If custom pings should be enabled.")
+            private boolean enabled = true;
+
+            public boolean areEnabled() {
+                return enabled;
+            }
+
+            @Required
+            @Setting("limit_per_user")
+            @Comment("The limit of custom pings per user, per guild.")
+            private int limitPerUser = 10;
+
+            public int getLimitPerUser() {
+                return limitPerUser;
             }
         }
     }

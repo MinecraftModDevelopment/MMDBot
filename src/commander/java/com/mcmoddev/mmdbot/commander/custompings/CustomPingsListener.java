@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.commander.custompings;
 
+import static com.mcmoddev.mmdbot.commander.TheCommander.getInstance;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.event.ThreadedEventListener;
@@ -27,18 +28,16 @@ import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import lombok.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.ErrorResponse;
-import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.jetbrains.annotations.NotNull;
 
@@ -53,7 +52,7 @@ public class CustomPingsListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(@NotNull final MessageReceivedEvent event) {
-        if (event.isFromGuild() && event.getMessage().getChannel().getType() == ChannelType.TEXT && TheCommander.getInstance().getGeneralConfig().features().customPings().areEnabled()
+        if (event.isFromGuild() && event.getChannelType().isMessage() && getInstance().getConfigForGuild(event.getGuild()).features().customPings().areEnabled()
             && event.getAuthor().getIdLong() != event.getJDA().getSelfUser().getIdLong()) {
             handlePings(event.getGuild(), event.getMessage());
         }
@@ -72,19 +71,18 @@ public class CustomPingsListener extends ListenerAdapter {
                 return;
             }
             // They can't view the channel
-            if (!canViewChannel(guild, user, message.getTextChannel())) return;
+            if (!canViewChannel(guild, user, message.getGuildChannel())) return;
             user.getUser().openPrivateChannel().queue(privateChannel -> {
-                final var dmActions = pings.stream().filter(p -> p.test(message))
-                    .map(p -> sendPingMessage(p, message, privateChannel))
-                    .toList();
-                if (!dmActions.isEmpty()) {
-                    RestAction.allOf(dmActions).queue(null, new ErrorHandler()
-                        .handle(ErrorResponse.CANNOT_SEND_TO_USER, e -> {
-                            // Can't DM, so clear pings
-                            TheCommander.LOGGER.warn("Removing custom pings for user {} as they don't accept DMs.", userId);
-                            CustomPings.clearPings(guild.getIdLong(), userId);
-                        }));
-                }
+                final var dmAction = pings.stream()
+                    .filter(p -> p.test(message))
+                    .findFirst()
+                    .map(p -> sendPingMessage(p, message, privateChannel));
+                dmAction.ifPresent(messageAction -> messageAction.queue(null, new ErrorHandler()
+                    .handle(ErrorResponse.CANNOT_SEND_TO_USER, e -> {
+                        // Can't DM, so clear pings
+                        TheCommander.LOGGER.warn("Removing custom pings for user {} as they don't accept DMs.", userId);
+                        CustomPings.clearPings(guild.getIdLong(), userId);
+                    })));
             }, $ -> /* Can't DM, so clear pings */ CustomPings.clearPings(guild.getIdLong(), userId));
         });
     }
@@ -100,8 +98,7 @@ public class CustomPingsListener extends ListenerAdapter {
         );
     }
 
-    public static boolean canViewChannel(Guild guild, Member member, TextChannel channel) {
-        // TODO allow threads as well
+    public static boolean canViewChannel(Guild guild, Member member, GuildChannel channel) {
         return member.getPermissions(channel).contains(Permission.VIEW_CHANNEL);
     }
 }

@@ -25,6 +25,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
+import com.mcmoddev.mmdbot.commander.config.GuildConfiguration;
 import com.mcmoddev.mmdbot.commander.custompings.CustomPing;
 import com.mcmoddev.mmdbot.commander.custompings.CustomPings;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
@@ -72,7 +73,10 @@ public class CustomPingsCommand {
         protected void execute(final SlashCommandEvent event) {
             if (!checkEnabled(event)) return;
             final var pings = CustomPings.getPingsForUser(event.getGuild().getIdLong(), event.getUser().getIdLong());
-            final var limit = TheCommander.getInstance().getGeneralConfig().features().customPings().getLimitPerUser();
+            final var limit = Objects.requireNonNull(event.getGuildSettings(GuildConfiguration.class))
+                .features()
+                .customPings()
+                .getLimitPerUser();
             if (pings.size() >= limit) {
                 event.deferReply(true).setContent("You cannot add any other custom pings as you have reached the limit of %s."
                     .formatted(limit)).queue();
@@ -131,10 +135,10 @@ public class CustomPingsCommand {
 
         @Override
         protected EmbedBuilder getEmbed(final int index, final int maximum, final List<String> arguments) {
-            if (!TheCommander.getInstance().getGeneralConfig().features().customPings().areEnabled()) {
+            final long guildId = Long.parseLong(arguments.get(0));
+            if (!TheCommander.getInstance().getConfigForGuild(guildId).features().customPings().areEnabled()) {
                 return new EmbedBuilder().setDescription("Custom Pings are not enabled!");
             }
-            final long guildId = Long.parseLong(arguments.get(0));
             final long userId = Long.parseLong(arguments.get(1));
             final var embed = new EmbedBuilder();
             embed.setTitle("Your custom pings:");
@@ -197,7 +201,7 @@ public class CustomPingsCommand {
     }
 
     private static boolean checkEnabled(final IReplyCallback event) {
-        final var enabled = TheCommander.getInstance().getGeneralConfig().features().customPings().areEnabled();
+        final var enabled = TheCommander.getInstance().getConfigForGuild(event.getGuild()).features().customPings().areEnabled();
         if (!enabled) {
             event.deferReply(true).setContent("Custom Pings are disabled!").queue();
         }
@@ -205,7 +209,7 @@ public class CustomPingsCommand {
     }
 
     private static boolean checkEnabled(final CommandEvent event) {
-        final var enabled = TheCommander.getInstance().getGeneralConfig().features().customPings().areEnabled();
+        final var enabled = TheCommander.getInstance().getConfigForGuild(event.getGuild()).features().customPings().areEnabled();
         if (!enabled) {
             event.getMessage()
                 .reply("Custom Pings are disabled!")
