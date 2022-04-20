@@ -20,13 +20,18 @@
  */
 package com.mcmoddev.mmdbot.commander.config;
 
+import com.jagrosh.jdautilities.command.GuildSettingsManager;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
+import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.Required;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
+import javax.annotation.Nullable;
 import java.util.Set;
 
 @ConfigSerializable
@@ -82,4 +87,12 @@ public final class GuildConfiguration {
         }
     }
 
+    public record SettingManager(Long2ObjectFunction<GuildConfiguration> getter) implements GuildSettingsManager<GuildConfiguration> {
+
+        @Nullable
+        @Override
+        public GuildConfiguration getSettings(final Guild guild) {
+            return getter.get(guild.getIdLong());
+        }
+    }
 }

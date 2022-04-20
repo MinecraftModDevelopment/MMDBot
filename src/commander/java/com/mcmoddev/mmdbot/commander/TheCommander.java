@@ -353,6 +353,7 @@ public final class TheCommander implements Bot {
             .setManualUpsert(true)
             .useHelpBuilder(false)
             .setActivity(null)
+            .setGuildSettingsManager(new GuildConfiguration.SettingManager(this::getConfigForGuild))
             .setListener(new CommandListener() {
                 @Override
                 public void onCommand(final CommandEvent event, final Command command) {
@@ -575,10 +576,6 @@ public final class TheCommander implements Bot {
                 .first()
                 .get();
         }));
-    }
-
-    public GuildConfiguration getConfigForGuild(Guild guild) {
-        return getConfigForGuild(guild.getIdLong());
     }
 
     @SuppressWarnings("unchecked")

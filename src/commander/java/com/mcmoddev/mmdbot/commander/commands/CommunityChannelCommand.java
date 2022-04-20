@@ -25,6 +25,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
+import com.mcmoddev.mmdbot.commander.config.GuildConfiguration;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Emote;
@@ -105,7 +106,8 @@ public final class CommunityChannelCommand extends SlashCommand {
         final var user = Objects.requireNonNull(event.getOption("user", OptionMapping::getAsMember));
         final var channel = event.getOption("channel", "", OptionMapping::getAsString);
 
-        final var guildCfg = TheCommander.getInstance().getConfigForGuild(guild).channels().community();
+        final var guildCfg = Objects.requireNonNull(event.getGuildSettings(GuildConfiguration.class))
+            .channels().community();
 
         final var category = guildCfg.category().resolve(guild::getCategoryById);
         if (category == null) {
@@ -144,7 +146,7 @@ public final class CommunityChannelCommand extends SlashCommand {
                     .flatMap(Message::pin)
                     .map($ -> ch)
                 )
-                .map(ch -> hook.editOriginal("Successfully created community channel at " + ch.getAsMention() + "!")))
+                .flatMap(ch -> hook.editOriginal("Successfully created community channel at " + ch.getAsMention() + "!")))
             .queue();
     }
 
