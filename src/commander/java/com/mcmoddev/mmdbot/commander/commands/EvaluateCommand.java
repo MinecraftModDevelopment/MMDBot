@@ -138,7 +138,7 @@ public class EvaluateCommand extends SlashCommand {
             final var scriptInput = TextInput.create("script", "Script", TextInputStyle.PARAGRAPH)
                 .setRequired(true)
                 .setPlaceholder("The script to evaluate.")
-                .setRequiredRange(1, TextInput.TEXT_INPUT_MAX_LENGTH)
+                .setRequiredRange(1, TextInput.MAX_VALUE_LENGTH)
                 .build();
             final var modal = Modal.create(ModalListener.MODAL_ID, "Evaluate a script")
                 .addActionRow(scriptInput)

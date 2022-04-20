@@ -200,19 +200,19 @@ public class EmbedTrick implements Trick {
         private static final LazySupplier<List<ActionRow>> MODAL_ARGS = LazySupplier.of(() -> {
             final var names = TextInput.create("names", "Names", TextInputStyle.SHORT)
                 .setRequired(true)
-                .setRequiredRange(1, TextInput.TEXT_INPUT_MAX_LENGTH)
+                .setRequiredRange(1, TextInput.MAX_VALUE_LENGTH)
                 .setPlaceholder("Name(s) for the trick. Separate with spaces.")
                 .build();
 
             final var title = TextInput.create("title", "Title", TextInputStyle.SHORT)
                 .setRequired(true)
-                .setRequiredRange(1, TextInput.TEXT_INPUT_MAX_LENGTH)
+                .setRequiredRange(1, TextInput.MAX_VALUE_LENGTH)
                 .setPlaceholder("Title of the embed.")
                 .build();
 
             final var description = TextInput.create("description", "Description", TextInputStyle.PARAGRAPH)
                 .setRequired(true)
-                .setRequiredRange(1, TextInput.TEXT_INPUT_MAX_LENGTH)
+                .setRequiredRange(1, TextInput.MAX_VALUE_LENGTH)
                 .setPlaceholder("Description of the embed.")
                 .build();
 

@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.watcher.punishments;
 
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
@@ -57,7 +58,7 @@ public record Punishment(ActionType type, Duration duration) {
                     member.ban(0, reason)
                         .flatMap(o -> {
                             finalWhenDone.run();
-                            return member.getGuild().unban(memberId);
+                            return member.getGuild().unban(User.fromId(memberId));
                         })
                         .queueAfter(duration.toSeconds(), TimeUnit.MILLISECONDS);
                 }

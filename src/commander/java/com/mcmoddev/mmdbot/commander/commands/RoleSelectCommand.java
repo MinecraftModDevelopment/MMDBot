@@ -171,7 +171,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
 
         final var description = TextInput.create("description", "Description", TextInputStyle.PARAGRAPH)
             .setRequired(false)
-            .setMaxLength(Math.min(MessageEmbed.DESCRIPTION_MAX_LENGTH, TextInput.TEXT_INPUT_MAX_LENGTH))
+            .setMaxLength(Math.min(MessageEmbed.DESCRIPTION_MAX_LENGTH, TextInput.MAX_VALUE_LENGTH))
             .setPlaceholder("The description role panel to create.")
             .build();
 
@@ -188,7 +188,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
             )
             .build();
 
-        new ModalCallbackActionImpl(event.getHook(), modal).queue();
+        event.replyModal(modal).queue();
     }
 
     @Override

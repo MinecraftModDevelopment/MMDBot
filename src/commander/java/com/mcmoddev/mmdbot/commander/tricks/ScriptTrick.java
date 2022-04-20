@@ -87,13 +87,13 @@ public record ScriptTrick(List<String> names, String script) implements Trick {
         private static final LazySupplier<List<ActionRow>> MODAL_ARGS = LazySupplier.of(() -> {
             final var names = TextInput.create("names", "Names", TextInputStyle.SHORT)
                 .setRequired(true)
-                .setRequiredRange(1, TextInput.TEXT_INPUT_MAX_LENGTH)
+                .setRequiredRange(1, TextInput.MAX_VALUE_LENGTH)
                 .setPlaceholder("Name(s) for the trick. Separate with spaces.")
                 .build();
 
             final var script = TextInput.create("script", "Script", TextInputStyle.PARAGRAPH)
                 .setRequired(true)
-                .setRequiredRange(1, TextInput.TEXT_INPUT_MAX_LENGTH)
+                .setRequiredRange(1, TextInput.MAX_VALUE_LENGTH)
                 .setPlaceholder("The script of the trick.")
                 .build();
 

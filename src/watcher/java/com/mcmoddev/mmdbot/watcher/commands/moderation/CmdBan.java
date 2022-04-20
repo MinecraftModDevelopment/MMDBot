@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.watcher.commands.moderation;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.User;
 
 import java.util.EnumSet;
 import java.util.Locale;
@@ -104,7 +105,7 @@ public final class CmdBan extends Command {
                 }
 
                 if (time > 0) {
-                    event.getGuild().unban(member.getUser().getId()).queueAfter(time, unit);
+                    event.getGuild().unban(User.fromId(member.getUser().getIdLong())).queueAfter(time, unit);
                 }
 
                 final String timeString;

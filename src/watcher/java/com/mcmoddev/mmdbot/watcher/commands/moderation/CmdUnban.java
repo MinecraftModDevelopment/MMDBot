@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.watcher.commands.moderation;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.User;
 
 import java.util.EnumSet;
 
@@ -63,7 +64,7 @@ public final class CmdUnban extends Command {
     protected void execute(final CommandEvent event) {
         final var guild = event.getGuild();
         final var userId = event.getArgs().split(" ")[0];
-        guild.unban(userId)
+        guild.unban(User.fromId(userId))
             .flatMap($ -> event.getChannel().sendMessageFormat("Unbanned user <@%s>.", userId))
             .queue(null, e -> event.getChannel().sendMessageFormat("User with ID '%s' could not be found.", userId).queue());
     }
