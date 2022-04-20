@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.watcher.util;
 
 import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
+import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.watcher.TheWatcher;
 import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
 import net.dv8tion.jda.api.Permission;
@@ -54,18 +55,18 @@ public class Configuration {
         @Required
         @Setting("owners")
         @Comment("The Snowflake IDs of the owners of the bot.")
-        private List<String> owners = new ArrayList<>();
+        private List<SnowflakeValue> owners = new ArrayList<>();
 
-        public List<String> getOwners() {
+        public List<SnowflakeValue> getOwners() {
             return owners;
         }
 
         @Required
         @Setting("guild")
         @Comment("The main guild of the bot.")
-        private String guild = "";
+        private SnowflakeValue guild = SnowflakeValue.EMPTY;
 
-        public String guild() {
+        public SnowflakeValue guild() {
             return guild;
         }
 
@@ -100,9 +101,9 @@ public class Configuration {
         @Required
         @Setting("bot_maintainers")
         @Comment("A list of Snowflake IDs representing the roles which are bot maintainers.")
-        private List<String> botMaintainers = new ArrayList<>();
+        private List<SnowflakeValue> botMaintainers = new ArrayList<>();
 
-        public List<String> getBotMaintainers() {
+        public List<SnowflakeValue> getBotMaintainers() {
             return botMaintainers;
         }
     }

@@ -74,6 +74,7 @@ import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 import org.spongepowered.configurate.reference.ConfigurationReference;
+import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 import org.sqlite.SQLiteDataSource;
 
 import javax.security.auth.login.LoginException;
@@ -88,7 +89,13 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+@SuppressWarnings("unused")
 public final class TheWatcher implements Bot {
+    static final TypeSerializerCollection ADDED_SERIALIZERS = TypeSerializerCollection.defaults()
+        .childBuilder()
+        .register(Punishment.class, new Punishment.Serializer())
+        .register(SnowflakeValue.class, new SnowflakeValue.Serializer())
+        .build();
 
     public static final Logger LOGGER = LoggerFactory.getLogger("TheWatcher");
 
@@ -199,7 +206,7 @@ public final class TheWatcher implements Bot {
                 .emitComments(true)
                 .prettyPrinting(true)
                 .path(configPath)
-                .defaultOptions(opts -> opts.serializers(build -> build.register(Punishment.class, new Punishment.Serializer())))
+                .defaultOptions(ops -> ops.serializers(ADDED_SERIALIZERS))
                 .build();
             Objects.requireNonNull(loader.defaultOptions().serializers().get(Punishment.class));
             final var cPair =
@@ -250,8 +257,11 @@ public final class TheWatcher implements Bot {
         final var coOwners = config.bot().getOwners().subList(1, config.bot().getOwners().size());
 
         commandClient = new CommandClientBuilder()
-            .setOwnerId(config.bot().getOwners().get(0))
-            .setCoOwnerIds(coOwners.toArray(String[]::new))
+            .setOwnerId(config.bot().getOwners().get(0).asString())
+            .setCoOwnerIds(coOwners
+                .stream()
+                .map(SnowflakeValue::asString)
+                .toArray(String[]::new))
             .setPrefixes(config.bot().getPrefixes().toArray(String[]::new))
             .setManualUpsert(true)
             .useHelpBuilder(false)
@@ -262,7 +272,7 @@ public final class TheWatcher implements Bot {
         COMMANDS_LISTENER.addListener((EventListener) commandClient);
 
         final var upserter = new CommandUpserter(commandClient, config.bot().areCommandsForcedGuildOnly(),
-            SnowflakeValue.of(config.bot().guild()));
+            config.bot().guild());
         COMMANDS_LISTENER.addListener(upserter);
 
         // Buttons
@@ -278,9 +288,7 @@ public final class TheWatcher implements Bot {
                 .create(dotenv.get("BOT_TOKEN"), INTENTS)
                 .addEventListeners(listenerConsumer((ReadyEvent event) -> {
                     getLogger().warn("The Watcher is ready to work! Logged in as {}", event.getJDA().getSelfUser().getAsTag());
-                    Events.MISC_BUS.addListener(-1, (TaskScheduler.CollectTasksEvent ctEvent) -> {
-                        ctEvent.addTask(new TaskScheduler.Task(new ChannelMessageChecker(event.getJDA()), 0, 1, TimeUnit.DAYS));
-                    });
+                    Events.MISC_BUS.addListener(-1, (TaskScheduler.CollectTasksEvent ctEvent) -> ctEvent.addTask(new TaskScheduler.Task(new ChannelMessageChecker(event.getJDA()), 0, 1, TimeUnit.DAYS)));
                 }), COMMANDS_LISTENER, MISC_LISTENER, PUNISHABLE_ACTIONS_LISTENER)
                 .setActivity(Activity.of(oldConfig.getActivityType(), oldConfig.getActivityName()))
                 .disableCache(CacheFlag.CLIENT_STATUS)
@@ -343,7 +351,17 @@ public final class TheWatcher implements Bot {
     }
 
     public static boolean isBotMaintainer(final Member member) {
-        return member.getRoles().stream().anyMatch(r -> getInstance().getConfig().roles().getBotMaintainers().contains(r.getId()));
+        final var maintainers = getInstance().getConfig().roles().getBotMaintainers();
+        return member.getRoles()
+            .stream()
+            .anyMatch(r -> {
+                for (final var m : maintainers) {
+                    if (m.test(r)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
     }
 
     public static Jdbi database() {

@@ -26,7 +26,10 @@ import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.proxy.ProxyExecutable;
 import org.graalvm.polyglot.proxy.ProxyInstantiable;
 import org.graalvm.polyglot.proxy.ProxyObject;
+import org.graalvm.polyglot.proxy.ProxyTime;
 
+import java.time.LocalTime;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -82,6 +85,8 @@ public class ScriptingContext {
                 }
             }
             map.put(key, objects);
+        } else if (value instanceof LocalTime localTime) {
+            map.put(key, ProxyTime.from(localTime));
         } else {
             map.put(key, value);
         }

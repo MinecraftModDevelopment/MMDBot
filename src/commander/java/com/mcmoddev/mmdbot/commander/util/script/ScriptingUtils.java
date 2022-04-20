@@ -397,6 +397,7 @@ public final class ScriptingUtils {
             .setFunction("getGuild", args -> emote.getGuild() == null ? null : createGuild(emote.getGuild()));
     }
 
+    @SuppressWarnings("rawtypes")
     public static ProxyExecutable functionObject(Function<List<Value>, Object> function) {
         return new ScriptingContext.NameableProxyExecutable() {
 
