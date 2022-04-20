@@ -82,15 +82,3 @@ warning = 3
 
 # Threshold where the request is removed and the user is informed of its removal
 removal = 5
-
-# Configuration of community channels
-# This is used for the community channel creation command
-[community_channels]
-# The snowflake ID (or alias) of the channel category where new community channels are created under
-category = ""
-
-# The default permissions of channel owners in their new community channels
-# This can be either bitfield, or a list of strings of the names of permissions (see the Permission enum)
-# Note: the bot can only assign permissions to channel owners if the bot has those permissions
-# Example: ["Manage Messages", "MANAGE_PERMISSIONS"]
-owner_permissions = []

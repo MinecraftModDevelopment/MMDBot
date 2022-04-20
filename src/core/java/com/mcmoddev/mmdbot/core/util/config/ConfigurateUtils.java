@@ -18,8 +18,10 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.core.util;
+package com.mcmoddev.mmdbot.core.util.config;
 
+import com.mcmoddev.mmdbot.core.util.Constants;
+import com.mcmoddev.mmdbot.core.util.Pair;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.spongepowered.configurate.CommentedConfigurationNode;

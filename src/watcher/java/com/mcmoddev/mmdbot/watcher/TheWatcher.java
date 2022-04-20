@@ -30,16 +30,14 @@ import com.mcmoddev.mmdbot.core.commands.CommandUpserter;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.commands.component.DeferredComponentListenerRegistry;
 import com.mcmoddev.mmdbot.core.commands.component.storage.ComponentStorage;
-import com.mcmoddev.mmdbot.core.common.ScamDetector;
 import com.mcmoddev.mmdbot.core.event.Events;
-import com.mcmoddev.mmdbot.core.util.ConfigurateUtils;
+import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.util.event.ThreadedEventListener;
 import com.mcmoddev.mmdbot.watcher.commands.information.CmdInvite;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdBan;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdCommunityChannel;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdKick;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdMute;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdOldChannels;
@@ -257,7 +255,7 @@ public final class TheWatcher implements Bot {
             .setManualUpsert(true)
             .useHelpBuilder(false)
             .setActivity(null)
-            .addSlashCommands(new CmdMute(), new CmdUnmute(), new CmdOldChannels(), new CmdInvite(), new CmdCommunityChannel(), new CmdWarning())
+            .addSlashCommands(new CmdMute(), new CmdUnmute(), new CmdOldChannels(), new CmdInvite(), new CmdWarning())
             .addCommands(new CmdBan(), new CmdUnban(), new CmdReact(), new CmdKick())
             .build();
         COMMANDS_LISTENER.addListener((EventListener) commandClient);

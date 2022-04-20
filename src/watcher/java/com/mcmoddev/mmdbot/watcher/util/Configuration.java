@@ -20,7 +20,10 @@
  */
 package com.mcmoddev.mmdbot.watcher.util;
 
+import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
+import com.mcmoddev.mmdbot.watcher.TheWatcher;
 import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
+import net.dv8tion.jda.api.Permission;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.NodeKey;
@@ -29,6 +32,8 @@ import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 
 @ConfigSerializable
@@ -126,7 +131,22 @@ public class Configuration {
 
         @Required
         @Setting("scam_link")
-        public Punishment scamLink = new Punishment(Punishment.ActionType.KICK, null);
+        public Punishment scamLink = new Punishment(Punishment.ActionType.MUTE, Duration.ofDays(1));
+
+    }
+
+    @Required
+    @Setting("channels")
+    @Comment("Channels configuration")
+    private Channels channels = new Channels();
+    public Channels channels() {
+        return channels;
+    }
+
+    @ConfigSerializable
+    public static final class Channels {
+
+
 
     }
 }

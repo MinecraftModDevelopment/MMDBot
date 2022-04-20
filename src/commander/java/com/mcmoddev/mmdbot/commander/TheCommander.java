@@ -40,6 +40,8 @@ import com.mcmoddev.mmdbot.commander.commands.tricks.AddTrickCommand;
 import com.mcmoddev.mmdbot.commander.commands.tricks.EditTrickCommand;
 import com.mcmoddev.mmdbot.commander.commands.tricks.RunTrickCommand;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
+import com.mcmoddev.mmdbot.commander.config.GuildConfiguration;
+import com.mcmoddev.mmdbot.commander.config.PermissionList;
 import com.mcmoddev.mmdbot.commander.custompings.CustomPings;
 import com.mcmoddev.mmdbot.commander.custompings.CustomPingsListener;
 import com.mcmoddev.mmdbot.commander.docs.ConfigBasedElementLoader;
@@ -66,22 +68,26 @@ import com.mcmoddev.mmdbot.core.commands.component.ComponentManager;
 import com.mcmoddev.mmdbot.core.commands.component.DeferredComponentListenerRegistry;
 import com.mcmoddev.mmdbot.core.commands.component.storage.ComponentStorage;
 import com.mcmoddev.mmdbot.core.event.Events;
-import com.mcmoddev.mmdbot.core.util.ConfigurateUtils;
+import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
 import com.mcmoddev.mmdbot.core.util.MessageUtilities;
 import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.core.util.ReflectionsUtils;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.Utils;
+import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryUtils;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.util.event.OneTimeEventListener;
 import de.ialistannen.javadocapi.querying.FuzzyElementQuery;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
@@ -128,6 +134,8 @@ import java.util.function.Supplier;
 public final class TheCommander implements Bot {
     static final TypeSerializerCollection ADDED_SERIALIZERS = TypeSerializerCollection.defaults()
         .childBuilder()
+        .register(PermissionList.class, new PermissionList.Serializer())
+        .register(SnowflakeValue.class, new SnowflakeValue.Serializer())
         .build();
 
     public static final Logger LOGGER = LoggerFactory.getLogger("TheCommander");
@@ -256,6 +264,7 @@ public final class TheCommander implements Bot {
     private Configuration generalConfig;
     private final Dotenv dotenv;
     private final Path runPath;
+    private final Long2ObjectMap<GuildConfiguration> guildConfigs = new Long2ObjectOpenHashMap<>();
 
     private final String githubToken;
 
@@ -547,6 +556,25 @@ public final class TheCommander implements Bot {
 
     public String getGithubToken() {
         return githubToken;
+    }
+
+    public GuildConfiguration getConfigForGuild(long guildId) {
+        return guildConfigs.computeIfAbsent(guildId, io.github.matyrobbrt.curseforgeapi.util.Utils.rethrowFunction(id -> {
+            final var path = runPath.resolve("configs").resolve("guild").resolve(guildId + ".conf");
+            final HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
+                .emitComments(true)
+                .prettyPrinting(true)
+                .defaultOptions(ConfigurationOptions.defaults().serializers(ADDED_SERIALIZERS))
+                .path(path)
+                .build();
+            return ConfigurateUtils.loadConfig(loader, path, cfg -> guildConfigs.put(guildId, cfg), GuildConfiguration.class, GuildConfiguration.EMPTY)
+                .first()
+                .get();
+        }));
+    }
+
+    public GuildConfiguration getConfigForGuild(Guild guild) {
+        return getConfigForGuild(guild.getIdLong());
     }
 
     @SuppressWarnings("unchecked")

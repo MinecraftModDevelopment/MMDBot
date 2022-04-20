@@ -206,50 +206,6 @@ public final class BotConfig {
     }
 
     /**
-     * Returns the snowflake ID for the community channels category.
-     *
-     * @return The snowflake ID for the community channels category, or else {@code 0L}
-     */
-    public long getCommunityChannelCategory() {
-        return SafeIdUtil.safeConvert(getAliased("community_channels.category", getAliases()));
-    }
-
-    /**
-     * Gets community channel owner permissions.
-     *
-     * @return Set. community channel owner permissions
-     */
-    @SuppressWarnings("unchecked")
-    public Set<Permission> getCommunityChannelOwnerPermissions() {
-        if (!config.contains(References.COMMUNITY_CHANNEL_OWNER_PERMISSIONS)) {
-            return EnumSet.noneOf(Permission.class);
-        }
-        final Object obj = config.get(References.COMMUNITY_CHANNEL_OWNER_PERMISSIONS);
-        if (obj instanceof Number) {
-            return Permission.getPermissions(((Number) obj).longValue());
-        } else if (obj instanceof List) {
-            final List<String> permList = ((List<String>) obj);
-            final EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
-            outer:
-            for (final String perm : permList) {
-                for (final Permission permission : Permission.values()) {
-                    if (permission.getName().equals(perm) || permission.name().equals(perm)) {
-                        permissions.add(permission);
-                        continue outer;
-                    }
-                }
-                TheWatcher.LOGGER.warn("Unknown permission in \"{}\": '{}'",
-                    References.COMMUNITY_CHANNEL_OWNER_PERMISSIONS, perm);
-            }
-            return permissions;
-        }
-        TheWatcher.LOGGER.warn("Unknown format of \"{}\", resetting to blank list",
-            References.COMMUNITY_CHANNEL_OWNER_PERMISSIONS);
-        config.set(References.COMMUNITY_CHANNEL_OWNER_PERMISSIONS, Collections.emptyList());
-        return EnumSet.noneOf(Permission.class);
-    }
-
-    /**
      * Gets aliased snowflake list.
      *
      * @param path    the path

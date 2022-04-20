@@ -42,6 +42,8 @@ import java.util.stream.StreamSupport;
 /**
  * Scam detection system
  *
+ * TODO use a better way
+ *
  * @author matyrobbrt
  */
 @Slf4j
@@ -90,7 +92,8 @@ public class ScamDetector {
             final String result = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             SCAM_LINKS.clear();
             SCAM_LINKS.addAll(StreamSupport.stream(GSON.fromJson(result, JsonArray.class).spliterator(), false)
-                .map(JsonElement::getAsString).filter(s -> IGNORED.stream().noneMatch(s::contains)).toList());
+                .map(JsonElement::getAsString)
+                .filter(s -> !IGNORED.contains(s)).toList());
             return true;
         } catch (final IOException e) {
             log.error("Error while setting up scam links!", e);

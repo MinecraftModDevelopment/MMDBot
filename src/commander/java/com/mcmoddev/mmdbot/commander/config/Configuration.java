@@ -20,12 +20,15 @@
  */
 package com.mcmoddev.mmdbot.commander.config;
 
+import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
+import net.dv8tion.jda.api.Permission;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.Required;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 @SuppressWarnings("FieldMayBeFinal")
