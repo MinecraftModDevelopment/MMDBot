@@ -32,6 +32,7 @@ import com.mcmoddev.mmdbot.commander.quotes.UserReference;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.paginate.PaginatedCommand;
 import com.mcmoddev.mmdbot.core.commands.paginate.Paginator;
+import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -265,7 +266,11 @@ public class QuoteCommand extends SlashCommand {
             name = "remove";
             help = "Remove a quote from the list.";
             arguments = "<the quotes numerical ID>";
-            enabledRoles = TheCommander.getInstance().getGeneralConfig().roles().getBotMaintainers().toArray(String[]::new);
+            enabledRoles = TheCommander.getInstance().getGeneralConfig().roles()
+                .getBotMaintainers()
+                .stream()
+                .map(SnowflakeValue::asString)
+                .toArray(String[]::new);
             guildOnly = true;
 
             options = Collections.singletonList(new OptionData(OptionType.INTEGER, "index", "The index of the quote to delete.").setRequired(true));

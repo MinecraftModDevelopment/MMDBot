@@ -172,10 +172,12 @@ public final class Quotes {
 
         if (quotes.get(0L) != null) {
             // Migrate to the new guild-specific quotes
-            final var guildId = Long.parseLong(TheCommander.getInstance().getGeneralConfig().bot().guild());
-            final var oldQuotes = quotes.get(0L);
-            getQuotesForGuild(guildId).addAll(oldQuotes);
-            quotes.remove(0L);
+            final var guildId = TheCommander.getInstance().getGeneralConfig().bot().guild();
+            if (guildId != null) {
+                final var oldQuotes = quotes.get(0L);
+                guildId.resolve(Quotes::getQuotesForGuild).addAll(oldQuotes);
+                quotes.remove(0L);
+            }
         }
     }
 

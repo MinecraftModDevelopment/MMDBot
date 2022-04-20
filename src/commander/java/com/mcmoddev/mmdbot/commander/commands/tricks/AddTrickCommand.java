@@ -32,6 +32,7 @@ import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.event.customlog.TrickEvent;
 import com.mcmoddev.mmdbot.core.util.StringUtilities;
+import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.core.util.gist.GistUtils;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -60,7 +61,12 @@ import java.util.function.Supplier;
  */
 public final class AddTrickCommand extends SlashCommand {
 
-    public static final Supplier<String[]> BOT_MAINTAINERS_GETTER = () -> TheCommander.getInstance().getGeneralConfig().roles().getBotMaintainers().toArray(String[]::new);
+    public static final Supplier<String[]> BOT_MAINTAINERS_GETTER = () -> TheCommander.getInstance().getGeneralConfig()
+        .roles()
+        .getBotMaintainers()
+        .stream()
+        .map(SnowflakeValue::asString)
+        .toArray(String[]::new);
     public static final SubcommandGroupData GROUP = new SubcommandGroupData("add", "Adds a trick.");
 
     private final String trickTypeName;

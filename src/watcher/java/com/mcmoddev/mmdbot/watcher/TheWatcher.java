@@ -34,6 +34,7 @@ import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
+import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.util.event.ThreadedEventListener;
 import com.mcmoddev.mmdbot.watcher.commands.information.CmdInvite;
@@ -261,7 +262,7 @@ public final class TheWatcher implements Bot {
         COMMANDS_LISTENER.addListener((EventListener) commandClient);
 
         final var upserter = new CommandUpserter(commandClient, config.bot().areCommandsForcedGuildOnly(),
-            config.bot().guild());
+            SnowflakeValue.of(config.bot().guild()));
         COMMANDS_LISTENER.addListener(upserter);
 
         // Buttons

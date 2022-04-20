@@ -24,6 +24,7 @@ import com.mcmoddev.mmdbot.commander.TheCommander;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -72,7 +73,7 @@ public final class MinecraftUpdateNotifier implements Runnable {
             LOGGER.info(MARKER, "New Minecraft release found, from {} to {}", lastLatest, latest);
 
             TheCommander.getInstance().getGeneralConfig().channels().updateNotifiers().minecraft().forEach(chId -> {
-                final var channel = TheCommander.getJDA().getChannelById(MessageChannel.class, chId);
+                final var channel = chId.resolve(id -> TheCommander.getJDA().getChannelById(TextChannel.class, id));
                 if (channel != null) {
                     final var embed = new EmbedBuilder();
                     embed.setTitle("New Minecraft release available!");
@@ -90,7 +91,7 @@ public final class MinecraftUpdateNotifier implements Runnable {
             LOGGER.info(MARKER, "New Minecraft snapshot found, from {} to {}", lastLatest, latest);
 
             TheCommander.getInstance().getGeneralConfig().channels().updateNotifiers().minecraft().forEach(chId -> {
-                final var channel = TheCommander.getJDA().getChannelById(MessageChannel.class, chId);
+                final var channel = chId.resolve(id -> TheCommander.getJDA().getChannelById(TextChannel.class, id));
                 if (channel != null) {
                     final var embed = new EmbedBuilder();
                     embed.setTitle("New Minecraft snapshot available!");

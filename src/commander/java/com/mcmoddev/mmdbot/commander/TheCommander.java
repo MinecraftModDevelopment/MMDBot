@@ -338,10 +338,14 @@ public final class TheCommander implements Bot {
             LOGGER.warn("Please provide at least one bot owner!");
             throw new RuntimeException();
         }
-        final var coOwners = generalConfig.bot().getOwners().subList(1, generalConfig.bot().getOwners().size());
+        final var coOwners = generalConfig.bot().getOwners()
+            .subList(1, generalConfig.bot().getOwners().size())
+            .stream()
+            .map(SnowflakeValue::asString)
+            .toList();
 
         commandClient = new CommandClientBuilder()
-            .setOwnerId(generalConfig.bot().getOwners().get(0))
+            .setOwnerId(generalConfig.bot().getOwners().get(0).asString())
             .setCoOwnerIds(coOwners.toArray(String[]::new))
             .setPrefixes(generalConfig.bot().getPrefixes().toArray(String[]::new))
             .addCommands(new GistCommand(), EvaluateCommand.COMMAND)

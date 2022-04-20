@@ -67,7 +67,7 @@ public class ServerCommands {
             embed.setTimestamp(Instant.now());
 
             if (event.isFromGuild() && TheCommanderUtilities.memberHasRoles(event.getMember(),
-                TheCommander.getInstance().getGeneralConfig().roles().getBotMaintainers().toArray(String[]::new))) {
+                TheCommander.getInstance().getGeneralConfig().roles().getBotMaintainers())) {
                 event.deferReply(false).queue(hook -> {
                     event.getGuild().retrieveCommands().queue(commands -> {
                         embed.addField("Guild registered commands", String.valueOf(commands.size()), false);

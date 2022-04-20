@@ -24,6 +24,7 @@ import com.mcmoddev.mmdbot.commander.TheCommander;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -67,7 +68,7 @@ public final class FabricApiUpdateNotifier implements Runnable {
             lastLatest = latest;
 
             TheCommander.getInstance().getGeneralConfig().channels().updateNotifiers().fabric().forEach(chId -> {
-                final var channel = TheCommander.getJDA().getChannelById(MessageChannel.class, chId);
+                final var channel = chId.resolve(id -> TheCommander.getJDA().getChannelById(TextChannel.class, id));
                 if (channel != null) {
                     final var embed = new EmbedBuilder();
                     embed.setTitle("New Fabric API release available!");

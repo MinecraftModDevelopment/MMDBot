@@ -25,6 +25,7 @@ import com.jagrosh.jdautilities.command.ContextMenu;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.core.util.EmptyRestAction;
 import com.mcmoddev.mmdbot.core.util.Pair;
+import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import lombok.NonNull;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
@@ -59,7 +60,7 @@ public class CommandUpserter implements EventListener {
     private final CommandClient client;
     private final boolean forceGuild;
     @Nullable
-    private final String guildId;
+    private final SnowflakeValue guildId;
     private final Collection<Permission> invitePermissions;
 
     /**
@@ -71,7 +72,7 @@ public class CommandUpserter implements EventListener {
      * @param forceGuild if commands should be forced to be guild-only
      * @param guildId    the ID of the guild commands should be upserted to
      */
-    public CommandUpserter(final CommandClient client, final boolean forceGuild, final @Nullable String guildId) {
+    public CommandUpserter(final CommandClient client, final boolean forceGuild, final @Nullable SnowflakeValue guildId) {
         this.client = client;
         this.forceGuild = forceGuild;
         this.guildId = guildId;
@@ -88,7 +89,7 @@ public class CommandUpserter implements EventListener {
      * @param guildId           the ID of the guild commands should be upserted to
      * @param invitePermissions a list of permissions the bot needs. This list will be used for generating an invite URL if the bot doesn't have the required scope in the forced guild.
      */
-    public CommandUpserter(final CommandClient client, final boolean forceGuild, final @Nullable String guildId, final @NonNull Collection<Permission> invitePermissions) {
+    public CommandUpserter(final CommandClient client, final boolean forceGuild, final @Nullable SnowflakeValue guildId, final @NonNull Collection<Permission> invitePermissions) {
         this.client = client;
         this.forceGuild = forceGuild;
         this.guildId = guildId;
@@ -109,7 +110,7 @@ public class CommandUpserter implements EventListener {
      */
     public void upsertCommands(@NonNull final JDA jda) {
         if (forceGuild) {
-            final var guild = jda.getGuildById(Objects.requireNonNull(guildId));
+            final var guild = Objects.requireNonNull(guildId).resolve(jda::getGuildById);
             if (guild == null) throw new NullPointerException("Unknown guild with ID: " + guildId);
             guild.retrieveCommands().queue(commands -> {
                 // Delete old commands.
@@ -137,7 +138,7 @@ public class CommandUpserter implements EventListener {
             });
         } else {
             if (guildId != null) {
-                final var guild = jda.getGuildById(Objects.requireNonNull(guildId));
+                final var guild = guildId.resolve(jda::getGuildById);
                 if (guild != null) {
                     // Guild still specified? Then remove guild commands
                     guild.retrieveCommands()

@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.core.util.config;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
@@ -28,19 +29,65 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.lang.reflect.Type;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
-public interface SnowflakeValue {
+/**
+ * Represents the ID of a snowflake entity.
+ */
+public interface SnowflakeValue extends Predicate<ISnowflake> {
+
+    /**
+     * The empty snowflake ID. Has the value of 0.
+     */
     SnowflakeValue EMPTY = of(0L);
 
+    /**
+     * Resolves this snowflake using the specified {@code function}
+     * that will take its ID, as a long value, as the input parameter.
+     *
+     * @param function the function that will resolve the snowflake
+     * @param <T>      the type of the resolved snowflake
+     * @return the resolved snowflake
+     */
     <T> T resolve(Long2ObjectFunction<? extends T> function);
+
+    /**
+     * Resolves this snowflake using the specified {@code function}
+     * that will take its ID, as a string value, as the input parameter.
+     *
+     * @param function the function that will resolve the snowflake
+     * @param <T>      the type of the resolved snowflake
+     * @return the resolved snowflake
+     */
     <T> T resolveAsString(Function<? super String, ? extends T> function);
 
+    /**
+     * Gets this snowflake ID as a string.
+     *
+     * @return the ID as a string
+     */
     String asString();
+
+    /**
+     * Gets this snowflake ID as a long value.
+     *
+     * @return the ID as a long value
+     */
     long asLong();
+
+    /**
+     * Tests the ID of this snowflake against the {@code snowflake}'s ID.
+     *
+     * @param snowflake the snowflake whose ID to test
+     * @return if the ID matches
+     */
+    @Override
+    boolean test(ISnowflake snowflake);
 
     static SnowflakeValue of(String id) {
         return new SnowflakeValue() {
             final long asLong = safeConvert(id);
+
             @Override
             public <T> T resolve(final Long2ObjectFunction<? extends T> function) {
                 return function.apply(asLong);
@@ -60,12 +107,18 @@ public interface SnowflakeValue {
             public String asString() {
                 return id;
             }
+
+            @Override
+            public boolean test(final ISnowflake snowflake) {
+                return snowflake.getId().equals(id);
+            }
         };
     }
 
     static SnowflakeValue of(long id) {
         return new SnowflakeValue() {
             final String asStr = String.valueOf(id);
+
             @Override
             public <T> T resolve(final Long2ObjectFunction<? extends T> function) {
                 return function.apply(id);
@@ -84,6 +137,11 @@ public interface SnowflakeValue {
             @Override
             public long asLong() {
                 return id;
+            }
+
+            @Override
+            public boolean test(final ISnowflake snowflake) {
+                return snowflake.getIdLong() == id;
             }
         };
     }
