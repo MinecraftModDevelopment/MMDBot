@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -27,15 +27,37 @@ import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import com.mcmoddev.mmdbot.core.commands.CommandUpserter;
-import com.mcmoddev.mmdbot.core.util.ConfigurateUtils;
+import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
+import com.mcmoddev.mmdbot.core.commands.component.DeferredComponentListenerRegistry;
+import com.mcmoddev.mmdbot.core.commands.component.storage.ComponentStorage;
+import com.mcmoddev.mmdbot.core.event.Events;
+import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
+import com.mcmoddev.mmdbot.core.util.TaskScheduler;
+import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.util.event.ThreadedEventListener;
+import com.mcmoddev.mmdbot.watcher.commands.information.CmdInvite;
+import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdBan;
+import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdKick;
+import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdMute;
+import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdOldChannels;
+import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdReact;
+import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdUnban;
+import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdUnmute;
+import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdWarning;
+import com.mcmoddev.mmdbot.watcher.event.EventReactionAdded;
+import com.mcmoddev.mmdbot.watcher.punishments.PunishableActions;
+import com.mcmoddev.mmdbot.watcher.util.BotConfig;
 import com.mcmoddev.mmdbot.watcher.util.Configuration;
+import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
+import com.mcmoddev.mmdbot.watcher.util.oldchannels.ChannelMessageChecker;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.util.Utils;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -59,6 +81,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -104,6 +127,18 @@ public final class TheWatcher implements Bot {
         poll.allowCoreThreadTimeOut(true);
         return new ThreadedEventListener(poll);
     });
+    public static final ThreadedEventListener MISC_LISTENER = Utils.makeWithSupplier(() -> {
+        final var poll = (ThreadPoolExecutor) Executors.newFixedThreadPool(1, r ->
+            com.mcmoddev.mmdbot.core.util.Utils.setThreadDaemon(new Thread(THREAD_GROUP, r, "MiscEventsListener"),
+                true));
+        poll.setKeepAliveTime(30, TimeUnit.MINUTES);
+        poll.allowCoreThreadTimeOut(true);
+        return new ThreadedEventListener(poll);
+    });
+    public static final ThreadedEventListener PUNISHABLE_ACTIONS_LISTENER = new ThreadedEventListener(
+        Executors.newFixedThreadPool(2, r -> com.mcmoddev.mmdbot.core.util.Utils.setThreadDaemon(new Thread(TheWatcher.THREAD_GROUP, r, "PunishableActions"), true)),
+        PunishableActions.values()
+    );
 
     private static final Set<GatewayIntent> INTENTS = Set.of(
         GatewayIntent.DIRECT_MESSAGES,
@@ -121,6 +156,11 @@ public final class TheWatcher implements Bot {
         AllowedMentions.setDefaultMentionRepliedUser(false);
     }
 
+    private static final DeferredComponentListenerRegistry LISTENER_REGISTRY = new DeferredComponentListenerRegistry();
+
+    public static ComponentListener.Builder getComponentListener(final String featureId) {
+        return LISTENER_REGISTRY.createListener(featureId);
+    }
     /**
      * The instance.
      */
@@ -138,6 +178,7 @@ public final class TheWatcher implements Bot {
     private Jdbi jdbi;
     private CommandClient commandClient;
     private Configuration config;
+    private BotConfig oldConfig;
     private ConfigurationReference<CommentedConfigurationNode> configRef;
     private final Dotenv dotenv;
     private final Path runPath;
@@ -150,6 +191,7 @@ public final class TheWatcher implements Bot {
     @Override
     public void start() {
         instance = this;
+        oldConfig = new BotConfig(runPath.resolve("old_config.toml"));
 
         try {
             final var configPath = runPath.resolve("config.conf");
@@ -157,7 +199,9 @@ public final class TheWatcher implements Bot {
                 .emitComments(true)
                 .prettyPrinting(true)
                 .path(configPath)
+                .defaultOptions(opts -> opts.serializers(build -> build.register(Punishment.class, new Punishment.Serializer())))
                 .build();
+            Objects.requireNonNull(loader.defaultOptions().serializers().get(Punishment.class));
             final var cPair =
                 ConfigurateUtils.loadConfig(loader, configPath, c -> config = c, Configuration.class, Configuration.EMPTY);
             configRef = cPair.second();
@@ -192,9 +236,16 @@ public final class TheWatcher implements Bot {
             jdbi = Jdbi.create(dataSource);
         }
 
+        // Setup components
+        {
+            final var storage = ComponentStorage.sql(jdbi, "components");
+            final var componentManager = LISTENER_REGISTRY.createManager(storage);
+            COMMANDS_LISTENER.addListener(componentManager);
+        }
+
         if (config.bot().getOwners().isEmpty()) {
             LOGGER.warn("Please provide at least one bot owner!");
-            throw new RuntimeException();
+            throw new RuntimeException("Please provide at least one bot owner!");
         }
         final var coOwners = config.bot().getOwners().subList(1, config.bot().getOwners().size());
 
@@ -205,15 +256,19 @@ public final class TheWatcher implements Bot {
             .setManualUpsert(true)
             .useHelpBuilder(false)
             .setActivity(null)
+            .addSlashCommands(new CmdMute(), new CmdUnmute(), new CmdOldChannels(), new CmdInvite(), new CmdWarning())
+            .addCommands(new CmdBan(), new CmdUnban(), new CmdReact(), new CmdKick())
             .build();
         COMMANDS_LISTENER.addListener((EventListener) commandClient);
 
         final var upserter = new CommandUpserter(commandClient, config.bot().areCommandsForcedGuildOnly(),
-            config.bot().guild());
+            SnowflakeValue.of(config.bot().guild()));
         COMMANDS_LISTENER.addListener(upserter);
 
         // Buttons
         COMMANDS_LISTENER.addListener(new DismissListener());
+
+        MISC_LISTENER.addListeners(new EventReactionAdded());
 
         MessageAction.setDefaultMentionRepliedUser(false);
         MessageAction.setDefaultMentions(DEFAULT_MENTIONS);
@@ -221,9 +276,13 @@ public final class TheWatcher implements Bot {
         try {
             final var builder = JDABuilder
                 .create(dotenv.get("BOT_TOKEN"), INTENTS)
-                .addEventListeners(listenerConsumer((ReadyEvent event) ->
-                    getLogger().warn("The Watcher is ready to work! Logged in as {}", event.getJDA().getSelfUser().getAsTag())
-                ), COMMANDS_LISTENER)
+                .addEventListeners(listenerConsumer((ReadyEvent event) -> {
+                    getLogger().warn("The Watcher is ready to work! Logged in as {}", event.getJDA().getSelfUser().getAsTag());
+                    Events.MISC_BUS.addListener(-1, (TaskScheduler.CollectTasksEvent ctEvent) -> {
+                        ctEvent.addTask(new TaskScheduler.Task(new ChannelMessageChecker(event.getJDA()), 0, 1, TimeUnit.DAYS));
+                    });
+                }), COMMANDS_LISTENER, MISC_LISTENER, PUNISHABLE_ACTIONS_LISTENER)
+                .setActivity(Activity.of(oldConfig.getActivityType(), oldConfig.getActivityName()))
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
                 .disableCache(CacheFlag.VOICE_STATE)
@@ -281,5 +340,17 @@ public final class TheWatcher implements Bot {
                 listener.accept((E) event);
             }
         };
+    }
+
+    public static boolean isBotMaintainer(final Member member) {
+        return member.getRoles().stream().anyMatch(r -> getInstance().getConfig().roles().getBotMaintainers().contains(r.getId()));
+    }
+
+    public static Jdbi database() {
+        return getInstance().getJdbi();
+    }
+
+    public static BotConfig getOldConfig() {
+        return getInstance().oldConfig;
     }
 }

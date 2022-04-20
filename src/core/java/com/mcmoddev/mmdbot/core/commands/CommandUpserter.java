@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -25,6 +25,7 @@ import com.jagrosh.jdautilities.command.ContextMenu;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.core.util.EmptyRestAction;
 import com.mcmoddev.mmdbot.core.util.Pair;
+import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import lombok.NonNull;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
@@ -59,7 +60,7 @@ public class CommandUpserter implements EventListener {
     private final CommandClient client;
     private final boolean forceGuild;
     @Nullable
-    private final String guildId;
+    private final SnowflakeValue guildId;
     private final Collection<Permission> invitePermissions;
 
     /**
@@ -71,7 +72,7 @@ public class CommandUpserter implements EventListener {
      * @param forceGuild if commands should be forced to be guild-only
      * @param guildId    the ID of the guild commands should be upserted to
      */
-    public CommandUpserter(final CommandClient client, final boolean forceGuild, final @Nullable String guildId) {
+    public CommandUpserter(final CommandClient client, final boolean forceGuild, final @Nullable SnowflakeValue guildId) {
         this.client = client;
         this.forceGuild = forceGuild;
         this.guildId = guildId;
@@ -83,12 +84,12 @@ public class CommandUpserter implements EventListener {
      * If {@code forceGuild} is false, but a guild ID is still specified,
      * all the commands from that guild will be removed.
      *
-     * @param client     the client that contains the command to upsert
-     * @param forceGuild if commands should be forced to be guild-only
-     * @param guildId    the ID of the guild commands should be upserted to
+     * @param client            the client that contains the command to upsert
+     * @param forceGuild        if commands should be forced to be guild-only
+     * @param guildId           the ID of the guild commands should be upserted to
      * @param invitePermissions a list of permissions the bot needs. This list will be used for generating an invite URL if the bot doesn't have the required scope in the forced guild.
      */
-    public CommandUpserter(final CommandClient client, final boolean forceGuild, final @Nullable String guildId, final @NonNull Collection<Permission> invitePermissions) {
+    public CommandUpserter(final CommandClient client, final boolean forceGuild, final @Nullable SnowflakeValue guildId, final @NonNull Collection<Permission> invitePermissions) {
         this.client = client;
         this.forceGuild = forceGuild;
         this.guildId = guildId;
@@ -109,7 +110,7 @@ public class CommandUpserter implements EventListener {
      */
     public void upsertCommands(@NonNull final JDA jda) {
         if (forceGuild) {
-            final var guild = jda.getGuildById(Objects.requireNonNull(guildId));
+            final var guild = Objects.requireNonNull(guildId).resolve(jda::getGuildById);
             if (guild == null) throw new NullPointerException("Unknown guild with ID: " + guildId);
             guild.retrieveCommands().queue(commands -> {
                 // Delete old commands.
@@ -137,7 +138,7 @@ public class CommandUpserter implements EventListener {
             });
         } else {
             if (guildId != null) {
-                final var guild = jda.getGuildById(Objects.requireNonNull(guildId));
+                final var guild = guildId.resolve(jda::getGuildById);
                 if (guild != null) {
                     // Guild still specified? Then remove guild commands
                     guild.retrieveCommands()
@@ -188,12 +189,12 @@ public class CommandUpserter implements EventListener {
                     A direct message with a valid invite URL will be sent to the guild owner.
                     I will now leave this guild."""))
                 .map(action -> action.flatMap($ -> guild.retrieveOwner()))
-                    .map(action -> action.flatMap(m -> m.getUser().openPrivateChannel()))
-                    .map(action -> action.flatMap(dm -> dm.sendMessage("""
-                        I could not register guild-forced commands in the server you own, %s.
-                        Below is an invite URL that invites the bot with the required scopes:
-                        %s"""
-                        .formatted(guild.getName(), guild.getJDA().getInviteUrl(invitePermissions)))))
+                .map(action -> action.flatMap(m -> m.getUser().openPrivateChannel()))
+                .map(action -> action.flatMap(dm -> dm.sendMessage("""
+                    I could not register guild-forced commands in the server you own, %s.
+                    Below is an invite URL that invites the bot with the required scopes:
+                    %s"""
+                    .formatted(guild.getName(), guild.getJDA().getInviteUrl(invitePermissions)))))
                 .map(action -> action.flatMap($ -> guild.leave()))
                 .ifPresent(action -> action.queue(null, new ErrorHandler().ignore(ErrorResponse.CANNOT_SEND_TO_USER)));
 

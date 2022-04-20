@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -32,6 +32,7 @@ import org.sqlite.SQLiteDataSource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,17 +41,18 @@ public class ComponentsTest {
 
     @Test
     void testFeatureIdIsSame() {
+        final var featureId = "feature_id_is_same";
         final var id = UUID.randomUUID();
-        storage.insertComponent(new Component("test_feature", id, List.of("hi")));
+        storage.insertComponent(new Component(featureId, id, List.of("hi")));
         final var newComponent = storage.getComponent(id);
         assert newComponent.isPresent();
-        Assertions.assertEquals(newComponent.get().featureId(), "test_feature");
+        Assertions.assertEquals(newComponent.get().featureId(), featureId);
     }
 
     @Test
     void testUpdateArgsWorks() {
         final var id = UUID.randomUUID();
-        storage.insertComponent(new Component("feature", id, List.of("12")));
+        storage.insertComponent(new Component("update_args_works", id, List.of("12")));
         final var newArgs = List.of("hello");
         storage.updateArguments(id, newArgs);
         final var newComponent = storage.getComponent(id);
@@ -75,6 +77,9 @@ public class ComponentsTest {
         flyway.migrate();
 
         storage = ComponentStorage.sql(Jdbi.create(dataSource), "components");
+
+        // Clear old components
+        storage.removeComponentsLastUsedBefore(Instant.now());
     }
 
 }

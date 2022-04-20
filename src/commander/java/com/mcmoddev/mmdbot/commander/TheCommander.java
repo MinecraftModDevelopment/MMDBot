@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,14 +20,18 @@
  */
 package com.mcmoddev.mmdbot.commander;
 
+import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.CommandListener;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
 import com.mcmoddev.mmdbot.commander.commands.EvaluateCommand;
 import com.mcmoddev.mmdbot.commander.commands.GistCommand;
+import com.mcmoddev.mmdbot.commander.commands.RoleSelectCommand;
 import com.mcmoddev.mmdbot.commander.commands.curseforge.CurseForgeCommand;
 import com.mcmoddev.mmdbot.commander.commands.menu.message.AddQuoteContextMenu;
 import com.mcmoddev.mmdbot.commander.commands.menu.message.GistContextMenu;
@@ -36,11 +40,12 @@ import com.mcmoddev.mmdbot.commander.commands.tricks.AddTrickCommand;
 import com.mcmoddev.mmdbot.commander.commands.tricks.EditTrickCommand;
 import com.mcmoddev.mmdbot.commander.commands.tricks.RunTrickCommand;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
+import com.mcmoddev.mmdbot.commander.config.GuildConfiguration;
+import com.mcmoddev.mmdbot.commander.config.PermissionList;
 import com.mcmoddev.mmdbot.commander.custompings.CustomPings;
 import com.mcmoddev.mmdbot.commander.custompings.CustomPingsListener;
 import com.mcmoddev.mmdbot.commander.docs.ConfigBasedElementLoader;
 import com.mcmoddev.mmdbot.commander.docs.DocsCommand;
-import com.mcmoddev.mmdbot.commander.docs.DocsConfig;
 import com.mcmoddev.mmdbot.commander.docs.NormalDocsSender;
 import com.mcmoddev.mmdbot.commander.eventlistener.ReferencingListener;
 import com.mcmoddev.mmdbot.commander.eventlistener.ThreadListener;
@@ -63,22 +68,26 @@ import com.mcmoddev.mmdbot.core.commands.component.ComponentManager;
 import com.mcmoddev.mmdbot.core.commands.component.DeferredComponentListenerRegistry;
 import com.mcmoddev.mmdbot.core.commands.component.storage.ComponentStorage;
 import com.mcmoddev.mmdbot.core.event.Events;
-import com.mcmoddev.mmdbot.core.util.ConfigurateUtils;
+import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
 import com.mcmoddev.mmdbot.core.util.MessageUtilities;
 import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.core.util.ReflectionsUtils;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.Utils;
+import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryUtils;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.util.event.OneTimeEventListener;
 import de.ialistannen.javadocapi.querying.FuzzyElementQuery;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
@@ -125,6 +134,8 @@ import java.util.function.Supplier;
 public final class TheCommander implements Bot {
     static final TypeSerializerCollection ADDED_SERIALIZERS = TypeSerializerCollection.defaults()
         .childBuilder()
+        .register(PermissionList.class, new PermissionList.Serializer())
+        .register(SnowflakeValue.class, new SnowflakeValue.Serializer())
         .build();
 
     public static final Logger LOGGER = LoggerFactory.getLogger("TheCommander");
@@ -185,6 +196,8 @@ public final class TheCommander implements Bot {
         Permission.MANAGE_ROLES
     );
 
+    private static final String COMMAND_RECEIVED = "☑️";
+
     /**
      * The instance.
      */
@@ -228,6 +241,7 @@ public final class TheCommander implements Bot {
     }
 
     private static final DeferredComponentListenerRegistry LISTENER_REGISTRY = new DeferredComponentListenerRegistry();
+
     public static ComponentListener.Builder getComponentListener(final String featureId) {
         return LISTENER_REGISTRY.createListener(featureId);
     }
@@ -250,6 +264,7 @@ public final class TheCommander implements Bot {
     private Configuration generalConfig;
     private final Dotenv dotenv;
     private final Path runPath;
+    private final Long2ObjectMap<GuildConfiguration> guildConfigs = new Long2ObjectOpenHashMap<>();
 
     private final String githubToken;
 
@@ -323,10 +338,14 @@ public final class TheCommander implements Bot {
             LOGGER.warn("Please provide at least one bot owner!");
             throw new RuntimeException();
         }
-        final var coOwners = generalConfig.bot().getOwners().subList(1, generalConfig.bot().getOwners().size());
+        final var coOwners = generalConfig.bot().getOwners()
+            .subList(1, generalConfig.bot().getOwners().size())
+            .stream()
+            .map(SnowflakeValue::asString)
+            .toList();
 
         commandClient = new CommandClientBuilder()
-            .setOwnerId(generalConfig.bot().getOwners().get(0))
+            .setOwnerId(generalConfig.bot().getOwners().get(0).asString())
             .setCoOwnerIds(coOwners.toArray(String[]::new))
             .setPrefixes(generalConfig.bot().getPrefixes().toArray(String[]::new))
             .addCommands(new GistCommand(), EvaluateCommand.COMMAND)
@@ -334,6 +353,13 @@ public final class TheCommander implements Bot {
             .setManualUpsert(true)
             .useHelpBuilder(false)
             .setActivity(null)
+            .setGuildSettingsManager(new GuildConfiguration.SettingManager(this::getConfigForGuild))
+            .setListener(new CommandListener() {
+                @Override
+                public void onCommand(final CommandEvent event, final Command command) {
+                    event.getMessage().addReaction(COMMAND_RECEIVED).queue();
+                }
+            })
             .build();
         EventListeners.COMMANDS_LISTENER.addListener((EventListener) commandClient);
 
@@ -407,7 +433,7 @@ public final class TheCommander implements Bot {
         }
 
         // Button listeners
-        EventListeners.COMMANDS_LISTENER.addListeners(new DismissListener());
+        EventListeners.COMMANDS_LISTENER.addListeners(new DismissListener(), RoleSelectCommand.COMMAND);
 
         if (generalConfig.features().isReferencingEnabled()) {
             EventListeners.MISC_LISTENER.addListener(new ReferencingListener());
@@ -535,6 +561,25 @@ public final class TheCommander implements Bot {
 
     public String getGithubToken() {
         return githubToken;
+    }
+
+    public GuildConfiguration getConfigForGuild(long guildId) {
+        return guildConfigs.computeIfAbsent(guildId, io.github.matyrobbrt.curseforgeapi.util.Utils.rethrowFunction(id -> {
+            final var path = runPath.resolve("configs").resolve("guild").resolve(guildId + ".conf");
+            final HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
+                .emitComments(true)
+                .prettyPrinting(true)
+                .defaultOptions(ConfigurationOptions.defaults().serializers(ADDED_SERIALIZERS))
+                .path(path)
+                .build();
+            return ConfigurateUtils.loadConfig(loader, path, cfg -> guildConfigs.put(guildId, cfg), GuildConfiguration.class, GuildConfiguration.EMPTY)
+                .first()
+                .get();
+        }));
+    }
+
+    public GuildConfiguration getConfigForGuild(Guild guild) {
+        return getConfigForGuild(guild.getIdLong());
     }
 
     @SuppressWarnings("unchecked")

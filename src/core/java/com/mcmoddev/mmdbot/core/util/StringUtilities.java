@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -35,14 +35,14 @@ public class StringUtilities {
 
     /**
      * Computes the candidate that matches the given query string best.
-     *
+     * <p>
      * It is given that, if the candidates contain the query literally, the query will also be the
      * returned match. If the candidates do not contain the query literally, the best match will be
      * determined. The measures for this are unspecified.
      *
-     * @param query the query string to find a match for
+     * @param query      the query string to find a match for
      * @param candidates the stream of candidates to select a match from
-     * @param <S> the type of the candidates
+     * @param <S>        the type of the candidates
      * @return the best matching candidate, or empty iff the candidates are empty
      */
     public static <S extends CharSequence> Optional<S> closestMatch(@NonNull CharSequence query,
@@ -53,10 +53,10 @@ public class StringUtilities {
 
     /**
      * Distance to receive {@code destination} from {@code source} by editing.
-     *
+     * <p>
      * For example {@code editDistance("hello", "hallo")} is {@code 1}.
      *
-     * @param source the source string to start with
+     * @param source      the source string to start with
      * @param destination the destination string to receive by editing the source
      * @return the edit distance
      */
@@ -72,10 +72,10 @@ public class StringUtilities {
     /**
      * Distance to receive a prefix of {@code destination} from {@code source} by editing that
      * minimizes the distance.
-     *
+     * <p>
      * For example {@code prefixEditDistance("foa", "foobar")} is {@code 1}.
      *
-     * @param source the source string to start with
+     * @param source      the source string to start with
      * @param destination the destination string to receive a prefix of by editing the source
      * @return the prefix edit distance
      */
@@ -91,7 +91,7 @@ public class StringUtilities {
      * Computes the Levenshtein distance table for the given strings. See
      * <a href="https://en.wikipedia.org/wiki/Levenshtein_distance">Levenshtein distance</a> for
      * details.
-     *
+     * <p>
      * An example for {@code "abc"} to {@code "abcdefg"} would be:
      *
      * <pre>
@@ -103,7 +103,7 @@ public class StringUtilities {
      * c | 3 2 1 0 1 2 3 4
      * </pre>
      *
-     * @param source the source string to start with
+     * @param source      the source string to start with
      * @param destination the destination string to receive by editing the source
      * @return the levenshtein distance table
      */
@@ -146,4 +146,28 @@ public class StringUtilities {
         return string.substring(0, 1).toUpperCase(Locale.ROOT) + string.substring(1);
     }
 
+    /**
+     * Checks if a word starts with a vowel.
+     *
+     * @param word the word to check
+     * @return if the word starts with a vowel
+     */
+    public static boolean startWithVowel(String word) {
+        if (word.length() < 1) return false;
+        switch (word.charAt(0)) {
+            case 'a':
+            case 'e':
+            case 'i':
+            case 'o':
+            case 'u':
+            case 'A':
+            case 'E':
+            case 'I':
+            case 'O':
+            case 'U':
+                return true;
+            default:
+                return false;
+        }
+    }
 }

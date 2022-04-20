@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,7 +23,6 @@ package com.mcmoddev.mmdbot.commander.docs;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.context.ButtonInteractionContext;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
-import net.dv8tion.jda.api.MessageBuilder;
 
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -136,8 +135,8 @@ public enum DocsButtonType {
             true,
             false,
             () -> context.getEvent().getHook()
-                    .editOriginal("Query has no result.")
-                    .setActionRow(DismissListener.createDismissButton())
+                .editOriginal("Query has no result.")
+                .setActionRow(DismissListener.createDismissButton())
                 .queue());
     });
 

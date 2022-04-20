@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -236,8 +236,8 @@ public class DocsCommand extends SlashCommand {
             );
         } else {
             replier.apply(new MessageBuilder("Multiple results have been found for this qualified name.")
-                    .setActionRows(ActionRow.of(DismissListener.createDismissButton(userId)))
-                    .build(), List.of()).queue();
+                .setActionRows(ActionRow.of(DismissListener.createDismissButton(userId)))
+                .build(), List.of()).queue();
         }
     }
 
@@ -262,12 +262,12 @@ public class DocsCommand extends SlashCommand {
             final var shortened = NAME_SHORTENER.shortenMatches(results);
 
             event.replyChoices(
-                results.stream()
-                    .map(it -> new Command.Choice(
-                        maybeShorten(shortened.get(it.asString())),
-                        maybeShorten(it.asString())
-                    ))
-                    .toList())
+                    results.stream()
+                        .map(it -> new Command.Choice(
+                            maybeShorten(shortened.get(it.asString())),
+                            maybeShorten(it.asString())
+                        ))
+                        .toList())
                 .setCheck(() -> !event.getInteraction().isAcknowledged())
                 .queue();
         }
@@ -275,6 +275,7 @@ public class DocsCommand extends SlashCommand {
 
     /**
      * Shortens the input if its length is greater than 100.
+     *
      * @param input the string to shorten
      * @return the maybe shortened string
      */

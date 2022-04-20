@@ -1,0 +1,3 @@
+[submodule "relauncher"]
+	path = relauncher
+	url = https://github.com/MinecraftModDevelopment/relauncher.git

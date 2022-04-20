@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -74,7 +74,7 @@ public enum SnoozingListener implements EventListener {
             final var offset = withOffset(timeStr, Instant.now());
             Reminders.addReminder(new Reminder(reminder.content(), reminder.channelId(), reminder.isPrivateChannel(), reminder.ownerId(), offset));
             event.deferReply(true).setContent("Successfully snoozed reminder until %s (%s)!"
-                .formatted(TimeFormat.DATE_TIME_LONG.format(offset), TimeFormat.RELATIVE.format(offset)))
+                    .formatted(TimeFormat.DATE_TIME_LONG.format(offset), TimeFormat.RELATIVE.format(offset)))
                 .queue();
         }
     }
@@ -104,8 +104,9 @@ public enum SnoozingListener implements EventListener {
 
     /**
      * Decodes an offset group.
+     *
      * @param offsetGroup the group to decode
-     * @param consumer the consumer to accept on each match
+     * @param consumer    the consumer to accept on each match
      */
     public static void decodeOffset(@NonNull final String offsetGroup, @NonNull final ObjLongConsumer<ChronoUnit> consumer) {
         final var allOffsets = offsetGroup.split("-");
@@ -117,6 +118,7 @@ public enum SnoozingListener implements EventListener {
 
     /**
      * Decodes time from a string.
+     *
      * @param time the time to decode
      * @return the decoded time.
      */

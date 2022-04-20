@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -29,9 +29,11 @@ import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.paginate.PaginatedCommand;
 import com.mcmoddev.mmdbot.core.commands.paginate.Paginator;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.time.Instant;
 import java.util.List;
@@ -60,9 +62,10 @@ public class HelpCommand extends PaginatedCommand {
     private HelpCommand() {
         super(
             Paginator.builder(TheCommander.getComponentListener("help-cmd"))
-                .buttonOrder(Paginator.NATURAL_BUTTON_ORDER)
-                .lifespan(Component.Lifespan.TEMPORARY)
                 .itemsPerPage(25)
+                .lifespan(Component.Lifespan.TEMPORARY)
+                .buttonOrder(Paginator.NATURAL_BUTTON_ORDER)
+                .buttonFactory(Paginator.DEFAULT_BUTTON_FACTORY.with(Paginator.ButtonType.DISMISS, id -> Button.secondary(id, Emoji.fromUnicode("\uD83D\uDEAE"))))
         );
         name = "help";
         help = "Show all commands, or detailed information about a particular command.";

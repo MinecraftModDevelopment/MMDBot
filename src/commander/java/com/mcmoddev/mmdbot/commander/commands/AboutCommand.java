@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -25,12 +25,13 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
+import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.awt.Color;
-import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -87,7 +88,6 @@ public final class AboutCommand extends SlashCommand {
         embed.addField("Current maintainers:", String.join(", ", MAINTAINERS),
             true);
         embed.addField("Online since: ", TimeFormat.RELATIVE.format(TheCommander.getStartupTime()), false);
-        embed.setTimestamp(Instant.now());
 
         if (event.isFromGuild() && TheCommanderUtilities.memberHasRoles(Objects.requireNonNull(event.getMember()),
             TheCommander.getInstance().getGeneralConfig().roles().getBotMaintainers())) {
@@ -98,7 +98,11 @@ public final class AboutCommand extends SlashCommand {
                 });
             });
         } else {
-            event.replyEmbeds(embed.build()).queue();
+            event.replyEmbeds(embed.build())
+                .addActionRows(ActionRow.of(
+                    DismissListener.createDismissButton()
+                ))
+                .queue();
         }
     }
 }

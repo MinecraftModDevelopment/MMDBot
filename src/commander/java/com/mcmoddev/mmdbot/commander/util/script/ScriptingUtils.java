@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -474,6 +474,14 @@ public final class ScriptingUtils {
             final var min = a.size() == 1 ? 0 : a.get(0).asInt();
             final var max = a.get(a.size() - 1).asInt();
             return Lists.newArrayList(IntStream.range(min, max + 1));
+        }, 1, 2));
+
+        context.setFunction("codeblock", executeIfArgsValid(a -> {
+            if (a.size() == 1) {
+                return "```\n" + a.get(0).asString() + "```";
+            } else {
+                return "```" + a.get(1).asString() + "\n" + a.get(0).asString() + "```";
+            }
         }, 1, 2));
 
         context.setFunction("format", executeIfArgsValid(args -> {

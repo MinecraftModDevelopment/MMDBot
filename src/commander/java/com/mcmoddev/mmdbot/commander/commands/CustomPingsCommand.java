@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -25,6 +25,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
+import com.mcmoddev.mmdbot.commander.config.GuildConfiguration;
 import com.mcmoddev.mmdbot.commander.custompings.CustomPing;
 import com.mcmoddev.mmdbot.commander.custompings.CustomPings;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
@@ -72,7 +73,10 @@ public class CustomPingsCommand {
         protected void execute(final SlashCommandEvent event) {
             if (!checkEnabled(event)) return;
             final var pings = CustomPings.getPingsForUser(event.getGuild().getIdLong(), event.getUser().getIdLong());
-            final var limit = TheCommander.getInstance().getGeneralConfig().features().customPings().getLimitPerUser();
+            final var limit = Objects.requireNonNull(event.getGuildSettings(GuildConfiguration.class))
+                .features()
+                .customPings()
+                .getLimitPerUser();
             if (pings.size() >= limit) {
                 event.deferReply(true).setContent("You cannot add any other custom pings as you have reached the limit of %s."
                     .formatted(limit)).queue();
@@ -131,10 +135,10 @@ public class CustomPingsCommand {
 
         @Override
         protected EmbedBuilder getEmbed(final int index, final int maximum, final List<String> arguments) {
-            if (!TheCommander.getInstance().getGeneralConfig().features().areQuotesEnabled()) {
-                return new EmbedBuilder().setDescription("Quotes are not enabled!");
-            }
             final long guildId = Long.parseLong(arguments.get(0));
+            if (!TheCommander.getInstance().getConfigForGuild(guildId).features().customPings().areEnabled()) {
+                return new EmbedBuilder().setDescription("Custom Pings are not enabled!");
+            }
             final long userId = Long.parseLong(arguments.get(1));
             final var embed = new EmbedBuilder();
             embed.setTitle("Your custom pings:");
@@ -157,7 +161,7 @@ public class CustomPingsCommand {
         private Remove() {
             name = "remove";
             help = "Removes a custom ping.";
-            aliases = new String[] {
+            aliases = new String[]{
                 "delete", "clear"
             };
             options = List.of(
@@ -170,43 +174,34 @@ public class CustomPingsCommand {
         protected void execute(final SlashCommandEvent event) {
             if (!checkEnabled(event)) return;
             final var index = event.getOption("index", -1, OptionMapping::getAsInt);
-            execute(CommandContext.fromSlashCommandEvent(event), index);
-        }
-
-        @Override
-        protected void execute(final CommandEvent event) {
-            if (!checkEnabled(event)) return;
-            var index = -1;
-            if (!event.getArgs().isBlank()) {
-                try {
-                    index = Integer.parseInt(event.getArgs().split(" ")[0]);
-                } catch (NumberFormatException ignored) {}
-            }
-            execute(CommandContext.fromCommandEvent(event), index);
-        }
-
-        private void execute(final CommandContext context, final int index) {
-            final var gId = Objects.requireNonNull(context.getGuild()).getIdLong();
-            final var userId = context.getUser().getIdLong();
+            final var gId = Objects.requireNonNull(event.getGuild()).getIdLong();
+            final var userId = event.getUser().getIdLong();
             final var userRems = CustomPings.getPingsForUser(gId, userId);
-            if (index != -1 && userRems.size() <= index) {
-                context.replyOrEdit(buildMessage(context, "Unknown index: **" + index + "**"))
-                    .queue();
-                return;
-            }
-            if (index == -1) {
-                CustomPings.clearPings(gId, userId);
-                context.replyOrEdit(buildMessage(context, "Removed all custom pings!")).queue();
-            } else {
-                final var cp = userRems.get(index);
-                CustomPings.removePing(gId, userId, cp);
-                context.replyOrEdit(buildMessage(context, "Removed custom ping with the index: **%s**!".formatted(index)));
-            }
+            event.deferReply().queue(hook -> {
+                if (index != -1 && userRems.size() <= index) {
+                    hook.editOriginal("Unknown index: **" + index + "**")
+                        .setActionRow(DismissListener.createDismissButton())
+                        .queue();
+                    return;
+                }
+                if (index == -1) {
+                    CustomPings.clearPings(gId, userId);
+                    hook.editOriginal("Removed all custom pings!")
+                        .setActionRow(DismissListener.createDismissButton())
+                        .queue();
+                } else {
+                    final var cp = userRems.get(index);
+                    CustomPings.removePing(gId, userId, cp);
+                    hook.editOriginal("Removed custom ping with the index: **%s**!".formatted(index))
+                        .setActionRow(DismissListener.createDismissButton())
+                        .queue();
+                }
+            });
         }
     }
 
     private static boolean checkEnabled(final IReplyCallback event) {
-        final var enabled = TheCommander.getInstance().getGeneralConfig().features().customPings().areEnabled();
+        final var enabled = TheCommander.getInstance().getConfigForGuild(event.getGuild()).features().customPings().areEnabled();
         if (!enabled) {
             event.deferReply(true).setContent("Custom Pings are disabled!").queue();
         }
@@ -214,7 +209,7 @@ public class CustomPingsCommand {
     }
 
     private static boolean checkEnabled(final CommandEvent event) {
-        final var enabled = TheCommander.getInstance().getGeneralConfig().features().customPings().areEnabled();
+        final var enabled = TheCommander.getInstance().getConfigForGuild(event.getGuild()).features().customPings().areEnabled();
         if (!enabled) {
             event.getMessage()
                 .reply("Custom Pings are disabled!")

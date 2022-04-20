@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -24,6 +24,7 @@ import com.mcmoddev.mmdbot.commander.TheCommander;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -72,7 +73,7 @@ public final class MinecraftUpdateNotifier implements Runnable {
             LOGGER.info(MARKER, "New Minecraft release found, from {} to {}", lastLatest, latest);
 
             TheCommander.getInstance().getGeneralConfig().channels().updateNotifiers().minecraft().forEach(chId -> {
-                final var channel = TheCommander.getJDA().getChannelById(MessageChannel.class, chId);
+                final var channel = chId.resolve(id -> TheCommander.getJDA().getChannelById(TextChannel.class, id));
                 if (channel != null) {
                     final var embed = new EmbedBuilder();
                     embed.setTitle("New Minecraft release available!");
@@ -90,7 +91,7 @@ public final class MinecraftUpdateNotifier implements Runnable {
             LOGGER.info(MARKER, "New Minecraft snapshot found, from {} to {}", lastLatest, latest);
 
             TheCommander.getInstance().getGeneralConfig().channels().updateNotifiers().minecraft().forEach(chId -> {
-                final var channel = TheCommander.getJDA().getChannelById(MessageChannel.class, chId);
+                final var channel = chId.resolve(id -> TheCommander.getJDA().getChannelById(TextChannel.class, id));
                 if (channel != null) {
                     final var embed = new EmbedBuilder();
                     embed.setTitle("New Minecraft snapshot available!");

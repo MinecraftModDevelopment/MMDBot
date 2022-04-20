@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -128,10 +128,13 @@ public class SQLComponentStorage implements ComponentStorage {
             .execute());
     }
 
-    private static final Type STRING_LIST_TYPE = new TypeToken<List<String>>() {}.getType();
+    private static final Type STRING_LIST_TYPE = new TypeToken<List<String>>() {
+    }.getType();
+
     private static String listToString(final List<String> list) {
         return Constants.Gsons.NO_PRETTY_PRINTING.toJson(list, STRING_LIST_TYPE);
     }
+
     private static List<String> listFromString(final String string) {
         return Constants.Gsons.NO_PRETTY_PRINTING.fromJson(string, STRING_LIST_TYPE);
     }

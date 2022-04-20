@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -37,6 +37,7 @@ public abstract class CustomAuditLogEvent implements Event {
 
     /**
      * Gets the ID of the guild in which this event happened.
+     *
      * @return the ID of the guild in which this event happened
      */
     public long getGuildId() {
@@ -45,6 +46,7 @@ public abstract class CustomAuditLogEvent implements Event {
 
     /**
      * Gets the ID of the user responsible for this event.
+     *
      * @return the ID of the user responsible for this event
      */
     public long getResponsibleUserId() {

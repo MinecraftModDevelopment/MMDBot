@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,12 +20,16 @@
  */
 package com.mcmoddev.mmdbot.commander.config;
 
+import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
+import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
+import net.dv8tion.jda.api.Permission;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.Required;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 @SuppressWarnings("FieldMayBeFinal")
@@ -72,18 +76,18 @@ public final class Configuration {
         @Required
         @Setting("owners")
         @Comment("The Snowflake IDs of the owners of the bot.")
-        private List<String> owners = new ArrayList<>();
+        private List<SnowflakeValue> owners = new ArrayList<>();
 
-        public List<String> getOwners() {
+        public List<SnowflakeValue> getOwners() {
             return owners;
         }
 
         @Required
         @Setting("guild")
         @Comment("The main guild of the bot.")
-        private String guild = "";
+        private SnowflakeValue guild = SnowflakeValue.EMPTY;
 
-        public String guild() {
+        public SnowflakeValue guild() {
             return guild;
         }
 
@@ -111,9 +115,9 @@ public final class Configuration {
         @Required
         @Setting("bot_maintainers")
         @Comment("A list of Snowflake IDs representing the roles which are bot maintainers.")
-        private List<String> botMaintainers = new ArrayList<>();
+        private List<SnowflakeValue> botMaintainers = new ArrayList<>();
 
-        public List<String> getBotMaintainers() {
+        public List<SnowflakeValue> getBotMaintainers() {
             return botMaintainers;
         }
     }
@@ -133,18 +137,18 @@ public final class Configuration {
         @Required
         @Setting("requests")
         @Comment("The Requests channel.")
-        private String requests = "";
+        private SnowflakeValue requests = SnowflakeValue.EMPTY;
 
-        public String requests() {
+        public SnowflakeValue requests() {
             return requests;
         }
 
         @Required
         @Setting("free_mod_ideas")
         @Comment("The Free Mod Ideas channel.")
-        private String freeModIdeas = "";
+        private SnowflakeValue freeModIdeas = SnowflakeValue.EMPTY;
 
-        public String freeModIdeas() {
+        public SnowflakeValue freeModIdeas() {
             return freeModIdeas;
         }
 
@@ -154,36 +158,36 @@ public final class Configuration {
             @Required
             @Setting("quilt")
             @Comment("A list of Snowflake IDs of channels in which to send Quilt update notifiers.")
-            private List<String> quilt = new ArrayList<>();
+            private List<SnowflakeValue> quilt = new ArrayList<>();
 
-            public List<String> quilt() {
+            public List<SnowflakeValue> quilt() {
                 return quilt;
             }
 
             @Required
             @Setting("fabric")
             @Comment("A list of Snowflake IDs of channels in which to send Fabric update notifiers.")
-            private List<String> fabric = new ArrayList<>();
+            private List<SnowflakeValue> fabric = new ArrayList<>();
 
-            public List<String> fabric() {
+            public List<SnowflakeValue> fabric() {
                 return fabric;
             }
 
             @Required
             @Setting("forge")
             @Comment("A list of Snowflake IDs of channels in which to send Forge update notifiers.")
-            private List<String> forge = new ArrayList<>();
+            private List<SnowflakeValue> forge = new ArrayList<>();
 
-            public List<String> forge() {
+            public List<SnowflakeValue> forge() {
                 return forge;
             }
 
             @Required
             @Setting("minecraft")
             @Comment("A list of Snowflake IDs of channels in which to send Minecraft update notifiers.")
-            private List<String> minecraft = new ArrayList<>();
+            private List<SnowflakeValue> minecraft = new ArrayList<>();
 
-            public List<String> minecraft() {
+            public List<SnowflakeValue> minecraft() {
                 return minecraft;
             }
         }
@@ -283,6 +287,7 @@ public final class Configuration {
             private List<String> snoozingTimes = List.of(
                 "5m", "1h", "1d"
             );
+
             public List<String> getSnoozingTimes() {
                 return snoozingTimes;
             }
@@ -291,6 +296,7 @@ public final class Configuration {
             @Setting("limit_per_user")
             @Comment("The maximum amount of reminders a user can have.")
             private int limitPerUser = 100;
+
             public int getLimitPerUser() {
                 return limitPerUser;
             }
@@ -299,38 +305,9 @@ public final class Configuration {
             @Setting("time_limit")
             @Comment("The maximum time (in seconds) that a reminder can be scheduled for.")
             private long timeLimit = 60 * 60 * 24 * 365;
+
             public long getTimeLimit() {
                 return timeLimit;
-            }
-        }
-
-        @Required
-        @Setting("custom_pings")
-        @Comment("Custom pings configuration.")
-        private CustomPings customPings = new CustomPings();
-
-        public CustomPings customPings() {
-            return customPings;
-        }
-
-        @ConfigSerializable
-        public static final class CustomPings {
-            @Required
-            @Setting("enabled")
-            @Comment("If custom pings should be enabled.")
-            private boolean enabled = true;
-
-            public boolean areEnabled() {
-                return enabled;
-            }
-
-            @Required
-            @Setting("limit_per_user")
-            @Comment("The limit of custom pings per user, per guild.")
-            private int limitPerUser = 10;
-
-            public int getLimitPerUser() {
-                return limitPerUser;
             }
         }
     }

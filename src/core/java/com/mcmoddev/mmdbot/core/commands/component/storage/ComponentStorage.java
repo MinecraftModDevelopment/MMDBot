@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -82,10 +82,10 @@ public interface ComponentStorage {
 
     /**
      * Creates a {@link SQLComponentStorage}.
-     * @param jdbi the {@link Jdbi} instance to use for accessing the database
+     *
+     * @param jdbi      the {@link Jdbi} instance to use for accessing the database
      * @param tableName the name of the table that will store components
      * @return the component storage
-     *
      * @apiNote The table holding the components needs to have 5 rows, whose names
      * are the first 5 constants in {@link SQLComponentStorage}. It is recommended
      * that a {@link org.flywaydb.core.Flyway} migration is used for creating the table.

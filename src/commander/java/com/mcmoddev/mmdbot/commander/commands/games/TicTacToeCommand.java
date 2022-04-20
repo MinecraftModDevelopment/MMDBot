@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -59,9 +59,9 @@ public class TicTacToeCommand extends SlashCommand {
     public static final int ZERO = 2;
 
     public static final int[][] DEFAULT_GAME = {
-        { UNKNOWN, UNKNOWN, UNKNOWN },
-        { UNKNOWN, UNKNOWN, UNKNOWN },
-        { UNKNOWN, UNKNOWN, UNKNOWN }
+        {UNKNOWN, UNKNOWN, UNKNOWN},
+        {UNKNOWN, UNKNOWN, UNKNOWN},
+        {UNKNOWN, UNKNOWN, UNKNOWN}
     };
 
     @RegisterSlashCommand
@@ -121,9 +121,9 @@ public class TicTacToeCommand extends SlashCommand {
                 .flatMap(m1 -> {
                     MessageUtilities.disableButtons(m1);
                     return m1.reply("""
-                        Challenge accepted!
-                        %s is **X**
-                        %s is **0**"""
+                            Challenge accepted!
+                            %s is **X**
+                            %s is **0**"""
                             .formatted(x.getAsMention(), zero.getAsMention()))
                         .allowedMentions(List.of())
                         .flatMap(m -> {
@@ -181,8 +181,11 @@ public class TicTacToeCommand extends SlashCommand {
                     x, zero, String.valueOf(turn == 0 ? 1 : 0), gameToString(game), originalMessage
                 ));
                 if (isGameCompleted(game)) {
+                    context.updateArgument(0, current); // the opponent is the current user
+                    final var buttons = createGameButtons(context.getComponentId().toString(), game, true);
+                    buttons.add(ActionRow.of(Button.secondary(createIdWithArguments(context.getComponentId(), "revenge", next), "Revenge")));
                     return m.reply("<@%s> won the __Tic-Tac-Toe__ game against <@%s>! GG! The board:".formatted(current, next))
-                        .setActionRows(createGameButtons(context.getComponentId().toString(), game, true))
+                        .setActionRows(buttons)
                         .allowedMentions(ALLOWED_MENTIONS);
                 } else if (isEntireBoardUsed(game)) {
                     return m.reply("<@%s> and <@%s>'s Tic-Tac-Toe game ended in a tie! The board:".formatted(current, next))
@@ -197,16 +200,36 @@ public class TicTacToeCommand extends SlashCommand {
     }
 
     public void onButtonInteraction(final ButtonInteractionContext context) {
-        if (context.getItemComponentArguments().get(0).equals("accept")) {
-            if (context.getArguments().get(0).equals(context.getEvent().getUser().getId())) {
-                Objects.requireNonNull(context.getEvent().getGuild())
-                    .retrieveMemberById(context.getArguments().get(1))
-                    .queue(opponent -> setupGame(context, opponent.getUser()), e -> {});
-            } else {
-                context.getEvent().deferEdit().queue();
+        final var componentType = context.getItemComponentArguments().get(0);
+        switch (componentType) {
+            case "accept" -> {
+                if (context.getArguments().get(0).equals(context.getEvent().getUser().getId())) {
+                    Objects.requireNonNull(context.getEvent().getGuild())
+                        .retrieveMemberById(context.getArguments().get(1))
+                        .queue(opponent -> setupGame(context, opponent.getUser()), e -> {
+                        });
+                } else {
+                    context.getEvent().deferEdit().queue();
+                }
             }
-        } else {
-            continueGame(context);
+            case "revenge" -> {
+                final var looser = context.getItemComponentArguments().get(1);
+                if (context.getUser().getId().equals(looser)) {
+                    final var id = UUID.randomUUID();
+                    final var opponent = context.getArguments().get(0);
+                    context.getEvent().deferReply().setContent("<@%s>, %s wants a revenge for the Tic-Tac-Toe game you won!".formatted(opponent, context.getUser().getAsMention()))
+                        .allowedMentions(ALLOWED_MENTIONS)
+                        .addActionRow(
+                            Button.success(Component.createIdWithArguments(id.toString(), "accept"), "\u2714 Accept"),
+                            DismissListener.createDismissButton(opponent)
+                        )
+                        .flatMap(InteractionHook::retrieveOriginal)
+                        .queue(m -> COMPONENT_LISTENER.insertComponent(id, Component.Lifespan.TEMPORARY, opponent, context.getUser().getId(), m.getId()));
+                } else {
+                    context.getEvent().deferEdit().queue();
+                }
+            }
+            default -> continueGame(context);
         }
     }
 
@@ -271,8 +294,8 @@ public class TicTacToeCommand extends SlashCommand {
     }
 
     private static boolean isEntireBoardUsed(final int[][] board) {
-        for (var x = 0; x < 2; x++) {
-            for (var y = 0; y < 2; y++) {
+        for (var x = 0; x < 3; x++) {
+            for (var y = 0; y < 3; y++) {
                 if (board[x][y] == UNKNOWN) return false;
             }
         }

@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -69,6 +69,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import static com.mcmoddev.mmdbot.core.util.event.DismissListener.createDismissButton;
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.ALLOWED_MENTIONS;
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.createGuild;
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.createMessageChannel;
@@ -121,13 +122,15 @@ public class EvaluateCommand extends SlashCommand {
                                 return;
                             }
                             hook.editOriginal("There was an exception evaluating "
-                                + exception.getLocalizedMessage()).queue();
+                                + exception.getLocalizedMessage())
+                                .setActionRow(createDismissButton())
+                                .queue();
                         }
                     });
                     TaskScheduler.scheduleTask(() -> {
                         if (!future.isDone()) {
                             future.cancel(true);
-                            hook.editOriginal("Evaluation was timed out!").queue();
+                            hook.editOriginal("Evaluation was timed out!").setActionRow(createDismissButton()).queue();
                         }
                     }, 4, TimeUnit.SECONDS);
                 });
@@ -135,7 +138,7 @@ public class EvaluateCommand extends SlashCommand {
             final var scriptInput = TextInput.create("script", "Script", TextInputStyle.PARAGRAPH)
                 .setRequired(true)
                 .setPlaceholder("The script to evaluate.")
-                .setRequiredRange(1, TextInput.TEXT_INPUT_MAX_LENGTH)
+                .setRequiredRange(1, TextInput.MAX_VALUE_LENGTH)
                 .build();
             final var modal = Modal.create(ModalListener.MODAL_ID, "Evaluate a script")
                 .addActionRow(scriptInput)
@@ -146,6 +149,7 @@ public class EvaluateCommand extends SlashCommand {
 
     public static final class ModalListener extends ListenerAdapter {
         public static final String MODAL_ID = "evaluate";
+
         @Override
         public void onModalInteraction(@NotNull final ModalInteractionEvent event) {
             if (event.getModalId().equals(MODAL_ID)) {
@@ -160,13 +164,16 @@ public class EvaluateCommand extends SlashCommand {
                                 return;
                             }
                             hook.editOriginal("There was an exception evaluating "
-                                + exception.getLocalizedMessage()).queue();
+                                + exception.getLocalizedMessage())
+                                .setActionRow(createDismissButton(event))
+                                .queue();
                         }
                     });
                     TaskScheduler.scheduleTask(() -> {
                         if (!future.isDone()) {
                             future.cancel(true);
-                            hook.editOriginal("Evaluation was timed out!").queue();
+                            hook.editOriginal("Evaluation was timed out!")
+                                .setActionRow(createDismissButton(event)).queue();
                         }
                     }, 4, TimeUnit.SECONDS);
                 });

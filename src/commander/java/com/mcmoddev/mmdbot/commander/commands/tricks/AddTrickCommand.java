@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -31,7 +31,8 @@ import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.event.customlog.TrickEvent;
-import com.mcmoddev.mmdbot.core.util.Utils;
+import com.mcmoddev.mmdbot.core.util.StringUtilities;
+import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.core.util.gist.GistUtils;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -60,7 +61,12 @@ import java.util.function.Supplier;
  */
 public final class AddTrickCommand extends SlashCommand {
 
-    public static final Supplier<String[]> BOT_MAINTAINERS_GETTER = () -> TheCommander.getInstance().getGeneralConfig().roles().getBotMaintainers().toArray(String[]::new);
+    public static final Supplier<String[]> BOT_MAINTAINERS_GETTER = () -> TheCommander.getInstance().getGeneralConfig()
+        .roles()
+        .getBotMaintainers()
+        .stream()
+        .map(SnowflakeValue::asString)
+        .toArray(String[]::new);
     public static final SubcommandGroupData GROUP = new SubcommandGroupData("add", "Adds a trick.");
 
     private final String trickTypeName;
@@ -71,7 +77,7 @@ public final class AddTrickCommand extends SlashCommand {
         this.trickType = trickType;
         this.name = name;
         subcommandGroup = GROUP;
-        this.help = "Add or edit %s %s-type trick.".formatted(Utils.startWithVowel(name) ? "an" : "a", name);
+        this.help = "Add or edit %s %s-type trick.".formatted(StringUtilities.startWithVowel(name) ? "an" : "a", name);
         this.guildOnly = true;
         enabledRoles = BOT_MAINTAINERS_GETTER.get();
     }
@@ -93,7 +99,7 @@ public final class AddTrickCommand extends SlashCommand {
             return;
         }
 
-        final var modal = Modal.create(ModalListener.MODAL_ID_PREFIX + trickTypeName, "Create %s %s trick".formatted(Utils.startWithVowel(trickTypeName) ? "an" : "a", trickTypeName))
+        final var modal = Modal.create(ModalListener.MODAL_ID_PREFIX + trickTypeName, "Create %s %s trick".formatted(StringUtilities.startWithVowel(trickTypeName) ? "an" : "a", trickTypeName))
             .addActionRows(trickType.getModalArguments())
             .build();
         event.replyModal(modal).queue();
@@ -102,7 +108,8 @@ public final class AddTrickCommand extends SlashCommand {
     public static final class ModalListener extends ListenerAdapter {
         public static final String MODAL_ID_PREFIX = "addtrick_";
 
-        public ModalListener() {}
+        public ModalListener() {
+        }
 
         @Override
         public void onModalInteraction(@NotNull final ModalInteractionEvent event) {

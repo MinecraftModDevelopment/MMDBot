@@ -1,0 +1,84 @@
+# The configuration file for MMDBot
+
+# For most keys, if it is left blank or an invalid value, the corresponding feature is disabled or cannot output
+
+[bot.activity]
+# The type of activity the bot has.
+type = "PLAYING"
+
+# The name of the activity the bot has.
+name = "the watching game"
+
+# Configuration of aliases
+# Aliases may be used as substitutes in entries that require snowflake IDs, such as channel blocklists
+# This allows for more human-readable configuration of other settings
+# Note: this does not support sub tables (i.e. [aliases.categories])
+[aliases]
+# Example usage:
+# bots_stuff = "<snowflake ID>"
+
+[channels]
+[channels.events]
+
+# The snowflake ID (or alias) of the requests deletion events logging channel
+# Deletion of requests over the bad reaction threshold shall be logged here
+requests_deletion = ""
+
+# Configuration of requests-related channels
+# Used for the requests bad reaction threshold system
+[channels.requests]
+# The snowflake (or alias) ID of the main requests channel
+# This channel will be monitored by the bot for bad reactions, according to the bad reaction thresholds
+main = ""
+
+# Configuration of channels used in informative bot commands
+[channels.info]
+# The snowflake ID (or alias) of the readme channel
+# This channel is mentioned in the `readme` command
+readme = ""
+
+# The snowflake ID (or alias) of the rules channel
+# This channel is mentioned in the `rules` command
+rules = ""
+
+# Configuration of roles
+[roles]
+
+# The snowflake ID of the regular role
+regular = ""
+
+# Configuration for the requests bad reaction threshold
+[requests]
+# Time in hours since request creation for a request of a user who left the server to be deleted
+# For example, a value of 3 hours would mean any requests less than 3 hours old by a user who just
+# left the server will be deleted
+# A value of 0 will leave this functionality disabled
+leave_deletion = 0
+
+# Time in days for a request to be actionable through the request bad reactions systems
+# Any request past this freshness duration (stale requests) will not trigger the warning or deletion threshold
+# A value of 0 will leave this functionality disabled
+freshness_duration = 0
+
+# Configuration of the reaction emotes
+[requests.emotes]
+# The snowflake IDs of the reaction emotes for bad requests
+bad = []
+
+# The snowflake IDs of the reaction emotes for requests that need improvements
+# These reaction emotes have half the weight of the reaction emotes for bad requests
+needs_improvement = []
+
+# The snowflake IDs of the reaction emotes for good requests
+good = []
+
+# Configuration of the requests reaction thresholds
+# Request weights are calculated through the following formula: [bad + (needs_improvement * 0.5)] - good
+# If a request falls below the given thresholds, then the indicated action is taken
+# If any of the two thresholds are disabled, then the whole warning and removal system is disabled
+[requests.thresholds]
+# Threshold where a user is warned that their request may be removed with further negative reactions
+warning = 3
+
+# Threshold where the request is removed and the user is informed of its removal
+removal = 5

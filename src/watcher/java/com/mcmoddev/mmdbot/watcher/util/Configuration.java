@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,12 +20,20 @@
  */
 package com.mcmoddev.mmdbot.watcher.util;
 
+import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
+import com.mcmoddev.mmdbot.watcher.TheWatcher;
+import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
+import net.dv8tion.jda.api.Permission;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
+import org.spongepowered.configurate.objectmapping.meta.NodeKey;
 import org.spongepowered.configurate.objectmapping.meta.Required;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 
 @ConfigSerializable
@@ -78,5 +86,67 @@ public class Configuration {
         public boolean areCommandsForcedGuildOnly() {
             return forceCommandsGuildOnly;
         }
+    }
+
+    @Required
+    @Setting("roles")
+    private Roles roles = new Roles();
+    public Roles roles() {
+        return roles;
+    }
+
+    @ConfigSerializable
+    public static final class Roles {
+        @Required
+        @Setting("bot_maintainers")
+        @Comment("A list of Snowflake IDs representing the roles which are bot maintainers.")
+        private List<String> botMaintainers = new ArrayList<>();
+
+        public List<String> getBotMaintainers() {
+            return botMaintainers;
+        }
+    }
+
+    @Required
+    @Setting("punishments")
+    @Comment("""
+    Punishments that will be applied to members when they do certain actions.
+    The punishment format is: action [duration].
+    Example:
+        "KICK" -> kicks the member
+        "BAN 5d" -> bans the member for 5 days
+        "MUTE 12m" -> times the member out for 12 minutes
+        """)
+    private Punishments punishments = new Punishments();
+    public Punishments punishments() {
+        return punishments;
+    }
+
+    @ConfigSerializable
+    public static final class Punishments {
+
+        @Required
+        @Setting("spam_pinging")
+        public Punishment spamPing = new Punishment(Punishment.ActionType.BAN, Duration.ofDays(2));
+
+        @Required
+        @Setting("scam_link")
+        public Punishment scamLink = new Punishment(Punishment.ActionType.MUTE, Duration.ofDays(1));
+
+    }
+
+    @Required
+    @Setting("channels")
+    @Comment("Channels configuration")
+    private Channels channels = new Channels();
+    public Channels channels() {
+        return channels;
+    }
+
+    @ConfigSerializable
+    public static final class Channels {
+
+
+
     }
 }

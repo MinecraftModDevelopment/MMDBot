@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.commander.util;
 
 import com.google.gson.JsonParser;
+import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -73,11 +74,11 @@ public class TheCommanderUtilities {
     /**
      * Checks if the given member any of the given roles
      *
-     * @param member the member to check
+     * @param member  the member to check
      * @param roleIds the IDs of the roles to check for
      * @return if the member has any of the role
      */
-    public static boolean memberHasRoles(@NonNull final Member member, @NonNull final List<String> roleIds) {
+    public static boolean memberHasRolesString(final Member member, @NonNull final List<String> roleIds) {
         if (member == null) {
             return false;
         }
@@ -87,12 +88,23 @@ public class TheCommanderUtilities {
     /**
      * Checks if the given member any of the given roles
      *
-     * @param member the member to check
+     * @param member  the member to check
      * @param roleIds the IDs of the roles to check for
      * @return if the member has any of the role
      */
-    public static boolean memberHasRoles(@NonNull final Member member, @NonNull final String... roleIds) {
-        return memberHasRoles(member, Arrays.asList(roleIds));
+    public static boolean memberHasRoles(final Member member, @NonNull final List<SnowflakeValue> roleIds) {
+       return memberHasRolesString(member, roleIds.stream().map(SnowflakeValue::asString).toList());
+    }
+
+    /**
+     * Checks if the given member any of the given roles
+     *
+     * @param member  the member to check
+     * @param roleIds the IDs of the roles to check for
+     * @return if the member has any of the role
+     */
+    public static boolean memberHasRoles(final Member member, @NonNull final String... roleIds) {
+        return memberHasRolesString(member, Arrays.asList(roleIds));
     }
 
     /**

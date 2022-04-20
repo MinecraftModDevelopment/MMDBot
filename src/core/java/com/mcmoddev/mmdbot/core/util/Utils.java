@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -80,9 +80,10 @@ public final class Utils {
 
     /**
      * Schedules a task to run at the specified {@code date}.
+     *
      * @param service the service to schedule the task on.
-     * @param task the task to schedule.
-     * @param date the time at which to schedule the task.
+     * @param task    the task to schedule.
+     * @param date    the time at which to schedule the task.
      */
     public static void scheduleTask(final ScheduledExecutorService service, final Runnable task, final Instant date) {
         service.schedule(task, date.atOffset(ZoneOffset.UTC).toEpochSecond() -
@@ -90,26 +91,15 @@ public final class Utils {
     }
 
     /**
-     * Checks if a word starts with a vowel.
-     * @param word the word to check
-     * @return if the word starts with a vowel
+     * Creates a discord link pointing to the specified message
+     *
+     * @param guildId   the ID of the guild of the message
+     * @param channelId the ID of the channel of the message
+     * @param messageId the message ID
+     * @return the message link
      */
-    public static boolean startWithVowel(String word) {
-        if (word.length() < 1) return false;
-        switch (word.charAt(0)) {
-            case 'a':
-            case 'e':
-            case 'i':
-            case 'o':
-            case 'u':
-            case 'A':
-            case 'E':
-            case 'I':
-            case 'O':
-            case 'U':
-                return true;
-            default:
-                return false;
-        }
+    public static String makeMessageLink(final long guildId, final long channelId, final long messageId) {
+        return "https://discord.com/channels/%s/%s/%s".formatted(guildId, channelId, messageId);
     }
+
 }

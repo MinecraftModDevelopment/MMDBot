@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -43,20 +43,20 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.*;
 import static com.mcmoddev.mmdbot.core.commands.component.Component.createIdWithArguments;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 public class NormalDocsSender implements DocsSender {
 
@@ -103,10 +103,10 @@ public class NormalDocsSender implements DocsSender {
         buttons.add(DismissListener.createDismissButton(userId, ButtonStyle.DANGER, "\uD83D\uDDD1️ Dismiss"));
 
         replier.apply(new MessageBuilder(embed.build())
-            .setContent(null)
-            .setActionRows(ActionRow.of(buttons))
-            .build())
-        .queue();
+                .setContent(null)
+                .setActionRows(ActionRow.of(buttons))
+                .build())
+            .queue();
     }
 
     public static Button button(final String id, final DocsButtonType type, ButtonStyle style) {
@@ -242,7 +242,12 @@ public class NormalDocsSender implements DocsSender {
     }
 
     record IndexedPair<K, V>(int index, K key, V value) {
-        public K getKey() { return key; }
-        public V getValue() { return value; }
+        public K getKey() {
+            return key;
+        }
+
+        public V getValue() {
+            return value;
+        }
     }
 }

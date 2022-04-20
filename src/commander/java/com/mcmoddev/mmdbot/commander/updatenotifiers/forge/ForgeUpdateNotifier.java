@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -25,6 +25,7 @@ import com.mcmoddev.mmdbot.core.util.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -156,7 +157,7 @@ public final class ForgeUpdateNotifier implements Runnable {
                 lastForgeVersions = latest;
 
                 TheCommander.getInstance().getGeneralConfig().channels().updateNotifiers().forge().forEach(chId -> {
-                    final var channel = TheCommander.getJDA().getChannelById(MessageChannel.class, chId);
+                    final var channel = chId.resolve(id -> TheCommander.getJDA().getChannelById(TextChannel.class, id));
                     if (channel != null) {
                         channel.sendMessageEmbeds(embed.build()).queue(msg -> {
                             if (channel.getType() == ChannelType.NEWS) {

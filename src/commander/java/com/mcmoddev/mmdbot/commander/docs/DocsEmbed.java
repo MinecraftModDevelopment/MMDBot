@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,8 +20,6 @@
  */
 package com.mcmoddev.mmdbot.commander.docs;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.mcmoddev.mmdbot.core.util.StringReader;
 import com.mcmoddev.mmdbot.core.util.StringUtilities;
@@ -42,6 +40,9 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 public class DocsEmbed extends EmbedBuilder {
 
@@ -271,8 +272,8 @@ public class DocsEmbed extends EmbedBuilder {
      * Trims the input markdown to approximately a given length. Might be longer as it tries to finish
      * links and code blocks.
      *
-     * @param input the input string
-     * @param maxLength the maximum input length to try and fulfill
+     * @param input       the input string
+     * @param maxLength   the maximum input length to try and fulfill
      * @param maxNewlines the maximum amount of newlines to try and fulfill
      * @return the trimmed markdown
      */

@@ -7,15 +7,18 @@ launch4j = { id = 'edu.sc.seis.launch4j', version = '2.5.2'}
 
 [versions]
 # jda = "5.0.0-alpha.9"
-jda = "6adee1e"
-chewtils = "2.0-SNAPSHOT"
+# https://github.com/Xirado/JDA/commit/a0de537f412bb9091ff846377254a4b479072d97
+jda = "a0de537"
+# https://github.com/Matyrobbrt/JDA-Chewtils/commit/252809f87422562223b7d1af571af75d819f5a65
+# chewtils = "2.0-SNAPSHOT"
+chewtils = "252809f"
 guava = "31.1-jre"
 gson = "2.9.0"
 dfu = "documentation-SNAPSHOT"
 logback = "1.2.11"
 nightconfig = "3.6.5"
 sqlite = "3.36.0.3"
-flyway = "8.5.5"
+flyway = "8.5.7"
 annotations = "23.0.0"
 lombok = "1.18.22"
 discord4j = "3.3.0-SNAPSHOT"
@@ -41,8 +44,9 @@ immutables = "2.9.0-rc1"
 # jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
 # TODO switch back when JDA has modals
 jda = { module = "com.github.xirado:JDA", version.ref = "jda" }
-chewtils = { module = "pw.chew:jda-chewtils", version.ref = "chewtils" }
-chewtils-command = { module = "pw.chew:jda-chewtils-command", version.ref = "chewtils" }
+# TODO switch back when JDA-Chewtils/PR 65 is merged
+# chewtils = { module = "pw.chew:jda-chewtils", version.ref = "chewtils" }
+chewtils = { module = "com.matyrobbrt:JDA-Chewtils", version.ref = "chewtils" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 # Use the documented version of DFU

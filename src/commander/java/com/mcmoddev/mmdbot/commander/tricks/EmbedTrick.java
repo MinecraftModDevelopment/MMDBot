@@ -4,8 +4,8 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * License as published by the Free Software Foundation;
+ * Specifically version 2.1 of the License.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -242,19 +242,19 @@ public class EmbedTrick implements Trick {
         private static final LazySupplier<List<ActionRow>> MODAL_ARGS = LazySupplier.of(() -> {
             final var names = TextInput.create("names", "Names", TextInputStyle.SHORT)
                 .setRequired(true)
-                .setRequiredRange(1, TextInput.TEXT_INPUT_MAX_LENGTH)
+                .setRequiredRange(1, TextInput.MAX_VALUE_LENGTH)
                 .setPlaceholder("Name(s) for the trick. Separate with spaces.")
                 .build();
 
             final var title = TextInput.create("title", "Title", TextInputStyle.SHORT)
                 .setRequired(true)
-                .setRequiredRange(1, TextInput.TEXT_INPUT_MAX_LENGTH)
+                .setRequiredRange(1, TextInput.MAX_VALUE_LENGTH)
                 .setPlaceholder("Title of the embed.")
                 .build();
 
             final var description = TextInput.create("description", "Description", TextInputStyle.PARAGRAPH)
                 .setRequired(true)
-                .setRequiredRange(1, TextInput.TEXT_INPUT_MAX_LENGTH)
+                .setRequiredRange(1, TextInput.MAX_VALUE_LENGTH)
                 .setPlaceholder("Description of the embed.")
                 .build();
 
