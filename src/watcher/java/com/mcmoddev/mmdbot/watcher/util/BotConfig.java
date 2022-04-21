@@ -113,22 +113,6 @@ public final class BotConfig {
     }
 
     /**
-     * Returns the configured alias for the given snowflake ID, if any.
-     *
-     * @param snowflake The snowflake ID
-     * @return The alias for the given snowflake
-     */
-    public Optional<String> getAlias(final long snowflake) {
-        return getAliases()
-            .flatMap(aliases -> aliases.entrySet().stream()
-                .filter(entry -> entry.getValue() instanceof String)
-                .filter(entry -> SafeIdUtil.safeConvert(entry.getValue()) == snowflake)
-                .findFirst()
-            )
-            .map(UnmodifiableConfig.Entry::getKey);
-    }
-
-    /**
      * Returns the snowflake ID of the given channel based on the configuration, or {@code 0L} if none is configured.
      * <p>
      * The channel key consists of ASCII letters, optionally separated by periods/full stops ({@code .}) for connoting
