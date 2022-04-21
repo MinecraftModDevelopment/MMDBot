@@ -58,31 +58,33 @@ public final class GistCommand extends Command {
     }
 
     private static void run(final String token, final CommandEvent event) {
-        final var target = event.getMessage().getReferencedMessage();
-        if (target == null || target.isWebhookMessage() || target.getAuthor().isSystem()) {
+        final var action = event.getMessage().getMessageReference();
+        if (action == null) {
             event.getMessage().reply("Please reference a message to create a gist from its attachments.").mentionRepliedUser(false).queue();
             return;
         }
-        if (!GistContextMenu.canGist(target)) {
-            event.getMessage().reply("The message doesn't have any attachments!").mentionRepliedUser(false).queue();
-            return;
-        }
-        try {
-            final var gist = GistUtils.create(token, GistContextMenu.createGistFromMessage(target));
-            if (gist == null) {
-                event.getMessage().reply("The Gist I created was null for some reason. Try again later.").mentionRepliedUser(false).queue();
+        action.resolve(true).queue(target -> {
+            if (!GistContextMenu.canGist(target)) {
+                event.getMessage().reply("The message doesn't have any attachments!").mentionRepliedUser(false).queue();
                 return;
             }
-            final EmbedBuilder embed = new EmbedBuilder().setColor(Color.MAGENTA).setTimestamp(Instant.now())
-                .setFooter("Requester ID: " + event.getMember().getIdLong(), event.getMember().getEffectiveAvatarUrl())
-                .setThumbnail(event.getJDA().getSelfUser().getAvatarUrl())
-                .setDescription("A gist has been created for the attachments of [this](%s) message.".formatted(target.getJumpUrl()))
-                .addField("Gist Link", gist.htmlUrl(), false);
-            event.getMessage().replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
-        } catch (InterruptedException | ExecutionException | GistUtils.GistException e) {
-            event.getMessage().replyFormat("Error while creating gist: **%s**", e.getLocalizedMessage()).mentionRepliedUser(false).queue();
-            TheCommander.LOGGER.error("Error while creating gist", e);
-        }
+            try {
+                final var gist = GistUtils.create(token, GistContextMenu.createGistFromMessage(target));
+                if (gist == null) {
+                    event.getMessage().reply("The Gist I created was null for some reason. Try again later.").mentionRepliedUser(false).queue();
+                    return;
+                }
+                final EmbedBuilder embed = new EmbedBuilder().setColor(Color.MAGENTA).setTimestamp(Instant.now())
+                    .setFooter("Requester ID: " + event.getMember().getIdLong(), event.getMember().getEffectiveAvatarUrl())
+                    .setThumbnail(event.getJDA().getSelfUser().getAvatarUrl())
+                    .setDescription("A gist has been created for the attachments of [this](%s) message.".formatted(target.getJumpUrl()))
+                    .addField("Gist Link", gist.htmlUrl(), false);
+                event.getMessage().replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
+            } catch (InterruptedException | ExecutionException | GistUtils.GistException e) {
+                event.getMessage().replyFormat("Error while creating gist: **%s**", e.getLocalizedMessage()).mentionRepliedUser(false).queue();
+                TheCommander.LOGGER.error("Error while creating gist", e);
+            }
+        });
     }
 
 }
