@@ -107,6 +107,7 @@ dependencies {
   }
   jda libs.chewtils
 
+  d4j libs.jda
   d4j libs.discord4j
 
   global libs.guava

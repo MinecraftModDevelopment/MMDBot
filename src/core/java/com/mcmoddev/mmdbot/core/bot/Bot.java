@@ -22,11 +22,12 @@ package com.mcmoddev.mmdbot.core.bot;
 
 import org.slf4j.Logger;
 
+import javax.security.auth.login.LoginException;
 import java.io.IOException;
 
 public interface Bot {
 
-    void start();
+    void start() throws LoginException;
 
     BotType<?> getType();
 

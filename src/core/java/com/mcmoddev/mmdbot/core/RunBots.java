@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.security.auth.login.LoginException;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -110,7 +111,11 @@ public class RunBots {
                                 }, 5, TimeUnit.SECONDS); // Give the bot 5 seconds to startup.. it
                                 // should add its listeners till then
                             }
-                            bot.start();
+                            try {
+                                bot.start();
+                            } catch (LoginException e) {
+                                bot.getLogger().error("Exception logging in: ", e);
+                            }
                             botsAmount.incrementAndGet();
                             bot.getLogger().warn("Bot {} has been found, and it has been launched!", botEntry.name());
                         }).exceptionally(t -> {

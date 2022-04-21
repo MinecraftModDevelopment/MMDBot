@@ -22,182 +22,153 @@ package com.mcmoddev.mmdbot.thelistener.events;
 
 import com.mcmoddev.mmdbot.core.event.moderation.ScamLinkEvent;
 import com.mcmoddev.mmdbot.core.util.MessageUtilities;
-import com.mcmoddev.mmdbot.core.util.Pair;
+import com.mcmoddev.mmdbot.core.util.jda.caching.MessageData;
 import com.mcmoddev.mmdbot.thelistener.TheListener;
-import com.mcmoddev.mmdbot.thelistener.util.ListenerAdapter;
 import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
-import com.mcmoddev.mmdbot.thelistener.util.Utils;
-import discord4j.common.util.Snowflake;
-import discord4j.core.event.domain.message.MessageBulkDeleteEvent;
-import discord4j.core.event.domain.message.MessageDeleteEvent;
-import discord4j.core.event.domain.message.MessageUpdateEvent;
-import discord4j.core.object.entity.channel.MessageChannel;
-import discord4j.core.spec.EmbedCreateFields;
-import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.core.spec.MessageCreateSpec;
-import discord4j.rest.util.AllowedMentions;
-import discord4j.rest.util.Color;
 import io.github.matyrobbrt.eventdispatcher.SubscribeEvent;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.ErrorResponse;
+import org.jetbrains.annotations.NotNull;
 
+import java.awt.Color;
 import java.time.Instant;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class MessageEvents extends ListenerAdapter {
 
-    public static final AllowedMentions ALLOWED_MENTIONS_DATA = AllowedMentions.builder().repliedUser(false).build();
-
     public static final MessageEvents INSTANCE = new MessageEvents();
+
+    public static final ErrorHandler ERROR_HANDLER = new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MEMBER);
+    public static final java.awt.Color GRAY_CHATEAOU = new java.awt.Color(0x979C9F);
+    public static final java.awt.Color VIVID_VIOLET = new java.awt.Color(0x71368A);
 
     private MessageEvents() {
     }
 
-    @Override
-    public void onMessageDelete(final MessageDeleteEvent event) {
-        if (event.getGuildId().isEmpty()) {
-            return; // Not from guild
-        }
-        if (LoggingType.MESSAGE_EVENTS.getChannels(event.getGuildId().get()).contains(event.getChannelId())) {
-            return; // Don't log deletions in a logging channel
-        }
-        final var doLog = new AtomicBoolean(true);
-        final var embed = event.getMessage()
-            .flatMap(message -> Pair.of(message, message.getAuthor().orElse(null)).toOptional())
-            .map(c -> c.map((message, user) -> {
-                if (message.getContent().isBlank() || message.getContent().equals(".") || message.getContent().equals("^")) {
-                    doLog.set(false);
-                }
-                final var msgSplit = message.getContent().split(" ");
+    public void onMessageDelete(final net.dv8tion.jda.api.events.message.MessageDeleteEvent event, final MessageData data) {
+        if (!event.isFromGuild() || (data.getContent().isBlank() && data.getAttachments().isEmpty())) return;
+        final var loggingChannels = LoggingType.MESSAGE_EVENTS.getChannels(event.getGuild().getIdLong());
+        if (loggingChannels.stream().anyMatch(v -> v.test(event.getChannel()))) return; // Don't log in event channels
+        event.getGuild().retrieveMemberById(data.getAuthorId())
+            .map(author -> {
+                final var msgSplit = data.getContent().split(" ");
                 if (msgSplit.length == 1) {
                     final var matcher = MessageUtilities.MESSAGE_LINK_PATTERN.matcher(msgSplit[0]);
                     if (matcher.find()) {
-                        doLog.set(false);
+                        return null;
                     }
                 }
-                final var embedBuilder = EmbedCreateSpec.builder();
-                embedBuilder.color(Color.GRAY_CHATEAU)
-                    .description("""
+                final var embedBuilder = new EmbedBuilder();
+                embedBuilder.setColor(GRAY_CHATEAOU)
+                    .setDescription("""
                         **A message sent by <@%s> in <#%s> has been deleted!**
                         %s"""
-                        .formatted(user.getId().asLong(), message.getChannelId().asLong(), message.getContent()));
-                embedBuilder.author(user.getUsername(), null, user.getAvatarUrl());
-                embedBuilder.timestamp(Instant.now())
-                    .footer("Author: %s | Message ID: %s".formatted(user.getId().asLong(), message.getId().asLong()), null);
-                message.getInteraction().ifPresent(interaction -> embedBuilder.addField("Interaction Author: ", "%s (%s)".formatted(interaction.getUser()
-                    .getMention(), interaction.getUser().getId().asString()), true));
+                        .formatted(data.getAuthorId(), data.getChannelId(), data.getContent()));
+                embedBuilder.setAuthor(author.getEffectiveName(), null, author.getEffectiveAvatarUrl());
+                embedBuilder.setTimestamp(Instant.now())
+                    .setFooter("Author: %s | Message ID: %s".formatted(data.getAuthorId(), data.getChannelId()), null);
+                final var interaction = data.getInteraction();
+                if (interaction != null) {
+                    embedBuilder.addField("Interaction Author: ", "<@%s> (%s)".formatted(interaction.getAuthorId(), interaction.getAuthorId()), true);
+                }
+                if (!data.getAttachments().isEmpty()) {
+                    embedBuilder.setImage(data.getAttachments().get(0));
+                }
                 return embedBuilder.build();
-            })).orElseGet(() -> EmbedCreateSpec.builder().description("A message sent in <#%s> has been deleted! No more information could be retrieved."
-                    .formatted(event.getChannelId().asLong())).timestamp(Instant.now())
-                .color(Color.CINNABAR).build());
-        if (doLog.get()) {
-            Utils.executeInLoggingChannel(event.getGuildId().get(), LoggingType.MESSAGE_EVENTS,
-                channel -> channel.createMessage(MessageCreateSpec.builder()
-                    .embeds(embed)
-                    .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {
-                }, t -> {
-                }));
-        }
+            })
+            .queue(embed -> {
+                loggingChannels
+                    .forEach(id -> {
+                        final var ch = id.resolve(idL -> event.getJDA().getChannelById(net.dv8tion.jda.api.entities.MessageChannel.class, idL));
+                        if (ch != null) {
+                            ch.sendMessageEmbeds(embed).queue();
+                        }
+                    });
+            }, ERROR_HANDLER);
+    }
+
+    public void onMessageUpdate(final net.dv8tion.jda.api.events.message.MessageUpdateEvent event, MessageData data) {
+        final var newMessage = event.getMessage();
+        if (!event.isFromGuild() || (newMessage.getContentRaw().isBlank() && newMessage.getAttachments().isEmpty())) return;
+        final var loggingChannels = LoggingType.MESSAGE_EVENTS.getChannels(event.getGuild().getIdLong());
+        if (loggingChannels.stream().anyMatch(v -> v.test(event.getChannel()))) return; // Don't log in event channels
+        event.getGuild().retrieveMemberById(data.getAuthorId())
+            .map(author -> {
+                if (newMessage.getContentRaw().equals(data.getContent())) {
+                    return null;
+                }
+                final var embedBuilder = new EmbedBuilder();
+                embedBuilder.setColor(VIVID_VIOLET)
+                    .setDescription("**A message sent by <@%s> in <#%s> has been edited!** [Jump to message.](%s)"
+                        .formatted(author.getId(), event.getChannel().getId(), newMessage.getJumpUrl()));
+                embedBuilder.setTimestamp(Instant.now());
+                embedBuilder.addField("Before", data.getContent().isBlank() ? "*Blank*" : data.getContent(), false)
+                    .addField("After", newMessage.getContentRaw().isBlank() ? "*Blank*" : newMessage.getContentRaw(), false);
+                embedBuilder.setAuthor(author.getEffectiveName(), null, author.getAvatarUrl())
+                    .setFooter("Author ID: " + author.getId(), null);
+                final var interaction = data.getInteraction();
+                if (interaction != null) {
+                    embedBuilder.addField("Interaction Author: ", "<@%s> (%s)".formatted(interaction.getAuthorId(), interaction.getAuthorId()), true);
+                }
+                if (!data.getAttachments().isEmpty()) {
+                    embedBuilder.setImage(data.getAttachments().get(0));
+                }
+                return embedBuilder.build();
+            })
+            .queue(embed -> {
+                loggingChannels
+                    .forEach(id -> {
+                        final var ch = id.resolve(idL -> event.getJDA().getChannelById(net.dv8tion.jda.api.entities.MessageChannel.class, idL));
+                        if (ch != null) {
+                            ch.sendMessageEmbeds(embed).queue();
+                        }
+                    });
+            }, ERROR_HANDLER);
     }
 
     @Override
-    public void onMessageUpdate(final MessageUpdateEvent event) {
-        if (event.getGuildId().isEmpty() /* Not from guild */ || !event.isContentChanged()) {
-            return;
-        }
-        if (LoggingType.MESSAGE_EVENTS.getChannels(event.getGuildId().get()).contains(event.getChannelId())) {
-            return; // Don't log deletions in a logging channel
-        }
-        event.getMessage().subscribe(newMessage -> {
-            if (newMessage.getAuthor()
-                .map(u -> u.getId().asLong() == event.getClient().getSelfId().asLong())
-                .orElse(false)) {
-                return; // The bot edited the message, so it can be ignored
-            }
-            // The horrible mapping takes in an optional of the old message, and another
-            // optional of the message author. The optionals are merged into a
-            // pair optional, which is empty if either the message optional or the author optional
-            // are empty
-            final var contentChanged = new AtomicBoolean(true);
-            final var embed = Pair.of(event.getOld(), newMessage.getAuthor())
-                .map(Pair::makeOptional)
-                .map(c -> c.map((oldMessage, author) -> {
-                    if (oldMessage.getContent().equals(newMessage.getContent())) {
-                        contentChanged.set(false);
-                    }
-                    final var embedBuilder = EmbedCreateSpec.builder();
-                    embedBuilder.color(Color.VIVID_VIOLET)
-                        .description("**A message sent by <@%s> in <#%s> has been edited!** [Jump to message.](%s)"
-                            .formatted(author.getId().asLong(), event.getChannelId().asLong(), Utils.createMessageURL(newMessage)));
-                    embedBuilder.timestamp(Instant.now());
-                    embedBuilder.addField("Before", oldMessage.getContent().isBlank() ? "*Blank*" : oldMessage.getContent(), false)
-                        .addField("After", newMessage.getContent().isBlank() ? "*Blank*" : newMessage.getContent(), false);
-                    embedBuilder.author(author.getUsername(), null, author.getAvatarUrl())
-                        .footer("Author ID: " + author.getId().asLong(), null);
-                    newMessage.getInteraction().ifPresent(interaction -> embedBuilder.addField("Interaction Author: ", "%s (%s)".formatted(interaction.getUser()
-                        .getMention(), interaction.getUser().getId().asString()), true));
-                    return embedBuilder.build();
-                })).orElseGet(() -> EmbedCreateSpec.builder().description("A message sent in <#%s> has been edited! Old content information could not be retrieved. [Jump to message.](%s)"
-                        .formatted(event.getChannelId().asLong(), Utils.createMessageURL(newMessage)))
-                    .timestamp(Instant.now()).addField("After", newMessage.getContent(), false)
-                    .color(Color.ENDEAVOUR).build());
-
-            if (contentChanged.get()) {
-                Utils.executeInLoggingChannel(event.getGuildId().get(), LoggingType.MESSAGE_EVENTS,
-                    channel -> channel.createMessage(MessageCreateSpec.builder()
-                        .embeds(embed)
-                        .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {
-                    }, t -> {
-                    }));
-            }
-        }, e -> TheListener.LOGGER.error("Error while trying to log a message edit!", e));
-    }
-
-    @Override
-    public void onMessageBulkDelete(final MessageBulkDeleteEvent event) {
-        final var embed = EmbedCreateSpec.builder()
-            .description("%s messages have been bulk deleted in <#%s>!"
-                .formatted(event.getMessages().size(), event.getChannelId().asLong()))
-            .timestamp(Instant.now())
+    public void onMessageBulkDelete(@NotNull final net.dv8tion.jda.api.events.message.MessageBulkDeleteEvent event) {
+        final var embed = new EmbedBuilder()
+            .setDescription("%s messages have been bulk deleted in %s!"
+                .formatted(event.getMessageIds().size(), event.getChannel().getAsMention()))
+            .setTimestamp(Instant.now())
             .build();
-
-        Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MESSAGE_EVENTS,
-            channel -> channel.createMessage(MessageCreateSpec.builder()
-                .embeds(embed)
-                .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {
-            }, t -> {
-            }));
+        LoggingType.MESSAGE_EVENTS.getChannels(event.getGuild().getIdLong())
+            .forEach(snowflakeValue -> {
+                final var ch = snowflakeValue.resolve(id -> event.getJDA().getChannelById(net.dv8tion.jda.api.entities.MessageChannel.class, id));
+                if (ch != null) {
+                    ch.sendMessageEmbeds(embed).queue();
+                }
+            });
     }
 
     @SubscribeEvent
     @SuppressWarnings("unused")
     public void onScamLink(final ScamLinkEvent event) {
-        final var embed = EmbedCreateSpec.builder()
-            .title("Scam link detected!")
-            .description(String.format("User <@%s> sent a scam link in <#%s>%s. Their message was deleted, and they were muted.",
+        final var embed = new EmbedBuilder()
+            .setTitle("Scam link detected!")
+            .setDescription(String.format("User <@%s> sent a scam link in <#%s>%s. Their message was deleted, and they were muted.",
                 event.getTargetId(), event.getChannelId(), event.isMessageEdited() ? ", by editing an old message" : ""))
             .addField("Message Content", """
                 ```
                 %s
                 ```""".formatted(event.getMessageContent()), false)
-            .color(Color.RED)
-            .timestamp(Instant.now())
-            .footer(EmbedCreateFields.Footer.of("User ID: " + event.getTargetId(), event.getTargetAvatar()))
-            .thumbnail(event.getTargetAvatar())
+            .setColor(Color.RED)
+            .setTimestamp(Instant.now())
+            .setFooter("User ID: " + event.getTargetId(), event.getTargetAvatar())
+            .setThumbnail(event.getTargetAvatar())
             .build();
 
-        if (TheListener.getClient() != null) {
-            final var channels = TheListener.getInstance().getConfigForGuild(Snowflake.of(event.getGuildId())).getScamLoggingChannels();
-            channels.forEach(channelId -> {
-                TheListener.getClient()
-                    .getChannelById(channelId)
-                    .subscribe(channel -> {
-                        if (channel instanceof MessageChannel msgChannel) {
-                            msgChannel.createMessage(MessageCreateSpec.builder()
-                                .embeds(embed)
-                                .allowedMentions(ALLOWED_MENTIONS_DATA)
-                                .build()).subscribe();
-                        }
-                    });
-            });
+        if (TheListener.getInstance() != null) {
+            final var jda = TheListener.getInstance().getJDA();
+            LoggingType.MESSAGE_EVENTS.getChannels(event.getGuildId())
+                .forEach(snowflakeValue -> {
+                    final var ch = snowflakeValue.resolve(id -> jda.getChannelById(net.dv8tion.jda.api.entities.MessageChannel.class, id));
+                    if (ch != null) {
+                        ch.sendMessageEmbeds(embed).queue();
+                    }
+                });
         }
     }
 }

@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.thelistener.util;
 
 import com.mcmoddev.mmdbot.core.util.Constants;
+import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import discord4j.common.util.Snowflake;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +51,7 @@ import java.util.function.Supplier;
 public class GuildConfig {
     public static final TypeSerializerCollection SERIALIZERS = TypeSerializerCollection.defaults()
         .childBuilder()
+        .register(SnowflakeValue.class, new SnowflakeValue.Serializer())
         .register(Snowflake.class, new SnowflakeSerializer())
         .build();
 
@@ -114,7 +116,7 @@ public class GuildConfig {
         }
     }
 
-    public List<Snowflake> getScamLoggingChannels() {
+    public List<SnowflakeValue> getScamLoggingChannels() {
         return catchException(() -> {
             final Object[] path = {"channels", "scam"};
             final var node = configNode.get(path);
@@ -123,11 +125,11 @@ public class GuildConfig {
                 node.comment("A list of snowflakes representing the channels in which to log the deletion of scam links.");
                 configNode.save();
             }
-            return Objects.requireNonNull(configNode.get(path).getList(Snowflake.class));
+            return Objects.requireNonNull(configNode.get(path).getList(SnowflakeValue.class));
         }, List::of);
     }
 
-    public List<Snowflake> getNoLoggingRoles() {
+    public List<SnowflakeValue> getNoLoggingRoles() {
         return catchException(() -> {
             final Object[] path = {"roles", "no_logging"};
             final var node = configNode.get(path);
@@ -135,11 +137,11 @@ public class GuildConfig {
                 configNode.set(node.path(), List.of());
                 configNode.save();
             }
-            return Objects.requireNonNull(configNode.get(path).getList(Snowflake.class));
+            return Objects.requireNonNull(configNode.get(path).getList(SnowflakeValue.class));
         }, List::of);
     }
 
-    public List<Snowflake> getChannelsForLogging(LoggingType type) {
+    public List<SnowflakeValue> getChannelsForLogging(LoggingType type) {
         return catchException(() -> {
             final var path = new Object[]{
                 "channels", type.getName()
@@ -149,7 +151,7 @@ public class GuildConfig {
                 createNodeForLogging(type);
                 configNode.save();
             }
-            return Objects.requireNonNull(configNode.get("channels", type.getName()).getList(Snowflake.class));
+            return Objects.requireNonNull(configNode.get("channels", type.getName()).getList(SnowflakeValue.class));
         }, List::of);
     }
 

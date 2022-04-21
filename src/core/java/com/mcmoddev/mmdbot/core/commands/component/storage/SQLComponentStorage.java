@@ -53,7 +53,7 @@ public class SQLComponentStorage implements ComponentStorage {
 
         // Install the SQL Objects and Guava plugins
         jdbi.installPlugin(new SqlObjectPlugin());
-        jdbi.registerArgument(new JdbiFactories.JdbiArgumentFactory());
+        jdbi.registerArgument(JdbiFactories.JdbiArgumentFactory.FACTORY);
         jdbi.registerRowMapper(Component.class, (rs, ctx) ->
             new Component(rs.getString(FEATURE_ROW_NAME),
                 UUID.fromString(rs.getString(ID_ROW_NAME)),
@@ -70,7 +70,7 @@ public class SQLComponentStorage implements ComponentStorage {
             ))
             .bind(FEATURE_ROW_NAME, component.featureId())
             .bind(ID_ROW_NAME, component.uuid())
-            .bind(ARGUMENTS_ROW_NAME, listToString(component.arguments()))
+            .bind(ARGUMENTS_ROW_NAME, component.arguments())
             .bind(LIFESPAN_ROW_NAME, component.lifespan().toString())
             .bind(LAST_USED_ROW_NAME, Instant.now())
             .execute());
@@ -93,7 +93,7 @@ public class SQLComponentStorage implements ComponentStorage {
         jdbi.useHandle(handle -> handle.createUpdate("update %s set %s = :args, %s = :last_used where %s = :id".formatted(
                 tableName, ARGUMENTS_ROW_NAME, LAST_USED_ROW_NAME, ID_ROW_NAME
             ))
-            .bind("args", listToString(newArguments))
+            .bind("args", newArguments)
             .bind("id", id.toString())
             .bind("last_used", Instant.now())
             .execute());
@@ -130,10 +130,6 @@ public class SQLComponentStorage implements ComponentStorage {
 
     private static final Type STRING_LIST_TYPE = new TypeToken<List<String>>() {
     }.getType();
-
-    private static String listToString(final List<String> list) {
-        return Constants.Gsons.NO_PRETTY_PRINTING.toJson(list, STRING_LIST_TYPE);
-    }
 
     private static List<String> listFromString(final String string) {
         return Constants.Gsons.NO_PRETTY_PRINTING.fromJson(string, STRING_LIST_TYPE);
