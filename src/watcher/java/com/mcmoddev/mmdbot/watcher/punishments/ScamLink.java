@@ -47,7 +47,7 @@ class ScamLink implements PunishableAction<GenericMessageEvent> {
 
     @Override
     public @Nullable Member getPunishedMember(final GenericMessageEvent event) {
-        if (event.isFromGuild()) {
+        if (!event.isFromGuild()) {
             return null;
         }
         if (event instanceof MessageReceivedEvent received) {
@@ -74,7 +74,7 @@ class ScamLink implements PunishableAction<GenericMessageEvent> {
     public boolean test(final GenericMessageEvent genericMessageEvent) {
         if (!genericMessageEvent.isFromGuild()) return false;
         final var msg = resolveMessage(genericMessageEvent);
-        if (msg == null) return false;
+        if (msg == null || msg.getMember() == null) return false;
         if (!Objects.requireNonNull(msg.getMember()).hasPermission(Permission.MESSAGE_MANAGE)) {
             return ScamDetector.containsScam(msg.getContentRaw().toLowerCase(Locale.ROOT));
         }
