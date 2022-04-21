@@ -100,7 +100,7 @@ dependencies {
   coreRuntimeOnly sourceSets.commander.output
   coreRuntimeOnly sourceSets.watcher.output
 
-  global project(':relauncher')
+  globalCompile project(':relauncher')
 
   jda(libs.jda) {
     exclude module: 'jackson-databind' // their jackson version is outdated
