@@ -53,6 +53,7 @@ import java.nio.file.Path;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+// TODO move to JDA
 public final class TheListener implements Bot {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("TheListener");

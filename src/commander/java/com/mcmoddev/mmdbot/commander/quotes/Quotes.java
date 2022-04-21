@@ -191,7 +191,7 @@ public final class Quotes {
             loadQuotes();
         }
         final var db = VersionedDatabase.inMemory(CURRENT_SCHEMA_VERSION, quotes);
-        try (final var writer = Files.newBufferedWriter(QUOTE_STORAGE.get(), StandardCharsets.UTF_8, StandardOpenOption.CREATE)) {
+        try (final var writer = Files.newBufferedWriter(QUOTE_STORAGE.get(), StandardCharsets.UTF_8)) {
             GSON.toJson(db.toJson(GSON), writer);
         } catch (Exception exception) {
             TheCommander.LOGGER.error("Failed to write quote file...", exception);
