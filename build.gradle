@@ -50,13 +50,6 @@ configurations {
   commanderImplementation.extendsFrom(global)
   watcherImplementation.extendsFrom(global)
 
-  jda
-  coreImplementation.extendsFrom(jda)
-  implementation.extendsFrom(jda)
-  commanderImplementation.extendsFrom(jda)
-  watcherImplementation.extendsFrom(jda)
-  listenerImplementation.extendsFrom(jda)
-
   globalCompile
   coreCompileOnly.extendsFrom(globalCompile)
   compileOnly.extendsFrom(globalCompile)
@@ -98,10 +91,10 @@ dependencies {
 
   globalCompile project(':relauncher')
 
-  jda(libs.jda) {
+  global(libs.jda) {
     exclude module: 'jackson-databind' // their jackson version is outdated
   }
-  jda libs.chewtils
+  global libs.chewtils
 
   global libs.guava
   global libs.gson
@@ -158,7 +151,7 @@ tasks.named('shadowJar', ShadowJar).configure {
   sourceSets.each {
     from it.output
   }
-  configurations = [project.configurations.jda, project.configurations.global]
+  configurations = [project.configurations.global]
   manifest.attributes(makeManifestAttributes())
   classifier 'all'
   group 'build'
@@ -174,19 +167,16 @@ tasks.named(JavaPlugin.JAR_TASK_NAME, Jar).configure {
   dependsOn tasks.named('updateLicenses')
 }
 
-final var jdaConfigurations = List.of("jda")
+configureBotJar("theListener", sourceSets.listener)
+configureBotJar("theWatcher", sourceSets.watcher)
+configureBotJar("theCommander", sourceSets.commander)
 
-configureBotJar("theListener", sourceSets.listener, jdaConfigurations)
-configureBotJar("theWatcher", sourceSets.watcher, jdaConfigurations)
-configureBotJar("theCommander", sourceSets.commander, jdaConfigurations)
-
-void configureBotJar(String botName, SourceSet sourceSet, List<String> extraConfigurations) {
+void configureBotJar(String botName, SourceSet sourceSet) {
   tasks.register("${botName}Jar", ShadowJar) {
     from sourceSets.core.output
     from sourceSet.output
     classifier(botName)
     manifest.attributes(makeManifestAttributes())
-    configurations = extraConfigurations.stream().map(name -> project.configurations.getByName(name)).toList()
     configurations.add(project.configurations.global)
     group 'build'
     description "Builds the bot $botName and its dependencies."
