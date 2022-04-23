@@ -20,56 +20,65 @@
  */
 package com.mcmoddev.mmdbot.thelistener.events;
 
-import com.mcmoddev.mmdbot.thelistener.util.ListenerAdapter;
+import com.mcmoddev.mmdbot.thelistener.TheListener;
 import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
-import com.mcmoddev.mmdbot.thelistener.util.Utils;
-import discord4j.core.event.domain.guild.MemberJoinEvent;
-import discord4j.core.event.domain.guild.MemberLeaveEvent;
-import discord4j.core.object.entity.Member;
-import discord4j.core.object.entity.PartialMember;
-import discord4j.core.object.entity.Role;
-import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.rest.util.Color;
-import reactor.core.publisher.Flux;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.utils.TimeFormat;
+import org.jetbrains.annotations.NotNull;
 
+import java.awt.Color;
 import java.time.Instant;
-import java.util.Arrays;
 
 public final class LeaveJoinEvents extends ListenerAdapter {
 
     @Override
-    public void onMemberJoin(final MemberJoinEvent event) {
-        final var embed = EmbedCreateSpec.builder()
-            .timestamp(Instant.now())
-            .color(Color.GREEN)
-            .title("User Joined")
-            .footer("User ID: " + event.getMember().getId().asLong(), null)
-            .addField("User:", "%s (%s)".formatted(event.getMember().getTag(), event.getMember().getMention()), true)
-            .thumbnail(event.getMember().getAvatarUrl())
-            .addField("Joined Discord:", "<t:%s:f>".formatted(event.getMember().getId().getTimestamp()
-                .getEpochSecond()), true)
+    public void onGuildMemberJoin(@NotNull final GuildMemberJoinEvent event) {
+        final var embed = new EmbedBuilder()
+            .setTimestamp(Instant.now())
+            .setColor(Color.GREEN)
+            .setTitle("User Joined")
+            .setFooter("User ID: " + event.getMember().getId())
+            .addField("User:", "%s (%s)".formatted(event.getMember().getUser().getAsTag(), event.getMember().getAsMention()), true)
+            .setThumbnail(event.getMember().getEffectiveAvatarUrl())
+            .addField("Joined Discord:", TimeFormat.DATE_TIME_SHORT.format(event.getMember().getUser().getTimeCreated()), true)
             .build();
 
-        Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.LEAVE_JOIN_EVENTS, c ->
-            c.createMessage(embed).subscribe());
+        TheListener.getInstance().getConfigForGuild(event.getGuild().getIdLong())
+            .getChannelsForLogging(LoggingType.LEAVE_JOIN_EVENTS)
+            .forEach(snowflakeValue -> {
+                final var ch = snowflakeValue.resolve(id -> event.getJDA().getChannelById(MessageChannel.class, id));
+                if (ch != null) {
+                    ch.sendMessageEmbeds(embed).queue();
+                }
+            });
     }
 
     @Override
-    public void onMemberLeave(final MemberLeaveEvent event) {
-        final var embed = EmbedCreateSpec.builder()
-            .timestamp(Instant.now())
-            .color(Color.RED)
-            .title("User Left")
-            .footer("User ID: " + event.getUser().getId().asLong(), null)
-            .addField("User:", event.getUser().getTag(), true)
-            .addField("Join Time:", event.getMember().flatMap(PartialMember::getJoinTime)
-                .map(i -> "<t:%s:f>".formatted(i.getEpochSecond())).orElse("Join time could not be determined!"), true)
-            .addField("Roles", Arrays.toString(event.getMember().map(Member::getRoles)
-                .map(roleFlux -> roleFlux.map(Role::getMention)).orElse(Flux.empty()).toStream().toArray(String[]::new)), false)
-            .thumbnail(event.getUser().getAvatarUrl())
+    public void onGuildMemberRemove(@NotNull final GuildMemberRemoveEvent event) {
+        if (event.getMember() == null) return;
+        final var embed = new EmbedBuilder()
+            .setTimestamp(Instant.now())
+            .setColor(Color.RED)
+            .setTitle("User Left")
+            .setFooter("User ID: " + event.getMember().getId(), event.getMember().getEffectiveAvatarUrl())
+            .addField("User:", event.getUser().getAsTag(), true)
+            .addField("Join Time:", TimeFormat.DATE_TIME_SHORT.format(event.getMember().getUser().getTimeCreated()), true)
+            .addField("Roles", String.join(" ", event.getMember().getRoles().stream().map(Role::getAsMention).toList()), false)
+            .setThumbnail(event.getUser().getAvatarUrl())
             .build();
 
-        Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.LEAVE_JOIN_EVENTS, c ->
-            c.createMessage(embed).subscribe());
+        TheListener.getInstance().getConfigForGuild(event.getGuild().getIdLong())
+            .getChannelsForLogging(LoggingType.LEAVE_JOIN_EVENTS)
+            .forEach(snowflakeValue -> {
+                final var ch = snowflakeValue.resolve(id -> event.getJDA().getChannelById(MessageChannel.class, id));
+                if (ch != null) {
+                    ch.sendMessageEmbeds(embed).queue();
+                }
+            });
     }
 }

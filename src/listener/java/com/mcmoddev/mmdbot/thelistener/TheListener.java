@@ -25,35 +25,33 @@ import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import com.mcmoddev.mmdbot.core.event.Events;
+import com.mcmoddev.mmdbot.core.util.Utils;
+import com.mcmoddev.mmdbot.core.util.jda.caching.JdaMessageCache;
 import com.mcmoddev.mmdbot.thelistener.events.LeaveJoinEvents;
 import com.mcmoddev.mmdbot.thelistener.events.MessageEvents;
 import com.mcmoddev.mmdbot.thelistener.events.ModerationEvents;
 import com.mcmoddev.mmdbot.thelistener.events.RoleEvents;
 import com.mcmoddev.mmdbot.thelistener.events.TrickEvents;
-import com.mcmoddev.mmdbot.thelistener.util.EventListener;
 import com.mcmoddev.mmdbot.thelistener.util.GuildConfig;
-import com.mcmoddev.mmdbot.thelistener.util.ThreadedEventListener;
-import com.mcmoddev.mmdbot.thelistener.util.Utils;
-import discord4j.common.util.Snowflake;
-import discord4j.core.DiscordClient;
-import discord4j.core.GatewayDiscordClient;
-import discord4j.core.event.domain.guild.GuildCreateEvent;
-import discord4j.core.event.domain.lifecycle.ReadyEvent;
-import discord4j.core.retriever.EntityRetrievalStrategy;
-import discord4j.gateway.intent.Intent;
-import discord4j.gateway.intent.IntentSet;
 import io.github.cdimascio.dotenv.Dotenv;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.security.auth.login.LoginException;
 import java.nio.file.Path;
-import java.util.concurrent.Executor;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-// TODO move to JDA
 public final class TheListener implements Bot {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("TheListener");
@@ -78,9 +76,17 @@ public final class TheListener implements Bot {
         Events.CUSTOM_AUDIT_LOG_BUS.register(TrickEvents.class);
     }
 
+    private static final Set<GatewayIntent> INTENTS = Set.of(
+        GatewayIntent.DIRECT_MESSAGES,
+        GatewayIntent.GUILD_BANS,
+        GatewayIntent.GUILD_EMOJIS,
+        GatewayIntent.GUILD_MESSAGES,
+        GatewayIntent.GUILD_MEMBERS
+    );
+
     private static TheListener instance;
 
-    private GatewayDiscordClient client;
+    private JDA jda;
     private final Path runPath;
     private final Long2ObjectMap<GuildConfig> guildConfigs = new Long2ObjectOpenHashMap<>();
 
@@ -88,11 +94,12 @@ public final class TheListener implements Bot {
         this.runPath = runPath;
     }
 
-    public static final Executor GENERAL_EVENT_THREAD_POOL = Executors.newFixedThreadPool(2,
-        r -> Utils.setThreadDaemon(new Thread(r, "GeneralD4JEvents"), true));
+    public static final ExecutorService GENERAL_EVENT_THREAD_POOL = Executors.newFixedThreadPool(2,
+        r -> Utils.setThreadDaemon(new Thread(r, "TheListenerEvents"), true));
+    public static final com.mcmoddev.mmdbot.core.util.event.ThreadedEventListener GENERAL_EVENT_LISTENER = new com.mcmoddev.mmdbot.core.util.event.ThreadedEventListener(GENERAL_EVENT_THREAD_POOL);
 
     @Override
-    public void start() {
+    public void start() throws LoginException {
         instance = this;
 
         final var dotenv = Dotenv.configure()
@@ -100,47 +107,47 @@ public final class TheListener implements Bot {
 
         final var token = dotenv.get("BOT_TOKEN", "");
 
-        client = DiscordClient.create(token).gateway()
-            .setEnabledIntents(IntentSet.of(Intent.values()))
-            .setEntityRetrievalStrategy(EntityRetrievalStrategy.REST).login().block();
+        addListener(MessageEvents.INSTANCE);
+        addListener(ModerationEvents.INSTANCE);
+        addListener(new LeaveJoinEvents());
+        addListener(new RoleEvents());
 
-        if (client == null) {
-            throw new NullPointerException("client");
-        }
+        jda = JDABuilder.create(
+            token,
+            INTENTS
+        )
+            .addEventListeners(JdaMessageCache.builder()
+                .onDelete(MessageEvents.INSTANCE::onMessageDelete)
+                .onEdit(MessageEvents.INSTANCE::onMessageUpdate)
+                .build(),
+                GENERAL_EVENT_LISTENER
+            )
+            .disableCache(CacheFlag.CLIENT_STATUS)
+            .disableCache(CacheFlag.ONLINE_STATUS)
+            .disableCache(CacheFlag.VOICE_STATE)
+            .disableCache(CacheFlag.ACTIVITY)
+            .build();
 
-        client.getEventDispatcher().on(ReadyEvent.class)
-            .subscribe(event -> LOGGER.warn("I am ready to work! Logged in as {}", event.getSelf().getTag()));
-
-        final var guildConfigsPath = getRunPath().resolve("configs/guilds");
-
-        client.getEventDispatcher().on(GuildCreateEvent.class)
-            .subscribe(event -> {
-                final var id = event.getGuild().getId().asLong();
-                if (!guildConfigs.containsKey(id)) {
-                    guildConfigs.put(id, new GuildConfig(id, guildConfigsPath));
-                }
-            });
-
-        Utils.subscribe(client, wrapListener(MessageEvents.INSTANCE), wrapListener(new LeaveJoinEvents()),
-            wrapListener(ModerationEvents.INSTANCE), wrapListener(new RoleEvents()));
-
-        while (true) {
-            // Block the thread
-        }
+        jda.addEventListener(new ListenerAdapter() {
+            @Override
+            public void onReady(@NotNull final net.dv8tion.jda.api.events.ReadyEvent event) {
+                LOGGER.warn("I am ready to work! Logged in as {}", event.getJDA().getSelfUser().getAsTag());
+            }
+        });
     }
 
     @Override
     public boolean blocksStartupThread() {
-        return true;
+        return false;
     }
 
     @Override
     public void shutdown() {
-        client.logout().subscribe();
+        jda.shutdown();
     }
 
-    public static EventListener wrapListener(EventListener listener) {
-        return new ThreadedEventListener(listener, GENERAL_EVENT_THREAD_POOL);
+    public static void addListener(net.dv8tion.jda.api.hooks.EventListener listener) {
+        GENERAL_EVENT_LISTENER.addListener(listener);
     }
 
     @Override
@@ -152,16 +159,16 @@ public final class TheListener implements Bot {
         return runPath;
     }
 
+    public JDA getJDA() {
+        return jda;
+    }
+
     @NonNull
-    public GuildConfig getConfigForGuild(Snowflake guild) {
-        return guildConfigs.computeIfAbsent(guild.asLong(), k -> new GuildConfig(k, getRunPath().resolve("configs/guilds")));
+    public GuildConfig getConfigForGuild(long guild) {
+        return guildConfigs.computeIfAbsent(guild, k -> new GuildConfig(k, getRunPath().resolve("configs").resolve("guilds")));
     }
 
     public static TheListener getInstance() {
         return instance;
-    }
-
-    public static GatewayDiscordClient getClient() {
-        return instance == null ? null : instance.client;
     }
 }

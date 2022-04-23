@@ -20,8 +20,8 @@
  */
 package com.mcmoddev.mmdbot.thelistener.util;
 
+import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.thelistener.TheListener;
-import discord4j.common.util.Snowflake;
 
 import java.util.List;
 
@@ -41,7 +41,7 @@ public enum LoggingType {
         this.channelGetter = channelGetter;
     }
 
-    public List<Snowflake> getChannels(Snowflake guild) {
+    public List<SnowflakeValue> getChannels(long guild) {
         return channelGetter.getChannels(guild);
     }
 
@@ -52,7 +52,7 @@ public enum LoggingType {
     @FunctionalInterface
     public interface ChannelGetter {
 
-        List<Snowflake> getChannels(Snowflake guild);
+        List<SnowflakeValue> getChannels(long guild);
 
     }
 

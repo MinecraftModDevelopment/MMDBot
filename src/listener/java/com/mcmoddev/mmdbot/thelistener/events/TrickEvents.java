@@ -23,33 +23,28 @@ package com.mcmoddev.mmdbot.thelistener.events;
 import com.mcmoddev.mmdbot.core.event.customlog.TrickEvent;
 import com.mcmoddev.mmdbot.thelistener.TheListener;
 import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
-import com.mcmoddev.mmdbot.thelistener.util.Utils;
-import discord4j.common.util.Snowflake;
-import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.core.spec.MessageCreateSpec;
-import discord4j.rest.util.AllowedMentions;
 import io.github.matyrobbrt.eventdispatcher.SubscribeEvent;
 import lombok.NonNull;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageChannel;
 
 import java.time.Instant;
 
 public class TrickEvents {
-    public static final AllowedMentions ALLOWED_MENTIONS_DATA = AllowedMentions.builder().repliedUser(false).build();
 
     private TrickEvents() {
     }
 
     @SubscribeEvent
     public static void onTrickAdded(@NonNull final TrickEvent.Add event) {
-        if (TheListener.getClient() == null) return;
-        final var guildId = Snowflake.of(event.getGuildId());
+        if (TheListener.getInstance() == null) return;
         final var type = event.getTrickType();
-        TheListener.getClient().getMemberById(guildId, Snowflake.of(event.getResponsibleUserId()))
-            .subscribe(member -> {
-                final var embed = EmbedCreateSpec.builder()
-                    .title("Trick Added")
-                    .author(member.getUsername(), null, member.getAvatarUrl())
-                    .description("""
+        TheListener.getInstance().getJDA().retrieveUserById(event.getResponsibleUserId())
+            .queue(member -> {
+                final var embed = new EmbedBuilder()
+                    .setTitle("Trick Added")
+                    .setAuthor(member.getName(), null, member.getAvatarUrl())
+                    .setDescription("""
                         <@%s> added a new trick of the type **%s**!
 
                         **Trick Content**:
@@ -59,29 +54,30 @@ public class TrickEvents {
                         .formatted(event.getResponsibleUserId(), type, type.equals("script") ? "js" : "",
                             reduceString(event.getContent(), 5000)))
                     .addField("Trick Names", String.join(", ", event.getTrickNames()), false)
-                    .timestamp(Instant.now())
+                    .setTimestamp(Instant.now())
                     .build();
 
-                Utils.executeInLoggingChannel(guildId, LoggingType.TRICK_EVENTS,
-                    channel -> channel.createMessage(MessageCreateSpec.builder()
-                        .embeds(embed)
-                        .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {
-                    }, t -> {
-                    }));
+                TheListener.getInstance().getConfigForGuild(event.getGuildId())
+                    .getChannelsForLogging(LoggingType.LEAVE_JOIN_EVENTS)
+                    .forEach(snowflakeValue -> {
+                        final var ch = snowflakeValue.resolve(id -> member.getJDA().getChannelById(MessageChannel.class, id));
+                        if (ch != null) {
+                            ch.sendMessageEmbeds(embed).queue();
+                        }
+                    });
             });
     }
 
     @SubscribeEvent
     public static void onTrickRemoved(@NonNull final TrickEvent.Remove event) {
-        if (TheListener.getClient() == null) return;
-        final var guildId = Snowflake.of(event.getGuildId());
+        if (TheListener.getInstance() == null) return;
         final var type = event.getTrickType();
-        TheListener.getClient().getMemberById(guildId, Snowflake.of(event.getResponsibleUserId()))
-            .subscribe(member -> {
-                final var embed = EmbedCreateSpec.builder()
-                    .title("Trick Removed")
-                    .author(member.getUsername(), null, member.getAvatarUrl())
-                    .description("""
+        TheListener.getInstance().getJDA().retrieveUserById(event.getResponsibleUserId())
+            .queue(member -> {
+                final var embed = new EmbedBuilder()
+                    .setTitle("Trick Removed")
+                    .setAuthor(member.getName(), null, member.getAvatarUrl())
+                    .setDescription("""
                         <@%s> removed a trick of the type **%s**!
 
                         **Old Trick Content**:
@@ -90,30 +86,31 @@ public class TrickEvents {
                         ```""".formatted(event.getResponsibleUserId(), type, type.equals("script") ? "js" : "",
                         reduceString(event.getContent(), 5000)))
                     .addField("Old Trick Names", String.join(", ", event.getTrickNames()), false)
-                    .timestamp(Instant.now())
+                    .setTimestamp(Instant.now())
                     .build();
 
-                Utils.executeInLoggingChannel(guildId, LoggingType.TRICK_EVENTS,
-                    channel -> channel.createMessage(MessageCreateSpec.builder()
-                        .embeds(embed)
-                        .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {
-                    }, t -> {
-                    }));
+                TheListener.getInstance().getConfigForGuild(event.getGuildId())
+                    .getChannelsForLogging(LoggingType.LEAVE_JOIN_EVENTS)
+                    .forEach(snowflakeValue -> {
+                        final var ch = snowflakeValue.resolve(id -> member.getJDA().getChannelById(MessageChannel.class, id));
+                        if (ch != null) {
+                            ch.sendMessageEmbeds(embed).queue();
+                        }
+                    });
             });
     }
 
     @SubscribeEvent
     public static void onTrickEdit(@NonNull final TrickEvent.Edit event) {
-        if (TheListener.getClient() == null) return;
-        final var guildId = Snowflake.of(event.getGuildId());
+        if (TheListener.getInstance() == null) return;
         final var newType = event.getTrickType();
         final var oldType = event.getOldTrickType();
-        TheListener.getClient().getMemberById(guildId, Snowflake.of(event.getResponsibleUserId()))
-            .subscribe(member -> {
-                final var embed = EmbedCreateSpec.builder()
-                    .title("Trick Edited")
-                    .author(member.getUsername(), null, member.getAvatarUrl())
-                    .description("""
+        TheListener.getInstance().getJDA().retrieveUserById(event.getResponsibleUserId())
+            .queue(member -> {
+                final var embed = new EmbedBuilder()
+                    .setTitle("Trick Edited")
+                    .setAuthor(member.getName(), null, member.getAvatarUrl())
+                    .setDescription("""
                         <@%s> edited a trick whose old type was **%s**, and new type is **%s**!
 
                         **Old Trick Content**:
@@ -131,12 +128,14 @@ public class TrickEvents {
                     .addField("New Trick Names", String.join(", ", event.getTrickNames()), false)
                     .build();
 
-                Utils.executeInLoggingChannel(guildId, LoggingType.TRICK_EVENTS,
-                    channel -> channel.createMessage(MessageCreateSpec.builder()
-                        .embeds(embed)
-                        .allowedMentions(ALLOWED_MENTIONS_DATA).build()).subscribe(e -> {
-                    }, t -> {
-                    }));
+                TheListener.getInstance().getConfigForGuild(event.getGuildId())
+                    .getChannelsForLogging(LoggingType.LEAVE_JOIN_EVENTS)
+                    .forEach(snowflakeValue -> {
+                        final var ch = snowflakeValue.resolve(id -> member.getJDA().getChannelById(MessageChannel.class, id));
+                        if (ch != null) {
+                            ch.sendMessageEmbeds(embed).queue();
+                        }
+                    });
             });
     }
 

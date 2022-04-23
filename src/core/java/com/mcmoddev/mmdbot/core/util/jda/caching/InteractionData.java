@@ -18,27 +18,10 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.thelistener.util;
+package com.mcmoddev.mmdbot.core.util.jda.caching;
 
-import discord4j.common.util.Snowflake;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.spongepowered.configurate.ConfigurationNode;
-import org.spongepowered.configurate.serialize.SerializationException;
-import org.spongepowered.configurate.serialize.TypeSerializer;
+public interface InteractionData {
 
-import java.lang.reflect.Type;
+    long getAuthorId();
 
-public class SnowflakeSerializer implements TypeSerializer<Snowflake> {
-    @Override
-    public Snowflake deserialize(final Type type, final ConfigurationNode node) throws SerializationException {
-        final var str = node.getString();
-        return str == null ? null : Snowflake.of(str);
-    }
-
-    @Override
-    public void serialize(final Type type, @Nullable final Snowflake obj, final ConfigurationNode node) throws SerializationException {
-        if (obj != null) {
-            node.set(obj.asString());
-        }
-    }
 }
