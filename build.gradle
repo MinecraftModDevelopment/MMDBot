@@ -136,32 +136,34 @@ dependencies {
 }
 
 // Relocates all of the tasks from build
-tasks.stream().filter({it.group == "build"}).forEach({it.group = "other"})
-tasks.named('updateLicenses').configure(it -> it.group = "licensing")
-tasks.named('licenseFormat').configure(it -> it.group = "licensing")
+tasks.configureEach {
+  if (it.group == 'build') it.group = 'other'
+}
+tasks.named('updateLicenses').configure { it.group = "licensing" }
+tasks.named('licenseFormat').configure { group = "licensing" }
 
 tasks.named('run', JavaExec).configure {
   workingDir = new File("run")
 }
 
 tasks.named('shadowJar', ShadowJar).configure {
-  sourceSets.forEach({
+  sourceSets.each {
     from it.output
-  })
+  }
   configurations = [project.configurations.jda, project.configurations.global]
   manifest.attributes(makeManifestAttributes())
-  classifier("all")
-  group("build")
-  description("Builds the whole project with its dependencies.")
-  dependsOn(tasks.getByName("updateLicenses"))
+  classifier 'all'
+  group 'build'
+  description 'Builds the whole project with its dependencies.'
+  dependsOn tasks.named('updateLicenses')
 }
 
 tasks.named(JavaPlugin.JAR_TASK_NAME, Jar).configure {
   from sourceSets.core.output
   manifest.attributes(makeManifestAttributes())
-  classifier("core-no-deps")
-  description("Builds the core sourceSet without its dependencies.")
-  dependsOn(tasks.getByName("updateLicenses"))
+  classifier 'core-no-deps'
+  description 'Builds the core sourceSet without its dependencies.'
+  dependsOn tasks.named('updateLicenses')
 }
 
 final var jdaConfigurations = List.of("jda")
@@ -171,25 +173,25 @@ configureBotJar("theWatcher", sourceSets.watcher, jdaConfigurations)
 configureBotJar("theCommander", sourceSets.commander, jdaConfigurations)
 
 void configureBotJar(String botName, SourceSet sourceSet, List<String> extraConfigurations) {
-  tasks.create("${botName}Jar", ShadowJar) {
+  tasks.register("${botName}Jar", ShadowJar) {
     from sourceSets.core.output
     from sourceSet.output
     classifier(botName)
     manifest.attributes(makeManifestAttributes())
     configurations = extraConfigurations.stream().map(name -> project.configurations.getByName(name)).toList()
     configurations.add(project.configurations.global)
-    group("build")
-    description("Builds the bot $botName and its dependencies.")
-    dependsOn(tasks.getByName("updateLicenses"))
+    group 'build'
+    description "Builds the bot $botName and its dependencies."
+    dependsOn tasks.named("updateLicenses")
   }
-  tasks.create("${botName}JarNoDeps", Jar) {
+  tasks.register("${botName}JarNoDeps", Jar) {
     from sourceSets.core.output
     from sourceSet.output
-    classifier("${botName}-no-deps")
+    classifier "${botName}-no-deps"
     manifest.attributes(makeManifestAttributes())
-    group("build")
-    description("Builds the bot $botName without its dependencies.")
-    dependsOn(tasks.getByName("updateLicenses"))
+    group 'build'
+    description "Builds the bot $botName without its dependencies."
+    dependsOn tasks.named("updateLicenses")
   }
 }
 
@@ -239,7 +241,7 @@ tasks.withType(Javadoc).configureEach {
   failOnError = false
 }
 
-test {
+tasks.named('test') {
   useJUnitPlatform()
   testLogging {
     events "passed", "skipped", "failed"
