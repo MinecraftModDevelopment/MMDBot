@@ -134,6 +134,10 @@ public class Configuration {
         @Setting("scam_link")
         public Punishment scamLink = new Punishment(Punishment.ActionType.MUTE, Duration.ofDays(1));
 
+        @Required
+        @Setting("new_account")
+        public Punishment newAccount = new Punishment(Punishment.ActionType.KICK, null);
+
     }
 
     @Required

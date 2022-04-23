@@ -37,7 +37,8 @@ import java.time.Instant;
 
 public enum PunishableActions implements EventListener {
     SPAM_PING(new SpamPing()),
-    SCAM_LINK(new ScamLink());
+    SCAM_LINK(new ScamLink()),
+    NEW_ACCOUNT(new NewAccount());
 
     private final EventListener listener;
 
@@ -55,7 +56,7 @@ public enum PunishableActions implements EventListener {
                         member.getUser().openPrivateChannel()
                             .flatMap(dm -> dm.sendMessageEmbeds(new EmbedBuilder()
                                     .setTitle("Punishment")
-                                    .setDescription("You have been punished" + (guild == null ? "" : " in " + guild.getName()) + "!")
+                                    .setDescription("You have been punished" + (guild == null ? "" : " in **" + guild.getName()) + "**!")
                                     .setColor(Color.RED)
                                     .addField("Punishment", punishment.toString(), false)
                                     .addField("Reason", reason, false)

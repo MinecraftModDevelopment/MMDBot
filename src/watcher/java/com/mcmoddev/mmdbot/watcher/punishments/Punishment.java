@@ -77,6 +77,9 @@ public record Punishment(ActionType type, Duration duration) {
 
     @Override
     public String toString() {
+        if (this == NONE) {
+            return "None";
+        }
         if (duration() == null) {
             return type().toString();
         } else {
