@@ -73,9 +73,9 @@ public final class JdbiFactories {
 
         @Override
         public Optional<Argument> build(final Type type, final Object value, final ConfigRegistry config) {
-            /*if (List.class.isAssignableFrom(GenericTypes.getErasedType(type))) {
+            if (List.class.isAssignableFrom(GenericTypes.getErasedType(type))) {
                 return LIST.build(type, value, config);
-            }*/
+            }
             if (BY_TYPE_FACTORIES.containsKey(type)) {
                 return BY_TYPE_FACTORIES.get(type).build(type, value, config);
             }
