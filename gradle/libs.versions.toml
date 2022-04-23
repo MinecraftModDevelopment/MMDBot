@@ -20,7 +20,6 @@ sqlite = "3.36.0.3"
 flyway = "8.5.8"
 annotations = "23.0.0"
 lombok = "1.18.24"
-discord4j = "3.3.0-SNAPSHOT"
 graal = "22.0.0.2"
 reflections = "0.10.2"
 jdbi = "3.28.0"
@@ -37,8 +36,8 @@ asmutils = "0.3.1"
 typetools = "0.6.3"
 javadocapi = "21ad5c1759"
 commons-io = "2.11.0"
-immutables = "2.9.0-rc1"
 caffeine = "3.0.6"
+urldetector = "0.1.23"
 
 [libraries]
 # jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
@@ -55,7 +54,6 @@ sqlite = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite" }
 flyway = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 annotations = { module = "org.jetbrains:annotations", version.ref = "annotations" }
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
-discord4j = { module = "com.discord4j:discord4j-core", version.ref = "discord4j" }
 graal = { module = "org.graalvm.js:js", version.ref = "graal" }
 graal-scriptengine = { module = "org.graalvm.js:js-scriptengine", version.ref = "graal" }
 reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
@@ -74,6 +72,5 @@ asmutils = {module = "io.github.matyrobbrt:asmutils", version.ref = "asmutils"}
 typetools = {module = "net.jodah:typetools", version.ref = "typetools"}
 javadocapi = { module = "com.github.I-Al-Istannen:JavadocApi", version.ref = "javadocapi" }
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
-immutables-value = { module = "org.immutables:value", version.ref = "immutables" }
-immutables-builder = { module = "org.immutables:builder", version.ref = "immutables" }
 caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
+urldetector = { module = "io.github.url-detector:url-detector", version.ref = "urldetector" }

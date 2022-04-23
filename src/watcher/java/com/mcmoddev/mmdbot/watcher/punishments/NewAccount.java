@@ -54,7 +54,7 @@ public class NewAccount implements PunishableAction<GuildMemberJoinEvent> {
         return guildMemberJoinEvent.getMember()
             .getTimeCreated()
             .toInstant()
-            .isAfter(Instant.now()
+            .isAfter(Instant.now() // TODO Make the threshold a config
                 .minus(1, ChronoUnit.HOURS));
     }
 }

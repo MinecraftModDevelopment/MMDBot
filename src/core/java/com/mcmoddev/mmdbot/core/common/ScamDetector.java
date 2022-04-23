@@ -24,6 +24,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.linkedin.urls.detection.UrlDetector;
+import com.linkedin.urls.detection.UrlDetectorOptions;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.event.moderation.ScamLinkEvent;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
@@ -35,6 +37,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
@@ -64,17 +67,21 @@ public class ScamDetector {
     }
 
     public static boolean containsScam(final String text) {
+        final var parser = new UrlDetector(text, UrlDetectorOptions.ALLOW_SINGLE_LEVEL_DOMAIN);
+        final var urls = parser.detect();
+        return urls.stream().anyMatch(u -> ScamDetector.isScam(u.getHost().toLowerCase(Locale.ROOT)));
+    }
+
+    public static boolean isScam(final String domain) {
         synchronized (SCAM_LINKS) {
             for (final var link : SCAM_LINKS) {
-                if (text.contains(link)) {
+                if (domain.equals(link)) {
                     return true;
                 }
             }
         }
         return false;
     }
-
-    private static final List<String> IGNORED = List.of("discordapp.co", "witch.tv", "steamcommunity.co");
 
     public static void onCollectTasks(final TaskScheduler.CollectTasksEvent event) {
         event.addTask(() -> {
@@ -91,9 +98,10 @@ public class ScamDetector {
         try (var is = new URL(SCAM_LINKS_DATA_URL).openStream()) {
             final String result = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             SCAM_LINKS.clear();
-            SCAM_LINKS.addAll(StreamSupport.stream(GSON.fromJson(result, JsonArray.class).spliterator(), false)
+            SCAM_LINKS.addAll(StreamSupport.stream(GSON.fromJson(result, JsonArray.class)
+                    .spliterator(), false)
                 .map(JsonElement::getAsString)
-                .filter(s -> !IGNORED.contains(s)).toList());
+                .toList());
             return true;
         } catch (final IOException e) {
             log.error("Error while setting up scam links!", e);

@@ -24,7 +24,6 @@ import static com.mcmoddev.mmdbot.core.common.ScamDetector.postScamEvent;
 import com.mcmoddev.mmdbot.core.common.ScamDetector;
 import com.mcmoddev.mmdbot.watcher.util.Configuration;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
@@ -32,13 +31,12 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Locale;
 import java.util.Objects;
 
-class ScamLink implements PunishableAction<GenericMessageEvent> {
+class PhishingLink implements PunishableAction<GenericMessageEvent> {
     @Override
     public Punishment getPunishment(final Configuration.Punishments config) {
-        return config.scamLink;
+        return config.phishingLink;
     }
 
     @Override
@@ -68,7 +66,7 @@ class ScamLink implements PunishableAction<GenericMessageEvent> {
 
     @Override
     public String getReason(final GenericMessageEvent event, final Member member) {
-        return "Sending a scam link";
+        return "Sending a phishing link";
     }
 
     @Override
@@ -76,8 +74,8 @@ class ScamLink implements PunishableAction<GenericMessageEvent> {
         if (!genericMessageEvent.isFromGuild()) return false;
         final var msg = resolveMessage(genericMessageEvent);
         if (msg == null || msg.getMember() == null) return false;
-        if (!Objects.requireNonNull(msg.getMember()).hasPermission(Permission.MESSAGE_MANAGE)) {
-            return ScamDetector.containsScam(msg.getContentRaw().toLowerCase(Locale.ROOT));
+        if (Objects.requireNonNull(msg.getMember()).hasPermission(Permission.MESSAGE_MANAGE)) {
+            return ScamDetector.containsScam(msg.getContentRaw());
         }
         return false;
     }
@@ -87,7 +85,7 @@ class ScamLink implements PunishableAction<GenericMessageEvent> {
         final var msg = resolveMessage(event);
         if (msg == null) return;
         msg.delete()
-            .reason("Scam link")
+            .reason("Phishing link")
             .queue($ -> postScamEvent(msg.getGuild().getIdLong(), msg.getAuthor().getIdLong(), msg.getChannel().getIdLong(),
                 msg.getContentRaw(), msg.getAuthor().getEffectiveAvatarUrl(), edited(event)));
     }

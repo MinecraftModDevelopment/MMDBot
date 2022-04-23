@@ -40,7 +40,7 @@ import java.util.List;
 
 public enum PunishableActions implements EventListener {
     SPAM_PING(new SpamPing()),
-    SCAM_LINK(new ScamLink()),
+    SCAM_LINK(new PhishingLink()),
     NEW_ACCOUNT(new NewAccount());
 
     private final PunishableAction<?> action;

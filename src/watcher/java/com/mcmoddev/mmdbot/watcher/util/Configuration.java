@@ -20,21 +20,15 @@
  */
 package com.mcmoddev.mmdbot.watcher.util;
 
-import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
-import com.mcmoddev.mmdbot.watcher.TheWatcher;
 import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
-import net.dv8tion.jda.api.Permission;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
-import org.spongepowered.configurate.objectmapping.meta.NodeKey;
 import org.spongepowered.configurate.objectmapping.meta.Required;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 
 @ConfigSerializable
@@ -131,8 +125,8 @@ public class Configuration {
         public Punishment spamPing = new Punishment(Punishment.ActionType.BAN, Duration.ofDays(2));
 
         @Required
-        @Setting("scam_link")
-        public Punishment scamLink = new Punishment(Punishment.ActionType.MUTE, Duration.ofDays(1));
+        @Setting("phishing_link")
+        public Punishment phishingLink = new Punishment(Punishment.ActionType.MUTE, Duration.ofDays(1));
 
         @Required
         @Setting("new_account")

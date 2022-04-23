@@ -125,6 +125,7 @@ dependencies {
   global libs.webhooks
   global libs.javadocapi
   global libs.caffeine
+  global libs.urldetector
 
   globalCompile libs.annotations
   globalCompile libs.lombok
@@ -165,9 +166,11 @@ tasks.named(JavaPlugin.JAR_TASK_NAME, Jar).configure {
   dependsOn(tasks.getByName("updateLicenses"))
 }
 
-configureBotJar("theListener", sourceSets.listener, Arrays.asList("jda"))
-configureBotJar("theWatcher", sourceSets.watcher, Arrays.asList("jda"))
-configureBotJar("theCommander", sourceSets.commander, Arrays.asList("jda"))
+final var jdaConfigurations = List.of("jda")
+
+configureBotJar("theListener", sourceSets.listener, jdaConfigurations)
+configureBotJar("theWatcher", sourceSets.watcher, jdaConfigurations)
+configureBotJar("theCommander", sourceSets.commander, jdaConfigurations)
 
 void configureBotJar(String botName, SourceSet sourceSet, List<String> extraConfigurations) {
   tasks.create("${botName}Jar", ShadowJar) {
