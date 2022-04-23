@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.core.util.event;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import lombok.NonNull;
 import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +34,10 @@ import javax.annotation.Nonnull;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
@@ -48,7 +51,7 @@ import java.util.concurrent.ExecutorService;
 public class ThreadedEventListener implements EventListener, ExecutorService {
     @Delegate
     private final ExecutorService threadPool;
-    private final List<EventListener> listeners = new ArrayList<>();
+    private final List<EventListener> listeners = Collections.synchronizedList(new CopyOnWriteArrayList<>());
 
     /**
      * Creates a new {@link ThreadedEventListener}
@@ -67,6 +70,7 @@ public class ThreadedEventListener implements EventListener, ExecutorService {
      * @param listener the listener to add
      * @return the current {@link ThreadedEventListener} for chaining conveniences.
      */
+    @CanIgnoreReturnValue
     public ThreadedEventListener addListener(@NonNull final EventListener listener) {
         this.listeners.add(listener);
         return this;
@@ -78,6 +82,7 @@ public class ThreadedEventListener implements EventListener, ExecutorService {
      * @param listeners the listeners to add
      * @return the current {@link ThreadedEventListener} for chaining conveniences.
      */
+    @CanIgnoreReturnValue
     public ThreadedEventListener addListeners(@NonNull final EventListener... listeners) {
         this.listeners.addAll(Arrays.asList(listeners));
         return this;
@@ -89,7 +94,8 @@ public class ThreadedEventListener implements EventListener, ExecutorService {
      * @param listeners the listeners to add
      * @return the current {@link ThreadedEventListener} for chaining conveniences.
      */
-    public ThreadedEventListener addListeners(@NonNull List<EventListener> listeners) {
+    @CanIgnoreReturnValue
+    public ThreadedEventListener addListeners(@NonNull List<? extends EventListener> listeners) {
         this.listeners.addAll(listeners);
         return this;
     }

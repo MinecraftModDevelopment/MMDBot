@@ -143,8 +143,7 @@ public final class TheWatcher implements Bot {
         return new ThreadedEventListener(poll);
     });
     public static final ThreadedEventListener PUNISHABLE_ACTIONS_LISTENER = new ThreadedEventListener(
-        Executors.newFixedThreadPool(2, r -> com.mcmoddev.mmdbot.core.util.Utils.setThreadDaemon(new Thread(TheWatcher.THREAD_GROUP, r, "PunishableActions"), true)),
-        PunishableActions.values()
+        Executors.newFixedThreadPool(2, r -> com.mcmoddev.mmdbot.core.util.Utils.setThreadDaemon(new Thread(TheWatcher.THREAD_GROUP, r, "PunishableActions"), true))
     );
 
     private static final Set<GatewayIntent> INTENTS = Set.of(
@@ -210,10 +209,14 @@ public final class TheWatcher implements Bot {
                 .build();
             Objects.requireNonNull(loader.defaultOptions().serializers().get(Punishment.class));
             final var cPair =
-                ConfigurateUtils.loadConfig(loader, configPath, c -> config = c, Configuration.class, Configuration.EMPTY);
+                ConfigurateUtils.loadConfig(loader, configPath, c -> {
+                    config = c;
+                    PUNISHABLE_ACTIONS_LISTENER.clear();
+                    PUNISHABLE_ACTIONS_LISTENER.addListeners(PunishableActions.getEnabledActions(c.punishments()));
+                }, Configuration.class, Configuration.EMPTY);
             configRef = cPair.second();
-            config = cPair.first().get();
-
+            config = Objects.requireNonNull(cPair.first().get());
+            PUNISHABLE_ACTIONS_LISTENER.addListeners(PunishableActions.getEnabledActions(config.punishments()));
         } catch (ConfigurateException e) {
             LOGGER.error("Exception while trying to load general config", e);
             throw new RuntimeException(e);

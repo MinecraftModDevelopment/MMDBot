@@ -41,12 +41,6 @@ readme = ""
 # This channel is mentioned in the `rules` command
 rules = ""
 
-# Configuration of roles
-[roles]
-
-# The snowflake ID of the regular role
-regular = ""
-
 # Configuration for the requests bad reaction threshold
 [requests]
 # Time in hours since request creation for a request of a user who left the server to be deleted

@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.watcher.punishments;
 
 import com.mcmoddev.mmdbot.watcher.TheWatcher;
+import com.mcmoddev.mmdbot.watcher.util.Configuration;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.Event;
@@ -34,15 +35,19 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 
 public enum PunishableActions implements EventListener {
     SPAM_PING(new SpamPing()),
     SCAM_LINK(new ScamLink()),
     NEW_ACCOUNT(new NewAccount());
 
+    private final PunishableAction<?> action;
     private final EventListener listener;
 
     <E extends GenericEvent> PunishableActions(PunishableAction<E> listener) {
+        this.action = listener;
         this.listener = event -> {
             if (listener.getEventClass().isInstance(event)) {
                 final var actualEvent = listener.getEventClass().cast(event);
@@ -83,5 +88,11 @@ public enum PunishableActions implements EventListener {
             return gM.isFromGuild() ? gM.getGuild() : null;
         }
         return null;
+    }
+
+    public static List<PunishableActions> getEnabledActions(Configuration.Punishments config) {
+        return Arrays.stream(values())
+            .filter(a -> a.action.getPunishment(config) != Punishment.NONE)
+            .toList();
     }
 }
