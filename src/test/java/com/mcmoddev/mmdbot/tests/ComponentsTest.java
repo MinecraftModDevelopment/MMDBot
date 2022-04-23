@@ -62,9 +62,8 @@ public class ComponentsTest {
 
     @BeforeAll
     static void setupStorage() throws IOException {
-        final var path = Path.of("run").resolve("tests").resolve("data.db");
+        final var path = Path.of("data.db");
         if (!Files.exists(path)) {
-            Files.createDirectories(path.getParent());
             Files.createFile(path);
         }
         SQLiteDataSource dataSource = new SQLiteDataSource();

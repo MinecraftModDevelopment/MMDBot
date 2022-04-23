@@ -80,6 +80,10 @@ public enum PunishableActions implements EventListener {
         listener.onEvent(event);
     }
 
+    public PunishableAction<?> getAction() {
+        return action;
+    }
+
     @Nullable
     private static Guild resolveGuild(GenericEvent event) {
         if (event instanceof GenericGuildEvent gE) {

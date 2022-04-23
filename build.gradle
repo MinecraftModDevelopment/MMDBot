@@ -133,16 +133,24 @@ dependencies {
 
   testImplementation libs.junit
   testImplementation 'org.mockito:mockito-core:4.5.0'
+
+  testImplementation sourceSets.watcher.output
 }
 
 // Relocates all of the tasks from build
 tasks.configureEach {
   if (it.group == 'build') it.group = 'other'
 }
+tasks.named('build').configure { it.group = "build" }
+
 tasks.named('updateLicenses').configure { it.group = "licensing" }
 tasks.named('licenseFormat').configure { group = "licensing" }
 
 tasks.named('run', JavaExec).configure {
+  workingDir = new File("run")
+}
+
+tasks.named('test', Test).configure {
   workingDir = new File("run")
 }
 
