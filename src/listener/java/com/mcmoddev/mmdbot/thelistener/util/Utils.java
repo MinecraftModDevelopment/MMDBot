@@ -20,8 +20,6 @@
  */
 package com.mcmoddev.mmdbot.thelistener.util;
 
-import discord4j.core.GatewayDiscordClient;
-import discord4j.core.event.domain.Event;
 import net.dv8tion.jda.api.audit.AuditLogEntry;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.requests.restaction.pagination.AuditLogPaginationAction;
@@ -30,24 +28,6 @@ import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 public final class Utils {
-
-    public static void subscribe(final GatewayDiscordClient client, EventListener... toSubscribe) {
-        for (final var eventListener : toSubscribe) {
-            client.getEventDispatcher().on(Event.class).subscribe(eventListener::onEvent);
-        }
-    }
-
-    /**
-     * Sets the thread's daemon property to the specified {@code isDaemon} and returns it
-     *
-     * @param thread   the thread to modify
-     * @param isDaemon if the thread should be daemon
-     * @return the modified thread
-     */
-    public static Thread setThreadDaemon(final Thread thread, final boolean isDaemon) {
-        thread.setDaemon(isDaemon);
-        return thread;
-    }
 
     public static String mentionAndID(final long id) {
         return "<@" + id + "> (" + id + ")";

@@ -92,7 +92,7 @@ public final class RoleEvents extends ListenerAdapter {
         }
         final List<Role> previousRoles = new ArrayList<>(event.getMember().getRoles());
         final List<Role> removedRoles = new ArrayList<>(event.getRoles());
-        previousRoles.removeAll(removedRoles); // Just if the member has already been updated
+        previousRoles.addAll(removedRoles);
         final var target = event.getMember();
         Utils.getAuditLog(event.getGuild(), target.getIdLong(), log -> log.type(ActionType.MEMBER_ROLE_UPDATE).limit(5), entry -> {
             final var embed = new EmbedBuilder();

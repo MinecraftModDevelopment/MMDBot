@@ -22,7 +22,6 @@ package com.mcmoddev.mmdbot.thelistener.util;
 
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
-import discord4j.common.util.Snowflake;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.spongepowered.configurate.CommentedConfigurationNode;
@@ -52,7 +51,6 @@ public class GuildConfig {
     public static final TypeSerializerCollection SERIALIZERS = TypeSerializerCollection.defaults()
         .childBuilder()
         .register(SnowflakeValue.class, new SnowflakeValue.Serializer())
-        .register(Snowflake.class, new SnowflakeSerializer())
         .build();
 
     private final long guildId;

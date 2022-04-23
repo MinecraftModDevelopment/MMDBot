@@ -162,7 +162,7 @@ public final class MessageEvents extends ListenerAdapter {
 
         if (TheListener.getInstance() != null) {
             final var jda = TheListener.getInstance().getJDA();
-            LoggingType.MESSAGE_EVENTS.getChannels(event.getGuildId())
+            TheListener.getInstance().getConfigForGuild(event.getGuildId()).getScamLoggingChannels()
                 .forEach(snowflakeValue -> {
                     final var ch = snowflakeValue.resolve(id -> jda.getChannelById(net.dv8tion.jda.api.entities.MessageChannel.class, id));
                     if (ch != null) {

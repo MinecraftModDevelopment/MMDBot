@@ -43,9 +43,6 @@ configurations {
   shade
   implementation.extendsFrom(shade)
 
-  d4j
-  listenerImplementation.extendsFrom(d4j)
-
   global
   coreImplementation.extendsFrom(global)
   implementation.extendsFrom(global)
@@ -58,6 +55,7 @@ configurations {
   implementation.extendsFrom(jda)
   commanderImplementation.extendsFrom(jda)
   watcherImplementation.extendsFrom(jda)
+  listenerImplementation.extendsFrom(jda)
 
   globalCompile
   coreCompileOnly.extendsFrom(globalCompile)
@@ -107,9 +105,6 @@ dependencies {
   }
   jda libs.chewtils
 
-  d4j libs.jda
-  d4j libs.discord4j
-
   global libs.guava
   global libs.gson
   global libs.logback
@@ -134,9 +129,6 @@ dependencies {
   globalCompile libs.annotations
   globalCompile libs.lombok
 
-  listenerCompileOnly libs.immutables.value
-  listenerCompileOnly libs.immutables.builder
-
   global libs.jdbi.core
   global libs.jdbi.sqlobject
 
@@ -157,7 +149,7 @@ tasks.named('shadowJar', ShadowJar).configure {
   sourceSets.forEach({
     from it.output
   })
-  configurations = [project.configurations.jda, project.configurations.global, project.configurations.d4j]
+  configurations = [project.configurations.jda, project.configurations.global]
   manifest.attributes(makeManifestAttributes())
   classifier("all")
   group("build")
@@ -173,7 +165,7 @@ tasks.named(JavaPlugin.JAR_TASK_NAME, Jar).configure {
   dependsOn(tasks.getByName("updateLicenses"))
 }
 
-configureBotJar("theListener", sourceSets.listener, Arrays.asList("d4j"))
+configureBotJar("theListener", sourceSets.listener, Arrays.asList("jda"))
 configureBotJar("theWatcher", sourceSets.watcher, Arrays.asList("jda"))
 configureBotJar("theCommander", sourceSets.commander, Arrays.asList("jda"))
 

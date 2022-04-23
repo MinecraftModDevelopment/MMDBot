@@ -22,7 +22,6 @@ package com.mcmoddev.mmdbot.thelistener.util;
 
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.thelistener.TheListener;
-import discord4j.common.util.Snowflake;
 
 import java.util.List;
 

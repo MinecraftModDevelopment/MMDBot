@@ -20,292 +20,272 @@
  */
 package com.mcmoddev.mmdbot.thelistener.events;
 
+import static com.mcmoddev.mmdbot.thelistener.TheListener.getInstance;
+import static com.mcmoddev.mmdbot.thelistener.util.Utils.mentionAndID;
 import com.mcmoddev.mmdbot.core.event.moderation.WarningEvent;
 import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.thelistener.TheListener;
-import com.mcmoddev.mmdbot.thelistener.util.ListenerAdapter;
 import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
 import com.mcmoddev.mmdbot.thelistener.util.Utils;
-import discord4j.common.util.Snowflake;
-import discord4j.common.util.TimestampFormat;
-import discord4j.core.event.domain.guild.BanEvent;
-import discord4j.core.event.domain.guild.MemberLeaveEvent;
-import discord4j.core.event.domain.guild.MemberUpdateEvent;
-import discord4j.core.event.domain.guild.UnbanEvent;
-import discord4j.core.object.audit.ActionType;
-import discord4j.core.object.entity.Member;
-import discord4j.core.object.entity.PartialMember;
-import discord4j.core.object.entity.User;
-import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.rest.util.Color;
 import io.github.matyrobbrt.eventdispatcher.SubscribeEvent;
-import reactor.core.publisher.Mono;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.audit.ActionType;
+import net.dv8tion.jda.api.audit.AuditLogKey;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.guild.GuildBanEvent;
+import net.dv8tion.jda.api.events.guild.GuildUnbanEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
+import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.utils.TimeFormat;
+import org.jetbrains.annotations.NotNull;
 
+import java.awt.Color;
 import java.time.Instant;
 import java.util.Optional;
 
-import static com.mcmoddev.mmdbot.thelistener.TheListener.getClient;
-import static com.mcmoddev.mmdbot.thelistener.util.Utils.mentionAndID;
-
+// TODO add timeout events
 public final class ModerationEvents extends ListenerAdapter {
     public static final ModerationEvents INSTANCE = new ModerationEvents();
+
+    public static final Color RUBY = new Color(0xE91E63);
 
     private ModerationEvents() {
     }
 
     @Override
-    public void onBan(final BanEvent event) {
-        event.getGuild().subscribe(guild -> {
-            Utils.getAuditLog(guild, event.getUser().getId().asLong(), log -> log
-                .withLimit(5)
-                .withActionType(ActionType.MEMBER_BAN_ADD)
-                .withGuild(guild), log -> {
-                final var embed = EmbedCreateSpec.builder();
-                final var bannedUser = event.getUser();
-                final var bannedBy = log.getResponsibleUser();
+    public void onGuildBan(@NotNull final GuildBanEvent event) {
+        Utils.getAuditLog(event.getGuild(), event.getUser().getIdLong(), log -> log
+            .limit(5)
+            .type(ActionType.BAN), log -> {
+            final var embed = new EmbedBuilder();
+            final var bannedUser = event.getUser();
+            final var bannedBy = Optional.ofNullable(log.getUser());
 
-                embed.color(Color.RED);
-                embed.title("User Banned.");
-                embed.thumbnail(bannedUser.getAvatarUrl());
-                embed.addField("**Name:**", bannedUser.getUsername(), false);
-                embed.addField("**User ID:**", bannedUser.getId().asString(), false);
-                embed.addField("**Profile:**", bannedUser.getMention(), false);
-                embed.addField("**Profile Age**", TimestampFormat.RELATIVE_TIME
-                    .format(bannedUser.getId().getTimestamp()), false);
+            embed.setColor(Color.RED);
+            embed.setTitle("User Banned.");
+            embed.setThumbnail(bannedUser.getAvatarUrl());
+            embed.addField("**Name:**", bannedUser.getName(), false);
+            embed.addField("**User ID:**", bannedUser.getId(), false);
+            embed.addField("**Profile:**", bannedUser.getAsMention(), false);
+            embed.addField("**Profile Age**", TimeFormat.RELATIVE
+                .format(bannedUser.getTimeCreated()), false);
 
-                embed.addField("**Ban reason:**", log.getReason().orElse("Reason for ban was not provided or could not be found, please contact "
-                    + bannedBy.map(User::getMention).orElse("the banner.")), false);
+            if (log.getReason() != null) {
+                embed.addField("**Ban reason:**", log.getReason(), false);
+            } else {
+                embed.addField("**Ban reason:**", "Reason for ban was not provided or could not be found, please contact " + bannedBy.map(User::getAsMention).orElse("the banner."), false);
+            }
 
-                final var targetId = (long) log.getTargetId().map(Snowflake::asLong).orElse(0L);
+            final var targetId = log.getTargetIdLong();
 
-                if (targetId != bannedUser.getId().asLong()) {
-                    TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
-                            + "entry and actual ban event target: retrieved is {}, but target is {}",
-                        targetId, bannedUser);
-                } else {
-                    embed.addField("Banned By: ", bannedBy.map(u -> "<@%s> (%s)".formatted(u.getId().asString(), u.getId().asLong())).orElse("Unknown"), false);
-                }
+            if (targetId != bannedUser.getIdLong()) {
+                TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
+                        + "entry and actual ban event target: retrieved is {}, but target is {}",
+                    targetId, bannedUser);
+            } else {
+                embed.addField("Banned By: ", bannedBy.map(u -> "<@%s> (%s)".formatted(u.getId(), u.getId())).orElse("Unknown"), false);
+            }
 
-                bannedBy.ifPresent(u -> embed.footer("Moderator ID: " + u.getId().asString(), u.getAvatarUrl()));
+            bannedBy.ifPresent(u -> embed.setFooter("Moderator ID: " + u.getId(), u.getAvatarUrl()));
 
-                embed.timestamp(Instant.now());
+            embed.setTimestamp(Instant.now());
 
-                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c
-                    .createMessage(embed.build()).subscribe());
-            });
+            log(event.getGuild().getIdLong(), event.getJDA(), embed.build());
         });
     }
 
     @Override
-    public void onUnban(final UnbanEvent event) {
-        event.getGuild().subscribe(guild -> {
-            Utils.getAuditLog(guild, event.getUser().getId().asLong(), log -> log
-                .withActionType(ActionType.MEMBER_BAN_REMOVE)
-                .withLimit(5)
-                .withGuild(guild), log -> {
-                final var embed = EmbedCreateSpec.builder();
-                final var bannedUser = event.getUser();
-                final var bannedBy = log.getResponsibleUser();
+    public void onGuildUnban(@NotNull final GuildUnbanEvent event) {
+        Utils.getAuditLog(event.getGuild(), event.getUser().getIdLong(), log -> log
+            .limit(5)
+            .type(ActionType.UNBAN), log -> {
+            final var embed = new EmbedBuilder();
+            final var bannedUser = event.getUser();
+            final var bannedBy = Optional.ofNullable(log.getUser());
 
-                embed.color(Color.GREEN);
-                embed.title("User Un-banned.");
-                embed.thumbnail(bannedUser.getAvatarUrl());
-                embed.addField("**Name:**", bannedUser.getUsername(), false);
-                embed.addField("**User ID:**", bannedUser.getId().asString(), false);
-                embed.addField("**Profile:**", bannedUser.getMention(), false);
-                embed.addField("**Profile Age**", TimestampFormat.RELATIVE_TIME
-                    .format(bannedUser.getId().getTimestamp()), false);
+            embed.setColor(Color.GREEN);
+            embed.setTitle("User Un-banned.");
+            embed.setThumbnail(bannedUser.getAvatarUrl());
+            embed.addField("**Name:**", bannedUser.getName(), false);
+            embed.addField("**User ID:**", bannedUser.getId(), false);
+            embed.addField("**Profile:**", bannedUser.getAsMention(), false);
+            embed.addField("**Profile Age**", TimeFormat.RELATIVE
+                .format(bannedUser.getTimeCreated()), false);
 
-                final var targetId = (long) log.getTargetId().map(Snowflake::asLong).orElse(0L);
+            final var targetId = log.getTargetIdLong();
 
-                if (targetId != bannedUser.getId().asLong()) {
-                    TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
-                            + "entry and actual unban event target: retrieved is {}, but target is {}",
-                        targetId, bannedUser);
-                } else {
-                    embed.addField("Un-banned By: ", bannedBy.map(u -> "<@%s> (%s)".formatted(u.getId().asString(), u.getId().asLong())).orElse("Unknown"), false);
-                }
+            if (targetId != bannedUser.getIdLong()) {
+                TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
+                        + "entry and actual unban event target: retrieved is {}, but target is {}",
+                    targetId, bannedUser);
+            } else {
+                embed.addField("Un-banned By: ", bannedBy.map(u -> "%s (%s)".formatted(u.getAsMention(), u.getId())).orElse("Unknown"), false);
+            }
 
-                bannedBy.ifPresent(u -> embed.footer("Moderator ID: " + u.getId().asString(), u.getAvatarUrl()));
-
-                embed.timestamp(Instant.now());
-
-                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c
-                    .createMessage(embed.build()).subscribe());
-            });
+            bannedBy.ifPresent(u -> embed.setFooter("Moderator ID: " + u.getId(), u.getAvatarUrl()));
+            embed.setTimestamp(Instant.now());
+            log(event.getGuild().getIdLong(), event.getJDA(), embed.build());
         });
     }
 
     @Override
-    public void onMemberUpdate(final MemberUpdateEvent event) {
-        event.getMember().map(m -> Pair.makeOptional(event.getOld(), Optional.of(m))).subscribe(pairO -> pairO.ifPresent(pair -> pair.accept((oldMember, newMember) -> {
-            Pair.makeOptional(oldMember.getNickname(), newMember.getNickname())
-                .ifPresent(p -> p.accept((oldNick, newNick) -> {
-                    if (!oldNick.equals(newNick)) {
-                        onNickChanged(event, newMember, oldNick, newNick);
-                    }
-                }));
-        })));
+    public void onGuildMemberUpdateNickname(@NotNull final GuildMemberUpdateNicknameEvent event) {
+        Utils.getAuditLog(event.getGuild(), event.getMember().getIdLong(), log -> log
+            .type(ActionType.MEMBER_UPDATE)
+            .limit(5), entry -> {
+            if (entry.getChangeByKey(AuditLogKey.MEMBER_NICK) == null) {
+                onNickNoAudit(event);
+            } else {
+                final var embed = new EmbedBuilder();
+                final var editor = Optional.ofNullable(entry.getUser());
+
+                embed.setColor(Color.YELLOW);
+                embed.setTitle("Nickname Changed");
+                embed.setThumbnail(event.getUser().getAvatarUrl());
+                embed.addField("User:", event.getUser().getAsMention() + " (" + event.getUser().getId() + ")", true);
+                embed.setTimestamp(Instant.now());
+                embed.addField("Nickname Editor: ", editor.map(u -> "%s (%s)".formatted(u.getAsMention(), u.getId())).orElse("Unknown"), false);
+
+                embed.addField("Old Nickname:", event.getOldNickname() == null ? "*None*" : event.getOldNickname(), true);
+                embed.addField("New Nickname:", event.getNewNickname() == null ? "*None*" : event.getNewNickname(), true);
+
+                log(event.getGuild().getIdLong(), event.getJDA(), embed.build());
+            }
+        }, () -> onNickNoAudit(event));
     }
 
-    private void onNickChanged(final MemberUpdateEvent event, final Member newMember, final String oldNick, final String newNick) {
-        event.getGuild().subscribe(guild -> {
-            Utils.getAuditLog(guild, newMember.getId().asLong(), log -> log
-                .withActionType(ActionType.MEMBER_UPDATE)
-                .withLimit(5)
-                .withGuild(guild), entry -> {
-                final var embed = EmbedCreateSpec.builder();
-                final var targetUser = new User(newMember.getClient(), newMember.getUserData());
-                final var editor = entry.getResponsibleUser();
+    private void onNickNoAudit(final GuildMemberUpdateNicknameEvent event) {
+        final var embed = new EmbedBuilder();
+        final var targetUser = event.getUser();
 
-                embed.color(Color.YELLOW);
-                embed.title("Nickname Changed");
-                embed.thumbnail(newMember.getAvatarUrl());
-                embed.addField("User:", targetUser.getMention() + " (" + newMember.getId().asLong() + ")", true);
-                embed.timestamp(Instant.now());
+        embed.setColor(Color.YELLOW);
+        embed.setTitle("Nickname Changed");
+        embed.setThumbnail(targetUser.getAvatarUrl());
+        embed.addField("User:", targetUser.getAsMention() + " (" + targetUser.getId() + ")", true);
+        embed.setTimestamp(Instant.now());
 
-                final var targetId = (long) entry.getTargetId().map(Snowflake::asLong).orElse(0L);
+        embed.addField("Old Nickname:", event.getOldNickname() == null ? "*None*" : event.getOldNickname(), true);
+        embed.addField("New Nickname:", event.getNewNickname() == null ? "*None*" : event.getNewNickname(), true);
 
-                if (targetId != newMember.getId().asLong()) {
-                    TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
-                            + "entry and actual nickname event target: retrieved is {}, but target is {}",
-                        targetId, newMember);
-                } else {
-                    embed.addField("Nickname Editor: ", editor.map(u -> "<@%s> (%s)".formatted(u.getId().asString(), u.getId().asLong())).orElse("Unknown"), false);
-                }
-
-                embed.addField("Old Nickname:", oldNick, true);
-                embed.addField("New Nickname:", newNick, true);
-
-                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c.createMessage(embed.build()).subscribe());
-            }, () -> {
-                final var embed = EmbedCreateSpec.builder();
-                final var targetUser = new User(newMember.getClient(), newMember.getUserData());
-
-                embed.color(Color.YELLOW);
-                embed.title("Nickname Changed");
-                embed.thumbnail(newMember.getAvatarUrl());
-                embed.addField("User:", targetUser.getMention() + " (" + newMember.getId().asLong() + ")", true);
-                embed.timestamp(Instant.now());
-                embed.addField("Nickname Editor: ", "<@%s> (%s)".formatted(targetUser.getId().asString(), targetUser.getId().asLong()), false);
-
-                embed.addField("Old Nickname:", oldNick, true);
-                embed.addField("New Nickname:", newNick, true);
-
-                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c -> c.createMessage(embed.build()).subscribe());
-            });
-        });
+        log(event.getGuild().getIdLong(), event.getJDA(), embed.build());
     }
 
     @Override
-    public void onMemberLeave(final MemberLeaveEvent event) {
-        event.getGuild().subscribe(guild -> {
-            Utils.getAuditLog(guild, event.getUser().getId().asLong(), log -> log
-                .withActionType(ActionType.MEMBER_KICK)
-                .withLimit(5)
-                .withGuild(guild), log -> {
-                final var embed = EmbedCreateSpec.builder();
-                final var kicker = log.getResponsibleUser();
-                final var kickedUser = event.getUser();
+    public void onGuildMemberRemove(@NotNull final GuildMemberRemoveEvent event) {
+        Utils.getAuditLog(event.getGuild(), event.getUser().getIdLong(), log -> log.type(ActionType.KICK).limit(5), log -> {
+            final var embed = new EmbedBuilder();
+            final var kicker = Optional.ofNullable(log.getUser());
+            final var kickedUser = event.getUser();
 
-                embed.color(Color.RUBY);
-                embed.title("User Kicked");
-                embed.thumbnail(kickedUser.getAvatarUrl());
-                embed.addField("**Name:**", kickedUser.getUsername(), false);
-                embed.addField("**User ID:**", kickedUser.getId().asString(), false);
-                embed.addField("**Profile:**", kickedUser.getMention(), false);
-                embed.addField("**Profile Age**", TimestampFormat.RELATIVE_TIME
-                    .format(kickedUser.getId().getTimestamp()), false);
+            embed.setColor(RUBY);
+            embed.setTitle("User Kicked");
+            embed.setThumbnail(kickedUser.getAvatarUrl());
+            embed.addField("**Name:**", kickedUser.getName(), false);
+            embed.addField("**User ID:**", kickedUser.getId(), false);
+            embed.addField("**Profile:**", kickedUser.getAsMention(), false);
+            embed.addField("**Profile Age**", TimeFormat.RELATIVE
+                .format(kickedUser.getTimeCreated()), false);
 
-                embed.addField("Guild Join Time:", event.getMember().flatMap(PartialMember::getJoinTime)
-                    .map(i -> "<t:%s:f>".formatted(i.getEpochSecond())).orElse("Join time could not be determined!"), true);
+            embed.addField("Guild Join Time:", Optional.ofNullable(event.getMember()).map(Member::getTimeJoined)
+                .map(TimeFormat.DATE_TIME_SHORT::format).orElse("Join time could not be determined!"), true);
 
-                embed.addField("**Kick reason:**", log.getReason().orElse("Reason for kick was not provided or could not be found, please contact "
-                    + kicker.map(User::getMention).orElse("the kicker.")), false);
+            embed.addField("**Kick reason:**", log.getReason() != null ? log.getReason() :
+                ("Reason for kick was not provided or could not be found, please contact "
+                + kicker.map(User::getAsMention).orElse("the kicker.")), false);
 
-                final var targetId = (long) log.getTargetId().map(Snowflake::asLong).orElse(0L);
+            final var targetId = log.getTargetIdLong();
 
-                if (targetId != event.getUser().getId().asLong()) {
-                    TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
-                            + "entry and actual kick event target: retrieved is {}, but target is {}",
-                        targetId, event.getUser());
-                } else {
-                    embed.addField("Kicked By: ", kicker.map(u -> "<@%s> (%s)".formatted(u.getId().asString(), u.getId().asLong())).orElse("Unknown"), false);
-                }
+            if (targetId != event.getUser().getIdLong()) {
+                TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
+                        + "entry and actual kick event target: retrieved is {}, but target is {}",
+                    targetId, event.getUser());
+            } else {
+                embed.addField("Kicked By: ", kicker.map(u -> "<@%s> (%s)".formatted(u.getId(), u.getId())).orElse("Unknown"), false);
+            }
 
-                kicker.ifPresent(u -> embed.footer("Moderator ID: " + u.getId().asString(), u.getAvatarUrl()));
+            kicker.ifPresent(u -> embed.setFooter("Moderator ID: " + u.getId(), u.getAvatarUrl()));
 
-                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.MODERATION_EVENTS, c ->
-                    c.createMessage(embed.build()).subscribe());
-            });
+            log(event.getGuild().getIdLong(), event.getJDA(), embed.build());
         });
     }
 
     @SubscribeEvent
     public void onWarnAdd(final WarningEvent.Add event) {
-        if (getClient() == null) {
-            return;
-        }
+        if (getInstance() == null) return;
+        final var jda = getInstance().getJDA();
         final var doc = event.getDocument();
-        Mono.zip(getClient().getUserById(Snowflake.of(doc.userId())),
-                getClient().getUserById(Snowflake.of(doc.moderatorId())))
-            .subscribe(t -> {
-                final var user = t.getT1();
-                final var warner = t.getT2();
-                final var embed = EmbedCreateSpec.builder()
-                    .color(Color.RED)
-                    .title("New Warning")
-                    .description("%s warned %s".formatted(mentionAndID(doc.moderatorId()), mentionAndID(doc.userId())))
-                    .thumbnail(user.getAvatarUrl())
+        and(jda.retrieveUserById(doc.userId()), jda.retrieveUserById(event.getModeratorId()))
+            .queue(p -> p.accept((user, warner) -> {
+                final var embed = new EmbedBuilder()
+                    .setColor(java.awt.Color.RED)
+                    .setTitle("New Warning")
+                    .setDescription("%s warned %s".formatted(mentionAndID(doc.moderatorId()), mentionAndID(doc.userId())))
+                    .setThumbnail(user.getAvatarUrl())
                     .addField("Reason:", doc.reason(), false)
                     .addField("Warning ID: ", doc.warnId(), false)
-                    .timestamp(Instant.now())
-                    .footer("Warner ID: " + doc.moderatorId(), warner.getAvatarUrl());
-                Utils.executeInLoggingChannel(Snowflake.of(doc.guildId()), LoggingType.MODERATION_EVENTS,
-                    c -> c.createMessage(embed.build()).subscribe());
-            });
+                    .setTimestamp(Instant.now())
+                    .setFooter("Warner ID: " + doc.moderatorId(), warner.getAvatarUrl());
+                log(event.getGuildId(), jda, embed.build());
+            }));
     }
 
     @SubscribeEvent
     public void onWarnClear(final WarningEvent.Clear event) {
-        if (getClient() == null) {
+        if (getInstance() == null) {
             return;
         }
+        final var jda = getInstance().getJDA();
         final var warnDoc = event.getDocument();
-        Mono.zip(getClient().getUserById(Snowflake.of(warnDoc.userId())),
-                getClient().getUserById(Snowflake.of(event.getModeratorId())))
-            .subscribe(t -> {
-                final var user = t.getT1();
-                final var moderator = t.getT2();
-                final var embed = EmbedCreateSpec.builder()
-                    .color(Color.GREEN)
-                    .title("Warning Cleared")
-                    .description("One of the warnings of " + mentionAndID(warnDoc.userId()) + " has been removed!")
-                    .thumbnail(user.getAvatarUrl())
+        and(jda.retrieveUserById(warnDoc.userId()), jda.retrieveUserById(event.getModeratorId()))
+            .queue(p -> p.accept((user, moderator) -> {
+                final var embed = new EmbedBuilder()
+                    .setColor(java.awt.Color.GREEN)
+                    .setTitle("Warning Cleared")
+                    .setDescription("One of the warnings of " + mentionAndID(warnDoc.userId()) + " has been removed!")
+                    .setThumbnail(user.getAvatarUrl())
                     .addField("Old warning reason:", warnDoc.reason(), false)
                     .addField("Old warner:", mentionAndID(warnDoc.userId()), false)
-                    .timestamp(Instant.now())
-                    .footer("Moderator ID: " + event.getModeratorId(), moderator.getAvatarUrl());
-                Utils.executeInLoggingChannel(Snowflake.of(warnDoc.guildId()), LoggingType.MODERATION_EVENTS,
-                    c -> c.createMessage(embed.build()).subscribe());
-            });
+                    .setTimestamp(Instant.now())
+                    .setFooter("Moderator ID: " + event.getModeratorId(), moderator.getAvatarUrl());
+                log(event.getGuildId(), jda, embed.build());
+            }));
     }
 
     @SubscribeEvent
     public void onWarnClearAll(final WarningEvent.ClearAllWarns event) {
-        if (getClient() == null) {
+        if (getInstance() == null) {
             return;
         }
-        getClient().getUserById(Snowflake.of(event.getModeratorId()))
-            .subscribe(moderator -> {
-                final var embed = EmbedCreateSpec.builder()
-                    .color(Color.GREEN)
-                    .title("Warnings Cleared")
-                    .description("All of the warnings of " + mentionAndID(event.getTargetId()) + " have been cleared!")
-                    .timestamp(Instant.now())
-                    .footer("Moderator ID: " + event.getModeratorId(), moderator.getAvatarUrl());
-                Utils.executeInLoggingChannel(Snowflake.of(event.getGuildId()), LoggingType.MODERATION_EVENTS,
-                    c -> c.createMessage(embed.build()).subscribe());
+        getInstance().getJDA().retrieveUserById(event.getModeratorId())
+            .queue(user -> {
+               final var embed = new EmbedBuilder()
+                   .setColor(java.awt.Color.GREEN)
+                   .setTitle("Warnings Cleared")
+                   .setDescription("All of the warnings of " + mentionAndID(event.getTargetId()) + " have been cleared!")
+                   .setTimestamp(Instant.now())
+                   .setFooter("Moderator ID: " + event.getModeratorId(), user.getAvatarUrl())
+                   .build();
+               log(event.getGuildId(), user.getJDA(), embed);
             });
+    }
+
+    private void log(long guildId, JDA jda, MessageEmbed embed) {
+        final var loggingChannels = LoggingType.MODERATION_EVENTS.getChannels(guildId);
+        loggingChannels
+            .forEach(id -> {
+                final var ch = id.resolve(idL -> jda.getChannelById(net.dv8tion.jda.api.entities.MessageChannel.class, idL));
+                if (ch != null) {
+                    ch.sendMessageEmbeds(embed).queue();
+                }
+            });
+    }
+
+    private static <A, B> RestAction<Pair<A, B>> and(RestAction<A> a, RestAction<B> b) {
+        return a.flatMap(a$ -> b.map(b$ -> Pair.of(a$, b$)));
     }
 }
