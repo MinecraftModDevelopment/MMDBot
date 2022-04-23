@@ -20,112 +20,117 @@
  */
 package com.mcmoddev.mmdbot.thelistener.events;
 
-import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.thelistener.TheListener;
-import com.mcmoddev.mmdbot.thelistener.util.ListenerAdapter;
 import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
 import com.mcmoddev.mmdbot.thelistener.util.Utils;
-import discord4j.common.util.Snowflake;
-import discord4j.core.event.domain.guild.MemberUpdateEvent;
-import discord4j.core.object.audit.ActionType;
-import discord4j.core.object.entity.Member;
-import discord4j.core.object.entity.User;
-import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.rest.util.Color;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.audit.ActionType;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 
+import java.awt.Color;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class RoleEvents extends ListenerAdapter {
 
     @Override
-    public void onMemberUpdate(final MemberUpdateEvent event) {
-        event.getMember().map(m -> Pair.makeOptional(event.getOld(), Optional.of(m)))
-            .subscribe(pairO -> pairO.ifPresent(pair -> pair.accept((oldMember, newMember) -> {
-                final var oldRoles = oldMember.getRoleIds();
-                final var newRoles = newMember.getRoleIds();
-                if (oldRoles.size() < newRoles.size()) {
-                    final var rolesAdded = new HashSet<>(newRoles);
-                    rolesAdded.removeAll(oldRoles);
-                    oldRoles.removeAll(rolesAdded);
-                    onRoleAdded(event, newMember, oldMember, oldRoles, rolesAdded);
-                } else if (oldRoles.size() > newRoles.size()) {
-                    final var rolesRemoved = new HashSet<>(oldRoles);
-                    rolesRemoved.removeAll(newRoles);
-                    onRoleRemoved(event, newMember, oldMember, oldRoles, rolesRemoved);
-                }
-            })));
-    }
-
-    private void onRoleAdded(final MemberUpdateEvent event, final Member newMember, final Member oldMember, final Set<Snowflake> rolesBefore, final Set<Snowflake> rolesAdded) {
-        if (TheListener.getInstance().getConfigForGuild(event.getGuildId()).getNoLoggingRoles().stream().anyMatch(s -> rolesAdded.contains(s))) {
-            return; // Ignore ignorable roles
+    public void onGuildMemberRoleAdd(@NotNull final GuildMemberRoleAddEvent event) {
+        final var roleIds = event.getRoles().stream().map(Role::getIdLong).toList();
+        if (TheListener.getInstance().getConfigForGuild(event.getGuild().getIdLong()).getNoLoggingRoles().stream().anyMatch(roleIds::contains)) {
+            return;
         }
-        event.getGuild().subscribe(guild -> {
-            Utils.getAuditLog(guild, newMember.getId().asLong(), log -> log.withLimit(5).withActionType(ActionType.MEMBER_ROLE_UPDATE).withGuild(guild), entry -> {
-                final var embed = EmbedCreateSpec.builder();
-                final var target = new User(event.getClient(), newMember.getUserData());
+        final List<Role> previousRoles = new ArrayList<>(event.getMember().getRoles());
+        final List<Role> addedRoles = new ArrayList<>(event.getRoles());
+        previousRoles.removeAll(addedRoles); // Just if the member has already been updated
+        final var target = event.getMember();
+        Utils.getAuditLog(event.getGuild(), target.getIdLong(), log -> log.type(ActionType.MEMBER_ROLE_UPDATE).limit(5), entry -> {
+            final var embed = new EmbedBuilder();
 
-                embed.color(Color.YELLOW);
-                embed.title("User Role(s) Added");
-                embed.thumbnail(target.getAvatarUrl());
-                embed.addField("User:", target.getMention() + " (" + target.getId().asLong() + ")", true);
+            embed.setColor(Color.YELLOW);
+            embed.setTitle("User Role(s) Added");
+            embed.setThumbnail(target.getEffectiveAvatarUrl());
+            embed.addField("User:", target.getAsMention() + " (" + target.getId() + ")", true);
 
-                final var targetId = (long) entry.getTargetId().map(Snowflake::asLong).orElse(0L);
+            final var targetId = entry.getTargetIdLong();
 
-                if (targetId != target.getId().asLong()) {
-                    TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log entry and actual " + "role event target: retrieved is {}, but target is {}", targetId, target);
-                } else {
-                    entry.getResponsibleUser().ifPresent(u -> embed.addField("Editor:", u.getMention() + "(%s)".formatted(u.getId().asLong()), true));
-                }
+            if (targetId != target.getIdLong()) {
+                TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log entry and actual " + "role event target: retrieved is {}, but target is {}", targetId, target);
+            } else if (entry.getUser() != null) {
+                final var editor = entry.getUser();
+                embed.addField("Editor:", editor.getAsMention() + " (" + editor.getId() + ")",
+                    true);
+            }
 
-                embed.addField("Previous Role(s):", ifEmpty(rolesBefore.stream().map(id -> "<@&%s>".formatted(id.asLong())).collect(Collectors.joining(" ")), "None"), false);
-                embed.addField("Added Role(s):", ifEmpty(rolesAdded.stream().map(id -> "<@&%s>".formatted(id.asLong())).collect(Collectors.joining(" ")), "None"), false);
-                embed.timestamp(Instant.now());
+            embed.addField("Previous Role(s):", ifEmpty(previousRoles.stream().map(id -> "<@&%s>".formatted(id.getId())).collect(Collectors.joining(" "))), false);
+            embed.addField("Added Role(s):", ifEmpty(addedRoles.stream().map(id -> "<@&%s>".formatted(id.getId())).collect(Collectors.joining(" "))), false);
+            embed.setTimestamp(entry.getTimeCreated());
 
-                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.ROLE_EVENTS, c -> c.createMessage(embed.build()).subscribe());
-            });
+            final var bEmb = embed.build();
+            final var loggingChannels = LoggingType.MESSAGE_EVENTS.getChannels(event.getGuild().getIdLong());
+            loggingChannels
+                .forEach(id -> {
+                    final var ch = id.resolve(idL -> event.getJDA().getChannelById(net.dv8tion.jda.api.entities.MessageChannel.class, idL));
+                    if (ch != null) {
+                        ch.sendMessageEmbeds(bEmb).queue();
+                    }
+                });
         });
     }
 
-    private void onRoleRemoved(final MemberUpdateEvent event, final Member newMember, final Member oldMember, final Set<Snowflake> rolesBefore, final Set<Snowflake> rolesRemoved) {
-        if (TheListener.getInstance().getConfigForGuild(event.getGuildId()).getNoLoggingRoles().stream().anyMatch(rolesRemoved::contains)) {
-            return; // Ignore ignorable roles
+    @Override
+    public void onGuildMemberRoleRemove(@NotNull final GuildMemberRoleRemoveEvent event) {
+        final var roleIds = event.getRoles().stream().map(Role::getIdLong).toList();
+        if (TheListener.getInstance().getConfigForGuild(event.getGuild().getIdLong()).getNoLoggingRoles().stream().anyMatch(roleIds::contains)) {
+            return;
         }
-        event.getGuild().subscribe(guild -> {
-            Utils.getAuditLog(guild, newMember.getId().asLong(), log -> log.withLimit(5).withActionType(ActionType.MEMBER_ROLE_UPDATE).withGuild(guild), entry -> {
-                final var embed = EmbedCreateSpec.builder();
-                final var target = new User(event.getClient(), newMember.getUserData());
+        final List<Role> previousRoles = new ArrayList<>(event.getMember().getRoles());
+        final List<Role> removedRoles = new ArrayList<>(event.getRoles());
+        previousRoles.removeAll(removedRoles); // Just if the member has already been updated
+        final var target = event.getMember();
+        Utils.getAuditLog(event.getGuild(), target.getIdLong(), log -> log.type(ActionType.MEMBER_ROLE_UPDATE).limit(5), entry -> {
+            final var embed = new EmbedBuilder();
 
-                embed.color(Color.YELLOW);
-                embed.title("User Role(s) Removed");
-                embed.addField("User:", target.getMention() + " (" + target.getId().asLong() + ")", true);
-                embed.thumbnail(target.getAvatarUrl());
+            embed.setColor(Color.YELLOW);
+            embed.setTitle("User Role(s) Removed");
+            embed.addField("User:", target.getAsMention() + " (" + target.getId() + ")", true);
+            embed.setThumbnail(target.getAvatarUrl());
 
-                final var targetId = (long) entry.getTargetId().map(Snowflake::asLong).orElse(0L);
+            final var targetId = entry.getTargetIdLong();
 
-                if (targetId != newMember.getId().asLong()) {
-                    TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log entry and actual " + "role event target: retrieved is {}, but target is {}", targetId, target);
-                } else {
-                    entry.getResponsibleUser().ifPresent(u -> embed.addField("Editor:", u.getMention() + "(%s)".formatted(u.getId().asLong()), true));
-                }
+            if (targetId != target.getIdLong()) {
+                TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log entry and actual " + "role event target: retrieved is {}, but target is {}", targetId, target);
+            } else if (entry.getUser() != null) {
+                final var editor = entry.getUser();
+                embed.addField("Editor:", editor.getAsMention() + " (" + editor.getId() + ")",
+                    true);
+            }
 
-                embed.addField("Previous Role(s):", ifEmpty(rolesBefore.stream().map(id -> "<@&%s>"
-                    .formatted(id.asLong())).collect(Collectors.joining(" ")), "None"), false);
-                embed.addField("Removed Role(s):", ifEmpty(rolesRemoved.stream().map(id -> "<@&%s>"
-                    .formatted(id.asLong())).collect(Collectors.joining(" ")), "None"), false);
-                embed.timestamp(Instant.now());
+            embed.addField("Previous Role(s):", ifEmpty(previousRoles.stream().map(id -> "<@&%s>"
+                .formatted(id.getId())).collect(Collectors.joining(" "))), false);
+            embed.addField("Removed Role(s):", ifEmpty(removedRoles.stream().map(id -> "<@&%s>"
+                .formatted(id.getId())).collect(Collectors.joining(" "))), false);
+            embed.setTimestamp(entry.getTimeCreated());
 
-                Utils.executeInLoggingChannel(event.getGuildId(), LoggingType.ROLE_EVENTS, c ->
-                    c.createMessage(embed.build()).subscribe());
-            });
+            final var bEmb = embed.build();
+            final var loggingChannels = LoggingType.MESSAGE_EVENTS.getChannels(event.getGuild().getIdLong());
+            loggingChannels
+                .forEach(id -> {
+                    final var ch = id.resolve(idL -> event.getJDA().getChannelById(net.dv8tion.jda.api.entities.MessageChannel.class, idL));
+                    if (ch != null) {
+                        ch.sendMessageEmbeds(bEmb).queue();
+                    }
+                });
         });
     }
 
-    private static String ifEmpty(String str, String ifEmpty) {
-        return str.isBlank() ? ifEmpty : str;
+    private static String ifEmpty(String str) {
+        return str.isBlank() ? "None" : str;
     }
 }

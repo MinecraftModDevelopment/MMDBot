@@ -141,10 +141,11 @@ public final class TheListener implements Bot {
             });
 
         Utils.subscribe(client,
-            wrapListener(ModerationEvents.INSTANCE), wrapListener(new RoleEvents()));
+            wrapListener(ModerationEvents.INSTANCE));
 
         addListener(MessageEvents.INSTANCE);
         addListener(new LeaveJoinEvents());
+        addListener(new RoleEvents());
     }
 
     @Override
