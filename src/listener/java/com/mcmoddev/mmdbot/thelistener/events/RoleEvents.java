@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.thelistener.events;
 
+import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.thelistener.TheListener;
 import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
 import com.mcmoddev.mmdbot.thelistener.util.Utils;
@@ -43,7 +44,7 @@ public final class RoleEvents extends ListenerAdapter {
     @Override
     public void onGuildMemberRoleAdd(@NotNull final GuildMemberRoleAddEvent event) {
         final var roleIds = event.getRoles().stream().map(Role::getIdLong).toList();
-        if (TheListener.getInstance().getConfigForGuild(event.getGuild().getIdLong()).getNoLoggingRoles().stream().anyMatch(roleIds::contains)) {
+        if (TheListener.getInstance().getConfigForGuild(event.getGuild().getIdLong()).getNoLoggingRoles().stream().map(SnowflakeValue::asLong).anyMatch(roleIds::contains)) {
             return;
         }
         final List<Role> previousRoles = new ArrayList<>(event.getMember().getRoles());
@@ -87,7 +88,7 @@ public final class RoleEvents extends ListenerAdapter {
     @Override
     public void onGuildMemberRoleRemove(@NotNull final GuildMemberRoleRemoveEvent event) {
         final var roleIds = event.getRoles().stream().map(Role::getIdLong).toList();
-        if (TheListener.getInstance().getConfigForGuild(event.getGuild().getIdLong()).getNoLoggingRoles().stream().anyMatch(roleIds::contains)) {
+        if (TheListener.getInstance().getConfigForGuild(event.getGuild().getIdLong()).getNoLoggingRoles().stream().map(SnowflakeValue::asLong).anyMatch(roleIds::contains)) {
             return;
         }
         final List<Role> previousRoles = new ArrayList<>(event.getMember().getRoles());
