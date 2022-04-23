@@ -63,8 +63,6 @@ configurations {
   listenerCompileOnly.extendsFrom(globalCompile)
   commanderCompileOnly.extendsFrom(globalCompile)
   watcherCompileOnly.extendsFrom(globalCompile)
-
-  coreRuntimeOnly.extendsFrom(d4j)
 }
 
 sourceSets {
