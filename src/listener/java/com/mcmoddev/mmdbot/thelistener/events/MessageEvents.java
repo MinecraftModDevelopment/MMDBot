@@ -78,6 +78,7 @@ public final class MessageEvents extends ListenerAdapter {
                 return embedBuilder.build();
             })
             .queue(embed -> {
+                if (embed == null) return;
                 loggingChannels
                     .forEach(id -> {
                         final var ch = id.resolve(idL -> event.getJDA().getChannelById(net.dv8tion.jda.api.entities.MessageChannel.class, idL));
@@ -117,6 +118,7 @@ public final class MessageEvents extends ListenerAdapter {
                 return embedBuilder.build();
             })
             .queue(embed -> {
+                if (embed == null) return;
                 loggingChannels
                     .forEach(id -> {
                         final var ch = id.resolve(idL -> event.getJDA().getChannelById(net.dv8tion.jda.api.entities.MessageChannel.class, idL));
