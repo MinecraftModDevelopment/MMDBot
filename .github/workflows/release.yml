@@ -17,7 +17,7 @@ jobs:
           DISCORD_USERNAME: GitHub
           DISCORD_AVATAR: https://cdn.discordapp.com/avatars/815532493087178803/df91181b3f1cf0ef1592fbe18e0962d7.webp?size=128
         with:
-          args: 'A new release ( ${{ env.TAG }} ) is being built.'
+          args: "A new release ( ${{ env.TAG }} ) is being built."
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -38,7 +38,7 @@ jobs:
         uses: snickerbockers/submodules-init@v4
       - name: Build Jar with Gradle
         id: publish_release_assets
-        run: ./gradlew build -Pbot_version=${{ env.TAG }}
+        run: ./gradlew :build -Pbot_version=${{ env.TAG }}
         env:
           BUILD_NUMBER: ${{ github.run_number }}
       - name: Create release
