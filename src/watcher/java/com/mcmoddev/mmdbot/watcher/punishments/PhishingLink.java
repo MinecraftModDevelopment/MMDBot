@@ -74,10 +74,7 @@ class PhishingLink implements PunishableAction<GenericMessageEvent> {
         if (!genericMessageEvent.isFromGuild()) return false;
         final var msg = resolveMessage(genericMessageEvent);
         if (msg == null || msg.getMember() == null) return false;
-        if (Objects.requireNonNull(msg.getMember()).hasPermission(Permission.MESSAGE_MANAGE)) {
-            return ScamDetector.containsScam(msg.getContentRaw());
-        }
-        return false;
+        return ScamDetector.containsScam(msg.getContentRaw());
     }
 
     @Override
