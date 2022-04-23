@@ -80,7 +80,6 @@ public final class TheListener implements Bot {
         GatewayIntent.DIRECT_MESSAGES,
         GatewayIntent.GUILD_BANS,
         GatewayIntent.GUILD_EMOJIS,
-        GatewayIntent.GUILD_MESSAGE_REACTIONS,
         GatewayIntent.GUILD_MESSAGES,
         GatewayIntent.GUILD_MEMBERS
     );

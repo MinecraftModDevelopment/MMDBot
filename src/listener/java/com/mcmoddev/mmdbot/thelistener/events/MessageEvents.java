@@ -105,7 +105,7 @@ public final class MessageEvents extends ListenerAdapter {
                 embedBuilder.setTimestamp(Instant.now());
                 embedBuilder.addField("Before", data.getContent().isBlank() ? "*Blank*" : data.getContent(), false)
                     .addField("After", newMessage.getContentRaw().isBlank() ? "*Blank*" : newMessage.getContentRaw(), false);
-                embedBuilder.setAuthor(author.getEffectiveName(), null, author.getAvatarUrl())
+                embedBuilder.setAuthor(author.getEffectiveName(), null, author.getEffectiveAvatarUrl())
                     .setFooter("Author ID: " + author.getId(), null);
                 final var interaction = data.getInteraction();
                 if (interaction != null) {

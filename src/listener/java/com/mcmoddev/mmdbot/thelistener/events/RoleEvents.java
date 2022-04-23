@@ -73,7 +73,7 @@ public final class RoleEvents extends ListenerAdapter {
             embed.setTimestamp(entry.getTimeCreated());
 
             final var bEmb = embed.build();
-            final var loggingChannels = LoggingType.MESSAGE_EVENTS.getChannels(event.getGuild().getIdLong());
+            final var loggingChannels = LoggingType.ROLE_EVENTS.getChannels(event.getGuild().getIdLong());
             loggingChannels
                 .forEach(id -> {
                     final var ch = id.resolve(idL -> event.getJDA().getChannelById(net.dv8tion.jda.api.entities.MessageChannel.class, idL));
@@ -119,7 +119,7 @@ public final class RoleEvents extends ListenerAdapter {
             embed.setTimestamp(entry.getTimeCreated());
 
             final var bEmb = embed.build();
-            final var loggingChannels = LoggingType.MESSAGE_EVENTS.getChannels(event.getGuild().getIdLong());
+            final var loggingChannels = LoggingType.ROLE_EVENTS.getChannels(event.getGuild().getIdLong());
             loggingChannels
                 .forEach(id -> {
                     final var ch = id.resolve(idL -> event.getJDA().getChannelById(net.dv8tion.jda.api.entities.MessageChannel.class, idL));
