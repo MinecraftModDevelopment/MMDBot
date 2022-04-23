@@ -21,7 +21,6 @@
 package com.mcmoddev.mmdbot.watcher.punishments;
 
 import com.mcmoddev.mmdbot.watcher.util.Configuration;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import org.jetbrains.annotations.Nullable;
@@ -56,6 +55,6 @@ public class NewAccount implements PunishableAction<GuildMemberJoinEvent> {
             .getTimeCreated()
             .toInstant()
             .isAfter(Instant.now()
-                .minus(5, ChronoUnit.MINUTES));
+                .minus(1, ChronoUnit.HOURS));
     }
 }
