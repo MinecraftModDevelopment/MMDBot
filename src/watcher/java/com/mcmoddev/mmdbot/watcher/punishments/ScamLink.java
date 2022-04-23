@@ -24,6 +24,7 @@ import static com.mcmoddev.mmdbot.core.common.ScamDetector.postScamEvent;
 import com.mcmoddev.mmdbot.core.common.ScamDetector;
 import com.mcmoddev.mmdbot.watcher.util.Configuration;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
@@ -66,8 +67,8 @@ class ScamLink implements PunishableAction<GenericMessageEvent> {
     }
 
     @Override
-    public String getReason() {
-        return "Scam Link";
+    public String getReason(final GenericMessageEvent event, final Member member) {
+        return "Sending a scam link";
     }
 
     @Override

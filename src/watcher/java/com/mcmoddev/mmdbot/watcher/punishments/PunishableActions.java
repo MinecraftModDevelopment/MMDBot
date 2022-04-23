@@ -21,10 +21,19 @@
 package com.mcmoddev.mmdbot.watcher.punishments;
 
 import com.mcmoddev.mmdbot.watcher.TheWatcher;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
+import net.dv8tion.jda.api.events.message.GenericMessageEvent;
+import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.awt.Color;
+import java.time.Instant;
 
 public enum PunishableActions implements EventListener {
     SPAM_PING(new SpamPing()),
@@ -32,7 +41,7 @@ public enum PunishableActions implements EventListener {
 
     private final EventListener listener;
 
-    <E extends Event> PunishableActions(PunishableAction<E> listener) {
+    <E extends GenericEvent> PunishableActions(PunishableAction<E> listener) {
         this.listener = event -> {
             if (listener.getEventClass().isInstance(event)) {
                 final var actualEvent = listener.getEventClass().cast(event);
@@ -40,7 +49,21 @@ public enum PunishableActions implements EventListener {
                 final var member = listener.getPunishedMember(actualEvent);
                 if (member != null && doPunish && TheWatcher.getInstance() != null) {
                     final var punishment = listener.getPunishment(TheWatcher.getInstance().getConfig().punishments());
-                    punishment.punish(member, listener.getReason(), () -> listener.whenPunished(actualEvent, member, punishment));
+                    if (punishment != Punishment.NONE) {
+                        final var reason = listener.getReason(actualEvent, member);
+                        final var guild = resolveGuild(event);
+                        member.getUser().openPrivateChannel()
+                            .flatMap(dm -> dm.sendMessageEmbeds(new EmbedBuilder()
+                                    .setTitle("Punishment")
+                                    .setDescription("You have been punished" + (guild == null ? "" : " in " + guild.getName()) + "!")
+                                    .setColor(Color.RED)
+                                    .addField("Punishment", punishment.toString(), false)
+                                    .addField("Reason", reason, false)
+                                    .setTimestamp(Instant.now())
+                                .build()))
+                            .onErrorMap(er -> null)
+                            .queue($ -> punishment.punish(member, reason, () -> listener.whenPunished(actualEvent, member, punishment)));
+                    }
                 }
             }
         };
@@ -49,5 +72,15 @@ public enum PunishableActions implements EventListener {
     @Override
     public void onEvent(@NotNull final GenericEvent event) {
         listener.onEvent(event);
+    }
+
+    @Nullable
+    private static Guild resolveGuild(GenericEvent event) {
+        if (event instanceof GenericGuildEvent gE) {
+            return gE.getGuild();
+        } else if (event instanceof GenericMessageEvent gM) {
+            return gM.isFromGuild() ? gM.getGuild() : null;
+        }
+        return null;
     }
 }

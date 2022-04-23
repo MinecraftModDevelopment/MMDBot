@@ -29,6 +29,7 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.lang.reflect.Type;
 import java.time.Duration;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import java.util.Objects;
@@ -71,6 +72,15 @@ public record Punishment(ActionType type, Duration duration) {
             case MUTE -> member.timeoutFor(duration == null ? Duration.of(28, ChronoUnit.DAYS) : duration)
                 .reason(reason)
                 .queue($ -> finalWhenDone.run());
+        }
+    }
+
+    @Override
+    public String toString() {
+        if (duration() == null) {
+            return type().toString();
+        } else {
+            return type() + " " + duration().toString().substring(3);
         }
     }
 
