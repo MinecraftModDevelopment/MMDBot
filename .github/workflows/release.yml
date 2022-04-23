@@ -22,6 +22,9 @@ jobs:
         run: echo "TAG=${GITHUB_REF:10}" >> $GITHUB_ENV
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+      - name: Setup Submodules
+
+        uses: snickerbockers/submodules-init@v4
       - name: Build Jar with Gradle
         id: publish_release_assets
         run: ./gradlew :build -Pbot_version=${{ env.TAG }}
@@ -37,4 +40,4 @@ jobs:
         with:
           release-tag: ${{ env.TAG }}
           repo-token: ${{ github.token }}
-          files: 'build/libs/**.jar'
+          files: 'build/libs/*[-all].jar'
