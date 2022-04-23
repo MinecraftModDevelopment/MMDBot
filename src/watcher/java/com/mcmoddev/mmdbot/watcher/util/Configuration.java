@@ -117,7 +117,7 @@ public class Configuration {
         "KICK" -> kicks the member
         "BAN 5d" -> bans the member for 5 days
         "MUTE 12m" -> times the member out for 12 minutes
-        """)
+    A punishment can be "None" to prevent the member from being punished.""")
     private Punishments punishments = new Punishments();
     public Punishments punishments() {
         return punishments;

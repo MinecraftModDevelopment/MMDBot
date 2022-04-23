@@ -38,6 +38,8 @@ import java.util.regex.Pattern;
 
 public record Punishment(ActionType type, Duration duration) {
 
+    public static final Punishment NONE = new Punishment(ActionType.KICK, null);
+
     public Punishment {
         Objects.requireNonNull(type);
     }
@@ -47,6 +49,8 @@ public record Punishment(ActionType type, Duration duration) {
     }
 
     public void punish(Member member, String reason, Runnable whenDone) {
+        if (this == NONE) return;
+
         if (whenDone == null) whenDone = () -> {};
         final Runnable finalWhenDone = whenDone;
         final var memberId = member.getId();
@@ -78,6 +82,9 @@ public record Punishment(ActionType type, Duration duration) {
             if (str == null) {
                 return null;
             }
+            if (str.toLowerCase(Locale.ROOT).equals("none")) {
+                return NONE;
+            }
             final var split = str.split(" ");
             final var actionType = ActionType.valueOf(split[0].toUpperCase(Locale.ROOT));
             if (split.length > 1 && !split[1].isBlank()) {
@@ -91,6 +98,10 @@ public record Punishment(ActionType type, Duration duration) {
         public void serialize(final Type type, @Nullable final Punishment obj, final ConfigurationNode node) throws SerializationException {
             if (obj == null) {
                 node.raw(null);
+                return;
+            }
+            if (obj == NONE) {
+                node.set("None");
                 return;
             }
             node.set(obj.type().toString() + (obj.duration() == null ? "" : " " + serialize(obj.duration())));
