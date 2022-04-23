@@ -39,6 +39,7 @@ import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import net.dv8tion.jda.api.events.guild.GuildUnbanEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
+import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateTimeOutEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.TimeFormat;
@@ -53,6 +54,7 @@ public final class ModerationEvents extends ListenerAdapter {
     public static final ModerationEvents INSTANCE = new ModerationEvents();
 
     public static final Color RUBY = new Color(0xE91E63);
+    public static final Color LIGHT_SEA_GREEN = new Color(0x1ABC9C);
 
     private ModerationEvents() {
     }
@@ -212,6 +214,73 @@ public final class ModerationEvents extends ListenerAdapter {
 
             log(event.getGuild().getIdLong(), event.getJDA(), embed.build());
         });
+    }
+
+    @Override
+    public void onGuildMemberUpdateTimeOut(@NotNull final GuildMemberUpdateTimeOutEvent event) {
+        if (event.getOldTimeOutEnd() == null && event.getNewTimeOutEnd() != null) {
+            // Somebody was timed out!
+            Utils.getAuditLog(event.getGuild(), event.getUser().getIdLong(), log -> log.type(ActionType.MEMBER_UPDATE)
+                .limit(5), log -> {
+                if (log.getChangeByKey(AuditLogKey.MEMBER_TIME_OUT) == null) return;
+                final var embed = new EmbedBuilder();
+                final var moderator = Optional.ofNullable(log.getUser());
+                final var user = event.getUser();
+
+                embed.setColor(LIGHT_SEA_GREEN);
+                embed.setTitle("User Timed Out");
+                embed.setThumbnail(user.getAvatarUrl());
+                embed.addField("**User:**", "%s (%s)".formatted(user.getAsMention(), user.getId()), false);
+                embed.addField("**Timeout End:**", TimeFormat.RELATIVE.format(event.getNewTimeOutEnd()), false);
+
+                embed.addField("**Reason:**", log.getReason() != null ? log.getReason() :
+                    ("Reason for timeout was not provided or could not be found, please contact "
+                        + moderator.map(User::getAsMention).orElse("the moderator.")), false);
+
+                final var targetId = log.getTargetIdLong();
+
+                if (targetId != event.getUser().getIdLong()) {
+                    TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
+                            + "entry and actual kick event target: retrieved is {}, but target is {}",
+                        targetId, event.getUser());
+                } else {
+                    embed.addField("Timed Out By: ", moderator.map(u -> "<@%s> (%s)".formatted(u.getId(), u.getId())).orElse("Unknown"), false);
+                }
+
+                moderator.ifPresent(u -> embed.setFooter("Moderator ID: " + u.getId(), u.getAvatarUrl()));
+
+                log(event.getGuild().getIdLong(), event.getJDA(), embed.build());
+            });
+        } else if (event.getOldTimeOutEnd() != null && event.getNewTimeOutEnd() == null) {
+            // Somebody's timeout was removed
+            Utils.getAuditLog(event.getGuild(), event.getUser().getIdLong(), log -> log.type(ActionType.MEMBER_UPDATE)
+                .limit(5), log -> {
+                if (log.getChangeByKey(AuditLogKey.MEMBER_TIME_OUT) == null) return;
+                final var embed = new EmbedBuilder();
+                final var moderator = Optional.ofNullable(log.getUser());
+                final var user = event.getUser();
+
+                embed.setColor(Color.CYAN);
+                embed.setTitle("User Timeout Removed");
+                embed.setThumbnail(user.getAvatarUrl());
+                embed.addField("**User:**", "%s (%s)".formatted(user.getAsMention(), user.getId()), false);
+                embed.addField("**Old Timeout End:**", TimeFormat.RELATIVE.format(event.getOldTimeOutEnd()), false);
+
+                final var targetId = log.getTargetIdLong();
+
+                if (targetId != event.getUser().getIdLong()) {
+                    TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
+                            + "entry and actual kick event target: retrieved is {}, but target is {}",
+                        targetId, event.getUser());
+                } else {
+                    embed.addField("Timeout Removed By: ", moderator.map(u -> "<@%s> (%s)".formatted(u.getId(), u.getId())).orElse("Unknown"), false);
+                }
+
+                moderator.ifPresent(u -> embed.setFooter("Moderator ID: " + u.getId(), u.getAvatarUrl()));
+
+                log(event.getGuild().getIdLong(), event.getJDA(), embed.build());
+            });
+        }
     }
 
     @SubscribeEvent
