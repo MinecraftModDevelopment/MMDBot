@@ -1,17 +1,18 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.kohsuke.github.*
+import se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask
 
+import java.nio.file.Files
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 buildscript {
   repositories {
-    maven { url 'https://plugins.gradle.org/m2/' }
+    mavenCentral()
   }
-
   dependencies {
-    classpath 'org.shipkit:shipkit-changelog:1.1.15'
-    classpath 'org.shipkit:shipkit-auto-version:1.1.20'
+    classpath 'org.kohsuke:github-api:1.306'
   }
 }
 
@@ -25,6 +26,7 @@ plugins {
   alias(libs.plugins.flyway)
   alias(libs.plugins.licenser)
   alias(libs.plugins.lombok)
+  id "se.bjurr.gitchangelog.git-changelog-gradle-plugin" version '1.71.4'
 }
 
 group 'com.mcmoddev'
@@ -33,8 +35,6 @@ version project.bot_version
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println "Bot Version: $version"
-
-apply from: 'gradle/shipkit.gradle'
 
 final var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
 
@@ -236,6 +236,26 @@ license {
   properties {
     year = actualDateTime.getYear()
   }
+}
+
+tasks.register('makeChangelog', GitChangelogTask) {
+  fromRepo = projectDir.absolutePath.toString()
+  file = file("changelog.html")
+  untaggedName = "Current release $version"
+  toRef = "HEAD"
+  fromCommit = resolveStartCommit(project.tag)
+  templateContent = Files.readString(projectDir.toPath().resolve("changelog.mustache"))
+}
+
+static String resolveStartCommit(String tag) {
+  final GitHub github = new GitHubBuilder().withOAuthToken(System.getenv('GITHUB_TOKEN')).build();
+  final var repo = github.getRepository('MinecraftModDevelopment/MMDBot')
+  final var tags = repo.listTags().toList()
+  final var actualTag = tags.stream()
+    .filter(t -> t.name == tag)
+    .findFirst().orElseThrow()
+  final var index = tags.indexOf(actualTag)
+  return tags.get(index - 1).commit.getSHA1()
 }
 
 eclipse.project {

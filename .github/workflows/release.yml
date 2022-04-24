@@ -10,34 +10,42 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Discord notification
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_USERNAME: GitHub
+          DISCORD_AVATAR: https://cdn.discordapp.com/avatars/815532493087178803/df91181b3f1cf0ef1592fbe18e0962d7.webp?size=128
         with:
-          fetch-depth: '0' # will fetch the entire history
+          args: "A new release ( ${{ env.TAG }} ) is being built."
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: 'zulu'
-          check-latest: true
       - name: Setup ENV
         run: echo "TAG=${GITHUB_REF:10}" >> $GITHUB_ENV
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Setup Submodules
-
         uses: snickerbockers/submodules-init@v4
       - name: Build Jar with Gradle
         id: publish_release_assets
         run: ./gradlew :build -Pbot_version=${{ env.TAG }}
         env:
           BUILD_NUMBER: ${{ github.run_number }}
-      - name: Create release
-        run: ./gradlew :githubRelease :releaseSummary
+      - name: Make Changelog
+        id: changelog
+        run: ./gradlew :makeChangelog -Ptag=${{ env.TAG }}
         env:
-            GITHUB_TOKEN: ${{ github.token }}
-      - name: Upload release assets
-        id: upload_release_assets
-        uses: AButler/upload-release-assets@v2.0
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Create release
+        id: create_release
+        uses: ncipollo/release-action@v1
         with:
-          release-tag: ${{ env.TAG }}
-          repo-token: ${{ github.token }}
-          files: 'build/libs/*[-all].jar'
+          token: ${{ github.token }}
+          tag: ${{ github.ref }}
+          name: Release ${{ env.TAG }}
+          artifactErrorsFailBuild: true
+          artifacts: 'build/libs/*[-all].jar'
+          bodyFile: 'changelog.html'
