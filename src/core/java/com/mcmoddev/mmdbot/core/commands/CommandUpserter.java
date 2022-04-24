@@ -23,7 +23,6 @@ package com.mcmoddev.mmdbot.core.commands;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.ContextMenu;
 import com.jagrosh.jdautilities.command.SlashCommand;
-import com.mcmoddev.mmdbot.core.util.EmptyRestAction;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import lombok.NonNull;
 import net.dv8tion.jda.api.JDA;
@@ -140,12 +139,14 @@ public class CommandUpserter implements EventListener {
                 final var guild = guildId.resolve(jda::getGuildById);
                 if (guild != null) {
                     // Guild still specified? Then remove guild commands
-                    guild.retrieveCommands()
-                        .flatMap(commands -> commands.isEmpty() ? EmptyRestAction.empty() : RestAction.allOf(commands.stream()
-                            .map(Command::getIdLong)
-                            .map(guild::deleteCommandById)
-                            .toList()))
-                        .queue();
+                    guild.retrieveCommands().queue(commands -> {
+                        if (!commands.isEmpty()) {
+                            RestAction.allOf(commands.stream()
+                                .map(Command::getIdLong)
+                                .map(guild::deleteCommandById)
+                                .toList()).queue();
+                        }
+                    });
                 }
             }
             jda.retrieveCommands().queue(commands -> {
