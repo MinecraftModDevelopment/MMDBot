@@ -74,10 +74,6 @@ public final class Utils {
         return string.substring(0, 1).toUpperCase(Locale.ROOT) + string.substring(1);
     }
 
-    public static String makeHyperlink(String masked, String link) {
-        return "[%s](%s)".formatted(masked, link);
-    }
-
     /**
      * Schedules a task to run at the specified {@code date}.
      *

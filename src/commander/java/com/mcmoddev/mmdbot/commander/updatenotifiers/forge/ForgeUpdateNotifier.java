@@ -21,11 +21,10 @@
 package com.mcmoddev.mmdbot.commander.updatenotifiers.forge;
 
 import com.mcmoddev.mmdbot.commander.TheCommander;
-import com.mcmoddev.mmdbot.core.util.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.utils.MarkdownUtil;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -102,7 +101,7 @@ public final class ForgeUpdateNotifier implements Runnable {
                 if (lastForgeVersions.getLatest() == null) {
                     embed.addField("Latest", String.format("*none* -> **%s**%n", latest.getLatest()),
                         true);
-                    embed.setDescription(Utils.makeHyperlink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE,
+                    embed.setDescription(MarkdownUtil.maskedLink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE,
                         mcVersion, latest.getLatest())));
                     changed = true;
                     logMsg.append("Latest, from none to ").append(latest.getLatest());
@@ -131,7 +130,7 @@ public final class ForgeUpdateNotifier implements Runnable {
                     final var version = latest.getRecommended();
                     embed.addField("Recommended", String.format("*none* -> **%s**%n", version),
                         true);
-                    embed.setDescription(Utils.makeHyperlink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE,
+                    embed.setDescription(MarkdownUtil.maskedLink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE,
                         mcVersion, latest.getRecommended())));
                     changed = true;
                     logMsg.append("Recommended, from none to ").append(latest.getLatest());

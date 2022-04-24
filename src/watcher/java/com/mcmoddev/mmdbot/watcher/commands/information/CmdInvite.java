@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInterac
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.utils.MarkdownUtil;
 import org.jdbi.v3.core.extension.ExtensionCallback;
 import org.jdbi.v3.core.extension.ExtensionConsumer;
 
@@ -184,7 +185,7 @@ public class CmdInvite extends SlashCommand {
             return new EmbedBuilder()
                 .setTitle("Invites")
                 .setDescription(withExtension(i -> i.getAllNames().stream()
-                    .map(n -> Utils.makeHyperlink(Utils.uppercaseFirstLetter(n),
+                    .map(n -> MarkdownUtil.maskedLink(Utils.uppercaseFirstLetter(n),
                         withExtension(db -> db.getLink(n)).get())).toList())
                     .subList(from, Math.min(from + paginator.getItemsPerPage(), maximum))
                     .stream()
