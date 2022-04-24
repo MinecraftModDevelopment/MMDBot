@@ -229,37 +229,4 @@ public class RunBots {
             return new BotEntry(name, enabled, runPath);
         }
     }
-
-    public static DashboardConfig getDashboardConfig() {
-        final var path = Path.of("dashboard").resolve("config.json");
-        if (!path.toFile().exists()) {
-            try {
-                Files.createDirectories(Path.of("dashboard"));
-                Files.createFile(path); // If it doesn't exist, generate it
-                try (final var fw = new BufferedWriter(new FileWriter(path.toFile()))) {
-                    Constants.Gsons.GSON.toJson(new DashboardConfig(), fw);
-                }
-            } catch (IOException e) {
-                LOG.error("Exception while trying to generate dashboard config!", e);
-            }
-        }
-        try (final var ir = new FileReader(path.toFile())) {
-            return Constants.Gsons.GSON.fromJson(ir, DashboardConfig.class);
-        } catch (IOException e) {
-            LOG.error("Exception while trying to read config!", e);
-        }
-        return new DashboardConfig();
-    }
-
-    public static final class DashboardConfig {
-        public int port = 600;
-
-        public Account[] accounts;
-
-        public static final class Account {
-            public String username;
-            public String password;
-        }
-    }
-
 }
