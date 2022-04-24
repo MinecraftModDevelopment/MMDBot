@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.thelistener.util;
 
 import net.dv8tion.jda.api.audit.AuditLogEntry;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.requests.restaction.pagination.AuditLogPaginationAction;
 
 import java.util.function.Consumer;
@@ -31,6 +32,10 @@ public final class Utils {
 
     public static String mentionAndID(final long id) {
         return "<@" + id + "> (" + id + ")";
+    }
+
+    public static String mentionable(final IMentionable mention) {
+        return mention.getAsMention() + " (" + mention.getId() + ")";
     }
 
     public static void getAuditLog(final Guild guild, final long targetId, UnaryOperator<AuditLogPaginationAction> modifier, Consumer<AuditLogEntry> consumer) {
