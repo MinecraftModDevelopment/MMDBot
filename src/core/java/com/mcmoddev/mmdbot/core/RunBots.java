@@ -26,7 +26,6 @@ import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.common.ScamDetector;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.Constants;
-import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import lombok.experimental.UtilityClass;
 import org.slf4j.Logger;
@@ -78,19 +77,25 @@ public class RunBots {
 
         final var botsAmount = new AtomicInteger();
 
+        record BotListing<T extends Bot>(BotRegistry.BotRegistryEntry<T> registryEntry, BotEntry entry) {}
+        record CreatedBotListing<T extends Bot>(T bot, BotEntry entry) {}
+
         var bots = BotRegistry.getBotTypes()
             .entrySet()
             .stream()
             .map(entry -> {
                 final var botEntry = BotEntry.of(entry.getKey(),
                     config.has(entry.getKey()) ? config.get(entry.getKey()).getAsJsonObject() : new JsonObject());
-                return Pair.of(entry.getValue(), botEntry);
+                return new BotListing<>(entry.getValue(), botEntry);
             })
-            .sorted(Comparator.comparing(p -> -p.first().priority()))
-            .map(entry -> entry.mapFirst(type -> type.botType().createBot(createDirectory(entry.second().runPath()))))
+            .sorted(Comparator.comparing(p -> -p.registryEntry().priority()))
+            .map(listing -> new CreatedBotListing<>(
+                listing.registryEntry().botType().createBot(createDirectory(listing.entry().runPath())),
+                listing.entry()
+            ))
             .map(botPair -> {
-                final var botEntry = botPair.second();
-                final var bot = botPair.first();
+                final var botEntry = botPair.entry();
+                final var bot = botPair.bot();
                 if (botEntry.isEnabled()) {
                     if (bot != null) {
                         CompletableFuture.runAsync(() -> {

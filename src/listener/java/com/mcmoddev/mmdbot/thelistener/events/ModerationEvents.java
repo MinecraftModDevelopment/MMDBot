@@ -23,7 +23,6 @@ package com.mcmoddev.mmdbot.thelistener.events;
 import static com.mcmoddev.mmdbot.thelistener.TheListener.getInstance;
 import static com.mcmoddev.mmdbot.thelistener.util.Utils.mentionAndID;
 import com.mcmoddev.mmdbot.core.event.moderation.WarningEvent;
-import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.thelistener.TheListener;
 import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
 import com.mcmoddev.mmdbot.thelistener.util.Utils;
@@ -41,7 +40,6 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateTimeOutEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
@@ -288,19 +286,19 @@ public final class ModerationEvents extends ListenerAdapter {
         if (getInstance() == null) return;
         final var jda = getInstance().getJDA();
         final var doc = event.getDocument();
-        and(jda.retrieveUserById(doc.userId()), jda.retrieveUserById(event.getModeratorId()))
-            .queue(p -> p.accept((user, warner) -> {
-                final var embed = new EmbedBuilder()
-                    .setColor(java.awt.Color.RED)
-                    .setTitle("New Warning")
-                    .setDescription("%s warned %s".formatted(mentionAndID(doc.moderatorId()), mentionAndID(doc.userId())))
-                    .setThumbnail(user.getAvatarUrl())
-                    .addField("Reason:", doc.reason(), false)
-                    .addField("Warning ID: ", doc.warnId(), false)
-                    .setTimestamp(Instant.now())
-                    .setFooter("Warner ID: " + doc.moderatorId(), warner.getAvatarUrl());
-                log(event.getGuildId(), jda, embed.build());
-            }));
+        jda.retrieveUserById(doc.userId()).and(jda.retrieveUserById(event.getModeratorId()), (user, moderator) -> {
+            final var embed = new EmbedBuilder()
+                .setColor(Color.GREEN)
+                .setTitle("Warning Cleared")
+                .setDescription("One of the warnings of " + mentionAndID(doc.userId()) + " has been removed!")
+                .setThumbnail(user.getAvatarUrl())
+                .addField("Old warning reason:", doc.reason(), false)
+                .addField("Old warner:", mentionAndID(doc.userId()), false)
+                .setTimestamp(Instant.now())
+                .setFooter("Moderator ID: " + event.getModeratorId(), moderator.getAvatarUrl());
+            log(event.getGuildId(), jda, embed.build());
+            return null;
+        }).queue();
     }
 
     @SubscribeEvent
@@ -310,19 +308,19 @@ public final class ModerationEvents extends ListenerAdapter {
         }
         final var jda = getInstance().getJDA();
         final var warnDoc = event.getDocument();
-        and(jda.retrieveUserById(warnDoc.userId()), jda.retrieveUserById(event.getModeratorId()))
-            .queue(p -> p.accept((user, moderator) -> {
-                final var embed = new EmbedBuilder()
-                    .setColor(java.awt.Color.GREEN)
-                    .setTitle("Warning Cleared")
-                    .setDescription("One of the warnings of " + mentionAndID(warnDoc.userId()) + " has been removed!")
-                    .setThumbnail(user.getAvatarUrl())
-                    .addField("Old warning reason:", warnDoc.reason(), false)
-                    .addField("Old warner:", mentionAndID(warnDoc.userId()), false)
-                    .setTimestamp(Instant.now())
-                    .setFooter("Moderator ID: " + event.getModeratorId(), moderator.getAvatarUrl());
-                log(event.getGuildId(), jda, embed.build());
-            }));
+        jda.retrieveUserById(warnDoc.userId()).and(jda.retrieveUserById(event.getModeratorId()), (user, moderator) -> {
+            final var embed = new EmbedBuilder()
+                .setColor(Color.GREEN)
+                .setTitle("Warning Cleared")
+                .setDescription("One of the warnings of " + mentionAndID(warnDoc.userId()) + " has been removed!")
+                .setThumbnail(user.getAvatarUrl())
+                .addField("Old warning reason:", warnDoc.reason(), false)
+                .addField("Old warner:", mentionAndID(warnDoc.userId()), false)
+                .setTimestamp(Instant.now())
+                .setFooter("Moderator ID: " + event.getModeratorId(), moderator.getAvatarUrl());
+            log(event.getGuildId(), jda, embed.build());
+            return null;
+        }).queue();
     }
 
     @SubscribeEvent
@@ -352,9 +350,5 @@ public final class ModerationEvents extends ListenerAdapter {
                     ch.sendMessageEmbeds(embed).queue();
                 }
             });
-    }
-
-    private static <A, B> RestAction<Pair<A, B>> and(RestAction<A> a, RestAction<B> b) {
-        return a.flatMap(a$ -> b.map(b$ -> Pair.of(a$, b$)));
     }
 }

@@ -214,8 +214,8 @@ public final class TheWatcher implements Bot {
                     PUNISHABLE_ACTIONS_LISTENER.clear();
                     PUNISHABLE_ACTIONS_LISTENER.addListeners(PunishableActions.getEnabledActions(c.punishments()));
                 }, Configuration.class, Configuration.EMPTY);
-            configRef = cPair.second();
-            config = Objects.requireNonNull(cPair.first().get());
+            configRef = cPair.config();
+            config = Objects.requireNonNull(cPair.value().get());
             PUNISHABLE_ACTIONS_LISTENER.addListeners(PunishableActions.getEnabledActions(config.punishments()));
         } catch (ConfigurateException e) {
             LOGGER.error("Exception while trying to load general config", e);

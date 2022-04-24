@@ -84,7 +84,7 @@ public final class ConfigBasedElementLoader implements ElementLoader {
             .path(cfgPath)
             .build();
         final var config = ConfigurateUtils.loadConfig(loader, cfgPath, e -> {
-        }, DocsConfig.class, DocsConfig.DEFAULT).first().get();
+        }, DocsConfig.class, DocsConfig.DEFAULT).value().get();
         Objects.requireNonNull(config);
 
         final var gson = ConfiguredGson.create();

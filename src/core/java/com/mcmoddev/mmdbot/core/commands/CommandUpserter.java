@@ -24,7 +24,6 @@ import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.ContextMenu;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.core.util.EmptyRestAction;
-import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import lombok.NonNull;
 import net.dv8tion.jda.api.JDA;
@@ -203,18 +202,19 @@ public class CommandUpserter implements EventListener {
     }
 
     private long[] getCommandsToRemove(final List<Command> existingCommands) {
+        record ExistingCommand(String name, long id) {}
         final var ext = existingCommands.stream()
             .filter(c -> c.getType() == Command.Type.SLASH)
-            .map(c -> Pair.of(c.getName(), c.getIdLong()))
+            .map(c -> new ExistingCommand(c.getName(), c.getIdLong()))
             .collect(Collectors.toSet());
         final var clientCommandNames = client.getSlashCommands().stream().map(SlashCommand::getName).collect(Collectors.toSet());
         ext.removeIf(p -> {
-            final var contains = clientCommandNames.contains(p.first());
+            final var contains = clientCommandNames.contains(p.name());
             if (contains) {
-                clientCommandNames.remove(p.first());
+                clientCommandNames.remove(p.name());
             }
             return contains;
         });
-        return ext.stream().mapToLong(Pair::second).toArray();
+        return ext.stream().mapToLong(ExistingCommand::id).toArray();
     }
 }

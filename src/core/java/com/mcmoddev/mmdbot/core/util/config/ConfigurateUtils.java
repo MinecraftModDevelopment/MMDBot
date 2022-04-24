@@ -21,14 +21,12 @@
 package com.mcmoddev.mmdbot.core.util.config;
 
 import com.mcmoddev.mmdbot.core.util.Constants;
-import com.mcmoddev.mmdbot.core.util.Pair;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
+import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
-import org.spongepowered.configurate.objectmapping.ObjectMapper;
-import org.spongepowered.configurate.objectmapping.meta.NodeResolver;
 import org.spongepowered.configurate.reference.ConfigurationReference;
 import org.spongepowered.configurate.reference.ValueReference;
 
@@ -56,7 +54,7 @@ public class ConfigurateUtils {
      * @param <T>           the type of the config
      * @return a reference to the configuration node and the configuration reference
      */
-    public static <T> Pair<ValueReference<T, CommentedConfigurationNode>, ConfigurationReference<CommentedConfigurationNode>> loadConfig(HoconConfigurationLoader loader, Path configPath, Consumer<T> configSetter, Class<T> configClass, T defaultConfig) throws ConfigurateException {
+    public static <T> Configuration<T, CommentedConfigurationNode> loadConfig(HoconConfigurationLoader loader, Path configPath, Consumer<T> configSetter, Class<T> configClass, T defaultConfig) throws ConfigurateException {
         final var configSerializer = Objects.requireNonNull(loader.defaultOptions().serializers().get(configClass));
         final var type = io.leangen.geantyref.TypeToken.get(configClass).getType();
 
@@ -98,7 +96,10 @@ public class ConfigurateUtils {
 
         Constants.CONFIG_WATCH_SERVICE.listenToFile(configPath, configLoader::reload);
 
-        return Pair.of(configRef.referenceTo(configClass), configRef);
+        return new Configuration<>(configRef, configRef.referenceTo(configClass));
     }
 
+    public record Configuration<T, C extends ConfigurationNode>(ConfigurationReference<C> config,
+                                                                ValueReference<T, C> value) {
+    }
 }

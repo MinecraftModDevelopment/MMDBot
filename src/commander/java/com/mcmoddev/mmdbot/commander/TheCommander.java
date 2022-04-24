@@ -71,7 +71,6 @@ import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
 import com.mcmoddev.mmdbot.core.util.MessageUtilities;
-import com.mcmoddev.mmdbot.core.util.Pair;
 import com.mcmoddev.mmdbot.core.util.ReflectionsUtils;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.Utils;
@@ -127,9 +126,10 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
+import static io.github.matyrobbrt.curseforgeapi.util.Utils.rethrowFunction;
 
 public final class TheCommander implements Bot {
     static final TypeSerializerCollection ADDED_SERIALIZERS = TypeSerializerCollection.defaults()
@@ -292,8 +292,8 @@ public final class TheCommander implements Bot {
                 .build();
             final var cPair =
                 ConfigurateUtils.loadConfig(loader, configPath, c -> generalConfig = c, Configuration.class, Configuration.EMPTY);
-            config = cPair.second();
-            generalConfig = cPair.first().get();
+            config = cPair.config();
+            generalConfig = cPair.value().get();
 
         } catch (ConfigurateException e) {
             LOGGER.error("Exception while trying to load general config", e);
@@ -364,22 +364,24 @@ public final class TheCommander implements Bot {
         EventListeners.COMMANDS_LISTENER.addListener((EventListener) commandClient);
 
         {
+            record SlashCommandRegistration(Object fieldValue, RegisterSlashCommand annotation) {}
+
             // Command register
             ReflectionsUtils.getFieldsAnnotatedWith(RegisterSlashCommand.class)
                 .stream()
                 .peek(f -> f.setAccessible(true))
-                .map(io.github.matyrobbrt.curseforgeapi.util.Utils.rethrowFunction(f -> Pair.of(f.get(null), f.getAnnotation(RegisterSlashCommand.class))))
+                .map(rethrowFunction(f -> new SlashCommandRegistration(f.get(null), f.getAnnotation(RegisterSlashCommand.class))))
                 .map(pair -> {
-                    final var object = pair.first();
+                    final var object = pair.fieldValue();
                     if (object instanceof SlashCommand slash) {
-                        if (pair.second().asPrefixCommand()) {
+                        if (pair.annotation().asPrefixCommand()) {
                             commandClient.addCommand(slash);
                         }
                         return slash;
                     } else if (object instanceof Supplier<?> sup) {
                         final var obj = sup.get();
                         if (obj instanceof SlashCommand slash) {
-                            if (pair.second().asPrefixCommand()) {
+                            if (pair.annotation().asPrefixCommand()) {
                                 commandClient.addCommand(slash);
                             }
                             return slash;
@@ -562,7 +564,7 @@ public final class TheCommander implements Bot {
     }
 
     public GuildConfiguration getConfigForGuild(long guildId) {
-        return guildConfigs.computeIfAbsent(guildId, io.github.matyrobbrt.curseforgeapi.util.Utils.rethrowFunction(id -> {
+        return guildConfigs.computeIfAbsent(guildId, rethrowFunction(id -> {
             final var path = runPath.resolve("configs").resolve("guild").resolve(guildId + ".conf");
             final HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
                 .emitComments(true)
@@ -571,7 +573,7 @@ public final class TheCommander implements Bot {
                 .path(path)
                 .build();
             return ConfigurateUtils.loadConfig(loader, path, cfg -> guildConfigs.put(guildId, cfg), GuildConfiguration.class, GuildConfiguration.EMPTY)
-                .first()
+                .value()
                 .get();
         }));
     }
