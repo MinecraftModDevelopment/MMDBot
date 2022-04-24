@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
       - name: Discord notification
         uses: Ilshidur/action-discord@master
         env:
@@ -27,8 +29,6 @@ jobs:
         run: echo "TAG=${GITHUB_REF:10}" >> $GITHUB_ENV
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-      - name: Setup Submodules
-        uses: snickerbockers/submodules-init@v4
       - name: Build Jar with Gradle
         id: publish_release_assets
         run: ./gradlew :build -Pbot_version=${{ env.TAG }}

@@ -17,12 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
           check-latest: true
-      - uses: snickerbockers/submodules-init@v4
       - uses: burrunan/gradle-cache-action@v1
         with:
           arguments: clean build
