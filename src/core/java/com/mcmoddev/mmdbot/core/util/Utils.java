@@ -20,6 +20,8 @@
  */
 package com.mcmoddev.mmdbot.core.util;
 
+import net.dv8tion.jda.api.entities.Message;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -95,7 +97,7 @@ public final class Utils {
      * @return the message link
      */
     public static String makeMessageLink(final long guildId, final long channelId, final long messageId) {
-        return "https://discord.com/channels/%s/%s/%s".formatted(guildId, channelId, messageId);
+        return Message.JUMP_URL.formatted(guildId, channelId, messageId);
     }
 
 }
