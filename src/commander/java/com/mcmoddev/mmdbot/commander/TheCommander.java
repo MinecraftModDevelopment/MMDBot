@@ -546,17 +546,15 @@ public final class TheCommander implements Bot {
     }
 
     @Nullable
-    public RestAction<Message> getMessageByLink(final String link) throws MessageUtilities.MessageLinkException {
-        final AtomicReference<RestAction<Message>> returnAtomic = new AtomicReference<>();
-        MessageUtilities.decodeMessageLink(link, (guildId, channelId, messageId) -> {
-            final var guild = getJda().getGuildById(guildId);
-            if (guild == null) return;
-            final var channel = guild.getChannelById(MessageChannel.class, channelId);
-            if (channel != null) {
-                returnAtomic.set(channel.retrieveMessageById(messageId));
-            }
-        });
-        return returnAtomic.get();
+    public RestAction<Message> getMessageByLink(final String link) {
+        return MessageUtilities.decodeMessageLink(link)
+            .map(info -> {
+                final var guild = getJda().getGuildById(info.guildId());
+                if (guild == null) return null;
+                final var channel = guild.getChannelById(MessageChannel.class, info.channelId());
+                return channel == null ? null : channel.retrieveMessageById(info.messageId());
+            })
+            .orElse(null);
     }
 
     public String getGithubToken() {

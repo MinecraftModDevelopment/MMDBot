@@ -56,21 +56,14 @@ public final class ReferencingListener extends ListenerAdapter {
             return;
         }
 
-        final var matcher = MessageUtilities.MESSAGE_LINK_PATTERN.matcher(msg[0]);
-        if (matcher.find()) {
-            try {
-                final var m = TheCommander.getInstance().getMessageByLink(msg[0]);
-                if (m != null) {
-                    m.queue(message -> {
-                        event.getChannel().sendMessageEmbeds(reference(message, event.getMember())).queue();
-                        if (msg.length == 1) {
-                            originalMsg.delete().reason("Quote successful").queue();
-                        }
-                    });
+        final var m = TheCommander.getInstance().getMessageByLink(msg[0]);
+        if (m != null) {
+            m.queue(message -> {
+                event.getChannel().sendMessageEmbeds(reference(message, event.getMember())).queue();
+                if (msg.length == 1) {
+                    originalMsg.delete().reason("Quote successful").queue();
                 }
-            } catch (MessageUtilities.MessageLinkException e) {
-                // Do nothing
-            }
+            });
         }
     }
 
