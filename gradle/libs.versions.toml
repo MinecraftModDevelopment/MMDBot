@@ -38,6 +38,7 @@ javadocapi = "21ad5c1759"
 commons-io = "2.11.0"
 caffeine = "3.0.6"
 urldetector = "0.1.23"
+mockito = "4.5.1"
 
 [libraries]
 # jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
@@ -74,3 +75,4 @@ javadocapi = { module = "com.github.I-Al-Istannen:JavadocApi", version.ref = "ja
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
 urldetector = { module = "io.github.url-detector:url-detector", version.ref = "urldetector" }
+mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }

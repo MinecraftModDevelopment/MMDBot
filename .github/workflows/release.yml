@@ -36,7 +36,7 @@ jobs:
           BUILD_NUMBER: ${{ github.run_number }}
       - name: Make Changelog
         id: changelog
-        run: ./gradlew :makeChangelog -Ptag=${{ env.TAG }}
+        run: ./gradlew :makeChangelog -Ptag=${{ env.TAG }} -Pbot_version=${{ env.TAG }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - name: Create release
@@ -48,4 +48,4 @@ jobs:
           name: Release ${{ env.TAG }}
           artifactErrorsFailBuild: true
           artifacts: 'build/libs/*[-all].jar'
-          bodyFile: 'changelog.html'
+          bodyFile: 'changelog.md'

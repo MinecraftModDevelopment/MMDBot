@@ -100,6 +100,15 @@ public class Configuration {
         public List<SnowflakeValue> getBotMaintainers() {
             return botMaintainers;
         }
+
+        @Required
+        @Setting("not_persisted")
+        @Comment("A list of Snowflake IDs representing the roles which will not be persisted on member leave.")
+        private List<SnowflakeValue> notPersisted = new ArrayList<>();
+
+        public List<SnowflakeValue> getNotPersisted() {
+            return notPersisted;
+        }
     }
 
     @Required
@@ -144,8 +153,6 @@ public class Configuration {
 
     @ConfigSerializable
     public static final class Channels {
-
-
 
     }
 }

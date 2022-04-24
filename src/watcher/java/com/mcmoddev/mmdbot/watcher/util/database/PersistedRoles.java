@@ -42,18 +42,20 @@ public interface PersistedRoles extends Transactional<PersistedRoles> {
      *
      * @param userId the snowflake ID of the user
      * @param roleId the snowflake ID of the role
+     * @param guildId the snowflake ID of the guild
      */
-    @SqlUpdate("insert into role_persist values (:user, :role)")
-    void insert(@Bind("user") long userId, @Bind("role") long roleId);
+    @SqlUpdate("insert into role_persist values (:user, :role, :guild)")
+    void insert(@Bind("user") long userId, @Bind("role") long roleId, @Bind("guild") long guildId);
 
     /**
      * Inserts an entry for each role in the given iterable with the given user into the table.
      *
      * @param userId the snowflake ID of the user
+     * @param guildId the snowflake ID of the guild
      * @param roles  an iterable of snowflake IDs of roles
      */
-    default void insert(long userId, Iterable<Long> roles) {
-        roles.forEach(roleId -> insert(userId, roleId));
+    default void insert(long userId, long guildId, Iterable<Long> roles) {
+        roles.forEach(roleId -> insert(userId, roleId, guildId));
     }
 
     /// Query methods ///
@@ -62,10 +64,11 @@ public interface PersistedRoles extends Transactional<PersistedRoles> {
      * Gets the stored roles for the given user.
      *
      * @param userId the snowflake ID of the user
+     * @param guildId the snowflake ID of the guild
      * @return the list of role snowflake IDs which are associated with the user
      */
-    @SqlQuery("select role_id from role_persist where user_id = :user")
-    List<Long> getRoles(@Bind("user") long userId);
+    @SqlQuery("select role_id from role_persist where user_id = :user and guild_id = :guild")
+    List<Long> getRoles(@Bind("user") long userId, @Bind("guild") long guildId);
 
     /// Deletion methods ///
 
@@ -74,15 +77,17 @@ public interface PersistedRoles extends Transactional<PersistedRoles> {
      *
      * @param userId the snowflake ID of the user
      * @param roleId the snowflake ID of the role
+     * @param guildId the snowflake ID of the guild
      */
-    @SqlUpdate("delete from role_persist where user_id = :user and role_id = :role")
-    void delete(@Bind("user") long userId, @Bind("role") long roleId);
+    @SqlUpdate("delete from role_persist where user_id = :user and role_id = :role and guild_id = :guild")
+    void delete(@Bind("user") long userId, @Bind("role") long roleId, @Bind("guild") long guildId);
 
     /**
      * Clears all entries for the given user from the table.
      *
      * @param userId the snowflake ID of the user
+     * @param guildId the snowflake ID of the guild
      */
-    @SqlUpdate("delete from role_persist where user_id = :user")
-    void clear(@Bind("user") long userId);
+    @SqlUpdate("delete from role_persist where user_id = :user and guild_id = :guild")
+    void clear(@Bind("user") long userId, @Bind("guild") long guildId);
 }

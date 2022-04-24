@@ -1,15 +1,9 @@
 {{#tags}}
-    <h3>{{name}}</h3>
-    <ul>
-        {{#commits}}
-            <li>
-                <a href="https://github.com/MinecraftModDevelopment/MMDBot/commit/{{hashFull}}">{{{messageTitle}}}</a> - {{{authorName}}}
-                <ul>
-                    {{#messageBodyItems}}
-                        <li>{{.}}</li>
-                    {{/messageBodyItems}}
-                </ul>
-            </li>
-        {{/commits}}
-    </ul>
+## {{name}}
+    {{#commits}}
+- [https://github.com/MinecraftModDevelopment/MMDBot/commit/{{hashFull}}]({{{messageTitle}}}) - {{{authorName}}}
+            {{#messageBodyItems}}
+    + {{.}}
+            {{/messageBodyItems}}
+    {{/commits}}
 {{/tags}}

@@ -107,10 +107,12 @@ public final class TheListener implements Bot {
 
         final var token = dotenv.get("BOT_TOKEN", "");
 
-        addListener(MessageEvents.INSTANCE);
-        addListener(ModerationEvents.INSTANCE);
-        addListener(new LeaveJoinEvents());
-        addListener(new RoleEvents());
+        GENERAL_EVENT_LISTENER.addListeners(
+            MessageEvents.INSTANCE,
+            ModerationEvents.INSTANCE,
+            new LeaveJoinEvents(),
+            new RoleEvents()
+        );
 
         jda = JDABuilder.create(
             token,
@@ -144,10 +146,6 @@ public final class TheListener implements Bot {
     @Override
     public void shutdown() {
         jda.shutdown();
-    }
-
-    public static void addListener(net.dv8tion.jda.api.hooks.EventListener listener) {
-        GENERAL_EVENT_LISTENER.addListener(listener);
     }
 
     @Override

@@ -68,7 +68,7 @@ public final class LeaveJoinEvents extends ListenerAdapter {
             .setFooter("User ID: " + event.getMember().getId(), event.getMember().getEffectiveAvatarUrl())
             .addField("User:", event.getUser().getAsTag(), true)
             .addField("Join Time:", TimeFormat.DATE_TIME_SHORT.format(event.getMember().getUser().getTimeCreated()), true)
-            .addField("Roles", String.join(" ", event.getMember().getRoles().stream().map(Role::getAsMention).toList()), false)
+            .addField("Roles", RoleEvents.mentionsOrEmpty(event.getMember().getRoles()), false)
             .setThumbnail(event.getUser().getAvatarUrl())
             .build();
 

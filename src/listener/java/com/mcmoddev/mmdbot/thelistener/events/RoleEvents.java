@@ -109,7 +109,7 @@ public final class RoleEvents extends ListenerAdapter {
         });
     }
 
-    private static String mentionsOrEmpty(List<? extends IMentionable> list) {
+    public static String mentionsOrEmpty(List<? extends IMentionable> list) {
         final String str = list.stream().map(IMentionable::getAsMention).collect(Collectors.joining(" "));
         return str.isBlank() ? "_None_" : str;
     }

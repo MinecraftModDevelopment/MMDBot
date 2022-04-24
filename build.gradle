@@ -138,7 +138,7 @@ dependencies {
   global libs.jdbi.sqlobject
 
   testImplementation libs.junit
-  testImplementation 'org.mockito:mockito-core:4.5.1'
+  testImplementation libs.mockito
 
   testImplementation sourceSets.watcher.output
 }
@@ -157,7 +157,7 @@ tasks.named('run', JavaExec).configure {
 }
 
 tasks.named('test', Test).configure {
-  workingDir = new File("run")
+  workingDir = java.nio.file.Path.of("run").resolve("tests").toFile()
 }
 
 tasks.named('shadowJar', ShadowJar).configure {
@@ -240,7 +240,7 @@ license {
 
 tasks.register('makeChangelog', GitChangelogTask) {
   fromRepo = projectDir.absolutePath.toString()
-  file = file("changelog.html")
+  file = file("changelog.md")
   untaggedName = "Current release $version"
   toRef = "HEAD"
   fromCommit = resolveStartCommit(project.tag)

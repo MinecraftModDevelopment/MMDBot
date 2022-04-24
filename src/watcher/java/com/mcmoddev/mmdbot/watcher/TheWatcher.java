@@ -47,6 +47,7 @@ import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdUnban;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdUnmute;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdWarning;
 import com.mcmoddev.mmdbot.watcher.event.EventReactionAdded;
+import com.mcmoddev.mmdbot.watcher.event.PersistedRolesEvents;
 import com.mcmoddev.mmdbot.watcher.punishments.PunishableActions;
 import com.mcmoddev.mmdbot.watcher.util.BotConfig;
 import com.mcmoddev.mmdbot.watcher.util.Configuration;
@@ -281,7 +282,7 @@ public final class TheWatcher implements Bot {
         // Buttons
         COMMANDS_LISTENER.addListener(new DismissListener());
 
-        MISC_LISTENER.addListeners(new EventReactionAdded());
+        MISC_LISTENER.addListeners(new EventReactionAdded(), new PersistedRolesEvents());
 
         MessageAction.setDefaultMentionRepliedUser(false);
         MessageAction.setDefaultMentions(DEFAULT_MENTIONS);
