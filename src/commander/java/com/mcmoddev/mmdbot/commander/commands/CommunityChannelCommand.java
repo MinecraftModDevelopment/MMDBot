@@ -28,7 +28,6 @@ import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.config.GuildConfiguration;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -40,11 +39,9 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.Formatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Create a community channel owned by the specified user.
@@ -135,7 +132,7 @@ public final class CommunityChannelCommand extends SlashCommand {
                 .flatMap(ch -> category.modifyTextChannelPositions()
                     .sortOrder(Comparator.comparing(GuildChannel::getName))
                     .map($ -> ch))
-                .flatMap(ch -> ch.putPermissionOverride(user).setAllow(ownerPermissions).map($ -> ch))
+                .flatMap(ch -> ch.upsertPermissionOverride(user).setAllowed(ownerPermissions).map($ -> ch))
                 .flatMap(ch -> ch.sendMessage(new MessageBuilder()
                         .append(formatMessage(
                             guildCfg.getChannelCreatedMessage(),

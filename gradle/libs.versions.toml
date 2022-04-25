@@ -6,9 +6,7 @@ lombok = { id = "io.freefair.lombok", version = "6.4.3" }
 launch4j = { id = 'edu.sc.seis.launch4j', version = '2.5.2'}
 
 [versions]
-# jda = "5.0.0-alpha.9"
-# https://github.com/DV8FromTheWorld/JDA/commit/5492a76bceb85ba42c3c2c75f5aa84ab73a92f61
-jda = "5492a76bce"
+jda = "5.0.0-alpha.11"
 # https://github.com/Matyrobbrt/JDA-Chewtils/commit/252809f87422562223b7d1af571af75d819f5a65
 # chewtils = "2.0-SNAPSHOT"
 chewtils = "252809f"
@@ -41,9 +39,7 @@ urldetector = "0.1.23"
 mockito = "4.5.1"
 
 [libraries]
-# jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
-# TODO: Switch to JDA releases once alpha.11 (with modals) is released 
-jda = { module = "com.github.DV8FromTheWorld:JDA", version.ref = "jda" }
+jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
 # TODO switch back when JDA-Chewtils/PR 65 is merged
 # chewtils = { module = "pw.chew:jda-chewtils", version.ref = "chewtils" }
 chewtils = { module = "com.matyrobbrt:JDA-Chewtils", version.ref = "chewtils" }
