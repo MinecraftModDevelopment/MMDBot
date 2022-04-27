@@ -35,9 +35,6 @@ import java.util.regex.Pattern;
 @UtilityClass
 public class MessageUtilities {
 
-    // TODO: expand this, see JDA's Message.JUMP_URL_PATTERN
-    public static final Pattern MESSAGE_LINK_PATTERN = Pattern.compile("https://discord.com/channels/");
-
     /**
      * Disables all the buttons that a message has. Disabling buttons deems it as not clickable to
      * the user who sees it.

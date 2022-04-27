@@ -27,6 +27,7 @@ import com.mcmoddev.mmdbot.thelistener.TheListener;
 import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
 import io.github.matyrobbrt.eventdispatcher.SubscribeEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.ErrorResponse;
@@ -54,7 +55,7 @@ public final class MessageEvents extends ListenerAdapter {
             .map(author -> {
                 final var msgSplit = data.getContent().split(" ");
                 if (msgSplit.length == 1) {
-                    final var matcher = MessageUtilities.MESSAGE_LINK_PATTERN.matcher(msgSplit[0]);
+                    final var matcher = Message.JUMP_URL_PATTERN.matcher(msgSplit[0]);
                     if (matcher.find()) {
                         return null;
                     }

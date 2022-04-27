@@ -52,7 +52,7 @@ public final class ReferencingListener extends ListenerAdapter {
         }
 
         final String[] msg = originalMsg.getContentRaw().split(" ");
-        if (msg.length < 1) {
+        if (msg.length < 1 || msg[0].startsWith("<")) { // Ignore `<link>` as Discord removes the embed for those links
             return;
         }
 
@@ -60,7 +60,7 @@ public final class ReferencingListener extends ListenerAdapter {
         if (m != null) {
             m.queue(message -> {
                 event.getChannel().sendMessageEmbeds(reference(message, event.getMember())).queue();
-                if (msg.length == 1) {
+                if (msg.length == 1 && originalMsg.getMessageReference() == null) {
                     originalMsg.delete().reason("Quote successful").queue();
                 }
             });
