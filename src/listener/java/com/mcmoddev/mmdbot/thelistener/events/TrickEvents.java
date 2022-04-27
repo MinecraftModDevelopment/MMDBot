@@ -58,7 +58,7 @@ public class TrickEvents {
                     .build();
 
                 TheListener.getInstance().getConfigForGuild(event.getGuildId())
-                    .getChannelsForLogging(LoggingType.LEAVE_JOIN_EVENTS)
+                    .getChannelsForLogging(LoggingType.TRICK_EVENTS)
                     .forEach(snowflakeValue -> {
                         final var ch = snowflakeValue.resolve(id -> member.getJDA().getChannelById(MessageChannel.class, id));
                         if (ch != null) {
@@ -90,7 +90,7 @@ public class TrickEvents {
                     .build();
 
                 TheListener.getInstance().getConfigForGuild(event.getGuildId())
-                    .getChannelsForLogging(LoggingType.LEAVE_JOIN_EVENTS)
+                    .getChannelsForLogging(LoggingType.TRICK_EVENTS)
                     .forEach(snowflakeValue -> {
                         final var ch = snowflakeValue.resolve(id -> member.getJDA().getChannelById(MessageChannel.class, id));
                         if (ch != null) {
@@ -129,7 +129,7 @@ public class TrickEvents {
                     .build();
 
                 TheListener.getInstance().getConfigForGuild(event.getGuildId())
-                    .getChannelsForLogging(LoggingType.LEAVE_JOIN_EVENTS)
+                    .getChannelsForLogging(LoggingType.TRICK_EVENTS)
                     .forEach(snowflakeValue -> {
                         final var ch = snowflakeValue.resolve(id -> member.getJDA().getChannelById(MessageChannel.class, id));
                         if (ch != null) {

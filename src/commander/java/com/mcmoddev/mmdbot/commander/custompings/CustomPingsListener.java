@@ -64,26 +64,22 @@ public class CustomPingsListener extends ListenerAdapter {
         allPings.forEach((userId, pings) -> {
             if (pings.isEmpty()) return;
             if (userId == author.getIdLong()) return;
-            final var user = guild.getMemberById(userId);
-            if (user == null) {
-                // Member left the guild. Remove pings
-                CustomPings.clearPings(guild.getIdLong(), userId);
-                return;
-            }
-            // They can't view the channel
-            if (!canViewChannel(guild, user, message.getGuildChannel())) return;
-            user.getUser().openPrivateChannel().queue(privateChannel -> {
-                final var dmAction = pings.stream()
-                    .filter(p -> p.test(message))
-                    .findFirst()
-                    .map(p -> sendPingMessage(p, message, privateChannel));
-                dmAction.ifPresent(messageAction -> messageAction.queue(null, new ErrorHandler()
-                    .handle(ErrorResponse.CANNOT_SEND_TO_USER, e -> {
-                        // Can't DM, so clear pings
-                        TheCommander.LOGGER.warn("Removing custom pings for user {} as they don't accept DMs.", userId);
-                        CustomPings.clearPings(guild.getIdLong(), userId);
-                    })));
-            }, $ -> /* Can't DM, so clear pings */ CustomPings.clearPings(guild.getIdLong(), userId));
+            guild.retrieveMemberById(userId).queue(user -> {
+                // They can't view the channel
+                if (!canViewChannel(guild, user, message.getGuildChannel())) return;
+                user.getUser().openPrivateChannel().queue(privateChannel -> {
+                    final var dmAction = pings.stream()
+                        .filter(p -> p.test(message))
+                        .findFirst()
+                        .map(p -> sendPingMessage(p, message, privateChannel));
+                    dmAction.ifPresent(messageAction -> messageAction.queue(null, new ErrorHandler()
+                        .handle(ErrorResponse.CANNOT_SEND_TO_USER, e -> {
+                            // Can't DM, so clear pings
+                            TheCommander.LOGGER.warn("Removing custom pings for user {} as they don't accept DMs.", userId);
+                            CustomPings.clearPings(guild.getIdLong(), userId);
+                        })));
+                }, $ -> /* Can't DM, so clear pings */ CustomPings.clearPings(guild.getIdLong(), userId));
+            }, e -> /* User left the guild */ CustomPings.clearPings(guild.getIdLong(), userId));
         });
     }
 
