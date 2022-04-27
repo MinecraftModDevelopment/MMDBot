@@ -47,7 +47,6 @@ import com.mcmoddev.mmdbot.commander.custompings.CustomPingsListener;
 import com.mcmoddev.mmdbot.commander.docs.ConfigBasedElementLoader;
 import com.mcmoddev.mmdbot.commander.docs.DocsCommand;
 import com.mcmoddev.mmdbot.commander.docs.NormalDocsSender;
-import com.mcmoddev.mmdbot.commander.eventlistener.FilePreviewListener;
 import com.mcmoddev.mmdbot.commander.eventlistener.ReferencingListener;
 import com.mcmoddev.mmdbot.commander.eventlistener.ThreadListener;
 import com.mcmoddev.mmdbot.commander.migrate.QuotesMigrator;
@@ -443,7 +442,7 @@ public final class TheCommander implements Bot {
         }
 
         EventListeners.MISC_LISTENER.addListeners(new ThreadListener(),
-            new ThreadChannelCreatorEvents(this::getGeneralConfig), new FilePreviewListener());
+            new ThreadChannelCreatorEvents(this::getGeneralConfig));
 
         COLLECT_TASKS_LISTENER.register(Events.MISC_BUS);
         CurseForgeCommand.RG_TASK_SCHEDULER_LISTENER.register(Events.MISC_BUS);
