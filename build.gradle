@@ -29,12 +29,20 @@ plugins {
   id "se.bjurr.gitchangelog.git-changelog-gradle-plugin" version '1.71.4'
 }
 
+ext {
+  bySourceSetConfigurations = new HashMap<SourceSet, Configuration>()
+  BOTS = [
+        "watcher", "listener", "commander"
+  ]
+}
+
 group 'com.mcmoddev'
 version project.bot_version
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println "Bot Version: $version"
+println "Bots: ${String.join(" ", BOTS)}"
 
 final var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
 
@@ -52,30 +60,41 @@ tasks.withType(JavaCompile).configureEach {
   compileJava.options.compilerArgs += '-proc:none'
 }
 
-configurations {
-  shade
-  implementation.extendsFrom(shade)
+sourceSets {
+  core {}
+}
 
+configurations {
   global
   coreImplementation.extendsFrom(global)
-  implementation.extendsFrom(global)
-  listenerImplementation.extendsFrom(global)
-  commanderImplementation.extendsFrom(global)
-  watcherImplementation.extendsFrom(global)
+  testImplementation.extendsFrom(global)
 
   globalCompile
   coreCompileOnly.extendsFrom(globalCompile)
-  compileOnly.extendsFrom(globalCompile)
-  listenerCompileOnly.extendsFrom(globalCompile)
-  commanderCompileOnly.extendsFrom(globalCompile)
-  watcherCompileOnly.extendsFrom(globalCompile)
+  testCompileOnly.extendsFrom(globalCompile)
 }
 
-sourceSets {
-  core {}
-  listener {}
-  commander {}
-  watcher {}
+void createBot(String name) {
+  final SourceSet s = sourceSets.create(name)
+  configurations {
+    create(name)
+    getByName("${name}Implementation").extendsFrom(getByName(name))
+    getByName("${name}Implementation").extendsFrom(global)
+    getByName("${name}CompileOnly").extendsFrom(globalCompile)
+  }
+  dependencies {
+    "${name}" sourceSets.core.output
+    coreRuntimeOnly s.output
+  }
+  bySourceSetConfigurations.put(s, configurations.getByName(name))
+  configureBotJar(name, s)
+}
+
+BOTS.forEach(this::createBot)
+
+configurations {
+  shade
+  implementation.extendsFrom(shade)
 }
 
 repositories {
@@ -92,15 +111,7 @@ repositories {
 }
 
 dependencies {
-  implementation sourceSets.core.output
-  listenerImplementation sourceSets.core.output
-  commanderImplementation sourceSets.core.output
-  watcherImplementation sourceSets.core.output
-
   coreRuntimeOnly sourceSets.main.output
-  coreRuntimeOnly sourceSets.listener.output
-  coreRuntimeOnly sourceSets.commander.output
-  coreRuntimeOnly sourceSets.watcher.output
 
   globalCompile project(':relauncher')
 
@@ -112,34 +123,38 @@ dependencies {
   global libs.guava
   global libs.gson
   global libs.logback
-  global libs.nightconfig
   global libs.sqlite
   global libs.flyway
-  global libs.graal
-  global libs.graal.scriptengine
   global libs.reflections
   global libs.dotenv
   global libs.fastutil
   global libs.configurate.hocon
-  global libs.cfapi
-  global libs.jsoup
   global libs.eventdispatcher
   global libs.asmutils
   global libs.typetools
-  global libs.webhooks
-  global libs.javadocapi
   global libs.caffeine
   global libs.urldetector
-
-  globalCompile libs.annotations
-  globalCompile libs.lombok
+  global libs.cfapi
 
   global libs.jdbi.core
   global libs.jdbi.sqlobject
 
+  commander libs.jsoup
+  commander libs.javadocapi
+  commander libs.webhooks
+  commander libs.graal
+  commander libs.graal.scriptengine
+
+  // TODO remove
+  watcher libs.nightconfig
+
+  globalCompile libs.annotations
+  globalCompile libs.lombok
+
   testImplementation libs.junit
   testImplementation libs.mockito
 
+  testImplementation sourceSets.core.output
   testImplementation sourceSets.watcher.output
 }
 
@@ -165,7 +180,8 @@ tasks.named('shadowJar', ShadowJar).configure {
     from it.output
   }
   configurations = [project.configurations.global]
-  manifest.attributes(makeManifestAttributes())
+  configurations.addAll(bySourceSetConfigurations.values())
+  manifest.attributes(makeManifestAttributes(application.getMainClass().get()))
   classifier 'all'
   group 'build'
   description 'Builds the whole project with its dependencies.'
@@ -173,40 +189,43 @@ tasks.named('shadowJar', ShadowJar).configure {
 }
 
 tasks.named(JavaPlugin.JAR_TASK_NAME, Jar).configure {
+  from sourceSets.main.output
   from sourceSets.core.output
-  manifest.attributes(makeManifestAttributes())
+  manifest.attributes(makeManifestAttributes(application.getMainClass().get()))
   classifier 'core-no-deps'
   description 'Builds the core sourceSet without its dependencies.'
   dependsOn tasks.named('updateLicenses')
 }
 
-configureBotJar("theListener", sourceSets.listener)
-configureBotJar("theWatcher", sourceSets.watcher)
-configureBotJar("theCommander", sourceSets.commander)
-
 void configureBotJar(String botName, SourceSet sourceSet) {
   tasks.register("${botName}Jar", ShadowJar) {
+    from sourceSets.main.output
     from sourceSets.core.output
     from sourceSet.output
+    exclude "META-INF/*.SF"
+    exclude "META-INF/*.DSA"
+    exclude "META-INF/*.RSA"
     classifier(botName)
-    manifest.attributes(makeManifestAttributes())
+    manifest.attributes(makeManifestAttributes("com.mcmoddev.mmdbot.core.OnlyOneBotRunner"))
     configurations.add(project.configurations.global)
+    configurations.add((Configuration) bySourceSetConfigurations.get(sourceSet))
     group 'build'
     description "Builds the bot $botName and its dependencies."
     dependsOn tasks.named("updateLicenses")
   }
   tasks.register("${botName}JarNoDeps", Jar) {
+    from sourceSets.main.output
     from sourceSets.core.output
     from sourceSet.output
     classifier "${botName}-no-deps"
-    manifest.attributes(makeManifestAttributes())
+    manifest.attributes(makeManifestAttributes("com.mcmoddev.mmdbot.core.OnlyOneBotRunner"))
     group 'build'
     description "Builds the bot $botName without its dependencies."
     dependsOn tasks.named("updateLicenses")
   }
 }
 
-def makeManifestAttributes() {
+def makeManifestAttributes(String mainClass) {
   final var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
   final var currentDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(actualDateTime)
     return [
@@ -221,7 +240,7 @@ def makeManifestAttributes() {
             'Implementation-Timestamp': currentDateTime,
             'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
             'Built-On'                : "${project.libs.versions.jda.get()}-${project.libs.versions.chewtils.get()}",
-            'Main-Class'              : application.getMainClass().get()
+            'Main-Class'              : mainClass
     ]
 }
 
@@ -243,12 +262,12 @@ tasks.register('makeChangelog', GitChangelogTask) {
   file = file("changelog.md")
   untaggedName = "Current release $version"
   toRef = "HEAD"
-  fromCommit = resolveStartCommit(project.tag)
+  fromCommit = resolveStartCommit(properties.containsKey("tag") ? project.tag : "")
   templateContent = Files.readString(projectDir.toPath().resolve("changelog.mustache"))
 }
 
 static String resolveStartCommit(String tag) {
-  final GitHub github = new GitHubBuilder().withOAuthToken(System.getenv('GITHUB_TOKEN')).build();
+  final GitHub github = new GitHubBuilder().withOAuthToken(System.getenv('GITHUB_TOKEN')).build()
   final var repo = github.getRepository('MinecraftModDevelopment/MMDBot')
   final var tags = repo.listTags().toList()
   final var actualTag = tags.stream()

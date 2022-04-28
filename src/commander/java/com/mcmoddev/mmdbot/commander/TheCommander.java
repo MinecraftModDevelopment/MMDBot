@@ -149,7 +149,7 @@ public final class TheCommander implements Bot {
         public TheCommander createBot(final Path runPath) {
             try {
                 return new TheCommander(runPath, DotenvLoader.builder()
-                    .filePath(runPath.resolve(".env"))
+                    .filePath(runPath.toAbsolutePath().resolve(".env"))
                     .whenCreated(writer -> writer
                         .writeComment("The token of the bot: ")
                         .writeValue("BOT_TOKEN", "")
@@ -337,7 +337,7 @@ public final class TheCommander implements Bot {
 
         if (generalConfig.bot().getOwners().isEmpty()) {
             LOGGER.warn("Please provide at least one bot owner!");
-            throw new RuntimeException();
+            throw new RuntimeException("Please provide at least one bot owner!");
         }
         final var coOwners = generalConfig.bot().getOwners()
             .subList(1, generalConfig.bot().getOwners().size())

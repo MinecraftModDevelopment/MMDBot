@@ -106,7 +106,7 @@ public final class TheWatcher implements Bot {
         public TheWatcher createBot(final Path runPath) {
             try {
                 return new TheWatcher(runPath, DotenvLoader.builder()
-                    .filePath(runPath.resolve(".env"))
+                    .filePath(runPath.toAbsolutePath().resolve(".env"))
                     .whenCreated(writer -> writer
                         .writeComment("The token of the bot: ")
                         .writeValue("BOT_TOKEN", "")

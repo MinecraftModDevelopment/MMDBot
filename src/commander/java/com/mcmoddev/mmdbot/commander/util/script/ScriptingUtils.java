@@ -61,7 +61,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -105,12 +104,6 @@ public final class ScriptingUtils {
 
         HOST_ACCESS = hostAccess.build();
     }
-
-    /**
-     * Execute any script inside this thread pool if you think the script will be heavy. <br>
-     * <b>BY DEFAULT, {@link #evaluate(String, ScriptingContext)} calls are NOT executed in another thread.</b>
-     */
-    public static final Executor THREAD_POOL = Executors.newFixedThreadPool(2, r -> Utils.setThreadDaemon(new Thread(r, "ScriptEvaluator"), true));
 
     public static void evaluate(String script, ScriptingContext context) {
         if (ScamDetector.containsScam(script)) {

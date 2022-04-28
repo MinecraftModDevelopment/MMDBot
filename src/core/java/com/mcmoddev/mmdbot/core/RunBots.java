@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.core;
 import com.google.gson.JsonObject;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
+import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.common.ScamDetector;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.Constants;
@@ -37,11 +38,13 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -69,24 +72,31 @@ public class RunBots {
     private static List<Bot> loadedBots = new ArrayList<>();
 
     public static void main(String[] a) {
-        System.setProperty("java.net.preferIPv4Stack", "true");
         final var args = List.of(a);
+        startBots(BotRegistry.getBotTypes(), args, true);
+    }
 
+    public static void startBots(Map<String, BotRegistry.BotRegistryEntry<?>> botTypes, List<String> args, boolean withConfig) {
+        System.setProperty("java.net.preferIPv4Stack", "true");
         final var doMigrate = !args.contains("noMigration");
-        final var config = getOrCreateConfig();
+        final var config = withConfig ? getOrCreateConfig() : new JsonObject();
 
         final var botsAmount = new AtomicInteger();
 
         record BotListing<T extends Bot>(BotRegistry.BotRegistryEntry<T> registryEntry, BotEntry entry) {}
         record CreatedBotListing<T extends Bot>(T bot, BotEntry entry) {}
 
-        var bots = BotRegistry.getBotTypes()
+        var bots = botTypes
             .entrySet()
             .stream()
             .map(entry -> {
-                final var botEntry = BotEntry.of(entry.getKey(),
-                    config.has(entry.getKey()) ? config.get(entry.getKey()).getAsJsonObject() : new JsonObject());
-                return new BotListing<>(entry.getValue(), botEntry);
+                if (withConfig) {
+                    final var botEntry = BotEntry.of(entry.getKey(),
+                        config.has(entry.getKey()) ? config.get(entry.getKey()).getAsJsonObject() : new JsonObject());
+                    return new BotListing<>(entry.getValue(), botEntry);
+                } else {
+                    return new BotListing<>(entry.getValue(), new BotEntry(entry.getKey(), true, ""));
+                }
             })
             .sorted(Comparator.comparing(p -> -p.registryEntry().priority()))
             .map(listing -> new CreatedBotListing<>(
@@ -114,7 +124,7 @@ public class RunBots {
                                     botsAmount.incrementAndGet();
                                     bot.getLogger().warn("Bot {} has been found, and it has been launched!", botEntry.name());
                                 }, 5, TimeUnit.SECONDS); // Give the bot 5 seconds to startup.. it
-                                // should add its listeners till then
+                                // should add its listeners until then
                             }
                             try {
                                 bot.start();
@@ -178,7 +188,9 @@ public class RunBots {
             try {
                 Files.createDirectory(path);
             } catch (IOException e) {
-                LOG.error("Exception while trying to create directory {}!", path, e);
+                if (!(e instanceof FileAlreadyExistsException)) {
+                    LOG.error("Exception while trying to create directory {}!", path, e);
+                }
             }
         }
         return path;

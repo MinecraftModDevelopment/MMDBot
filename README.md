@@ -4,7 +4,7 @@ An in house bot for MMD that handles the logging of Discord events, commands, cl
 For a list of the commands you can access please use ``/help`` in our [Discord server.](https://discord.mcmoddev.com)
 
 ## Getting Started
-In order to get started using the bot, make sure you have at least Java 17 installed, and that you downloaded the latest bot version from the Releases tab.
+In order to get started using the bot, make sure you have at least Java 17 installed (if not, Temurin Java builds can be downloaded from [here](https://adoptium.net/download)), and that you downloaded the latest bot version from the [Releases](https://github.com/MinecraftModDevelopment/MMDBot/releases) tab.
 Once you have the bot jar downloaded, run it for the first time using `java -jar MMDBot-[version]-all.jar`. A new file called `config.json` will be created.
 That file decides the path of each bot, and if it is enabled. By default, all bots are disabled.
 In order to enable a bot, change the `enabled` property to `true`:

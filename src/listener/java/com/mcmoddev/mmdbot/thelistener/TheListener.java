@@ -25,6 +25,7 @@ import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import com.mcmoddev.mmdbot.core.event.Events;
+import com.mcmoddev.mmdbot.core.util.DotenvLoader;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.jda.caching.JdaMessageCache;
 import com.mcmoddev.mmdbot.thelistener.events.LeaveJoinEvents;
@@ -34,6 +35,7 @@ import com.mcmoddev.mmdbot.thelistener.events.RoleEvents;
 import com.mcmoddev.mmdbot.thelistener.events.TrickEvents;
 import com.mcmoddev.mmdbot.thelistener.util.GuildConfig;
 import io.github.cdimascio.dotenv.Dotenv;
+import io.github.cdimascio.dotenv.DotenvBuilder;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.dv8tion.jda.api.JDA;
@@ -47,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -102,8 +105,16 @@ public final class TheListener implements Bot {
     public void start() throws LoginException {
         instance = this;
 
-        final var dotenv = Dotenv.configure()
-            .directory(runPath.toString()).load();
+        final Dotenv dotenv;
+        try {
+            dotenv = DotenvLoader.builder()
+                .filePath(runPath.toAbsolutePath().resolve(".env"))
+                .whenCreated(writer -> writer.writeValue("BOT_TOKEN", "")
+                    .writeComment("The token of the bot"))
+                .load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         final var token = dotenv.get("BOT_TOKEN", "");
 
