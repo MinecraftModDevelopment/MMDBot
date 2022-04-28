@@ -28,7 +28,7 @@ export default function Home() {
   const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
-      title={siteConfig.title}
+      title="MMDBot"
       description="MMDBot docs">
       <HomepageHeader />
     </Layout>
