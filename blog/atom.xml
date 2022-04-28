@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://minecraftmoddevelopment.github.io/MMDBot/blog</id>
+    <title>MMDBot Docs Blog</title>
+    <updated>2022-04-28T00:00:00.000Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://minecraftmoddevelopment.github.io/MMDBot/blog"/>
+    <subtitle>MMDBot Docs Blog</subtitle>
+    <icon>https://minecraftmoddevelopment.github.io/MMDBot/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[First Blog Post]]></title>
+        <id>first-blog-post</id>
+        <link href="https://minecraftmoddevelopment.github.io/MMDBot/blog/first-blog-post"/>
+        <updated>2022-04-28T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[This is the first blog post. New important releases will be published here from now on.]]></summary>
+        <content type="html"><![CDATA[<p>This is the first blog post. New important releases will be published here from now on.</p>]]></content>
+        <author>
+            <name>Matyrobbrt</name>
+            <uri>https://github.com/Matyrobbrt</uri>
+        </author>
+        <category label="mmdbot" term="mmdbot"/>
+    </entry>
+</feed>

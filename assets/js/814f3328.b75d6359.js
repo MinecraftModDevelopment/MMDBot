@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkmmdbot_docs=self.webpackChunkmmdbot_docs||[]).push([[535],{5641:function(t){t.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"First Blog Post","permalink":"/MMDBot/blog/first-blog-post"}]}')}}]);

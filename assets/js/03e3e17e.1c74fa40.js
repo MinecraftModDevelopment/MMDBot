@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkmmdbot_docs=self.webpackChunkmmdbot_docs||[]).push([[970],{3386:function(t){t.exports=JSON.parse('{"allTagsPath":"/MMDBot/blog/tags","name":"mmdbot","count":1,"permalink":"/MMDBot/blog/tags/mmdbot"}')}}]);
