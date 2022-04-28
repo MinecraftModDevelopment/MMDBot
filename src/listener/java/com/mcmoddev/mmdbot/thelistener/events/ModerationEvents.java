@@ -45,7 +45,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
 import java.time.Instant;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 // TODO add timeout events
 public final class ModerationEvents extends ListenerAdapter {
@@ -177,7 +180,15 @@ public final class ModerationEvents extends ListenerAdapter {
 
     @Override
     public void onGuildMemberRemove(@NotNull final GuildMemberRemoveEvent event) {
-        Utils.getAuditLog(event.getGuild(), event.getUser().getIdLong(), log -> log.type(ActionType.KICK).limit(5), log -> {
+        Utils.getAuditLog(event.getGuild(), event.getUser().getIdLong(), log -> log
+            .type(ActionType.KICK)
+            .limit(5), log -> {
+            if (log.getTimeCreated().toInstant()
+                .isBefore(Instant.now()
+                    .minus(2, ChronoUnit.MINUTES))) {
+                return;
+            }
+
             final var embed = new EmbedBuilder();
             final var kicker = Optional.ofNullable(log.getUser());
             final var kickedUser = event.getUser();
