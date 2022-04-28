@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.commander.util.script;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import org.graalvm.polyglot.Value;
@@ -72,6 +73,7 @@ public class ScriptingContext {
         return map.get(key);
     }
 
+    @CanIgnoreReturnValue
     public ScriptingContext set(String key, Object value) {
         if (value instanceof ScriptingContext context) {
             map.put(key, context.toProxyObject());
@@ -93,11 +95,13 @@ public class ScriptingContext {
         return this;
     }
 
+    @CanIgnoreReturnValue
     public ScriptingContext setFunction(String name, Function<List<Value>, Object> function) {
         map.put(name, ScriptingUtils.functionObject(function));
         return this;
     }
 
+    @CanIgnoreReturnValue
     public ScriptingContext setFunctionVoid(String name, Consumer<List<Value>> consumer) {
         map.put(name, ScriptingUtils.functionObject(args -> {
             consumer.accept(args);
@@ -106,6 +110,7 @@ public class ScriptingContext {
         return this;
     }
 
+    @CanIgnoreReturnValue
     public ScriptingContext addInstantiatable(String name, Function<List<Value>, Object> factory) {
         map.put(name, new NameableProxyInstantiable() {
             @Override
@@ -125,6 +130,7 @@ public class ScriptingContext {
         return this;
     }
 
+    @CanIgnoreReturnValue
     public ScriptingContext addInstantiatable(String[] names, Function<List<Value>, Object> factory) {
         for (var name : names) {
             addInstantiatable(name, factory);
@@ -132,8 +138,15 @@ public class ScriptingContext {
         return this;
     }
 
+    @CanIgnoreReturnValue
     public ScriptingContext flatAdd(ScriptingContext other) {
         other.map().keySet().forEach(key -> this.map().put(key, other.get(key)));
+        return this;
+    }
+
+    @CanIgnoreReturnValue
+    public ScriptingContext remove(String name) {
+        this.map.remove(name);
         return this;
     }
 
