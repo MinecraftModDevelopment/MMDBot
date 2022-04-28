@@ -23,7 +23,7 @@ jobs:
       # Install and build Docusaurus website
       - name: Build Docusaurus website
         run: |
-          cd website
+          cd docs
           npm install 
           npm run build
       - name: Deploy to GitHub Pages
