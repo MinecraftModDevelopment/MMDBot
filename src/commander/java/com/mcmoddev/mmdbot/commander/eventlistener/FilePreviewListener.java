@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.commander.eventlistener;
 
+import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -31,12 +32,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class FilePreviewListener implements EventListener {
 
     public static final List<String> BLACKLISTED_EXTENSIONS = List.of(
         "png", "jpeg", "jpg", "jpe", "jif", "jfif", "jfi", "jp2",
-        "tiff", "tif", "mp4", "avi", "mp3", "wav", "gif", "webp", "psd", "bpm"
+        "tiff", "tif", "mp4", "avi", "mp3", "wav", "gif", "webp", "psd", "bpm",
+        "mov", "ogg"
     );
 
     public static final String URL = "https://discordbot.matyrobbrt.com/fpreview?url=";
@@ -49,9 +52,12 @@ public class FilePreviewListener implements EventListener {
         final var messageBuilder = new MessageBuilder()
             .append("Paste version of ");
         final var rows = new ArrayList<List<Button>>();
+        addButton(rows, DismissListener.createDismissButton(event.getAuthor()));
         for (var i = 0; i < attachments.size(); i++) {
             final var attach = attachments.get(i);
-            if (!BLACKLISTED_EXTENSIONS.contains(attach.getFileExtension())) {
+            if (attach.getFileExtension() == null)
+                continue;
+            if (!BLACKLISTED_EXTENSIONS.contains(attach.getFileExtension().toLowerCase(Locale.ROOT))) {
                 final var url = URL + attach.getUrl();
                 messageBuilder
                     .append('`')
@@ -66,7 +72,7 @@ public class FilePreviewListener implements EventListener {
                 addButton(rows, Button.link(url, trimIfTooLong("View " + attach.getFileName())));
             }
         }
-        if (!rows.isEmpty()) {
+        if (rows.size() > 1) { // We also add the Dismiss button
             messageBuilder.append("from ")
                 .append(event.getAuthor().getAsMention());
             event.getMessage().reply(messageBuilder.build())
