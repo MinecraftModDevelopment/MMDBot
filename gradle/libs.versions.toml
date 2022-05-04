@@ -3,7 +3,7 @@ shadow = { id = "com.github.johnrengelman.shadow", version = "7.1.2" }
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 licenser = { id = "org.cadixdev.licenser", version = "0.6.1" }
 lombok = { id = "io.freefair.lombok", version = "6.4.3" }
-launch4j = { id = 'edu.sc.seis.launch4j', version = '2.5.2'}
+launch4j = { id = 'edu.sc.seis.launch4j', version = '2.5.3'}
 
 [versions]
 jda = "5.0.0-alpha.11"
@@ -15,10 +15,10 @@ gson = "2.9.0"
 logback = "1.2.11"
 nightconfig = "3.6.5"
 sqlite = "3.36.0.3"
-flyway = "8.5.9"
+flyway = "8.5.10"
 annotations = "23.0.0"
 lombok = "1.18.24"
-graal = "22.0.0.2"
+graal = "22.1.0"
 reflections = "0.10.2"
 jdbi = "3.28.0"
 junit = "5.8.2"
@@ -29,12 +29,12 @@ configurate = "4.1.2"
 cfapi = "1.7.2"
 jsoup = "1.14.3"
 webhooks = "0.8.0"
-eventdispatcher = "1.5.0"
+eventdispatcher = "1.6.0"
 asmutils = "0.3.1"
 typetools = "0.6.3"
 javadocapi = "21ad5c1759"
 commons-io = "2.11.0"
-caffeine = "3.0.6"
+caffeine = "3.1.0"
 urldetector = "0.1.23"
 mockito = "4.5.1"
 
