@@ -34,7 +34,7 @@ asmutils = "0.3.1"
 typetools = "0.6.3"
 javadocapi = "21ad5c1759"
 commons-io = "2.11.0"
-caffeine = "3.0.6"
+caffeine = "3.1.0"
 urldetector = "0.1.23"
 mockito = "4.5.1"
 
