@@ -299,12 +299,12 @@ public final class ModerationEvents extends ListenerAdapter {
         final var doc = event.getDocument();
         jda.retrieveUserById(doc.userId()).and(jda.retrieveUserById(event.getModeratorId()), (user, moderator) -> {
             final var embed = new EmbedBuilder()
-                .setColor(Color.GREEN)
-                .setTitle("Warning Cleared")
-                .setDescription("One of the warnings of " + mentionAndID(doc.userId()) + " has been removed!")
+                .setColor(Color.RED)
+                .setTitle("New Warning")
+                .setDescription(mentionAndID(doc.moderatorId()) + " warned " + mentionAndID(doc.userId()))
                 .setThumbnail(user.getAvatarUrl())
-                .addField("Old warning reason:", doc.reason(), false)
-                .addField("Old warner:", mentionAndID(doc.userId()), false)
+                .addField("Reason:", doc.reason(), false)
+                .addField("Warning ID:", doc.warnId(), false)
                 .setTimestamp(Instant.now())
                 .setFooter("Moderator ID: " + event.getModeratorId(), moderator.getAvatarUrl());
             log(event.getGuildId(), jda, embed.build());
