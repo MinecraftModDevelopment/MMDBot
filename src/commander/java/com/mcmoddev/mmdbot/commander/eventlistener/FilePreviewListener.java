@@ -39,7 +39,7 @@ public class FilePreviewListener implements EventListener {
     public static final List<String> BLACKLISTED_EXTENSIONS = List.of(
         "png", "jpeg", "jpg", "jpe", "jif", "jfif", "jfi", "jp2",
         "tiff", "tif", "mp4", "avi", "mp3", "wav", "gif", "webp", "psd", "bpm",
-        "mov", "ogg"
+        "mov", "ogg", "webm"
     );
 
     public static final String URL = "https://discordbot.matyrobbrt.com/fpreview?url=";
