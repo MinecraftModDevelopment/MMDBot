@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.core.util.event;
 
 import io.github.matyrobbrt.eventdispatcher.LazySupplier;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -104,6 +105,10 @@ public final class DismissListener extends ListenerAdapter {
 
     public static Button createDismissButton(final long buttonOwner, final ButtonStyle style, final String label) {
         return Button.of(style, "dismiss-" + buttonOwner, LABEL);
+    }
+
+    public static Button createDismissButton(final long buttonOwner, final ButtonStyle style, final Emoji emoji) {
+        return Button.of(style, "dismiss-" + buttonOwner, emoji);
     }
 
     public static Button createDismissButton(final long buttonOwner) {

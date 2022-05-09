@@ -22,12 +22,14 @@ package com.mcmoddev.mmdbot.commander.eventlistener;
 
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -42,6 +44,8 @@ public class FilePreviewListener implements EventListener {
         "mov", "ogg", "webm"
     );
 
+    public static final Emoji DISMISS_EMOJI = Emoji.fromMarkdown("\uD83D\uDEAE️");
+
     public static final String URL = "https://discordbot.matyrobbrt.com/fpreview?url=";
 
     @Override
@@ -52,7 +56,7 @@ public class FilePreviewListener implements EventListener {
         final var messageBuilder = new MessageBuilder()
             .append("Paste version of ");
         final var rows = new ArrayList<List<Button>>();
-        addButton(rows, DismissListener.createDismissButton(event.getAuthor()));
+        addButton(rows, DismissListener.createDismissButton(event.getAuthor().getIdLong(), ButtonStyle.SECONDARY, DISMISS_EMOJI));
         for (var i = 0; i < attachments.size(); i++) {
             final var attach = attachments.get(i);
             if (attach.getFileExtension() == null)
@@ -72,11 +76,11 @@ public class FilePreviewListener implements EventListener {
                 addButton(rows, Button.link(url, trimIfTooLong("View " + attach.getFileName())));
             }
         }
-        if (rows.size() > 1) { // We also add the Dismiss button
+        if (rows.get(0).size() > 1) { // We're guaranteed to have at least one list, with at least one button: the dismiss one
             messageBuilder.append("from ")
                 .append(event.getAuthor().getAsMention());
             event.getMessage().reply(messageBuilder.build())
-                .setActionRows(rows.stream().map(ActionRow::of).toList())
+                .setActionRows(rows.stream().map(ActionRow::of).toArray(ActionRow[]::new))
                 .mentionRepliedUser(false)
                 .allowedMentions(List.of())
                 .queue();
