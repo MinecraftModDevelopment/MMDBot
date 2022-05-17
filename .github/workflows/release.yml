@@ -34,11 +34,12 @@ jobs:
         run: ./gradlew :build -Pbot_version=${{ env.TAG }}
         env:
           BUILD_NUMBER: ${{ github.run_number }}
-      # - name: Make Changelog
-      #  id: changelog
-      #  run: ./gradlew :makeChangelog -Ptag=${{ env.TAG }} -Pbot_version=${{ env.TAG }}
-      #  env:
-      #    GITHUB_TOKEN: ${{ github.token }}
+      - name: Make Changelog
+        uses: FabricMC/fabric-action-scripts@v1
+        id: changelog
+        with:
+          context: changelog
+          workflow_id: release.yml
       - name: Create release
         id: create_release
         uses: ncipollo/release-action@v1
@@ -48,5 +49,4 @@ jobs:
           name: Release ${{ env.TAG }}
           artifactErrorsFailBuild: true
           artifacts: 'build/libs/*[-all].jar'
-          # bodyFile: 'changelog.md'
-          generateReleaseNotes: true
+          body: ${{ steps.changelog.outputs.changelog }}

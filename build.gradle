@@ -26,7 +26,6 @@ plugins {
   alias(libs.plugins.flyway)
   alias(libs.plugins.licenser)
   alias(libs.plugins.lombok)
-  id "se.bjurr.gitchangelog.git-changelog-gradle-plugin" version '1.72.0'
 }
 
 ext {
@@ -255,26 +254,6 @@ license {
   properties {
     year = actualDateTime.getYear()
   }
-}
-
-tasks.register('makeChangelog', GitChangelogTask) {
-  fromRepo = projectDir.absolutePath.toString()
-  file = file("changelog.md")
-  untaggedName = "Current release $version"
-  toRef = "HEAD"
-  fromCommit = resolveStartCommit(properties.containsKey("tag") ? project.tag : "")
-  templateContent = Files.readString(projectDir.toPath().resolve("changelog.mustache"))
-}
-
-static String resolveStartCommit(String tag) {
-  final GitHub github = new GitHubBuilder().withOAuthToken(System.getenv('GITHUB_TOKEN')).build()
-  final var repo = github.getRepository('MinecraftModDevelopment/MMDBot')
-  final var tags = repo.listTags().toList()
-  final var actualTag = tags.stream()
-    .filter(t -> t.name == tag)
-    .findFirst().orElseThrow()
-  final var index = tags.indexOf(actualTag)
-  return tags.get(index - 1).commit.getSHA1()
 }
 
 eclipse.project {
