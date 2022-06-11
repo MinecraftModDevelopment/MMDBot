@@ -38,10 +38,9 @@ import java.util.Locale;
 
 public class FilePreviewListener implements EventListener {
 
-    public static final List<String> BLACKLISTED_EXTENSIONS = List.of(
-        "png", "jpeg", "jpg", "jpe", "jif", "jfif", "jfi", "jp2",
-        "tiff", "tif", "mp4", "avi", "mp3", "wav", "gif", "webp", "psd", "bpm",
-        "mov", "ogg", "webm"
+    public static final List<String> WHITELISTED_EXTENSIONS = List.of(
+        "txt", "log", "java", "json", "groovy", "js",
+        "cpp", "c", "gradle"
     );
 
     public static final Emoji DISMISS_EMOJI = Emoji.fromMarkdown("\uD83D\uDEAE️");
@@ -61,7 +60,7 @@ public class FilePreviewListener implements EventListener {
             final var attach = attachments.get(i);
             if (attach.getFileExtension() == null)
                 continue;
-            if (!BLACKLISTED_EXTENSIONS.contains(attach.getFileExtension().toLowerCase(Locale.ROOT))) {
+            if (WHITELISTED_EXTENSIONS.contains(attach.getFileExtension().toLowerCase(Locale.ROOT))) {
                 final var url = URL + attach.getUrl();
                 messageBuilder
                     .append('`')
