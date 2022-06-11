@@ -143,7 +143,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
     protected void executeSub(final SlashCommandEvent event, final boolean dropdown) {
         final var selfMember = Objects.requireNonNull(event.getGuild()).getSelfMember();
         Objects.requireNonNull(event.getMember());
-        final var args = event.getOption("roles", List.<String>of(), m -> m.getMentionedRoles()
+        final var args = event.getOption("roles", List.<String>of(), m -> m.getMentions().getRoles()
             .stream()
             .filter(r -> !r.isManaged() && selfMember.canInteract(r) && event.getMember().canInteract(r))
             .map(Role::getId)

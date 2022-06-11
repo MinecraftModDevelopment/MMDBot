@@ -113,7 +113,7 @@ public class GistContextMenu extends MessageContextMenu {
             gist.addFile("file" + (extension.isBlank() ? "" : "." + extension), content);
         }
         for (var attach : message.getAttachments()) {
-            attach.retrieveInputStream().thenAccept(is -> {
+            attach.getProxy().download().thenAccept(is -> {
                 if (BLACKLISTED_ATTACHMENTS.contains(attach.getFileExtension())) {
                     return;
                 }

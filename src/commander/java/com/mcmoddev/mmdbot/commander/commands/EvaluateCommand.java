@@ -247,7 +247,7 @@ public class EvaluateCommand extends SlashCommand {
             for (var attach : event.getMessage().getAttachments()) {
                 if (Objects.equals(attach.getFileExtension(), "js")) {
                     try {
-                        script = GistUtils.readInputStream(attach.retrieveInputStream().get());
+                        script = GistUtils.readInputStream(attach.getProxy().download().get());
                         break;
                     } catch (IOException | InterruptedException | ExecutionException e) {
                         e.printStackTrace();

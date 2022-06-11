@@ -92,8 +92,8 @@ public class PunishmentTests {
         final var bag = mock(Bag.class);
         when(bag.uniqueSet()).thenReturn(set);
 
-        when(message.getMentionedUsersBag()).thenReturn(bag);
-        when(message.getMentionedRolesBag()).thenReturn(bag);
+        when(message.getMentions().getUsersBag()).thenReturn(bag);
+        when(message.getMentions().getRolesBag()).thenReturn(bag);
         when(message.getChannel()).thenReturn(JDATesting.textChannel);
         when(message.getMember()).thenReturn(member);
 
