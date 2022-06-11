@@ -6,7 +6,7 @@ lombok = { id = "io.freefair.lombok", version = "6.4.3" }
 launch4j = { id = 'edu.sc.seis.launch4j', version = '2.5.3'}
 
 [versions]
-jda = "5.0.0-alpha.11"
+jda = "5.0.0-alpha.12"
 # https://github.com/Matyrobbrt/JDA-Chewtils/commit/252809f87422562223b7d1af571af75d819f5a65
 # chewtils = "2.0-SNAPSHOT"
 chewtils = "252809f"

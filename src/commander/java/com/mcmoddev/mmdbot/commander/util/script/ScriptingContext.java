@@ -74,6 +74,7 @@ public class ScriptingContext {
     }
 
     @CanIgnoreReturnValue
+    @SuppressWarnings("rawtypes")
     public ScriptingContext set(String key, Object value) {
         if (value instanceof ScriptingContext context) {
             map.put(key, context.toProxyObject());

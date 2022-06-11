@@ -72,9 +72,9 @@ public final class CmdKick extends Command {
             channel.reply("No arguments provided, please use the following arguments with this command: "
                 + "``" + getArguments() + "``").queue();
         } else {
-            final var mentioned = !event.getMessage().getMentionedMembers(event.getGuild()).isEmpty();
+            final var mentioned = !event.getMessage().getMentions().getMembers().isEmpty();
             final String[] args = event.getArgs().split(" ");
-            event.getGuild().retrieveMemberById(mentioned ? event.getMessage().getMentionedMembers(event.getGuild()).get(0).getId() : args[0]).queue(member -> {
+            event.getGuild().retrieveMemberById(mentioned ? event.getMessage().getMentions().getMembers().get(0).getId() : args[0]).queue(member -> {
                 final String kickReason;
                 if (!mentioned && !(args.length > 1)) {
                     kickReason = "Reason for kick could not be found or was not provided, please contact "

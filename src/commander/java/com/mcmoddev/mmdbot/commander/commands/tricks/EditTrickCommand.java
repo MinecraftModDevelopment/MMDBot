@@ -194,7 +194,7 @@ public final class EditTrickCommand extends SlashCommand {
                 for (var attach : event.getMessage().getAttachments()) {
                     if (Objects.equals(attach.getFileExtension(), "js")) {
                         try {
-                            args = event.getArgs().split(" \\| ", 2)[0] + " | " + GistUtils.readInputStream(attach.retrieveInputStream().get());
+                            args = event.getArgs().split(" \\| ", 2)[0] + " | " + GistUtils.readInputStream(attach.getProxy().download().get());
                             break;
                         } catch (IOException | InterruptedException | ExecutionException e) {
                             e.printStackTrace();

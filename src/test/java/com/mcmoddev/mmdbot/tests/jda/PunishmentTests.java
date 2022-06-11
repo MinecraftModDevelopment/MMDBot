@@ -23,6 +23,15 @@ package com.mcmoddev.mmdbot.tests.jda;
 import com.mcmoddev.mmdbot.core.common.ScamDetector;
 import com.mcmoddev.mmdbot.watcher.punishments.PunishableAction;
 import com.mcmoddev.mmdbot.watcher.punishments.PunishableActions;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Emote;
+import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Mentions;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -30,6 +39,7 @@ import net.dv8tion.jda.internal.entities.MemberImpl;
 import net.dv8tion.jda.internal.entities.ReceivedMessage;
 import net.dv8tion.jda.internal.entities.UserImpl;
 import org.apache.commons.collections4.Bag;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -37,6 +47,7 @@ import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.*;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Set;
 
 public class PunishmentTests {
@@ -92,8 +103,104 @@ public class PunishmentTests {
         final var bag = mock(Bag.class);
         when(bag.uniqueSet()).thenReturn(set);
 
-        when(message.getMentionedUsersBag()).thenReturn(bag);
-        when(message.getMentionedRolesBag()).thenReturn(bag);
+        final var mentions = new Mentions() {
+
+            @NotNull
+            @Override
+            public JDA getJDA() {
+                return JDATesting.jda;
+            }
+
+            @Override
+            public boolean mentionsEveryone() {
+                return false;
+            }
+
+            @NotNull
+            @Override
+            public List<User> getUsers() {
+                return List.of();
+            }
+
+            @NotNull
+            @Override
+            public Bag<User> getUsersBag() {
+                return bag;
+            }
+
+            @NotNull
+            @Override
+            public List<GuildChannel> getChannels() {
+                return List.of();
+            }
+
+            @NotNull
+            @Override
+            public Bag<GuildChannel> getChannelsBag() {
+                return bag;
+            }
+
+            @NotNull
+            @Override
+            public <T extends GuildChannel> List<T> getChannels(@NotNull final Class<T> clazz) {
+                return List.of();
+            }
+
+            @NotNull
+            @Override
+            public <T extends GuildChannel> Bag<T> getChannelsBag(@NotNull final Class<T> clazz) {
+                return bag;
+            }
+
+            @NotNull
+            @Override
+            public List<Role> getRoles() {
+                return List.of();
+            }
+
+            @NotNull
+            @Override
+            public Bag<Role> getRolesBag() {
+                return bag;
+            }
+
+            @NotNull
+            @Override
+            public List<Emote> getEmotes() {
+                return List.of();
+            }
+
+            @NotNull
+            @Override
+            public Bag<Emote> getEmotesBag() {
+                return bag;
+            }
+
+            @NotNull
+            @Override
+            public List<Member> getMembers() {
+                return List.of();
+            }
+
+            @NotNull
+            @Override
+            public Bag<Member> getMembersBag() {
+                return bag;
+            }
+
+            @NotNull
+            @Override
+            public List<IMentionable> getMentions(@NotNull final Message.MentionType @NotNull ... types) {
+                return List.of();
+            }
+
+            @Override
+            public boolean isMentioned(@NotNull final IMentionable mentionable, @NotNull final Message.MentionType @NotNull ... types) {
+                return false;
+            }
+        };
+
+        when(message.getMentions()).thenReturn(mentions);
         when(message.getChannel()).thenReturn(JDATesting.textChannel);
         when(message.getMember()).thenReturn(member);
 

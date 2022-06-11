@@ -28,7 +28,8 @@ import org.jetbrains.annotations.Nullable;
 
 class SpamPing implements PunishableAction<MessageReceivedEvent> {
 
-    public static final int THRESHOLD = 20;
+    public static final int USER_THRESHOLD = 15;
+    public static final int ROLE_THRESHOLD = 5;
 
     @Override
     public Punishment getPunishment(final Configuration.Punishments config) {
@@ -56,6 +57,8 @@ class SpamPing implements PunishableAction<MessageReceivedEvent> {
     @Override
     public boolean test(final MessageReceivedEvent event) {
         final var msg = event.getMessage();
-        return event.isFromGuild() && (msg.getMentionedUsersBag().uniqueSet().size() >= THRESHOLD || msg.getMentionedRolesBag().uniqueSet().size() >= THRESHOLD);
+        return event.isFromGuild() &&
+            (msg.getMentions().getUsersBag().uniqueSet().size() >= USER_THRESHOLD ||
+                msg.getMentions().getRolesBag().uniqueSet().size() >= ROLE_THRESHOLD);
     }
 }
