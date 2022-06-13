@@ -112,12 +112,14 @@ public record ComChannelsArchiver(long guildId, JDA jda) implements Runnable {
 
         if (previouslySaved)
             embed.appendDescription(" and was previously saved from archival by its owner, or the owner never responded to an archival request.");
-        embed.appendDescription(".\n");
+        embed.appendDescription(".\n")
+            .appendDescription("You have 5 days to decide if ");
 
         if (previouslySaved)
-            embed.appendDescription("You have 5 days to decide if the channel should now be permanently archived.");
+            embed.appendDescription("the channel should now be permanently archived");
         else
-            embed.appendDescription("You have 5 days to decide if I should ask the owner about the archival, or if the channel should be archived.");
+            embed.appendDescription("I should ask the owner about the archival, or if the channel should be archived");
+        embed.appendDescription(", otherwise a new reminder will be sent.");
 
         final var messageBuilder = new MessageBuilder()
             .setEmbeds(embed.build());

@@ -43,7 +43,7 @@ public class FilePreviewListener implements EventListener {
         "cpp", "c", "gradle"
     );
 
-    public static final Emoji DISMISS_EMOJI = Emoji.fromMarkdown("\uD83D\uDEAE️");
+    public static final Emoji DISMISS_EMOJI = Emoji.fromMarkdown("\uD83D\uDEAE");
 
     public static final String URL = "https://discordbot.matyrobbrt.com/fpreview?url=";
 
