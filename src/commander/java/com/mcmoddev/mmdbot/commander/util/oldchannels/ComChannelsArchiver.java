@@ -246,7 +246,7 @@ public record ComChannelsArchiver(long guildId, JDA jda) implements Runnable {
         if (hasPerms || context.getUser().getId().equals(context.getArguments().get(1))) {
             TheCommander.getInstance().getJdbi().useExtension(ComChannelsDAO.class,
                 db -> {
-                    db.setPreviouslySaved(channelId, true);
+                    db.setPreviouslySaved(channelId, !hasPerms);
                     db.setIgnoreUntil(channelId, Instant.now()
                         .plus(TheCommander.getInstance().getConfigForGuild(context.getGuild()).channels()
                             .community().archivalDuration(), ChronoUnit.DAYS)
