@@ -18,12 +18,15 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.watcher.util.oldchannels;
+package com.mcmoddev.mmdbot.commander.util.oldchannels;
 
+import com.mcmoddev.mmdbot.core.util.TaskScheduler;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The type Old channels helper.
@@ -86,5 +89,10 @@ public class OldChannelsHelper {
      */
     public static void setReady(final boolean ready) {
         OldChannelsHelper.ready = ready;
+    }
+
+    public static void registerListeners(TaskScheduler.CollectTasksEvent event, JDA jda) {
+        event.addTask(new ChannelMessageChecker(jda), 0, 1, TimeUnit.DAYS);
+        jda.getGuilds().forEach(guild -> event.addTask(new ComChannelsArchiver(guild.getIdLong(), jda), 50, 120, TimeUnit.SECONDS));
     }
 }

@@ -123,7 +123,7 @@ public class RunBots {
                                 TaskScheduler.scheduleTask(() -> {
                                     botsAmount.incrementAndGet();
                                     bot.getLogger().warn("Bot {} has been found, and it has been launched!", botEntry.name());
-                                }, 5, TimeUnit.SECONDS); // Give the bot 5 seconds to startup.. it
+                                }, 7, TimeUnit.SECONDS); // Give the bot 7 seconds to startup.. it
                                 // should add its listeners until then
                             }
                             try {

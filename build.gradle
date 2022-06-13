@@ -79,6 +79,7 @@ void createBot(String name) {
     getByName("${name}Implementation").extendsFrom(getByName(name))
     getByName("${name}Implementation").extendsFrom(global)
     getByName("${name}CompileOnly").extendsFrom(globalCompile)
+    coreRuntimeOnly.extendsFrom(getByName(name))
   }
   dependencies {
     "${name}" sourceSets.core.output

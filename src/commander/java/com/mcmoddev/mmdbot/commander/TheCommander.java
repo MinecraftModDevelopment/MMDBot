@@ -59,6 +59,8 @@ import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers;
 import com.mcmoddev.mmdbot.commander.util.EventListeners;
 import com.mcmoddev.mmdbot.commander.util.ThreadChannelCreatorEvents;
 import com.mcmoddev.mmdbot.commander.util.mc.MCVersions;
+import com.mcmoddev.mmdbot.commander.util.oldchannels.ChannelMessageChecker;
+import com.mcmoddev.mmdbot.commander.util.oldchannels.OldChannelsHelper;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
@@ -455,6 +457,7 @@ public final class TheCommander implements Bot {
                 .addEventListeners(listenerConsumer((ReadyEvent event) -> {
                     startupTime = Instant.now();
                     getLogger().warn("The Commander is ready to work! Logged in as {}", event.getJDA().getSelfUser().getAsTag());
+                    Events.MISC_BUS.addListener((final TaskScheduler.CollectTasksEvent ct) -> OldChannelsHelper.registerListeners(ct, event.getJDA()));
                 }), CustomPingsListener.LISTENER.get())
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)

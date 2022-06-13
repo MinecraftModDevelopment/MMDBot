@@ -18,12 +18,10 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.watcher.util.oldchannels;
+package com.mcmoddev.mmdbot.commander.util.oldchannels;
 
-import com.mcmoddev.mmdbot.watcher.TheWatcher;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 
 import java.time.Instant;
@@ -53,7 +51,7 @@ public record ChannelMessageChecker(JDA jda) implements Runnable {
                     .filter(channel -> self.hasPermission(channel, Permission.MESSAGE_HISTORY))
                     .map(channel -> channel.getIterableHistory()
                         .takeAsync(1000).thenAccept(messages -> messages.stream()
-                            .filter(message -> !message.isWebhookMessage() && !message.getType().isSystem())
+                            .filter(message -> !message.isWebhookMessage() && !message.getType().isSystem() && !message.getAuthor().isBot())
                             .findFirst()
                             .ifPresent(message -> {
                                 final long daysSinceLastMessage = ChronoUnit.DAYS.between(message.getTimeCreated()

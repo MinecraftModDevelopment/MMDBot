@@ -18,7 +18,7 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.commander.commands;
+package com.mcmoddev.mmdbot.commander.commands.comchannels;
 
 import com.google.common.collect.Sets;
 import com.jagrosh.jdautilities.command.SlashCommand;
@@ -26,6 +26,7 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.config.GuildConfiguration;
+import com.mcmoddev.mmdbot.commander.util.dao.ComChannelsDAO;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildChannel;
@@ -143,7 +144,10 @@ public final class CommunityChannelCommand extends SlashCommand {
                     .flatMap(Message::pin)
                     .map($ -> ch)
                 )
-                .flatMap(ch -> hook.editOriginal("Successfully created community channel at " + ch.getAsMention() + "!")))
+                .flatMap(ch -> {
+                    TheCommander.getInstance().getJdbi().useExtension(ComChannelsDAO.class, db -> db.insert(ch.getIdLong(), user.getIdLong()));
+                    return hook.editOriginal("Successfully created community channel at " + ch.getAsMention() + "!");
+                }))
             .queue();
     }
 

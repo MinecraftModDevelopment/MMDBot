@@ -26,6 +26,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import org.jsoup.internal.ReturnsAreNonnullByDefault;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.Required;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Set;
 
 @ConfigSerializable
+@ReturnsAreNonnullByDefault
 public final class GuildConfiguration {
     public static final GuildConfiguration EMPTY = new GuildConfiguration();
 
@@ -64,6 +66,31 @@ public final class GuildConfiguration {
             private SnowflakeValue category = SnowflakeValue.EMPTY;
             public SnowflakeValue category() {
                 return category;
+            }
+
+            @Required
+            @Setting("archival_duration")
+            @Comment("The number of days that need to pass without a message sent for a community channel to start the archival process.")
+            private int archivalDuration = 60;
+            public int archivalDuration() {
+                return archivalDuration;
+            }
+
+            @Required
+            @Setting("archived_category")
+            @Comment("The ID of the archived channels category.")
+            private SnowflakeValue archivedCategory = SnowflakeValue.EMPTY;
+
+            public SnowflakeValue archivedCategory() {
+                return archivedCategory;
+            }
+
+            @Required
+            @Setting("archival_notifier")
+            @Comment("The ID of the channel where archival notifications will be sent.")
+            private SnowflakeValue archivalNotifier = SnowflakeValue.EMPTY;
+            public SnowflakeValue archivalNotifier() {
+                return archivalNotifier;
             }
 
             @Required

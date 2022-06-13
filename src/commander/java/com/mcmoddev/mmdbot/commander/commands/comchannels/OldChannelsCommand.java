@@ -18,11 +18,12 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.watcher.commands.moderation;
+package com.mcmoddev.mmdbot.commander.commands.comchannels;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import com.mcmoddev.mmdbot.watcher.util.oldchannels.OldChannelsHelper;
+import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
+import com.mcmoddev.mmdbot.commander.util.oldchannels.OldChannelsHelper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -32,7 +33,6 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -51,7 +51,10 @@ import java.util.List;
  *
  * @author Curle
  */
-public final class CmdOldChannels extends SlashCommand {
+public final class OldChannelsCommand extends SlashCommand {
+
+    @RegisterSlashCommand
+    public static final OldChannelsCommand CMD = new OldChannelsCommand();
 
     /**
      * The constant REQUIRED_PERMISSIONS.
@@ -63,7 +66,7 @@ public final class CmdOldChannels extends SlashCommand {
     /**
      * Instantiates a new Cmd old channels.
      */
-    public CmdOldChannels() {
+    public OldChannelsCommand() {
         super();
         name = "old-channels";
         help = "Gives channels which haven't been used in an amount of days given as an argument (default 60).";

@@ -30,10 +30,8 @@ import com.mcmoddev.mmdbot.core.commands.CommandUpserter;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.commands.component.DeferredComponentListenerRegistry;
 import com.mcmoddev.mmdbot.core.commands.component.storage.ComponentStorage;
-import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
-import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.util.event.ThreadedEventListener;
@@ -41,7 +39,6 @@ import com.mcmoddev.mmdbot.watcher.commands.information.CmdInvite;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdBan;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdKick;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdMute;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdOldChannels;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdReact;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdUnban;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdUnmute;
@@ -52,7 +49,6 @@ import com.mcmoddev.mmdbot.watcher.punishments.PunishableActions;
 import com.mcmoddev.mmdbot.watcher.util.BotConfig;
 import com.mcmoddev.mmdbot.watcher.util.Configuration;
 import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
-import com.mcmoddev.mmdbot.watcher.util.oldchannels.ChannelMessageChecker;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.util.Utils;
 import net.dv8tion.jda.api.JDA;
@@ -270,7 +266,7 @@ public final class TheWatcher implements Bot {
             .setManualUpsert(true)
             .useHelpBuilder(false)
             .setActivity(null)
-            .addSlashCommands(new CmdMute(), new CmdUnmute(), new CmdOldChannels(), new CmdInvite(), new CmdWarning())
+            .addSlashCommands(new CmdMute(), new CmdUnmute(), new CmdInvite(), new CmdWarning())
             .addCommands(new CmdBan(), new CmdUnban(), new CmdReact(), new CmdKick())
             .build();
         COMMANDS_LISTENER.addListener((EventListener) commandClient);
@@ -290,10 +286,8 @@ public final class TheWatcher implements Bot {
         try {
             final var builder = JDABuilder
                 .create(dotenv.get("BOT_TOKEN"), INTENTS)
-                .addEventListeners(listenerConsumer((ReadyEvent event) -> {
-                    getLogger().warn("The Watcher is ready to work! Logged in as {}", event.getJDA().getSelfUser().getAsTag());
-                    Events.MISC_BUS.addListener(-1, (TaskScheduler.CollectTasksEvent ctEvent) -> ctEvent.addTask(new TaskScheduler.Task(new ChannelMessageChecker(event.getJDA()), 0, 1, TimeUnit.DAYS)));
-                }), COMMANDS_LISTENER, MISC_LISTENER, PUNISHABLE_ACTIONS_LISTENER)
+                .addEventListeners(listenerConsumer((ReadyEvent event) -> getLogger().warn("The Watcher is ready to work! Logged in as {}", event.getJDA().getSelfUser().getAsTag())),
+                    COMMANDS_LISTENER, MISC_LISTENER, PUNISHABLE_ACTIONS_LISTENER)
                 .setActivity(Activity.of(oldConfig.getActivityType(), oldConfig.getActivityName()))
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
