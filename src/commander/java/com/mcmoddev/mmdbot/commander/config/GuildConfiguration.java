@@ -94,6 +94,15 @@ public final class GuildConfiguration {
             }
 
             @Required
+            @Setting("allow_second_ask")
+            @Comment("If moderators should be allowed to ask the channel owner if they want to keep the channel more than once.")
+            private boolean allowSecondAsk = false;
+
+            public boolean allowSecondAsk() {
+                return allowSecondAsk;
+            }
+
+            @Required
             @Setting("owner_permissions")
             @Comment("""
                 The default permissions of channel owners in their new community channels

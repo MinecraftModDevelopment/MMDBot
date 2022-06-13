@@ -94,8 +94,8 @@ public record ComChannelsArchiver(long guildId, JDA jda) implements Runnable {
         if (ignoreUntil != null && Instant.now().isBefore(Instant.ofEpochSecond(ignoreUntil)))
             return null;
         // Ok, so now we know that the channel needs to be archived...
-        final boolean previouslySaved = TheCommander.getInstance().getJdbi()
-            .withExtension(ComChannelsDAO.class, db -> db.wasPreviouslySaved(channel.getIdLong()));
+        final boolean previouslySaved = !TheCommander.getInstance().getConfigForGuild(channel.getGuild()).channels().community().allowSecondAsk() &&
+            TheCommander.getInstance().getJdbi().withExtension(ComChannelsDAO.class, db -> db.wasPreviouslySaved(channel.getIdLong()));
         // ... and we know if it was previously saved from archival...
         // let's send the message to moderators
 
@@ -103,7 +103,7 @@ public record ComChannelsArchiver(long guildId, JDA jda) implements Runnable {
             .setTitle("Community Channel Archival")
             .setAuthor(jda.getSelfUser().getName(), null, jda.getSelfUser().getAvatarUrl())
             .setDescription("""
-                The Community Channel %s did not have any activity since %s"""
+                The Community Channel %s hasn't got any activity since %s"""
                 .formatted(
                     channel.getAsMention(), TimeFormat.DATE_SHORT.format(lastMessage)
                 ))
