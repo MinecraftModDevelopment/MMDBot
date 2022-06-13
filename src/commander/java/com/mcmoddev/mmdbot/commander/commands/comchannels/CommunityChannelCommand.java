@@ -75,85 +75,142 @@ public final class CommunityChannelCommand extends SlashCommand {
     public CommunityChannelCommand() {
         super();
         name = "community-channel";
-        help = "Creates a new community channel for the given user.";
-        category = new Category("Moderation");
-        arguments = "<user ID/mention> <channel name>";
-        userPermissions = REQUIRED_PERMISSIONS.toArray(Permission[]::new);
-        aliases = new String[]{"community-channel", "comm-ch"};
-        guildOnly = true;
-        botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
-
-
-        OptionData user = new OptionData(OptionType.USER, "user", "The user to create the channel for.").setRequired(true);
-        OptionData channelName = new OptionData(OptionType.STRING, "channel", "The name of the channel to create.").setRequired(true);
-        List<OptionData> dataList = new ArrayList<>();
-        dataList.add(user);
-        dataList.add(channelName);
-        this.options = dataList;
+        children = new SlashCommand[] {
+            new Create(), new Transfer()
+        };
     }
 
-    /**
-     * Execute.
-     *
-     * @param event The {@link SlashCommandEvent CommandEvent} that triggered this Command.
-     */
     @Override
     protected void execute(final SlashCommandEvent event) {
-        final var guild = Objects.requireNonNull(event.getGuild());
-
-        final var user = Objects.requireNonNull(event.getOption("user", OptionMapping::getAsMember));
-        final var channel = event.getOption("channel", "", OptionMapping::getAsString);
-
-        final var guildCfg = Objects.requireNonNull(event.getGuildSettings(GuildConfiguration.class))
-            .channels().community();
-
-        final var category = guildCfg.category().resolve(guild::getCategoryById);
-        if (category == null) {
-            event.reply("Community channel category is incorrectly configured. Please contact the bot maintainers.").queue();
-            return;
-        }
-
-        final var ownerPermissions = guildCfg.ownerPermissions();
-        if (ownerPermissions.isEmpty()) {
-            TheCommander.LOGGER.warn("Community channel owner permissions is incorrectly configured");
-            event.reply("Channel owner permissions is incorrectly configured. Please contact the bot maintainers.").queue();
-            return;
-        }
-
-        final Set<Permission> diff = Sets.difference(ownerPermissions, guild.getSelfMember().getPermissions());
-        if (!diff.isEmpty()) {
-            TheCommander.LOGGER.warn("Cannot assign permissions to channel owner due to insufficient permissions: {}", diff);
-            event.reply("Cannot assign certain permissions to channel owner due to insufficient permissions; "
-                + "continuing anyway...").queue();
-            ownerPermissions.removeIf(diff::contains);
-        }
-
-        event.deferReply()
-            .flatMap(hook -> Objects.requireNonNull(category).createTextChannel(channel)
-                .flatMap(ch -> category.modifyTextChannelPositions()
-                    .sortOrder(Comparator.comparing(GuildChannel::getName))
-                    .map($ -> ch))
-                .flatMap(ch -> ch.upsertPermissionOverride(user).setAllowed(ownerPermissions).map($ -> ch))
-                .flatMap(ch -> ch.sendMessage(new MessageBuilder()
-                        .append(formatMessage(
-                            guildCfg.getChannelCreatedMessage(),
-                            user,
-                            ch
-                        ))
-                        .build())
-                    .flatMap(Message::pin)
-                    .map($ -> ch)
-                )
-                .flatMap(ch -> {
-                    TheCommander.getInstance().getJdbi().useExtension(ComChannelsDAO.class, db -> db.insert(ch.getIdLong(), user.getIdLong()));
-                    return hook.editOriginal("Successfully created community channel at " + ch.getAsMention() + "!");
-                }))
-            .queue();
+        // NO-OP
     }
 
-    public static String formatMessage(String msg, Member owner, TextChannel channel) {
-        return msg.replace("{user}", owner.getAsMention())
-            .replace("{guild}", channel.getGuild().getName())
-            .replace("{channel}", channel.getAsMention());
+    public static final class Transfer extends SlashCommand {
+
+        public Transfer() {
+            name = "transfer";
+            help = "Transfers a community channel to another member.";
+            options = List.of(
+                new OptionData(OptionType.USER, "member", "The member to transfer the channel to.", true)
+            );
+            guildOnly = true;
+        }
+
+        @Override
+        protected void execute(final SlashCommandEvent event) {
+            final var newOwner = event.getOption("member", OptionMapping::getAsMember);
+            if (newOwner == null) {
+                event.deferReply(true).setContent("Unknown member!").queue();
+                return;
+            }
+            final var oldOwner = TheCommander.getInstance().getJdbi()
+                .withExtension(ComChannelsDAO.class, db -> db.getOwner(event.getChannel().getIdLong()));
+            if (oldOwner == null) {
+                event.deferReply(true).setContent("This channel is not a community channel.").queue();
+                return;
+            }
+            if (oldOwner == event.getIdLong() || event.getMember().hasPermission(Permission.MANAGE_CHANNEL)) {
+                TheCommander.getInstance().getJdbi().useExtension(ComChannelsDAO.class,
+                    db -> db.changeOwnership(event.getChannel().getIdLong(), newOwner.getIdLong()));
+                event.getTextChannel().getManager()
+                    .removePermissionOverride(oldOwner)
+                    .putMemberPermissionOverride(newOwner.getIdLong(), TheCommander.getInstance().getConfigForGuild(event.getGuild())
+                        .channels().community().ownerPermissions(), List.of())
+                    .queue();
+                event.deferReply().setContent("Ownership of this channel has been transferred to " + newOwner.getAsMention())
+                    .allowedMentions(EnumSet.of(Message.MentionType.USER))
+                    .queue();
+            } else {
+                event.deferReply(true).setContent("You do not own this channel!").queue();
+            }
+        }
     }
+
+    public static final class Create extends SlashCommand {
+
+        public Create() {
+            name = "create";
+            help = "Creates a new community channel for the given user.";
+            category = new Category("Moderation");
+            arguments = "<user ID/mention> <channel name>";
+            userPermissions = REQUIRED_PERMISSIONS.toArray(Permission[]::new);
+            aliases = new String[]{"community-channel", "comm-ch"};
+            guildOnly = true;
+            botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
+
+
+            OptionData user = new OptionData(OptionType.USER, "user", "The user to create the channel for.").setRequired(true);
+            OptionData channelName = new OptionData(OptionType.STRING, "channel", "The name of the channel to create.").setRequired(true);
+            List<OptionData> dataList = new ArrayList<>();
+            dataList.add(user);
+            dataList.add(channelName);
+            this.options = dataList;
+        }
+
+        /**
+         * Execute.
+         *
+         * @param event The {@link SlashCommandEvent CommandEvent} that triggered this Command.
+         */
+        @Override
+        protected void execute(final SlashCommandEvent event) {
+            final var guild = Objects.requireNonNull(event.getGuild());
+
+            final var user = Objects.requireNonNull(event.getOption("user", OptionMapping::getAsMember));
+            final var channel = event.getOption("channel", "", OptionMapping::getAsString);
+
+            final var guildCfg = Objects.requireNonNull(event.getGuildSettings(GuildConfiguration.class))
+                .channels().community();
+
+            final var category = guildCfg.category().resolve(guild::getCategoryById);
+            if (category == null) {
+                event.reply("Community channel category is incorrectly configured. Please contact the bot maintainers.").queue();
+                return;
+            }
+
+            final var ownerPermissions = guildCfg.ownerPermissions();
+            if (ownerPermissions.isEmpty()) {
+                TheCommander.LOGGER.warn("Community channel owner permissions is incorrectly configured");
+                event.reply("Channel owner permissions is incorrectly configured. Please contact the bot maintainers.").queue();
+                return;
+            }
+
+            final Set<Permission> diff = Sets.difference(ownerPermissions, guild.getSelfMember().getPermissions());
+            if (!diff.isEmpty()) {
+                TheCommander.LOGGER.warn("Cannot assign permissions to channel owner due to insufficient permissions: {}", diff);
+                event.reply("Cannot assign certain permissions to channel owner due to insufficient permissions; "
+                    + "continuing anyway...").queue();
+                ownerPermissions.removeIf(diff::contains);
+            }
+
+            event.deferReply()
+                .flatMap(hook -> Objects.requireNonNull(category).createTextChannel(channel)
+                    .flatMap(ch -> category.modifyTextChannelPositions()
+                        .sortOrder(Comparator.comparing(GuildChannel::getName))
+                        .map($ -> ch))
+                    .flatMap(ch -> ch.upsertPermissionOverride(user).setAllowed(ownerPermissions).map($ -> ch))
+                    .flatMap(ch -> ch.sendMessage(new MessageBuilder()
+                            .append(formatMessage(
+                                guildCfg.getChannelCreatedMessage(),
+                                user,
+                                ch
+                            ))
+                            .build())
+                        .flatMap(Message::pin)
+                        .map($ -> ch)
+                    )
+                    .flatMap(ch -> {
+                        TheCommander.getInstance().getJdbi().useExtension(ComChannelsDAO.class, db -> db.insert(ch.getIdLong(), user.getIdLong()));
+                        return hook.editOriginal("Successfully created community channel at " + ch.getAsMention() + "!");
+                    }))
+                .queue();
+        }
+
+        public static String formatMessage(String msg, Member owner, TextChannel channel) {
+            return msg.replace("{user}", owner.getAsMention())
+                .replace("{guild}", channel.getGuild().getName())
+                .replace("{channel}", channel.getAsMention());
+        }
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.mcmoddev.mmdbot.commander.util.dao;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
@@ -11,6 +12,15 @@ import java.util.Objects;
 public interface ComChannelsDAO extends Transactional<ComChannelsDAO> {
     @SqlUpdate("insert into community_channels (id, owner) values (:id, :owner)")
     void insert(@Bind("id") long channelId, @Bind("owner") long ownerId);
+
+    @Nullable
+    @CanIgnoreReturnValue
+    default Long changeOwnership(long channelId, long newOwner) {
+        final var oldOwner = getOwner(channelId);
+        deleteEntry(channelId);
+        insert(channelId, newOwner);
+        return oldOwner;
+    }
 
     @Nullable
     @SqlQuery("select owner from community_channels where id = :id")

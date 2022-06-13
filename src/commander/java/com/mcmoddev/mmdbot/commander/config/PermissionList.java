@@ -29,7 +29,6 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -44,6 +43,10 @@ public class PermissionList implements Set<Permission> {
 
     public PermissionList(long permissionRaw) {
         this(Permission.getPermissions(permissionRaw));
+    }
+
+    public long getRaw() {
+        return Permission.getRaw(delegate);
     }
 
     public static final class Serializer implements TypeSerializer<PermissionList> {
