@@ -103,7 +103,7 @@ public record ComChannelsArchiver(long guildId, JDA jda) implements Runnable {
             .setTitle("Community Channel Archival")
             .setAuthor(jda.getSelfUser().getName(), null, jda.getSelfUser().getAvatarUrl())
             .setDescription("""
-                The Community Channel %s hasn't got any activity since %s"""
+                The Community Channel %s hasn't had any activity since %s"""
                 .formatted(
                     channel.getAsMention(), TimeFormat.DATE_SHORT.format(lastMessage)
                 ))

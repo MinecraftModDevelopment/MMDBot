@@ -27,6 +27,7 @@ import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.config.GuildConfiguration;
 import com.mcmoddev.mmdbot.commander.util.dao.ComChannelsDAO;
+import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildChannel;
@@ -76,13 +77,35 @@ public final class CommunityChannelCommand extends SlashCommand {
         super();
         name = "community-channel";
         children = new SlashCommand[] {
-            new Create(), new Transfer()
+            new Create(), new Transfer(), new Owner()
         };
     }
 
     @Override
     protected void execute(final SlashCommandEvent event) {
         // NO-OP
+    }
+
+    public static final class Owner extends SlashCommand {
+        public Owner() {
+            name = "owner";
+            help = "Checks the owner of a community channel.";
+            guildOnly = true;
+        }
+
+        @Override
+        protected void execute(final SlashCommandEvent event) {
+            final var owner = TheCommander.getInstance().getJdbi()
+                .withExtension(ComChannelsDAO.class, db -> db.getOwner(event.getChannel().getIdLong()));
+            if (owner != null) {
+                event.deferReply(true).setContent("This channel is owned by <@" + owner + ">.")
+                    .allowedMentions(List.of())
+                    .mentionRepliedUser(false)
+                    .addActionRow(DismissListener.createDismissButton(event))
+                    .queue();
+            } else
+                event.deferReply(true).setContent("This channel is not a community channel or its owner is not known.").queue();
+        }
     }
 
     public static final class Transfer extends SlashCommand {
