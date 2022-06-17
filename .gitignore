@@ -15,6 +15,7 @@
 .settings/
 .mtj.tmp/
 .idea/
+.vscode/
 
 #File Extensions
 *.iml
