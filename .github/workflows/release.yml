@@ -12,7 +12,7 @@ jobs:
       image: eclipse-temurin:17-jdk
       options: --user root
     steps:
-      - run: apt-get insall git
+      - run: apt-get install git
       - uses: actions/checkout@v3
         with:
           submodules: 'recursive'
