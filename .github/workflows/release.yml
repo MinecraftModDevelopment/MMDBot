@@ -21,8 +21,6 @@ jobs:
         with:
           submodules: 'recursive'
       - run: git config --global --add safe.directory /__w/MMDBot/MMDBot
-      - name: Setup ENV
-        run: echo "TAG=${GITHUB_REF:10}" >> $GITHUB_ENV
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build Jar with Gradle
