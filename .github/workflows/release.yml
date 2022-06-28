@@ -12,7 +12,11 @@ jobs:
       image: eclipse-temurin:17-jdk
       options: --user root
     steps:
-      - run: apt-get install git
+      - name: Install Git before checkout
+        shell: bash
+        run: |
+          apt-get update
+          apt-get install --no-install-recommends -y git
       - uses: actions/checkout@v3
         with:
           submodules: 'recursive'
