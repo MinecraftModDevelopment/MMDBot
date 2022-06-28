@@ -12,10 +12,10 @@ jobs:
       image: eclipse-temurin:17-jdk
       options: --user root
     steps:
+      - run: apt-get insall git
       - uses: actions/checkout@v3
         with:
           submodules: 'recursive'
-      - run: apt update && apt install git -y && git --version
       - run: git config --global --add safe.directory /__w/MMDBot/MMDBot
       - name: Setup ENV
         run: echo "TAG=${GITHUB_REF:10}" >> $GITHUB_ENV
