@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -66,7 +67,7 @@ public class CustomPingsListener extends ListenerAdapter {
             if (userId == author.getIdLong()) return;
             guild.retrieveMemberById(userId).queue(user -> {
                 // They can't view the channel
-                if (!canViewChannel(guild, user, message.getGuildChannel())) return;
+                if (!canViewChannel(user, message.getGuildChannel())) return;
                 user.getUser().openPrivateChannel().queue(privateChannel -> {
                     final var dmAction = pings.stream()
                         .filter(p -> p.test(message))
@@ -87,14 +88,14 @@ public class CustomPingsListener extends ListenerAdapter {
         return channel.sendMessageEmbeds(
             new EmbedBuilder()
                 .setAuthor("New ping from: %s".formatted(message.getAuthor().getName()), message.getJumpUrl(), message.getAuthor().getAvatarUrl())
-                .addField(ping.text(), message.getContentRaw().isBlank() ? "[Blank]" : message.getContentRaw(), false)
+                .addField(ping.text(), Utils.truncate(message.getContentRaw().isBlank() ? "[Blank]" : message.getContentRaw(), MessageEmbed.VALUE_MAX_LENGTH), false)
                 .addField("Link", message.getJumpUrl(), false)
                 .setTimestamp(message.getTimeCreated())
                 .build()
         );
     }
 
-    public static boolean canViewChannel(Guild guild, Member member, GuildChannel channel) {
+    public static boolean canViewChannel(Member member, GuildChannel channel) {
         return member.getPermissions(channel).contains(Permission.VIEW_CHANNEL);
     }
 }

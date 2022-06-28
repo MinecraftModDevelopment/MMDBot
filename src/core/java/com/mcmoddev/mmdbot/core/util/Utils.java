@@ -76,6 +76,10 @@ public final class Utils {
         return string.substring(0, 1).toUpperCase(Locale.ROOT) + string.substring(1);
     }
 
+    public static String truncate(final String str, int limit) {
+        return str.length() > (limit - 3) ? str.substring(0, limit - 3) + "..." : str;
+    }
+
     /**
      * Schedules a task to run at the specified {@code date}.
      *
