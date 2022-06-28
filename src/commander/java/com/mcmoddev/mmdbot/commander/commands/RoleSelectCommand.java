@@ -35,11 +35,13 @@ import lombok.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -55,7 +57,6 @@ import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.internal.requests.restaction.interactions.ModalCallbackActionImpl;
 import net.dv8tion.jda.internal.utils.EncodingUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -109,14 +110,14 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
                         final var channelId = channel.getIdLong(); // Field must be final for lambda usage
                         final long messageId = Long.parseLong(msgIdStr);
                         final var role = Objects.requireNonNull(event.getOption("role", OptionMapping::getAsRole));
-                        final var emote = Emoji.fromMarkdown(event.getOption("emote", "", OptionMapping::getAsString).replace(" ", ""));
+                        final var emote = Emoji.fromFormatted(event.getOption("emote", "", OptionMapping::getAsString).replace(" ", ""));
                         final var emoteStr = getEmoteAsString(emote);
 
-                        channel.addReactionById(messageId, emoteStr).flatMap($ -> {
+                        channel.addReactionById(messageId, emote).flatMap($ -> {
                             // Emote IDs are expected, but the emoteStr is also prefixed with :emojiName:
                             TheCommander.getInstance()
                                 .getJdbi()
-                                .useExtension(ReactionRolePanels.class, db -> db.insert(channelId, messageId, emote.isCustom() ? emote.getId() : emoteStr, role.getIdLong(), event.getOption("permanent", false, OptionMapping::getAsBoolean)));
+                                .useExtension(ReactionRolePanels.class, db -> db.insert(channelId, messageId, emote.getType() == Emoji.Type.CUSTOM ? ((CustomEmoji) emote).getId() : emoteStr, role.getIdLong(), event.getOption("permanent", false, OptionMapping::getAsBoolean)));
                             return event.deferReply(true)
                                 .addEmbeds(new EmbedBuilder()
                                     .setColor(Color.GREEN)
@@ -377,9 +378,9 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
     }
 
     public static String getEmoteAsString(final Emoji emoji) {
-        return emoji.isCustom() ? emoji.getAsMention().replaceAll("[<>]*", "")
+        return emoji.getType() == Emoji.Type.CUSTOM ? emoji.getFormatted().replaceAll("[<>]*", "")
             /* this will give the emoji in the format emojiName:emojiId */ :
-            EncodingUtil.encodeCodepoints(emoji.getName());
+            ((UnicodeEmoji) emoji).getAsCodepoints();
     }
 
     @Override
@@ -395,7 +396,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
         if (!event.isFromGuild() || event.getUser() != null && event.getUser().isBot() || event.getUser().isSystem()) {
             return;
         }
-        final var emote = getEmoteAsString(event.getReactionEmote());
+        final var emote = getEmoteAsString(event.getReaction());
         final var roleId = withExtension(db -> db.getRole(event.getChannel().getIdLong(), event.getMessageIdLong(), emote));
         if (roleId == null) return;
         final var role = event.getGuild().getRoleById(roleId);
@@ -413,8 +414,9 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
         }
     }
 
-    public static String getEmoteAsString(final MessageReaction.ReactionEmote reactionEmote) {
-        return reactionEmote.isEmoji() ? reactionEmote.getAsCodepoints() : reactionEmote.getEmote().getId();
+    public static String getEmoteAsString(final MessageReaction reactionEmote) {
+        return reactionEmote.getEmoji().getType() == Emoji.Type.UNICODE ? ((UnicodeEmoji) reactionEmote.getEmoji()).getAsCodepoints()
+            : ((CustomEmoji) reactionEmote.getEmoji()).getId();
     }
 
     public static <R> R withExtension(Function<ReactionRolePanels, R> callback) {

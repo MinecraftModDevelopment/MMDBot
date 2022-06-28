@@ -35,7 +35,6 @@ import com.mcmoddev.mmdbot.thelistener.events.RoleEvents;
 import com.mcmoddev.mmdbot.thelistener.events.TrickEvents;
 import com.mcmoddev.mmdbot.thelistener.util.GuildConfig;
 import io.github.cdimascio.dotenv.Dotenv;
-import io.github.cdimascio.dotenv.DotenvBuilder;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.dv8tion.jda.api.JDA;
@@ -82,7 +81,7 @@ public final class TheListener implements Bot {
     private static final Set<GatewayIntent> INTENTS = Set.of(
         GatewayIntent.DIRECT_MESSAGES,
         GatewayIntent.GUILD_BANS,
-        GatewayIntent.GUILD_EMOJIS,
+        GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
         GatewayIntent.GUILD_MESSAGES,
         GatewayIntent.GUILD_MEMBERS
     );

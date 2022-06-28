@@ -49,7 +49,7 @@ public record Reminder(String content, long channelId, boolean isPrivateChannel,
     }
 
     public static final Collection<Message.MentionType> ALLOWED_MENTIONS = EnumSet.of(
-        Message.MentionType.EMOTE, Message.MentionType.USER, Message.MentionType.CHANNEL
+        Message.MentionType.EMOJI, Message.MentionType.USER, Message.MentionType.CHANNEL
     );
     public static final Color COLOUR = Color.LIGHT_GRAY;
 

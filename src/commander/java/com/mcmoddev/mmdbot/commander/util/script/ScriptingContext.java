@@ -30,7 +30,6 @@ import org.graalvm.polyglot.proxy.ProxyObject;
 import org.graalvm.polyglot.proxy.ProxyTime;
 
 import java.time.LocalTime;
-import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -74,7 +73,6 @@ public class ScriptingContext {
     }
 
     @CanIgnoreReturnValue
-    @SuppressWarnings("rawtypes")
     public ScriptingContext set(String key, Object value) {
         if (value instanceof ScriptingContext context) {
             map.put(key, context.toProxyObject());

@@ -107,7 +107,7 @@ public class EmbedTrick implements Trick {
             builder.addField(field);
         }
         context.replyWithMessage(new MessageBuilder(builder.build())
-            .setAllowedMentions(Set.of(Message.MentionType.CHANNEL, Message.MentionType.EMOTE)).build());
+            .setAllowedMentions(Set.of(Message.MentionType.CHANNEL, Message.MentionType.EMOJI)).build());
     }
 
     /**

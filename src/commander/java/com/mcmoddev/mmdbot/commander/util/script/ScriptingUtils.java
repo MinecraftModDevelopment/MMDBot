@@ -29,12 +29,10 @@ import com.mcmoddev.mmdbot.commander.util.script.object.ScriptRegion;
 import com.mcmoddev.mmdbot.commander.util.script.object.ScriptRoleIcon;
 import com.mcmoddev.mmdbot.core.annotation.ExposeScripting;
 import com.mcmoddev.mmdbot.core.common.ScamDetector;
-import com.mcmoddev.mmdbot.core.util.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Channel;
-import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -44,6 +42,10 @@ import net.dv8tion.jda.api.entities.RichPresence;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.EnvironmentAccess;
@@ -62,15 +64,13 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public final class ScriptingUtils {
 
-    public static final EnumSet<Message.MentionType> ALLOWED_MENTIONS = EnumSet.of(Message.MentionType.EMOTE,
+    public static final EnumSet<Message.MentionType> ALLOWED_MENTIONS = EnumSet.of(Message.MentionType.EMOJI,
         Message.MentionType.CHANNEL);
 
     public static final Engine ENGINE = Engine.newBuilder()
@@ -290,10 +290,10 @@ public final class ScriptingUtils {
             final var channel = guild.getTextChannelById(args.get(0).asLong());
             return channel == null ? null : createTextChannel(channel).toProxyObject();
         });
-        context.setFunction("getEmoteById", args -> {
+        context.setFunction("getEmojiById", args -> {
             validateArgs(args, 1);
-            final var channel = guild.getEmoteById(args.get(0).asLong());
-            return channel == null ? null : createEmote(channel).toProxyObject();
+            final var emoji = guild.retrieveEmojiById(args.get(0).asLong()).complete();
+            return emoji == null ? null : createEmoji(emoji).toProxyObject();
         });
         context.setFunction("getQuotes", args -> {
             validateArgs(args, 0);
@@ -304,7 +304,11 @@ public final class ScriptingUtils {
         context.setFunction("getChannels", a -> guild.getChannels().stream().map(c -> createChannel(c).toProxyObject()).toList());
         context.setFunction("getTextChannels", a -> guild.getTextChannels().stream().map(c -> createTextChannel(c).toProxyObject()).toList());
         context.setFunction("getCategories", a -> guild.getCategories().stream().map(c -> createCategory(c).toProxyObject()).toList());
-        context.setFunction("getEmotes", a -> guild.getEmotes().stream().map(c -> createEmote(c).toProxyObject()).toList());
+        context.setFunction("getEmojis", a -> {
+            validateArgs(a, 0);
+            final var emojis = guild.retrieveEmojis().complete();
+            return emojis.stream().map(em -> createEmoji(em).toProxyObject()).toList();
+        });
         return context;
     }
 
@@ -313,7 +317,7 @@ public final class ScriptingUtils {
             .set("name", activity.getName())
             .set("url", activity.getUrl())
             .set("type", activity.getType().toString())
-            .set("emoji", activity.getEmoji() == null ? null : activity.getEmoji().getAsMention())
+            .set("emoji", activity.getEmoji() == null ? null : createEmoji(activity.getEmoji()))
             .setFunction("isRich", i -> activity.isRich())
             .setFunction("asRich", i -> activity.isRich() ? createActivityRich(activity.asRichPresence()).toProxyObject() : null);
     }
@@ -346,10 +350,6 @@ public final class ScriptingUtils {
         return context;
     }
 
-    public static ScriptingContext createUser(User user) {
-        return createUser(user, false);
-    }
-
     public static ScriptingContext createUser(User user, boolean canDm) {
         final var context = ScriptingContext.of("User", user);
         context.set("name", user.getName());
@@ -380,15 +380,30 @@ public final class ScriptingUtils {
             .setFunction("getRoleIcon", a -> role.getIcon() == null ? null : new ScriptRoleIcon(role.getIcon()));
     }
 
-    public static ScriptingContext createEmote(Emote emote) {
-        return ScriptingContext.of("Emote", emote)
-            .set("name", emote.getName())
-            .set("url", emote.getImageUrl())
-            .setFunction("isAnimated", args -> emote.isAnimated())
-            .setFunction("canProvideRoles", args -> emote.canProvideRoles())
-            .setFunction("isAvailable", args -> emote.isAvailable())
-            .setFunction("getRoles", args -> emote.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList())
-            .setFunction("getGuild", args -> emote.getGuild() == null ? null : createGuild(emote.getGuild()));
+    public static ScriptingContext createEmoji(Emoji emoji) {
+        final var ctx = ScriptingContext.of("Emoji")
+            .set("name", emoji.getName())
+            .set("type", emoji.getType())
+            .setFunction("asMention", args -> {
+                validateArgs(args, 0);
+                return emoji.getFormatted();
+            });
+        return switch (emoji.getType()) {
+            case UNICODE -> ctx.setFunction("getAsCodepoints", args -> ((UnicodeEmoji) emoji).getAsCodepoints());
+            case CUSTOM -> {
+                final var emote = (CustomEmoji) emoji;
+                ctx.set("url", emote.getImageUrl())
+                    .set("id", emote.getId())
+                    .set("timeCreated", emote.getTimeCreated())
+                    .setFunction("isAnimated", args -> emote.isAnimated());
+                if (emote instanceof RichCustomEmoji rich) {
+                      ctx.setFunction("isAvailable", args -> rich.isAvailable())
+                        .setFunction("getRoles", args -> rich.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList())
+                        .setFunction("getGuild", args -> createGuild(rich.getGuild()));
+                }
+                yield ctx;
+            }
+        };
     }
 
     @SuppressWarnings("rawtypes")

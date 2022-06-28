@@ -24,7 +24,6 @@ import com.mcmoddev.mmdbot.core.common.ScamDetector;
 import com.mcmoddev.mmdbot.watcher.punishments.PunishableAction;
 import com.mcmoddev.mmdbot.watcher.punishments.PunishableActions;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
@@ -32,6 +31,7 @@ import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -166,13 +166,13 @@ public class PunishmentTests {
 
             @NotNull
             @Override
-            public List<Emote> getEmotes() {
+            public List<CustomEmoji> getCustomEmojis() {
                 return List.of();
             }
 
             @NotNull
             @Override
-            public Bag<Emote> getEmotesBag() {
+            public Bag<CustomEmoji> getCustomEmojisBag() {
                 return bag;
             }
 

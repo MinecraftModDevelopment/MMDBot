@@ -46,7 +46,7 @@ import java.util.EnumSet;
  */
 public interface TrickContext {
 
-    EnumSet<Message.MentionType> ALLOWED_MENTIONS = EnumSet.of(Message.MentionType.CHANNEL, Message.MentionType.EMOTE);
+    EnumSet<Message.MentionType> ALLOWED_MENTIONS = EnumSet.of(Message.MentionType.CHANNEL, Message.MentionType.EMOJI);
 
     @Nullable
     Member getMember();

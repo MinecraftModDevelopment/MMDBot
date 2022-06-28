@@ -58,7 +58,7 @@ public class ServerCommands {
             embed.setThumbnail(guild.getIconUrl());
             embed.addField("Guild's name:", guild.getName(), true);
             embed.addField("Member count:", Integer.toString(guild.getMemberCount()), true);
-            embed.addField("Emote count:", Long.toString(guild.getEmoteCache().size()), true);
+            embed.addField("Emote count:", Long.toString(guild.getEmojiCache().size()), true);
             embed.addField("Category count:", Long.toString(guild.getCategoryCache().size()), true);
             embed.addField("Channel count:", Integer.toString(guild.getChannels().size()), true);
             embed.addField("Role count:", Long.toString(guild.getRoleCache().size()), true);

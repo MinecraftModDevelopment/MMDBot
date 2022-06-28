@@ -92,6 +92,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -181,14 +182,14 @@ public final class TheCommander implements Bot {
     private static final Set<GatewayIntent> INTENTS = Set.of(
         GatewayIntent.DIRECT_MESSAGES,
         GatewayIntent.GUILD_BANS,
-        GatewayIntent.GUILD_EMOJIS,
+        GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
         GatewayIntent.GUILD_MESSAGE_REACTIONS,
         GatewayIntent.GUILD_MESSAGES,
         GatewayIntent.GUILD_MEMBERS
     );
 
     private static final Set<Message.MentionType> DEFAULT_MENTIONS = EnumSet.of(
-        Message.MentionType.EMOTE,
+        Message.MentionType.EMOJI,
         Message.MentionType.CHANNEL
     );
 
@@ -199,7 +200,7 @@ public final class TheCommander implements Bot {
         Permission.MANAGE_ROLES
     );
 
-    private static final String COMMAND_RECEIVED = "☑️";
+    private static final Emoji COMMAND_RECEIVED = Emoji.fromUnicode("☑️");
 
     /**
      * The instance.

@@ -24,8 +24,8 @@ import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -36,7 +36,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-import static net.dv8tion.jda.api.entities.Emoji.fromUnicode;
+import static net.dv8tion.jda.api.entities.emoji.Emoji.fromUnicode;
 
 /**
  * Utility class for paginating messages, using {@link Component Components}. <br>

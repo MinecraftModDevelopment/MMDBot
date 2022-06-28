@@ -25,7 +25,7 @@ import com.mcmoddev.mmdbot.core.commands.component.context.ButtonInteractionCont
 import com.mcmoddev.mmdbot.core.commands.component.context.ModalInteractionContext;
 import com.mcmoddev.mmdbot.core.commands.component.context.SelectMenuInteractionContext;
 import lombok.NonNull;
-import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.Modal;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;

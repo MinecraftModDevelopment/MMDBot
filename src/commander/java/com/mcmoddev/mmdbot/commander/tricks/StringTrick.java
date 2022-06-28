@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -50,10 +51,12 @@ public record StringTrick(List<String> names, String body) implements Trick {
         return names;
     }
 
+    public static final EnumSet<Message.MentionType> ALLOWED_MENTIONS = EnumSet.of(Message.MentionType.CHANNEL, Message.MentionType.EMOJI);
+
     @Override
     public void execute(final TrickContext context) {
         context.replyWithMessage(new MessageBuilder(String.format(getBody(), (Object[]) context.getArgs()))
-            .setAllowedMentions(Set.of(Message.MentionType.CHANNEL, Message.MentionType.EMOTE)).build());
+            .setAllowedMentions(ALLOWED_MENTIONS).build());
     }
 
     /**

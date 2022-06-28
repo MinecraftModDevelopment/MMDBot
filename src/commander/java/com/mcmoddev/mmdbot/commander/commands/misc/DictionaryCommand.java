@@ -29,7 +29,7 @@ import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryEntry;
 import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -98,7 +98,7 @@ public final class DictionaryCommand extends PaginatedCommand {
         }
 
         if (definition.emoji() != null) {
-            embed.addField("Emoji", Emoji.fromUnicode(definition.emoji()).getAsMention(), false);
+            embed.addField("Emoji", Emoji.fromUnicode(definition.emoji()).getFormatted(), false);
         }
 
         if (definition.image() != null) {

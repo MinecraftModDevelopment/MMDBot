@@ -31,7 +31,7 @@ import de.ialistannen.javadocapi.storage.ElementLoader;
 import de.ialistannen.javadocapi.util.BaseUrlElementLoader;
 import de.ialistannen.javadocapi.util.NameShortener;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -220,16 +220,16 @@ public class NormalDocsSender implements DocsSender {
 
     private Emoji getEmoji(FuzzyQueryResult result) {
         if (result.getQualifiedName().asString().endsWith("Exception")) {
-            return Emoji.fromMarkdown("<:Exception:871325719127547945>");
+            return Emoji.fromFormatted("<:Exception:871325719127547945>");
         }
 
         return switch (result.getType()) {
-            case METHOD -> Emoji.fromMarkdown("<:Method:871140776711708743>");
-            case FIELD -> Emoji.fromMarkdown("<:Field:871140776346791987>");
-            case ANNOTATION -> Emoji.fromMarkdown("<:Annotation:871325719563751444>");
-            case ENUM -> Emoji.fromMarkdown("<:Enum:871325719362412594>");
-            case INTERFACE -> Emoji.fromMarkdown("<:Interface:871325719576318002>");
-            case CLASS -> Emoji.fromMarkdown("<:Class:871140776900440074>");
+            case METHOD -> Emoji.fromFormatted("<:Method:871140776711708743>");
+            case FIELD -> Emoji.fromFormatted("<:Field:871140776346791987>");
+            case ANNOTATION -> Emoji.fromFormatted("<:Annotation:871325719563751444>");
+            case ENUM -> Emoji.fromFormatted("<:Enum:871325719362412594>");
+            case INTERFACE -> Emoji.fromFormatted("<:Interface:871325719576318002>");
+            case CLASS -> Emoji.fromFormatted("<:Class:871140776900440074>");
         };
     }
 

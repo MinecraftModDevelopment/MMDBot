@@ -24,6 +24,7 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.mcmoddev.mmdbot.watcher.TheWatcher;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 import java.util.EnumSet;
 
@@ -64,7 +65,7 @@ public final class CmdReact extends Command {
                 event.getMessage().reply("Please provide an emote to reply with.").mentionRepliedUser(false).queue();
                 return;
             }
-            event.getChannel().addReactionById(toReactMsg, args[0].replaceAll("[<>]*", "")).queue(s -> {
+            event.getChannel().addReactionById(toReactMsg, Emoji.fromFormatted(args[0])).queue(s -> {
             }, t ->
                 event.getMessage().replyFormat("There was an exception while executing that command: **%s**", t.getLocalizedMessage()).queue());
         } catch (Exception e) {

@@ -22,7 +22,7 @@ package com.mcmoddev.mmdbot.commander.eventlistener;
 
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -43,7 +43,7 @@ public class FilePreviewListener implements EventListener {
         "cpp", "c", "gradle"
     );
 
-    public static final Emoji DISMISS_EMOJI = Emoji.fromMarkdown("\uD83D\uDEAE");
+    public static final Emoji DISMISS_EMOJI = Emoji.fromUnicode("\uD83D\uDEAE");
 
     public static final String URL = "https://discordbot.matyrobbrt.com/fpreview?url=";
 

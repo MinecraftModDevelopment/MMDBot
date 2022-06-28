@@ -25,21 +25,19 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.pagination.PaginationAction;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
-import javax.annotation.Nonnull;
 import java.awt.Color;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -254,7 +252,10 @@ public final class EventReactionAdded extends ListenerAdapter {
         List<MessageReaction> reactions = message.getReactions();
         List<MessageReaction> matches = new ArrayList<>();
         for (MessageReaction react : reactions) {
-            Emote emote = react.getReactionEmote().isEmote() ? react.getReactionEmote().getEmote() : null;
+            final var emote = switch (react.getEmoji().getType()) {
+                case CUSTOM -> (CustomEmoji) react.getEmoji();
+                case UNICODE -> null;
+            };
             if (emote != null)
                 if (predicate.test(emote.getIdLong()))
                     matches.add(react);
@@ -273,8 +274,8 @@ public final class EventReactionAdded extends ListenerAdapter {
         return message
             .getReactions()
             .stream()
-            .filter(messageReaction -> messageReaction.getReactionEmote().isEmote())
-            .filter(messageReaction -> predicate.test(messageReaction.getReactionEmote().getIdLong()))
+            .filter(messageReaction -> messageReaction.getEmoji().getType() == Emoji.Type.CUSTOM)
+            .filter(messageReaction -> predicate.test(((CustomEmoji) messageReaction.getEmoji()).getIdLong()))
             .mapToInt(MessageReaction::getCount)
             .sum();
     }
