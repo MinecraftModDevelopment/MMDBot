@@ -9,7 +9,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     container:
-      image: eclipse-temurin:17-jdk
+      image: openjdk:17-jdk
       options: --user root
     steps:
       - name: Install Git before checkout
