@@ -22,12 +22,14 @@ package com.mcmoddev.mmdbot.thelistener.events;
 
 import com.mcmoddev.mmdbot.core.event.moderation.ScamLinkEvent;
 import com.mcmoddev.mmdbot.core.util.MessageUtilities;
+import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.jda.caching.MessageData;
 import com.mcmoddev.mmdbot.thelistener.TheListener;
 import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
 import io.github.matyrobbrt.eventdispatcher.SubscribeEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.ErrorResponse;
@@ -65,7 +67,7 @@ public final class MessageEvents extends ListenerAdapter {
                     .setDescription("""
                         **A message sent by <@%s> in <#%s> has been deleted!**
                         %s"""
-                        .formatted(data.getAuthorId(), data.getChannelId(), data.getContent()));
+                        .formatted(data.getAuthorId(), data.getChannelId(), Utils.truncate(data.getContent(), MessageEmbed.DESCRIPTION_MAX_LENGTH - 30)));
                 embedBuilder.setAuthor(author.getEffectiveName(), null, author.getEffectiveAvatarUrl());
                 embedBuilder.setTimestamp(Instant.now())
                     .setFooter("Author: %s | Message ID: %s".formatted(data.getAuthorId(), data.getChannelId()), null);
@@ -105,8 +107,8 @@ public final class MessageEvents extends ListenerAdapter {
                     .setDescription("**A message sent by <@%s> in <#%s> has been edited!** [Jump to message.](%s)"
                         .formatted(author.getId(), event.getChannel().getId(), newMessage.getJumpUrl()));
                 embedBuilder.setTimestamp(Instant.now());
-                embedBuilder.addField("Before", data.getContent().isBlank() ? "*Blank*" : data.getContent(), false)
-                    .addField("After", newMessage.getContentRaw().isBlank() ? "*Blank*" : newMessage.getContentRaw(), false);
+                embedBuilder.addField("Before", data.getContent().isBlank() ? "*Blank*" : Utils.truncate(data.getContent(), MessageEmbed.VALUE_MAX_LENGTH), false)
+                    .addField("After", newMessage.getContentRaw().isBlank() ? "*Blank*" : Utils.truncate(newMessage.getContentRaw(), MessageEmbed.VALUE_MAX_LENGTH), false);
                 embedBuilder.setAuthor(author.getEffectiveName(), null, author.getEffectiveAvatarUrl())
                     .setFooter("Author ID: " + author.getId(), null);
                 final var interaction = data.getInteraction();
