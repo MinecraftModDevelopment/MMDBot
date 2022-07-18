@@ -87,7 +87,7 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
         if (event.getMessage().getType() != MessageType.DEFAULT) {
             return;
         }
-        event.getMessage().createThreadChannel("Discussion of %s’s %s".formatted(author.getUser().getName(), threadTypeStr)).queue(thread -> {
+        event.getMessage().createThreadChannel("Discussion of %s’s %s".formatted(author.getEffectiveName(), threadTypeStr)).queue(thread -> {
             thread.addThreadMember(author).queue($ -> {
                 thread.sendMessageEmbeds(new EmbedBuilder().setTitle("%s discussion thread".formatted(Utils.uppercaseFirstLetter(threadTypeStr)))
                         .setTimestamp(Instant.now()).setColor(Color.CYAN).setDescription("""
