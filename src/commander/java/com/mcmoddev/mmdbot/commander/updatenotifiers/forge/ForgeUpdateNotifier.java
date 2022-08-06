@@ -20,27 +20,27 @@
  */
 package com.mcmoddev.mmdbot.commander.updatenotifiers.forge;
 
-import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.google.gson.Gson;
+import com.mcmoddev.mmdbot.commander.config.Configuration;
+import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifier;
+import com.mcmoddev.mmdbot.commander.util.StringSerializer;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
+import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.awt.Color;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-
-import static com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers.LOGGER;
-import static com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers.MARKER;
 
 /**
- * The type Forge update notifier.
+ * The Forge update notifier.
  *
  * @author Antoine Gagnon
+ * @author matyrobbrt
  */
-public final class ForgeUpdateNotifier implements Runnable {
+public final class ForgeUpdateNotifier extends UpdateNotifier<MinecraftForgeVersion> {
 
     /**
      * The constant CHANGELOG.
@@ -48,131 +48,80 @@ public final class ForgeUpdateNotifier implements Runnable {
     private static final String CHANGELOG = "Changelog";
 
     /**
-     * The constant CHANGELOG_URL_TEMPLATE.
+     * The changelog URL template
      */
     private static final String CHANGELOG_URL_TEMPLATE
         = "https://maven.minecraftforge.net/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt";
 
-    /**
-     * The Mc version.
-     */
-    private String mcVersion;
-
-    /**
-     * The Last forge versions.
-     */
-    private ForgeVersion lastForgeVersions;
-
-    /**
-     * Instantiates a new Forge update notifier.
-     *
-     * @throws IOException the io exception
-     */
-    public ForgeUpdateNotifier() throws IOException {
-        final MinecraftForgeVersion mcForgeVersions = ForgeVersionHelper.getLatestMcVersionForgeVersions();
-        mcVersion = mcForgeVersions.getMcVersion();
-        lastForgeVersions = mcForgeVersions.getForgeVersion();
+    public ForgeUpdateNotifier() {
+        super(NotifierConfiguration.<MinecraftForgeVersion>builder()
+            .name("forge")
+            .channelGetter(Configuration.Channels.UpdateNotifiers::forge)
+            .versionComparator(NotifierConfiguration.notEqual())
+            .serializer(StringSerializer.json(new Gson(), MinecraftForgeVersion.class))
+            .build());
     }
 
-    /**
-     * Run.
-     */
     @Override
-    public void run() {
-        if (TheCommander.getInstance() == null) {
-            LOGGER.warn("Cannot check for new Forge versions, due to the bot instance being null.");
-            return;
+    protected @NotNull MinecraftForgeVersion queryLatest() throws IOException {
+        return ForgeVersionHelper.getLatestMcVersionForgeVersions();
+    }
+
+    @NotNull
+    @Override
+    protected EmbedBuilder getEmbed(@Nullable final MinecraftForgeVersion oldVersion, final MinecraftForgeVersion newVersion) {
+        final var embed = new EmbedBuilder();
+        embed.addField("Minecraft Version", newVersion.getMcVersion(), true);
+        embed.setTitle("Forge version update");
+        embed.setColor(Color.ORANGE);
+
+        final var mcVersion = newVersion.getMcVersion();
+        final var latest = newVersion.getForgeVersion();
+
+        if (oldVersion == null || !oldVersion.getMcVersion().equals(newVersion.getMcVersion())) {
+            embed.addField("Version", latest.getLatest(), true);
+            addChangelog(embed, mcVersion, latest.getLatest(), mcVersion, latest.getLatest());
+            return embed;
         }
+
+        final var lastForgeVersions = oldVersion.getForgeVersion();
+        if (latest.getLatest() != null) {
+            final var start = lastForgeVersions.getLatest();
+            final var end = latest.getLatest();
+            embed.addField("Latest", String.format("**%s** -> **%s**%n", start, end), true);
+            addChangelog(embed, mcVersion, start, mcVersion, end);
+        }
+
+        if (latest.getRecommended() != null) {
+            if (lastForgeVersions.getRecommended() == null) {
+                final var version = latest.getRecommended();
+                embed.addField("Recommended", String.format("*none* -> **%s**%n", version),
+                    true);
+                embed.setDescription(MarkdownUtil.maskedLink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE,
+                    mcVersion, latest.getRecommended())));
+            } else if (!latest.getRecommended().equals(lastForgeVersions.getRecommended())) {
+                final var start = lastForgeVersions.getRecommended();
+                final var end = latest.getRecommended();
+                embed.addField("Recommended", String.format("**%s** -> **%s**%n", start, end), true);
+                addChangelog(embed, mcVersion, start, mcVersion, end);
+            }
+        }
+        return embed;
+    }
+
+    private static void addChangelog(EmbedBuilder embedBuilder, String mcStart, String forgeStart, String mcEnd, String forgeEnd) {
         try {
-            LOGGER.debug(MARKER, "Checking for new Forge versions...");
-            mcVersion = ForgeVersionHelper.getLatestMcVersionForgeVersions().getMcVersion();
-
-            final var latest = ForgeVersionHelper.getForgeVersionsForMcVersion(mcVersion);
-
-            var changed = false;
-            final var embed = new EmbedBuilder();
-            embed.addField("Minecraft Version", mcVersion, true);
-            embed.setTitle("Forge version update");
-            embed.setColor(Color.ORANGE);
-            embed.setTimestamp(Instant.now());
-
-            final var logMsg = new StringBuilder(32);
-            if (latest.getLatest() != null) {
-                if (lastForgeVersions.getLatest() == null) {
-                    embed.addField("Latest", String.format("*none* -> **%s**%n", latest.getLatest()),
-                        true);
-                    embed.setDescription(MarkdownUtil.maskedLink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE,
-                        mcVersion, latest.getLatest())));
-                    changed = true;
-                    logMsg.append("Latest, from none to ").append(latest.getLatest());
-                } else if (!latest.getLatest().equals(lastForgeVersions.getLatest())) {
-                    final var start = lastForgeVersions.getLatest();
-                    final var end = latest.getLatest();
-                    embed.addField("Latest", String.format("**%s** -> **%s**%n", start,
-                        end), true);
-                    embed.setDescription("""
-                        [Changelog](%s):
-                        ```
-                        %s
-                        ```""".formatted(CHANGELOG_URL_TEMPLATE.formatted(mcVersion, end),
-                        getChangelogBetweenVersions(mcVersion, start, mcVersion, end)));
-                    changed = true;
-                    logMsg.append("Latest, from ").append(lastForgeVersions.getLatest()).append(" to ")
-                        .append(latest.getLatest());
-                }
-            }
-
-            if (latest.getRecommended() != null) {
-                if (logMsg.length() != 0) {
-                    logMsg.append("; ");
-                }
-                if (lastForgeVersions.getRecommended() == null) {
-                    final var version = latest.getRecommended();
-                    embed.addField("Recommended", String.format("*none* -> **%s**%n", version),
-                        true);
-                    embed.setDescription(MarkdownUtil.maskedLink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE,
-                        mcVersion, latest.getRecommended())));
-                    changed = true;
-                    logMsg.append("Recommended, from none to ").append(latest.getLatest());
-                } else if (!latest.getRecommended().equals(lastForgeVersions.getRecommended())) {
-                    final var start = lastForgeVersions.getRecommended();
-                    final var end = latest.getRecommended();
-                    embed.addField("Recommended", String.format("**%s** -> **%s**%n",
-                        start, end), true);
-                    embed.setDescription("""
-                        [Changelog](%s):
-                        ```
-                        %s
-                        ```""".formatted(CHANGELOG_URL_TEMPLATE.formatted(mcVersion, end),
-                        getChangelogBetweenVersions(mcVersion, start, mcVersion, end)));
-                    changed = true;
-                    logMsg.append("Recommended, from ").append(lastForgeVersions.getLatest()).append(" to ")
-                        .append(latest.getLatest());
-                }
-            }
-
-            if (changed) {
-                LOGGER.info(MARKER, "New Forge version found for {}: {}", mcVersion, logMsg);
-                lastForgeVersions = latest;
-
-                TheCommander.getInstance().getGeneralConfig().channels().updateNotifiers().forge().forEach(chId -> {
-                    final var channel = chId.resolve(id -> TheCommander.getJDA().getChannelById(TextChannel.class, id));
-                    if (channel != null) {
-                        channel.sendMessageEmbeds(embed.build()).queue(msg -> {
-                            if (channel.getType() == ChannelType.NEWS) {
-                                msg.crosspost().queue();
-                            }
-                        });
-                    }
-                });
-            } else {
-                LOGGER.debug(MARKER, "No new Forge version found");
-            }
-        } catch (RuntimeException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            LOGGER.error(MARKER, "Error while running", ex);
-            ex.printStackTrace();
+            final var changelog = getChangelogBetweenVersions(
+                mcStart, forgeStart, mcEnd, forgeEnd
+            );
+            embedBuilder.setDescription("""
+                [Changelog](%s):
+                ```
+                %s
+                ```""".formatted(
+                CHANGELOG_URL_TEMPLATE.formatted(mcEnd, forgeEnd), changelog
+            ));
+        } catch (IOException ignored) {
         }
     }
 

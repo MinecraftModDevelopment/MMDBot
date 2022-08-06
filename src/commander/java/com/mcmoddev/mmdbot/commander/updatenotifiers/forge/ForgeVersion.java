@@ -20,6 +20,8 @@
  */
 package com.mcmoddev.mmdbot.commander.updatenotifiers.forge;
 
+import java.util.Objects;
+
 /**
  * The type Forge version.
  *
@@ -90,5 +92,18 @@ public final class ForgeVersion {
      */
     public void setLatest(final String latestIn) {
         this.latest = latestIn;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ForgeVersion that = (ForgeVersion) o;
+        return Objects.equals(recommended, that.recommended) && Objects.equals(latest, that.latest);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(recommended, latest);
     }
 }

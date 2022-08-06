@@ -20,6 +20,8 @@
  */
 package com.mcmoddev.mmdbot.commander.updatenotifiers.forge;
 
+import java.util.Objects;
+
 /**
  * The type Minecraft forge version.
  *
@@ -63,5 +65,18 @@ public final class MinecraftForgeVersion {
      */
     public String getMcVersion() {
         return mcVersion;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MinecraftForgeVersion that = (MinecraftForgeVersion) o;
+        return Objects.equals(forgeVersion, that.forgeVersion) && Objects.equals(mcVersion, that.mcVersion);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(forgeVersion, mcVersion);
     }
 }

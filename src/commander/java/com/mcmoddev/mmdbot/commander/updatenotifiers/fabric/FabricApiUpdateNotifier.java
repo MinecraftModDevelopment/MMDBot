@@ -20,72 +20,44 @@
  */
 package com.mcmoddev.mmdbot.commander.updatenotifiers.fabric;
 
-import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.mcmoddev.mmdbot.commander.config.Configuration;
+import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifier;
+import com.mcmoddev.mmdbot.commander.util.StringSerializer;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
+import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.awt.Color;
-import java.time.Instant;
-
-import static com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers.LOGGER;
-import static com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers.MARKER;
 
 /**
- * The type Fabric api update notifier.
+ * The Fabric API update notifier.
  *
  * @author williambl
+ * @author matyrobbrt
  */
-public final class FabricApiUpdateNotifier implements Runnable {
+public final class FabricApiUpdateNotifier extends UpdateNotifier<String> {
 
-    /**
-     * The Last latest.
-     */
-    private String lastLatest;
-
-    /**
-     * Instantiates a new Fabric api update notifier.
-     */
     public FabricApiUpdateNotifier() {
-        lastLatest = FabricVersionHelper.getLatestApi();
+        super(NotifierConfiguration.<String>builder()
+            .name("fabricapi")
+            .channelGetter(Configuration.Channels.UpdateNotifiers::fabric)
+            .serializer(StringSerializer.SELF)
+            .versionComparator(NotifierConfiguration.notEqual())
+            .build());
     }
 
-    /**
-     * Run.
-     */
+    @Nullable
     @Override
-    public void run() {
-        if (TheCommander.getInstance() == null) {
-            LOGGER.warn(MARKER, "Cannot start Fabric Update Notifier due to the bot instance being null.");
-            return;
-        }
-        LOGGER.debug(MARKER, "Checking for new Fabric API versions...");
-        final String latest = FabricVersionHelper.getLatestApi();
+    protected String queryLatest() {
+        return FabricVersionHelper.getLatestApi();
+    }
 
-        if (!lastLatest.equals(latest)) {
-            LOGGER.info(MARKER, "New Fabric API release found, from {} to {}", lastLatest, latest);
-            lastLatest = latest;
-
-            TheCommander.getInstance().getGeneralConfig().channels().updateNotifiers().fabric().forEach(chId -> {
-                final var channel = chId.resolve(id -> TheCommander.getJDA().getChannelById(TextChannel.class, id));
-                if (channel != null) {
-                    final var embed = new EmbedBuilder();
-                    embed.setTitle("New Fabric API release available!");
-                    embed.setDescription(latest);
-                    embed.setColor(Color.WHITE);
-                    embed.setTimestamp(Instant.now());
-                    channel.sendMessageEmbeds(embed.build()).queue(msg -> {
-                        if (channel.getType() == ChannelType.NEWS) {
-                            msg.crosspost().queue();
-                        }
-                    });
-                }
-            });
-        } else {
-            LOGGER.debug(MARKER, "No new Fabric API version found");
-        }
-
-        lastLatest = latest;
+    @Override
+    protected @NotNull EmbedBuilder getEmbed(@Nullable final String oldVersion, @Nonnull final String newVersion) {
+        return new EmbedBuilder()
+            .setTitle("New Fabric API release available!")
+            .setDescription(newVersion)
+            .setColor(Color.WHITE);
     }
 }
