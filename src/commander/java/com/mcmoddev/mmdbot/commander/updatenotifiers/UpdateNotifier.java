@@ -1,7 +1,5 @@
 package com.mcmoddev.mmdbot.commander.updatenotifiers;
 
-import club.minnced.discord.webhook.WebhookClientBuilder;
-import club.minnced.discord.webhook.external.JDAWebhookClient;
 import club.minnced.discord.webhook.send.AllowedMentions;
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
@@ -9,17 +7,13 @@ import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.commander.util.StringSerializer;
 import com.mcmoddev.mmdbot.commander.util.dao.UpdateNotifiersDAO;
-import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import com.mcmoddev.mmdbot.core.util.webhook.WebhookManager;
 import lombok.Builder;
 import lombok.Data;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.Webhook;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
@@ -31,8 +25,6 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
 
 import static com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers.LOGGER;
@@ -45,6 +37,9 @@ import static com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers.LOGG
  */
 @ParametersAreNonnullByDefault
 public abstract class UpdateNotifier<T> implements Runnable {
+    public static final String WEBHOOK_NAME = "UpdateNotifiers";
+    protected static final WebhookManager WEBHOOKS = WebhookManager.of(s -> s.trim().equals(WEBHOOK_NAME), WEBHOOK_NAME, AllowedMentions.none());
+
     protected final NotifierConfiguration<T> configuration;
     protected final Marker loggingMarker;
     private T latest;
@@ -140,17 +135,11 @@ public abstract class UpdateNotifier<T> implements Runnable {
                             }
                         });
                     } else {
-                        getWebhookClient(channel)
-                            .send(new WebhookMessageBuilder()
-                                .setAvatarUrl(configuration.webhookInfo.avatarUrl())
-                                .setUsername(configuration.webhookInfo.username())
-                                .addEmbeds(WebhookEmbedBuilder.fromJDA(embed.build()).build())
-                                .build())
-                            .thenAccept(msg -> {
-                                if (channel.getType() == ChannelType.NEWS) {
-                                    channel.retrieveMessageById(msg.getId()).flatMap(Message::crosspost).queue();
-                                }
-                            });
+                        WEBHOOKS.sendAndCrosspost(channel, new WebhookMessageBuilder()
+                            .setAvatarUrl(configuration.webhookInfo.avatarUrl())
+                            .setUsername(configuration.webhookInfo.username())
+                            .addEmbeds(WebhookEmbedBuilder.fromJDA(embed.build()).build())
+                            .build());
                     }
                 });
         } else {
@@ -163,35 +152,6 @@ public abstract class UpdateNotifier<T> implements Runnable {
         TheCommander.getInstance().getJdbi().useExtension(UpdateNotifiersDAO.class, db -> db.setLatest(
             configuration.name, configuration.serializer.serialize(latest)
         ));
-    }
-
-    public static final ScheduledExecutorService WEBHOOKS_EXECUTOR = Executors.newScheduledThreadPool(1, r ->
-        Utils.setThreadDaemon(new Thread(r, "UpdateNotifierWebhooks"), true));
-    public static final Long2ObjectMap<JDAWebhookClient> WEBHOOKS = new Long2ObjectOpenHashMap<>();
-
-    static {
-        Runtime.getRuntime().addShutdownHook(new Thread(() ->
-            WEBHOOKS.values().forEach(JDAWebhookClient::close), "UpdateNotifierWebhookCloser"));
-    }
-
-    public static final String WEBHOOK_NAME = "UpdateNotifiers";
-
-    public static Webhook getOrCreateWebhook(BaseGuildMessageChannel channel) {
-        final var alreadyExisted = channel.retrieveWebhooks()
-            .complete()
-            .stream()
-            .filter(w -> w.getName().trim().equals(WEBHOOK_NAME))
-            .findAny();
-        return alreadyExisted.orElseGet(() -> channel.createWebhook(WEBHOOK_NAME).complete());
-    }
-
-    public static JDAWebhookClient getWebhookClient(BaseGuildMessageChannel channel) {
-        return WEBHOOKS.computeIfAbsent(channel.getIdLong(), k ->
-            WebhookClientBuilder.fromJDA(getOrCreateWebhook(channel))
-                .setExecutorService(WEBHOOKS_EXECUTOR)
-                .setHttpClient(TheCommander.OK_HTTP_CLIENT)
-                .setAllowedMentions(AllowedMentions.none())
-                .buildJDA());
     }
 
     @Data

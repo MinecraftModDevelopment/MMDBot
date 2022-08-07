@@ -21,8 +21,6 @@
 package com.mcmoddev.mmdbot.commander.updatenotifiers.minecraft;
 
 import com.mcmoddev.mmdbot.core.util.Constants;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.experimental.UtilityClass;
 
 import javax.annotation.Nullable;
@@ -73,10 +71,6 @@ public final class MinecraftVersionHelper {
         public VersionsInfo latest;
     }
 
-    @EqualsAndHashCode
-    @AllArgsConstructor
-    public static class VersionsInfo {
-        public String release;
-        public String snapshot;
+    public record VersionsInfo(String release, String snapshot) {
     }
 }

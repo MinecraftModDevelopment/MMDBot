@@ -134,13 +134,13 @@ dependencies {
   global libs.caffeine
   global libs.urldetector
   global libs.cfapi
+  global libs.webhooks
 
   global libs.jdbi.core
   global libs.jdbi.sqlobject
 
   commander libs.jsoup
   commander libs.javadocapi
-  commander libs.webhooks
   commander libs.graal
   commander libs.graal.scriptengine
 

@@ -45,7 +45,7 @@ public final class MinecraftUpdateNotifier extends UpdateNotifier<MinecraftVersi
             .channelGetter(Configuration.Channels.UpdateNotifiers::minecraft)
             .versionComparator(NotifierConfiguration.notEqual())
             .serializer(StringSerializer.json(StringSerializer.RECORD_GSON, VersionsInfo.class))
-            .webhookInfo(new WebhookInfo("Minecraft Updates", "https://www.minecraft.net/etc.clientlibs/minecraft/clientlibs/main/resources/img/minecraft-creeper-face.jpg"))
+            .webhookInfo(new WebhookInfo("Minecraft Updates", "https://media.discordapp.net/attachments/957353544493719632/1005934698767323156/unknown.png?width=594&height=594"))
             .build());
     }
 
@@ -63,17 +63,17 @@ public final class MinecraftUpdateNotifier extends UpdateNotifier<MinecraftVersi
             return new EmbedBuilder()
                 .setDescription("New Minecraft version available!")
                 .setColor(Color.CYAN)
-                .setDescription(newVersion.snapshot);
+                .setDescription(newVersion.snapshot());
         }
         final var embed = new EmbedBuilder();
-        if (!oldVersion.release.equals(newVersion.release)) {
+        if (!oldVersion.release().equals(newVersion.release())) {
             embed.setTitle("New Minecraft release available!");
-            embed.setDescription(newVersion.release);
+            embed.setDescription(newVersion.release());
             embed.setColor(Color.GREEN);
         } else {
             embed.setTitle("New Minecraft snapshot available!");
-            embed.setDescription(newVersion.snapshot);
-            embed.setColor(Color.ORANGE);
+            embed.setDescription(newVersion.snapshot());
+            embed.setColor(Color.CYAN);
         }
         return embed;
     }
