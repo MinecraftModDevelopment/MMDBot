@@ -37,7 +37,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Icon;
 import net.dv8tion.jda.api.entities.Webhook;
-import okhttp3.OkHttpClient;
 import org.jsoup.Jsoup;
 
 import java.awt.Color;
@@ -54,7 +53,6 @@ public class CFUtils {
 
     public static final ScheduledExecutorService WEBHOOKS_EXECUTOR = Executors.newScheduledThreadPool(1, r ->
         Utils.setThreadDaemon(new Thread(r, "CurseForgeWebhooks"), true));
-    public static final OkHttpClient WEBHOOKS_HTTP_CLIENT = new OkHttpClient();
     public static final Long2ObjectMap<JDAWebhookClient> WEBHOOKS = new Long2ObjectOpenHashMap<>();
 
     static {
@@ -126,7 +124,7 @@ public class CFUtils {
         return WEBHOOKS.computeIfAbsent(channelId, k ->
             WebhookClientBuilder.fromJDA(getOrCreateWebhook(channelId))
                 .setExecutorService(WEBHOOKS_EXECUTOR)
-                .setHttpClient(WEBHOOKS_HTTP_CLIENT)
+                .setHttpClient(TheCommander.OK_HTTP_CLIENT)
                 .setAllowedMentions(AllowedMentions.none())
                 .buildJDA());
     }
