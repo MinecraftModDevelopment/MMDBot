@@ -45,6 +45,7 @@ public final class MinecraftUpdateNotifier extends UpdateNotifier<MinecraftVersi
             .channelGetter(Configuration.Channels.UpdateNotifiers::minecraft)
             .versionComparator(NotifierConfiguration.notEqual())
             .serializer(StringSerializer.json(StringSerializer.RECORD_GSON, VersionsInfo.class))
+            .webhookInfo(new WebhookInfo("Minecraft Updates", "https://www.minecraft.net/etc.clientlibs/minecraft/clientlibs/main/resources/img/minecraft-creeper-face.jpg"))
             .build());
     }
 

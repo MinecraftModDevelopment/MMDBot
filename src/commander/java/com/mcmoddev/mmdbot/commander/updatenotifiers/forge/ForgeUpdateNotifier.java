@@ -53,6 +53,7 @@ public final class ForgeUpdateNotifier extends UpdateNotifier<MinecraftForgeVers
             .channelGetter(Configuration.Channels.UpdateNotifiers::forge)
             .versionComparator(NotifierConfiguration.notEqual())
             .serializer(StringSerializer.json(StringSerializer.RECORD_GSON, MinecraftForgeVersion.class))
+            .webhookInfo(new WebhookInfo("Forge Updates", "https://media.discordapp.net/attachments/957353544493719632/1005910543229530363/unknown.png"))
             .build());
     }
 

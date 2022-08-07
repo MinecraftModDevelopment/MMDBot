@@ -42,6 +42,7 @@ public final class QuiltUpdateNotifier extends UpdateNotifier<String> {
             .channelGetter(Configuration.Channels.UpdateNotifiers::quilt)
             .serializer(StringSerializer.SELF)
             .versionComparator(NotifierConfiguration.notEqual())
+            .webhookInfo(new WebhookInfo("Quilt Updates", "https://media.discordapp.net/attachments/957353544493719632/1005913221527519272/unknown.png"))
             .build());
     }
 
