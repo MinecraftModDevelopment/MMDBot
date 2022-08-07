@@ -33,6 +33,7 @@ import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.paginate.PaginatedCommand;
 import com.mcmoddev.mmdbot.core.commands.paginate.Paginator;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
+import com.mcmoddev.mmdbot.core.util.jda.EnabledRolesCommand;
 import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -255,7 +256,7 @@ public class QuoteCommand extends SlashCommand {
      *
      * @author Curle
      */
-    public static final class RemoveQuote extends SlashCommand {
+    public static final class RemoveQuote extends EnabledRolesCommand.Base {
 
         /**
          * Create the command.
@@ -269,8 +270,8 @@ public class QuoteCommand extends SlashCommand {
             enabledRoles = TheCommander.getInstance().getGeneralConfig().roles()
                 .getBotMaintainers()
                 .stream()
-                .map(SnowflakeValue::asString)
-                .toArray(String[]::new);
+                .map(SnowflakeValue::asLong)
+                .toList();
             guildOnly = true;
 
             options = Collections.singletonList(new OptionData(OptionType.INTEGER, "index", "The index of the quote to delete.").setRequired(true));
@@ -278,6 +279,7 @@ public class QuoteCommand extends SlashCommand {
 
         @Override
         protected void execute(final SlashCommandEvent event) {
+            if (!checkCanUse(event)) return;
             if (!TheCommander.getInstance().getGeneralConfig().features().areQuotesEnabled()) {
                 event.deferReply(true).setContent("Quotes are not enabled!").queue();
                 return;

@@ -20,63 +20,10 @@
  */
 package com.mcmoddev.mmdbot.commander.updatenotifiers.forge;
 
-import java.util.Objects;
-
 /**
- * The type Minecraft forge version.
+ * Represents a Forge version, along with its minecraft version.
  *
  * @author Antoine Gagnon
+ * @author matyrobbrt
  */
-public final class MinecraftForgeVersion {
-
-    /**
-     * The Forge version.
-     */
-    private final ForgeVersion forgeVersion;
-    /**
-     * The Mc version.
-     */
-    private final String mcVersion;
-
-    /**
-     * Instantiates a new Minecraft forge version.
-     *
-     * @param mcVersionIn    the mc version in
-     * @param forgeVersionIn the forge version in
-     */
-    public MinecraftForgeVersion(final String mcVersionIn, final ForgeVersion forgeVersionIn) {
-        this.mcVersion = mcVersionIn;
-        this.forgeVersion = forgeVersionIn;
-    }
-
-    /**
-     * Gets forge version.
-     *
-     * @return ForgeVersion. forge version
-     */
-    public ForgeVersion getForgeVersion() {
-        return forgeVersion;
-    }
-
-    /**
-     * Gets mc version.
-     *
-     * @return String. mc version
-     */
-    public String getMcVersion() {
-        return mcVersion;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MinecraftForgeVersion that = (MinecraftForgeVersion) o;
-        return Objects.equals(forgeVersion, that.forgeVersion) && Objects.equals(mcVersion, that.mcVersion);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(forgeVersion, mcVersion);
-    }
-}
+public record MinecraftForgeVersion(String mcVersion, ForgeVersion forgeVersion) { }

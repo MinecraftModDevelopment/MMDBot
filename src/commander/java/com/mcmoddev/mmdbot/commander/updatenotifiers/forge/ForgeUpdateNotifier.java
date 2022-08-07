@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.commander.updatenotifiers.forge;
 
-import com.google.gson.Gson;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifier;
 import com.mcmoddev.mmdbot.commander.util.StringSerializer;
@@ -43,11 +42,6 @@ import java.nio.charset.StandardCharsets;
 public final class ForgeUpdateNotifier extends UpdateNotifier<MinecraftForgeVersion> {
 
     /**
-     * The constant CHANGELOG.
-     */
-    private static final String CHANGELOG = "Changelog";
-
-    /**
      * The changelog URL template
      */
     private static final String CHANGELOG_URL_TEMPLATE
@@ -58,7 +52,7 @@ public final class ForgeUpdateNotifier extends UpdateNotifier<MinecraftForgeVers
             .name("forge")
             .channelGetter(Configuration.Channels.UpdateNotifiers::forge)
             .versionComparator(NotifierConfiguration.notEqual())
-            .serializer(StringSerializer.json(new Gson(), MinecraftForgeVersion.class))
+            .serializer(StringSerializer.json(StringSerializer.RECORD_GSON, MinecraftForgeVersion.class))
             .build());
     }
 
@@ -69,23 +63,23 @@ public final class ForgeUpdateNotifier extends UpdateNotifier<MinecraftForgeVers
 
     @NotNull
     @Override
-    protected EmbedBuilder getEmbed(@Nullable final MinecraftForgeVersion oldVersion, final MinecraftForgeVersion newVersion) {
+    protected EmbedBuilder getEmbed(@Nullable final MinecraftForgeVersion oldVersion, final @NotNull MinecraftForgeVersion newVersion) {
         final var embed = new EmbedBuilder();
-        embed.addField("Minecraft Version", newVersion.getMcVersion(), true);
+        embed.addField("Minecraft Version", newVersion.mcVersion(), true);
         embed.setTitle("Forge version update");
         embed.setColor(Color.ORANGE);
 
-        final var mcVersion = newVersion.getMcVersion();
-        final var latest = newVersion.getForgeVersion();
+        final var mcVersion = newVersion.mcVersion();
+        final var latest = newVersion.forgeVersion();
 
-        if (oldVersion == null || !oldVersion.getMcVersion().equals(newVersion.getMcVersion())) {
+        if (oldVersion == null || !oldVersion.mcVersion().equals(newVersion.mcVersion())) {
             embed.addField("Version", latest.getLatest(), true);
             addChangelog(embed, mcVersion, latest.getLatest(), mcVersion, latest.getLatest());
             return embed;
         }
 
-        final var lastForgeVersions = oldVersion.getForgeVersion();
-        if (latest.getLatest() != null) {
+        final var lastForgeVersions = oldVersion.forgeVersion();
+        if (latest.getLatest() != null && !lastForgeVersions.getLatest().equals(latest.getLatest())) {
             final var start = lastForgeVersions.getLatest();
             final var end = latest.getLatest();
             embed.addField("Latest", String.format("**%s** -> **%s**%n", start, end), true);
@@ -97,7 +91,7 @@ public final class ForgeUpdateNotifier extends UpdateNotifier<MinecraftForgeVers
                 final var version = latest.getRecommended();
                 embed.addField("Recommended", String.format("*none* -> **%s**%n", version),
                     true);
-                embed.setDescription(MarkdownUtil.maskedLink(CHANGELOG, String.format(CHANGELOG_URL_TEMPLATE,
+                embed.setDescription(MarkdownUtil.maskedLink("Changelog", String.format(CHANGELOG_URL_TEMPLATE,
                     mcVersion, latest.getRecommended())));
             } else if (!latest.getRecommended().equals(lastForgeVersions.getRecommended())) {
                 final var start = lastForgeVersions.getRecommended();

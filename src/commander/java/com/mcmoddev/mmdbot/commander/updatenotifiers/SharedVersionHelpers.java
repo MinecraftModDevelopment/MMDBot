@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.commander.updatenotifiers;
 
 import com.mcmoddev.mmdbot.commander.TheCommander;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -37,26 +38,7 @@ import java.time.Instant;
  */
 public class SharedVersionHelpers {
 
-    public static Instant lastUpdatedTime;
-    private static final int THIRTY_MINUTES = 30;
-    public static final Duration TIME_UNTIL_OUTDATED = Duration.ofMinutes(THIRTY_MINUTES);
 
-    /**
-     * Checks if we need to look for new data or not.
-     *
-     * @return true or false.
-     */
-    public static boolean isOutdated() {
-        return lastUpdatedTime.plus(TIME_UNTIL_OUTDATED).isBefore(Instant.now());
-    }
-
-
-    /**
-     * Gets reader.
-     *
-     * @param urlString the url string
-     * @return InputStreamReader. reader
-     */
     public static InputStreamReader getReader(final String urlString) {
         final InputStream stream = getStream(urlString);
         if (stream == null) {
@@ -66,18 +48,13 @@ public class SharedVersionHelpers {
         }
     }
 
-    /**
-     * Gets stream.
-     *
-     * @param urlString the url string
-     * @return InputStream. stream
-     */
+    @Nullable
     public static InputStream getStream(final String urlString) {
         try {
             final var url = new URL(urlString);
             return url.openStream();
         } catch (IOException ex) {
-            TheCommander.LOGGER.error("Failed to get minecraft version", ex);
+            TheCommander.LOGGER.error("Failed to open input stream", ex);
             return null;
         }
     }

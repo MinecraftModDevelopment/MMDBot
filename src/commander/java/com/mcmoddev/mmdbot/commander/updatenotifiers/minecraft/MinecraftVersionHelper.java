@@ -20,120 +20,63 @@
  */
 package com.mcmoddev.mmdbot.commander.updatenotifiers.minecraft;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.mcmoddev.mmdbot.core.util.Constants;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.UtilityClass;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 /**
  * The type Minecraft version helper.
  *
- * @author
+ * @author unknown
+ * @author matyrobbrt
  */
+@UtilityClass
 public final class MinecraftVersionHelper {
+    public static final String API_URL = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
 
     /**
-     * The constant API_URL.
+     * Gets the latest MC version.
      */
-    private static final String API_URL = "https://meta.fabricmc.net/v2/versions/game";
-    //private static final Duration timeUntilOutdated = Duration.ofMinutes(20);
-
-    /**
-     * The constant latest.
-     */
-    private static String latest;
-
-    /**
-     * The constant latestStable.
-     */
-    private static String latestStable;
-    //private static Instant lastUpdated;
-
-    static {
-        update();
-    }
-
-    /**
-     * Instantiates a new Minecraft version helper.
-     */
-    private MinecraftVersionHelper() {
-        throw new IllegalStateException("Utility class");
-    }
-
-    /**
-     * Gets latest.
-     *
-     * @return String. latest
-     */
+    @Nullable
     public static String getLatest() {
-        if (latest == null) {
-            update();
-        }
-        return latest;
+        final var meta = getMeta();
+        if (meta == null) return null;
+        return meta.latest.snapshot;
     }
 
     /**
-     * Gets latest stable.
-     *
-     * @return String. latest stable
+     * Gets the latest stable MC version.
      */
+    @Nullable
     public static String getLatestStable() {
-        if (latestStable == null) {
-            update();
-        }
-        return latestStable;
+        final var meta = getMeta();
+        if (meta == null) return null;
+        return meta.latest.release;
     }
 
-    /**
-     * Update.
-     */
-    public static void update() {
-        final InputStreamReader reader = openUrl();
-        if (reader == null) {
-            return;
-        }
-        final TypeToken<List<MinecraftVersionInfo>> token = new TypeToken<>() {
-        };
-        final List<MinecraftVersionInfo> versions = new Gson().fromJson(reader, token.getType());
-
-        latest = versions.get(0).version;
-        latestStable = versions.stream().filter(it -> it.stable).findFirst().map(it -> it.version).orElse(latest);
-        //lastUpdated = Instant.now();
-    }
-
-    /**
-     * Open url input stream reader.
-     *
-     * @return InputStreamReader. input stream reader
-     */
-    private static InputStreamReader openUrl() {
-        try {
-            final var url = new URL(API_URL);
-            return new InputStreamReader(url.openStream(), StandardCharsets.UTF_8);
-        } catch (IOException ex) {
-            TheCommander.LOGGER.error("Failed to get minecraft version", ex);
+    @Nullable
+    public static PistonMeta getMeta() {
+        try (final var reader = new InputStreamReader(new URL(API_URL).openStream())) {
+            return Constants.Gsons.GSON.fromJson(reader, PistonMeta.class);
+        } catch (IOException ignored) {
             return null;
         }
     }
 
-    /**
-     * The type Minecraft version info.
-     */
-    private static class MinecraftVersionInfo {
+    public static class PistonMeta {
+        public VersionsInfo latest;
+    }
 
-        /**
-         * The Version.
-         */
-        public String version;
-
-        /**
-         * The Stable.
-         */
-        public boolean stable;
+    @EqualsAndHashCode
+    @AllArgsConstructor
+    public static class VersionsInfo {
+        public String release;
+        public String snapshot;
     }
 }

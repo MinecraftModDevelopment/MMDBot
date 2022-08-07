@@ -24,8 +24,10 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.SharedVersionHelpers;
+import lombok.experimental.UtilityClass;
 import org.xml.sax.SAXException;
 
+import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpression;
@@ -34,10 +36,9 @@ import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -45,7 +46,9 @@ import java.util.stream.Collectors;
  *
  * @author williambl
  * @author KiriCattus
+ * @author matyrobbrt
  */
+@UtilityClass
 public final class FabricVersionHelper extends SharedVersionHelpers {
 
     /**
@@ -65,119 +68,61 @@ public final class FabricVersionHelper extends SharedVersionHelpers {
         = "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/maven-metadata.xml";
 
     /**
-     * The constant LATEST_YARNS.
-     */
-    private static final Map<String, String> LATEST_YARNS = new HashMap<>();
-
-    /**
-     * The constant latestLoader.
-     */
-    private static String latestLoader;
-
-    /**
-     * The constant latestApi.
-     */
-    private static String latestApi;
-
-    static {
-        update();
-    }
-
-    /**
-     * Instantiates a new Fabric version helper.
-     */
-    private FabricVersionHelper() {
-        throw new IllegalStateException("Utility class");
-    }
-
-    /**
-     * Gets latest yarn.
+     * Gets the latest Yarn version for a given {@code mcVersion}.
      *
-     * @param mcVersion the mc version
-     * @return String. latest yarn
+     * @param mcVersion the MC version to query yarn for
+     * @return the latest yarn version for that MC version, or else {@code null}
      */
     public static String getLatestYarn(final String mcVersion) {
-        if (LATEST_YARNS.isEmpty() || isOutdated()) {
-            update();
-        }
-        return LATEST_YARNS.get(mcVersion);
+        return getYarnVersions().getOrDefault(mcVersion, null);
     }
 
     /**
-     * Gets latest loader.
+     * Gets the latest yarn versions.
      *
-     * @return String. latest loader
+     * @return the latest yarn versions as a mcVersion -> yarnVersion map
      */
-    public static String getLatestLoader() {
-        if (latestLoader == null || isOutdated()) {
-            update();
-        }
-        return latestLoader;
-    }
-
-    /**
-     * Gets latest api.
-     *
-     * @return String. latest api
-     */
-    public static String getLatestApi() {
-        if (latestApi == null || isOutdated()) {
-            update();
-        }
-        return latestApi;
-    }
-
-    /**
-     * Update.
-     */
-    public static void update() {
-        updateYarn();
-        updateLoader();
-        updateApi();
-        lastUpdatedTime = Instant.now();
-    }
-
-    /**
-     * Update yarn.
-     */
-    private static void updateYarn() {
+    public static Map<String, String> getYarnVersions() {
         final InputStreamReader reader = getReader(YARN_URL);
         if (reader == null) {
-            return;
+            return Map.of();
         }
         final TypeToken<List<SharedVersionHelpers.SharedVersionInfo>> token = new TypeToken<>() {
         };
         final List<SharedVersionHelpers.SharedVersionInfo> versions = new Gson().fromJson(reader, token.getType());
 
-        LATEST_YARNS.clear();
         final Map<String, List<SharedVersionHelpers.SharedVersionInfo>> map = versions.stream()
             .distinct()
             .collect(Collectors.groupingBy(it -> it.gameVersion));
-        map.keySet().forEach(it -> LATEST_YARNS.put(it, map.get(it).get(0).version));
+        return map.keySet()
+            .stream()
+            .collect(Collectors.toMap(Function.identity(), it -> map.get(it).get(0).version));
     }
 
     /**
-     * Update loader.
+     * Gets the latest Fabric Loader version.
      */
-    private static void updateLoader() {
+    @Nullable
+    public static String getLatestLoader() {
         final InputStreamReader reader = getReader(LOADER_URL);
         if (reader == null) {
-            return;
+            return null;
         }
         final TypeToken<List<SharedVersionHelpers.LoaderVersionInfo>> token = new TypeToken<>() {
         };
         final List<SharedVersionHelpers.LoaderVersionInfo> versions = new Gson().fromJson(reader, token.getType());
 
-        latestLoader = versions.get(0).version;
+        return versions.get(0).version;
     }
 
     /**
-     * Update api.
+     * Gets the latest Fabric API version.
      */
-    private static void updateApi() {
+    @Nullable
+    public static String getLatestApi() {
         final InputStream stream = getStream(API_URL);
         if (stream == null) {
-            return;
+            return null;
         }
         try {
             final var doc = DocumentBuilderFactory.newInstance()
@@ -186,9 +131,10 @@ public final class FabricVersionHelper extends SharedVersionHelpers {
             final XPathExpression expr = XPathFactory.newInstance()
                 .newXPath()
                 .compile("/metadata/versioning/latest/text()");
-            latestApi = expr.evaluate(doc);
+            return expr.evaluate(doc);
         } catch (SAXException | XPathExpressionException | ParserConfigurationException | IOException ex) {
             TheCommander.LOGGER.error("Failed to resolve latest Fabric API version", ex);
         }
+        return null;
     }
 }

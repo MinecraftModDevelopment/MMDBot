@@ -36,28 +36,17 @@ public abstract class UpdateNotifier<T> implements Runnable {
     protected final NotifierConfiguration<T> configuration;
     protected final Marker loggingMarker;
     private T latest;
+    private boolean pickedUpFromDB;
 
     protected UpdateNotifier(final NotifierConfiguration<T> configuration) {
         this.configuration = configuration;
         this.loggingMarker = MarkerFactory.getMarker(configuration.name);
-        final String oldData = TheCommander.getInstance().getJdbi()
-            .withExtension(UpdateNotifiersDAO.class, db -> db.getLatest(configuration.name));
-        if (oldData != null) {
-            latest = configuration.serializer.deserialize(oldData);
-        } else {
-            try {
-                final T queried = queryLatest();
-                if (queried != null) {
-                    update(queried);
-                }
-            } catch (IOException e) {
-                LOGGER.error(loggingMarker, "An exception occurred trying to resolve latest version: ", e);
-            }
-        }
     }
 
     /**
-     * Queries the latest version of the listened project.
+     * Queries the latest version of the listened project. <br> <br>
+     * This method will be called every time this notifier {@link #run() runs},
+     * so you can use it for updating versions stored externally as well.
      *
      * @return the latest version, or if one was not found, {@code null}
      * @throws IOException if an exception occurred querying the version
@@ -84,6 +73,32 @@ public abstract class UpdateNotifier<T> implements Runnable {
             LOGGER.warn(loggingMarker, "Cannot start {} update notifier due to the bot instance being null.", configuration.name);
             return;
         }
+        if (!pickedUpFromDB) {
+            final String oldData = TheCommander.getInstance().getJdbi()
+                .withExtension(UpdateNotifiersDAO.class, db -> db.getLatest(configuration.name));
+            final Runnable initialQuery = () -> {
+                try {
+                    final T queried = queryLatest();
+                    if (queried != null) {
+                        update(queried);
+                    }
+                } catch (IOException e) {
+                    LOGGER.error(loggingMarker, "An exception occurred trying to resolve latest version: ", e);
+                }
+            };
+            if (oldData != null) {
+                try {
+                    latest = configuration.serializer.deserialize(oldData);
+                } catch (Exception ignored) {
+                    // In the case of an exception encountered during serializing, consider updating as the database data never existed
+                    initialQuery.run();
+                }
+            } else {
+                initialQuery.run();
+            }
+            pickedUpFromDB = true;
+        }
+
         LOGGER.debug(loggingMarker, "Checking for new versions...");
         final T old = latest;
         T newVersion = null;
@@ -97,13 +112,14 @@ public abstract class UpdateNotifier<T> implements Runnable {
             LOGGER.info(loggingMarker, "New release found, from {} to {}", old, newVersion);
             update(newVersion);
 
+            final var embed = getEmbed(old, latest);
+
             //noinspection ConstantConditions
             configuration.channelGetter.apply(TheCommander.getInstance().getGeneralConfig().channels().updateNotifiers())
                 .stream()
                 .map(it -> it.resolve(id -> TheCommander.getJDA().getChannelById(MessageChannel.class, id)))
                 .filter(Objects::nonNull)
                 .forEach(channel -> {
-                    final var embed = getEmbed(old, latest);
                     embed.setTimestamp(Instant.now());
                     channel.sendMessageEmbeds(embed.build()).queue(msg -> {
                         if (channel.getType() == ChannelType.NEWS) {
@@ -133,8 +149,7 @@ public abstract class UpdateNotifier<T> implements Runnable {
         private final StringSerializer<T> serializer;
 
         public static <T> Comparator<T> notEqual() {
-            // noinspection ComparatorMethodParameterNotUsed
-            return (v1, v2) -> v1.equals(v2) ? -1 : 0;
+            return (v1, v2) -> v1.equals(v2) ? 0 : -1;
         }
     }
 }

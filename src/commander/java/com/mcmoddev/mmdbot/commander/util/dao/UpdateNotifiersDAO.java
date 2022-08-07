@@ -10,6 +10,6 @@ public interface UpdateNotifiersDAO {
     @SqlQuery("select latestVersion from update_notifiers where notifier = :notifier")
     String getLatest(@Bind("notifier") String notifier);
 
-    @SqlUpdate("insert into update_notifiers values(:notifier, :latestVersion)")
+    @SqlUpdate("insert or replace into update_notifiers values(:notifier, :latestVersion)")
     void setLatest(@Bind("notifier") String notifier, @Bind("latestVersion") String latestVersion);
 }

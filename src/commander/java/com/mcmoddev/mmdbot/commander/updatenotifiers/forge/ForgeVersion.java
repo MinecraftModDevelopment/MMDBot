@@ -20,78 +20,58 @@
  */
 package com.mcmoddev.mmdbot.commander.updatenotifiers.forge;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import java.util.Objects;
 
 /**
- * The type Forge version.
+ * Represents a Forge version
  *
  * @author Antoine Gagnon
+ * @author matyrobbrt
+ * @see MinecraftForgeVersion
  */
 public final class ForgeVersion {
 
     /**
-     * The Recommended.
+     * The Recommended version
      */
     private String recommended;
 
     /**
-     * The Latest.
+     * The Latest version
      */
     private String latest;
 
-    /**
-     * Instantiates a new Forge version.
-     */
     public ForgeVersion() {
         this.recommended = "(unspecified)";
         this.latest = "(unspecified)";
     }
 
     /**
-     * Instantiates a new Forge version.
-     *
-     * @param recommendedIn the recommended in
-     * @param latestIn      the latest in
-     */
-    public ForgeVersion(final String recommendedIn, final String latestIn) {
-        this.recommended = recommendedIn;
-        this.latest = latestIn;
-    }
-
-    /**
-     * Gets recommended.
-     *
-     * @return String. recommended
+     * Gets the recommended version.
      */
     public String getRecommended() {
         return recommended;
     }
 
-    /**
-     * Sets recommended.
-     *
-     * @param recommendedIn the recommended in
-     */
-    public void setRecommended(final String recommendedIn) {
+    @CanIgnoreReturnValue
+    public ForgeVersion setRecommended(final String recommendedIn) {
         this.recommended = recommendedIn;
+        return this;
     }
 
     /**
-     * Gets latest.
-     *
-     * @return String. latest
+     * Gets the latest version.
      */
     public String getLatest() {
         return latest;
     }
 
-    /**
-     * Sets latest.
-     *
-     * @param latestIn the latest in
-     */
-    public void setLatest(final String latestIn) {
+    @CanIgnoreReturnValue
+    public ForgeVersion setLatest(final String latestIn) {
         this.latest = latestIn;
+        return this;
     }
 
     @Override

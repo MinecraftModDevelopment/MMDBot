@@ -41,6 +41,7 @@ import net.dv8tion.jda.api.interactions.components.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -61,12 +62,9 @@ import java.util.function.Supplier;
  */
 public final class AddTrickCommand extends SlashCommand {
 
-    public static final Supplier<String[]> BOT_MAINTAINERS_GETTER = () -> TheCommander.getInstance().getGeneralConfig()
+    public static final Supplier<List<SnowflakeValue>> BOT_MAINTAINERS_GETTER = () -> TheCommander.getInstance().getGeneralConfig()
         .roles()
-        .getBotMaintainers()
-        .stream()
-        .map(SnowflakeValue::asString)
-        .toArray(String[]::new);
+        .getBotMaintainers();
     public static final SubcommandGroupData GROUP = new SubcommandGroupData("add", "Adds a trick.");
 
     private final String trickTypeName;
@@ -79,7 +77,6 @@ public final class AddTrickCommand extends SlashCommand {
         subcommandGroup = GROUP;
         this.help = "Add or edit %s %s-type trick.".formatted(StringUtilities.startWithVowel(name) ? "an" : "a", name);
         this.guildOnly = true;
-        enabledRoles = BOT_MAINTAINERS_GETTER.get();
     }
 
     @Override
@@ -158,7 +155,7 @@ public final class AddTrickCommand extends SlashCommand {
 
         public Prefix() {
             name = "addtrick";
-            aliases = new String[]{"add-trick"};
+            aliases = new String[] {"add-trick"};
             requiredRole = "Bot Maintainer";
             guildOnly = true;
             children = Tricks.getTrickTypes().entrySet().stream().map(e -> new PrefixSubCmd(e.getKey(), e.getValue())).toArray(Command[]::new);

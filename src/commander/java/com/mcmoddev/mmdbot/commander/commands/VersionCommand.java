@@ -47,6 +47,7 @@ import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Instant;
+import java.util.Objects;
 
 import static com.mcmoddev.mmdbot.core.util.Constants.MAVEN_CENTRAL;
 
@@ -77,17 +78,17 @@ public final class VersionCommand {
                     }
 
                     try {
-                        final var latestForgeVersion = latest.getForgeVersion();
+                        final var latestForgeVersion = latest.forgeVersion();
                         final var latestForge = latestForgeVersion.getLatest();
                         var recommendedForge = latestForgeVersion.getRecommended();
                         if (recommendedForge == null) {
                             recommendedForge = "none";
                         }
                         final var cgLink = "[Changelog](https://files.minecraftforge.net/maven/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt)"
-                            .formatted(latest.getMcVersion(), latest.getForgeVersion().getLatest());
+                            .formatted(latest.mcVersion(), latest.forgeVersion().getLatest());
                         final var embed = new EmbedBuilder();
 
-                        embed.setTitle(String.format("Forge Versions for MC %s", latest.getMcVersion()));
+                        embed.setTitle(String.format("Forge Versions for MC %s", latest.mcVersion()));
                         embed.addField("Latest", latestForge, true);
                         embed.addField("Recommended", recommendedForge, true);
                         embed.setDescription(cgLink);
@@ -120,9 +121,9 @@ public final class VersionCommand {
                     embed.setTitle("Quilt Versions for Minecraft " + minecraft);
                     embed.addField("Latest Quilt Mappings", quiltMappingsVersion, true);
                     embed.addField("Latest Quilt Standard Libraries",
-                        QuiltVersionHelper.getLatestQuiltStandardLibraries(), true);
+                        Objects.requireNonNullElse(QuiltVersionHelper.getQSLVersion(), "unknown"), true);
                     embed.addField("Latest Quilt Loader",
-                        QuiltVersionHelper.getLatestLoaderVersion(), true);
+                        Objects.requireNonNullElse(QuiltVersionHelper.getLoaderVersion(), "unknown"), true);
                     embed.setColor(Color.MAGENTA);
                     embed.setTimestamp(Instant.now());
                     event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
@@ -147,8 +148,8 @@ public final class VersionCommand {
 
                     embed.setTitle("Fabric Versions for Minecraft " + minecraft);
                     embed.addField("Latest Yarn", yarnVersion, true);
-                    embed.addField("Latest API", FabricVersionHelper.getLatestApi(), true);
-                    embed.addField("Latest Loader", FabricVersionHelper.getLatestLoader(), true);
+                    embed.addField("Latest API", Objects.requireNonNullElse(FabricVersionHelper.getLatestApi(), "unknown"), true);
+                    embed.addField("Latest Loader", Objects.requireNonNullElse(FabricVersionHelper.getLatestLoader(), "unknown"), true);
                     embed.setColor(Color.WHITE);
                     embed.setTimestamp(Instant.now());
                     event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();
@@ -160,8 +161,8 @@ public final class VersionCommand {
                 .executes(event -> {
                     final var embed = new EmbedBuilder();
                     embed.setTitle("Minecraft Versions");
-                    embed.addField("Latest", MinecraftVersionHelper.getLatest(), true);
-                    embed.addField("Latest Stable", MinecraftVersionHelper.getLatestStable(), true);
+                    embed.addField("Latest", Objects.requireNonNullElse(MinecraftVersionHelper.getLatest(), "unknown"), true);
+                    embed.addField("Latest Stable", Objects.requireNonNullElse(MinecraftVersionHelper.getLatestStable(), "unknown"), true);
                     embed.setColor(Color.GREEN);
                     embed.setTimestamp(Instant.now());
                     event.replyEmbeds(embed.build()).mentionRepliedUser(false).queue();

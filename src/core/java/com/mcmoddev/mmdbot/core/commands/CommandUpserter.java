@@ -122,8 +122,7 @@ public class CommandUpserter implements EventListener {
                         .map(SlashCommand::buildCommandData)
                         .map(guild::upsertCommand)
                         .collect(Collectors.toSet()))
-                    .queue(cmds -> LOG.info("Registered {} commands to guild '{}' ({})", cmds.size(), guild.getName(), guild.getId())
-                        , createErrorHandler(guild));
+                    .queue(cmds -> LOG.info("Registered {} commands to guild '{}' ({})", cmds.size(), guild.getName(), guild.getId()), createErrorHandler(guild));
 
                 if (!client.getContextMenus().isEmpty()) {
                     // Upsert menus

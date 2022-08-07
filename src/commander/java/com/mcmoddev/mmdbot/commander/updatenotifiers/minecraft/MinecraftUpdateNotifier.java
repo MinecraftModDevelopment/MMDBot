@@ -29,76 +29,51 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.awt.Color;
 
+import com.mcmoddev.mmdbot.commander.updatenotifiers.minecraft.MinecraftVersionHelper.VersionsInfo;
+
 /**
  * The Minecraft update notifier.
  *
  * @author unknown
  * @author matyrobbrt
  */
-public final class MinecraftUpdateNotifier extends UpdateNotifier<MinecraftUpdateNotifier.McVersion> {
+public final class MinecraftUpdateNotifier extends UpdateNotifier<MinecraftVersionHelper.VersionsInfo> {
 
     public MinecraftUpdateNotifier() {
-        super(NotifierConfiguration.<McVersion>builder()
+        super(NotifierConfiguration.<MinecraftVersionHelper.VersionsInfo>builder()
             .name("minecraft")
             .channelGetter(Configuration.Channels.UpdateNotifiers::minecraft)
             .versionComparator(NotifierConfiguration.notEqual())
-            .serializer(new StringSerializer<>() {
-                @NotNull
-                @Override
-                public String serialize(final @NotNull McVersion input) {
-                    return serializeStr(input.latest()) + ";" + serializeStr(input.stable());
-                }
-
-                @NotNull
-                @Override
-                public McVersion deserialize(final @NotNull String input) {
-                    final var split = input.split(";");
-                    return new McVersion(deserializeStr(split[0]), deserializeStr(split[1]));
-                }
-
-                private String serializeStr(String str) {
-                    if (str == null) return "";
-                    return str;
-                }
-
-                private String deserializeStr(String str) {
-                    if (str.isEmpty()) return null;
-                    return str;
-                }
-            })
+            .serializer(StringSerializer.json(StringSerializer.RECORD_GSON, VersionsInfo.class))
             .build());
     }
 
     @Override
-    protected McVersion queryLatest() {
-        return new McVersion(
-            MinecraftVersionHelper.getLatest(),
-            MinecraftVersionHelper.getLatestStable()
-        );
+    protected VersionsInfo queryLatest() {
+        final var meta = MinecraftVersionHelper.getMeta();
+        if (meta == null) return null;
+        return meta.latest;
     }
 
     @NotNull
     @Override
-    protected EmbedBuilder getEmbed(@Nullable final McVersion oldVersion, final @NotNull McVersion newVersion) {
+    protected EmbedBuilder getEmbed(@Nullable final VersionsInfo oldVersion, final @NotNull VersionsInfo newVersion) {
         if (oldVersion == null) {
             return new EmbedBuilder()
                 .setDescription("New Minecraft version available!")
                 .setColor(Color.CYAN)
-                .setDescription(newVersion.latest);
+                .setDescription(newVersion.snapshot);
         }
         final var embed = new EmbedBuilder();
-        if (!oldVersion.stable().equals(newVersion.stable())) {
+        if (!oldVersion.release.equals(newVersion.release)) {
             embed.setTitle("New Minecraft release available!");
-            embed.setDescription(newVersion.stable());
+            embed.setDescription(newVersion.release);
             embed.setColor(Color.GREEN);
         } else {
             embed.setTitle("New Minecraft snapshot available!");
-            embed.setDescription(newVersion.latest());
+            embed.setDescription(newVersion.snapshot);
             embed.setColor(Color.ORANGE);
         }
         return embed;
-    }
-
-    public record McVersion(String latest, String stable) {
     }
 }

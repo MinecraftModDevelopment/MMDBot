@@ -49,11 +49,11 @@ public final class QuiltUpdateNotifier extends UpdateNotifier<String> {
     @Nullable
     @Override
     protected String queryLatest() {
-        return QuiltVersionHelper.getLatestQuiltStandardLibraries();
+        return QuiltVersionHelper.getQSLVersion();
     }
 
     @Override
-    protected @NotNull EmbedBuilder getEmbed(@Nullable final String oldVersion, final String newVersion) {
+    protected @NotNull EmbedBuilder getEmbed(@Nullable final String oldVersion, final @NotNull String newVersion) {
         return new EmbedBuilder()
             .setTitle("New QSL release available!")
             .setDescription(newVersion)

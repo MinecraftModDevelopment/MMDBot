@@ -66,7 +66,6 @@ public final class EditTrickCommand extends SlashCommand {
         category = new Category("Info");
         arguments = "(<string> <trick content body> (or) <embed> <title> "
             + "<description> <colour-as-hex-code>";
-        enabledRoles = AddTrickCommand.BOT_MAINTAINERS_GETTER.get();
         guildOnly = true;
         // we need to use this unfortunately :( can't create more than one commandclient
         //guildId = Long.toString(MMDBot.getConfig().getGuildID());

@@ -18,80 +18,31 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.commander.updatenotifiers.forge;
+package com.mcmoddev.mmdbot.core.util;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * The type Sem ver.
+ * Represents a semantic version
  *
  * @author Antoine Gagnon
+ * @author matyrobbrt
  */
-public final class SemVer implements Comparable<SemVer> {
+public record SemVer(int major, int minor, @Nullable Integer patch) implements Comparable<SemVer> {
 
-    /**
-     * The Major.
-     */
-    private final Integer major;
-
-    /**
-     * The Minor.
-     */
-    private final Integer minor;
-
-    /**
-     * The Patch.
-     */
-    private Integer patch;
-
-    /**
-     * Instantiates a new Sem ver.
-     *
-     * @param versionString the version string
-     */
-    public SemVer(final String versionString) {
+    public static SemVer from(final String versionString) {
         final String[] vs = versionString.split("\\.");
-        this.major = Integer.parseInt(vs[0]);
-        this.minor = Integer.parseInt(vs[1]);
+        final var major = Integer.parseInt(vs[0]);
+        final var minor = Integer.parseInt(vs[1]);
 
+        Integer patch = null;
         if (vs.length == 3) {
-            this.patch = Integer.parseInt(vs[2]);
+            patch = Integer.parseInt(vs[2]);
         }
+        return new SemVer(major, minor, patch);
     }
 
-    /**
-     * Gets major.
-     *
-     * @return int. major
-     */
-    public int getMajor() {
-        return major;
-    }
-
-    /**
-     * Gets minor.
-     *
-     * @return int. minor
-     */
-    public int getMinor() {
-        return minor;
-    }
-
-    /**
-     * Gets patch.
-     *
-     * @return int. patch
-     */
-    public int getPatch() {
-        return patch;
-    }
-
-    /**
-     * Compare to int.
-     *
-     * @param other the other
-     * @return the int
-     */
     @Override
     public int compareTo(@NotNull final SemVer other) {
         if (this.major > other.major) {
@@ -116,21 +67,11 @@ public final class SemVer implements Comparable<SemVer> {
             return 1;
         }
 
-        if (this.patch > other.patch) {
-            return 1;
-        }
-        if (this.patch < other.patch) {
-            return -1;
-        }
+        if (patch == null) return 0;
 
-        return 0;
+        return this.patch.compareTo(other.patch);
     }
 
-    /**
-     * To string string.
-     *
-     * @return the string
-     */
     @Override
     public String toString() {
         if (this.patch == null) {
