@@ -28,7 +28,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.awt.Color;
 
 /**
  * The Fabric API update notifier.
@@ -58,6 +57,6 @@ public final class FabricApiUpdateNotifier extends UpdateNotifier<String> {
         return new EmbedBuilder()
             .setTitle("New Fabric API release available!")
             .setDescription(newVersion)
-            .setColor(Color.WHITE);
+            .setColor(0xDBD2B5);
     }
 }

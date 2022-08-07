@@ -27,7 +27,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.awt.Color;
 
 /**
  * The Quilt update notifier.
@@ -57,6 +56,6 @@ public final class QuiltUpdateNotifier extends UpdateNotifier<String> {
         return new EmbedBuilder()
             .setTitle("New QSL release available!")
             .setDescription(newVersion)
-            .setColor(Color.WHITE);
+            .setColor(0xDC29DD);
     }
 }
