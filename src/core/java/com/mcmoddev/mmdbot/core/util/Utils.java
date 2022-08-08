@@ -20,7 +20,11 @@
  */
 package com.mcmoddev.mmdbot.core.util;
 
+import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
+import club.minnced.discord.webhook.send.WebhookMessage;
+import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -104,4 +108,8 @@ public final class Utils {
         return Message.JUMP_URL.formatted(guildId, channelId, messageId);
     }
 
+    public static WebhookMessageBuilder webhookMessage(MessageEmbed embed) {
+        return new WebhookMessageBuilder()
+            .addEmbeds(WebhookEmbedBuilder.fromJDA(embed).build());
+    }
 }

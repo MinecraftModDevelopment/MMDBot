@@ -52,7 +52,7 @@ public interface MessageData {
                 .map(Message.Attachment::getUrl)
                 .toList();
             final String authorName = message.getAuthor().getName();
-            final String authorAvatar = message.getAuthor().getAvatarUrl();
+            final String authorAvatar = message.getAuthor().getEffectiveAvatarUrl();
             final InteractionData interactionData = message.getInteraction() == null ? null :
                 new InteractionData() {
                     final long authorId = message.getInteraction().getUser().getIdLong();

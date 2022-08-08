@@ -20,16 +20,18 @@
  */
 package com.mcmoddev.mmdbot.thelistener.events;
 
+import club.minnced.discord.webhook.send.AllowedMentions;
 import com.mcmoddev.mmdbot.core.event.moderation.ScamLinkEvent;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.jda.caching.MessageData;
+import com.mcmoddev.mmdbot.core.util.webhook.WebhookManager;
 import com.mcmoddev.mmdbot.thelistener.TheListener;
 import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
 import io.github.matyrobbrt.eventdispatcher.SubscribeEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,6 +41,9 @@ import java.time.Instant;
 public final class MessageEvents extends ListenerAdapter {
 
     public static final MessageEvents INSTANCE = new MessageEvents();
+
+    private static final String WEBHOOK_NAME = "MessageLogs";
+    private static final WebhookManager WEBHOOKS = WebhookManager.of(e -> e.trim().equals(WEBHOOK_NAME), WEBHOOK_NAME, AllowedMentions.none());
 
     public static final java.awt.Color GRAY_CHATEAOU = new java.awt.Color(0x979C9F);
     public static final java.awt.Color VIVID_VIOLET = new java.awt.Color(0x71368A);
@@ -75,9 +80,14 @@ public final class MessageEvents extends ListenerAdapter {
         }
         final var embed = embedBuilder.build();
         loggingChannels.forEach(id -> {
-            final var ch = id.resolve(idL -> event.getJDA().getChannelById(MessageChannel.class, idL));
-            if (ch != null)
-                ch.sendMessageEmbeds(embed).queue();
+            final var ch = id.resolve(idL -> event.getJDA().getChannelById(StandardGuildMessageChannel.class, idL));
+            if (ch != null) {
+                WEBHOOKS.getWebhook(ch)
+                    .send(Utils.webhookMessage(embed)
+                        .setUsername(data.getAuthorUsername())
+                        .setAvatarUrl(data.getAuthorAvatar())
+                        .build());
+            }
         });
     }
 
@@ -108,9 +118,13 @@ public final class MessageEvents extends ListenerAdapter {
         final var embed = embedBuilder.build();
         loggingChannels
             .forEach(id -> {
-                final var ch = id.resolve(idL -> event.getJDA().getChannelById(net.dv8tion.jda.api.entities.MessageChannel.class, idL));
+                final var ch = id.resolve(idL -> event.getJDA().getChannelById(StandardGuildMessageChannel.class, idL));
                 if (ch != null) {
-                    ch.sendMessageEmbeds(embed).queue();
+                    WEBHOOKS.getWebhook(ch)
+                            .send(Utils.webhookMessage(embed)
+                                .setUsername(data.getAuthorUsername())
+                                .setAvatarUrl(data.getAuthorAvatar())
+                                .build());
                 }
             });
     }
