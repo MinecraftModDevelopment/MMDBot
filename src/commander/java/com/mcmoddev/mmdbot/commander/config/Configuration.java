@@ -183,6 +183,15 @@ public final class Configuration {
             }
 
             @Required
+            @Setting("parchment")
+            @Comment("A list of Snowflake IDs of channels in which to send Parchment update notifiers.")
+            private List<SnowflakeValue> parchment = new ArrayList<>();
+
+            public List<SnowflakeValue> parchment() {
+                return parchment;
+            }
+
+            @Required
             @Setting("minecraft")
             @Comment("A list of Snowflake IDs of channels in which to send Minecraft update notifiers.")
             private List<SnowflakeValue> minecraft = new ArrayList<>();

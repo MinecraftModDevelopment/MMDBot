@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.commander.updatenotifiers;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.fabric.FabricApiUpdateNotifier;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.forge.ForgeUpdateNotifier;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.minecraft.MinecraftUpdateNotifier;
+import com.mcmoddev.mmdbot.commander.updatenotifiers.parchment.ParchmentUpdateNotifier;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.quilt.QuiltUpdateNotifier;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
@@ -60,6 +61,9 @@ public class UpdateNotifiers {
             event.addTask(new ForgeUpdateNotifier(), 0, checkingPeriod, TimeUnit.MINUTES);
             event.addTask(new QuiltUpdateNotifier(), 0, checkingPeriod, TimeUnit.MINUTES);
             event.addTask(new FabricApiUpdateNotifier(), 0, checkingPeriod, TimeUnit.MINUTES);
+
+            LOGGER.info("Checking for Parchment updates every hour.");
+            event.addTask(new ParchmentUpdateNotifier(), 0, 1, TimeUnit.HOURS);
         });
     }
 }

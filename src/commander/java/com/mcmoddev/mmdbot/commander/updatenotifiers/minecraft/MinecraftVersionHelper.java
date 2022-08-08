@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.List;
 
 /**
  * The type Minecraft version helper.
@@ -69,8 +70,12 @@ public final class MinecraftVersionHelper {
 
     public static class PistonMeta {
         public VersionsInfo latest;
+        public List<VersionInfo> versions;
     }
 
     public record VersionsInfo(String release, String snapshot) {
+    }
+
+    public record VersionInfo(String id, String type) {
     }
 }
