@@ -22,7 +22,10 @@ package com.mcmoddev.mmdbot.thelistener.events;
 
 import static com.mcmoddev.mmdbot.thelistener.TheListener.getInstance;
 import static com.mcmoddev.mmdbot.thelistener.util.Utils.mentionAndID;
+
+import club.minnced.discord.webhook.send.AllowedMentions;
 import com.mcmoddev.mmdbot.core.event.moderation.WarningEvent;
+import com.mcmoddev.mmdbot.core.util.webhook.WebhookManager;
 import com.mcmoddev.mmdbot.thelistener.TheListener;
 import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
 import com.mcmoddev.mmdbot.thelistener.util.Utils;
@@ -33,6 +36,7 @@ import net.dv8tion.jda.api.audit.ActionType;
 import net.dv8tion.jda.api.audit.AuditLogKey;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import net.dv8tion.jda.api.events.guild.GuildUnbanEvent;
@@ -50,9 +54,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-// TODO add timeout events
 public final class ModerationEvents extends ListenerAdapter {
     public static final ModerationEvents INSTANCE = new ModerationEvents();
+
+    private static final String WEBHOOK_NAME = "ModerationLogs";
+    private static final WebhookManager WEBHOOKS = WebhookManager.of(e -> e.trim().equals(WEBHOOK_NAME), WEBHOOK_NAME, AllowedMentions.none());
 
     public static final Color RUBY = new Color(0xE91E63);
     public static final Color LIGHT_SEA_GREEN = new Color(0x1ABC9C);
@@ -75,7 +81,7 @@ public final class ModerationEvents extends ListenerAdapter {
             embed.addField("**Name:**", bannedUser.getName(), false);
             embed.addField("**User ID:**", bannedUser.getId(), false);
             embed.addField("**Profile:**", bannedUser.getAsMention(), false);
-            embed.addField("**Profile Age**", TimeFormat.RELATIVE
+            embed.addField("**Profile Age:**", TimeFormat.RELATIVE
                 .format(bannedUser.getTimeCreated()), false);
 
             if (log.getReason() != null) {
@@ -117,7 +123,7 @@ public final class ModerationEvents extends ListenerAdapter {
             embed.addField("**Name:**", bannedUser.getName(), false);
             embed.addField("**User ID:**", bannedUser.getId(), false);
             embed.addField("**Profile:**", bannedUser.getAsMention(), false);
-            embed.addField("**Profile Age**", TimeFormat.RELATIVE
+            embed.addField("**Profile Age:**", TimeFormat.RELATIVE
                 .format(bannedUser.getTimeCreated()), false);
 
             final var targetId = log.getTargetIdLong();
@@ -149,15 +155,21 @@ public final class ModerationEvents extends ListenerAdapter {
 
                 embed.setColor(Color.YELLOW);
                 embed.setTitle("Nickname Changed");
-                embed.setThumbnail(event.getUser().getAvatarUrl());
                 embed.addField("User:", event.getUser().getAsMention() + " (" + event.getUser().getId() + ")", true);
                 embed.setTimestamp(Instant.now());
-                embed.addField("Nickname Editor: ", editor.map(u -> "%s (%s)".formatted(u.getAsMention(), u.getId())).orElse("Unknown"), false);
+                if (editor.isPresent()) {
+                    final User editorU = editor.get();
+                    if (editorU.getIdLong() != event.getUser().getIdLong()) {
+                        embed.addField("Nickname Editor: ", "%s (%s)".formatted(editorU.getAsMention(), editorU.getId()), false);
+                    }
+                } else {
+                    embed.addField("Nickname Editor: ", "Unknown", false);
+                }
 
                 embed.addField("Old Nickname:", event.getOldNickname() == null ? "*None*" : event.getOldNickname(), true);
                 embed.addField("New Nickname:", event.getNewNickname() == null ? "*None*" : event.getNewNickname(), true);
 
-                log(event.getGuild().getIdLong(), event.getJDA(), embed.build());
+                logWithWebhook(event.getGuild().getIdLong(), event.getJDA(), embed.build(), event.getUser());
             }
         }, () -> onNickNoAudit(event));
     }
@@ -175,7 +187,7 @@ public final class ModerationEvents extends ListenerAdapter {
         embed.addField("Old Nickname:", event.getOldNickname() == null ? "*None*" : event.getOldNickname(), true);
         embed.addField("New Nickname:", event.getNewNickname() == null ? "*None*" : event.getNewNickname(), true);
 
-        log(event.getGuild().getIdLong(), event.getJDA(), embed.build());
+        logWithWebhook(event.getGuild().getIdLong(), event.getJDA(), embed.build(), event.getUser());
     }
 
     @Override
@@ -199,7 +211,7 @@ public final class ModerationEvents extends ListenerAdapter {
             embed.addField("**Name:**", kickedUser.getName(), false);
             embed.addField("**User ID:**", kickedUser.getId(), false);
             embed.addField("**Profile:**", kickedUser.getAsMention(), false);
-            embed.addField("**Profile Age**", TimeFormat.RELATIVE
+            embed.addField("**Profile Age:**", TimeFormat.RELATIVE
                 .format(kickedUser.getTimeCreated()), false);
 
             embed.addField("Guild Join Time:", Optional.ofNullable(event.getMember()).map(Member::getTimeJoined)
@@ -359,6 +371,20 @@ public final class ModerationEvents extends ListenerAdapter {
                 final var ch = id.resolve(idL -> jda.getChannelById(net.dv8tion.jda.api.entities.MessageChannel.class, idL));
                 if (ch != null) {
                     ch.sendMessageEmbeds(embed).queue();
+                }
+            });
+    }
+    private void logWithWebhook(long guildId, JDA jda, MessageEmbed embed, User author) {
+        final var loggingChannels = LoggingType.MODERATION_EVENTS.getChannels(guildId);
+        loggingChannels
+            .forEach(id -> {
+                final var ch = id.resolve(idL -> jda.getChannelById(StandardGuildMessageChannel.class, idL));
+                if (ch != null) {
+                    WEBHOOKS.getWebhook(ch)
+                        .send(com.mcmoddev.mmdbot.core.util.Utils.webhookMessage(embed)
+                            .setUsername(author.getName())
+                            .setAvatarUrl(author.getEffectiveAvatarUrl())
+                            .build());
                 }
             });
     }
