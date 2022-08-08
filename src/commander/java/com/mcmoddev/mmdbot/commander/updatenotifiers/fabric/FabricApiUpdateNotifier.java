@@ -43,7 +43,7 @@ public final class FabricApiUpdateNotifier extends UpdateNotifier<String> {
             .channelGetter(Configuration.Channels.UpdateNotifiers::fabric)
             .serializer(StringSerializer.SELF)
             .versionComparator(NotifierConfiguration.notEqual())
-            .webhookInfo(new WebhookInfo("Fabric Updates", "https://media.discordapp.net/attachments/957353544493719632/1005874910582820915/unknown.png"))
+            .webhookInfo(new WebhookInfo("Fabric Updates", "https://media.discordapp.net/attachments/957353544493719632/1006125360129265734/unknown.png"))
             .build());
     }
 
