@@ -32,6 +32,9 @@ public interface MessageData {
     String getContent();
 
     long getAuthorId();
+    String getAuthorUsername();
+    String getAuthorAvatar();
+
     long getChannelId();
     List<String> getAttachments();
     @Nullable
@@ -48,6 +51,8 @@ public interface MessageData {
                 .stream()
                 .map(Message.Attachment::getUrl)
                 .toList();
+            final String authorName = message.getAuthor().getName();
+            final String authorAvatar = message.getAuthor().getAvatarUrl();
             final InteractionData interactionData = message.getInteraction() == null ? null :
                 new InteractionData() {
                     final long authorId = message.getInteraction().getUser().getIdLong();
@@ -90,6 +95,16 @@ public interface MessageData {
             @Override
             public @Nullable InteractionData getInteraction() {
                 return interactionData;
+            }
+
+            @Override
+            public String getAuthorAvatar() {
+                return authorAvatar;
+            }
+
+            @Override
+            public String getAuthorUsername() {
+                return authorName;
             }
         };
     }
