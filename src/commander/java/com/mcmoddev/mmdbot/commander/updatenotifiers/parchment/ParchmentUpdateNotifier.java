@@ -61,6 +61,6 @@ public final class ParchmentUpdateNotifier extends UpdateNotifier<ParchmentVersi
             .setColor(Color.RED)
             .setTitle("A new %s Parchment version is available!".formatted(newVersion.mcVersion()))
             .addField("Version", newVersion.parchmentVersion(), false)
-            .addField("Coordinate", "org.parchmentmc.data:parchment-%s:%s".formatted(newVersion.mcVersion(), newVersion.parchmentVersion()), false);
+            .addField("Coordinate", "`org.parchmentmc.data:parchment-%s:%s`".formatted(newVersion.mcVersion(), newVersion.parchmentVersion()), false);
     }
 }
