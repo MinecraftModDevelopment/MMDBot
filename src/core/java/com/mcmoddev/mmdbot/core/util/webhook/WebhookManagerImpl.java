@@ -37,7 +37,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
@@ -50,7 +52,7 @@ public class WebhookManagerImpl implements WebhookManager {
 
     static {
         Runtime.getRuntime().addShutdownHook(new Thread(() ->
-            MANAGERS.forEach(WebhookManagerImpl::close), "WebhookClosure"));
+            MANAGERS.forEach(WebhookManagerImpl::close), "WebhookClosing"));
     }
 
     private static ScheduledExecutorService getExecutor() {
@@ -67,7 +69,7 @@ public class WebhookManagerImpl implements WebhookManager {
     @Nullable
     private final Consumer<Webhook> creationListener;
 
-    public WebhookManagerImpl(final Predicate<String> predicate, final String webhookName, final AllowedMentions allowedMentions, final Consumer<Webhook> creationListener) {
+    public WebhookManagerImpl(final Predicate<String> predicate, final String webhookName, final AllowedMentions allowedMentions, @javax.annotation.Nullable final Consumer<Webhook> creationListener) {
         this.predicate = predicate;
         this.webhookName = webhookName;
         this.allowedMentions = allowedMentions;
@@ -97,18 +99,26 @@ public class WebhookManagerImpl implements WebhookManager {
     }
 
     private Webhook getOrCreateWebhook(IWebhookContainer channel) {
-        final var alreadyExisted = Objects.requireNonNull(channel).retrieveWebhooks()
-            .complete()
+        final var alreadyExisted = unwrap(Objects.requireNonNull(channel).retrieveWebhooks()
+            .submit(false))
             .stream()
             .filter(w -> predicate.test(w.getName()))
             .findAny();
         return alreadyExisted.orElseGet(() -> {
-            final var webhook = channel.createWebhook(webhookName).complete();
+            final var webhook = unwrap(channel.createWebhook(webhookName).submit(false));
             if (creationListener != null) {
                 creationListener.accept(webhook);
             }
             return webhook;
         });
+    }
+
+    private static <T> T unwrap(CompletableFuture<T> completableFuture) {
+        try {
+            return completableFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void close() {
