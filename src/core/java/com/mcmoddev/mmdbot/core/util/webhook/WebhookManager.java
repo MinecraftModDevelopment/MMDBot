@@ -37,12 +37,16 @@ import java.util.function.Predicate;
  */
 public interface WebhookManager {
 
+    static WebhookManager of(String name) {
+        return of(e -> e.trim().equals(name), name, AllowedMentions.none());
+    }
+
     static WebhookManager of(Predicate<String> matcher, String webhookName, AllowedMentions allowedMentions, @Nullable Consumer<Webhook> creationListener) {
         return new WebhookManagerImpl(matcher, webhookName, allowedMentions, creationListener);
     }
 
     static WebhookManager of(Predicate<String> matcher, String webhookName, AllowedMentions allowedMentions) {
-        return new WebhookManagerImpl(matcher, webhookName, allowedMentions, null);
+        return of(matcher, webhookName, allowedMentions, null);
     }
 
     /**

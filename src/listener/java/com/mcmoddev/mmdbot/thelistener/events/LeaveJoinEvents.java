@@ -20,11 +20,14 @@
  */
 package com.mcmoddev.mmdbot.thelistener.events;
 
+import com.mcmoddev.mmdbot.core.util.Utils;
+import com.mcmoddev.mmdbot.core.util.webhook.WebhookManager;
 import com.mcmoddev.mmdbot.thelistener.TheListener;
 import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -35,6 +38,7 @@ import java.awt.Color;
 import java.time.Instant;
 
 public final class LeaveJoinEvents extends ListenerAdapter {
+    private static final WebhookManager WEBHOOKS = WebhookManager.of("LeaveJoinLogging");
 
     @Override
     public void onGuildMemberJoin(@NotNull final GuildMemberJoinEvent event) {
@@ -52,7 +56,13 @@ public final class LeaveJoinEvents extends ListenerAdapter {
             .getChannelsForLogging(LoggingType.LEAVE_JOIN_EVENTS)
             .forEach(snowflakeValue -> {
                 final var ch = snowflakeValue.resolve(id -> event.getJDA().getChannelById(MessageChannel.class, id));
-                if (ch != null) {
+                if (ch instanceof TextChannel textChannel) {
+                    WEBHOOKS.getWebhook(textChannel)
+                            .send(Utils.webhookMessage(embed)
+                                .setUsername(event.getMember().getEffectiveName())
+                                .setAvatarUrl(event.getMember().getEffectiveAvatarUrl())
+                                .build());
+                } else if (ch != null) {
                     ch.sendMessageEmbeds(embed).queue();
                 }
             });
@@ -76,7 +86,13 @@ public final class LeaveJoinEvents extends ListenerAdapter {
             .getChannelsForLogging(LoggingType.LEAVE_JOIN_EVENTS)
             .forEach(snowflakeValue -> {
                 final var ch = snowflakeValue.resolve(id -> event.getJDA().getChannelById(MessageChannel.class, id));
-                if (ch != null) {
+                if (ch instanceof TextChannel textChannel) {
+                    WEBHOOKS.getWebhook(textChannel)
+                        .send(Utils.webhookMessage(embed)
+                            .setUsername(event.getMember().getEffectiveName())
+                            .setAvatarUrl(event.getMember().getEffectiveAvatarUrl())
+                            .build());
+                } else if (ch != null) {
                     ch.sendMessageEmbeds(embed).queue();
                 }
             });

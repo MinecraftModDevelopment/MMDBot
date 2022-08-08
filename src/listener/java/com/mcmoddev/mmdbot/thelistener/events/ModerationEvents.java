@@ -49,10 +49,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
 import java.time.Instant;
-import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 public final class ModerationEvents extends ListenerAdapter {
     public static final ModerationEvents INSTANCE = new ModerationEvents();
@@ -104,7 +102,7 @@ public final class ModerationEvents extends ListenerAdapter {
 
             embed.setTimestamp(Instant.now());
 
-            log(event.getGuild().getIdLong(), event.getJDA(), embed.build());
+            log(event.getGuild().getIdLong(), event.getJDA(), embed.build(), bannedBy);
         });
     }
 
@@ -138,7 +136,7 @@ public final class ModerationEvents extends ListenerAdapter {
 
             bannedBy.ifPresent(u -> embed.setFooter("Moderator ID: " + u.getId(), u.getAvatarUrl()));
             embed.setTimestamp(Instant.now());
-            log(event.getGuild().getIdLong(), event.getJDA(), embed.build());
+            log(event.getGuild().getIdLong(), event.getJDA(), embed.build(), bannedBy);
         });
     }
 
@@ -233,7 +231,7 @@ public final class ModerationEvents extends ListenerAdapter {
 
             kicker.ifPresent(u -> embed.setFooter("Moderator ID: " + u.getId(), u.getAvatarUrl()));
 
-            log(event.getGuild().getIdLong(), event.getJDA(), embed.build());
+            log(event.getGuild().getIdLong(), event.getJDA(), embed.build(), kicker);
         });
     }
 
@@ -270,7 +268,7 @@ public final class ModerationEvents extends ListenerAdapter {
 
                 moderator.ifPresent(u -> embed.setFooter("Moderator ID: " + u.getId(), u.getAvatarUrl()));
 
-                log(event.getGuild().getIdLong(), event.getJDA(), embed.build());
+                log(event.getGuild().getIdLong(), event.getJDA(), embed.build(), moderator);
             });
         } else if (event.getOldTimeOutEnd() != null && event.getNewTimeOutEnd() == null) {
             // Somebody's timeout was removed
@@ -299,7 +297,7 @@ public final class ModerationEvents extends ListenerAdapter {
 
                 moderator.ifPresent(u -> embed.setFooter("Moderator ID: " + u.getId(), u.getAvatarUrl()));
 
-                log(event.getGuild().getIdLong(), event.getJDA(), embed.build());
+                log(event.getGuild().getIdLong(), event.getJDA(), embed.build(), moderator);
             });
         }
     }
@@ -319,7 +317,7 @@ public final class ModerationEvents extends ListenerAdapter {
                 .addField("Warning ID:", doc.warnId(), false)
                 .setTimestamp(Instant.now())
                 .setFooter("Moderator ID: " + event.getModeratorId(), moderator.getAvatarUrl());
-            log(event.getGuildId(), jda, embed.build());
+            logWithWebhook(event.getGuildId(), jda, embed.build(), moderator);
             return null;
         }).queue();
     }
@@ -362,6 +360,11 @@ public final class ModerationEvents extends ListenerAdapter {
                    .build();
                log(event.getGuildId(), user.getJDA(), embed);
             });
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private void log(long guildId, JDA jda, MessageEmbed embed, Optional<User> owner) {
+        owner.ifPresentOrElse(user -> logWithWebhook(guildId, jda, embed, user), () -> log(guildId, jda, embed));
     }
 
     private void log(long guildId, JDA jda, MessageEmbed embed) {

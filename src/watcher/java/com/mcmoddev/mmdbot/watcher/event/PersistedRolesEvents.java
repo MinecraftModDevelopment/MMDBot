@@ -45,7 +45,7 @@ public class PersistedRolesEvents extends ListenerAdapter {
                 .toList();
             if (!roles.isEmpty()) {
                 event.getGuild()
-                    .modifyMemberRoles(event.getMember(), roles)
+                    .modifyMemberRoles(event.getMember(), roles, null)
                     .reason("Persisted roles")
                     .queue();
             }

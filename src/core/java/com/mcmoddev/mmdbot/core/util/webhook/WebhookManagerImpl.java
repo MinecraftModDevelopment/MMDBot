@@ -42,6 +42,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -57,7 +58,9 @@ public class WebhookManagerImpl implements WebhookManager {
 
     private static ScheduledExecutorService getExecutor() {
         if (executor == null) {
-            executor = Executors.newScheduledThreadPool(Math.max(MANAGERS.size() / 2, 1), r -> Utils.setThreadDaemon(new Thread(r, "Webhooks"), true));
+            executor = Executors.newScheduledThreadPool(Math.max(MANAGERS.size() / 3, 1), r -> Utils.setThreadDaemon(new Thread(r, "Webhooks"), true));
+            // Clear webhooks after 6 hours to refresh them
+            getExecutor().scheduleAtFixedRate(() -> MANAGERS.forEach(it -> it.webhooks.clear()), 1, 6, TimeUnit.HOURS);
         }
         return executor;
     }
