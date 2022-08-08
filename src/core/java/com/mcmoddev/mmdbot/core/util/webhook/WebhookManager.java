@@ -23,7 +23,7 @@ package com.mcmoddev.mmdbot.core.util.webhook;
 import club.minnced.discord.webhook.external.JDAWebhookClient;
 import club.minnced.discord.webhook.send.AllowedMentions;
 import club.minnced.discord.webhook.send.WebhookMessage;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
+import net.dv8tion.jda.api.entities.IWebhookContainer;
 import net.dv8tion.jda.api.entities.Webhook;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,7 +51,7 @@ public interface WebhookManager {
      * @param channel the channel to get or create the webhook in
      * @return the webhook
      */
-    JDAWebhookClient getWebhook(BaseGuildMessageChannel channel);
+    JDAWebhookClient getWebhook(IWebhookContainer channel);
 
     /**
      * Sends and crossposts / publishes a message in a channel using a webhook.
@@ -59,5 +59,5 @@ public interface WebhookManager {
      * @param channel the channel to send the message in
      * @param message the message to send
      */
-    void sendAndCrosspost(BaseGuildMessageChannel channel, WebhookMessage message);
+    void sendAndCrosspost(IWebhookContainer channel, WebhookMessage message);
 }

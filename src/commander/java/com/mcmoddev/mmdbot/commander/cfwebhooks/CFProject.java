@@ -25,7 +25,7 @@ import club.minnced.discord.webhook.send.WebhookMessage;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import io.github.matyrobbrt.curseforgeapi.request.AsyncRequest;
 import io.github.matyrobbrt.curseforgeapi.request.Response;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
+import net.dv8tion.jda.api.entities.IWebhookContainer;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -55,7 +55,7 @@ public record CFProject(int projectId, Set<Long> channels, AtomicInteger lastFou
                 )
                 .queue(embed -> {
                     channels.forEach(channelId -> {
-                        final var ch = TheCommander.getJDA().getChannelById(BaseGuildMessageChannel.class, channelId);
+                        final var ch = TheCommander.getJDA().getChannelById(IWebhookContainer.class, channelId);
                         if (ch == null) {
                             channels.remove(channelId);
                             return;

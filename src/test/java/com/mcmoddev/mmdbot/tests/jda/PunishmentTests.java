@@ -61,7 +61,7 @@ public class PunishmentTests {
         final var message = mock(ReceivedMessage.class);
 
         when(message.getContentRaw()).thenReturn("https://dscord.com/scam");
-        when(message.getChannel()).thenReturn(JDATesting.textChannel);
+        when(message.getChannel()).thenReturn(new CastingChannelUnion(JDATesting.textChannel));
         when(message.getMember()).thenReturn(member);
 
         Assertions.assertTrue(
@@ -201,7 +201,7 @@ public class PunishmentTests {
         };
 
         when(message.getMentions()).thenReturn(mentions);
-        when(message.getChannel()).thenReturn(JDATesting.textChannel);
+        when(message.getChannel()).thenReturn(new CastingChannelUnion(JDATesting.textChannel));
         when(message.getMember()).thenReturn(member);
 
         Assertions.assertTrue(

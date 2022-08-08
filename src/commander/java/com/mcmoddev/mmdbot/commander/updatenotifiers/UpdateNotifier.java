@@ -32,8 +32,9 @@ import com.mcmoddev.mmdbot.core.util.webhook.WebhookManager;
 import lombok.Builder;
 import lombok.Data;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.IWebhookContainer;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
@@ -144,12 +145,12 @@ public abstract class UpdateNotifier<T> implements Runnable {
             //noinspection ConstantConditions
             configuration.channelGetter.apply(TheCommander.getInstance().getGeneralConfig().channels().updateNotifiers())
                 .stream()
-                .map(it -> it.resolve(id -> TheCommander.getJDA().getChannelById(BaseGuildMessageChannel.class, id)))
+                .map(it -> it.resolve(id -> TheCommander.getJDA().getChannelById(IWebhookContainer.class, id)))
                 .filter(Objects::nonNull)
                 .forEach(channel -> {
                     embed.setTimestamp(Instant.now());
                     if (configuration.webhookInfo == null) {
-                        channel.sendMessageEmbeds(embed.build()).queue(msg -> {
+                        ((MessageChannel) channel).sendMessageEmbeds(embed.build()).queue(msg -> {
                             if (channel.getType() == ChannelType.NEWS) {
                                 msg.crosspost().queue();
                             }

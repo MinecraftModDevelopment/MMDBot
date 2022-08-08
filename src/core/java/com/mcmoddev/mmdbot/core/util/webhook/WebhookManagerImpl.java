@@ -27,9 +27,10 @@ import club.minnced.discord.webhook.send.WebhookMessage;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.IWebhookContainer;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.NewsChannel;
 import net.dv8tion.jda.api.entities.Webhook;
 import okhttp3.OkHttpClient;
 import org.jetbrains.annotations.Nullable;
@@ -75,7 +76,7 @@ public class WebhookManagerImpl implements WebhookManager {
     }
 
     @Override
-    public JDAWebhookClient getWebhook(final BaseGuildMessageChannel channel) {
+    public JDAWebhookClient getWebhook(final IWebhookContainer channel) {
         return webhooks.computeIfAbsent(channel.getIdLong(), k ->
             WebhookClientBuilder.fromJDA(getOrCreateWebhook(channel))
                 .setExecutorService(getExecutor())
@@ -85,17 +86,17 @@ public class WebhookManagerImpl implements WebhookManager {
     }
 
     @Override
-    public void sendAndCrosspost(final BaseGuildMessageChannel channel, final WebhookMessage message) {
+    public void sendAndCrosspost(final IWebhookContainer channel, final WebhookMessage message) {
         getWebhook(channel)
             .send(message)
             .thenAccept(msg -> {
                 if (channel.getType() == ChannelType.NEWS) {
-                    channel.retrieveMessageById(msg.getId()).flatMap(Message::crosspost).queue();
+                    ((NewsChannel) channel).retrieveMessageById(msg.getId()).flatMap(Message::crosspost).queue();
                 }
             });
     }
 
-    private Webhook getOrCreateWebhook(BaseGuildMessageChannel channel) {
+    private Webhook getOrCreateWebhook(IWebhookContainer channel) {
         final var alreadyExisted = Objects.requireNonNull(channel).retrieveWebhooks()
             .complete()
             .stream()

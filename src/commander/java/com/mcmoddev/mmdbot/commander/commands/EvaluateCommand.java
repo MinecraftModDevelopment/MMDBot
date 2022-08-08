@@ -190,7 +190,7 @@ public class EvaluateCommand extends SlashCommand {
 
             @Override
             public TextChannel getTextChannel() {
-                return hook.getInteraction().getMessageChannel().getType() == ChannelType.TEXT ? hook.getInteraction().getTextChannel() : null;
+                return hook.getInteraction().getMessageChannel().getType() == ChannelType.TEXT ? (TextChannel) hook.getInteraction().getMessageChannel() : null;
             }
 
             @Override

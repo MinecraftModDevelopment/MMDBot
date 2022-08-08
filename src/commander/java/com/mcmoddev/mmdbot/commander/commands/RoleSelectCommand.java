@@ -97,7 +97,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
             command("reaction", "Creates a reaction role panel.", event -> {
                     try {
                         Objects.requireNonNull(event.getGuild());
-                        var channel = event.getChannel();
+                        var channel = event.getMessageChannel();
                         var msgIdStr = event.getOption("message", "", OptionMapping::getAsString);
                         if (msgIdStr.contains("-")) {
                             // Accept the `channelID-messageID` format Discord gives when using the Copy ID button

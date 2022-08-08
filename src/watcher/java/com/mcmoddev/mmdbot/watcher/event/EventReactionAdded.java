@@ -78,7 +78,7 @@ public final class EventReactionAdded extends ListenerAdapter {
     @Override
     public void onMessageReactionAdd(final MessageReactionAddEvent event) {
         if (!event.isFromGuild() || !event.isFromType(ChannelType.TEXT)) return;
-        final var channel = event.getTextChannel();
+        final var channel = event.getChannel().asTextChannel();
         final MessageHistory history = MessageHistory.getHistoryAround(channel,
             event.getMessageId()).limit(1).complete();
         final var message = history.getMessageById(event.getMessageId());
@@ -147,7 +147,7 @@ public final class EventReactionAdded extends ListenerAdapter {
                                 .appendDescription(", reaching removal threshold of " + removalThreshold)
                                 .appendDescription(" and is now awaiting moderator approval before deletion.");
                             builder.addField("Jump to Message",
-                                MarkdownUtil.maskedLink("Message in " + message.getTextChannel().getAsMention(),
+                                MarkdownUtil.maskedLink("Message in " + message.getChannel().asTextChannel().getAsMention(),
                                     message.getJumpUrl()), true);
                             builder.setTimestamp(Instant.now());
                             builder.setColor(Color.YELLOW);

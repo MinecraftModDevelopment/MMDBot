@@ -77,7 +77,6 @@ public final class ScriptingUtils {
         .allowExperimentalOptions(true)
         .option("js.console", "false")
         .option("js.nashorn-compat", "true")
-        .option("js.experimental-foreign-object-prototype", "true")
         .option("js.disable-eval", "true")
         .option("js.load", "false")
         .option("log.level", "OFF")

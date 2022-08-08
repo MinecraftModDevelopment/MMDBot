@@ -209,7 +209,7 @@ public class RemindCommand {
             embed.setTitle("Your reminders:");
             final var reminders = Reminders.getRemindersForUser(Long.parseLong(arguments.get(0)));
 
-            for (var i = index; i < index + getItemsPerPage() - 1; i++) {
+            for (var i = index; i < maximum; i++) {
                 final var reminder = reminders.get(i);
                 embed.appendDescription(System.lineSeparator());
                 embed.appendDescription("**%s**: *%s* - <#%s> at %s (%s)".formatted(i, reminder.content().isBlank() ? "No Content." : reminder.content(), reminder.channelId(),

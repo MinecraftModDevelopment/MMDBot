@@ -149,7 +149,9 @@ public final class TheWatcher implements Bot {
         GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
         GatewayIntent.GUILD_MESSAGE_REACTIONS,
         GatewayIntent.GUILD_MESSAGES,
-        GatewayIntent.GUILD_MEMBERS);
+        GatewayIntent.GUILD_MEMBERS,
+        GatewayIntent.MESSAGE_CONTENT
+    );
 
     private static final Set<Message.MentionType> DEFAULT_MENTIONS = EnumSet.of(
         Message.MentionType.EMOJI,

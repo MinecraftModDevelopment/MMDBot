@@ -56,7 +56,7 @@ public record ChannelMessageChecker(JDA jda) implements Runnable {
                             .ifPresent(message -> {
                                 final long daysSinceLastMessage = ChronoUnit.DAYS.between(message.getTimeCreated()
                                     .toInstant(), currentTime);
-                                OldChannelsHelper.put(message.getTextChannel(), daysSinceLastMessage);
+                                OldChannelsHelper.put(message.getChannel().asTextChannel(), daysSinceLastMessage);
                             })
                         )).toArray(CompletableFuture[]::new))
                 .thenAccept(v -> OldChannelsHelper.setReady(true));

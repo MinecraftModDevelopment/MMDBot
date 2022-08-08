@@ -109,6 +109,7 @@ public final class ForgeUpdateNotifier extends UpdateNotifier<MinecraftForgeVers
             final var changelog = getChangelogBetweenVersions(
                 mcStart, forgeStart, mcEnd, forgeEnd
             );
+            if (changelog.isBlank()) return;
             embedBuilder.setDescription("""
                 [Changelog](%s):
                 ```
