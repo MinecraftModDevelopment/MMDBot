@@ -68,7 +68,6 @@ public final class MessageEvents extends ListenerAdapter {
                         **A message sent by <@%s> in <#%s> has been deleted!**
                         %s"""
                 .formatted(data.getAuthorId(), data.getChannelId(), Utils.truncate(data.getContent(), MessageEmbed.DESCRIPTION_MAX_LENGTH - 30)));
-        embedBuilder.setAuthor(data.getAuthorUsername(), null, data.getAuthorAvatar());
         embedBuilder.setTimestamp(Instant.now())
             .setFooter("Author: %s | Message ID: %s".formatted(data.getAuthorId(), data.getChannelId()), null);
         final var interaction = data.getInteraction();
@@ -106,8 +105,7 @@ public final class MessageEvents extends ListenerAdapter {
         embedBuilder.setTimestamp(Instant.now());
         embedBuilder.addField("Before", data.getContent().isBlank() ? "*Blank*" : Utils.truncate(data.getContent(), MessageEmbed.VALUE_MAX_LENGTH), false)
             .addField("After", newMessage.getContentRaw().isBlank() ? "*Blank*" : Utils.truncate(newMessage.getContentRaw(), MessageEmbed.VALUE_MAX_LENGTH), false);
-        embedBuilder.setAuthor(data.getAuthorUsername(), null, data.getAuthorAvatar())
-            .setFooter("Author ID: " + data.getAuthorId(), null);
+        embedBuilder.setFooter("Author ID: " + data.getAuthorId(), null);
         final var interaction = data.getInteraction();
         if (interaction != null) {
             embedBuilder.addField("Interaction Author: ", "<@%s> (%s)".formatted(interaction.getAuthorId(), interaction.getAuthorId()), true);
