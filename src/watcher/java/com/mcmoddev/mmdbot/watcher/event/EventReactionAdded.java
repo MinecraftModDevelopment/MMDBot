@@ -20,6 +20,9 @@
  */
 package com.mcmoddev.mmdbot.watcher.event;
 
+import club.minnced.discord.webhook.send.AllowedMentions;
+import com.mcmoddev.mmdbot.core.util.Utils;
+import com.mcmoddev.mmdbot.core.util.webhook.WebhookManager;
 import com.mcmoddev.mmdbot.watcher.TheWatcher;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -42,7 +45,6 @@ import java.awt.Color;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -55,6 +57,9 @@ import java.util.stream.Collectors;
  */
 public final class EventReactionAdded extends ListenerAdapter {
 
+    private static final String WEBHOOK_NAME = "RequestLogs";
+    public static final WebhookManager WEBHOOKS = WebhookManager.of(e -> e.trim().equals(WEBHOOK_NAME), WEBHOOK_NAME, AllowedMentions.none());
+
     /**
      * The Warned messages.
      */
@@ -62,7 +67,7 @@ public final class EventReactionAdded extends ListenerAdapter {
 
     /**
      * The set of messages that have passed the reaction threshold required for request deletion, but are awaiting a
-     * staff member (a user with {@link Permission#KICK_MEMBERS}) to sign-off on the deletion by giving their own
+     * staff member (a user with {@link Permission#MODERATE_MEMBERS}) to sign-off on the deletion by giving their own
      * reaction.
      *
      * <p>If a message has been added previously to this set, and the message falls back below the request deletion
@@ -93,8 +98,6 @@ public final class EventReactionAdded extends ListenerAdapter {
 
         final var guild = event.getGuild();
         final var guildId = guild.getIdLong();
-        final var discussionChannel = guild.getTextChannelById(TheWatcher.getOldConfig()
-            .getChannel("requests.discussion"));
         if (TheWatcher.getOldConfig().getGuildID() == guildId && TheWatcher.getOldConfig().getChannel("requests.main")
             == channel.getIdLong()) {
 
@@ -117,7 +120,7 @@ public final class EventReactionAdded extends ListenerAdapter {
                 .flatMap(PaginationAction::stream)
                 .map(guild::getMember)
                 .filter(Objects::nonNull)
-                .filter(member -> member.hasPermission(Permission.KICK_MEMBERS))
+                .filter(member -> member.hasPermission(Permission.MODERATE_MEMBERS))
                 .toList();
             final var hasStaffSignoff = signedOffStaff.size() > 0;
 
@@ -139,7 +142,6 @@ public final class EventReactionAdded extends ListenerAdapter {
                             .getChannel("events.requests_deletion"));
                         if (logChannel != null) {
                             final EmbedBuilder builder = new EmbedBuilder();
-                            builder.setAuthor(messageAuthor.getAsTag(), messageAuthor.getEffectiveAvatarUrl());
                             builder.setTitle("Request awaiting moderator approval");
                             builder.appendDescription("Request from ")
                                 .appendDescription(messageAuthor.getAsMention())
@@ -153,9 +155,11 @@ public final class EventReactionAdded extends ListenerAdapter {
                             builder.setColor(Color.YELLOW);
                             builder.setFooter("User ID: " + messageAuthor.getId());
 
-                            logChannel.sendMessageEmbeds(builder.build())
-                                .allowedMentions(Collections.emptySet())
-                                .queue();
+                            WEBHOOKS.getWebhook(logChannel)
+                                    .send(Utils.webhookMessage(builder.build())
+                                        .setUsername(messageAuthor.getAsTag())
+                                        .setAvatarUrl(messageAuthor.getEffectiveAvatarUrl())
+                                        .build());
                         }
                     }
                     return;
@@ -175,7 +179,6 @@ public final class EventReactionAdded extends ListenerAdapter {
                     .getChannel("events.requests_deletion"));
                 if (logChannel != null) {
                     final EmbedBuilder builder = new EmbedBuilder();
-                    builder.setAuthor(messageAuthor.getAsTag(), messageAuthor.getEffectiveAvatarUrl());
                     builder.setTitle("Deleted request by community review");
                     builder.appendDescription("Deleted request from ")
                         .appendDescription(messageAuthor.getAsMention())
@@ -192,25 +195,22 @@ public final class EventReactionAdded extends ListenerAdapter {
                     builder.setColor(Color.RED);
                     builder.setFooter("User ID: " + messageAuthor.getId());
 
-                    logChannel.sendMessage(message.getContentRaw())
-                        .setEmbeds(builder.build())
-                        .allowedMentions(Collections.emptySet())
-                        .queue();
+                    WEBHOOKS.getWebhook(logChannel)
+                            .send(Utils.webhookMessage(builder.build())
+                                .setContent(message.getContentRaw())
+                                .setAvatarUrl(messageAuthor.getEffectiveAvatarUrl())
+                                .setUsername(messageAuthor.getAsTag())
+                                .build());
                 }
 
                 channel.deleteMessageById(event.getMessageId())
                     .reason(String.format(
                         "Bad request: %d bad reactions, %d needs improvement reactions, %d good reactions",
                         badReactionsCount, needsImprovementReactionsCount, goodReactionsCount))
-                    .flatMap(v -> {
-                        RestAction<Message> action = messageAuthor.openPrivateChannel()
-                            .flatMap(privateChannel -> privateChannel.sendMessage(response));
-                        //If we can't DM the user, send it in the discussions channel instead.
-                        if (discussionChannel != null) {
-                            action = action.onErrorFlatMap(throwable -> discussionChannel.sendMessage(response));
-                        }
-                        return action;
-                    })
+                    .flatMap(v -> messageAuthor.openPrivateChannel()
+                        .flatMap(privateChannel -> privateChannel.sendMessage(response))
+                        // If we can't DM the user, send it in the thread.
+                        .onErrorFlatMap(throwable -> event.getGuild().getThreadChannelById(event.getMessageIdLong()).sendMessage(response)))
                     .queue();
 
             } else if (!warnedMessages.contains(message) && requestScore >= warningThreshold) {
@@ -227,11 +227,9 @@ public final class EventReactionAdded extends ListenerAdapter {
                 warnedMessages.add(message);
 
                 RestAction<Message> action = messageAuthor.openPrivateChannel()
-                    .flatMap(privateChannel -> privateChannel.sendMessage(response));
-                //If we can't DM the user, send it in the thread.
-                if (discussionChannel != null) {
-                    action = action.onErrorFlatMap(throwable -> event.getGuild().getThreadChannelById(event.getMessageIdLong()).sendMessage(response));
-                }
+                    .flatMap(privateChannel -> privateChannel.sendMessage(response))
+                     // If we can't DM the user, send it in the thread.
+                    .onErrorFlatMap(throwable -> event.getGuild().getThreadChannelById(event.getMessageIdLong()).sendMessage(response));
                 action.queue();
             }
             // Remove messages under the removal threshold from the awaiting sign-off set
