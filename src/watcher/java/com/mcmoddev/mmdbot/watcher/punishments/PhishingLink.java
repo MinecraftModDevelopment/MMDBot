@@ -20,10 +20,8 @@
  */
 package com.mcmoddev.mmdbot.watcher.punishments;
 
-import static com.mcmoddev.mmdbot.core.common.ScamDetector.postScamEvent;
 import com.mcmoddev.mmdbot.core.common.ScamDetector;
 import com.mcmoddev.mmdbot.watcher.util.Configuration;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
@@ -31,7 +29,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
+import static com.mcmoddev.mmdbot.core.common.ScamDetector.postScamEvent;
 
 class PhishingLink implements PunishableAction<GenericMessageEvent> {
     @Override

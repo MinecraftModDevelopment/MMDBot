@@ -20,8 +20,8 @@
  */
 package com.mcmoddev.mmdbot.commander.docs;
 
-import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.Constants;
+import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import de.ialistannen.javadocapi.indexing.OnlineJavadocIndexer;
 import de.ialistannen.javadocapi.rendering.Java11PlusLinkResolver;
 import de.ialistannen.javadocapi.spoon.JavadocElementExtractor;

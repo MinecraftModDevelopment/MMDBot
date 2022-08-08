@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.commander.custompings;
 
-import static com.mcmoddev.mmdbot.commander.TheCommander.getInstance;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.event.ThreadedEventListener;
@@ -43,6 +42,8 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.Executors;
+
+import static com.mcmoddev.mmdbot.commander.TheCommander.getInstance;
 
 public class CustomPingsListener extends ListenerAdapter {
     public static final LazySupplier<EventListener> LISTENER = LazySupplier.of(() -> new ThreadedEventListener(Executors.newSingleThreadExecutor(r -> Utils.setThreadDaemon(new Thread(r, "CustomPingsListener"), true)),

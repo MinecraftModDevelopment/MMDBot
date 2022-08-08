@@ -28,7 +28,9 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public interface JdaMessageCache {
 
     void put(Long id, MessageData data);
+
     MessageData update(Long id, MessageData data);
+
     void remove(Long id);
 
     @Nullable

@@ -69,7 +69,8 @@ public final class JdbiFactories {
 
         public static final JdbiArgumentFactory FACTORY = new JdbiArgumentFactory();
 
-        public JdbiArgumentFactory() {}
+        public JdbiArgumentFactory() {
+        }
 
         @Override
         public Optional<Argument> build(final Type type, final Object value, final ConfigRegistry config) {

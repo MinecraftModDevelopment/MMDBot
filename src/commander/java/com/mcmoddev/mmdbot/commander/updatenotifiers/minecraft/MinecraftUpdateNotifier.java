@@ -22,14 +22,13 @@ package com.mcmoddev.mmdbot.commander.updatenotifiers.minecraft;
 
 import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifier;
+import com.mcmoddev.mmdbot.commander.updatenotifiers.minecraft.MinecraftVersionHelper.VersionsInfo;
 import com.mcmoddev.mmdbot.commander.util.StringSerializer;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.awt.Color;
-
-import com.mcmoddev.mmdbot.commander.updatenotifiers.minecraft.MinecraftVersionHelper.VersionsInfo;
 
 /**
  * The Minecraft update notifier.

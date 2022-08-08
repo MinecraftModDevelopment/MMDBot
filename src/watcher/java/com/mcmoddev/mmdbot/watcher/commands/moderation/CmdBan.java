@@ -51,10 +51,10 @@ public final class CmdBan extends Command {
         category = new Category("Moderation");
         arguments = "<userID/mention> <ban reason> [time, otherwise forever] [time unit, otherwise minutes] "
             + "[-d (deletes messages from the past 7 days)]";
-        userPermissions = new Permission[] {
+        userPermissions = new Permission[]{
             Permission.BAN_MEMBERS
         };
-        botPermissions = new Permission[] {
+        botPermissions = new Permission[]{
             Permission.BAN_MEMBERS
         };
         guildOnly = true;

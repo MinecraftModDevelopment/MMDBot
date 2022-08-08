@@ -40,8 +40,8 @@ public interface PersistedRoles extends Transactional<PersistedRoles> {
     /**
      * Inserts an entry for the given user and role into the table.
      *
-     * @param userId the snowflake ID of the user
-     * @param roleId the snowflake ID of the role
+     * @param userId  the snowflake ID of the user
+     * @param roleId  the snowflake ID of the role
      * @param guildId the snowflake ID of the guild
      */
     @SqlUpdate("insert into role_persist values (:user, :role, :guild)")
@@ -50,9 +50,9 @@ public interface PersistedRoles extends Transactional<PersistedRoles> {
     /**
      * Inserts an entry for each role in the given iterable with the given user into the table.
      *
-     * @param userId the snowflake ID of the user
+     * @param userId  the snowflake ID of the user
      * @param guildId the snowflake ID of the guild
-     * @param roles  an iterable of snowflake IDs of roles
+     * @param roles   an iterable of snowflake IDs of roles
      */
     default void insert(long userId, long guildId, Iterable<Long> roles) {
         roles.forEach(roleId -> insert(userId, roleId, guildId));
@@ -63,7 +63,7 @@ public interface PersistedRoles extends Transactional<PersistedRoles> {
     /**
      * Gets the stored roles for the given user.
      *
-     * @param userId the snowflake ID of the user
+     * @param userId  the snowflake ID of the user
      * @param guildId the snowflake ID of the guild
      * @return the list of role snowflake IDs which are associated with the user
      */
@@ -75,8 +75,8 @@ public interface PersistedRoles extends Transactional<PersistedRoles> {
     /**
      * Delete the entry for the given user and role from the table.
      *
-     * @param userId the snowflake ID of the user
-     * @param roleId the snowflake ID of the role
+     * @param userId  the snowflake ID of the user
+     * @param roleId  the snowflake ID of the role
      * @param guildId the snowflake ID of the guild
      */
     @SqlUpdate("delete from role_persist where user_id = :user and role_id = :role and guild_id = :guild")
@@ -85,7 +85,7 @@ public interface PersistedRoles extends Transactional<PersistedRoles> {
     /**
      * Clears all entries for the given user from the table.
      *
-     * @param userId the snowflake ID of the user
+     * @param userId  the snowflake ID of the user
      * @param guildId the snowflake ID of the guild
      */
     @SqlUpdate("delete from role_persist where user_id = :user and guild_id = :guild")

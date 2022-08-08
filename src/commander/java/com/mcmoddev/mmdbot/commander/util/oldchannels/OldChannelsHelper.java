@@ -95,6 +95,6 @@ public class OldChannelsHelper {
         event.addTask(new ChannelMessageChecker(jda), 0, 1, TimeUnit.DAYS);
         jda.getGuilds().forEach(guild -> event.addTask(new ComChannelsArchiver(guild.getIdLong(), jda),
             10 /* 10 minutes of initial delay, so we can make sure channels have been "scanned" */,
-            60 * 24 /* daily */ , TimeUnit.MINUTES));
+            60 * 24 /* daily */, TimeUnit.MINUTES));
     }
 }

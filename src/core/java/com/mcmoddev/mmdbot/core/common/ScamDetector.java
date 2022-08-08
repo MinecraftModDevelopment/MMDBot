@@ -36,7 +36,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -62,7 +61,7 @@ public class ScamDetector {
     }
 
     public static void postScamEvent(final long guildId, final long targetId, final long channelId,
-                                      final String messageContent, final String targetAvatar, final boolean editedMessage) {
+                                     final String messageContent, final String targetAvatar, final boolean editedMessage) {
         Events.MODERATION_BUS.post(new ScamLinkEvent(guildId, targetId, channelId, messageContent, targetAvatar, editedMessage));
     }
 

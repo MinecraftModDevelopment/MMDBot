@@ -21,7 +21,6 @@
 package com.mcmoddev.mmdbot.commander.eventlistener;
 
 import com.mcmoddev.mmdbot.commander.TheCommander;
-import com.mcmoddev.mmdbot.core.util.MessageUtilities;
 import lombok.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;

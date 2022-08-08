@@ -21,7 +21,6 @@
 package com.mcmoddev.mmdbot.watcher.punishments;
 
 import com.mcmoddev.mmdbot.watcher.util.Configuration;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.Nullable;

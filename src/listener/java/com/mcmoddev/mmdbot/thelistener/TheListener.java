@@ -126,13 +126,13 @@ public final class TheListener implements Bot {
         );
 
         jda = JDABuilder.create(
-            token,
-            INTENTS
-        )
+                token,
+                INTENTS
+            )
             .addEventListeners(JdaMessageCache.builder()
-                .onDelete(MessageEvents.INSTANCE::onMessageDelete)
-                .onEdit(MessageEvents.INSTANCE::onMessageUpdate)
-                .build(),
+                    .onDelete(MessageEvents.INSTANCE::onMessageDelete)
+                    .onEdit(MessageEvents.INSTANCE::onMessageUpdate)
+                    .build(),
                 GENERAL_EVENT_LISTENER
             )
             .disableCache(CacheFlag.CLIENT_STATUS)

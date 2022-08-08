@@ -26,7 +26,6 @@ import com.mcmoddev.mmdbot.thelistener.TheListener;
 import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
@@ -58,10 +57,10 @@ public final class LeaveJoinEvents extends ListenerAdapter {
                 final var ch = snowflakeValue.resolve(id -> event.getJDA().getChannelById(MessageChannel.class, id));
                 if (ch instanceof TextChannel textChannel) {
                     WEBHOOKS.getWebhook(textChannel)
-                            .send(Utils.webhookMessage(embed)
-                                .setUsername(event.getMember().getEffectiveName())
-                                .setAvatarUrl(event.getMember().getEffectiveAvatarUrl())
-                                .build());
+                        .send(Utils.webhookMessage(embed)
+                            .setUsername(event.getMember().getEffectiveName())
+                            .setAvatarUrl(event.getMember().getEffectiveAvatarUrl())
+                            .build());
                 } else if (ch != null) {
                     ch.sendMessageEmbeds(embed).queue();
                 }

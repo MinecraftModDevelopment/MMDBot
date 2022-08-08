@@ -21,7 +21,6 @@
 package com.mcmoddev.mmdbot.core.util.jda.caching;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -43,8 +42,10 @@ class JdaMessageCacheImpl implements JdaMessageCache, EventListener {
 
     JdaMessageCacheImpl(final Cache<Long, MessageData> messageCache, @Nullable final BiConsumer<MessageUpdateEvent, MessageData> onEdit, @Nullable final BiConsumer<MessageDeleteEvent, MessageData> onDelete) {
         this.messageCache = messageCache;
-        this.onEdit = onEdit == null ? ($, $$) -> {} : onEdit;
-        this.onDelete = onDelete == null ? ($, $$) -> {} : onDelete;
+        this.onEdit = onEdit == null ? ($, $$) -> {
+        } : onEdit;
+        this.onDelete = onDelete == null ? ($, $$) -> {
+        } : onDelete;
     }
 
     @Override

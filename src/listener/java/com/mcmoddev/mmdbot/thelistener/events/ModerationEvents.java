@@ -20,9 +20,6 @@
  */
 package com.mcmoddev.mmdbot.thelistener.events;
 
-import static com.mcmoddev.mmdbot.thelistener.TheListener.getInstance;
-import static com.mcmoddev.mmdbot.thelistener.util.Utils.mentionAndID;
-
 import club.minnced.discord.webhook.send.AllowedMentions;
 import com.mcmoddev.mmdbot.core.event.moderation.WarningEvent;
 import com.mcmoddev.mmdbot.core.util.webhook.WebhookManager;
@@ -51,6 +48,9 @@ import java.awt.Color;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+
+import static com.mcmoddev.mmdbot.thelistener.TheListener.getInstance;
+import static com.mcmoddev.mmdbot.thelistener.util.Utils.mentionAndID;
 
 public final class ModerationEvents extends ListenerAdapter {
     public static final ModerationEvents INSTANCE = new ModerationEvents();
@@ -217,7 +217,7 @@ public final class ModerationEvents extends ListenerAdapter {
 
             embed.addField("**Kick reason:**", log.getReason() != null ? log.getReason() :
                 ("Reason for kick was not provided or could not be found, please contact "
-                + kicker.map(User::getAsMention).orElse("the kicker.")), false);
+                    + kicker.map(User::getAsMention).orElse("the kicker.")), false);
 
             final var targetId = log.getTargetIdLong();
 
@@ -351,14 +351,14 @@ public final class ModerationEvents extends ListenerAdapter {
         }
         getInstance().getJDA().retrieveUserById(event.getModeratorId())
             .queue(user -> {
-               final var embed = new EmbedBuilder()
-                   .setColor(java.awt.Color.GREEN)
-                   .setTitle("Warnings Cleared")
-                   .setDescription("All of the warnings of " + mentionAndID(event.getTargetId()) + " have been cleared!")
-                   .setTimestamp(Instant.now())
-                   .setFooter("Moderator ID: " + event.getModeratorId(), user.getAvatarUrl())
-                   .build();
-               log(event.getGuildId(), user.getJDA(), embed);
+                final var embed = new EmbedBuilder()
+                    .setColor(java.awt.Color.GREEN)
+                    .setTitle("Warnings Cleared")
+                    .setDescription("All of the warnings of " + mentionAndID(event.getTargetId()) + " have been cleared!")
+                    .setTimestamp(Instant.now())
+                    .setFooter("Moderator ID: " + event.getModeratorId(), user.getAvatarUrl())
+                    .build();
+                log(event.getGuildId(), user.getJDA(), embed);
             });
     }
 
@@ -377,6 +377,7 @@ public final class ModerationEvents extends ListenerAdapter {
                 }
             });
     }
+
     private void logWithWebhook(long guildId, JDA jda, MessageEmbed embed, User author) {
         final var loggingChannels = LoggingType.MODERATION_EVENTS.getChannels(guildId);
         loggingChannels

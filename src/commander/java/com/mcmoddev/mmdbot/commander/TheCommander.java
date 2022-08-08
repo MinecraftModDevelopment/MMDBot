@@ -59,7 +59,6 @@ import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers;
 import com.mcmoddev.mmdbot.commander.util.EventListeners;
 import com.mcmoddev.mmdbot.commander.util.ThreadChannelCreatorEvents;
 import com.mcmoddev.mmdbot.commander.util.mc.MCVersions;
-import com.mcmoddev.mmdbot.commander.util.oldchannels.ChannelMessageChecker;
 import com.mcmoddev.mmdbot.commander.util.oldchannels.OldChannelsHelper;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
@@ -71,12 +70,12 @@ import com.mcmoddev.mmdbot.core.commands.component.ComponentManager;
 import com.mcmoddev.mmdbot.core.commands.component.DeferredComponentListenerRegistry;
 import com.mcmoddev.mmdbot.core.commands.component.storage.ComponentStorage;
 import com.mcmoddev.mmdbot.core.event.Events;
-import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
 import com.mcmoddev.mmdbot.core.util.MessageUtilities;
 import com.mcmoddev.mmdbot.core.util.ReflectionsUtils;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.Utils;
+import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryUtils;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
@@ -371,7 +370,8 @@ public final class TheCommander implements Bot {
         EventListeners.COMMANDS_LISTENER.addListener((EventListener) commandClient);
 
         {
-            record SlashCommandRegistration(Object fieldValue, RegisterSlashCommand annotation) {}
+            record SlashCommandRegistration(Object fieldValue, RegisterSlashCommand annotation) {
+            }
 
             // Command register
             ReflectionsUtils.getFieldsAnnotatedWith(RegisterSlashCommand.class)

@@ -396,7 +396,7 @@ public final class ScriptingUtils {
                     .set("timeCreated", emote.getTimeCreated())
                     .setFunction("isAnimated", args -> emote.isAnimated());
                 if (emote instanceof RichCustomEmoji rich) {
-                      ctx.setFunction("isAvailable", args -> rich.isAvailable())
+                    ctx.setFunction("isAvailable", args -> rich.isAvailable())
                         .setFunction("getRoles", args -> rich.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList())
                         .setFunction("getGuild", args -> createGuild(rich.getGuild()));
                 }

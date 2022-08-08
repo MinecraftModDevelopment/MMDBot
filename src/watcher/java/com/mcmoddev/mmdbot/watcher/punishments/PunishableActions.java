@@ -24,11 +24,9 @@ import com.mcmoddev.mmdbot.watcher.TheWatcher;
 import com.mcmoddev.mmdbot.watcher.util.Configuration;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
-import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,12 +58,12 @@ public enum PunishableActions implements EventListener {
                         final var guild = resolveGuild(event);
                         member.getUser().openPrivateChannel()
                             .flatMap(dm -> dm.sendMessageEmbeds(new EmbedBuilder()
-                                    .setTitle("Punishment")
-                                    .setDescription("You have been punished" + (guild == null ? "" : " in **" + guild.getName()) + "**!")
-                                    .setColor(Color.RED)
-                                    .addField("Punishment", punishment.toString(), false)
-                                    .addField("Reason", reason, false)
-                                    .setTimestamp(Instant.now())
+                                .setTitle("Punishment")
+                                .setDescription("You have been punished" + (guild == null ? "" : " in **" + guild.getName()) + "**!")
+                                .setColor(Color.RED)
+                                .addField("Punishment", punishment.toString(), false)
+                                .addField("Reason", reason, false)
+                                .setTimestamp(Instant.now())
                                 .build()))
                             .onErrorMap(er -> null)
                             .queue($ -> punishment.punish(member, reason, () -> listener.whenPunished(actualEvent, member, punishment)));

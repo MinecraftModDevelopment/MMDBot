@@ -30,8 +30,8 @@ import com.mcmoddev.mmdbot.core.commands.CommandUpserter;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.commands.component.DeferredComponentListenerRegistry;
 import com.mcmoddev.mmdbot.core.commands.component.storage.ComponentStorage;
-import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
+import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.util.event.ThreadedEventListener;
@@ -46,9 +46,9 @@ import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdWarning;
 import com.mcmoddev.mmdbot.watcher.event.EventReactionAdded;
 import com.mcmoddev.mmdbot.watcher.event.PersistedRolesEvents;
 import com.mcmoddev.mmdbot.watcher.punishments.PunishableActions;
+import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
 import com.mcmoddev.mmdbot.watcher.util.BotConfig;
 import com.mcmoddev.mmdbot.watcher.util.Configuration;
-import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.util.Utils;
 import net.dv8tion.jda.api.JDA;
@@ -166,6 +166,7 @@ public final class TheWatcher implements Bot {
     public static ComponentListener.Builder getComponentListener(final String featureId) {
         return LISTENER_REGISTRY.createListener(featureId);
     }
+
     /**
      * The instance.
      */

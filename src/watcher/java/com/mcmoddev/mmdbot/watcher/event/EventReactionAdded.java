@@ -156,10 +156,10 @@ public final class EventReactionAdded extends ListenerAdapter {
                             builder.setFooter("User ID: " + messageAuthor.getId());
 
                             WEBHOOKS.getWebhook(logChannel)
-                                    .send(Utils.webhookMessage(builder.build())
-                                        .setUsername(messageAuthor.getAsTag())
-                                        .setAvatarUrl(messageAuthor.getEffectiveAvatarUrl())
-                                        .build());
+                                .send(Utils.webhookMessage(builder.build())
+                                    .setUsername(messageAuthor.getAsTag())
+                                    .setAvatarUrl(messageAuthor.getEffectiveAvatarUrl())
+                                    .build());
                         }
                     }
                     return;
@@ -196,11 +196,11 @@ public final class EventReactionAdded extends ListenerAdapter {
                     builder.setFooter("User ID: " + messageAuthor.getId());
 
                     WEBHOOKS.getWebhook(logChannel)
-                            .send(Utils.webhookMessage(builder.build())
-                                .setContent(message.getContentRaw())
-                                .setAvatarUrl(messageAuthor.getEffectiveAvatarUrl())
-                                .setUsername(messageAuthor.getAsTag())
-                                .build());
+                        .send(Utils.webhookMessage(builder.build())
+                            .setContent(message.getContentRaw())
+                            .setAvatarUrl(messageAuthor.getEffectiveAvatarUrl())
+                            .setUsername(messageAuthor.getAsTag())
+                            .build());
                 }
 
                 channel.deleteMessageById(event.getMessageId())
@@ -228,7 +228,7 @@ public final class EventReactionAdded extends ListenerAdapter {
 
                 RestAction<Message> action = messageAuthor.openPrivateChannel()
                     .flatMap(privateChannel -> privateChannel.sendMessage(response))
-                     // If we can't DM the user, send it in the thread.
+                    // If we can't DM the user, send it in the thread.
                     .onErrorFlatMap(throwable -> event.getGuild().getThreadChannelById(event.getMessageIdLong()).sendMessage(response));
                 action.queue();
             }

@@ -25,8 +25,6 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 
-import java.util.EnumSet;
-
 /**
  * The type Cmd unban.
  *
@@ -37,7 +35,7 @@ public final class CmdUnban extends Command {
     /**
      * The constant REQUIRED_PERMISSIONS.
      */
-    private static final Permission[] REQUIRED_PERMISSIONS = new Permission[] {
+    private static final Permission[] REQUIRED_PERMISSIONS = new Permission[]{
         Permission.BAN_MEMBERS
     };
 

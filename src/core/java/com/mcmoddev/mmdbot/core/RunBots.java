@@ -23,7 +23,6 @@ package com.mcmoddev.mmdbot.core;
 import com.google.gson.JsonObject;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
-import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.common.ScamDetector;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.Constants;
@@ -83,8 +82,10 @@ public class RunBots {
 
         final var botsAmount = new AtomicInteger();
 
-        record BotListing<T extends Bot>(BotRegistry.BotRegistryEntry<T> registryEntry, BotEntry entry) {}
-        record CreatedBotListing<T extends Bot>(T bot, BotEntry entry) {}
+        record BotListing<T extends Bot>(BotRegistry.BotRegistryEntry<T> registryEntry, BotEntry entry) {
+        }
+        record CreatedBotListing<T extends Bot>(T bot, BotEntry entry) {
+        }
 
         var bots = botTypes
             .entrySet()
