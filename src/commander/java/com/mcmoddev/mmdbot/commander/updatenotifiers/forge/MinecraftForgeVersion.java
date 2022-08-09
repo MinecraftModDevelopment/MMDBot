@@ -26,4 +26,5 @@ package com.mcmoddev.mmdbot.commander.updatenotifiers.forge;
  * @author Antoine Gagnon
  * @author matyrobbrt
  */
-public record MinecraftForgeVersion(String mcVersion, ForgeVersion forgeVersion) { }
+public record MinecraftForgeVersion(String mcVersion, ForgeVersion forgeVersion) {
+}

@@ -29,7 +29,6 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.lang.reflect.Type;
 import java.time.Duration;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import java.util.Objects;
@@ -52,7 +51,8 @@ public record Punishment(ActionType type, Duration duration) {
     public void punish(Member member, String reason, Runnable whenDone) {
         if (this == NONE) return;
 
-        if (whenDone == null) whenDone = () -> {};
+        if (whenDone == null) whenDone = () -> {
+        };
         final Runnable finalWhenDone = whenDone;
         final var memberId = member.getId();
         switch (type) {

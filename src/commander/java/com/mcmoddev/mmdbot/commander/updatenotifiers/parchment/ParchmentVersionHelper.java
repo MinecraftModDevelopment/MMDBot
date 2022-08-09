@@ -47,7 +47,7 @@ public final class ParchmentVersionHelper {
         final var meta = MinecraftVersionHelper.getMeta();
         if (meta == null) return Map.of();
         final Map<String, String> map = new HashMap<>();
-         meta.versions.stream()
+        meta.versions.stream()
             .filter(it -> it.type().equals("release"))
             .map(v -> SemVer.from(v.id()))
             .filter(v -> v.compareTo(INITIAL_VERSION) >= 0)
@@ -56,11 +56,12 @@ public final class ParchmentVersionHelper {
                     final var xml = parser.newDocumentBuilder().parse(is);
                     xml.getDocumentElement().normalize();
                     final var latestVersion = ((Element) ((Element) (xml.getElementsByTagName("metadata").item(0)))
-					    .getElementsByTagName("versioning").item(0))
-					    .getElementsByTagName("release").item(0)
+                        .getElementsByTagName("versioning").item(0))
+                        .getElementsByTagName("release").item(0)
                         .getTextContent();
                     map.put(v.toString(), latestVersion);
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             });
         return map;
     }

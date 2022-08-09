@@ -202,7 +202,8 @@ public class CommandUpserter implements EventListener {
     }
 
     private long[] getCommandsToRemove(final List<Command> existingCommands) {
-        record ExistingCommand(String name, long id) {}
+        record ExistingCommand(String name, long id) {
+        }
         final var ext = existingCommands.stream()
             .filter(c -> c.getType() == Command.Type.SLASH)
             .map(c -> new ExistingCommand(c.getName(), c.getIdLong()))

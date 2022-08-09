@@ -23,7 +23,6 @@ package com.mcmoddev.mmdbot.commander.config;
 import com.jagrosh.jdautilities.command.GuildSettingsManager;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import it.unimi.dsi.fastutil.longs.Long2ObjectFunction;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import org.jsoup.internal.ReturnsAreNonnullByDefault;
@@ -33,7 +32,6 @@ import org.spongepowered.configurate.objectmapping.meta.Required;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import javax.annotation.Nullable;
-import java.util.List;
 import java.util.Set;
 
 @ConfigSerializable
@@ -44,6 +42,7 @@ public final class GuildConfiguration {
     @Required
     @Setting("channels")
     private Channels channels = new Channels();
+
     public Channels channels() {
         return channels;
     }
@@ -54,6 +53,7 @@ public final class GuildConfiguration {
         @Setting("community")
         @Comment("Community channels related configuration")
         private Community community = new Community();
+
         public Community community() {
             return community;
         }
@@ -64,6 +64,7 @@ public final class GuildConfiguration {
             @Setting("category")
             @Comment("The snowflake ID of the channel category where new community channels are created under")
             private SnowflakeValue category = SnowflakeValue.EMPTY;
+
             public SnowflakeValue category() {
                 return category;
             }
@@ -72,6 +73,7 @@ public final class GuildConfiguration {
             @Setting("archival_duration")
             @Comment("The number of days that need to pass without a message sent for a community channel to start the archival process.")
             private int archivalDuration = 60;
+
             public int archivalDuration() {
                 return archivalDuration;
             }
@@ -89,6 +91,7 @@ public final class GuildConfiguration {
             @Setting("archival_notifier")
             @Comment("The ID of the channel where archival notifications will be sent.")
             private SnowflakeValue archivalNotifier = SnowflakeValue.EMPTY;
+
             public SnowflakeValue archivalNotifier() {
                 return archivalNotifier;
             }
@@ -110,6 +113,7 @@ public final class GuildConfiguration {
                 Note: the bot can only assign permissions to channel owners if the bot has those permissions
                 Example: ["Manage Messages", "MANAGE_PERMISSIONS"]""")
             private PermissionList ownerPermissions = new PermissionList(Set.of(Permission.MESSAGE_MANAGE));
+
             public PermissionList ownerPermissions() {
                 return ownerPermissions;
             }
@@ -118,6 +122,7 @@ public final class GuildConfiguration {
             @Setting("channel_created_message")
             @Comment("The message to send in the channel after it is created.")
             private String channelCreatedMessage = "Welcome {user} to your new channel ({channel}) here at {guild}. Enjoy your stay!";
+
             public String getChannelCreatedMessage() {
                 return channelCreatedMessage;
             }
@@ -167,7 +172,8 @@ public final class GuildConfiguration {
         }
     }
 
-    public record SettingManager(Long2ObjectFunction<GuildConfiguration> getter) implements GuildSettingsManager<GuildConfiguration> {
+    public record SettingManager(
+        Long2ObjectFunction<GuildConfiguration> getter) implements GuildSettingsManager<GuildConfiguration> {
 
         @Nullable
         @Override

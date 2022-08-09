@@ -38,12 +38,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Create a community channel owned by the specified user.
@@ -76,7 +71,7 @@ public final class CommunityChannelCommand extends SlashCommand {
     public CommunityChannelCommand() {
         super();
         name = "community-channel";
-        children = new SlashCommand[] {
+        children = new SlashCommand[]{
             new Create(), new Transfer(), new Owner()
         };
     }

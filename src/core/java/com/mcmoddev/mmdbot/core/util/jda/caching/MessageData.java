@@ -28,15 +28,21 @@ import java.util.List;
 public interface MessageData {
 
     String getId();
+
     long getIdLong();
+
     String getContent();
 
     long getAuthorId();
+
     String getAuthorUsername();
+
     String getAuthorAvatar();
 
     long getChannelId();
+
     List<String> getAttachments();
+
     @Nullable
     InteractionData getInteraction();
 
@@ -56,6 +62,7 @@ public interface MessageData {
             final InteractionData interactionData = message.getInteraction() == null ? null :
                 new InteractionData() {
                     final long authorId = message.getInteraction().getUser().getIdLong();
+
                     @Override
                     public long getAuthorId() {
                         return authorId;

@@ -35,12 +35,12 @@ import lombok.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
@@ -57,7 +57,6 @@ import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.internal.utils.EncodingUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
@@ -91,7 +90,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
         userPermissions = new Permission[]{
             Permission.MANAGE_ROLES
         };
-        children = new SlashCommand[] {
+        children = new SlashCommand[]{
             command("buttons", "Creates a role panel with buttons.", event -> executeSub(event, false), new OptionData(OptionType.STRING, "roles", "Mention the roles to add to the panel.", true)),
             command("dropdown", "Creates a dropdown role panel.", event -> executeSub(event, true), new OptionData(OptionType.STRING, "roles", "Mention the roles to add to the panel.", true)),
             command("reaction", "Creates a reaction role panel.", event -> {
@@ -133,7 +132,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
                             .formatted(e.getLocalizedMessage())).mentionRepliedUser(false).queue();
                         TheCommander.LOGGER.error("There was an error running the `/role-select reaction` command", e);
                     }
-            }, new OptionData(OptionType.STRING, "message", "The ID of the message on which to create the panel.", true),
+                }, new OptionData(OptionType.STRING, "message", "The ID of the message on which to create the panel.", true),
                 new OptionData(OptionType.ROLE, "role", "The role to add to the panel.", true),
                 new OptionData(OptionType.STRING, "emote", "The emote which will be associated with that role.", true),
                 new OptionData(OptionType.BOOLEAN, "permanent", "If the role assigned by the panel is permanent.")
@@ -370,6 +369,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
                 this.help = description;
                 this.options = List.of(cmdOptions);
             }
+
             @Override
             protected void execute(final SlashCommandEvent event) {
                 consumer.accept(event);

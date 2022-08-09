@@ -65,8 +65,8 @@ public final class MessageEvents extends ListenerAdapter {
         final var embedBuilder = new EmbedBuilder();
         embedBuilder.setColor(GRAY_CHATEAOU)
             .setDescription("""
-                        **A message sent by <@%s> in <#%s> has been deleted!**
-                        %s"""
+                **A message sent by <@%s> in <#%s> has been deleted!**
+                %s"""
                 .formatted(data.getAuthorId(), data.getChannelId(), Utils.truncate(data.getContent(), MessageEmbed.DESCRIPTION_MAX_LENGTH - 30)));
         embedBuilder.setTimestamp(Instant.now())
             .setFooter("Author: %s | Message ID: %s".formatted(data.getAuthorId(), data.getChannelId()), null);
@@ -92,7 +92,8 @@ public final class MessageEvents extends ListenerAdapter {
 
     public void onMessageUpdate(final net.dv8tion.jda.api.events.message.MessageUpdateEvent event, MessageData data) {
         final var newMessage = event.getMessage();
-        if (!event.isFromGuild() || (newMessage.getContentRaw().isBlank() && newMessage.getAttachments().isEmpty())) return;
+        if (!event.isFromGuild() || (newMessage.getContentRaw().isBlank() && newMessage.getAttachments().isEmpty()))
+            return;
         final var loggingChannels = LoggingType.MESSAGE_EVENTS.getChannels(event.getGuild().getIdLong());
         if (loggingChannels.stream().anyMatch(v -> v.test(event.getChannel()))) return; // Don't log in event channels
         if (newMessage.getContentRaw().equals(data.getContent())) {
@@ -119,10 +120,10 @@ public final class MessageEvents extends ListenerAdapter {
                 final var ch = id.resolve(idL -> event.getJDA().getChannelById(StandardGuildMessageChannel.class, idL));
                 if (ch != null) {
                     WEBHOOKS.getWebhook(ch)
-                            .send(Utils.webhookMessage(embed)
-                                .setUsername(data.getAuthorUsername())
-                                .setAvatarUrl(data.getAuthorAvatar())
-                                .build());
+                        .send(Utils.webhookMessage(embed)
+                            .setUsername(data.getAuthorUsername())
+                            .setAvatarUrl(data.getAuthorAvatar())
+                            .build());
                 }
             });
     }

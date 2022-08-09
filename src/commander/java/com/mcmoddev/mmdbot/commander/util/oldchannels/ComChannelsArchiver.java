@@ -21,7 +21,6 @@
 package com.mcmoddev.mmdbot.commander.util.oldchannels;
 
 import com.mcmoddev.mmdbot.commander.TheCommander;
-import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
 import com.mcmoddev.mmdbot.commander.util.dao.ComChannelsDAO;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
@@ -108,8 +107,7 @@ public record ComChannelsArchiver(long guildId, JDA jda) implements Runnable {
                 }));
         if (owner.isEmpty())
             return null;
-        @Nullable
-        final var ignoreUntil = TheCommander.getInstance().getJdbi()
+        @Nullable final var ignoreUntil = TheCommander.getInstance().getJdbi()
             .withExtension(ComChannelsDAO.class, db -> db.getIgnoreUntil(channel.getIdLong()));
         if (ignoreUntil != null && Instant.now().isBefore(Instant.ofEpochSecond(ignoreUntil)))
             return null;
@@ -227,8 +225,8 @@ public record ComChannelsArchiver(long guildId, JDA jda) implements Runnable {
                 .build()).queue();
 
             context.getEvent().reply("Asked <@" + owner + "> if they want their channel archived!")
-                    .setEphemeral(true)
-                    .queue();
+                .setEphemeral(true)
+                .queue();
             TheCommander.getInstance().getJdbi().useExtension(ComChannelsDAO.class,
                 db -> db.setIgnoreUntil(channelId, Instant.now().plus(14, ChronoUnit.DAYS).getEpochSecond()));
             MessageUtilities.disableButtons(context.getEvent().getMessage());
@@ -243,7 +241,7 @@ public record ComChannelsArchiver(long guildId, JDA jda) implements Runnable {
         context.getEvent().deferEdit().queue();
         final var channel = context.getEvent().getJDA().getTextChannelById(channelId);
         final var archivedCategory = TheCommander.getInstance().getConfigForGuild(context.getGuild()).channels()
-                .community().archivedCategory().resolve(context.getEvent().getJDA()::getCategoryById);
+            .community().archivedCategory().resolve(context.getEvent().getJDA()::getCategoryById);
         if (archivedCategory != null && channel != null) {
             channel.getManager().setParent(archivedCategory)
                 .flatMap($ -> channel.getPermissionContainer().getManager().putMemberPermissionOverride(

@@ -93,7 +93,7 @@ public class TheCommanderUtilities {
      * @return if the member has any of the role
      */
     public static boolean memberHasRoles(final Member member, @NonNull final List<SnowflakeValue> roleIds) {
-       return memberHasRolesString(member, roleIds.stream().map(SnowflakeValue::asString).toList());
+        return memberHasRolesString(member, roleIds.stream().map(SnowflakeValue::asString).toList());
     }
 
     /**

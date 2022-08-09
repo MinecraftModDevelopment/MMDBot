@@ -59,7 +59,8 @@ public class PermissionList implements Set<Permission> {
             if (node.raw() instanceof Number num) {
                 return new PermissionList(num.longValue());
             }
-            final var list = node.get(new TypeToken<List<String>>() {});
+            final var list = node.get(new TypeToken<List<String>>() {
+            });
             if (list == null) return null;
             final EnumSet<Permission> permissions = EnumSet.noneOf(Permission.class);
             outer:
@@ -80,7 +81,8 @@ public class PermissionList implements Set<Permission> {
                 node.raw(null);
                 return;
             }
-            node.set(new TypeToken<List<String>>() {}.getType(), obj.delegate.stream().map(Permission::getName).toList());
+            node.set(new TypeToken<List<String>>() {
+            }.getType(), obj.delegate.stream().map(Permission::getName).toList());
         }
     }
 }

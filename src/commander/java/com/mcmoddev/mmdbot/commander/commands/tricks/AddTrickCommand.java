@@ -155,7 +155,7 @@ public final class AddTrickCommand extends SlashCommand {
 
         public Prefix() {
             name = "addtrick";
-            aliases = new String[] {"add-trick"};
+            aliases = new String[]{"add-trick"};
             requiredRole = "Bot Maintainer";
             guildOnly = true;
             children = Tricks.getTrickTypes().entrySet().stream().map(e -> new PrefixSubCmd(e.getKey(), e.getValue())).toArray(Command[]::new);

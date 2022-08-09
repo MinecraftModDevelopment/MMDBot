@@ -86,6 +86,7 @@ public class Configuration {
     @Required
     @Setting("roles")
     private Roles roles = new Roles();
+
     public Roles roles() {
         return roles;
     }
@@ -114,14 +115,15 @@ public class Configuration {
     @Required
     @Setting("punishments")
     @Comment("""
-    Punishments that will be applied to members when they do certain actions.
-    The punishment format is: action [duration].
-    Example:
-        "KICK" -> kicks the member
-        "BAN 5d" -> bans the member for 5 days
-        "MUTE 12m" -> times the member out for 12 minutes
-    A punishment can be "None" to prevent the member from being punished.""")
+        Punishments that will be applied to members when they do certain actions.
+        The punishment format is: action [duration].
+        Example:
+            "KICK" -> kicks the member
+            "BAN 5d" -> bans the member for 5 days
+            "MUTE 12m" -> times the member out for 12 minutes
+        A punishment can be "None" to prevent the member from being punished.""")
     private Punishments punishments = new Punishments();
+
     public Punishments punishments() {
         return punishments;
     }
@@ -147,6 +149,7 @@ public class Configuration {
     @Setting("channels")
     @Comment("Channels configuration")
     private Channels channels = new Channels();
+
     public Channels channels() {
         return channels;
     }

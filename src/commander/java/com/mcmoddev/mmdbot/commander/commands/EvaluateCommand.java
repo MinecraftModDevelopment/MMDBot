@@ -69,13 +69,13 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import static com.mcmoddev.mmdbot.core.util.event.DismissListener.createDismissButton;
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.ALLOWED_MENTIONS;
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.createGuild;
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.createMessageChannel;
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.createTextChannel;
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.getEmbedFromValue;
 import static com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils.validateArgs;
+import static com.mcmoddev.mmdbot.core.util.event.DismissListener.createDismissButton;
 
 public class EvaluateCommand extends SlashCommand {
 
@@ -122,7 +122,7 @@ public class EvaluateCommand extends SlashCommand {
                                 return;
                             }
                             hook.editOriginal("There was an exception evaluating "
-                                + exception.getLocalizedMessage())
+                                    + exception.getLocalizedMessage())
                                 .setActionRow(createDismissButton())
                                 .queue();
                         }
@@ -164,7 +164,7 @@ public class EvaluateCommand extends SlashCommand {
                                 return;
                             }
                             hook.editOriginal("There was an exception evaluating "
-                                + exception.getLocalizedMessage())
+                                    + exception.getLocalizedMessage())
                                 .setActionRow(createDismissButton(event))
                                 .queue();
                         }

@@ -83,8 +83,8 @@ public final class QuiltVersionHelper extends SharedVersionHelpers {
         final Map<String, List<SharedVersionInfo>> map = versions.stream().distinct().collect(Collectors.groupingBy(
             it -> it.gameVersion));
         return map.keySet()
-                .stream()
-                .collect(Collectors.toMap(Function.identity(), it -> map.get(it).get(0).version));
+            .stream()
+            .collect(Collectors.toMap(Function.identity(), it -> map.get(it).get(0).version));
     }
 
     /**

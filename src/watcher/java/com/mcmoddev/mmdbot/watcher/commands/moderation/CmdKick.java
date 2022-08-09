@@ -24,8 +24,6 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import net.dv8tion.jda.api.Permission;
 
-import java.util.EnumSet;
-
 /**
  * The type Cmd kick.
  *
