@@ -58,10 +58,10 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
         final var cfg = configGetter.get();
         if (cfg == null) return;
         if (cfg.channels().requests().test(event.getChannel())) {
-            createThread(event, Type.REQUEST);
+            createThread(event, Type.REQUEST, false);
         }
         if (cfg.channels().freeModIdeas().test(event.getChannel())) {
-            createThread(event, Type.IDEA);
+            createThread(event, Type.IDEA, false);
         }
     }
 
@@ -112,16 +112,16 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
             event.retrieveMessage().queue(message -> {
                 final var thread = message.getStartedThread();
                 if (thread == null) {
-                    createThread(new MessageReceivedEvent(event.getJDA(), 0, message), type);
+                    createThread(new MessageReceivedEvent(event.getJDA(), 0, message), type, true);
                 }
                 event.getReaction().clearReactions().queue();
             });
         }
     }
 
-    private void createThread(final MessageReceivedEvent event, final Type threadType) {
+    private void createThread(final MessageReceivedEvent event, final Type threadType, boolean ignoreCooldown) {
         final var author = event.getMember();
-        if (caches.computeIfAbsent(threadType, k -> new ArrayList<>()).contains(author.getIdLong())) {
+        if (!ignoreCooldown && caches.computeIfAbsent(threadType, k -> new ArrayList<>()).contains(author.getIdLong())) {
             return;
         }
         final var threadTypeStr = threadType.toString();
