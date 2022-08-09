@@ -25,8 +25,10 @@ import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageType;
+import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
@@ -71,10 +73,49 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
         final var cfg = configGetter.get();
         if (cfg == null) return;
         if (cfg.channels().requests().test(event.getChannel())) {
-            notifyMessageDeleted(event, Type.REQUEST);
+            notifyMessageEdited(event, Type.REQUEST);
+        }else if (cfg.channels().freeModIdeas().test(event.getChannel())) {
+            notifyMessageEdited(event, Type.IDEA);
         }
-        if (cfg.channels().freeModIdeas().test(event.getChannel())) {
-            notifyMessageDeleted(event, Type.IDEA);
+    }
+
+    @Override
+    public void onMessageDelete(@NotNull final MessageDeleteEvent event) {
+        if (!event.isFromGuild() || event.isFromThread()) {
+            return;
+        }
+        final var cfg = configGetter.get();
+        if (cfg == null) return;
+        if (cfg.channels().requests().test(event.getChannel()) || cfg.channels().freeModIdeas().test(event.getChannel())) {
+            notifyMessageDeleted(event);
+        }
+    }
+
+    private static final String THREAD_EMOJI = "🧵";
+
+    @Override
+    public void onMessageReactionAdd(@NotNull final MessageReactionAddEvent event) {
+        if (!event.isFromGuild() || event.isFromThread()) {
+            return;
+        }
+        final var cfg = configGetter.get();
+        if (cfg == null) return;
+        if (cfg.channels().requests().test(event.getChannel())) {
+            createThread(event, Type.REQUEST);
+        } else if (cfg.channels().freeModIdeas().test(event.getChannel())) {
+            createThread(event, Type.IDEA);
+        }
+    }
+
+    private void createThread(final MessageReactionAddEvent event, final Type type) {
+        if (event.getReaction().getEmoji().getName().equals(THREAD_EMOJI)) {
+            event.retrieveMessage().queue(message -> {
+                final var thread = message.getStartedThread();
+                if (thread == null) {
+                    createThread(new MessageReceivedEvent(event.getJDA(), 0, message), type);
+                }
+                event.getReaction().clearReactions().queue();
+            });
         }
     }
 
@@ -100,7 +141,7 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
         });
     }
 
-    private void notifyMessageDeleted(final MessageUpdateEvent event, final Type threadType) {
+    private void notifyMessageEdited(final MessageUpdateEvent event, final Type threadType) {
         final var author = event.getMember();
         final var threadTypeStr = threadType.toString();
         final var thread = event.getGuild().getThreadChannelById(event.getMessageId());
@@ -111,6 +152,17 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
                         %s""".formatted(author.getAsMention(), threadTypeStr, event.getMessage().getContentRaw()))
                     .setTitle(Utils.uppercaseFirstLetter(threadTypeStr) + " edited!").setTimestamp(Instant.now()).build())
                 .queue(ms -> ms.pin().queue());
+        }
+    }
+
+    private void notifyMessageDeleted(final MessageDeleteEvent event) {
+        final var thread = event.getGuild().getThreadChannelById(event.getMessageId());
+        if (thread != null) {
+            thread.sendMessageEmbeds(new EmbedBuilder()
+                    .setColor(Color.RED)
+                    .setDescription("The original message of this thread has been deleted! This thread will now be archived!")
+                    .setTimestamp(Instant.now()).build())
+                .queue(ms -> thread.getManager().setArchived(true).queue());
         }
     }
 

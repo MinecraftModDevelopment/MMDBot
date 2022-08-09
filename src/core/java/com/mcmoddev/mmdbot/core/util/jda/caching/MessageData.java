@@ -51,8 +51,8 @@ public interface MessageData {
                 .stream()
                 .map(Message.Attachment::getUrl)
                 .toList();
-            final String authorName = message.getAuthor().getName();
-            final String authorAvatar = message.getAuthor().getEffectiveAvatarUrl();
+            final String authorName = message.getMember() == null ? message.getAuthor().getName() : message.getMember().getEffectiveName();
+            final String authorAvatar = message.getMember() == null ? message.getAuthor().getEffectiveAvatarUrl() : message.getMember().getEffectiveAvatarUrl();
             final InteractionData interactionData = message.getInteraction() == null ? null :
                 new InteractionData() {
                     final long authorId = message.getInteraction().getUser().getIdLong();
