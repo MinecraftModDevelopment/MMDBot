@@ -122,7 +122,7 @@ public class UpdateRulesCommand extends SlashCommand {
                         .setActionRow(Button.of(
                             ButtonStyle.SECONDARY, "rules-accept-start", "\uD83D\uDCDA I agree to the rules"
                         ), Button.of(
-                            ButtonStyle.PRIMARY, "rules-accept-denied", "\uD83D\uDEAE️ I refuse to accept the rules"
+                            ButtonStyle.SUCCESS, "rules-accept-denied", "\uD83D\uDEAE️ I refuse to accept the rules"
                         ))
                         .flatMap($$$$ -> event.getHook().sendMessage("Successfully updated the rules!").setEphemeral(true))
                         .queue();
@@ -171,7 +171,7 @@ public class UpdateRulesCommand extends SlashCommand {
                 .addActionRow(Button.of(
                     ButtonStyle.SECONDARY, "rules-agreed", "\uD83D\uDCDA I agree to the rules"
                 ), Button.of(
-                    ButtonStyle.PRIMARY, "rules-accept-denied", "\uD83D\uDEAE️ I refuse to accept the rules"
+                    ButtonStyle.SUCCESS, "rules-accept-denied", "\uD83D\uDEAE️ I refuse to accept the rules"
                 ))
                 .setEphemeral(true)
                 .queue();

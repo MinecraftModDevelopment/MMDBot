@@ -38,10 +38,8 @@ public record RuleAgreementChecker(Supplier<JDA> jda) implements Runnable {
             final var roleId = UpdateRulesCommand.getAcceptedRulesRole(guild.getIdLong());
             if (roleId != 0) {
                 guild.findMembers(it -> it.getTimeJoined().isBefore(OffsetDateTime.from(Instant.now().minus(1, ChronoUnit.DAYS)))
-                        && it.getRoles().isEmpty() &&
-                        !it.getUser().isBot()
-                        // For now, let's keep it roles.isEmpty()
-                        // && it.getRoles().stream().noneMatch(role -> role.getIdLong() == roleId)
+                        && !it.getUser().isBot()
+                        && it.getRoles().stream().noneMatch(role -> role.getIdLong() == roleId)
                     )
                     .onSuccess(members -> {
                         if (!members.isEmpty()) {
