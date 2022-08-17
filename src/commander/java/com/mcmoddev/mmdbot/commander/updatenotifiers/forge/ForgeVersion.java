@@ -86,4 +86,9 @@ public final class ForgeVersion {
     public int hashCode() {
         return Objects.hash(recommended, latest);
     }
+
+    @Override
+    public String toString() {
+        return "ForgeVersion[recommended=%s, latest=%s]".formatted(recommended, latest);
+    }
 }

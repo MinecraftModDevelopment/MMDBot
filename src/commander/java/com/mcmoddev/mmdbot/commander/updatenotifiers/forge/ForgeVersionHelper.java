@@ -130,6 +130,7 @@ public final class ForgeVersionHelper {
                 }
             }
         }
+        reader.close();
 
         return versions;
     }

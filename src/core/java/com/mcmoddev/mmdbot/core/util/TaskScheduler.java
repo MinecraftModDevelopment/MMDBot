@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.core.util;
 import com.mcmoddev.mmdbot.core.event.Events;
 import io.github.matyrobbrt.eventdispatcher.Event;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +34,11 @@ import java.util.concurrent.TimeUnit;
 /**
  * Class used for scheduling different tasks.
  */
+@Slf4j
 @UtilityClass
 public final class TaskScheduler {
 
-    private static final ScheduledExecutorService TIMER = Executors.newSingleThreadScheduledExecutor(r ->
+    private static final ScheduledExecutorService TIMER = Executors.newScheduledThreadPool(2, r ->
         Utils.setThreadDaemon(new Thread(r, "TaskScheduler"), true));
 
     /**
@@ -47,7 +49,7 @@ public final class TaskScheduler {
     public static void init() {
         final var event = new CollectTasksEvent();
         Events.MISC_BUS.post(event);
-        event.tasks.forEach(t -> TIMER.scheduleAtFixedRate(t.command(), t.initialDelay(), t.period(), t.unit()));
+        event.tasks.forEach(t -> TIMER.scheduleAtFixedRate(t.wrappedCommand(), t.initialDelay(), t.period(), t.unit()));
     }
 
     /**
@@ -96,6 +98,14 @@ public final class TaskScheduler {
                        long initialDelay,
                        long period,
                        TimeUnit unit) {
-
+        public Runnable wrappedCommand() {
+            return () -> {
+                try {
+                    command.run();
+                } catch (Exception exception) {
+                    log.error("Encountered exception trying to run task '{}' scheduled every {} {}: ", command, period, unit, exception);
+                }
+            };
+        }
     }
 }
