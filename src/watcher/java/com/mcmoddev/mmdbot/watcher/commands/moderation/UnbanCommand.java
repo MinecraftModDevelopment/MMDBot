@@ -30,7 +30,7 @@ import net.dv8tion.jda.api.entities.User;
  *
  * @author Jriwanek
  */
-public final class CmdUnban extends Command {
+public final class UnbanCommand extends Command {
 
     /**
      * The constant REQUIRED_PERMISSIONS.
@@ -42,7 +42,7 @@ public final class CmdUnban extends Command {
     /**
      * Instantiates a new Cmd unban.
      */
-    public CmdUnban() {
+    public UnbanCommand() {
         super();
         name = "unban";
         help = "Unbans a user.";

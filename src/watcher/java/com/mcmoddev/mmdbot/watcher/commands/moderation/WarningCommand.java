@@ -47,7 +47,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 
-public class CmdWarning extends SlashCommand {
+public class WarningCommand extends SlashCommand {
 
     public static final Permission[] REQUIRED_PERMISSIONS = new Permission[]{
         Permission.MODERATE_MEMBERS
@@ -56,7 +56,7 @@ public class CmdWarning extends SlashCommand {
     /**
      * Instantiates a new Cmd Warning.
      */
-    public CmdWarning() {
+    public WarningCommand() {
         super();
         name = "warning";
         help = "Does stuff regarding warnings.";
@@ -280,7 +280,7 @@ public class CmdWarning extends SlashCommand {
                 .filter(id -> id.startsWith(currentChoice))
                 .limit(5)
                 .map(id -> {
-                    final var targetMember = event.getJDA().getUserById(CmdWarning.<Long>withExtension(db -> db.getUser(id)));
+                    final var targetMember = event.getJDA().getUserById(WarningCommand.<Long>withExtension(db -> db.getUser(id)));
                     return new Command.Choice(id + (targetMember == null ? "" : (" - " + targetMember.getAsTag())), id);
                 }).toList()).queue();
         }

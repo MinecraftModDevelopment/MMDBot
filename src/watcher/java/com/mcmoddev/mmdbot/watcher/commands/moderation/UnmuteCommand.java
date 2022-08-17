@@ -45,7 +45,7 @@ import java.util.List;
  * @author KiriCattus
  * @author Curle
  */
-public final class CmdUnmute extends SlashCommand {
+public final class UnmuteCommand extends SlashCommand {
 
     private static final Permission[] REQUIRED_PERMISSIONS = {
         Permission.MODERATE_MEMBERS
@@ -54,7 +54,7 @@ public final class CmdUnmute extends SlashCommand {
     /**
      * Instantiates a new Cmd unmute.
      */
-    public CmdUnmute() {
+    public UnmuteCommand() {
         super();
         name = "unmute";
         help = "Un-mutes a user.";

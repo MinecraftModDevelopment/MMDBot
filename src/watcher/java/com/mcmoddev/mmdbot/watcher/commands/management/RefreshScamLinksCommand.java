@@ -29,9 +29,9 @@ import com.mcmoddev.mmdbot.core.common.ScamDetector;
  *
  * @author matyrobbrt
  */
-public class CmdRefreshScamLinks extends Command {
+public class RefreshScamLinksCommand extends Command {
 
-    public CmdRefreshScamLinks() {
+    public RefreshScamLinksCommand() {
         name = "refresh-scam-links";
         aliases = new String[]{"refreshscamlinks"};
         help = "Refreshes the scam links";

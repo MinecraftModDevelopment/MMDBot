@@ -35,11 +35,11 @@ import java.util.EnumSet;
  *
  * @author matyrobbrt
  */
-public final class CmdReact extends Command {
+public final class ReactCommand extends Command {
 
     private static final EnumSet<Permission> USER_PERMISSIONS = EnumSet.of(Permission.MANAGE_CHANNEL);
 
-    public CmdReact() {
+    public ReactCommand() {
         name = "react";
         help = "Reacts with an emote to the specified message.";
         category = new Category("Moderation");

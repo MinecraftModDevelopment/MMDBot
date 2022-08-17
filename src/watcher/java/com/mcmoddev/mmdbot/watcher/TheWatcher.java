@@ -35,14 +35,14 @@ import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.util.event.ThreadedEventListener;
-import com.mcmoddev.mmdbot.watcher.commands.information.CmdInvite;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdBan;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdKick;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdMute;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdReact;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdUnban;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdUnmute;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.CmdWarning;
+import com.mcmoddev.mmdbot.watcher.commands.information.InviteCommand;
+import com.mcmoddev.mmdbot.watcher.commands.moderation.BanCommand;
+import com.mcmoddev.mmdbot.watcher.commands.moderation.KickCommand;
+import com.mcmoddev.mmdbot.watcher.commands.moderation.MuteCommand;
+import com.mcmoddev.mmdbot.watcher.commands.moderation.ReactCommand;
+import com.mcmoddev.mmdbot.watcher.commands.moderation.UnbanCommand;
+import com.mcmoddev.mmdbot.watcher.commands.moderation.UnmuteCommand;
+import com.mcmoddev.mmdbot.watcher.commands.moderation.WarningCommand;
 import com.mcmoddev.mmdbot.watcher.event.EventReactionAdded;
 import com.mcmoddev.mmdbot.watcher.event.PersistedRolesEvents;
 import com.mcmoddev.mmdbot.watcher.punishments.PunishableActions;
@@ -269,8 +269,8 @@ public final class TheWatcher implements Bot {
             .setManualUpsert(true)
             .useHelpBuilder(false)
             .setActivity(null)
-            .addSlashCommands(new CmdMute(), new CmdUnmute(), new CmdInvite(), new CmdWarning())
-            .addCommands(new CmdBan(), new CmdUnban(), new CmdReact(), new CmdKick())
+            .addSlashCommands(new MuteCommand(), new UnmuteCommand(), new InviteCommand(), new WarningCommand())
+            .addCommands(new BanCommand(), new UnbanCommand(), new ReactCommand(), new KickCommand())
             .build();
         COMMANDS_LISTENER.addListener((EventListener) commandClient);
 

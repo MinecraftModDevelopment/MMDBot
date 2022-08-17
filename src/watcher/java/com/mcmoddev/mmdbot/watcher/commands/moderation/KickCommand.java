@@ -29,7 +29,7 @@ import net.dv8tion.jda.api.Permission;
  *
  * @author Jriwanek
  */
-public final class CmdKick extends Command {
+public final class KickCommand extends Command {
 
     /**
      * The constant REQUIRED_PERMISSIONS.
@@ -41,7 +41,7 @@ public final class CmdKick extends Command {
     /**
      * Instantiates a new Cmd kick.
      */
-    public CmdKick() {
+    public KickCommand() {
         super();
         name = "kick";
         help = "Kicks a user.";

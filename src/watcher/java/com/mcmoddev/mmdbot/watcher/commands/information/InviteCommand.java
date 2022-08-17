@@ -41,9 +41,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-public class CmdInvite extends SlashCommand {
+public class InviteCommand extends SlashCommand {
 
-    public CmdInvite() {
+    public InviteCommand() {
         name = "invite";
         guildOnly = false;
         help = "Things regarding invites";

@@ -59,7 +59,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author KiriCattus
  * @author Curle
  */
-public final class CmdMute extends SlashCommand {
+public final class MuteCommand extends SlashCommand {
 
     /**
      * The constant REQUIRED_PERMISSIONS.
@@ -71,7 +71,7 @@ public final class CmdMute extends SlashCommand {
     /**
      * Instantiates a new Cmd mute.
      */
-    public CmdMute() {
+    public MuteCommand() {
         super();
         name = "mute";
         help = "Mute a user either indefinitely or for a set amount of time.";

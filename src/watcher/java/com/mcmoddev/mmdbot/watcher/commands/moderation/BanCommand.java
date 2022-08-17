@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Jriwanek
  */
-public final class CmdBan extends Command {
+public final class BanCommand extends Command {
 
     /**
      * The constant REQUIRED_PERMISSIONS.
@@ -44,7 +44,7 @@ public final class CmdBan extends Command {
     /**
      * Instantiates a new Cmd ban.
      */
-    public CmdBan() {
+    public BanCommand() {
         super();
         name = "ban";
         help = "Ban or temp ban a user from the server.";
