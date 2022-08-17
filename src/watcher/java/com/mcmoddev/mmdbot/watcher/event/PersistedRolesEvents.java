@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.watcher.event;
 
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.watcher.TheWatcher;
+import com.mcmoddev.mmdbot.watcher.rules.UpdateRulesCommand;
 import com.mcmoddev.mmdbot.watcher.util.database.PersistedRoles;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
@@ -30,16 +31,16 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
-import java.util.function.Predicate;
 
 public class PersistedRolesEvents extends ListenerAdapter {
 
     @Override
     public void onGuildMemberJoin(@NotNull final GuildMemberJoinEvent event) {
         TheWatcher.database().useExtension(PersistedRoles.class, db -> {
+            final var acceptedRules = UpdateRulesCommand.getAcceptedRulesRole(event.getGuild().getIdLong());
             final var notPers = TheWatcher.getInstance().getConfig().roles().getNotPersisted().stream().map(SnowflakeValue::asLong).toList();
             final var roles = db.getRoles(event.getUser().getIdLong(), event.getGuild().getIdLong()).stream()
-                .filter(Predicate.not(notPers::contains))
+                .filter(role -> !notPers.contains(role) && role != acceptedRules)
                 .map(event.getGuild()::getRoleById)
                 .filter(Objects::nonNull)
                 .toList();
@@ -57,13 +58,14 @@ public class PersistedRolesEvents extends ListenerAdapter {
     public void onGuildMemberRemove(@NotNull final GuildMemberRemoveEvent event) {
         if (event.getMember() == null) return;
         TheWatcher.database().useExtension(PersistedRoles.class, db -> {
+            final var acceptedRules = UpdateRulesCommand.getAcceptedRulesRole(event.getGuild().getIdLong());
             db.clear(event.getUser().getIdLong(), event.getGuild().getIdLong());
             final var notPers = TheWatcher.getInstance().getConfig().roles().getNotPersisted().stream().map(SnowflakeValue::asLong).toList();
             final var roles = event.getMember().getRoles()
                 .stream()
                 .filter(r -> !r.isManaged() && event.getGuild().getSelfMember().canInteract(r))
                 .map(ISnowflake::getIdLong)
-                .filter(Predicate.not(notPers::contains))
+                .filter(role -> !notPers.contains(role) && role != acceptedRules)
                 .toList();
             if (!roles.isEmpty()) {
                 db.insert(event.getUser().getIdLong(), event.getGuild().getIdLong(), roles);

@@ -30,7 +30,9 @@ import com.mcmoddev.mmdbot.core.commands.CommandUpserter;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.commands.component.DeferredComponentListenerRegistry;
 import com.mcmoddev.mmdbot.core.commands.component.storage.ComponentStorage;
+import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
+import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
@@ -47,6 +49,9 @@ import com.mcmoddev.mmdbot.watcher.event.EventReactionAdded;
 import com.mcmoddev.mmdbot.watcher.event.PersistedRolesEvents;
 import com.mcmoddev.mmdbot.watcher.punishments.PunishableActions;
 import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
+import com.mcmoddev.mmdbot.watcher.rules.RuleAgreementChecker;
+import com.mcmoddev.mmdbot.watcher.rules.RuleCommand;
+import com.mcmoddev.mmdbot.watcher.rules.UpdateRulesCommand;
 import com.mcmoddev.mmdbot.watcher.util.BotConfig;
 import com.mcmoddev.mmdbot.watcher.util.Configuration;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -198,6 +203,8 @@ public final class TheWatcher implements Bot {
     public void start() {
         instance = this;
         oldConfig = new BotConfig(runPath.resolve("old_config.toml"));
+        Events.MISC_BUS.addListener((final TaskScheduler.CollectTasksEvent event) -> event.addTask(new RuleAgreementChecker(this::getJda),
+            0, 1, TimeUnit.DAYS));
 
         try {
             final var configPath = runPath.resolve("config.conf");
@@ -269,8 +276,8 @@ public final class TheWatcher implements Bot {
             .setManualUpsert(true)
             .useHelpBuilder(false)
             .setActivity(null)
-            .addSlashCommands(new MuteCommand(), new UnmuteCommand(), new InviteCommand(), new WarningCommand())
-            .addCommands(new BanCommand(), new UnbanCommand(), new ReactCommand(), new KickCommand())
+            .addSlashCommands(new MuteCommand(), new UnmuteCommand(), new InviteCommand(), new WarningCommand(), new UpdateRulesCommand(), RuleCommand.INSTANCE)
+            .addCommands(new BanCommand(), new UnbanCommand(), new ReactCommand(), new KickCommand(), RuleCommand.INSTANCE)
             .build();
         COMMANDS_LISTENER.addListener((EventListener) commandClient);
 
@@ -281,6 +288,7 @@ public final class TheWatcher implements Bot {
         // Buttons
         COMMANDS_LISTENER.addListener(new DismissListener());
 
+        MISC_LISTENER.addListener(UpdateRulesCommand::onEvent);
         MISC_LISTENER.addListeners(new EventReactionAdded(), new PersistedRolesEvents());
 
         MessageAction.setDefaultMentionRepliedUser(false);
