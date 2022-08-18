@@ -28,7 +28,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -40,7 +39,7 @@ public class RuleParser {
         try {
             final List<Message> messages = new ArrayList<>();
             final List<String> lines = List.of(message.split("\n"));
-            final var rulesIndex = lines.indexOf(lines.stream().filter(it -> it.trim().equals("## Rules")).findFirst().orElse(""));
+            final var rulesIndex = lines.indexOf(lines.stream().filter(it -> it.trim().equals("<rules>")).findFirst().orElse(""));
             int rulesEnd = lines.size() - 1;
             for (int i = rulesIndex; i < lines.size(); i++) {
                 if (lines.get(i).trim().equals("<rulesEnd/>")) {
@@ -48,11 +47,20 @@ public class RuleParser {
                     break;
                 }
             }
+            final var embedsIndex = lines.indexOf(lines.stream().filter(it -> it.trim().equals("<embeds>")).findFirst().orElse(""));
+            int embedsEnd = lines.size() - 1;
+            for (int i = embedsIndex; i < lines.size(); i++) {
+                if (lines.get(i).trim().equals("<embedsEnd/>")) {
+                    embedsEnd = i;
+                    break;
+                }
+            }
+            final var embeds = getEmbeds(IntStream.range(embedsIndex + 1, embedsEnd).mapToObj(lines::get).toList());
             final var messagesUntilRules = IntStream.range(0, rulesIndex).mapToObj(lines::get).toList();
             final var rules = collectRules(IntStream.range(rulesIndex + 1, rulesEnd).mapToObj(lines::get).toList());
-            final var afterRules = IntStream.range(rulesEnd + 1, lines.size()).mapToObj(lines::get).toList();
+            final var afterRules = IntStream.range(rulesEnd + 1, embedsIndex).mapToObj(lines::get).toList();
 
-            messages.addAll(splitIntoMessages(messagesUntilRules));
+            messages.addAll(splitIntoMessages(messagesUntilRules, embeds));
 
             final List<MessageEmbed> currentEmbeds = new ArrayList<>();
             for (int i = 0; i < rules.size(); i++) {
@@ -67,7 +75,7 @@ public class RuleParser {
             }
             if (!currentEmbeds.isEmpty()) messages.add(new MessageBuilder().setEmbeds(currentEmbeds).build());
 
-            messages.addAll(splitIntoMessages(afterRules));
+            messages.addAll(splitIntoMessages(afterRules, embeds));
 
             return messages;
         } catch (Exception s) {
@@ -76,7 +84,7 @@ public class RuleParser {
         }
     }
 
-    private static List<Message> splitIntoMessages(final List<String> lines) {
+    private static List<Message> splitIntoMessages(final List<String> lines, final List<MessageEmbed> embedRegistry) {
         final List<Message> messages = new ArrayList<>();
         if (lines.isEmpty()) return messages;
         AccessibleBuilder current;
@@ -85,8 +93,8 @@ public class RuleParser {
             if (firstLine.startsWith("img=https://")) {
                 messages.add(new AccessibleBuilder().setContent(firstLine.substring("img=".length())).build());
                 current = new AccessibleBuilder();
-            } else if (firstLine.startsWith("embed=https://")) {
-                current = new AccessibleBuilder().addEmbed(EmbedParser.parse(readText(firstLine.substring("embed=".length()))).build());
+            } else if (firstLine.startsWith("embed=")) {
+                current = new AccessibleBuilder().addEmbed(embedRegistry.get(Integer.parseInt(firstLine.substring("embed=".length()))));
             } else {
                 current = new AccessibleBuilder().append(firstLine);
             }
@@ -98,12 +106,12 @@ public class RuleParser {
                 messages.add(new AccessibleBuilder().setContent(it.substring("img=".length())).build());
                 current = new AccessibleBuilder();
                 continue;
-            } else if (it.startsWith("embed=https://")) {
+            } else if (it.startsWith("embed=")) {
                 if (current.getEmbeds().size() >= Message.MAX_EMBED_COUNT) {
                     messages.add(current.build());
                     current = new AccessibleBuilder();
                 }
-                current.addEmbed(EmbedParser.parse(readText(it.substring("embed=".length()))).build());
+                current.addEmbed(embedRegistry.get(Integer.parseInt(it.substring("embed=".length()))));
                 continue;
             }
 
@@ -111,6 +119,12 @@ public class RuleParser {
                 // Send the existing embeds as a separate message
                 messages.add(current.build());
                 current = new AccessibleBuilder();
+            }
+
+            if (it.trim().startsWith("-----")) {
+                messages.add(current.build());
+                current = new AccessibleBuilder();
+                continue;
             }
 
             if ((current + "\n" + it).length() > Message.MAX_CONTENT_LENGTH) {
@@ -126,12 +140,22 @@ public class RuleParser {
         return messages;
     }
 
-    private static String readText(String url) {
-        try (final var is = new URL(url).openStream()) {
-            return new String(is.readAllBytes());
-        } catch (Exception ignored) {
-            return "";
+    private static List<MessageEmbed> getEmbeds(final List<String> lines) {
+        final List<MessageEmbed> embeds = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        for (final String line : lines) {
+            if (line.startsWith("-----")) {
+                embeds.add(EmbedParser.parse(current.toString()).build());
+                current = new StringBuilder();
+                continue;
+            }
+            if (!current.isEmpty())
+                current.append('\n');
+            if (!line.isBlank())
+                current.append(line);
         }
+        if (!current.isEmpty()) embeds.add(EmbedParser.parse(current.toString()).build());
+        return embeds;
     }
 
     private static List<RuleData> collectRules(final List<String> lines) {

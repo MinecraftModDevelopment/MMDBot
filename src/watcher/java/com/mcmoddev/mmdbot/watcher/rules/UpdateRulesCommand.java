@@ -28,9 +28,9 @@ import com.mcmoddev.mmdbot.core.util.webhook.WebhookManager;
 import com.mcmoddev.mmdbot.watcher.TheWatcher;
 import com.mcmoddev.mmdbot.watcher.util.database.RulesDAO;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -197,5 +197,9 @@ public class UpdateRulesCommand extends SlashCommand {
         } catch (Exception ignored) {
             return 0L;
         }
+    }
+
+    public static String getRulesChannel(Guild guild) {
+        return TheWatcher.getInstance().getJdbi().withExtension(RulesDAO.class, it -> it.get(guild.getIdLong(), RULES_CHANNEL_KEY));
     }
 }

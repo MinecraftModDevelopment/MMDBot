@@ -25,6 +25,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.watcher.TheWatcher;
 import com.mcmoddev.mmdbot.watcher.util.database.RulesDAO;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -52,8 +53,11 @@ public class RuleCommand extends SlashCommand {
                 .setEphemeral(true)
                 .queue();
         } else {
-            event.replyEmbeds(rule.asEmbed(id)
-                .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
+            event.reply(new MessageBuilder()
+                .setEmbeds(rule.asEmbed(id)
+                    .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
+                    .build())
+                .setContent("See the server's rules in <#%s>.".formatted(UpdateRulesCommand.getRulesChannel(event.getGuild())))
                 .build())
                 .queue();
         }
@@ -72,9 +76,12 @@ public class RuleCommand extends SlashCommand {
         if (rule == null) {
             event.reply("Unknown rule nr. " + id);
         } else {
-            event.reply(rule.asEmbed(id)
+            event.reply(new MessageBuilder()
+                .setEmbeds(rule.asEmbed(id)
                     .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
-                    .build());
+                    .build())
+                .setContent("See the server's rules in <#%s>.".formatted(UpdateRulesCommand.getRulesChannel(event.getGuild())))
+                .build());
         }
     }
 
