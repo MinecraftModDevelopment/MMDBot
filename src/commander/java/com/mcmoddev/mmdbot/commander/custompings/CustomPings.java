@@ -24,6 +24,8 @@ import com.google.common.base.Suppliers;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.core.database.VersionedDataMigrator;
 import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import lombok.experimental.UtilityClass;
 
 import java.io.FileOutputStream;
@@ -43,6 +45,7 @@ import java.util.function.UnaryOperator;
 
 import static com.mcmoddev.mmdbot.core.util.Constants.Gsons.NO_PRETTY_PRINTING;
 import static java.util.Collections.synchronizedMap;
+import static it.unimi.dsi.fastutil.longs.Long2ObjectMaps.*;
 
 @UtilityClass
 public class CustomPings {
@@ -76,49 +79,51 @@ public class CustomPings {
 
     /**
      * Example data:
+     * {@code
      * guildId: {
-     * memberId: [
-     * {
-     * pattern: pattern1,
-     * text: text1
-     * },
-     * {
-     * pattern: pattern2,
-     * text: text2
+     *  memberId: [
+     *      {
+     *          pattern: pattern1,
+     *          text: text1
+     *      },
+     *      {
+     *          pattern: pattern2,
+     *          text: text2
+     *      }
+     *  ],
+     *  memberId2: [
+     *      {
+     *          pattern: pattern1,
+     *          text: text1
+     *      },
+     *      {
+     *          pattern: pattern2,
+     *          text: text2
+     *      }
+     *  ]
      * }
-     * ],
-     * memberId2: [
-     * {
-     * pattern: pattern1,
-     * text: text1
-     * },
-     * {
-     * pattern: pattern2,
-     * text: text2
-     * }
-     * ]
      * }
      */
-    private static Map<Long, Map<Long, List<CustomPing>>> pings;
+    private static Long2ObjectMap<Map<Long, List<CustomPing>>> pings;
 
-    public static Map<Long, Map<Long, List<CustomPing>>> getPings() {
+    public static Long2ObjectMap<Map<Long, List<CustomPing>>> getPings() {
         if (pings != null) return pings;
         final var path = PATH.get();
         if (!Files.exists(path)) {
-            return pings = synchronizedMap(new HashMap<>());
+            return pings = synchronize(new Long2ObjectOpenHashMap<>());
         }
         try {
             final var db = VersionedDatabase.<Map<Long, Map<Long, List<CustomPing>>>>fromFile(NO_PRETTY_PRINTING, path, TYPE, CURRENT_SCHEMA_VERSION, new HashMap<>());
             if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
                 MIGRATOR.migrate(CURRENT_SCHEMA_VERSION, path);
                 final var newDb = VersionedDatabase.<Map<Long, Map<Long, List<CustomPing>>>>fromFile(NO_PRETTY_PRINTING, path, TYPE, CURRENT_SCHEMA_VERSION, new HashMap<>());
-                return pings = synchronizedMap(newDb.getData());
+                return pings = synchronize(new Long2ObjectOpenHashMap<>(newDb.getData()));
             } else {
-                return pings = synchronizedMap(db.getData());
+                return pings = synchronize(new Long2ObjectOpenHashMap<>(db.getData()));
             }
         } catch (final IOException exception) {
             TheCommander.LOGGER.error("Failed to read custom pings file...", exception);
-            return pings = synchronizedMap(new HashMap<>());
+            return pings = synchronize(new Long2ObjectOpenHashMap<>());
         }
     }
 

@@ -23,6 +23,8 @@ package com.mcmoddev.mmdbot.commander.util;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.Utils;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageType;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
@@ -34,16 +36,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.EnumMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 public class ThreadChannelCreatorEvents extends ListenerAdapter {
 
-    private final Map<Type, List<Long>> caches = new HashMap<>();
+    private final EnumMap<Type, LongList> caches = new EnumMap<>(Type.class);
     private final Supplier<Configuration> configGetter;
 
     public ThreadChannelCreatorEvents(final Supplier<Configuration> configGetter) {
@@ -121,7 +120,7 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
 
     private void createThread(final MessageReceivedEvent event, final Type threadType, boolean ignoreCooldown) {
         final var author = event.getMember();
-        if (!ignoreCooldown && caches.computeIfAbsent(threadType, k -> new ArrayList<>()).contains(author.getIdLong())) {
+        if (!ignoreCooldown && caches.computeIfAbsent(threadType, k -> new LongArrayList()).contains(author.getIdLong())) {
             return;
         }
         final var threadTypeStr = threadType.toString();
@@ -135,8 +134,8 @@ public class ThreadChannelCreatorEvents extends ListenerAdapter {
                             **This thread is intended for discussing %s's %s. The %s:**
                             %s""".formatted(author.getAsMention(), threadTypeStr, threadTypeStr, event.getMessage().getContentRaw())).build())
                     .queue(msg -> msg.pin().queue());
-                caches.computeIfAbsent(threadType, k -> new ArrayList<>()).add(author.getIdLong());
-                TaskScheduler.scheduleTask(() -> caches.get(threadType).remove(author.getIdLong()), 30, TimeUnit.MINUTES);
+                caches.computeIfAbsent(threadType, k -> new LongArrayList()).add(author.getIdLong());
+                TaskScheduler.scheduleTask(() -> caches.get(threadType).rem(author.getIdLong()), 30, TimeUnit.MINUTES);
             });
         });
     }

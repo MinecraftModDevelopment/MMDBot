@@ -21,6 +21,8 @@
 package com.mcmoddev.mmdbot.commander.util.oldchannels;
 
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
+import it.unimi.dsi.fastutil.longs.Long2LongMap;
+import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -38,7 +40,7 @@ public class OldChannelsHelper {
     /**
      * The constant channelLastMessageMap.
      */
-    private static final Map<Long, Long> CHANNEL_LAST_MESSAGE_MAP = new HashMap<>();
+    private static final Long2LongMap CHANNEL_LAST_MESSAGE_MAP = new Long2LongOpenHashMap();
 
     /**
      * The constant ready.

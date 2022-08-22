@@ -34,6 +34,9 @@ import com.mcmoddev.mmdbot.commander.migrate.QuotesMigrator;
 import com.mcmoddev.mmdbot.core.database.MigratorCluster;
 import com.mcmoddev.mmdbot.core.database.VersionedDataMigrator;
 import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.Nullable;
@@ -46,8 +49,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -116,7 +117,7 @@ public final class Quotes {
      * Quote metadata ID should sync with the index in this list.
      * This greatly simplifies access operations.
      */
-    private static Map<Long, List<Quote>> quotes = null;
+    private static Long2ObjectMap<List<Quote>> quotes = null;
 
     /**
      * The message used for when quotes are null, or do not exist.
@@ -152,21 +153,21 @@ public final class Quotes {
 
         final var path = QUOTE_STORAGE.get();
         if (!Files.exists(path)) {
-            quotes = Collections.synchronizedMap(new HashMap<>());
+            quotes = Long2ObjectMaps.synchronize(new Long2ObjectOpenHashMap<>());
         }
         try {
             final var db = VersionedDatabase.<Map<Long, List<Quote>>>fromFile(GSON, path, TYPE);
             if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
                 new QuotesMigrator(TheCommander.getInstance().getRunPath()).migrate();
                 final var newDb = VersionedDatabase.<Map<Long, List<Quote>>>fromFile(GSON, path, TYPE);
-                quotes = Collections.synchronizedMap(newDb.getData());
+                quotes = Long2ObjectMaps.synchronize(new Long2ObjectOpenHashMap<>(newDb.getData()));
             } else {
-                quotes = Collections.synchronizedMap(db.getData());
+                quotes = Long2ObjectMaps.synchronize(new Long2ObjectOpenHashMap<>(db.getData()));
             }
 
         } catch (final IOException exception) {
             TheCommander.LOGGER.trace("Failed to read quote file...", exception);
-            quotes = Collections.synchronizedMap(new HashMap<>());
+            quotes = Long2ObjectMaps.synchronize(new Long2ObjectOpenHashMap<>());
         }
 
         if (quotes.get(0L) != null) {

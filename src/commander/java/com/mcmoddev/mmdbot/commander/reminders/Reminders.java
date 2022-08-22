@@ -25,6 +25,8 @@ import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.core.database.VersionedDataMigrator;
 import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
 import com.mcmoddev.mmdbot.core.util.Utils;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import lombok.experimental.UtilityClass;
 
 import java.io.FileOutputStream;
@@ -79,26 +81,26 @@ public class Reminders {
      */
     private static final Type TYPE = new com.google.common.reflect.TypeToken<Map<Long, List<Reminder>>>() {
     }.getType();
-    private static Map<Long, List<Reminder>> reminders;
+    private static Long2ObjectMap<List<Reminder>> reminders;
 
-    public static Map<Long, List<Reminder>> getReminders() {
+    public static Long2ObjectMap<List<Reminder>> getReminders() {
         if (reminders != null) return reminders;
         final var path = PATH.get();
         if (!Files.exists(path)) {
-            return reminders = new HashMap<>();
+            return reminders = new Long2ObjectOpenHashMap<>();
         }
         try {
             final var db = VersionedDatabase.<Map<Long, List<Reminder>>>fromFile(NO_PRETTY_PRINTING, path, TYPE, CURRENT_SCHEMA_VERSION, new HashMap<>());
             if (db.getSchemaVersion() != CURRENT_SCHEMA_VERSION) {
                 MIGRATOR.migrate(CURRENT_SCHEMA_VERSION, path);
                 final var newDb = VersionedDatabase.<Map<Long, List<Reminder>>>fromFile(NO_PRETTY_PRINTING, path, TYPE, CURRENT_SCHEMA_VERSION, new HashMap<>());
-                return reminders = newDb.getData();
+                return reminders = new Long2ObjectOpenHashMap<>(newDb.getData());
             } else {
-                return reminders = db.getData();
+                return reminders = new Long2ObjectOpenHashMap<>(db.getData());
             }
         } catch (final IOException exception) {
             TheCommander.LOGGER.error("Failed to read reminders file...", exception);
-            return reminders = new HashMap<>();
+            return reminders = new Long2ObjectOpenHashMap<>();
         }
     }
 
