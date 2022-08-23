@@ -60,9 +60,7 @@ import static java.util.stream.Collectors.toList;
 
 public class NormalDocsSender implements DocsSender {
 
-    // TODO maybe remove the `abstract` part from interfaces, and other similar cases
-    // Maybe also add the parameters an annotation can have
-    private final DocsEmbed.DocFormatter formatter = JavadocElement::getDeclaration;
+    private final DocsEmbed.DocFormatter formatter = new CustomDocFormatter();
     private final NameShortener nameShortener = new NameShortener();
 
     @Override

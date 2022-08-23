@@ -139,7 +139,7 @@ public class DocsCommand extends SlashCommand {
         }
 
         final var query = event.getOption("query", "", OptionMapping::getAsString);
-        if (query.length() <= 2) {
+        if (query.length() <= 1) {
             event.deferReply(true)
                 .setContent("Expected at least 2 characters for the query!")
                 .queue();
@@ -235,7 +235,7 @@ public class DocsCommand extends SlashCommand {
                 buttonId
             );
         } else {
-            replier.apply(new MessageBuilder("Multiple results have been found for this qualified name.")
+            replier.apply(new MessageBuilder("No results have been found for this qualified name.")
                 .setActionRows(ActionRow.of(DismissListener.createDismissButton(userId)))
                 .build(), List.of()).queue();
         }

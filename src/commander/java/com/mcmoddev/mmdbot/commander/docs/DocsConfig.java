@@ -67,7 +67,7 @@ public class DocsConfig {
         @Getter
         @Required
         @Setting("indexUrl")
-        @Comment("An URL or a path relative to '/docs' which ")
+        @Comment("An URL or a path relative to '/docs' from which to index the javadocs, from the sources")
         private String indexUrl = "https://repo1.maven.org/maven2/com/google/code/gson/gson/2.9.0/gson-2.9.0-sources.jar";
     }
 

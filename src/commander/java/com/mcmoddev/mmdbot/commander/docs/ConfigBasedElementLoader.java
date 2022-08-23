@@ -25,6 +25,7 @@ import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import de.ialistannen.javadocapi.indexing.OnlineJavadocIndexer;
 import de.ialistannen.javadocapi.rendering.Java11PlusLinkResolver;
 import de.ialistannen.javadocapi.spoon.JavadocElementExtractor;
+import de.ialistannen.javadocapi.spoon.JavadocLauncher;
 import de.ialistannen.javadocapi.spoon.filtering.IndexerFilterChain;
 import de.ialistannen.javadocapi.spoon.filtering.ParallelProcessor;
 import de.ialistannen.javadocapi.storage.AggregatedElementLoader;
@@ -38,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 import spoon.Launcher;
 import spoon.OutputType;
+import spoon.support.compiler.ProgressLogger;
 import spoon.support.compiler.ZipFolder;
 
 import java.io.FileOutputStream;
@@ -125,7 +127,7 @@ public final class ConfigBasedElementLoader implements ElementLoader {
             Files.createDirectories(parent);
         }
         Files.createFile(storage.getFile());
-        final var launcher = new Launcher();
+        final var launcher = new JavadocLauncher();
         if (indexUrl.startsWith("https://") || indexUrl.startsWith("http://")) {
             log.info("Downloading {} for indexing...", indexUrl);
             try (final var readChannel = Channels.newChannel(new URL(indexUrl).openStream())) {
@@ -148,19 +150,20 @@ public final class ConfigBasedElementLoader implements ElementLoader {
         index(launcher, storage);
     }
 
-    private void index(final Launcher launcher, final SqliteStorage storage) {
-        log.warn("Started indexing JavaDocs...");
+    static void index(final Launcher launcher, final SqliteStorage storage) {
+        log.warn("Started indexing JavaDocs for {}...", storage.getFile());
         launcher.getEnvironment().setShouldCompile(false);
         launcher.getEnvironment().disableConsistencyChecks();
         launcher.getEnvironment().setOutputType(OutputType.NO_OUTPUT);
         launcher.getEnvironment().setCommentEnabled(true);
         launcher.getEnvironment().setComplianceLevel(16);
+        launcher.getEnvironment().setSpoonProgress(new LoggingProcessLogger(launcher));
 
         final var model = launcher.buildModel();
         final var extractor = new JavadocElementExtractor();
         final var processor = new ParallelProcessor(
             new IndexerFilterChain(Set.of("*")).asFilter(),
-            Runtime.getRuntime().availableProcessors()
+            1
         );
         model.getAllModules()
             .forEach(it -> processor.process(
@@ -195,5 +198,35 @@ public final class ConfigBasedElementLoader implements ElementLoader {
         }
 
         return references;
+    }
+
+    public static class LoggingProcessLogger extends ProgressLogger {
+
+        public int touchedClasses;
+
+        public LoggingProcessLogger(Launcher launcher) {
+            super(launcher.getEnvironment());
+            touchedClasses = 0;
+        }
+
+        @Override
+        public void start(Process process) {
+            log.warn("Stating phase {}", process);
+            touchedClasses = 0;
+        }
+
+        @Override
+        public void step(Process process, String task, int taskId, int nbTask) {
+            log.info("Working on {} as part of {}", task, process);
+            touchedClasses++;
+            if (touchedClasses % 1000 == 0) {
+                log.warn("Phase {} has discovered {} classes so far. Currently working on {}", process, touchedClasses, task);
+            }
+        }
+
+        @Override
+        public void end(Process process) {
+            log.warn("Phase {} done! Discovered classes: {}", process, touchedClasses);
+        }
     }
 }
