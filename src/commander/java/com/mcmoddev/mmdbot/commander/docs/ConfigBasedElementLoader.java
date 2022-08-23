@@ -23,6 +23,9 @@ package com.mcmoddev.mmdbot.commander.docs;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import de.ialistannen.javadocapi.indexing.OnlineJavadocIndexer;
+import de.ialistannen.javadocapi.model.JavadocElement;
+import de.ialistannen.javadocapi.model.QualifiedName;
+import de.ialistannen.javadocapi.model.types.JavadocType;
 import de.ialistannen.javadocapi.rendering.Java11PlusLinkResolver;
 import de.ialistannen.javadocapi.spoon.JavadocElementExtractor;
 import de.ialistannen.javadocapi.spoon.JavadocLauncher;
@@ -34,9 +37,10 @@ import de.ialistannen.javadocapi.storage.ElementLoader;
 import de.ialistannen.javadocapi.storage.SqliteStorage;
 import de.ialistannen.javadocapi.util.BaseUrlElementLoader;
 import de.ialistannen.javadocapi.util.ExternalJavadocReference;
-import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
+import org.jdbi.v3.core.Jdbi;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
+import org.sqlite.SQLiteDataSource;
 import spoon.Launcher;
 import spoon.OutputType;
 import spoon.support.compiler.ProgressLogger;
@@ -48,6 +52,7 @@ import java.nio.channels.Channels;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -70,11 +75,12 @@ public final class ConfigBasedElementLoader implements ElementLoader {
     }
 
     private final Path basePath;
-    @Delegate
     private final ElementLoader delegate;
 
     private final int loadersSize;
     private int indexedAmount;
+
+    private final List<Jdbi> jdbis = new ArrayList<>();
 
     public ConfigBasedElementLoader(final Path basePath) throws Exception {
         this.basePath = basePath;
@@ -93,6 +99,14 @@ public final class ConfigBasedElementLoader implements ElementLoader {
         final var loaders = new ArrayList<ElementLoader>();
         for (final var database : config.getDatabases()) {
             final var dbPath = resolve(basePath, database.getPath());
+
+            {
+                final var url = "jdbc:sqlite:" + dbPath.toAbsolutePath();
+                SQLiteDataSource dataSource = new SQLiteDataSource();
+                dataSource.setUrl(url);
+                jdbis.add(Jdbi.create(dataSource));
+            }
+
             final var storage = new SqliteStorage(
                 gson, dbPath
             );
@@ -115,6 +129,36 @@ public final class ConfigBasedElementLoader implements ElementLoader {
         }
         loadersSize = loaders.size();
         this.delegate = new AggregatedElementLoader(loaders);
+    }
+
+    @Override
+    public Collection<LoadResult<JavadocElement>> findAll() {
+        return delegate.findAll();
+    }
+
+    @Override
+    public Collection<LoadResult<JavadocElement>> findByQualifiedName(final QualifiedName name) {
+        return delegate.findByQualifiedName(name);
+    }
+
+    @Override
+    public Collection<LoadResult<JavadocElement>> findElementByName(final String name) {
+        return delegate.findElementByName(name);
+    }
+
+    @Override
+    public Collection<LoadResult<JavadocType>> findClassByName(final String name) {
+        return delegate.findClassByName(name);
+    }
+
+    @Override
+    public Collection<String> autocomplete(final String prompt) {
+        final List<String> results = new ArrayList<>();
+        jdbis.forEach(it -> results.addAll(
+            it.inTransaction(handle -> handle.select("select qualified_name from Completions where qualified_name like '%" + prompt + "%' and rank match 'bm25(10.0, 5.0)' order by priority desc, rank desc")
+                .mapTo(String.class).list()
+        )));
+        return results;
     }
 
     public boolean indexedAll() {

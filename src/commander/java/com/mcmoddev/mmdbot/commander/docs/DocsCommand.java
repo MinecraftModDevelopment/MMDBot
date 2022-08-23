@@ -268,7 +268,6 @@ public class DocsCommand extends SlashCommand {
                             maybeShorten(it.asString())
                         ))
                         .toList())
-                .setCheck(() -> !event.getInteraction().isAcknowledged())
                 .queue();
         }
     }
