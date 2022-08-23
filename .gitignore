@@ -29,6 +29,7 @@
 
 #File Types
 hs_err_pid*
+*.log
 NBTExample.nbt
 Thumbs.db
 
