@@ -55,7 +55,7 @@ public class Commands {
             final var currentOption = event.getOption("version", "", OptionMapping::getAsString).toLowerCase(Locale.ROOT);
             event.replyChoices(MCVersions.getKnownVersions()
                     .stream()
-                    .filter(currentOption::startsWith)
+                    .filter(it -> it.startsWith(currentOption))
                     .limit(5)
                     .map(s -> new Command.Choice(s, s))
                     .toList())
