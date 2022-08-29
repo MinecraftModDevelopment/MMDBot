@@ -134,7 +134,7 @@ public class UpdateRulesCommand extends SlashCommand {
                 .map(MessageHistory::getRetrievedHistory)
                 .submit()
                 .thenApply(messages -> {
-                    if (messages.size() > 2) {
+                    if (messages.size() >= 2) {
                         return CompletableFuture.allOf(channel.purgeMessages(messages)
                             .toArray(new CompletableFuture[0]))
                             .thenApply(s -> channel.deleteMessageById(channel.getLatestMessageId()).submit());
