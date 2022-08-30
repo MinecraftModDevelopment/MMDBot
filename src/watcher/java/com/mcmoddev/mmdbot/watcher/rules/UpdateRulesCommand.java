@@ -118,11 +118,9 @@ public class UpdateRulesCommand extends SlashCommand {
                     event.getHook().sendMessage("There was an exception executing that command: " + e.getLocalizedMessage())
                         .setEphemeral(true).queue();
                 } else {
-                    channel.sendMessage("By clicking the button below you agree to have read the rules, and you will have access to talk in the server.")
+                    channel.sendMessage("Click the button bellow to be able to talk in the server.")
                         .setActionRow(Button.of(
-                            ButtonStyle.SECONDARY, "rules-accept-start", "\uD83D\uDCDA I agree to the rules"
-                        ), Button.of(
-                            ButtonStyle.SUCCESS, "rules-accept-denied", "\uD83D\uDEAE️ I refuse to accept the rules"
+                            ButtonStyle.PRIMARY, "rules-accept-start", "Click me!"
                         ))
                         .flatMap($$$$ -> event.getHook().sendMessage("Successfully updated the rules!").setEphemeral(true))
                         .queue();
@@ -158,15 +156,12 @@ public class UpdateRulesCommand extends SlashCommand {
         final var role = event.getGuild().getRoleById(getAcceptedRulesRole(event.getGuild().getIdLong()));
         if (role == null) {
             event.reply("The server has not configured a valid 'Rules Agreed' rule, please contact server admins.")
-                .setEphemeral(true).queue();
+                .setEphemeral(true)
+                .queue();
             return;
         }
 
         if (event.getButton().getId().equals("rules-accept-start")) {
-            if (event.getMember().getRoles().stream().anyMatch(it -> it.getIdLong() == role.getIdLong())) {
-                event.reply("You have already agreed to the rules!").setEphemeral(true).queue();
-                return;
-            }
             event.reply("By clicking the button below, you accept that you have read the rules, you agree to them, and you will follow them in every interaction in the server.")
                 .addActionRow(Button.of(
                     ButtonStyle.SECONDARY, "rules-agreed", "\uD83D\uDCDA I agree to the rules"
@@ -176,6 +171,10 @@ public class UpdateRulesCommand extends SlashCommand {
                 .setEphemeral(true)
                 .queue();
         } else if (event.getButton().getId().equals("rules-agreed")) {
+            if (event.getMember().getRoles().stream().anyMatch(it -> it.getIdLong() == role.getIdLong())) {
+                event.reply("You have already agreed to the rules!").setEphemeral(true).queue();
+                return;
+            }
             event.getGuild().modifyMemberRoles(event.getMember(), List.of(role), null)
                 .flatMap(v -> event.reply("Role granted! Have fun in the server, and remember to abide to the rules!")
                     .setEphemeral(true))
