@@ -125,7 +125,7 @@ public enum DocsButtonType {
             context.getUser().getIdLong(),
             context.getComponentId(),
             m -> context.getEvent().getMessage().editMessage(m)
-                .content("\u200b") // use a ZWSP to "remove" the content
+                .setContent("\u200b") // use a ZWSP to "remove" the content
                 .map(msg -> {
                     final var compData = new DocsButtonData(context.getUser().getIdLong(), query, true, false);
                     final var component = new Component(command.componentListener.getName(), UUID.randomUUID(), compData.toArguments(), Component.Lifespan.TEMPORARY);

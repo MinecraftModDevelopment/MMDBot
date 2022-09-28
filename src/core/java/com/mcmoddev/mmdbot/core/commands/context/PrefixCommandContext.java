@@ -28,6 +28,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,7 +52,7 @@ record PrefixCommandContext(CommandEvent event) implements CommandContext {
     @Override
     public @NotNull RestAction<SentMessage> replyOrEdit(final Message message) {
         return event.getMessage()
-            .reply(message)
+            .reply(MessageCreateData.fromMessage(message))
             .map(s -> new SentMessage() {
                 @Override
                 public @Nullable

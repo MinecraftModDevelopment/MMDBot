@@ -33,8 +33,9 @@ import net.dv8tion.jda.api.audit.ActionType;
 import net.dv8tion.jda.api.audit.AuditLogKey;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import net.dv8tion.jda.api.events.guild.GuildUnbanEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
@@ -371,7 +372,7 @@ public final class ModerationEvents extends ListenerAdapter {
         final var loggingChannels = LoggingType.MODERATION_EVENTS.getChannels(guildId);
         loggingChannels
             .forEach(id -> {
-                final var ch = id.resolve(idL -> jda.getChannelById(net.dv8tion.jda.api.entities.MessageChannel.class, idL));
+                final var ch = id.resolve(idL -> jda.getChannelById(MessageChannel.class, idL));
                 if (ch != null) {
                     ch.sendMessageEmbeds(embed).queue();
                 }

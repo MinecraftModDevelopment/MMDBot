@@ -28,6 +28,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,7 +52,7 @@ record SlashCommandContext(SlashCommandEvent event,
 
     @Override
     public @NotNull RestAction<SentMessage> replyOrEdit(final Message message) {
-        return hook.editOriginal(message)
+        return hook.editOriginal(MessageEditData.fromMessage(message))
             .map(s -> new SentMessage() {
                 @Override
                 public @Nullable

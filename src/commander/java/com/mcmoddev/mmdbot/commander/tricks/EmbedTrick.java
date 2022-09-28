@@ -23,7 +23,6 @@ package com.mcmoddev.mmdbot.commander.tricks;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import io.github.matyrobbrt.eventdispatcher.LazySupplier;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -31,6 +30,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 
 import java.util.Arrays;
 import java.util.List;
@@ -106,7 +106,8 @@ public class EmbedTrick implements Trick {
         for (MessageEmbed.Field field : getFields()) {
             builder.addField(field);
         }
-        context.replyWithMessage(new MessageBuilder(builder.build())
+        context.replyWithMessage(new MessageCreateBuilder()
+            .setEmbeds(builder.build())
             .setAllowedMentions(Set.of(Message.MentionType.CHANNEL, Message.MentionType.EMOJI)).build());
     }
 

@@ -25,11 +25,11 @@ import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -86,8 +86,8 @@ public record Reminder(String content, long channelId, boolean isPrivateChannel,
                     // If we can't DM the user, then log
                     user.openPrivateChannel().queue(pv -> {
                         pv.sendMessage(buildMessage(jda, user)
-                                .append(System.lineSeparator())
-                                .appendCodeLine("Could not send reminder in <#%s>.".formatted(channelId()))
+                                .addContent(System.lineSeparator())
+                                .addContent("*Could not send reminder in <#%s>.*".formatted(channelId()))
                                 .build())
                             .queue(m -> SnoozingListener.INSTANCE.addSnoozeListener(m.getIdLong(), this),
                                 error -> log.error("Exception while trying to send reminder!", error));
@@ -103,8 +103,8 @@ public record Reminder(String content, long channelId, boolean isPrivateChannel,
         }, $ -> log.warn("Could not find user with ID {} for a reminder.", ownerId));
     }
 
-    public MessageBuilder buildMessage(final JDA jda, final User user) {
-        return new MessageBuilder()
+    public MessageCreateBuilder buildMessage(final JDA jda, final User user) {
+        return new MessageCreateBuilder()
             .setContent(isPrivateChannel() ? null : user.getAsMention())
             .setEmbeds(
                 new EmbedBuilder()
@@ -117,7 +117,7 @@ public record Reminder(String content, long channelId, boolean isPrivateChannel,
                     .build()
             )
             .setAllowedMentions(ALLOWED_MENTIONS)
-            .setActionRows(getActionRows());
+            .setComponents(getActionRows());
     }
 
     public List<ActionRow> getActionRows() {

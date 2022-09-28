@@ -25,9 +25,8 @@ import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.webhook.WebhookManager;
 import com.mcmoddev.mmdbot.watcher.TheWatcher;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
@@ -40,6 +39,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.pagination.PaginationAction;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -165,12 +165,12 @@ public final class EventReactionAdded extends ListenerAdapter {
                     return;
                 }
 
-                final Message response = new MessageBuilder().append(messageAuthor.getAsMention()).append(", ")
-                    .append("your request has been found to be low quality by community review and has been removed.\n")
-                    .append("Please see other requests for how to do it correctly.\n")
-                    .appendFormat("It received %d 'bad' reactions, %d 'needs improvement' reactions, and %d "
+                final var response = new MessageCreateBuilder().addContent(messageAuthor.getAsMention()).addContent(", ")
+                    .addContent("your request has been found to be low quality by community review and has been removed.\n")
+                    .addContent("Please see other requests for how to do it correctly.\n")
+                    .addContent(String.format("It received %d 'bad' reactions, %d 'needs improvement' reactions, and %d "
                             + "'good' reactions.",
-                        badReactionsCount, needsImprovementReactionsCount, goodReactionsCount)
+                        badReactionsCount, needsImprovementReactionsCount, goodReactionsCount))
                     .build();
 
                 warnedMessages.remove(message);
@@ -215,13 +215,13 @@ public final class EventReactionAdded extends ListenerAdapter {
 
             } else if (!warnedMessages.contains(message) && requestScore >= warningThreshold) {
 
-                final Message response = new MessageBuilder()
-                    .append(messageAuthor.getAsMention()).append(", ")
-                    .append("your request is close to being removed by community review.\n")
-                    .append("Please edit your message to bring it to a higher standard.\n")
-                    .appendFormat("It has so far received %d 'bad' reactions, %d 'needs improvement' reactions, "
+                final var response = new MessageCreateBuilder()
+                    .addContent(messageAuthor.getAsMention()).addContent(", ")
+                    .addContent("your request is close to being removed by community review.\n")
+                    .addContent("Please edit your message to bring it to a higher standard.\n")
+                    .addContent(String.format("It has so far received %d 'bad' reactions, %d 'needs improvement' reactions, "
                             + "and %d 'good' reactions.",
-                        badReactionsCount, needsImprovementReactionsCount, goodReactionsCount)
+                        badReactionsCount, needsImprovementReactionsCount, goodReactionsCount))
                     .build();
 
                 warnedMessages.add(message);

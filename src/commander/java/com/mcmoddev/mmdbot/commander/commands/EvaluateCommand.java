@@ -33,16 +33,15 @@ import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.util.gist.GistUtils;
 import io.github.matyrobbrt.curseforgeapi.util.Utils;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -52,6 +51,10 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.Modal;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -110,7 +113,7 @@ public class EvaluateCommand extends SlashCommand {
         }
         final var scriptOption = event.getOption("script");
         if (scriptOption != null) {
-            event.deferReply().allowedMentions(ALLOWED_MENTIONS)
+            event.deferReply().setAllowedMentions(ALLOWED_MENTIONS)
                 .queue(hook -> {
                     final var context = createInteractionContext(hook);
 
@@ -153,7 +156,7 @@ public class EvaluateCommand extends SlashCommand {
         @Override
         public void onModalInteraction(@NotNull final ModalInteractionEvent event) {
             if (event.getModalId().equals(MODAL_ID)) {
-                event.deferReply().allowedMentions(ALLOWED_MENTIONS).queue(hook -> {
+                event.deferReply().setAllowedMentions(ALLOWED_MENTIONS).queue(hook -> {
                     final var context = createInteractionContext(hook);
 
                     final var future = EVALUATION_EXECUTOR.submit(() -> {
@@ -210,21 +213,21 @@ public class EvaluateCommand extends SlashCommand {
 
             @Override
             public void reply(final String content) {
-                hook.editOriginal(new MessageBuilder(content).setAllowedMentions(ALLOWED_MENTIONS).build())
+                hook.editOriginal(new MessageEditBuilder().setContent(content).setAllowedMentions(ALLOWED_MENTIONS).build())
                     .setActionRow(DismissListener.createDismissButton(hook.getInteraction().getUser()))
                     .queue();
             }
 
             @Override
             public void replyEmbeds(final MessageEmbed... embeds) {
-                hook.editOriginal(new MessageBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
+                hook.editOriginal(new MessageEditBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
                     .setActionRow(DismissListener.createDismissButton(hook.getInteraction().getUser()))
                     .queue();
             }
 
             @Override
-            public void replyWithMessage(final Message msg) {
-                hook.editOriginal(msg)
+            public void replyWithMessage(final MessageCreateData msg) {
+                hook.editOriginal(MessageEditData.fromCreateData(msg))
                     .setActionRow(DismissListener.createDismissButton(hook.getInteraction().getUser()))
                     .queue();
             }
@@ -283,19 +286,19 @@ public class EvaluateCommand extends SlashCommand {
 
             @Override
             public void reply(final String content) {
-                event.getMessage().reply(new MessageBuilder(content).setAllowedMentions(ALLOWED_MENTIONS).build())
+                event.getMessage().reply(new MessageCreateBuilder().setContent(content).setAllowedMentions(ALLOWED_MENTIONS).build())
                     .setActionRow(DismissListener.createDismissButton(getUser())).mentionRepliedUser(false).queue();
             }
 
             @Override
             public void replyEmbeds(final MessageEmbed... embeds) {
-                event.getMessage().reply(new MessageBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
+                event.getMessage().reply(new MessageCreateBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
                     .setActionRow(DismissListener.createDismissButton(getUser())).mentionRepliedUser(false).queue();
             }
 
             @Override
-            public void replyWithMessage(final Message msg) {
-                event.getMessage().reply(msg).allowedMentions(ALLOWED_MENTIONS)
+            public void replyWithMessage(final MessageCreateData msg) {
+                event.getMessage().reply(msg).setAllowedMentions(ALLOWED_MENTIONS)
                     .setActionRow(DismissListener.createDismissButton(getUser())).mentionRepliedUser(false).queue();
             }
         });
@@ -338,7 +341,7 @@ public class EvaluateCommand extends SlashCommand {
                     return;
                 }
                 event.getMessage().reply("There was an exception evaluating: "
-                        + exception.getLocalizedMessage()).allowedMentions(ALLOWED_MENTIONS)
+                        + exception.getLocalizedMessage()).setAllowedMentions(ALLOWED_MENTIONS)
                     .setActionRow(DismissListener.createDismissButton(event.getAuthor())).queue();
             }
         });
@@ -360,33 +363,33 @@ public class EvaluateCommand extends SlashCommand {
         context.set("channel", createMessageChannel(evalContext.getMessageChannel(), true)
             .setFunctionVoid("sendMessage", args -> {
                 validateArgs(args, 1);
-                executeAndAddCooldown(evalContext.getMessageChannel(), c -> c.sendMessage(args.get(0).asString()).allowedMentions(ALLOWED_MENTIONS).queue());
+                executeAndAddCooldown(evalContext.getMessageChannel(), c -> c.sendMessage(args.get(0).asString()).setAllowedMentions(ALLOWED_MENTIONS).queue());
             })
             .setFunctionVoid("sendEmbed", args -> {
                 validateArgs(args, 1);
                 final var v = args.get(0);
                 final var embed = getEmbedFromValue(v);
                 if (embed != null) {
-                    executeAndAddCooldown(evalContext.getMessageChannel(), c -> c.sendMessageEmbeds(embed).allowedMentions(ALLOWED_MENTIONS).queue());
+                    executeAndAddCooldown(evalContext.getMessageChannel(), c -> c.sendMessageEmbeds(embed).setAllowedMentions(ALLOWED_MENTIONS).queue());
                 }
             })
             .setFunctionVoid("sendEmbeds", args -> executeAndAddCooldown(evalContext.getMessageChannel(), c -> c.sendMessageEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
-                .filter(Objects::nonNull).limit(3).toList()).allowedMentions(ALLOWED_MENTIONS).queue())));
+                .filter(Objects::nonNull).limit(3).toList()).setAllowedMentions(ALLOWED_MENTIONS).queue())));
         context.set("textChannel", evalContext.getTextChannel() == null ? null : createTextChannel(evalContext.getTextChannel(), true)
             .setFunctionVoid("sendMessage", args -> {
                 validateArgs(args, 1);
-                executeAndAddCooldown(evalContext.getTextChannel(), c -> c.sendMessage(args.get(0).asString()).allowedMentions(ALLOWED_MENTIONS).queue());
+                executeAndAddCooldown(evalContext.getTextChannel(), c -> c.sendMessage(args.get(0).asString()).setAllowedMentions(ALLOWED_MENTIONS).queue());
             })
             .setFunctionVoid("sendEmbed", args -> {
                 validateArgs(args, 1);
                 final var v = args.get(0);
                 final var embed = getEmbedFromValue(v);
                 if (embed != null) {
-                    executeAndAddCooldown(evalContext.getTextChannel(), c -> c.sendMessageEmbeds(embed).allowedMentions(ALLOWED_MENTIONS).queue());
+                    executeAndAddCooldown(evalContext.getTextChannel(), c -> c.sendMessageEmbeds(embed).setAllowedMentions(ALLOWED_MENTIONS).queue());
                 }
             })
             .setFunctionVoid("sendEmbeds", args -> executeAndAddCooldown(evalContext.getTextChannel(), c -> c.sendMessageEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
-                .filter(Objects::nonNull).toList()).allowedMentions(ALLOWED_MENTIONS).queue())));
+                .filter(Objects::nonNull).toList()).setAllowedMentions(ALLOWED_MENTIONS).queue())));
         context.setFunctionVoid("reply", args -> {
             validateArgs(args, 1);
             executeAndAddCooldown(evalContext.getMessageChannel(), c -> evalContext.reply(args.get(0).asString()));
@@ -456,7 +459,7 @@ public class EvaluateCommand extends SlashCommand {
                 }
 
                 @Override
-                public void replyWithMessage(final Message message) {
+                public void replyWithMessage(final MessageCreateData message) {
                     evalContext.replyWithMessage(message);
                 }
             }));
@@ -484,7 +487,7 @@ public class EvaluateCommand extends SlashCommand {
             context.setFunctionVoid("sendMessage", args -> {
                 validateArgs(args, 1);
                 executeAndAddCooldown(channel, ch -> {
-                    ch.sendMessage(args.get(0).asString()).allowedMentions(ALLOWED_MENTIONS).queue();
+                    ch.sendMessage(args.get(0).asString()).setAllowedMentions(ALLOWED_MENTIONS).queue();
                 });
             });
             context.setFunctionVoid("sendEmbed", args -> {
@@ -493,12 +496,12 @@ public class EvaluateCommand extends SlashCommand {
                     final var v = args.get(0);
                     final var embed = getEmbedFromValue(v);
                     if (embed != null) {
-                        channel.sendMessageEmbeds(embed).allowedMentions(ALLOWED_MENTIONS).queue();
+                        channel.sendMessageEmbeds(embed).setAllowedMentions(ALLOWED_MENTIONS).queue();
                     }
                 });
             });
             context.setFunctionVoid("sendEmbeds", args -> executeAndAddCooldown(channel, ch -> ch.sendMessageEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
-                .filter(Objects::nonNull).limit(3).toList()).allowedMentions(ALLOWED_MENTIONS).queue()));
+                .filter(Objects::nonNull).limit(3).toList()).setAllowedMentions(ALLOWED_MENTIONS).queue()));
         }
         return context;
     }
@@ -531,6 +534,6 @@ public class EvaluateCommand extends SlashCommand {
 
         void replyEmbeds(MessageEmbed... embeds);
 
-        void replyWithMessage(Message msg);
+        void replyWithMessage(MessageCreateData msg);
     }
 }

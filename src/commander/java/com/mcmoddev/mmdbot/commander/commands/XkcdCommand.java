@@ -36,6 +36,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -95,7 +96,7 @@ public final class XkcdCommand extends PaginatedCommand {
                     if (id == -1) {
                         id = latest;
                     }
-                    hook.editOriginal(paginator.createPaginatedMessage(id - 1, latest, event.getUser().getIdLong())).queue();
+                    hook.editOriginal(MessageEditData.fromCreateData(paginator.createPaginatedMessage(id - 1, latest, event.getUser().getIdLong()))).queue();
                 } catch (IOException e) {
                     hook.editOriginal("There was an exception executing that command: " + e.getLocalizedMessage())
                         .setActionRow(DismissListener.createDismissButton())

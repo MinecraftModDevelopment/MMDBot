@@ -42,7 +42,8 @@ import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInterac
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.requests.restaction.WebhookMessageUpdateAction;
+import net.dv8tion.jda.api.requests.restaction.WebhookMessageEditAction;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -201,7 +202,7 @@ public abstract class CurseForgeCommand extends SlashCommand {
                 .queue();
         }
 
-        default WebhookMessageUpdateAction<Message> replyMessageAsAction(Message message) {
+        default WebhookMessageEditAction<Message> replyMessageAsAction(MessageEditData message) {
             return getHook().editOriginal(message);
         }
     }

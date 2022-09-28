@@ -26,7 +26,7 @@ import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
 import io.github.matyrobbrt.eventdispatcher.SubscribeEvent;
 import lombok.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 
 import java.time.Instant;
 

@@ -34,13 +34,14 @@ import com.mcmoddev.mmdbot.core.commands.paginate.PaginatedCommand;
 import com.mcmoddev.mmdbot.core.util.builder.SlashCommandBuilder;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.List;
 import java.util.Objects;
@@ -73,7 +74,7 @@ public class CustomPingsCommand {
         protected void execute(final SlashCommandEvent event) {
             if (!checkEnabled(event)) return;
             final var pings = CustomPings.getPingsForUser(event.getGuild().getIdLong(), event.getUser().getIdLong());
-            final var limit = Objects.requireNonNull(event.getGuildSettings(GuildConfiguration.class))
+            final var limit = TheCommander.getInstance().getConfigForGuild(event.getGuild())
                 .features()
                 .customPings()
                 .getLimitPerUser();
@@ -219,12 +220,12 @@ public class CustomPingsCommand {
         return enabled;
     }
 
-    private static Message buildMessage(final CommandContext context, final String content) {
-        final var builder = new MessageBuilder(content);
+    private static MessageCreateData buildMessage(final CommandContext context, final String content) {
+        final var builder = new MessageCreateBuilder().setContent(content);
         if (context.asCommandEvent() != null) {
-            builder.setActionRows(ActionRow.of(DismissListener.createDismissButton(context.getUser(), context.asCommandEvent().getMessage())));
+            builder.setComponents(ActionRow.of(DismissListener.createDismissButton(context.getUser(), context.asCommandEvent().getMessage())));
         } else {
-            builder.setActionRows(ActionRow.of(DismissListener.createDismissButton(context.getUser())));
+            builder.setComponents(ActionRow.of(DismissListener.createDismissButton(context.getUser())));
         }
         return builder.build();
     }

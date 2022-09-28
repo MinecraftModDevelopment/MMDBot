@@ -30,7 +30,6 @@ import com.mcmoddev.mmdbot.core.commands.component.context.ButtonInteractionCont
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.MessageUtilities;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -39,6 +38,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -97,7 +97,7 @@ public class TicTacToeCommand extends SlashCommand {
         }
         final var id = UUID.randomUUID();
         event.deferReply().setContent("%s, %s challenged you to a Tic-Tac-Toe game!".formatted(opponent.getAsMention(), event.getUser().getAsMention()))
-            .allowedMentions(ALLOWED_MENTIONS)
+            .setAllowedMentions(ALLOWED_MENTIONS)
             .addActionRow(
                 Button.success(Component.createIdWithArguments(id.toString(), "accept"), "\u2714 Accept"),
                 DismissListener.createDismissButton(opponent.getIdLong())
@@ -125,7 +125,7 @@ public class TicTacToeCommand extends SlashCommand {
                             %s is **X**
                             %s is **0**"""
                             .formatted(x.getAsMention(), zero.getAsMention()))
-                        .allowedMentions(List.of())
+                        .setAllowedMentions(List.of())
                         .flatMap(m -> {
                             COMPONENT_LISTENER.insertComponent(gameId, Component.Lifespan.TEMPORARY,
                                 x.getId(),
@@ -171,8 +171,8 @@ public class TicTacToeCommand extends SlashCommand {
             .flatMap(m -> {
                 if (context.getItemComponentArguments().contains("giveup")) {
                     return m.reply("<@%s> gave up, and such, <@%s> won the __Tic-Tac-Toe__ game. The board:".formatted(current, next))
-                        .setActionRows(createGameButtons(context.getComponentId().toString(), game, true))
-                        .allowedMentions(ALLOWED_MENTIONS);
+                        .setComponents(createGameButtons(context.getComponentId().toString(), game, true))
+                        .setAllowedMentions(ALLOWED_MENTIONS);
                 }
                 final int posX = Integer.parseInt(context.getItemComponentArguments().get(0));
                 final int posY = Integer.parseInt(context.getItemComponentArguments().get(1));
@@ -185,12 +185,12 @@ public class TicTacToeCommand extends SlashCommand {
                     final var buttons = createGameButtons(context.getComponentId().toString(), game, true);
                     buttons.add(ActionRow.of(Button.secondary(createIdWithArguments(context.getComponentId(), "revenge", next), "Revenge")));
                     return m.reply("<@%s> won the __Tic-Tac-Toe__ game against <@%s>! GG! The board:".formatted(current, next))
-                        .setActionRows(buttons)
-                        .allowedMentions(ALLOWED_MENTIONS);
+                        .setComponents(buttons)
+                        .setAllowedMentions(ALLOWED_MENTIONS);
                 } else if (isEntireBoardUsed(game)) {
                     return m.reply("<@%s> and <@%s>'s Tic-Tac-Toe game ended in a tie! The board:".formatted(current, next))
-                        .setActionRows(createGameButtons(context.getComponentId().toString(), game, true))
-                        .allowedMentions(ALLOWED_MENTIONS);
+                        .setComponents(createGameButtons(context.getComponentId().toString(), game, true))
+                        .setAllowedMentions(ALLOWED_MENTIONS);
                 }
                 return m.reply(nextTurn(
                     context.getComponentId(), game, next, gameCode == X ? "0" : "X"
@@ -218,7 +218,7 @@ public class TicTacToeCommand extends SlashCommand {
                     final var id = UUID.randomUUID();
                     final var opponent = context.getArguments().get(0);
                     context.getEvent().deferReply().setContent("<@%s>, %s wants a revenge for the Tic-Tac-Toe game you won!".formatted(opponent, context.getUser().getAsMention()))
-                        .allowedMentions(ALLOWED_MENTIONS)
+                        .setAllowedMentions(ALLOWED_MENTIONS)
                         .addActionRow(
                             Button.success(Component.createIdWithArguments(id.toString(), "accept"), "\u2714 Accept"),
                             DismissListener.createDismissButton(opponent)
@@ -233,14 +233,14 @@ public class TicTacToeCommand extends SlashCommand {
         }
     }
 
-    public static MessageBuilder nextTurn(final UUID gameId, final int[][] game, final String user, final String letter) {
+    public static MessageCreateBuilder nextTurn(final UUID gameId, final int[][] game, final String user, final String letter) {
         final var idStr = gameId.toString();
         final var rows = createGameButtons(idStr, game);
         rows.add(ActionRow.of(Button.secondary(createIdWithArguments(idStr, "giveup"), "\uD83C\uDFF3 Give Up")));
-        return new MessageBuilder()
+        return new MessageCreateBuilder()
             .setAllowedMentions(ALLOWED_MENTIONS)
-            .append("<@%s> your turn (you are **%s**):".formatted(user, letter))
-            .setActionRows(rows);
+            .addContent("<@%s> your turn (you are **%s**):".formatted(user, letter))
+            .setComponents(rows);
     }
 
     public static List<ActionRow> createGameButtons(final String buttonIds, final int[][] game) {

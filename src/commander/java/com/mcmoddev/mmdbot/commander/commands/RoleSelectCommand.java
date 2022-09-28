@@ -33,7 +33,6 @@ import com.mcmoddev.mmdbot.core.commands.component.context.SelectMenuInteraction
 import com.mcmoddev.mmdbot.core.util.Utils;
 import lombok.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -57,6 +56,7 @@ import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
@@ -214,7 +214,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
             .map(context.getGuild()::getRoleById)
             .toList();
 
-        final var message = new MessageBuilder()
+        final var message = new MessageCreateBuilder()
             .setEmbeds(
                 new EmbedBuilder()
                     .setTitle(title)
@@ -222,7 +222,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
                     .setDescription(description)
                     .build()
             )
-            .setActionRows();
+            .setComponents();
 
         if (isDropdown) {
             handleDropdownCreation(context, message, roles);
@@ -246,7 +246,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
         handleRoleSelection(context, selectedRoles, guild);
     }
 
-    private static void handleButtonOption(final @NonNull ModalInteractionContext context, final MessageBuilder builder, final List<Role> selectedRoles) {
+    private static void handleButtonOption(final @NonNull ModalInteractionContext context, final MessageCreateBuilder builder, final List<Role> selectedRoles) {
         final UUID id = UUID.randomUUID();
         final var idString = id.toString();
         final List<ActionRow> rows = new ArrayList<>();
@@ -272,7 +272,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
         COMPONENT_LISTENER.insertComponent(component);
 
         context.getEvent().getMessageChannel()
-            .sendMessage(builder.setActionRows(rows).build())
+            .sendMessage(builder.setComponents(rows).build())
             .flatMap($ -> context.getEvent().reply("Message created and sent successfully!").setEphemeral(true))
             .queue();
     }
@@ -286,7 +286,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
         return Button.primary(bId, role.getName());
     }
 
-    private static void handleDropdownCreation(final @NonNull ModalInteractionContext context, final MessageBuilder message, final List<Role> selectedRoles) {
+    private static void handleDropdownCreation(final @NonNull ModalInteractionContext context, final MessageCreateBuilder message, final List<Role> selectedRoles) {
         SelectMenu.Builder menu = COMPONENT_LISTENER.createMenu(Component.Lifespan.PERMANENT)
             .setPlaceholder("Select your roles")
             .setMaxValues(selectedRoles.size())
@@ -296,7 +296,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
 
         context.getEvent().getMessageChannel()
             .sendMessage(message
-                .setActionRows(ActionRow.of(menu.build()))
+                .setComponents(ActionRow.of(menu.build()))
                 .build())
             .flatMap($ -> context.getEvent().reply("Message created and sent successfully!").setEphemeral(true))
             .queue();

@@ -30,7 +30,6 @@ import de.ialistannen.javadocapi.rendering.MarkdownCommentRenderer;
 import de.ialistannen.javadocapi.storage.ElementLoader;
 import de.ialistannen.javadocapi.util.BaseUrlElementLoader;
 import de.ialistannen.javadocapi.util.NameShortener;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -39,6 +38,8 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.Duration;
@@ -64,7 +65,7 @@ public class NormalDocsSender implements DocsSender {
     private final NameShortener nameShortener = new NameShortener();
 
     @Override
-    public void replyWithResult(final Function<Message, RestAction<Message>> replier, final ElementLoader.LoadResult<JavadocElement> loadResult, final boolean shortDescription, final boolean omitTags, final Duration queryDuration, final LinkResolveStrategy linkResolveStrategy, final long userId, final UUID buttonId) {
+    public void replyWithResult(final Function<MessageEditData, RestAction<Message>> replier, final ElementLoader.LoadResult<JavadocElement> loadResult, final boolean shortDescription, final boolean omitTags, final Duration queryDuration, final LinkResolveStrategy linkResolveStrategy, final long userId, final UUID buttonId) {
         final var embed = new DocsEmbed(
             new MarkdownCommentRenderer(linkResolveStrategy),
             loadResult.getResult(),
@@ -100,9 +101,9 @@ public class NormalDocsSender implements DocsSender {
         }
         buttons.add(DismissListener.createDismissButton(userId, ButtonStyle.DANGER, "\uD83D\uDDD1️ Dismiss"));
 
-        replier.apply(new MessageBuilder(embed.build())
+        replier.apply(new MessageEditBuilder().setEmbeds(embed.build())
                 .setContent(null)
-                .setActionRows(ActionRow.of(buttons))
+                .setComponents(ActionRow.of(buttons))
                 .build())
             .queue();
     }
@@ -112,7 +113,7 @@ public class NormalDocsSender implements DocsSender {
     }
 
     @Override
-    public void replyMultipleResults(final Function<Message, RestAction<Message>> replier, final boolean shortDescription, final boolean omitTags, final List<FuzzyQueryResult> results, final long userId, final UUID buttonId) {
+    public void replyMultipleResults(final Function<MessageEditData, RestAction<Message>> replier, final boolean shortDescription, final boolean omitTags, final List<FuzzyQueryResult> results, final long userId, final UUID buttonId) {
         final var nameResultMap = results.stream().collect(Collectors.toMap(
             it -> it.getQualifiedName().asString(),
             it -> it,
@@ -141,8 +142,8 @@ public class NormalDocsSender implements DocsSender {
             rows = buildRowsMenu(labelResultList, buttonId, userId);
         }
 
-        Message message = new MessageBuilder("I found (at least) the following Elements:  \n")
-            .setActionRows(rows)
+        final var message = new MessageEditBuilder().setContent("I found (at least) the following Elements:  \n")
+            .setComponents(rows)
             .build();
 
         replier.apply(message).queue();

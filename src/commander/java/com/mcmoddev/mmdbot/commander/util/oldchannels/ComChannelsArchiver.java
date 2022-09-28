@@ -28,16 +28,17 @@ import com.mcmoddev.mmdbot.core.commands.component.context.ButtonInteractionCont
 import com.mcmoddev.mmdbot.core.util.MessageUtilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
@@ -92,7 +93,7 @@ public record ComChannelsArchiver(long guildId, JDA jda) implements Runnable {
     }
 
     @Nullable
-    private Message startArchivalProcess(TextChannel channel, Instant lastMessage) {
+    private MessageCreateData startArchivalProcess(TextChannel channel, Instant lastMessage) {
         final var owner = TheCommander.getInstance()
             .getJdbi().withExtension(ComChannelsDAO.class, db -> Optional.ofNullable(db.getOwner(channel.getIdLong()))
                 .or(() -> {
@@ -139,7 +140,7 @@ public record ComChannelsArchiver(long guildId, JDA jda) implements Runnable {
             embed.appendDescription("I should ask the owner about the archival, or if the channel should be archived");
         embed.appendDescription(", otherwise a new reminder will be sent.");
 
-        final var messageBuilder = new MessageBuilder()
+        final var messageBuilder = new MessageCreateBuilder()
             .setEmbeds(embed.build());
 
         final List<Button> buttons = new ArrayList<>();
@@ -161,7 +162,7 @@ public record ComChannelsArchiver(long guildId, JDA jda) implements Runnable {
             owner.get().toString(),
             channel.getId()
         )));
-        messageBuilder.setActionRows(ActionRow.of(buttons));
+        messageBuilder.setComponents(ActionRow.of(buttons));
 
         return messageBuilder.build();
     }
@@ -204,12 +205,12 @@ public record ComChannelsArchiver(long guildId, JDA jda) implements Runnable {
                     ))
                 .setColor(Color.CYAN);
 
-            channel.sendMessage(new MessageBuilder()
-                .append("<@")
-                .append(owner)
-                .append(">")
+            channel.sendMessage(new MessageCreateBuilder()
+                .addContent("<@")
+                .addContent(String.valueOf(owner))
+                .addContent(">")
                 .setEmbeds(embed.build())
-                .setActionRows(ActionRow.of(
+                .setComponents(ActionRow.of(
                     COMPONENTS.createButton(ButtonStyle.PRIMARY, "Cancel archival", null, Component.Lifespan.PERMANENT, List.of(
                         Action.CANCEL_ARCHIVAL.toString(),
                         owner.toString(),

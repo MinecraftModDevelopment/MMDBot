@@ -22,9 +22,11 @@ package com.mcmoddev.mmdbot.watcher.rules;
 
 import com.mcmoddev.mmdbot.core.util.jda.EmbedParser;
 import com.mcmoddev.mmdbot.watcher.TheWatcher;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -35,9 +37,9 @@ import java.util.stream.IntStream;
 
 public class RuleParser {
     @SuppressWarnings("CollectionAddAllCanBeReplacedWithConstructor") // Why...?
-    public static List<Message> parse(String message, BiConsumer<Integer, RuleData> ruleAdder) {
+    public static List<MessageCreateData> parse(String message, BiConsumer<Integer, RuleData> ruleAdder) {
         try {
-            final List<Message> messages = new ArrayList<>();
+            final List<MessageCreateData> messages = new ArrayList<>();
             final List<String> lines = List.of(message.split("\n"));
             final var rulesIndex = lines.indexOf(lines.stream().filter(it -> it.trim().equals("<rules>")).findFirst().orElse(""));
             int rulesEnd = lines.size() - 1;
@@ -68,12 +70,12 @@ public class RuleParser {
                 final int showableIndex = i + 1;
                 ruleAdder.accept(showableIndex, it);
                 if (currentEmbeds.size() >= Message.MAX_EMBED_COUNT) {
-                    messages.add(new MessageBuilder().setEmbeds(currentEmbeds).build());
+                    messages.add(new MessageCreateBuilder().setEmbeds(currentEmbeds).build());
                     currentEmbeds.clear();
                 }
                 currentEmbeds.add(it.asEmbed(showableIndex).build());
             }
-            if (!currentEmbeds.isEmpty()) messages.add(new MessageBuilder().setEmbeds(currentEmbeds).build());
+            if (!currentEmbeds.isEmpty()) messages.add(new MessageCreateBuilder().setEmbeds(currentEmbeds).build());
 
             messages.addAll(splitIntoMessages(afterRules, embeds));
 
@@ -84,57 +86,57 @@ public class RuleParser {
         }
     }
 
-    private static List<Message> splitIntoMessages(final List<String> lines, final List<MessageEmbed> embedRegistry) {
-        final List<Message> messages = new ArrayList<>();
+    private static List<MessageCreateData> splitIntoMessages(final List<String> lines, final List<MessageEmbed> embedRegistry) {
+        final List<MessageCreateData> messages = new ArrayList<>();
         if (lines.isEmpty()) return messages;
-        AccessibleBuilder current;
+        MessageCreateBuilder current;
         {
             final var firstLine = lines.get(0);
             if (firstLine.startsWith("img=https://")) {
-                messages.add(new AccessibleBuilder().setContent(firstLine.substring("img=".length())).build());
-                current = new AccessibleBuilder();
+                messages.add(new MessageCreateBuilder().setContent(firstLine.substring("img=".length())).build());
+                current = new MessageCreateBuilder();
             } else if (firstLine.startsWith("embed=")) {
-                current = new AccessibleBuilder().addEmbed(embedRegistry.get(Integer.parseInt(firstLine.substring("embed=".length()))));
+                current = new MessageCreateBuilder().addEmbeds(embedRegistry.get(Integer.parseInt(firstLine.substring("embed=".length()))));
             } else {
-                current = new AccessibleBuilder().append(firstLine);
+                current = new MessageCreateBuilder().addContent(firstLine);
             }
         }
         for (int i = 1; i < lines.size(); i++) {
             final var it = lines.get(i);
             if (it.startsWith("img=https://")) {
                 if (!current.isEmpty()) messages.add(current.build());
-                messages.add(new AccessibleBuilder().setContent(it.substring("img=".length())).build());
-                current = new AccessibleBuilder();
+                messages.add(new MessageCreateBuilder().setContent(it.substring("img=".length())).build());
+                current = new MessageCreateBuilder();
                 continue;
             } else if (it.startsWith("embed=")) {
                 if (current.getEmbeds().size() >= Message.MAX_EMBED_COUNT) {
                     messages.add(current.build());
-                    current = new AccessibleBuilder();
+                    current = new MessageCreateBuilder();
                 }
-                current.addEmbed(embedRegistry.get(Integer.parseInt(it.substring("embed=".length()))));
+                current.addEmbeds(embedRegistry.get(Integer.parseInt(it.substring("embed=".length()))));
                 continue;
             }
 
             if (!current.getEmbeds().isEmpty()) {
                 // Send the existing embeds as a separate message
                 messages.add(current.build());
-                current = new AccessibleBuilder();
+                current = new MessageCreateBuilder();
             }
 
             if (it.trim().startsWith("-----")) {
                 messages.add(current.build());
-                current = new AccessibleBuilder();
+                current = new MessageCreateBuilder();
                 continue;
             }
 
             if ((current + "\n" + it).length() > Message.MAX_CONTENT_LENGTH) {
                 messages.add(current.build());
-                current = new AccessibleBuilder();
+                current = new MessageCreateBuilder();
             }
             if (!current.isEmpty())
-                current.append('\n');
+                current.addContent("\n");
             if (!it.isBlank())
-                current.append(it);
+                current.addContent(it);
         }
         if (!current.isEmpty()) messages.add(current.build());
         return messages;
@@ -170,20 +172,4 @@ public class RuleParser {
         return data.replace(";n", "\n");
     }
 
-    protected static final class AccessibleBuilder extends MessageBuilder {
-        public List<MessageEmbed> getEmbeds() {
-            return embeds;
-        }
-
-        public AccessibleBuilder addEmbed(MessageEmbed embed) {
-            embeds.add(embed);
-            return this;
-        }
-
-        @NotNull
-        @Override
-        public AccessibleBuilder append(@Nullable final CharSequence text) {
-            return (AccessibleBuilder) super.append(text);
-        }
-    }
 }

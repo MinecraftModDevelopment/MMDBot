@@ -31,16 +31,16 @@ import com.mcmoddev.mmdbot.core.annotation.ExposeScripting;
 import com.mcmoddev.mmdbot.core.common.ScamDetector;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Category;
-import net.dv8tion.jda.api.entities.Channel;
+import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.Category;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.RichPresence;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -176,18 +176,18 @@ public final class ScriptingUtils {
         if (canSendMessage) {
             context.setFunctionVoid("sendMessage", args -> {
                 validateArgs(args, 1);
-                channel.sendMessage(args.get(0).asString()).allowedMentions(ALLOWED_MENTIONS).queue();
+                channel.sendMessage(args.get(0).asString()).setAllowedMentions(ALLOWED_MENTIONS).queue();
             });
             context.setFunctionVoid("sendEmbed", args -> {
                 validateArgs(args, 1);
                 final var v = args.get(0);
                 final var embed = getEmbedFromValue(v);
                 if (embed != null) {
-                    channel.sendMessageEmbeds(embed).allowedMentions(ALLOWED_MENTIONS).queue();
+                    channel.sendMessageEmbeds(embed).setAllowedMentions(ALLOWED_MENTIONS).queue();
                 }
             });
             context.setFunctionVoid("sendEmbeds", args -> channel.sendMessageEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
-                .filter(Objects::nonNull).limit(3).toList()).allowedMentions(ALLOWED_MENTIONS).queue());
+                .filter(Objects::nonNull).limit(3).toList()).setAllowedMentions(ALLOWED_MENTIONS).queue());
         }
         return context;
     }

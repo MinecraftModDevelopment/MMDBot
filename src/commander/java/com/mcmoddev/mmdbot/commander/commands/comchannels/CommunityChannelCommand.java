@@ -28,15 +28,15 @@ import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.config.GuildConfiguration;
 import com.mcmoddev.mmdbot.commander.util.dao.ComChannelsDAO;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 
 import java.util.*;
 
@@ -94,7 +94,7 @@ public final class CommunityChannelCommand extends SlashCommand {
                 .withExtension(ComChannelsDAO.class, db -> db.getOwner(event.getChannel().getIdLong()));
             if (owner != null) {
                 event.deferReply(true).setContent("This channel is owned by <@" + owner + ">.")
-                    .allowedMentions(List.of())
+                    .setAllowedMentions(List.of())
                     .mentionRepliedUser(false)
                     .addActionRow(DismissListener.createDismissButton(event))
                     .queue();
@@ -136,7 +136,7 @@ public final class CommunityChannelCommand extends SlashCommand {
                         .channels().community().ownerPermissions(), List.of())
                     .queue();
                 event.deferReply().setContent("Ownership of this channel has been transferred to " + newOwner.getAsMention())
-                    .allowedMentions(EnumSet.of(Message.MentionType.USER))
+                    .setAllowedMentions(EnumSet.of(Message.MentionType.USER))
                     .queue();
             } else {
                 event.deferReply(true).setContent("You do not own this channel!").queue();
@@ -177,7 +177,7 @@ public final class CommunityChannelCommand extends SlashCommand {
             final var user = Objects.requireNonNull(event.getOption("user", OptionMapping::getAsMember));
             final var channel = event.getOption("channel", "", OptionMapping::getAsString);
 
-            final var guildCfg = Objects.requireNonNull(event.getGuildSettings(GuildConfiguration.class))
+            final var guildCfg = TheCommander.getInstance().getConfigForGuild(event.getGuild())
                 .channels().community();
 
             final var category = guildCfg.category().resolve(guild::getCategoryById);
@@ -207,8 +207,8 @@ public final class CommunityChannelCommand extends SlashCommand {
                         .sortOrder(Comparator.comparing(GuildChannel::getName))
                         .map($ -> ch))
                     .flatMap(ch -> ch.upsertPermissionOverride(user).setAllowed(ownerPermissions).map($ -> ch))
-                    .flatMap(ch -> ch.sendMessage(new MessageBuilder()
-                            .append(formatMessage(
+                    .flatMap(ch -> ch.sendMessage(new MessageCreateBuilder()
+                            .addContent(formatMessage(
                                 guildCfg.getChannelCreatedMessage(),
                                 user,
                                 ch

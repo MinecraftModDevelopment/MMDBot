@@ -31,7 +31,8 @@ import io.github.matyrobbrt.eventdispatcher.SubscribeEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
@@ -137,7 +138,7 @@ public final class MessageEvents extends ListenerAdapter {
             .build();
         LoggingType.MESSAGE_EVENTS.getChannels(event.getGuild().getIdLong())
             .forEach(snowflakeValue -> {
-                final var ch = snowflakeValue.resolve(id -> event.getJDA().getChannelById(net.dv8tion.jda.api.entities.MessageChannel.class, id));
+                final var ch = snowflakeValue.resolve(id -> event.getJDA().getChannelById(MessageChannel.class, id));
                 if (ch != null) {
                     ch.sendMessageEmbeds(embed).queue();
                 }
@@ -165,7 +166,7 @@ public final class MessageEvents extends ListenerAdapter {
             final var jda = TheListener.getInstance().getJDA();
             TheListener.getInstance().getConfigForGuild(event.getGuildId()).getScamLoggingChannels()
                 .forEach(snowflakeValue -> {
-                    final var ch = snowflakeValue.resolve(id -> jda.getChannelById(net.dv8tion.jda.api.entities.MessageChannel.class, id));
+                    final var ch = snowflakeValue.resolve(id -> jda.getChannelById(MessageChannel.class, id));
                     if (ch != null) {
                         ch.sendMessageEmbeds(embed).queue();
                     }

@@ -30,7 +30,6 @@ import io.github.matyrobbrt.curseforgeapi.schemas.mod.ModLoaderType;
 import io.github.matyrobbrt.curseforgeapi.util.Constants;
 import io.github.matyrobbrt.curseforgeapi.util.CurseForgeException;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.interactions.commands.Command;
@@ -39,6 +38,9 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import net.dv8tion.jda.api.utils.TimeFormat;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
@@ -102,12 +104,12 @@ public class CFProjectCommand {
                     args.add(context.getUser().getId());
                     mods.stream().map(m -> "%s (id: %s)".formatted(m.name(), m.id())).forEach(args::add);
                     final var msg = PAGINATOR.createPaginatedMessage(0, mods.size(), context.getUser().getIdLong(), args);
-                    context.replyMessageAsAction(msg).queue();
+                    context.replyMessageAsAction(MessageEditData.fromCreateData(msg)).queue();
                 }, () -> context.reply("API responded with status code **%s**".formatted(response.getStatusCode()))));
         }
 
         // Args: user, mods...
-        public static @NotNull MessageBuilder getMessage(int startingIndex, int maximum, final List<String> arguments) {
+        public static @NotNull MessageCreateBuilder getMessage(int startingIndex, int maximum, final List<String> arguments) {
             final var embed = new EmbedBuilder()
                 .setTimestamp(Instant.now())
                 .setColor(Color.GREEN)
@@ -121,7 +123,7 @@ public class CFProjectCommand {
                 arguments.subList(startingIndex + 1, Math.min(maximum, arguments.size()))
                     .forEach(d -> embed.appendDescription(d).appendDescription(System.lineSeparator()));
             }
-            return new MessageBuilder().setEmbeds(embed.build());
+            return new MessageCreateBuilder().setEmbeds(embed.build());
         }
 
         @Override

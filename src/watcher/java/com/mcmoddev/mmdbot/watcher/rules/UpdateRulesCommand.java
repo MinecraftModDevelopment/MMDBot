@@ -20,6 +20,8 @@
  */
 package com.mcmoddev.mmdbot.watcher.rules;
 
+import club.minnced.discord.webhook.send.AllowedMentions;
+import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
 import club.minnced.discord.webhook.send.WebhookMessage;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import com.jagrosh.jdautilities.command.SlashCommand;
@@ -39,6 +41,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.io.IOException;
 import java.net.URL;
@@ -99,10 +102,15 @@ public class UpdateRulesCommand extends SlashCommand {
             final var messages = TheWatcher.getInstance().getJdbi().withExtension(RulesDAO.class,
                 db -> RuleParser.parse(data, (index, rule) -> db.insert(event.getGuild().getIdLong(), RULE_KEY.formatted(index), rule.toJson())));
             final var webhook = WEBHOOKS.getWebhook(channel);
-            final Function<Message, WebhookMessage> function = jda -> WebhookMessageBuilder.fromJDA(jda)
-                .setAvatarUrl(event.getGuild().getIconUrl())
-                .setUsername(event.getGuild().getName())
-                .build();
+            final Function<MessageCreateData, WebhookMessage> function = jda -> {
+                final var builder = new WebhookMessageBuilder()
+                    .setContent(jda.getContent())
+                    .setAvatarUrl(event.getGuild().getIconUrl())
+                    .setUsername(event.getGuild().getName())
+                    .setAllowedMentions(AllowedMentions.none());
+                jda.getEmbeds().forEach(embed -> builder.addEmbeds(WebhookEmbedBuilder.fromJDA(embed).build()));
+                return builder.build();
+            };
             if (messages.isEmpty()) {
                 event.getHook().sendMessage("Could not update rules! Empty list of messages was gathered.").setEphemeral(true).queue();
                 return;

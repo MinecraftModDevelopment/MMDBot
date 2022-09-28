@@ -81,7 +81,7 @@ public final class KickCommand extends Command {
                     kickReason = mentioned ? event.getArgs() : event.getArgs().substring(args[0].length() + 1);
                 }
 
-                event.getGuild().kick(member, kickReason).queue();
+                event.getGuild().kick(member).reason(kickReason).queue();
                 channel.replyFormat("Kicked user %s.", member.getAsMention()).queue();
             }, e -> channel.replyFormat("User %s not found.", args[0]).queue());
         }

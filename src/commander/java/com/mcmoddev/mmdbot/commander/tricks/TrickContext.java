@@ -23,16 +23,19 @@ package com.mcmoddev.mmdbot.commander.tricks;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -70,7 +73,7 @@ public interface TrickContext {
 
     void replyEmbeds(MessageEmbed... embeds);
 
-    void replyWithMessage(Message message);
+    void replyWithMessage(MessageCreateData message);
 
     record Slash(SlashCommandEvent event, InteractionHook hook, String[] args) implements TrickContext {
 
@@ -112,19 +115,19 @@ public interface TrickContext {
 
         @Override
         public void reply(final String content) {
-            hook.editOriginal(new MessageBuilder(content).setAllowedMentions(ALLOWED_MENTIONS).build())
+            hook.editOriginal(new MessageEditBuilder().setContent(content).setAllowedMentions(ALLOWED_MENTIONS).build())
                 .setActionRow(DismissListener.createDismissButton(getUser())).queue();
         }
 
         @Override
         public void replyEmbeds(final MessageEmbed... embeds) {
-            hook.editOriginal(new MessageBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
+            hook.editOriginal(new MessageEditBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
                 .setActionRow(DismissListener.createDismissButton(getUser())).queue();
         }
 
         @Override
-        public void replyWithMessage(final Message message) {
-            hook.editOriginal(message).setActionRow(DismissListener.createDismissButton(getUser())).queue();
+        public void replyWithMessage(final MessageCreateData message) {
+            hook.editOriginal(MessageEditData.fromCreateData(message)).setActionRow(DismissListener.createDismissButton(getUser())).queue();
         }
     }
 
@@ -168,18 +171,18 @@ public interface TrickContext {
 
         @Override
         public void reply(final String content) {
-            event.getMessage().reply(new MessageBuilder(content).setAllowedMentions(ALLOWED_MENTIONS).build())
+            event.getMessage().reply(new MessageCreateBuilder().setContent(content).setAllowedMentions(ALLOWED_MENTIONS).build())
                 .setActionRow(DismissListener.createDismissButton(getUser(), event().getMessage())).mentionRepliedUser(false).queue();
         }
 
         @Override
         public void replyEmbeds(final MessageEmbed... embeds) {
-            event.getMessage().reply(new MessageBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
+            event.getMessage().reply(new MessageCreateBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
                 .setActionRow(DismissListener.createDismissButton(getUser(), event.getMessage())).mentionRepliedUser(false).queue();
         }
 
         @Override
-        public void replyWithMessage(final Message message) {
+        public void replyWithMessage(final MessageCreateData message) {
             event.getMessage().reply(message).setActionRow(DismissListener.createDismissButton(getUser(), event.getMessage())).queue();
         }
     }
@@ -233,7 +236,7 @@ public interface TrickContext {
         }
 
         @Override
-        public void replyWithMessage(final Message message) {
+        public void replyWithMessage(final MessageCreateData message) {
             context.replyWithMessage(message);
         }
     }

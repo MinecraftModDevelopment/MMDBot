@@ -99,9 +99,9 @@ public final class BanCommand extends Command {
                 }
 
                 if (!event.getArgs().contains("-d")) {
-                    event.getGuild().ban(member, 0, banReason).queue();
+                    event.getGuild().ban(member, 0, TimeUnit.DAYS).reason(banReason).queue();
                 } else {
-                    event.getGuild().ban(member, 7, banReason).queue();
+                    event.getGuild().ban(member, 7, TimeUnit.DAYS).reason(banReason).queue();
                 }
 
                 if (time > 0) {

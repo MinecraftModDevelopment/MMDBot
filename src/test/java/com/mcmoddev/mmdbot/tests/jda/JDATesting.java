@@ -20,12 +20,12 @@
  */
 package com.mcmoddev.mmdbot.tests.jda;
 
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.entities.GuildImpl;
 import net.dv8tion.jda.internal.entities.SelfUserImpl;
-import net.dv8tion.jda.internal.entities.TextChannelImpl;
+import net.dv8tion.jda.internal.entities.channel.concrete.TextChannelImpl;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

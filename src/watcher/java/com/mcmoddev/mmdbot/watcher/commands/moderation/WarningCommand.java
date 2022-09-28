@@ -29,7 +29,6 @@ import com.mcmoddev.mmdbot.core.event.moderation.WarningEvent;
 import com.mcmoddev.mmdbot.watcher.TheWatcher;
 import com.mcmoddev.mmdbot.watcher.util.database.Warnings;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -39,6 +38,8 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.TimeFormat;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.awt.Color;
 import java.time.Instant;
@@ -131,7 +132,7 @@ public class WarningCommand extends SlashCommand {
             }
             Events.MODERATION_BUS.post(new WarningEvent.Add(event.getGuild().getIdLong(), member.getIdLong(),
                 userToWarn.getIdLong(), withExtension(doc -> doc.getWarningDocument(warnId.toString()))));
-            event.getInteraction().reply(new MessageBuilder().append("Warn successful!").build()).setEphemeral(true)
+            event.getInteraction().reply(new MessageCreateBuilder().addContent("Warn successful!").build()).setEphemeral(true)
                 .queue();
         }
     }
@@ -228,7 +229,7 @@ public class WarningCommand extends SlashCommand {
                 }
                 Events.MODERATION_BUS.post(new WarningEvent.ClearAllWarns(event.getGuild().getIdLong(), member.getIdLong(), userToWarn.getIdLong()));
 
-                event.getInteraction().reply(new MessageBuilder().append("Warnings cleared!").build()).setEphemeral(true).queue();
+                event.getInteraction().reply(new MessageCreateBuilder().addContent("Warnings cleared!").build()).setEphemeral(true).queue();
             } else {
                 final var warnExists = withExtension(db -> db.warningExists(warnId));
                 if (!warnExists) {
@@ -268,7 +269,7 @@ public class WarningCommand extends SlashCommand {
                 }
                 Events.MODERATION_BUS.post(new WarningEvent.Clear(event.getGuild().getIdLong(), member.getIdLong(), userToWarn.getIdLong(), withExtension(doc -> doc.getWarningDocument(warnId))));
 
-                event.getInteraction().reply(new MessageBuilder().append("Warning cleared!").build()).setEphemeral(true).queue();
+                event.getInteraction().reply(new MessageCreateBuilder().addContent("Warning cleared!").build()).setEphemeral(true).queue();
             }
         }
 

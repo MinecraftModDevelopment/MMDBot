@@ -58,9 +58,10 @@ public record Punishment(ActionType type, Duration duration) {
         switch (type) {
             case BAN -> {
                 if (duration == null || duration.toMillis() <= 0) {
-                    member.ban(0, reason).queue();
+                    member.ban(0, TimeUnit.DAYS).reason(reason).queue();
                 } else {
-                    member.ban(0, reason)
+                    member.ban(0, TimeUnit.DAYS)
+                        .reason(reason)
                         .flatMap(o -> {
                             finalWhenDone.run();
                             return member.getGuild().unban(User.fromId(memberId));
@@ -68,7 +69,7 @@ public record Punishment(ActionType type, Duration duration) {
                         .queueAfter(duration.toSeconds(), TimeUnit.MILLISECONDS);
                 }
             }
-            case KICK -> member.kick(reason).queue($ -> finalWhenDone.run());
+            case KICK -> member.kick().reason(reason).queue($ -> finalWhenDone.run());
             case MUTE -> member.timeoutFor(duration == null ? Duration.of(28, ChronoUnit.DAYS) : duration)
                 .reason(reason)
                 .queue($ -> finalWhenDone.run());

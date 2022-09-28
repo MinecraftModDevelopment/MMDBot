@@ -25,11 +25,11 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.watcher.TheWatcher;
 import com.mcmoddev.mmdbot.watcher.util.database.RulesDAO;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -53,7 +53,7 @@ public class RuleCommand extends SlashCommand {
                 .setEphemeral(true)
                 .queue();
         } else {
-            event.reply(new MessageBuilder()
+            event.reply(new MessageCreateBuilder()
                 .setEmbeds(rule.asEmbed(id)
                     .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
                     .build())
@@ -76,7 +76,7 @@ public class RuleCommand extends SlashCommand {
         if (rule == null) {
             event.reply("Unknown rule nr. " + id);
         } else {
-            event.reply(new MessageBuilder()
+            event.reply(new MessageCreateBuilder()
                 .setEmbeds(rule.asEmbed(id)
                     .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
                     .build())

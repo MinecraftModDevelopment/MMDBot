@@ -99,7 +99,7 @@ public final class AboutCommand extends SlashCommand {
             });
         } else {
             event.replyEmbeds(embed.build())
-                .addActionRows(ActionRow.of(
+                .setComponents(ActionRow.of(
                     DismissListener.createDismissButton()
                 ))
                 .queue();

@@ -32,8 +32,8 @@ import com.mcmoddev.mmdbot.core.util.webhook.WebhookManager;
 import lombok.Builder;
 import lombok.Data;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 

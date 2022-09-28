@@ -21,12 +21,12 @@
 package com.mcmoddev.mmdbot.commander.tricks;
 
 import io.github.matyrobbrt.eventdispatcher.LazySupplier;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -54,7 +54,7 @@ public record StringTrick(List<String> names, String body) implements Trick {
 
     @Override
     public void execute(final TrickContext context) {
-        context.replyWithMessage(new MessageBuilder(String.format(getBody(), (Object[]) context.getArgs()))
+        context.replyWithMessage(new MessageCreateBuilder().setContent(String.format(getBody(), (Object[]) context.getArgs()))
             .setAllowedMentions(ALLOWED_MENTIONS).build());
     }
 

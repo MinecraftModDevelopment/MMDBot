@@ -21,7 +21,6 @@
 package com.mcmoddev.mmdbot.commander.eventlistener;
 
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -30,6 +29,7 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -52,8 +52,8 @@ public class FilePreviewListener implements EventListener {
         if (!(gE instanceof MessageReceivedEvent event)) return;
         final var attachments = event.getMessage().getAttachments();
         if (attachments.isEmpty()) return;
-        final var messageBuilder = new MessageBuilder()
-            .append("Paste version of ");
+        final var messageBuilder = new MessageCreateBuilder()
+            .addContent("Paste version of ");
         final var rows = new ArrayList<List<Button>>();
         addButton(rows, DismissListener.createDismissButton(event.getAuthor().getIdLong(), ButtonStyle.SECONDARY, DISMISS_EMOJI));
         for (var i = 0; i < attachments.size(); i++) {
@@ -63,25 +63,25 @@ public class FilePreviewListener implements EventListener {
             if (WHITELISTED_EXTENSIONS.contains(attach.getFileExtension().toLowerCase(Locale.ROOT))) {
                 final var url = URL + attach.getUrl();
                 messageBuilder
-                    .append('`')
-                    .append(attach.getFileName())
-                    .append('`');
+                    .addContent("`")
+                    .addContent(attach.getFileName())
+                    .addContent("`");
 
                 if (i != attachments.size() - 1) {
-                    messageBuilder.append(", ");
+                    messageBuilder.addContent(", ");
                 } else {
-                    messageBuilder.append(' ');
+                    messageBuilder.addContent(" ");
                 }
                 addButton(rows, Button.link(url, trimIfTooLong("View " + attach.getFileName())));
             }
         }
         if (rows.get(0).size() > 1) { // We're guaranteed to have at least one list, with at least one button: the dismiss one
-            messageBuilder.append("from ")
-                .append(event.getAuthor().getAsMention());
+            messageBuilder.addContent("from ")
+                .addContent(event.getAuthor().getAsMention());
             event.getMessage().reply(messageBuilder.build())
-                .setActionRows(rows.stream().map(ActionRow::of).toArray(ActionRow[]::new))
+                .setComponents(rows.stream().map(ActionRow::of).toArray(ActionRow[]::new))
                 .mentionRepliedUser(false)
-                .allowedMentions(List.of())
+                .setAllowedMentions(List.of())
                 .queue();
         }
     }

@@ -90,16 +90,16 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
-import net.dv8tion.jda.api.utils.AllowedMentions;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import okhttp3.OkHttpClient;
 import org.flywaydb.core.Flyway;
 import org.jdbi.v3.core.Jdbi;
@@ -229,7 +229,7 @@ public final class TheCommander implements Bot {
     public static final String VERSION;
 
     static {
-        AllowedMentions.setDefaultMentionRepliedUser(false);
+        MessageRequest.setDefaultMentionRepliedUser(false);
 
         var version = TheCommander.class.getPackage().getImplementationVersion();
         if (version == null) {
@@ -330,8 +330,8 @@ public final class TheCommander implements Bot {
             jdbi = Jdbi.create(dataSource);
         }
 
-        MessageAction.setDefaultMentionRepliedUser(false);
-        MessageAction.setDefaultMentions(DEFAULT_MENTIONS);
+        MessageRequest.setDefaultMentionRepliedUser(false);
+        MessageRequest.setDefaultMentions(DEFAULT_MENTIONS);
 
         // Setup components
         {
@@ -470,7 +470,7 @@ public final class TheCommander implements Bot {
                 .setEnabledIntents(INTENTS);
             EventListeners.register(builder::addEventListeners);
             jda = builder.build().awaitReady();
-        } catch (final LoginException exception) {
+        } catch (final InvalidTokenException exception) {
             LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.", exception);
             System.exit(1);
         } catch (InterruptedException e) {

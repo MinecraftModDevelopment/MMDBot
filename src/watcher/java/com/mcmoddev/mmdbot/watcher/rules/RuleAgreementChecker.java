@@ -48,7 +48,7 @@ public record RuleAgreementChecker(Supplier<JDA> jda) implements Runnable {
                     .onSuccess(members -> {
                         if (!members.isEmpty()) {
                             RestAction.allOf(members.stream()
-                                .map(m -> m.kick("Not agreeing to the rules"))
+                                .map(m -> m.kick().reason("Not agreeing to the rules"))
                                 .toList())
                                 .queue();
                         }

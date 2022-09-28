@@ -35,7 +35,6 @@ import de.ialistannen.javadocapi.rendering.LinkResolveStrategy;
 import de.ialistannen.javadocapi.storage.ElementLoader;
 import de.ialistannen.javadocapi.util.BaseUrlElementLoader;
 import de.ialistannen.javadocapi.util.NameShortener;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
@@ -44,6 +43,9 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -110,7 +112,7 @@ public class DocsCommand extends SlashCommand {
             query,
             context.getUser().getIdLong(),
             context.getComponentId(),
-            m -> context.getEvent().getMessage().editMessage(new MessageBuilder(m).setContent(null).build())
+            m -> context.getEvent().getMessage().editMessage(MessageEditBuilder.from(m).setContent(null).build())
                 .map(msg -> {
                     final var compData = new DocsButtonData(context.getUser().getIdLong(), query, true, false);
                     final var component = new Component(componentListener.getName(), UUID.randomUUID(), compData.toArguments(), Component.Lifespan.TEMPORARY);
@@ -171,11 +173,11 @@ public class DocsCommand extends SlashCommand {
         ));
     }
 
-    void query(String query, long userId, UUID buttonId, Function<Message, RestAction<Message>> replier, boolean shortDescription, boolean omitTags, Runnable whenNoResult) {
+    void query(String query, long userId, UUID buttonId, Function<MessageEditData, RestAction<Message>> replier, boolean shortDescription, boolean omitTags, Runnable whenNoResult) {
         query(query, userId, buttonId, (message, fuzzyQueryResults) -> replier.apply(message), shortDescription, omitTags, whenNoResult);
     }
 
-    void query(String query, long userId, UUID buttonId, BiFunction<Message, Collection<FuzzyQueryResult>, RestAction<Message>> replier, boolean shortDescription, boolean omitTags, Runnable whenNoResult) {
+    void query(String query, long userId, UUID buttonId, BiFunction<MessageEditData, Collection<FuzzyQueryResult>, RestAction<Message>> replier, boolean shortDescription, boolean omitTags, Runnable whenNoResult) {
         final var start = Instant.now();
 
         final var results = queryApi.query(loader, query.strip())
@@ -185,8 +187,9 @@ public class DocsCommand extends SlashCommand {
 
         final var duration = Duration.between(start, Instant.now());
 
+        final BiFunction<MessageCreateBuilder, Collection<FuzzyQueryResult>, RestAction<Message>> wrap = (messageCreateBuilder, a) -> replier.apply(MessageEditData.fromCreateData(messageCreateBuilder.build()), a);
         if (results.size() == 1) {
-            replyResult(userId, buttonId, replier, results.get(0), shortDescription, omitTags, duration);
+            replyResult(userId, buttonId, wrap, results.get(0), shortDescription, omitTags, duration);
             return;
         }
 
@@ -196,7 +199,7 @@ public class DocsCommand extends SlashCommand {
                 .findFirst()
                 .orElseThrow();
 
-            replyResult(userId, buttonId, replier, result, shortDescription, omitTags, duration);
+            replyResult(userId, buttonId, wrap, result, shortDescription, omitTags, duration);
             return;
         }
         if (results.stream().filter(FuzzyQueryResult::isCaseSensitiveExact).count() == 1) {
@@ -205,7 +208,7 @@ public class DocsCommand extends SlashCommand {
                 .findFirst()
                 .orElseThrow();
 
-            replyResult(userId, buttonId, replier, result, shortDescription, omitTags, duration);
+            replyResult(userId, buttonId, wrap, result, shortDescription, omitTags, duration);
             return;
         }
 
@@ -219,13 +222,13 @@ public class DocsCommand extends SlashCommand {
 
     private static final LinkResolveStrategy LINK_RESOLVE_STRATEGY = new Java11PlusLinkResolver();
 
-    void replyResult(long userId, UUID buttonId, BiFunction<Message, Collection<FuzzyQueryResult>, RestAction<Message>> replier, FuzzyQueryResult result, boolean shortDescription, boolean omitTags, Duration queryDuration) {
+    void replyResult(long userId, UUID buttonId, BiFunction<MessageCreateBuilder, Collection<FuzzyQueryResult>, RestAction<Message>> replier, FuzzyQueryResult result, boolean shortDescription, boolean omitTags, Duration queryDuration) {
         final var elements = loader.findByQualifiedName(result.getQualifiedName());
 
         if (elements.size() == 1) {
             final var loadResult = elements.iterator().next();
             docsSender.replyWithResult(
-                msg -> replier.apply(msg, List.of()),
+                msg -> replier.apply(MessageCreateBuilder.fromEditData(msg), List.of()),
                 loadResult,
                 shortDescription,
                 omitTags,
@@ -235,9 +238,8 @@ public class DocsCommand extends SlashCommand {
                 buttonId
             );
         } else {
-            replier.apply(new MessageBuilder("No results have been found for this qualified name.")
-                .setActionRows(ActionRow.of(DismissListener.createDismissButton(userId)))
-                .build(), List.of()).queue();
+            replier.apply(new MessageCreateBuilder().setContent("No results have been found for this qualified name.")
+                .setComponents(ActionRow.of(DismissListener.createDismissButton(userId))), List.of()).queue();
         }
     }
 

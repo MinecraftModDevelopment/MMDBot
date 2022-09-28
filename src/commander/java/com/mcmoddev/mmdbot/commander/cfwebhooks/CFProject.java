@@ -25,7 +25,7 @@ import club.minnced.discord.webhook.send.WebhookMessage;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import io.github.matyrobbrt.curseforgeapi.request.AsyncRequest;
 import io.github.matyrobbrt.curseforgeapi.request.Response;
-import net.dv8tion.jda.api.entities.IWebhookContainer;
+import net.dv8tion.jda.api.entities.channel.attribute.IWebhookContainer;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
