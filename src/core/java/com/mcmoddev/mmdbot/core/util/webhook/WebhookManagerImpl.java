@@ -27,11 +27,11 @@ import club.minnced.discord.webhook.send.WebhookMessage;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.IWebhookContainer;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.NewsChannel;
 import net.dv8tion.jda.api.entities.Webhook;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.attribute.IWebhookContainer;
+import net.dv8tion.jda.api.entities.channel.concrete.NewsChannel;
 import okhttp3.OkHttpClient;
 import org.jetbrains.annotations.Nullable;
 

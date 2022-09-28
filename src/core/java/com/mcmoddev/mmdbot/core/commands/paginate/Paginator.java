@@ -23,12 +23,13 @@ package com.mcmoddev.mmdbot.core.commands.paginate;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -119,7 +120,7 @@ public interface Paginator {
      * @return a built message that can be sent.
      */
     @Nonnull
-    MessageBuilder getMessage(int startingIndex, int maximum, final List<String> arguments);
+    MessageCreateBuilder getMessage(int startingIndex, int maximum, final List<String> arguments);
 
     /**
      * Create the row of Component interaction buttons.
@@ -143,7 +144,7 @@ public interface Paginator {
      * @param args          arguments the arguments that will be saved in the database, bound to the button's component ID
      * @return the ReplyAction
      */
-    Message createPaginatedMessage(final int startingIndex, final int maximum, @Nullable final Long messageOwner, final List<String> args);
+    MessageCreateData createPaginatedMessage(final int startingIndex, final int maximum, @Nullable final Long messageOwner, final List<String> args);
 
     /**
      * Create a {@link Message} which, if the number of items requires, also contains buttons for scrolling.
@@ -154,7 +155,7 @@ public interface Paginator {
      * @param args          arguments the arguments that will be saved in the database, bound to the button's component ID
      * @return the ReplyAction
      */
-    default Message createPaginatedMessage(final int startingIndex, final int maximum, @Nullable final Long messageOwner, final String... args) {
+    default MessageCreateData createPaginatedMessage(final int startingIndex, final int maximum, @Nullable final Long messageOwner, final String... args) {
         return createPaginatedMessage(startingIndex, maximum, messageOwner, Arrays.asList(args));
     }
 
@@ -171,7 +172,7 @@ public interface Paginator {
     @FunctionalInterface
     interface MessageGetter {
         @Nonnull
-        MessageBuilder getMessage(int startingIndex, int maximum, final List<String> arguments);
+        MessageCreateBuilder getMessage(int startingIndex, int maximum, final List<String> arguments);
     }
 
     @FunctionalInterface

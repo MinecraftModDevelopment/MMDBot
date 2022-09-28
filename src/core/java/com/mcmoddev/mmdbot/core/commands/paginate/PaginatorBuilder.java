@@ -24,7 +24,7 @@ import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.commands.component.context.ButtonInteractionContext;
 import lombok.NonNull;
-import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -39,7 +39,7 @@ public class PaginatorBuilder {
     private int itemsPerPage = 25;
     private boolean dismissible = true;
     private boolean buttonsOwnerOnly;
-    private Paginator.MessageGetter messageGetter = (startingIndex, maximum, arguments) -> new MessageBuilder("Unknown page.");
+    private Paginator.MessageGetter messageGetter = (startingIndex, maximum, arguments) -> new MessageCreateBuilder().setContent("Unknown page.");
     private Paginator.ButtonFactory buttonFactory = Paginator.DEFAULT_BUTTON_FACTORY;
     private List<Paginator.ButtonType> buttonOrder = Paginator.DEFAULT_BUTTON_ORDER;
 

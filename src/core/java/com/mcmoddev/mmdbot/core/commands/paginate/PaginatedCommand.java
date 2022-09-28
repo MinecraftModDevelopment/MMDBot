@@ -26,9 +26,9 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 
 import java.util.List;
 
@@ -51,7 +51,7 @@ public abstract class PaginatedCommand extends SlashCommand {
 
     public PaginatedCommand(final PaginatorBuilder paginator) {
         this.paginator = paginator
-            .message((startingIndex, maximum, arguments1) -> new MessageBuilder().setEmbeds(getEmbed(startingIndex, maximum, arguments1).build()))
+            .message((startingIndex, maximum, arguments1) -> new MessageCreateBuilder().setEmbeds(getEmbed(startingIndex, maximum, arguments1).build()))
             .build();
     }
 
@@ -146,13 +146,13 @@ public abstract class PaginatedCommand extends SlashCommand {
     protected ReplyCallbackAction createPaginatedMessage(SlashCommandEvent event, final int startingIndex, final int maximum, final String... args) {
         final var message = paginator.createPaginatedMessage(startingIndex, maximum, event.getUser().getIdLong(), args);
         return event.deferReply()
-            .setContent(message.getContentRaw())
-            .addActionRows(message.getActionRows())
+            .setContent(message.getContent())
+            .addComponents(message.getComponents())
             .addEmbeds(message.getEmbeds());
     }
 
     /**
-     * Create a {@link MessageAction} which, if the number of items requires, also contains buttons for scrolling.
+     * Create a {@link MessageCreateAction} which, if the number of items requires, also contains buttons for scrolling.
      *
      * @param event         the active CommandEvent.
      * @param startingIndex the index of the first item to display
@@ -160,7 +160,7 @@ public abstract class PaginatedCommand extends SlashCommand {
      * @param args          arguments the arguments that will be saved in the database, bound to the button's component ID
      * @return the MessageAction
      */
-    protected MessageAction createPaginatedMessage(CommandEvent event, final int startingIndex, final int maximum, final String... args) {
+    protected MessageCreateAction createPaginatedMessage(CommandEvent event, final int startingIndex, final int maximum, final String... args) {
         final var message = paginator.createPaginatedMessage(startingIndex, maximum, event.getAuthor().getIdLong(), args);
         return event.getMessage()
             .reply(message);

@@ -23,8 +23,8 @@ package com.mcmoddev.mmdbot.core.util.webhook;
 import club.minnced.discord.webhook.external.JDAWebhookClient;
 import club.minnced.discord.webhook.send.AllowedMentions;
 import club.minnced.discord.webhook.send.WebhookMessage;
-import net.dv8tion.jda.api.entities.IWebhookContainer;
 import net.dv8tion.jda.api.entities.Webhook;
+import net.dv8tion.jda.api.entities.channel.attribute.IWebhookContainer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
