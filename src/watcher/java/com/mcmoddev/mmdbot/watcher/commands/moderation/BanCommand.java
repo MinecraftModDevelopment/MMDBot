@@ -79,7 +79,7 @@ public final class BanCommand extends Command {
                     banReason = "Reason for ban could not be found or was not provided, please contact "
                         + event.getMember().getUser().getAsTag() + " - (" + event.getMember().getId() + ")";
                 } else {
-                    banReason = event.getArgs().substring(args[1].length() + 1);
+                    banReason = event.getArgs().substring(args[0].length() + 1);
                 }
 
                 //TODO ignore the -d if no time is specified
@@ -98,14 +98,15 @@ public final class BanCommand extends Command {
                     unit = TimeUnit.MINUTES;
                 }
 
+                final String auditReason = "Ban issued by " + event.getAuthor().getAsTag() + ": " + banReason;
                 if (!event.getArgs().contains("-d")) {
-                    event.getGuild().ban(member, 0, TimeUnit.DAYS).reason(banReason).queue();
+                    event.getGuild().ban(member, 0, TimeUnit.DAYS).reason(auditReason).queue();
                 } else {
-                    event.getGuild().ban(member, 7, TimeUnit.DAYS).reason(banReason).queue();
+                    event.getGuild().ban(member, 7, TimeUnit.DAYS).reason(auditReason).queue();
                 }
 
                 if (time > 0) {
-                    event.getGuild().unban(User.fromId(member.getUser().getIdLong())).queueAfter(time, unit);
+                    event.getGuild().unban(User.fromId(member.getUser().getIdLong())).reason(auditReason).queueAfter(time, unit);
                 }
 
                 final String timeString;
@@ -115,7 +116,7 @@ public final class BanCommand extends Command {
                     timeString = "ever";
                 }
 
-                event.reply("Banned: %s, Reason: %s for%s.".formatted(member.getAsMention(), banReason, timeString));
+                event.reply("Banned %s for%s\n**Reason**: %s".formatted(member.getAsMention(), timeString, banReason));
             }, e -> event.reply(String.format("User %s not found.", args[0])));
         }
     }
