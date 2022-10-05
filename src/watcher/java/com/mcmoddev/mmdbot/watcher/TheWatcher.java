@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.watcher;
 
-import club.minnced.discord.webhook.send.AllowedMentions;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.mcmoddev.mmdbot.core.bot.Bot;
@@ -61,13 +60,11 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import org.flywaydb.core.Flyway;
@@ -81,11 +78,9 @@ import org.spongepowered.configurate.reference.ConfigurationReference;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 import org.sqlite.SQLiteDataSource;
 
-import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -159,10 +154,6 @@ public final class TheWatcher implements Bot {
         GatewayIntent.GUILD_MEMBERS,
         GatewayIntent.MESSAGE_CONTENT
     );
-
-    private static final Set<Message.MentionType> DEFAULT_MENTIONS = EnumSet.of(
-        Message.MentionType.EMOJI,
-        Message.MentionType.CHANNEL);
 
     static {
         MessageRequest.setDefaultMentionRepliedUser(false);
@@ -292,9 +283,6 @@ public final class TheWatcher implements Bot {
 
         MISC_LISTENER.addListener(UpdateRulesCommand::onEvent);
         MISC_LISTENER.addListeners(new EventReactionAdded(), new PersistedRolesEvents());
-
-        MessageRequest.setDefaultMentionRepliedUser(false);
-        MessageRequest.setDefaultMentions(DEFAULT_MENTIONS);
 
         try {
             final var builder = JDABuilder

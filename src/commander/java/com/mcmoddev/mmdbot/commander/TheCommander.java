@@ -330,9 +330,6 @@ public final class TheCommander implements Bot {
             jdbi = Jdbi.create(dataSource);
         }
 
-        MessageRequest.setDefaultMentionRepliedUser(false);
-        MessageRequest.setDefaultMentions(DEFAULT_MENTIONS);
-
         // Setup components
         {
             final var storage = ComponentStorage.sql(jdbi, "components");

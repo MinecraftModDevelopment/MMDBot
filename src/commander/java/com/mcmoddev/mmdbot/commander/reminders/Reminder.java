@@ -105,6 +105,7 @@ public record Reminder(String content, long channelId, boolean isPrivateChannel,
 
     public MessageCreateBuilder buildMessage(final JDA jda, final User user) {
         return new MessageCreateBuilder()
+            .mention(user)
             .setContent(isPrivateChannel() ? null : user.getAsMention())
             .setEmbeds(
                 new EmbedBuilder()

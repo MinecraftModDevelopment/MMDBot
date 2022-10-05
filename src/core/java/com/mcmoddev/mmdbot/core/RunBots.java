@@ -28,6 +28,8 @@ import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import lombok.experimental.UtilityClass;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +44,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -65,6 +68,9 @@ public class RunBots {
         // thread are D4J bots
         BOT_STARTER_EXECUTOR.setKeepAliveTime(2, TimeUnit.MINUTES);
         BOT_STARTER_EXECUTOR.allowCoreThreadTimeOut(true);
+
+        MessageRequest.setDefaultMentionRepliedUser(false);
+        MessageRequest.setDefaultMentions(EnumSet.complementOf(EnumSet.of(Message.MentionType.HERE, Message.MentionType.EVERYONE)));
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(RunBots.class);
