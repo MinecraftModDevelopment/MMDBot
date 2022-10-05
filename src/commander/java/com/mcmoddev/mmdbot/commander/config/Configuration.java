@@ -131,24 +131,6 @@ public final class Configuration {
             return updateNotifiers;
         }
 
-        @Required
-        @Setting("requests")
-        @Comment("The Requests channel.")
-        private SnowflakeValue requests = SnowflakeValue.EMPTY;
-
-        public SnowflakeValue requests() {
-            return requests;
-        }
-
-        @Required
-        @Setting("free_mod_ideas")
-        @Comment("The Free Mod Ideas channel.")
-        private SnowflakeValue freeModIdeas = SnowflakeValue.EMPTY;
-
-        public SnowflakeValue freeModIdeas() {
-            return freeModIdeas;
-        }
-
         @ConfigSerializable
         public static final class UpdateNotifiers {
 

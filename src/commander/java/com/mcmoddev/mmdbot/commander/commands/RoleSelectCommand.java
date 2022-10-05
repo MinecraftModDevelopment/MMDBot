@@ -393,7 +393,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
     }
 
     private void doRolePanelStuff(final GenericMessageReactionEvent event, final boolean isRemove) {
-        if (!event.isFromGuild() || event.getUser() != null && event.getUser().isBot() || event.getUser().isSystem()) {
+        if (!event.isFromGuild() || event.getUser() == null || event.getMember() == null || event.getUser().isBot() || event.getUser().isSystem()) {
             return;
         }
         final var emote = getEmoteAsString(event.getReaction());

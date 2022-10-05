@@ -57,7 +57,6 @@ import com.mcmoddev.mmdbot.commander.reminders.SnoozingListener;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers;
 import com.mcmoddev.mmdbot.commander.util.EventListeners;
-import com.mcmoddev.mmdbot.commander.util.ThreadChannelCreatorEvents;
 import com.mcmoddev.mmdbot.commander.util.mc.MCVersions;
 import com.mcmoddev.mmdbot.commander.util.oldchannels.OldChannelsHelper;
 import com.mcmoddev.mmdbot.core.bot.Bot;
@@ -445,8 +444,7 @@ public final class TheCommander implements Bot {
             EventListeners.MISC_LISTENER.addListener(new ReferencingListener());
         }
 
-        EventListeners.MISC_LISTENER.addListeners(new ThreadListener(),
-            new ThreadChannelCreatorEvents(this::getGeneralConfig), new FilePreviewListener());
+        EventListeners.MISC_LISTENER.addListeners(new ThreadListener(), new FilePreviewListener());
 
         COLLECT_TASKS_LISTENER.register(Events.MISC_BUS);
         CurseForgeCommand.RG_TASK_SCHEDULER_LISTENER.register(Events.MISC_BUS);

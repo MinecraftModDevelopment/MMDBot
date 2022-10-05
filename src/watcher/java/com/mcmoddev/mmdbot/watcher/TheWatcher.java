@@ -46,6 +46,7 @@ import com.mcmoddev.mmdbot.watcher.commands.moderation.UnbanCommand;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.UnmuteCommand;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.WarningCommand;
 import com.mcmoddev.mmdbot.watcher.event.EventReactionAdded;
+import com.mcmoddev.mmdbot.watcher.event.ForumListener;
 import com.mcmoddev.mmdbot.watcher.event.PersistedRolesEvents;
 import com.mcmoddev.mmdbot.watcher.punishments.PunishableActions;
 import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
@@ -282,7 +283,7 @@ public final class TheWatcher implements Bot {
         COMMANDS_LISTENER.addListener(new DismissListener());
 
         MISC_LISTENER.addListener(UpdateRulesCommand::onEvent);
-        MISC_LISTENER.addListeners(new EventReactionAdded(), new PersistedRolesEvents());
+        MISC_LISTENER.addListeners(new EventReactionAdded(), new PersistedRolesEvents(), new ForumListener());
 
         try {
             final var builder = JDABuilder
@@ -294,6 +295,7 @@ public final class TheWatcher implements Bot {
                 .disableCache(CacheFlag.ONLINE_STATUS)
                 .disableCache(CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY)
+                .enableCache(CacheFlag.FORUM_TAGS)
                 .setEnabledIntents(INTENTS);
             jda = builder.build().awaitReady();
         } catch (final InvalidTokenException exception) {
