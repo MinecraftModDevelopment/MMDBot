@@ -149,7 +149,7 @@ public final class EventReactionAdded extends ListenerAdapter {
                             .appendDescription(", reaching removal threshold of " + removalThreshold)
                             .appendDescription(" and is now awaiting moderator approval before deletion.");
                         builder.addField("Jump to Message",
-                            MarkdownUtil.maskedLink("Message in " + message.getChannel().asTextChannel().getAsMention(),
+                            MarkdownUtil.maskedLink("Message in " + message.getChannel().getAsMention(),
                                 message.getJumpUrl()), true);
                         builder.setTimestamp(Instant.now());
                         builder.setColor(Color.YELLOW);

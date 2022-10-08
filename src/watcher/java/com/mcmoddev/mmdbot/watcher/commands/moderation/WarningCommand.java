@@ -33,10 +33,12 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -50,6 +52,8 @@ import java.util.function.Function;
 
 public class WarningCommand extends SlashCommand {
 
+    private static final ErrorHandler IGNORE_DMS = new ErrorHandler()
+        .ignore(ErrorResponse.CANNOT_SEND_TO_USER);
     public static final Permission[] REQUIRED_PERMISSIONS = new Permission[]{
         Permission.MODERATE_MEMBERS
     };
@@ -106,7 +110,7 @@ public class WarningCommand extends SlashCommand {
 
             final UUID warnId = withExtension(doc -> doc.insert(userToWarn.getIdLong(), event.getGuild().getIdLong(), reason, member.getIdLong(), Instant.now()));
 
-            userToWarn.openPrivateChannel().queue(channel -> {
+            userToWarn.openPrivateChannel().flatMap(channel -> {
                 final var dmEmbed = new EmbedBuilder()
                     .setColor(Color.RED)
                     .setTitle("New Warning")
@@ -115,8 +119,8 @@ public class WarningCommand extends SlashCommand {
                     .addField("Reason:", reason, false)
                     .setFooter("Warner ID: " + member.getId(), member.getEffectiveAvatarUrl())
                     .setTimestamp(Instant.now());
-                channel.sendMessageEmbeds(dmEmbed.build()).queue();
-            });
+                return channel.sendMessageEmbeds(dmEmbed.build());
+            }).queue(null, IGNORE_DMS);
 
             final var embed = new EmbedBuilder()
                 .setColor(Color.RED)
@@ -206,16 +210,15 @@ public class WarningCommand extends SlashCommand {
             if (warnId.isBlank()) {
                 TheWatcher.database().useExtension(Warnings.class, db -> db.clearAll(userToWarn.getIdLong(), event.getGuild().getIdLong()));
 
-                userToWarn.openPrivateChannel().queue(channel -> {
+                userToWarn.openPrivateChannel().flatMap(channel -> {
                     final var dmEmbed = new EmbedBuilder()
                         .setColor(Color.GREEN)
                         .setTitle("Warnings Cleared")
                         .setDescription("All of your warnings from **" + event.getGuild().getName() + "** have been cleared!")
                         .setTimestamp(Instant.now())
                         .setFooter("Un-Warner ID: " + member.getId(), member.getEffectiveAvatarUrl());
-                    ;
-                    channel.sendMessageEmbeds(dmEmbed.build()).queue();
-                });
+                    return channel.sendMessageEmbeds(dmEmbed.build());
+                }).queue(null, IGNORE_DMS);
 
                 final var embed = new EmbedBuilder()
                     .setColor(Color.GREEN)
@@ -243,7 +246,7 @@ public class WarningCommand extends SlashCommand {
 
                 event.getJDA().retrieveUserById(warnDoc.userId())
                     .flatMap(User::openPrivateChannel)
-                    .queue(channel -> {
+                    .flatMap(channel -> {
                         final var dmEmbed = new EmbedBuilder()
                             .setColor(Color.GREEN)
                             .setTitle("Warning Cleared")
@@ -252,8 +255,8 @@ public class WarningCommand extends SlashCommand {
                             .addField("Old warner:", mentionAndID(warnDoc.moderatorId()), false)
                             .setTimestamp(Instant.now())
                             .setFooter("Moderator ID: " + member.getId(), member.getEffectiveAvatarUrl());
-                        channel.sendMessageEmbeds(dmEmbed.build()).queue();
-                    });
+                        return channel.sendMessageEmbeds(dmEmbed.build());
+                    }).queue(null, IGNORE_DMS);
 
                 final var embed = new EmbedBuilder()
                     .setColor(Color.GREEN)
