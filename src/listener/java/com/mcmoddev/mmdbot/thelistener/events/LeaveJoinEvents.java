@@ -30,25 +30,23 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
 import java.time.Instant;
 
 public final class LeaveJoinEvents extends ListenerAdapter {
+
     private static final WebhookManager WEBHOOKS = WebhookManager.of("LeaveJoinLogging");
 
     @Override
     public void onGuildMemberJoin(@NotNull final GuildMemberJoinEvent event) {
         final var embed = new EmbedBuilder()
-            .setTimestamp(Instant.now())
             .setColor(Color.GREEN)
             .setTitle("User Joined")
-            .setFooter("User ID: " + event.getMember().getId())
-            .addField("User:", "%s (%s)".formatted(event.getMember().getUser().getAsTag(), event.getMember().getAsMention()), true)
-            .setThumbnail(event.getMember().getEffectiveAvatarUrl())
-            .addField("Joined Discord:", TimeFormat.DATE_TIME_SHORT.format(event.getMember().getUser().getTimeCreated()), true)
+            .addField("User:", event.getMember().getUser().getAsTag(), true)
+            .setFooter("User ID: " + event.getMember().getId(), event.getMember().getEffectiveAvatarUrl())
+            .setTimestamp(Instant.now())
             .build();
 
         TheListener.getInstance().getConfigForGuild(event.getGuild().getIdLong())
@@ -71,14 +69,12 @@ public final class LeaveJoinEvents extends ListenerAdapter {
     public void onGuildMemberRemove(@NotNull final GuildMemberRemoveEvent event) {
         if (event.getMember() == null) return;
         final var embed = new EmbedBuilder()
-            .setTimestamp(Instant.now())
             .setColor(Color.RED)
             .setTitle("User Left")
-            .setFooter("User ID: " + event.getMember().getId(), event.getMember().getEffectiveAvatarUrl())
             .addField("User:", event.getUser().getAsTag(), true)
-            .addField("Join Time:", TimeFormat.DATE_TIME_SHORT.format(event.getMember().getUser().getTimeCreated()), true)
             .addField("Roles", RoleEvents.mentionsOrEmpty(event.getMember().getRoles()), false)
-            .setThumbnail(event.getUser().getAvatarUrl())
+            .setFooter("User ID: " + event.getMember().getId(), event.getMember().getEffectiveAvatarUrl())
+            .setTimestamp(Instant.now())
             .build();
 
         TheListener.getInstance().getConfigForGuild(event.getGuild().getIdLong())

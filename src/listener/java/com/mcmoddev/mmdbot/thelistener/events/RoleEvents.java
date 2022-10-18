@@ -84,8 +84,8 @@ public final class RoleEvents extends ListenerAdapter {
 
         embed.setTitle("User Role(s) " + changeType)
             .setColor(Color.YELLOW)
-            .addField("User:", mentionable(target), true)
-            .setThumbnail(target.getAvatarUrl())
+            .addField("User:", target.getUser().getAsTag(), true)
+            .setFooter("User ID: " + target.getUser().getId(), target.getEffectiveAvatarUrl())
             .setTimestamp(entry.getTimeCreated());
 
         final var targetId = entry.getTargetIdLong();
@@ -95,11 +95,11 @@ public final class RoleEvents extends ListenerAdapter {
                 "retrieved is {}, but target is {}", targetId, target);
         } else if (entry.getUser() != null) {
             final var editor = entry.getUser();
-            embed.addField("Editor:", mentionable(editor), true);
+            embed.addField("Editor:", editor.getAsTag(), true);
         }
 
-        embed.addField("Previous Role(s):", mentionsOrEmpty(previousRoles), false);
-        embed.addField(changeType + " Role(s):", mentionsOrEmpty(modifiedRoles), false);
+        embed.addField("Previous Role(s):", mentionsOrEmpty(previousRoles), true);
+        embed.addField(changeType + " Role(s):", mentionsOrEmpty(modifiedRoles), true);
 
         LoggingType.ROLE_EVENTS.getChannels(event.getGuild().getIdLong()).forEach(id -> {
             final var ch = id.resolve(idL -> event.getJDA().getChannelById(MessageChannel.class, idL));

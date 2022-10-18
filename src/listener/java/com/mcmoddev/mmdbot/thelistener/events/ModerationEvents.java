@@ -54,6 +54,7 @@ import static com.mcmoddev.mmdbot.thelistener.TheListener.getInstance;
 import static com.mcmoddev.mmdbot.thelistener.util.Utils.mentionAndID;
 
 public final class ModerationEvents extends ListenerAdapter {
+
     public static final ModerationEvents INSTANCE = new ModerationEvents();
 
     private static final String WEBHOOK_NAME = "ModerationLogs";
@@ -63,6 +64,7 @@ public final class ModerationEvents extends ListenerAdapter {
     public static final Color LIGHT_SEA_GREEN = new Color(0x1ABC9C);
 
     private ModerationEvents() {
+        //TODO Finish up remove, warns, timeouts, and merge nicks.
     }
 
     @Override
@@ -76,17 +78,14 @@ public final class ModerationEvents extends ListenerAdapter {
 
             embed.setColor(Color.RED);
             embed.setTitle("User Banned.");
-            embed.setThumbnail(bannedUser.getAvatarUrl());
-            embed.addField("**Name:**", bannedUser.getName(), false);
-            embed.addField("**User ID:**", bannedUser.getId(), false);
-            embed.addField("**Profile:**", bannedUser.getAsMention(), false);
-            embed.addField("**Profile Age:**", TimeFormat.RELATIVE
-                .format(bannedUser.getTimeCreated()), false);
+            embed.addField("**User:**", bannedUser.getAsTag(), true);
+            embed.addField("**ID:**", bannedUser.getId(), true);
 
             if (log.getReason() != null) {
                 embed.addField("**Ban reason:**", log.getReason(), false);
             } else {
-                embed.addField("**Ban reason:**", "Reason for ban was not provided or could not be found, please contact " + bannedBy.map(User::getAsMention).orElse("the banner."), false);
+                embed.addField("**Ban reason:**", "Reason for ban was not provided or could not be found, "
+                    + "please contact the person who issued the ban.", false);
             }
 
             final var targetId = log.getTargetIdLong();
@@ -96,10 +95,9 @@ public final class ModerationEvents extends ListenerAdapter {
                         + "entry and actual ban event target: retrieved is {}, but target is {}",
                     targetId, bannedUser);
             } else {
-                embed.addField("Banned By: ", bannedBy.map(u -> "<@%s> (%s)".formatted(u.getId(), u.getId())).orElse("Unknown"), false);
+                embed.setFooter("Banned By: " + bannedBy.map(u -> "%s (%s)".formatted(u.getAsTag(), u.getId()))
+                    .orElse("Unknown"));
             }
-
-            bannedBy.ifPresent(u -> embed.setFooter("Moderator ID: " + u.getId(), u.getAvatarUrl()));
 
             embed.setTimestamp(Instant.now());
 
@@ -118,12 +116,8 @@ public final class ModerationEvents extends ListenerAdapter {
 
             embed.setColor(Color.GREEN);
             embed.setTitle("User Un-banned.");
-            embed.setThumbnail(bannedUser.getAvatarUrl());
-            embed.addField("**Name:**", bannedUser.getName(), false);
-            embed.addField("**User ID:**", bannedUser.getId(), false);
-            embed.addField("**Profile:**", bannedUser.getAsMention(), false);
-            embed.addField("**Profile Age:**", TimeFormat.RELATIVE
-                .format(bannedUser.getTimeCreated()), false);
+            embed.addField("**User:**", bannedUser.getAsTag(), true);
+            embed.addField("**ID:**", bannedUser.getId(), true);
 
             final var targetId = log.getTargetIdLong();
 
@@ -132,7 +126,8 @@ public final class ModerationEvents extends ListenerAdapter {
                         + "entry and actual unban event target: retrieved is {}, but target is {}",
                     targetId, bannedUser);
             } else {
-                embed.addField("Un-banned By: ", bannedBy.map(u -> "%s (%s)".formatted(u.getAsMention(), u.getId())).orElse("Unknown"), false);
+                embed.setFooter("Un-banned By: " + bannedBy.map(u -> "%s (%s)".formatted(u.getAsTag(), u.getId()))
+                    .orElse("Unknown"));
             }
 
             bannedBy.ifPresent(u -> embed.setFooter("Moderator ID: " + u.getId(), u.getAvatarUrl()));
@@ -150,23 +145,15 @@ public final class ModerationEvents extends ListenerAdapter {
                 onNickNoAudit(event);
             } else {
                 final var embed = new EmbedBuilder();
-                final var editor = Optional.ofNullable(entry.getUser());
-
                 embed.setColor(Color.YELLOW);
                 embed.setTitle("Nickname Changed");
-                embed.addField("User:", event.getUser().getAsMention() + " (" + event.getUser().getId() + ")", true);
+                embed.addField("User:", event.getUser().getAsTag(), true);
+                embed.addField("Old Nickname:", event.getOldNickname() == null
+                    ? "*None*" : event.getOldNickname(), true);
+                embed.addField("New Nickname:", event.getNewNickname() == null
+                    ? "*None*" : event.getNewNickname(), true);
+                embed.setFooter("User ID: " + event.getUser().getId(), event.getUser().getEffectiveAvatarUrl());
                 embed.setTimestamp(Instant.now());
-                if (editor.isPresent()) {
-                    final User editorU = editor.get();
-                    if (editorU.getIdLong() != event.getUser().getIdLong()) {
-                        embed.addField("Nickname Editor: ", "%s (%s)".formatted(editorU.getAsMention(), editorU.getId()), false);
-                    }
-                } else {
-                    embed.addField("Nickname Editor: ", "Unknown", false);
-                }
-
-                embed.addField("Old Nickname:", event.getOldNickname() == null ? "*None*" : event.getOldNickname(), true);
-                embed.addField("New Nickname:", event.getNewNickname() == null ? "*None*" : event.getNewNickname(), true);
 
                 logWithWebhook(event.getGuild().getIdLong(), event.getJDA(), embed.build(), event.getUser());
             }
@@ -179,12 +166,11 @@ public final class ModerationEvents extends ListenerAdapter {
 
         embed.setColor(Color.YELLOW);
         embed.setTitle("Nickname Changed");
-        embed.setThumbnail(targetUser.getAvatarUrl());
-        embed.addField("User:", targetUser.getAsMention() + " (" + targetUser.getId() + ")", true);
-        embed.setTimestamp(Instant.now());
-
+        embed.addField("User:", targetUser.getAsTag(), true);
         embed.addField("Old Nickname:", event.getOldNickname() == null ? "*None*" : event.getOldNickname(), true);
         embed.addField("New Nickname:", event.getNewNickname() == null ? "*None*" : event.getNewNickname(), true);
+        embed.setFooter("User ID: " + event.getUser().getId(), event.getUser().getEffectiveAvatarUrl());
+        embed.setTimestamp(Instant.now());
 
         logWithWebhook(event.getGuild().getIdLong(), event.getJDA(), embed.build(), event.getUser());
     }
