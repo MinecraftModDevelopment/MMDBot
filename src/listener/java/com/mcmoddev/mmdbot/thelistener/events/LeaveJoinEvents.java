@@ -72,7 +72,7 @@ public final class LeaveJoinEvents extends ListenerAdapter {
             .setColor(Color.RED)
             .setTitle("User Left")
             .addField("User:", event.getUser().getAsTag(), true)
-            .addField("Roles", RoleEvents.mentionsOrEmpty(event.getMember().getRoles()), true)
+            .addField("Roles", RoleEvents.mentionsOrEmpty(event.getMember().getRoles()), false)
             .setFooter("User ID: " + event.getMember().getId(), event.getMember().getEffectiveAvatarUrl())
             .setTimestamp(Instant.now())
             .build();

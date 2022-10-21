@@ -23,7 +23,6 @@ package com.mcmoddev.mmdbot.thelistener.events;
 import club.minnced.discord.webhook.send.AllowedMentions;
 import com.mcmoddev.mmdbot.core.event.moderation.WarningEvent;
 import com.mcmoddev.mmdbot.core.util.webhook.WebhookManager;
-import com.mcmoddev.mmdbot.thelistener.TheListener;
 import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
 import com.mcmoddev.mmdbot.thelistener.util.Utils;
 import io.github.matyrobbrt.eventdispatcher.SubscribeEvent;
@@ -31,7 +30,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.audit.ActionType;
 import net.dv8tion.jda.api.audit.AuditLogKey;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -58,13 +56,13 @@ public final class ModerationEvents extends ListenerAdapter {
     public static final ModerationEvents INSTANCE = new ModerationEvents();
 
     private static final String WEBHOOK_NAME = "ModerationLogs";
-    private static final WebhookManager WEBHOOKS = WebhookManager.of(e -> e.trim().equals(WEBHOOK_NAME), WEBHOOK_NAME, AllowedMentions.none());
+    private static final WebhookManager WEBHOOKS = WebhookManager.of(e
+        -> e.trim().equals(WEBHOOK_NAME), WEBHOOK_NAME, AllowedMentions.none());
 
     public static final Color RUBY = new Color(0xE91E63);
     public static final Color LIGHT_SEA_GREEN = new Color(0x1ABC9C);
 
     private ModerationEvents() {
-        //TODO Finish up remove, warns, timeouts, and merge nicks.
     }
 
     @Override
@@ -75,32 +73,17 @@ public final class ModerationEvents extends ListenerAdapter {
             final var embed = new EmbedBuilder();
             final var bannedUser = event.getUser();
             final var bannedBy = Optional.ofNullable(log.getUser());
-
             embed.setColor(Color.RED);
             embed.setTitle("User Banned.");
             embed.addField("**User:**", bannedUser.getAsTag(), true);
-            embed.addField("**ID:**", bannedUser.getId(), true);
-
             if (log.getReason() != null) {
                 embed.addField("**Ban reason:**", log.getReason(), false);
             } else {
-                embed.addField("**Ban reason:**", "Reason for ban was not provided or could not be found, "
-                    + "please contact the person who issued the ban.", false);
+                embed.addField("**Ban reason:**", "Reason for ban was not provided or could not be found "
+                    + "please contact a member of staff for more information about this ban ban.", false);
             }
-
-            final var targetId = log.getTargetIdLong();
-
-            if (targetId != bannedUser.getIdLong()) {
-                TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
-                        + "entry and actual ban event target: retrieved is {}, but target is {}",
-                    targetId, bannedUser);
-            } else {
-                embed.setFooter("Banned By: " + bannedBy.map(u -> "%s (%s)".formatted(u.getAsTag(), u.getId()))
-                    .orElse("Unknown"));
-            }
-
+            embed.setFooter("User ID: " + bannedUser.getId(), bannedUser.getEffectiveAvatarUrl());
             embed.setTimestamp(Instant.now());
-
             log(event.getGuild().getIdLong(), event.getJDA(), embed.build(), bannedBy);
         });
     }
@@ -111,26 +94,12 @@ public final class ModerationEvents extends ListenerAdapter {
             .limit(5)
             .type(ActionType.UNBAN), log -> {
             final var embed = new EmbedBuilder();
-            final var bannedUser = event.getUser();
+            final var unBannedUser = event.getUser();
             final var bannedBy = Optional.ofNullable(log.getUser());
-
             embed.setColor(Color.GREEN);
             embed.setTitle("User Un-banned.");
-            embed.addField("**User:**", bannedUser.getAsTag(), true);
-            embed.addField("**ID:**", bannedUser.getId(), true);
-
-            final var targetId = log.getTargetIdLong();
-
-            if (targetId != bannedUser.getIdLong()) {
-                TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
-                        + "entry and actual unban event target: retrieved is {}, but target is {}",
-                    targetId, bannedUser);
-            } else {
-                embed.setFooter("Un-banned By: " + bannedBy.map(u -> "%s (%s)".formatted(u.getAsTag(), u.getId()))
-                    .orElse("Unknown"));
-            }
-
-            bannedBy.ifPresent(u -> embed.setFooter("Moderator ID: " + u.getId(), u.getAvatarUrl()));
+            embed.addField("**User:**", unBannedUser.getAsTag(), true);
+            embed.setFooter("User ID: " + unBannedUser.getId(), unBannedUser.getEffectiveAvatarUrl());
             embed.setTimestamp(Instant.now());
             log(event.getGuild().getIdLong(), event.getJDA(), embed.build(), bannedBy);
         });
@@ -138,40 +107,17 @@ public final class ModerationEvents extends ListenerAdapter {
 
     @Override
     public void onGuildMemberUpdateNickname(@NotNull final GuildMemberUpdateNicknameEvent event) {
-        Utils.getAuditLog(event.getGuild(), event.getMember().getIdLong(), log -> log
-            .type(ActionType.MEMBER_UPDATE)
-            .limit(5), entry -> {
-            if (entry.getChangeByKey(AuditLogKey.MEMBER_NICK) == null) {
-                onNickNoAudit(event);
-            } else {
-                final var embed = new EmbedBuilder();
-                embed.setColor(Color.YELLOW);
-                embed.setTitle("Nickname Changed");
-                embed.addField("User:", event.getUser().getAsTag(), true);
-                embed.addField("Old Nickname:", event.getOldNickname() == null
-                    ? "*None*" : event.getOldNickname(), true);
-                embed.addField("New Nickname:", event.getNewNickname() == null
-                    ? "*None*" : event.getNewNickname(), true);
-                embed.setFooter("User ID: " + event.getUser().getId(), event.getUser().getEffectiveAvatarUrl());
-                embed.setTimestamp(Instant.now());
-
-                logWithWebhook(event.getGuild().getIdLong(), event.getJDA(), embed.build(), event.getUser());
-            }
-        }, () -> onNickNoAudit(event));
-    }
-
-    private void onNickNoAudit(final GuildMemberUpdateNicknameEvent event) {
         final var embed = new EmbedBuilder();
         final var targetUser = event.getUser();
-
         embed.setColor(Color.YELLOW);
         embed.setTitle("Nickname Changed");
         embed.addField("User:", targetUser.getAsTag(), true);
-        embed.addField("Old Nickname:", event.getOldNickname() == null ? "*None*" : event.getOldNickname(), true);
-        embed.addField("New Nickname:", event.getNewNickname() == null ? "*None*" : event.getNewNickname(), true);
+        embed.addField("Old Nickname:", event.getOldNickname() == null
+            ? "*None*" : event.getOldNickname(), true);
+        embed.addField("New Nickname:", event.getNewNickname() == null
+            ? "*None*" : event.getNewNickname(), true);
         embed.setFooter("User ID: " + event.getUser().getId(), event.getUser().getEffectiveAvatarUrl());
         embed.setTimestamp(Instant.now());
-
         logWithWebhook(event.getGuild().getIdLong(), event.getJDA(), embed.build(), event.getUser());
     }
 
@@ -192,31 +138,12 @@ public final class ModerationEvents extends ListenerAdapter {
 
             embed.setColor(RUBY);
             embed.setTitle("User Kicked");
-            embed.setThumbnail(kickedUser.getAvatarUrl());
-            embed.addField("**Name:**", kickedUser.getName(), false);
-            embed.addField("**User ID:**", kickedUser.getId(), false);
-            embed.addField("**Profile:**", kickedUser.getAsMention(), false);
-            embed.addField("**Profile Age:**", TimeFormat.RELATIVE
-                .format(kickedUser.getTimeCreated()), false);
-
-            embed.addField("Guild Join Time:", Optional.ofNullable(event.getMember()).map(Member::getTimeJoined)
-                .map(TimeFormat.DATE_TIME_SHORT::format).orElse("Join time could not be determined!"), true);
-
+            embed.addField("**Name:**", kickedUser.getAsTag(), true);
             embed.addField("**Kick reason:**", log.getReason() != null ? log.getReason() :
                 ("Reason for kick was not provided or could not be found, please contact "
-                    + kicker.map(User::getAsMention).orElse("the kicker.")), false);
-
-            final var targetId = log.getTargetIdLong();
-
-            if (targetId != event.getUser().getIdLong()) {
-                TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
-                        + "entry and actual kick event target: retrieved is {}, but target is {}",
-                    targetId, event.getUser());
-            } else {
-                embed.addField("Kicked By: ", kicker.map(u -> "<@%s> (%s)".formatted(u.getId(), u.getId())).orElse("Unknown"), false);
-            }
-
-            kicker.ifPresent(u -> embed.setFooter("Moderator ID: " + u.getId(), u.getAvatarUrl()));
+                    + "a member of staff for more information about this kick."), false);
+            embed.setFooter("User ID: " + kickedUser.getId(), kickedUser.getAvatarUrl());
+            embed.setTimestamp(Instant.now());
 
             log(event.getGuild().getIdLong(), event.getJDA(), embed.build(), kicker);
         });
@@ -235,26 +162,14 @@ public final class ModerationEvents extends ListenerAdapter {
 
                 embed.setColor(LIGHT_SEA_GREEN);
                 embed.setTitle("User Timed Out");
-                embed.setThumbnail(user.getAvatarUrl());
-                embed.addField("**User:**", "%s (%s)".formatted(user.getAsMention(), user.getId()), false);
-                embed.addField("**Timeout End:**", TimeFormat.RELATIVE.format(event.getNewTimeOutEnd()), false);
-
+                embed.addField("**User:**", user.getAsTag(), true);
+                embed.addField("**Timeout End:**", TimeFormat.RELATIVE.format(event.getNewTimeOutEnd()),
+                    true);
                 embed.addField("**Reason:**", log.getReason() != null ? log.getReason() :
-                    ("Reason for timeout was not provided or could not be found, please contact "
-                        + moderator.map(User::getAsMention).orElse("the moderator.")), false);
-
-                final var targetId = log.getTargetIdLong();
-
-                if (targetId != event.getUser().getIdLong()) {
-                    TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
-                            + "entry and actual kick event target: retrieved is {}, but target is {}",
-                        targetId, event.getUser());
-                } else {
-                    embed.addField("Timed Out By: ", moderator.map(u -> "<@%s> (%s)".formatted(u.getId(), u.getId())).orElse("Unknown"), false);
-                }
-
-                moderator.ifPresent(u -> embed.setFooter("Moderator ID: " + u.getId(), u.getAvatarUrl()));
-
+                    "Reason for timeout was not provided or could not be found, please ask a member of staff for "
+                        + "information about this timeout.", false);
+                embed.setFooter("User ID: " + user.getId(), user.getEffectiveAvatarUrl());
+                embed.setTimestamp(Instant.now());
                 log(event.getGuild().getIdLong(), event.getJDA(), embed.build(), moderator);
             });
         } else if (event.getOldTimeOutEnd() != null && event.getNewTimeOutEnd() == null) {
@@ -265,25 +180,13 @@ public final class ModerationEvents extends ListenerAdapter {
                 final var embed = new EmbedBuilder();
                 final var moderator = Optional.ofNullable(log.getUser());
                 final var user = event.getUser();
-
                 embed.setColor(Color.CYAN);
                 embed.setTitle("User Timeout Removed");
-                embed.setThumbnail(user.getAvatarUrl());
-                embed.addField("**User:**", "%s (%s)".formatted(user.getAsMention(), user.getId()), false);
-                embed.addField("**Old Timeout End:**", TimeFormat.RELATIVE.format(event.getOldTimeOutEnd()), false);
-
-                final var targetId = log.getTargetIdLong();
-
-                if (targetId != event.getUser().getIdLong()) {
-                    TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log "
-                            + "entry and actual kick event target: retrieved is {}, but target is {}",
-                        targetId, event.getUser());
-                } else {
-                    embed.addField("Timeout Removed By: ", moderator.map(u -> "<@%s> (%s)".formatted(u.getId(), u.getId())).orElse("Unknown"), false);
-                }
-
-                moderator.ifPresent(u -> embed.setFooter("Moderator ID: " + u.getId(), u.getAvatarUrl()));
-
+                embed.addField("**User:**", user.getAsTag(), true);
+                embed.addField("**Old Timeout End:**", TimeFormat.RELATIVE.format(event.getOldTimeOutEnd()),
+                    true);
+                embed.setFooter("User ID: " + user.getId(), user.getEffectiveAvatarUrl());
+                embed.setTimestamp(Instant.now());
                 log(event.getGuild().getIdLong(), event.getJDA(), embed.build(), moderator);
             });
         }
