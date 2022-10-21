@@ -288,8 +288,7 @@ public final class TheWatcher implements Bot {
         try {
             final var builder = JDABuilder
                 .create(dotenv.get("BOT_TOKEN"), INTENTS)
-                .addEventListeners(listenerConsumer((ReadyEvent event) -> getLogger().warn("The Watcher is ready to work! Logged in as {}", event.getJDA().getSelfUser().getAsTag())),
-                    COMMANDS_LISTENER, MISC_LISTENER, PUNISHABLE_ACTIONS_LISTENER)
+                .addEventListeners(COMMANDS_LISTENER, MISC_LISTENER, PUNISHABLE_ACTIONS_LISTENER)
                 .setActivity(Activity.of(oldConfig.getActivityType(), oldConfig.getActivityName()))
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)

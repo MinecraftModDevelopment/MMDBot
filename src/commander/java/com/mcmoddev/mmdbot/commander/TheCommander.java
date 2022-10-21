@@ -251,13 +251,12 @@ public final class TheCommander implements Bot {
         return LISTENER_REGISTRY.createListener(featureId);
     }
 
-    private static final OneTimeEventListener<TaskScheduler.CollectTasksEvent> COLLECT_TASKS_LISTENER = new OneTimeEventListener<>(event -> {
-        event.addTask(() -> {
-            if (getInstance() != null) {
-                getInstance().getComponentManager().removeComponentsOlderThan(30, ChronoUnit.MINUTES);
-            }
-        }, 0, 15, TimeUnit.MINUTES);
-    });
+    private static final OneTimeEventListener<TaskScheduler.CollectTasksEvent> COLLECT_TASKS_LISTENER
+        = new OneTimeEventListener<>(event -> event.addTask(() -> {
+        if (getInstance() != null) {
+            getInstance().getComponentManager().removeComponentsOlderThan(30, ChronoUnit.MINUTES);
+        }
+    }, 0, 15, TimeUnit.MINUTES));
 
     private JDA jda;
     private Jdbi jdbi;
@@ -455,7 +454,6 @@ public final class TheCommander implements Bot {
                 .create(dotenv.get("BOT_TOKEN"), INTENTS)
                 .addEventListeners(listenerConsumer((ReadyEvent event) -> {
                     startupTime = Instant.now();
-                    getLogger().warn("The Commander is ready to work! Logged in as {}", event.getJDA().getSelfUser().getAsTag());
                     Events.MISC_BUS.addListener((final TaskScheduler.CollectTasksEvent ct) -> OldChannelsHelper.registerListeners(ct, event.getJDA()));
                 }), CustomPingsListener.LISTENER.get())
                 .disableCache(CacheFlag.CLIENT_STATUS)

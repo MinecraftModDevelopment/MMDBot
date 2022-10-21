@@ -39,10 +39,8 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,13 +138,6 @@ public final class TheListener implements Bot {
             .disableCache(CacheFlag.VOICE_STATE)
             .disableCache(CacheFlag.ACTIVITY)
             .build();
-
-        jda.addEventListener(new ListenerAdapter() {
-            @Override
-            public void onReady(@NotNull final net.dv8tion.jda.api.events.ReadyEvent event) {
-                LOGGER.warn("I am ready to work! Logged in as {}", event.getJDA().getSelfUser().getAsTag());
-            }
-        });
     }
 
     @Override
@@ -172,7 +163,7 @@ public final class TheListener implements Bot {
         return jda;
     }
 
-    @NonNull
+    @NotNull
     public GuildConfig getConfigForGuild(long guild) {
         return guildConfigs.computeIfAbsent(guild, k -> new GuildConfig(k, getRunPath().resolve("configs").resolve("guilds")));
     }
