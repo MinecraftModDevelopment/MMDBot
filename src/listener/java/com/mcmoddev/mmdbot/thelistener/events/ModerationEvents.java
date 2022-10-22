@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.audit.ActionType;
 import net.dv8tion.jda.api.audit.AuditLogKey;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -43,13 +44,12 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.Color;
+import java.awt.*;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import static com.mcmoddev.mmdbot.thelistener.TheListener.getInstance;
-import static com.mcmoddev.mmdbot.thelistener.util.Utils.mentionAndID;
 
 public final class ModerationEvents extends ListenerAdapter {
 
@@ -126,9 +126,7 @@ public final class ModerationEvents extends ListenerAdapter {
         Utils.getAuditLog(event.getGuild(), event.getUser().getIdLong(), log -> log
             .type(ActionType.KICK)
             .limit(5), log -> {
-            if (log.getTimeCreated().toInstant()
-                .isBefore(Instant.now()
-                    .minus(2, ChronoUnit.MINUTES))) {
+            if (log.getTimeCreated().toInstant().isBefore(Instant.now().minus(2, ChronoUnit.MINUTES))) {
                 return;
             }
 
@@ -136,16 +134,21 @@ public final class ModerationEvents extends ListenerAdapter {
             final var kicker = Optional.ofNullable(log.getUser());
             final var kickedUser = event.getUser();
 
-            embed.setColor(RUBY);
-            embed.setTitle("User Kicked");
-            embed.addField("**Name:**", kickedUser.getAsTag(), true);
-            embed.addField("**Kick reason:**", log.getReason() != null ? log.getReason() :
-                ("Reason for kick was not provided or could not be found, please contact "
-                    + "a member of staff for more information about this kick."), false);
-            embed.setFooter("User ID: " + kickedUser.getId(), kickedUser.getAvatarUrl());
-            embed.setTimestamp(Instant.now());
+            if (kicker.isPresent() && kicker.get().isBot()) {
+                var botKickMessage = kickedUser.getAsTag() + " was kicked! Kick Reason: " + log.getReason();
+                log(event.getGuild().getIdLong(), event.getJDA(), botKickMessage, kicker);
+            } else {
+                embed.setColor(RUBY);
+                embed.setTitle("User Kicked");
+                embed.addField("**Name:**", kickedUser.getAsTag(), true);
+                embed.addField("**Kick reason:**", log.getReason() != null ? log.getReason() :
+                    ("Reason for kick was not provided or could not be found, please contact "
+                        + "a member of staff for more information about this kick."), false);
+                embed.setFooter("User ID: " + kickedUser.getId(), kickedUser.getAvatarUrl());
+                embed.setTimestamp(Instant.now());
 
-            log(event.getGuild().getIdLong(), event.getJDA(), embed.build(), kicker);
+                log(event.getGuild().getIdLong(), event.getJDA(), embed.build(), kicker);
+            }
         });
     }
 
@@ -194,19 +197,20 @@ public final class ModerationEvents extends ListenerAdapter {
 
     @SubscribeEvent
     public void onWarnAdd(final WarningEvent.Add event) {
-        if (getInstance() == null) return;
+        if (getInstance() == null) {
+            return;
+        }
         final var jda = getInstance().getJDA();
         final var doc = event.getDocument();
         jda.retrieveUserById(doc.userId()).and(jda.retrieveUserById(event.getModeratorId()), (user, moderator) -> {
             final var embed = new EmbedBuilder()
                 .setColor(Color.RED)
-                .setTitle("New Warning")
-                .setDescription(mentionAndID(doc.moderatorId()) + " warned " + mentionAndID(doc.userId()))
-                .setThumbnail(user.getAvatarUrl())
-                .addField("Reason:", doc.reason(), false)
+                .setTitle("Warning Added")
+                .setDescription(user.getAsTag() + " has been given a warning.")
+                .addField("Warning Reason:", doc.reason(), false)
                 .addField("Warning ID:", doc.warnId(), false)
-                .setTimestamp(Instant.now())
-                .setFooter("Moderator ID: " + event.getModeratorId(), moderator.getAvatarUrl());
+                .setFooter("User ID: " + user.getId(), user.getEffectiveAvatarUrl())
+                .setTimestamp(Instant.now());
             logWithWebhook(event.getGuildId(), jda, embed.build(), moderator);
             return null;
         }).queue();
@@ -222,13 +226,12 @@ public final class ModerationEvents extends ListenerAdapter {
         jda.retrieveUserById(warnDoc.userId()).and(jda.retrieveUserById(event.getModeratorId()), (user, moderator) -> {
             final var embed = new EmbedBuilder()
                 .setColor(Color.GREEN)
-                .setTitle("Warning Cleared")
-                .setDescription("One of the warnings of " + mentionAndID(warnDoc.userId()) + " has been removed!")
+                .setTitle("Warning Removed")
+                .setDescription("One of the warnings of " + user.getAsTag() + " has been removed!")
                 .setThumbnail(user.getAvatarUrl())
-                .addField("Old warning reason:", warnDoc.reason(), false)
-                .addField("Old warner:", mentionAndID(warnDoc.userId()), false)
-                .setTimestamp(Instant.now())
-                .setFooter("Moderator ID: " + event.getModeratorId(), moderator.getAvatarUrl());
+                .addField("Old Warning:", warnDoc.reason(), false)
+                .setFooter("User ID: " + user.getId(), user.getEffectiveAvatarUrl())
+                .setTimestamp(Instant.now());
             log(event.getGuildId(), jda, embed.build());
             return null;
         }).queue();
@@ -243,10 +246,10 @@ public final class ModerationEvents extends ListenerAdapter {
             .queue(user -> {
                 final var embed = new EmbedBuilder()
                     .setColor(java.awt.Color.GREEN)
-                    .setTitle("Warnings Cleared")
-                    .setDescription("All of the warnings of " + mentionAndID(event.getTargetId()) + " have been cleared!")
+                    .setTitle("All Warnings Removed")
+                    .setDescription("All of ``" + user.getAsTag() + "``'s warnings have been removed!")
                     .setTimestamp(Instant.now())
-                    .setFooter("Moderator ID: " + event.getModeratorId(), user.getAvatarUrl())
+                    .setFooter("User ID: " + user.getId(), user.getEffectiveAvatarUrl())
                     .build();
                 log(event.getGuildId(), user.getJDA(), embed);
             });
@@ -255,6 +258,10 @@ public final class ModerationEvents extends ListenerAdapter {
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private void log(long guildId, JDA jda, MessageEmbed embed, Optional<User> owner) {
         owner.ifPresentOrElse(user -> logWithWebhook(guildId, jda, embed, user), () -> log(guildId, jda, embed));
+    }
+
+    private void log(long guildId, JDA jda, String message, Optional<User> owner) {
+        owner.ifPresentOrElse(user -> logWithWebhook(guildId, jda, message, user), () -> log(guildId, jda, message));
     }
 
     private void log(long guildId, JDA jda, MessageEmbed embed) {
@@ -268,6 +275,17 @@ public final class ModerationEvents extends ListenerAdapter {
             });
     }
 
+    private void log(long guildId, JDA jda, String message) {
+        final var loggingChannels = LoggingType.MODERATION_EVENTS.getChannels(guildId);
+        loggingChannels
+            .forEach(id -> {
+                final var ch = id.resolve(idL -> jda.getChannelById(MessageChannel.class, idL));
+                if (ch != null) {
+                    ch.sendMessage(message).queue();
+                }
+            });
+    }
+
     private void logWithWebhook(long guildId, JDA jda, MessageEmbed embed, User author) {
         final var loggingChannels = LoggingType.MODERATION_EVENTS.getChannels(guildId);
         loggingChannels
@@ -276,6 +294,21 @@ public final class ModerationEvents extends ListenerAdapter {
                 if (ch != null) {
                     WEBHOOKS.getWebhook(ch)
                         .send(com.mcmoddev.mmdbot.core.util.Utils.webhookMessage(embed)
+                            .setUsername(author.getName())
+                            .setAvatarUrl(author.getEffectiveAvatarUrl())
+                            .build());
+                }
+            });
+    }
+
+    private void logWithWebhook(long guildId, JDA jda, String message, User author) {
+        final var loggingChannels = LoggingType.MODERATION_EVENTS.getChannels(guildId);
+        loggingChannels
+            .forEach(id -> {
+                final var ch = id.resolve(idL -> jda.getChannelById(StandardGuildMessageChannel.class, idL));
+                if (ch != null) {
+                    WEBHOOKS.getWebhook(ch)
+                        .send(com.mcmoddev.mmdbot.core.util.Utils.webhookMessage(message)
                             .setUsername(author.getName())
                             .setAvatarUrl(author.getEffectiveAvatarUrl())
                             .build());

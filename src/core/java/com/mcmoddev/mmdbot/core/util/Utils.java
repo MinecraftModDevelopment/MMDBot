@@ -111,4 +111,9 @@ public final class Utils {
         return new WebhookMessageBuilder()
             .addEmbeds(WebhookEmbedBuilder.fromJDA(embed).build());
     }
+
+    public static WebhookMessageBuilder webhookMessage(String message) {
+        return new WebhookMessageBuilder()
+            .setContent(message);
+    }
 }
