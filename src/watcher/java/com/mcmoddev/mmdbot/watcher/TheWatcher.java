@@ -53,6 +53,7 @@ import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
 import com.mcmoddev.mmdbot.watcher.rules.RuleAgreementChecker;
 import com.mcmoddev.mmdbot.watcher.rules.RuleCommand;
 import com.mcmoddev.mmdbot.watcher.rules.UpdateRulesCommand;
+import com.mcmoddev.mmdbot.watcher.serveravatar.ServerAvatarCommand;
 import com.mcmoddev.mmdbot.watcher.util.BotConfig;
 import com.mcmoddev.mmdbot.watcher.util.Configuration;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -62,7 +63,6 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -270,7 +270,7 @@ public final class TheWatcher implements Bot {
             .setManualUpsert(true)
             .useHelpBuilder(false)
             .setActivity(null)
-            .addSlashCommands(new MuteCommand(), new UnmuteCommand(), new InviteCommand(), new WarningCommand(), new UpdateRulesCommand(), RuleCommand.INSTANCE)
+            .addSlashCommands(new MuteCommand(), new UnmuteCommand(), new InviteCommand(), new WarningCommand(), new UpdateRulesCommand(), RuleCommand.INSTANCE, new ServerAvatarCommand())
             .addCommands(new BanCommand(), new UnbanCommand(), new ReactCommand(), new KickCommand(), RuleCommand.INSTANCE)
             .build();
         COMMANDS_LISTENER.addListener((EventListener) commandClient);
