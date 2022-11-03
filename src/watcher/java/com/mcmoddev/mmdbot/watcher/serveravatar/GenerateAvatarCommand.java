@@ -24,6 +24,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.watcher.TheWatcher;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Icon;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -33,6 +34,7 @@ import javax.imageio.ImageIO;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.IntConsumer;
 
 public class GenerateAvatarCommand extends SlashCommand {
@@ -54,7 +56,9 @@ public class GenerateAvatarCommand extends SlashCommand {
             new OptionData(OptionType.BOOLEAN, "circular", "If the avatar is circular; default: false"),
             new OptionData(OptionType.BOOLEAN, "has-ring", "If the avatar has a ring; default: false"),
             new OptionData(OptionType.BOOLEAN, "has-pattern", "If the avatar has avatar pattern; default: true"),
-            new OptionData(OptionType.BOOLEAN, "has-background", "If the avatar has background; default: true")
+            new OptionData(OptionType.BOOLEAN, "has-background", "If the avatar has background; default: true"),
+
+            new OptionData(OptionType.BOOLEAN, "set-icon", "Sets the server icon to the generated avatar")
         );
         guildOnly = true;
     }
@@ -78,11 +82,19 @@ public class GenerateAvatarCommand extends SlashCommand {
             .setHasBackgroundPattern(event.getOption("has-pattern", true, OptionMapping::getAsBoolean));
 
         try {
-            final var bos = new ByteArrayOutputStream();
+            final ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ImageIO.write(ServerAvatarMaker.createAvatar(configuration.build()), "png", bos);
+            final byte[] bytes = bos.toByteArray();
+
             event.getHook().editOriginalAttachments(
-                FileUpload.fromData(bos.toByteArray(), "avatar.png")
+                FileUpload.fromData(bytes, "avatar.png")
             ).queue();
+
+            if (event.getOption("set-icon", false, OptionMapping::getAsBoolean)) {
+                Objects.requireNonNull(event.getGuild()).getManager()
+                    .setIcon(Icon.from(bytes))
+                    .queue();
+            }
         } catch (IOException exception) {
             TheWatcher.LOGGER.error("Encountered exception generating avatar: ", exception);
             event.getHook().editOriginal("Encountered exception: *" + exception.getMessage() + "*").queue();
