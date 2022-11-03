@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.painter.util;
 
+import javax.imageio.ImageIO;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -31,6 +32,9 @@ import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class ImageUtils {
     @SuppressWarnings("unused")
@@ -45,13 +49,13 @@ public class ImageUtils {
         return image;
     }
 
-    private static void applyQualityRenderingHints(Graphics2D g2d) {
+    public static void applyQualityRenderingHints(Graphics2D g2d) {
         g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
         g2d.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
         g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
         g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
     }
@@ -118,7 +122,8 @@ public class ImageUtils {
     public static BufferedImage cropToCircle(BufferedImage img, int diameter) {
         int d = diameter > 0 ? diameter : Math.min(img.getWidth(), img.getHeight());
         BufferedImage newImage = createCompatibleImage(d, d);
-        Graphics graphics = newImage.getGraphics();
+        Graphics2D graphics = newImage.createGraphics();
+        applyQualityRenderingHints(graphics);
         Shape circle = new Ellipse2D.Double(0,0, d, d);
         graphics.setClip(circle);
         graphics.drawImage(img, -((img.getHeight() - newImage.getHeight()) / 2), -((img.getWidth() - newImage.getWidth()) / 2), null);
@@ -128,9 +133,16 @@ public class ImageUtils {
 
     public static BufferedImage centre(BufferedImage source, int width, int height) {
         BufferedImage img = createCompatibleImage(width, height);
-        Graphics graphics = img.getGraphics();
+        Graphics2D graphics = img.createGraphics();
+        applyQualityRenderingHints(graphics);
         graphics.drawImage(source, (width - source.getWidth()) / 2, (height - source.getHeight()) / 2, null);
         graphics.dispose();
         return img;
+    }
+
+    public static byte[] toBytes(RenderedImage image, String format) throws IOException {
+        final var bos = new ByteArrayOutputStream();
+        ImageIO.write(image, format, bos);
+        return bos.toByteArray();
     }
 }

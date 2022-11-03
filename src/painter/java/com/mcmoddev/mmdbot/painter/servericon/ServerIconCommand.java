@@ -23,11 +23,17 @@ package com.mcmoddev.mmdbot.painter.servericon;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.painter.ThePainter;
+import com.mcmoddev.mmdbot.painter.servericon.auto.command.AutoIconEnableCommands;
+import com.mcmoddev.mmdbot.painter.servericon.auto.command.AutoIconGetCommand;
+import com.mcmoddev.mmdbot.painter.servericon.auto.command.AutoIconSetCommand;
+import com.mcmoddev.mmdbot.painter.servericon.auto.command.AutoIconSetDayCommand;
+import com.mcmoddev.mmdbot.painter.servericon.auto.command.AutoIconSimulateCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Icon;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 
 import java.io.IOException;
 import java.net.URI;
@@ -35,6 +41,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class ServerIconCommand extends SlashCommand {
+    public static final SubcommandGroupData AUTO_ICON_SUBCOMMAND = new SubcommandGroupData("auto-icon", "Commands for automatic icons.");
+
     public ServerIconCommand() {
         name = "server-icon";
         help = "Server icon related commands";
@@ -42,7 +50,11 @@ public class ServerIconCommand extends SlashCommand {
             Permission.MANAGE_ROLES
         };
         children = new SlashCommand[] {
-            new GenerateIconCommand(), new Set()
+            new GenerateIconCommand(), new Set(),
+
+            AutoIconSetCommand.INSTANCE, new AutoIconGetCommand(),
+            new AutoIconEnableCommands.DisableCommand(), new AutoIconEnableCommands.EnableCommand(),
+            new AutoIconSetDayCommand(), new AutoIconSimulateCommand()
         };
         guildOnly = true;
     }
@@ -54,7 +66,7 @@ public class ServerIconCommand extends SlashCommand {
 
     public static final class Set extends SlashCommand {
         private Set() {
-            name = "set";
+            name = "set-icon";
             help = "Set the server's icon";
             userPermissions = new Permission[] {
                 Permission.MANAGE_ROLES

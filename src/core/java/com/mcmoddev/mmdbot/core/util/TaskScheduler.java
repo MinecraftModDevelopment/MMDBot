@@ -26,6 +26,7 @@ import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -91,6 +92,15 @@ public final class TaskScheduler {
                             long period,
                             TimeUnit unit) {
             tasks.add(new Task(command, initialDelay, period, unit));
+        }
+
+        /**
+         * Registers a task that should be run at a fixed rate.
+         */
+        public void addTask(Runnable command,
+                            Date startTime, long period,
+                            TimeUnit unit) {
+            addTask(command, startTime.getTime() - System.currentTimeMillis(), unit.toMillis(period), TimeUnit.MILLISECONDS);
         }
     }
 

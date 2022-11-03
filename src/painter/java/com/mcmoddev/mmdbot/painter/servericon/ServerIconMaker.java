@@ -28,6 +28,7 @@ import com.mcmoddev.mmdbot.painter.util.ImageUtils;
 import javax.imageio.ImageIO;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -42,18 +43,24 @@ public class ServerIconMaker {
 
         if (configuration.hasBackgroundPattern()) {
             final BufferedImage bgPattern = ImageUtils.tint(getImage("bg_pattern"), new Color(configuration.backgroundPatternColour()), configuration.backgroundPatternAlpha());
-            bgPattern.getGraphics().drawImage(finalImage, 0, 0, null);
+            final Graphics2D g2d = bgPattern.createGraphics();
+            ImageUtils.applyQualityRenderingHints(g2d);
+            g2d.drawImage(finalImage, 0, 0, null);
             finalImage = bgPattern;
         }
         if (configuration.hasBackground()) {
             final BufferedImage background = getImage("background");
-            background.getGraphics().drawImage(finalImage, 0, 0, null);
+            final Graphics2D g2d = background.createGraphics();
+            ImageUtils.applyQualityRenderingHints(g2d);
+            g2d.drawImage(finalImage, 0, 0, null);
             finalImage = background;
         }
 
         if (configuration.hasRing()) {
             final BufferedImage ring = ImageUtils.tint(getImage("ring"), new Color(configuration.ringColour()), configuration.ringAlpha());
-            ring.getGraphics().drawImage(ImageUtils.centre(ImageUtils.cropToCircle(finalImage, finalImage.getWidth() - 24 * 2), 512, 512), 0, 0, null);
+            final Graphics2D g2d = ring.createGraphics();
+            ImageUtils.applyQualityRenderingHints(g2d);
+            g2d.drawImage(ImageUtils.centre(ImageUtils.cropToCircle(finalImage, finalImage.getWidth() - 24 * 2), 512, 512), 0, 0, null);
             finalImage = ring;
         }
         if (configuration.isCircular()) {
@@ -65,15 +72,10 @@ public class ServerIconMaker {
 
     public static byte[] createSlideshow(AutomaticIconConfiguration configuration) throws IOException {
         final var bos = new ByteArrayOutputStream();
-        final var gif = new GifSequenceWriter(bos, BufferedImage.TYPE_INT_ARGB, 800, true);
+        final var gif = new GifSequenceWriter(bos, BufferedImage.TYPE_INT_ARGB, 500, true);
 
         for (int day = 1; day <= configuration.colours().size(); day++) {
-            final int colour = configuration.colours().get(day - 1);
-            final var image = createIcon(IconConfiguration.builder()
-                .setColour(colour)
-                .setCircular(configuration.isRing())
-                .setHasRing(configuration.isRing())
-                .build());
+            final var image = configuration.createImage(day);
             final var g2 = image.createGraphics();
             final var font = new Font("Monospaced", Font.BOLD, 65);
 

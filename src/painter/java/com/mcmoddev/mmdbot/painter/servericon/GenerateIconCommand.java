@@ -101,16 +101,20 @@ public class GenerateIconCommand extends SlashCommand {
         }
     }
 
-    private static void parseColour(final SlashCommandEvent event, final String name, IntConsumer caller) {
+    public static void parseColour(final SlashCommandEvent event, final String name, IntConsumer caller) {
          String option = event.getOption(name, OptionMapping::getAsString);
          if (option != null) {
-            if (option.startsWith("0x")) {
-                option = option.substring(2);
-            } else if (option.startsWith("#")) {
-                option = option.substring(1);
-            }
-            caller.accept(Integer.parseInt(option, 16));
+            caller.accept(readColour(option));
          }
+    }
+
+    public static int readColour(String colour) {
+        if (colour.startsWith("0x")) {
+            colour = colour.substring(2);
+        } else if (colour.startsWith("#")) {
+            colour = colour.substring(1);
+        }
+        return Integer.parseInt(colour, 16);
     }
 
     private static float parseFloat(final SlashCommandEvent event, final String name, final float defaultValue) {
