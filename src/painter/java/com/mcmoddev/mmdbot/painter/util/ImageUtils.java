@@ -145,4 +145,13 @@ public class ImageUtils {
         ImageIO.write(image, format, bos);
         return bos.toByteArray();
     }
+
+    public static BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight, int hints) {
+        final Image resultingImage = originalImage.getScaledInstance(targetWidth, targetHeight, hints);
+        final BufferedImage outputImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_ARGB);
+        final Graphics2D g2d = outputImage.createGraphics();
+        ImageUtils.applyQualityRenderingHints(g2d);
+        g2d.drawImage(resultingImage, 0, 0, null);
+        return outputImage;
+    }
 }
