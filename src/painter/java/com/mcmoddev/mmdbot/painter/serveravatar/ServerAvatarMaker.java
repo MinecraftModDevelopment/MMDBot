@@ -18,14 +18,18 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.watcher.serveravatar;
+package com.mcmoddev.mmdbot.painter.serveravatar;
 
-import com.mcmoddev.mmdbot.watcher.TheWatcher;
-import com.mcmoddev.mmdbot.watcher.util.ImageUtils;
+import com.mcmoddev.mmdbot.painter.ThePainter;
+import com.mcmoddev.mmdbot.painter.serveravatar.auto.AutomaticAvatarConfiguration;
+import com.mcmoddev.mmdbot.painter.util.GifSequenceWriter;
+import com.mcmoddev.mmdbot.painter.util.ImageUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -59,8 +63,33 @@ public class ServerAvatarMaker {
         return finalImage;
     }
 
+    public static byte[] createSlideshow(AutomaticAvatarConfiguration configuration) throws IOException {
+        final var bos = new ByteArrayOutputStream();
+        final var gif = new GifSequenceWriter(bos, BufferedImage.TYPE_INT_ARGB, 800, true);
+
+        for (int day = 1; day <= configuration.colours().size(); day++) {
+            final int colour = configuration.colours().get(day - 1);
+            final var image = createAvatar(AvatarConfiguration.builder()
+                .setColour(colour)
+                .setCircular(configuration.isRing())
+                .setHasRing(configuration.isRing())
+                .build());
+            final var g2 = image.createGraphics();
+            final var font = new Font("Monospaced", Font.BOLD, 65);
+
+            final var text = "Day " + day;
+            g2.setFont(font);
+            g2.drawString("Day " + day, (int) ((image.getWidth() - font.getStringBounds(text, g2.getFontRenderContext()).getWidth()) / 2), image.getHeight() - 50 - 40);
+
+            gif.writeToSequence(image);
+        }
+
+        gif.close();
+        return bos.toByteArray();
+    }
+
     private static BufferedImage getImage(String name) throws IOException {
-        try (final InputStream is = Files.newInputStream(TheWatcher.getInstance().getRunPath().resolve("serveravatar/" + name + ".png"))) {
+        try (final InputStream is = Files.newInputStream(ThePainter.getInstance().getRunPath().resolve("serveravatar/" + name + ".png"))) {
             return ImageIO.read(Objects.requireNonNull(is));
         }
     }

@@ -53,7 +53,6 @@ import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
 import com.mcmoddev.mmdbot.watcher.rules.RuleAgreementChecker;
 import com.mcmoddev.mmdbot.watcher.rules.RuleCommand;
 import com.mcmoddev.mmdbot.watcher.rules.UpdateRulesCommand;
-import com.mcmoddev.mmdbot.watcher.serveravatar.ServerAvatarCommand;
 import com.mcmoddev.mmdbot.watcher.util.BotConfig;
 import com.mcmoddev.mmdbot.watcher.util.Configuration;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -270,7 +269,7 @@ public final class TheWatcher implements Bot {
             .setManualUpsert(true)
             .useHelpBuilder(false)
             .setActivity(null)
-            .addSlashCommands(new MuteCommand(), new UnmuteCommand(), new InviteCommand(), new WarningCommand(), new UpdateRulesCommand(), RuleCommand.INSTANCE, new ServerAvatarCommand())
+            .addSlashCommands(new MuteCommand(), new UnmuteCommand(), new InviteCommand(), new WarningCommand(), new UpdateRulesCommand(), RuleCommand.INSTANCE)
             .addCommands(new BanCommand(), new UnbanCommand(), new ReactCommand(), new KickCommand(), RuleCommand.INSTANCE)
             .build();
         COMMANDS_LISTENER.addListener((EventListener) commandClient);
@@ -308,7 +307,7 @@ public final class TheWatcher implements Bot {
 
     @Override
     public void shutdown() {
-        jda.shutdown();
+        jda.shutdownNow();
     }
 
     @Override

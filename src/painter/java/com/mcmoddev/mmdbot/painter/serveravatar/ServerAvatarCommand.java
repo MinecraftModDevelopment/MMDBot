@@ -18,11 +18,11 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.watcher.serveravatar;
+package com.mcmoddev.mmdbot.painter.serveravatar;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import com.mcmoddev.mmdbot.watcher.TheWatcher;
+import com.mcmoddev.mmdbot.painter.ThePainter;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Icon;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -83,7 +83,7 @@ public class ServerAvatarCommand extends SlashCommand {
                         .queue();
                 }
             } catch (IOException exception) {
-                TheWatcher.LOGGER.error("Encountered exception setting server avatar: ", exception);
+                ThePainter.LOGGER.error("Encountered exception setting server avatar: ", exception);
                 event.reply("Encountered exception: *" + exception.getMessage() + "*")
                     .setEphemeral(true).queue();
             }

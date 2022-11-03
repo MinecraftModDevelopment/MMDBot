@@ -18,7 +18,7 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.watcher.util;
+package com.mcmoddev.mmdbot.painter.util;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;

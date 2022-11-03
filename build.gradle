@@ -30,7 +30,7 @@ plugins {
 ext {
   bySourceSetConfigurations = new HashMap<SourceSet, Configuration>()
   BOTS = [
-        "watcher", "listener", "commander"
+        'watcher', 'listener', 'commander', 'painter'
   ]
 }
 
@@ -161,17 +161,17 @@ dependencies {
 tasks.configureEach {
   if (it.group == 'build') it.group = 'other'
 }
-tasks.named('build').configure { it.group = "build" }
+tasks.named('build').configure { it.group = 'build' }
 
-tasks.named('updateLicenses').configure { it.group = "licensing" }
-tasks.named('licenseFormat').configure { group = "licensing" }
+tasks.named('updateLicenses').configure { it.group = 'licensing' }
+tasks.named('licenseFormat').configure { group = 'licensing' }
 
 tasks.named('run', JavaExec).configure {
-  workingDir = new File("run")
+  workingDir = new File('run')
 }
 
 tasks.named('test', Test).configure {
-  workingDir = java.nio.file.Path.of("run").resolve("tests").toFile()
+  workingDir = java.nio.file.Path.of('run/tests').toFile()
 }
 
 tasks.named('shadowJar', ShadowJar).configure {
@@ -201,46 +201,46 @@ void configureBotJar(String botName, SourceSet sourceSet) {
     from sourceSets.main.output
     from sourceSets.core.output
     from sourceSet.output
-    exclude "META-INF/*.SF"
-    exclude "META-INF/*.DSA"
-    exclude "META-INF/*.RSA"
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
     classifier(botName)
-    manifest.attributes(makeManifestAttributes("com.mcmoddev.mmdbot.core.OnlyOneBotRunner"))
+    manifest.attributes(makeManifestAttributes('com.mcmoddev.mmdbot.core.OnlyOneBotRunner'))
     configurations.add(project.configurations.global)
     configurations.add((Configuration) bySourceSetConfigurations.get(sourceSet))
     group 'build'
     description "Builds the bot $botName and its dependencies."
-    dependsOn tasks.named("updateLicenses")
+    dependsOn tasks.named('updateLicenses')
   }
   tasks.register("${botName}JarNoDeps", Jar) {
     from sourceSets.main.output
     from sourceSets.core.output
     from sourceSet.output
     classifier "${botName}-no-deps"
-    manifest.attributes(makeManifestAttributes("com.mcmoddev.mmdbot.core.OnlyOneBotRunner"))
+    manifest.attributes(makeManifestAttributes('com.mcmoddev.mmdbot.core.OnlyOneBotRunner'))
     group 'build'
     description "Builds the bot $botName without its dependencies."
-    dependsOn tasks.named("updateLicenses")
+    dependsOn tasks.named('updateLicenses')
   }
 }
 
-def makeManifestAttributes(String mainClass) {
+Map makeManifestAttributes(String mainClass) {
   final var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
   final var currentDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(actualDateTime)
-    return [
-            'Maven-Artifact'          : "${project.group}:${archivesBaseName}:${project.bot_version}",
-            'Timestamp'               : currentDateTime,
-            'Specification-Title'     : archivesBaseName,
-            'Specification-Vendor'    : 'Minecraft Mod Development',
-            'Specification-Version'   : '1',
-            'Implementation-Title'    : archivesBaseName,
-            'Implementation-Version'  : "${project.bot_version}",
-            'Implementation-Vendor'   : 'Minecraft Mod Development',
-            'Implementation-Timestamp': currentDateTime,
-            'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
-            'Built-On'                : "${project.libs.versions.jda.get()}-${project.libs.versions.chewtils.get()}",
-            'Main-Class'              : mainClass
-    ]
+  return [
+          'Maven-Artifact'          : "${project.group}:${archivesBaseName}:${project.bot_version}",
+          'Timestamp'               : currentDateTime,
+          'Specification-Title'     : archivesBaseName,
+          'Specification-Vendor'    : 'Minecraft Mod Development',
+          'Specification-Version'   : '1',
+          'Implementation-Title'    : archivesBaseName,
+          'Implementation-Version'  : "${project.bot_version}",
+          'Implementation-Vendor'   : 'Minecraft Mod Development',
+          'Implementation-Timestamp': currentDateTime,
+          'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
+          'Built-On'                : "${project.libs.versions.jda.get()}-${project.libs.versions.chewtils.get()}",
+          'Main-Class'              : mainClass
+  ]
 }
 
 license {
@@ -273,7 +273,7 @@ tasks.withType(Javadoc).configureEach {
 tasks.named('test') {
   useJUnitPlatform()
   testLogging {
-    events "passed", "skipped", "failed"
+    events 'passed', 'skipped', 'failed'
   }
 }
 

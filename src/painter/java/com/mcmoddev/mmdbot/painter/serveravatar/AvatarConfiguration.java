@@ -18,7 +18,7 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.watcher.serveravatar;
+package com.mcmoddev.mmdbot.painter.serveravatar;
 
 public record AvatarConfiguration(
     int textColour, int backgroundPatternColour, int ringColour,

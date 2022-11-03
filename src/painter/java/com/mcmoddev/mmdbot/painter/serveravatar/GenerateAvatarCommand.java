@@ -18,17 +18,18 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.watcher.serveravatar;
+package com.mcmoddev.mmdbot.painter.serveravatar;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import com.mcmoddev.mmdbot.watcher.TheWatcher;
+import com.mcmoddev.mmdbot.painter.ThePainter;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Icon;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.FileUpload;
+import org.checkerframework.checker.units.qual.A;
 
 import javax.imageio.ImageIO;
 import java.io.ByteArrayOutputStream;
@@ -49,9 +50,9 @@ public class GenerateAvatarCommand extends SlashCommand {
             new OptionData(OptionType.STRING, "pattern-color", "Background pattern colour"),
             new OptionData(OptionType.STRING, "ring-color", "Ring colour"),
 
-            new OptionData(OptionType.STRING, "text-alpha", "Text tint alpha value"),
-            new OptionData(OptionType.STRING, "pattern-alpha", "Background pattern tint alpha value"),
-            new OptionData(OptionType.STRING, "ring-alpha", "Ring tint alpha value"),
+            new OptionData(OptionType.STRING, "text-alpha", "Text tint alpha value; default: " + AvatarConfiguration.DEFAULT_TEXT_ALPHA),
+            new OptionData(OptionType.STRING, "pattern-alpha", "Background pattern tint alpha value; default: " + AvatarConfiguration.DEFAULT_BG_PATTERN_ALPHA),
+            new OptionData(OptionType.STRING, "ring-alpha", "Ring tint alpha value; default: " + AvatarConfiguration.DEFAULT_RING_ALPHA),
 
             new OptionData(OptionType.BOOLEAN, "circular", "If the avatar is circular; default: false"),
             new OptionData(OptionType.BOOLEAN, "has-ring", "If the avatar has a ring; default: false"),
@@ -96,7 +97,7 @@ public class GenerateAvatarCommand extends SlashCommand {
                     .queue();
             }
         } catch (IOException exception) {
-            TheWatcher.LOGGER.error("Encountered exception generating avatar: ", exception);
+            ThePainter.LOGGER.error("Encountered exception generating avatar: ", exception);
             event.getHook().editOriginal("Encountered exception: *" + exception.getMessage() + "*").queue();
         }
     }

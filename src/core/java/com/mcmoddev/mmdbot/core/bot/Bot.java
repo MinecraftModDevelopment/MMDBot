@@ -39,7 +39,7 @@ public interface Bot {
 
     /**
      * Called when the bot is allowed to migrate any old data. <br>
-     * This method is <strong>always</strong> be called before {@link #start()}.
+     * This method is <strong>always</strong> called before {@link #start()}.
      */
     default void migrateData() throws IOException {
 

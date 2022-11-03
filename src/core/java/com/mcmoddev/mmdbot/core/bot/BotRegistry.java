@@ -34,6 +34,7 @@ public final class BotRegistry {
     public static final String THE_COMMANDER_NAME = "thecommander";
     public static final String THE_LISTENER_NAME = "thelistener";
     public static final String THE_WATCHER_NAME = "thewatcher";
+    public static final String THE_PAINTER_NAME = "thepainter";
 
     public static final Logger LOG = LoggerFactory.getLogger(BotRegistry.class);
 
