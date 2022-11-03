@@ -18,7 +18,7 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.painter.serveravatar;
+package com.mcmoddev.mmdbot.painter.servericon;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
@@ -29,7 +29,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.FileUpload;
-import org.checkerframework.checker.units.qual.A;
 
 import javax.imageio.ImageIO;
 import java.io.ByteArrayOutputStream;
@@ -38,26 +37,26 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.IntConsumer;
 
-public class GenerateAvatarCommand extends SlashCommand {
-    public GenerateAvatarCommand() {
+public class GenerateIconCommand extends SlashCommand {
+    public GenerateIconCommand() {
         name = "generate";
-        help = "Generate an avatar";
+        help = "Generate an icon";
         userPermissions = new Permission[] {
             Permission.MANAGE_ROLES
         };
         options = List.of(
-            new OptionData(OptionType.STRING, "color", "Primary default colour for the avatar", true),
+            new OptionData(OptionType.STRING, "color", "Primary default colour for the icon", true),
             new OptionData(OptionType.STRING, "pattern-color", "Background pattern colour"),
             new OptionData(OptionType.STRING, "ring-color", "Ring colour"),
 
-            new OptionData(OptionType.STRING, "text-alpha", "Text tint alpha value; default: " + AvatarConfiguration.DEFAULT_TEXT_ALPHA),
-            new OptionData(OptionType.STRING, "pattern-alpha", "Background pattern tint alpha value; default: " + AvatarConfiguration.DEFAULT_BG_PATTERN_ALPHA),
-            new OptionData(OptionType.STRING, "ring-alpha", "Ring tint alpha value; default: " + AvatarConfiguration.DEFAULT_RING_ALPHA),
+            new OptionData(OptionType.STRING, "text-alpha", "Text tint alpha value; default: " + IconConfiguration.DEFAULT_TEXT_ALPHA),
+            new OptionData(OptionType.STRING, "pattern-alpha", "Background pattern tint alpha value; default: " + IconConfiguration.DEFAULT_BG_PATTERN_ALPHA),
+            new OptionData(OptionType.STRING, "ring-alpha", "Ring tint alpha value; default: " + IconConfiguration.DEFAULT_RING_ALPHA),
 
-            new OptionData(OptionType.BOOLEAN, "circular", "If the avatar is circular; default: false"),
-            new OptionData(OptionType.BOOLEAN, "has-ring", "If the avatar has a ring; default: false"),
-            new OptionData(OptionType.BOOLEAN, "has-pattern", "If the avatar has avatar pattern; default: true"),
-            new OptionData(OptionType.BOOLEAN, "has-background", "If the avatar has background; default: true"),
+            new OptionData(OptionType.BOOLEAN, "circular", "If the icon is circular; default: false"),
+            new OptionData(OptionType.BOOLEAN, "has-ring", "If the icon has a ring; default: false"),
+            new OptionData(OptionType.BOOLEAN, "has-pattern", "If the icon has avatar pattern; default: true"),
+            new OptionData(OptionType.BOOLEAN, "has-background", "If the icon has background; default: true"),
 
             new OptionData(OptionType.BOOLEAN, "set-icon", "Sets the server icon to the generated avatar")
         );
@@ -67,15 +66,15 @@ public class GenerateAvatarCommand extends SlashCommand {
     @Override
     protected void execute(final SlashCommandEvent event) {
         event.deferReply().queue();
-        final AvatarConfiguration.Builder configuration = AvatarConfiguration.builder();
+        final IconConfiguration.Builder configuration = IconConfiguration.builder();
         parseColour(event, "pattern-color", configuration::setBackgroundPatternColour);
         parseColour(event, "ring-color", configuration::setRingColour);
         parseColour(event, "color", configuration::setColour);
 
         configuration
-            .setTextAlpha(parseFloat(event, "text-alpha", AvatarConfiguration.DEFAULT_TEXT_ALPHA))
-            .setRingAlpha(parseFloat(event, "ring-alpha", AvatarConfiguration.DEFAULT_RING_ALPHA))
-            .setBackgroundPatternAlpha(parseFloat(event, "pattern-alpha", AvatarConfiguration.DEFAULT_BG_PATTERN_ALPHA))
+            .setTextAlpha(parseFloat(event, "text-alpha", IconConfiguration.DEFAULT_TEXT_ALPHA))
+            .setRingAlpha(parseFloat(event, "ring-alpha", IconConfiguration.DEFAULT_RING_ALPHA))
+            .setBackgroundPatternAlpha(parseFloat(event, "pattern-alpha", IconConfiguration.DEFAULT_BG_PATTERN_ALPHA))
 
             .setCircular(event.getOption("circular", false, OptionMapping::getAsBoolean))
             .setHasRing(event.getOption("has-ring", false, OptionMapping::getAsBoolean))
@@ -84,11 +83,11 @@ public class GenerateAvatarCommand extends SlashCommand {
 
         try {
             final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ImageIO.write(ServerAvatarMaker.createAvatar(configuration.build()), "png", bos);
+            ImageIO.write(ServerIconMaker.createIcon(configuration.build()), "png", bos);
             final byte[] bytes = bos.toByteArray();
 
             event.getHook().editOriginalAttachments(
-                FileUpload.fromData(bytes, "avatar.png")
+                FileUpload.fromData(bytes, "icon.png")
             ).queue();
 
             if (event.getOption("set-icon", false, OptionMapping::getAsBoolean)) {

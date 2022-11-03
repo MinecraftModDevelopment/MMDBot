@@ -18,7 +18,7 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.painter.serveravatar;
+package com.mcmoddev.mmdbot.painter.servericon;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
@@ -34,15 +34,15 @@ import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 
-public class ServerAvatarCommand extends SlashCommand {
-    public ServerAvatarCommand() {
-        name = "server-avatar";
-        help = "Server avatar related commands";
+public class ServerIconCommand extends SlashCommand {
+    public ServerIconCommand() {
+        name = "server-icon";
+        help = "Server icon related commands";
         userPermissions = new Permission[] {
             Permission.MANAGE_ROLES
         };
         children = new SlashCommand[] {
-            new GenerateAvatarCommand(), new Set()
+            new GenerateIconCommand(), new Set()
         };
         guildOnly = true;
     }
@@ -55,35 +55,30 @@ public class ServerAvatarCommand extends SlashCommand {
     public static final class Set extends SlashCommand {
         private Set() {
             name = "set";
-            help = "Set the server avatar";
+            help = "Set the server's icon";
             userPermissions = new Permission[] {
                 Permission.MANAGE_ROLES
             };
             guildOnly = true;
             options = List.of(
-                new OptionData(OptionType.ATTACHMENT, "avatar", "Server avatar as file", false),
-                new OptionData(OptionType.STRING, "avatar-url", "Server avatar url", false)
+                new OptionData(OptionType.ATTACHMENT, "icon", "Server icon as file", false),
+                new OptionData(OptionType.STRING, "icon-url", "Server icon url", false)
             );
         }
 
         @Override
         protected void execute(final SlashCommandEvent event) {
             try {
-                final String url = event.getOption("avatar", () -> event.getOption("avatar-url", OptionMapping::getAsString), it -> it.getAsAttachment().getProxyUrl());
-                if (url == null) {
-                    event.reply("Please provide either an avatar as file or an URL to the avatar.")
-                        .setEphemeral(true).queue();
-                    return;
-                }
+                final String url = event.getOption("icon", () -> event.getOption("icon-url", OptionMapping::getAsString), it -> it.getAsAttachment().getProxyUrl());
 
-                try (final var is = URI.create(url).toURL().openStream()) {
+                try (final var is = url == null ? null : URI.create(url).toURL().openStream()) {
                     Objects.requireNonNull(event.getGuild()).getManager()
-                        .setIcon(Icon.from(is))
-                        .flatMap(it -> event.reply("Avatar successfully updated!"))
+                        .setIcon(is == null ? null : Icon.from(is))
+                        .flatMap(it -> event.reply("Icon successfully updated!"))
                         .queue();
                 }
             } catch (IOException exception) {
-                ThePainter.LOGGER.error("Encountered exception setting server avatar: ", exception);
+                ThePainter.LOGGER.error("Encountered exception setting server icon: ", exception);
                 event.reply("Encountered exception: *" + exception.getMessage() + "*")
                     .setEphemeral(true).queue();
             }

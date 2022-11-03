@@ -18,9 +18,9 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.painter.serveravatar;
+package com.mcmoddev.mmdbot.painter.servericon;
 
-public record AvatarConfiguration(
+public record IconConfiguration(
     int textColour, int backgroundPatternColour, int ringColour,
     float textAlpha, float backgroundPatternAlpha, float ringAlpha,
     boolean isCircular, boolean hasRing, boolean hasBackgroundPattern, boolean hasBackground
@@ -98,8 +98,8 @@ public record AvatarConfiguration(
             return this;
         }
 
-        public AvatarConfiguration build() {
-            return new AvatarConfiguration(
+        public IconConfiguration build() {
+            return new IconConfiguration(
                 textColour, backgroundPatternColour, ringColour,
                 textAlpha, backgroundPatternAlpha, ringAlpha,
                 isCircular, hasRing, hasBackgroundPattern, hasBackground

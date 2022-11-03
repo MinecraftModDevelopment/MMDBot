@@ -6,8 +6,7 @@ import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
 import com.mcmoddev.mmdbot.core.bot.RegisterBotType;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
-import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
-import com.mcmoddev.mmdbot.painter.serveravatar.ServerAvatarCommand;
+import com.mcmoddev.mmdbot.painter.servericon.ServerIconCommand;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -68,7 +67,7 @@ public class ThePainter implements Bot {
             .setOwnerId("000000000000")
             .useHelpBuilder(false)
             .setActivity(null)
-            .addSlashCommands(new ServerAvatarCommand())
+            .addSlashCommands(new ServerIconCommand())
             .build();
 
         try {

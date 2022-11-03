@@ -18,10 +18,10 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.painter.serveravatar;
+package com.mcmoddev.mmdbot.painter.servericon;
 
 import com.mcmoddev.mmdbot.painter.ThePainter;
-import com.mcmoddev.mmdbot.painter.serveravatar.auto.AutomaticAvatarConfiguration;
+import com.mcmoddev.mmdbot.painter.servericon.auto.AutomaticIconConfiguration;
 import com.mcmoddev.mmdbot.painter.util.GifSequenceWriter;
 import com.mcmoddev.mmdbot.painter.util.ImageUtils;
 
@@ -35,9 +35,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Objects;
 
-public class ServerAvatarMaker {
+public class ServerIconMaker {
 
-    public static BufferedImage createAvatar(AvatarConfiguration configuration) throws IOException {
+    public static BufferedImage createIcon(IconConfiguration configuration) throws IOException {
         BufferedImage finalImage = ImageUtils.tint(getImage("text"), new Color(configuration.textColour()), configuration.textAlpha());
 
         if (configuration.hasBackgroundPattern()) {
@@ -63,13 +63,13 @@ public class ServerAvatarMaker {
         return finalImage;
     }
 
-    public static byte[] createSlideshow(AutomaticAvatarConfiguration configuration) throws IOException {
+    public static byte[] createSlideshow(AutomaticIconConfiguration configuration) throws IOException {
         final var bos = new ByteArrayOutputStream();
         final var gif = new GifSequenceWriter(bos, BufferedImage.TYPE_INT_ARGB, 800, true);
 
         for (int day = 1; day <= configuration.colours().size(); day++) {
             final int colour = configuration.colours().get(day - 1);
-            final var image = createAvatar(AvatarConfiguration.builder()
+            final var image = createIcon(IconConfiguration.builder()
                 .setColour(colour)
                 .setCircular(configuration.isRing())
                 .setHasRing(configuration.isRing())
@@ -89,7 +89,7 @@ public class ServerAvatarMaker {
     }
 
     private static BufferedImage getImage(String name) throws IOException {
-        try (final InputStream is = Files.newInputStream(ThePainter.getInstance().getRunPath().resolve("serveravatar/" + name + ".png"))) {
+        try (final InputStream is = Files.newInputStream(ThePainter.getInstance().getRunPath().resolve("servericon/" + name + ".png"))) {
             return ImageIO.read(Objects.requireNonNull(is));
         }
     }
