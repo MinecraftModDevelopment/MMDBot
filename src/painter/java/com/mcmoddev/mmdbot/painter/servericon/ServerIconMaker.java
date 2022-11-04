@@ -83,6 +83,7 @@ public class ServerIconMaker {
             g2.setFont(font);
             g2.drawString("Day " + day, (int) ((image.getWidth() - font.getStringBounds(text, g2.getFontRenderContext()).getWidth()) / 2), image.getHeight() - 50 - 40);
 
+            g2.dispose();
             gif.writeToSequence(image);
         }
 

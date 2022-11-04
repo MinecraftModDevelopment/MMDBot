@@ -22,32 +22,29 @@ package com.mcmoddev.mmdbot.painter.command;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.painter.servericon.GenerateIconCommand;
 import com.mcmoddev.mmdbot.painter.util.ImageUtils;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.FileUpload;
 
 import javax.imageio.ImageIO;
-import java.awt.Image;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
-import java.util.Locale;
-import java.util.stream.Stream;
 
-public class RescaleCommand extends SlashCommand {
-    public RescaleCommand() {
-        this.name = "rescale";
-        this.help = "Rescale an image.";
+public class TintCommand extends SlashCommand {
+
+    public TintCommand() {
+        this.name = "tint";
+        this.help = "Apply a tint to an image.";
         this.options = List.of(
-            new OptionData(OptionType.ATTACHMENT, "image", "Image to rescale", true),
-            new OptionData(OptionType.STRING, "target-size", "Image target size. Example: 720 (W and H), 1024x720 (WxH)", true),
-            new OptionData(OptionType.STRING, "strategy", "Image scaling strategy").addChoices(
-                Stream.of(ScaleStrategy.values()).map(it -> new Command.Choice(it.friendlyName, it.name())).toList()
-            )
+            new OptionData(OptionType.ATTACHMENT, "image", "Image to apply tint to.", true),
+            new OptionData(OptionType.STRING, "tint", "Colour of the tint to apply.", true),
+            new OptionData(OptionType.NUMBER, "transparency", "The transparency used for the tint mask; default: 0.5").setRequiredRange(0d, 1d)
         );
     }
 
@@ -56,34 +53,17 @@ public class RescaleCommand extends SlashCommand {
         event.deferReply().queue();
 
         try (final var is = URI.create(event.getOption("image", "", it -> it.getAsAttachment().getProxyUrl())).toURL().openStream()) {
-            final String[] dimensions = event.getOption("target-size", "720", OptionMapping::getAsString).toLowerCase(Locale.ROOT).split("x");
-            final int width = Integer.parseInt(dimensions[0]);
-            final int height = dimensions.length > 1 ? Integer.parseInt(dimensions[1]) : width;
-
             final BufferedImage image = ImageIO.read(is);
-            final BufferedImage output = ImageUtils.resizeImage(image, width, height,
-                event.getOption("strategy", ScaleStrategy.DEFAULT, it -> ScaleStrategy.valueOf(it.getAsString())).hint);
+            final BufferedImage output = ImageUtils.tint(
+                image,
+                new Color(GenerateIconCommand.readColour(event.getOption("tint", "", OptionMapping::getAsString))),
+                event.getOption("transparency", 0.5f, it -> (float)it.getAsDouble())
+            );
             event.getHook().editOriginalAttachments(
-                FileUpload.fromData(ImageUtils.toBytes(output, "png"), "rescaled.png")
+                FileUpload.fromData(ImageUtils.toBytes(output, "png"), "tinted.png")
             ).queue();
         } catch (IOException exception) {
             event.getHook().editOriginal("Encountered exception processing image: " + exception.getMessage()).queue();
-        }
-    }
-
-    public enum ScaleStrategy {
-        DEFAULT("Default", Image.SCALE_DEFAULT),
-        FAST("Fast", Image.SCALE_FAST),
-        SMOOTH("Smooth", Image.SCALE_SMOOTH),
-        REPLICATE("Replicate", Image.SCALE_REPLICATE),
-        AREA_AVERAGING("Area Averaging", Image.SCALE_AREA_AVERAGING);
-
-        private final String friendlyName;
-        private final int hint;
-
-        ScaleStrategy(final String friendlyName, final int hint) {
-            this.friendlyName = friendlyName;
-            this.hint = hint;
         }
     }
 }

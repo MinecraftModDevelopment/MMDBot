@@ -30,6 +30,7 @@ import com.mcmoddev.mmdbot.core.util.DotenvLoader;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.event.OneTimeEventListener;
 import com.mcmoddev.mmdbot.painter.command.RescaleCommand;
+import com.mcmoddev.mmdbot.painter.command.TintCommand;
 import com.mcmoddev.mmdbot.painter.servericon.ServerIconCommand;
 import com.mcmoddev.mmdbot.painter.servericon.auto.AutomaticIconChanger;
 import com.mcmoddev.mmdbot.painter.servericon.auto.command.AutoIconSetCommand;
@@ -105,7 +106,7 @@ public class ThePainter implements Bot {
             .setOwnerId("000000000000")
             .useHelpBuilder(false)
             .setActivity(null)
-            .addSlashCommands(new ServerIconCommand(), new RescaleCommand())
+            .addSlashCommands(new ServerIconCommand(), new RescaleCommand(), new TintCommand())
             .build();
 
         COLLECT_TASKS_LISTENER.register(Events.MISC_BUS);
