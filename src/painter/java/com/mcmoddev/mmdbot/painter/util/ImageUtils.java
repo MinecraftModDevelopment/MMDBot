@@ -28,6 +28,7 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
+import java.awt.Paint;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
@@ -78,8 +79,31 @@ public class ImageUtils {
         return imgMask;
     }
 
+    public static BufferedImage generatePaintMask(BufferedImage imgSource, Paint paint, float alpha) {
+        int imgWidth = imgSource.getWidth();
+        int imgHeight = imgSource.getHeight();
+
+        BufferedImage imgMask = createCompatibleImage(imgWidth, imgHeight);
+        Graphics2D g2 = imgMask.createGraphics();
+        applyQualityRenderingHints(g2);
+
+        g2.drawImage(imgSource, 0, 0, null);
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_IN, alpha));
+        g2.setPaint(paint);
+
+        g2.fillRect(0, 0, imgSource.getWidth(), imgSource.getHeight());
+        g2.dispose();
+
+        return imgMask;
+    }
+
     public static BufferedImage tint(BufferedImage image, Color colour, float alpha) {
         final var mask = generateMask(image, colour, alpha);
+        return tint(image, mask);
+    }
+
+    public static BufferedImage tintWithPaint(BufferedImage image, Paint paint, float alpha) {
+        final var mask = generatePaintMask(image, paint, alpha);
         return tint(image, mask);
     }
 
