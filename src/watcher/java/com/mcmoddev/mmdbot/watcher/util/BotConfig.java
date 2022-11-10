@@ -215,6 +215,10 @@ public final class BotConfig {
             .orElse("");
     }
 
+    public boolean hasActivity() {
+        return !config.getOrElse("bot.activity.type", "").isBlank();
+    }
+
     public Activity.ActivityType getActivityType() {
         return Activity.ActivityType.valueOf(config.getOrElse("bot.activity.type", "PLAYING"));
     }

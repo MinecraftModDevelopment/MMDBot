@@ -288,13 +288,13 @@ public final class TheWatcher implements Bot {
             final var builder = JDABuilder
                 .create(dotenv.get("BOT_TOKEN"), INTENTS)
                 .addEventListeners(COMMANDS_LISTENER, MISC_LISTENER, PUNISHABLE_ACTIONS_LISTENER)
-                .setActivity(Activity.of(oldConfig.getActivityType(), oldConfig.getActivityName()))
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
                 .disableCache(CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY)
                 .enableCache(CacheFlag.FORUM_TAGS)
                 .setEnabledIntents(INTENTS);
+            if (oldConfig.hasActivity()) builder.setActivity(Activity.of(oldConfig.getActivityType(), oldConfig.getActivityName()));
             jda = builder.build().awaitReady();
         } catch (final InvalidTokenException exception) {
             LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.", exception);
