@@ -83,6 +83,7 @@ import de.ialistannen.javadocapi.querying.FuzzyElementQuery;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -267,7 +268,7 @@ public final class TheCommander implements Bot {
     private Configuration generalConfig;
     private final Dotenv dotenv;
     private final Path runPath;
-    private final Long2ObjectMap<GuildConfiguration> guildConfigs = new Long2ObjectOpenHashMap<>();
+    private final Long2ObjectMap<GuildConfiguration> guildConfigs = Long2ObjectMaps.synchronize(new Long2ObjectOpenHashMap<>());
 
     private final String githubToken;
 
@@ -569,18 +570,20 @@ public final class TheCommander implements Bot {
     }
 
     public GuildConfiguration getConfigForGuild(long guildId) {
-        return guildConfigs.computeIfAbsent(guildId, rethrowFunction(id -> {
-            final var path = runPath.resolve("configs").resolve("guild").resolve(guildId + ".conf");
-            final HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
-                .emitComments(true)
-                .prettyPrinting(true)
-                .defaultOptions(ConfigurationOptions.defaults().serializers(ADDED_SERIALIZERS))
-                .path(path)
-                .build();
-            return ConfigurateUtils.loadConfig(loader, path, cfg -> guildConfigs.put(guildId, cfg), GuildConfiguration.class, GuildConfiguration.EMPTY)
-                .value()
-                .get();
-        }));
+        synchronized (guildConfigs) {
+            return guildConfigs.computeIfAbsent(guildId, rethrowFunction(id -> {
+                final var path = runPath.resolve("configs").resolve("guild").resolve(guildId + ".conf");
+                final HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
+                    .emitComments(true)
+                    .prettyPrinting(true)
+                    .defaultOptions(ConfigurationOptions.defaults().serializers(ADDED_SERIALIZERS))
+                    .path(path)
+                    .build();
+                return ConfigurateUtils.loadConfig(loader, path, cfg -> guildConfigs.put(guildId, cfg), GuildConfiguration.class, GuildConfiguration.EMPTY)
+                    .value()
+                    .get();
+            }));
+        }
     }
 
     public GuildConfiguration getConfigForGuild(Guild guild) {

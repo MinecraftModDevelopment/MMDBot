@@ -33,9 +33,7 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.EventListener;
-import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.requests.ErrorResponse;
-import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +41,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 /**
  * Utility class for upserting commands. <br>
@@ -110,29 +107,14 @@ public class CommandUpserter implements EventListener {
         if (forceGuild) {
             final var guild = Objects.requireNonNull(guildId).resolve(jda::getGuildById);
             if (guild == null) throw new NullPointerException("Unknown guild with ID: " + guildId);
-            guild.retrieveCommands().queue(commands -> {
-                // Delete old commands.
-                final var toRemove = getCommandsToRemove(commands);
-                if (toRemove.length > 0) {
-                    RestAction.allOf(LongStream.of(toRemove).mapToObj(guild::deleteCommandById).toList()).queue();
-                }
 
-                // Upsert new ones
-                RestAction.allOf(client.getSlashCommands().stream()
-                        .map(SlashCommand::buildCommandData)
-                        .map(guild::upsertCommand)
-                        .collect(Collectors.toSet()))
-                    .queue(cmds -> LOG.info("Registered {} commands to guild '{}' ({})", cmds.size(), guild.getName(), guild.getId()), createErrorHandler(guild));
-
-                if (!client.getContextMenus().isEmpty()) {
-                    // Upsert menus
-                    RestAction.allOf(client.getContextMenus().stream()
-                            .map(ContextMenu::buildCommandData)
-                            .map(guild::upsertCommand)
-                            .collect(Collectors.toSet()))
-                        .queue(cmds -> LOG.info("Registered {} context menus to guild '{}' ({})", cmds.size(), guild.getName(), guild.getId()), createErrorHandler(guild));
-                }
-            });
+            // Update the guild commands
+            guild.updateCommands()
+                .addCommands(Stream.concat(
+                    client.getSlashCommands().stream().map(SlashCommand::buildCommandData),
+                    client.getContextMenus().stream().map(ContextMenu::buildCommandData)
+                ).toList())
+                .queue(it -> LOG.info("Registered {} commands to guild '{}' ({}).", it.size(), guild.getName(), guild.getId()), createErrorHandler(guild));
         } else {
             if (guildId != null) {
                 final var guild = guildId.resolve(jda::getGuildById);
@@ -140,38 +122,19 @@ public class CommandUpserter implements EventListener {
                     // Guild still specified? Then remove guild commands
                     guild.retrieveCommands().queue(commands -> {
                         if (!commands.isEmpty()) {
-                            RestAction.allOf(commands.stream()
-                                .map(Command::getIdLong)
-                                .map(guild::deleteCommandById)
-                                .toList()).queue();
+                            guild.updateCommands().queue();
                         }
                     });
                 }
             }
-            jda.retrieveCommands().queue(commands -> {
-                // Delete old commands.
-                final var toRemove = getCommandsToRemove(commands);
-                if (toRemove.length > 1) {
-                    RestAction.allOf(LongStream.of(toRemove).mapToObj(jda::deleteCommandById).toList()).queue();
-                }
 
-                // Upsert new ones
-                RestAction.allOf(client.getSlashCommands()
-                        .stream()
-                        .map(SlashCommand::buildCommandData)
-                        .map(jda::upsertCommand)
-                        .collect(Collectors.toSet()))
-                    .queue(cmds -> LOG.info("Registered {} global commands.", cmds.size()));
-
-                if (!client.getContextMenus().isEmpty()) {
-                    // Upsert menus
-                    RestAction.allOf(client.getContextMenus().stream()
-                            .map(ContextMenu::buildCommandData)
-                            .map(jda::upsertCommand)
-                            .collect(Collectors.toSet()))
-                        .queue(cmds -> LOG.info("Registered {} context menus.", cmds.size()));
-                }
-            });
+            // Update the global commands
+            jda.updateCommands()
+                .addCommands(Stream.concat(
+                    client.getSlashCommands().stream().map(SlashCommand::buildCommandData),
+                    client.getContextMenus().stream().map(ContextMenu::buildCommandData)
+                ).toList())
+                .queue(it -> LOG.info("Registered {} global commands.", it.size()));
         }
     }
 
@@ -201,21 +164,4 @@ public class CommandUpserter implements EventListener {
         });
     }
 
-    private long[] getCommandsToRemove(final List<Command> existingCommands) {
-        record ExistingCommand(String name, long id) {
-        }
-        final var ext = existingCommands.stream()
-            .filter(c -> c.getType() == Command.Type.SLASH)
-            .map(c -> new ExistingCommand(c.getName(), c.getIdLong()))
-            .collect(Collectors.toSet());
-        final var clientCommandNames = client.getSlashCommands().stream().map(SlashCommand::getName).collect(Collectors.toSet());
-        ext.removeIf(p -> {
-            final var contains = clientCommandNames.contains(p.name());
-            if (contains) {
-                clientCommandNames.remove(p.name());
-            }
-            return contains;
-        });
-        return ext.stream().mapToLong(ExistingCommand::id).toArray();
-    }
 }
