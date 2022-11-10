@@ -20,15 +20,15 @@
  */
 package com.mcmoddev.mmdbot.painter.servericon.auto;
 
+import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.painter.ThePainter;
-import com.mcmoddev.mmdbot.painter.servericon.IconConfiguration;
-import com.mcmoddev.mmdbot.painter.servericon.ServerIconMaker;
 import com.mcmoddev.mmdbot.painter.util.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Icon;
-
-import java.io.ByteArrayOutputStream;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.requests.RestAction;
 
 @Slf4j
 public class AutomaticIconChanger implements Runnable {
@@ -79,17 +79,34 @@ public class AutomaticIconChanger implements Runnable {
 
         final var targetColour = configuration.colours().get(nextDay - 1); // Indexes start at 0
 
-        log.warn("Generating and changing server {} icon to colour #{}.", guild, Integer.toHexString(targetColour));
+        log.warn("Generating and changing server {} icon to colour {}.", guild, Utils.rgbToString(targetColour));
+
+        final var logChannelId = guild.getJDA().getChannelById(MessageChannel.class, configuration.logChannelId());
 
         final var iconBytes = ImageUtils.toBytes(
             configuration.createImage(nextDay),
             "png"
         );
+
+        //noinspection ConstantConditions
         guild.getManager()
             .setIcon(Icon.from(iconBytes))
+            .flatMap(it -> logChannelId != null, it -> logChange(
+                logChannelId, guild, targetColour, nextDay, backwards
+            ))
             .queue();
 
         dayCounter.setDay(guild, nextDay, backwards);
+    }
+
+    private RestAction<?> logChange(MessageChannel channel, Guild guild, int newColour, int currentDay, boolean backwards) {
+        return channel.sendMessageEmbeds(new EmbedBuilder()
+                .setTitle("Server icon changed")
+                .setDescription("The server's automatic icon advanced to day " + currentDay + (backwards ? " and is going backwards." : "."))
+                .appendDescription("\nNew colour is `%s`".formatted(Utils.rgbToString(newColour)))
+                .setColor(newColour)
+                .setThumbnail(guild.getIconUrl())
+            .build());
     }
 
 }

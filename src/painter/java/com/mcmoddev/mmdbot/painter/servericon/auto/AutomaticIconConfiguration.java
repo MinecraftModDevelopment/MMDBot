@@ -32,7 +32,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
-public record AutomaticIconConfiguration(List<Integer> colours, boolean isRing, boolean enabled) {
+public record AutomaticIconConfiguration(List<Integer> colours, long logChannelId, boolean isRing, boolean enabled) {
     static final Gson GSON = new GsonBuilder()
         .disableHtmlEscaping().create();
 

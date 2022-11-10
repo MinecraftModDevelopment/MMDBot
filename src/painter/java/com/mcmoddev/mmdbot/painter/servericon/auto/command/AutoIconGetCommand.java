@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.painter.servericon.auto.command;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.painter.ThePainter;
 import com.mcmoddev.mmdbot.painter.servericon.ServerIconCommand;
 import com.mcmoddev.mmdbot.painter.servericon.auto.AutomaticIconConfiguration;
@@ -49,9 +50,9 @@ public class AutoIconGetCommand extends SlashCommand {
                     .setTitle("Server automatic icon")
                     .setDescription("The server's automatic icon is *" + (data.enabled() ? "enabled" : "disabled") + "*.")
                     .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
-                    .addField("Colours", "`#%s` -> `#%s`".formatted(
-                        Integer.toHexString(data.colours().get(0)),
-                        Integer.toHexString(data.colours().get(data.colours().size() - 1))
+                    .addField("Colours", "`%s` -> `%s`".formatted(
+                        Utils.rgbToString(data.colours().get(0)),
+                        Utils.rgbToString(data.colours().get(data.colours().size() - 1))
                     ), false)
                     .addField("Days", "%s days total.\nCurrently at day %s.%s".formatted(
                         data.colours().size(), day.day(),

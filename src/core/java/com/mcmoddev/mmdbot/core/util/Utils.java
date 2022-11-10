@@ -116,4 +116,9 @@ public final class Utils {
         return new WebhookMessageBuilder()
             .setContent(message);
     }
+
+    public static String rgbToString(int rgb) {
+        // toHexString returns an ARGB color
+        return "#" + Integer.toHexString(rgb).substring(2);
+    }
 }

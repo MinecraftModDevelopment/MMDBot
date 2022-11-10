@@ -42,7 +42,7 @@ public class AutoIconEnableCommands {
                 event.getHook().editOriginal("Server has no icon configuration!").queue();
                 return;
             }
-            new AutomaticIconConfiguration(cfg.colours(), cfg.isRing(), false).save(event.getGuild().getId());
+            new AutomaticIconConfiguration(cfg.colours(), cfg.logChannelId(), cfg.isRing(), false).save(event.getGuild().getId());
             event.reply("Successfully disabled auto icon.").queue();
         }
     }
@@ -62,7 +62,7 @@ public class AutoIconEnableCommands {
                 event.getHook().editOriginal("Server has no icon configuration!").queue();
                 return;
             }
-            new AutomaticIconConfiguration(cfg.colours(), cfg.isRing(), true).save(event.getGuild().getId());
+            new AutomaticIconConfiguration(cfg.colours(), cfg.logChannelId(), cfg.isRing(), true).save(event.getGuild().getId());
             event.reply("Successfully enabled auto icon.").queue();
         }
     }

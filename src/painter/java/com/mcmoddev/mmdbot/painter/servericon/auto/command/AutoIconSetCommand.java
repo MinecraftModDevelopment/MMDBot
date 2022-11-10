@@ -58,7 +58,8 @@ public class AutoIconSetCommand extends SlashCommand implements EventListener {
             new OptionData(OptionType.STRING, "color-range", "The start and end colours, split by a space. Example: '#ffff00 #d9d916'", true),
             new OptionData(OptionType.INTEGER, "days", "The amount of days the auto-icon should last for; default: 30"),
             new OptionData(OptionType.BOOLEAN, "ring", "If the generated avatars should have rings; default: false"),
-            new OptionData(OptionType.BOOLEAN, "enable", "If the auto-icon should be started by default; default: true")
+            new OptionData(OptionType.BOOLEAN, "enable", "If the auto-icon should be started by default; default: true"),
+            new OptionData(OptionType.CHANNEL, "log-channel", "Channel in which to log the icon changes.")
         );
         this.subcommandGroup = ServerIconCommand.AUTO_ICON_SUBCOMMAND;
     }
@@ -114,9 +115,12 @@ public class AutoIconSetCommand extends SlashCommand implements EventListener {
             event.getOption("days", 30, OptionMapping::getAsInt),
             colors[0] > colors[1]
         );
-        return new AutomaticIconConfiguration(orderedColors,
+        return new AutomaticIconConfiguration(
+            orderedColors,
+            event.getOption("log-channel", 0L, it -> it.getAsChannel().getIdLong()),
             event.getOption("ring", false, OptionMapping::getAsBoolean),
-            event.getOption("enable", true, OptionMapping::getAsBoolean));
+            event.getOption("enable", true, OptionMapping::getAsBoolean)
+        );
     }
 
     @SuppressWarnings("IntegerDivisionInFloatingPointContext")
