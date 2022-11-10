@@ -29,6 +29,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serial;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpClient;
@@ -56,14 +58,18 @@ public class GistUtils {
         try {
             newGist = post(token, "", gist.toString());
         } catch (IOException | InterruptedException ioe) {
-            int code = lastCode;
-            if (code == 404) {
-                return null;
+            if (lastCode == HttpURLConnection.HTTP_NOT_FOUND) {
+                throw new GistException("Gist not found", lastCode);
             }
             throw new GistException(lastErrorMessage, lastCode);
         }
 
-        return ExistingGist.fromJson(Constants.Gsons.GSON.fromJson(newGist, JsonObject.class));
+        final JsonObject json = Constants.Gsons.GSON.fromJson(newGist, JsonObject.class);
+        if (lastCode == HttpURLConnection.HTTP_UNAUTHORIZED || (json.has("message") && json.get("message").getAsString().equalsIgnoreCase("bad credentials"))) {
+            throw new GistException("Bad credentials", lastCode);
+        }
+
+        return ExistingGist.fromJson(json);
     }
 
     /**
@@ -111,13 +117,14 @@ public class GistUtils {
     }
 
     public static final class GistException extends Exception {
-
+        @Serial
         private static final long serialVersionUID = -129081029829039102L;
 
         private final String error;
         private final int errorCode;
 
         GistException(final String error, final int errorCode) {
+            super(errorCode + " - " + error);
             this.error = error;
             this.errorCode = errorCode;
         }
@@ -134,7 +141,6 @@ public class GistUtils {
         public String toString() {
             return "HTTP error: %s, message: %s".formatted(errorCode, error);
         }
-
     }
 
 }
