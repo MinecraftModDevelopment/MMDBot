@@ -169,6 +169,15 @@ public final class GuildConfiguration {
             public int getLimitPerUser() {
                 return limitPerUser;
             }
+
+            @Required
+            @Setting("removal_inform_channel")
+            @Comment("The ID of the channel users should be informed in when their pings are removed.")
+            private SnowflakeValue removalInformChannel = SnowflakeValue.EMPTY;
+
+            public SnowflakeValue removalInformChannel() {
+                return removalInformChannel;
+            }
         }
     }
 

@@ -144,7 +144,6 @@ public final class TheCommander implements Bot {
     public static final Logger LOGGER = LoggerFactory.getLogger("TheCommander");
     public static final ScheduledExecutorService CURSE_FORGE_UPDATE_SCHEDULER = Executors.newScheduledThreadPool(1,
         r -> Utils.setThreadDaemon(new Thread(r, "CurseForgeUpdateChecker"), true));
-    public static final OkHttpClient OK_HTTP_CLIENT = new OkHttpClient();
 
     @RegisterBotType(name = BotRegistry.THE_COMMANDER_NAME)
     public static final BotType<TheCommander> BOT_TYPE = new BotType<>() {

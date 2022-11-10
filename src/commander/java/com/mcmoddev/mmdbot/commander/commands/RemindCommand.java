@@ -136,7 +136,7 @@ public class RemindCommand {
             name = "at";
             help = "Adds a reminder relative to an absolute time.";
             options = List.of(
-                new OptionData(OptionType.STRING, "time", "The time of the reminder. The format is: uuuu/dd/MM-HH:mm+timezone. Example: 2022/25/03-21:17+02:00", true),
+                new OptionData(OptionType.STRING, "time", "The time of the reminder. The format is: yyyy/dd/MM-HH:mm+timezone. Example: 2022/25/03-21:17+02:00", true),
                 new OptionData(OptionType.STRING, "content", "The content of the reminder.")
             );
             cooldown = 20;
@@ -197,7 +197,7 @@ public class RemindCommand {
                 event.deferReply(true).setContent("You have no reminders.").queue();
                 return;
             }
-            createPaginatedMessage(event, Reminders.getRemindersForUser(event.getUser().getIdLong()).size(), event.getUser().getId());
+            createPaginatedMessage(event, Reminders.getRemindersForUser(event.getUser().getIdLong()).size(), event.getUser().getId()).queue();
         }
 
         @Override

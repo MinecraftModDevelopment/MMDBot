@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.commander.custompings;
 
 import com.google.common.base.Suppliers;
+import com.google.gson.reflect.TypeToken;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.core.database.VersionedDataMigrator;
 import com.mcmoddev.mmdbot.core.database.VersionedDatabase;
@@ -44,8 +45,8 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import static com.mcmoddev.mmdbot.core.util.Constants.Gsons.NO_PRETTY_PRINTING;
+import static it.unimi.dsi.fastutil.longs.Long2ObjectMaps.synchronize;
 import static java.util.Collections.synchronizedMap;
-import static it.unimi.dsi.fastutil.longs.Long2ObjectMaps.*;
 
 @UtilityClass
 public class CustomPings {
@@ -148,6 +149,12 @@ public class CustomPings {
     public static void addPing(final long guildId, final long memberId, final CustomPing ping) {
         getPingsForUser(guildId, memberId).add(ping);
         write();
+
+    }
+
+    public static void addPings(final long guildId, final long memberId, final List<CustomPing> pings) {
+        getPingsForUser(guildId, memberId).addAll(pings);
+        write();
     }
 
     public static void removePing(final long guildId, final long memberId, final CustomPing ping) {
@@ -164,4 +171,11 @@ public class CustomPings {
         return getAllPingsInGuild(guildId).computeIfAbsent(memberId, k -> Collections.synchronizedList(new ArrayList<>()));
     }
 
+    public static List<CustomPing> fromString(final String string) {
+        return NO_PRETTY_PRINTING.fromJson(string, new TypeToken<>() {});
+    }
+
+    public static String toString(List<CustomPing> pings) {
+        return NO_PRETTY_PRINTING.toJson(pings);
+    }
 }
