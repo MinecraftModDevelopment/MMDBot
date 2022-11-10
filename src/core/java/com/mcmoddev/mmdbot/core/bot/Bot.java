@@ -38,6 +38,11 @@ public interface Bot {
     void shutdown();
 
     /**
+     * {@return the token of the bot}
+     */
+    String getToken();
+
+    /**
      * Called when the bot is allowed to migrate any old data. <br>
      * This method is <strong>always</strong> called before {@link #start()}.
      */

@@ -27,8 +27,14 @@ import com.mcmoddev.mmdbot.core.common.ScamDetector;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
+import joptsimple.OptionParser;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.security.auth.login.LoginException;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -48,6 +55,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -76,15 +84,25 @@ public class RunBots {
     private static final Logger LOG = LoggerFactory.getLogger(RunBots.class);
     private static List<Bot> loadedBots = new ArrayList<>();
 
-    public static void main(String[] a) {
-        final var args = List.of(a);
+    public static void main(String[] args) {
         startBots(BotRegistry.getBotTypes(), args, true);
     }
 
-    public static void startBots(Map<String, BotRegistry.BotRegistryEntry<?>> botTypes, List<String> args, boolean withConfig) {
+    public static void startBots(Map<String, BotRegistry.BotRegistryEntry<?>> botTypes, String[] args, boolean withConfig) {
         System.setProperty("java.net.preferIPv4Stack", "true");
-        final var doMigrate = !args.contains("noMigration");
-        final var config = withConfig ? getOrCreateConfig() : new JsonObject();
+
+        final var parser = new OptionParser();
+        final var migrateOption = parser.acceptsAll(List.of("m", "migrate"), "If to migrate bot data").withOptionalArg();
+        final var disableOption = parser.acceptsAll(List.of("d", "disable"), "A list of bots to explicitly disable even if the config enables them").withOptionalArg();
+        final var configOption = parser.acceptsAll(List.of("c", "config"), "A path to the configuration file").withOptionalArg().ofType(File.class);
+        final var clearCommandsOption = parser.acceptsAll(List.of("clear-commands", "delete-commands", "clc"), "If the commands of the bot should be deleted before it starts").withOptionalArg();
+
+        final var options = parser.parse(args);
+
+        final var doMigrate = options.valueOfOptional(migrateOption)
+            .map(Boolean::parseBoolean).orElse(true);
+        final var config = withConfig ? getOrCreateConfig(options.valueOfOptional(configOption).map(File::toPath).orElse(Path.of("config.json"))) : new JsonObject();
+        final var disabledBots = options.valuesOf(disableOption);
 
         final var botsAmount = new AtomicInteger();
 
@@ -98,8 +116,13 @@ public class RunBots {
             .stream()
             .map(entry -> {
                 if (withConfig) {
-                    final var botEntry = BotEntry.of(entry.getKey(),
-                        config.has(entry.getKey()) ? config.get(entry.getKey()).getAsJsonObject() : new JsonObject());
+                    final BotEntry botEntry;
+                    if (disabledBots.contains(entry.getKey())) {
+                        botEntry = new BotEntry(entry.getKey(), false, entry.getKey());
+                    } else {
+                        botEntry = BotEntry.of(entry.getKey(),
+                            config.has(entry.getKey()) ? config.get(entry.getKey()).getAsJsonObject() : new JsonObject());
+                    }
                     return new BotListing<>(entry.getValue(), botEntry);
                 } else {
                     return new BotListing<>(entry.getValue(), new BotEntry(entry.getKey(), true, ""));
@@ -115,36 +138,7 @@ public class RunBots {
                 final var bot = botPair.bot();
                 if (botEntry.isEnabled()) {
                     if (bot != null) {
-                        CompletableFuture.runAsync(() -> {
-                            if (doMigrate) {
-                                try {
-                                    bot.getLogger().info("Started data migration...");
-                                    bot.migrateData();
-                                    bot.getLogger().info("Finished data migration.");
-                                } catch (Exception e) {
-                                    bot.getLogger().error("An exception occurred migrating data: ", e);
-                                }
-                            }
-                        }, BOT_STARTER_EXECUTOR).whenComplete(($, $$) -> {
-                            if (bot.blocksStartupThread()) {
-                                TaskScheduler.scheduleTask(() -> {
-                                    botsAmount.incrementAndGet();
-                                    bot.getLogger().warn("Bot {} has been found, and it has been launched!", botEntry.name());
-                                }, 7, TimeUnit.SECONDS); // Give the bot 7 seconds to startup.. it
-                                // should add its listeners until then
-                            }
-                            try {
-                                bot.start();
-                            } catch (LoginException e) {
-                                bot.getLogger().error("Exception logging in: ", e);
-                            }
-                            botsAmount.incrementAndGet();
-                            bot.getLogger().warn("Bot {} has been found, and it has been launched!", botEntry.name());
-                        }).exceptionally(t -> {
-                            bot.getLogger().error("Exception starting bot up: ", t);
-                            botsAmount.incrementAndGet();
-                            return null;
-                        });
+                        startBot(bot, botsAmount, doMigrate, options.has(clearCommandsOption), botEntry.name());
                     } else {
                         LOG.warn("Bot {} was null! Skipping...", botEntry.name);
                         botsAmount.incrementAndGet();
@@ -176,6 +170,55 @@ public class RunBots {
         TaskScheduler.init();
     }
 
+    private static void startBot(Bot bot, AtomicInteger botsAmount, boolean doMigrate, boolean clearCommands, String botName) {
+        CompletableFuture.runAsync(() -> {
+            if (doMigrate) {
+                try {
+                    bot.getLogger().info("Started data migration...");
+                    bot.migrateData();
+                    bot.getLogger().info("Finished data migration.");
+                } catch (Exception e) {
+                    bot.getLogger().error("An exception occurred migrating data: ", e);
+                }
+            }
+        }, BOT_STARTER_EXECUTOR).whenComplete(($, $$) -> {
+            if (clearCommands) clearCommands(bot.getToken(), botName);
+
+            if (bot.blocksStartupThread()) {
+                TaskScheduler.scheduleTask(() -> {
+                    botsAmount.incrementAndGet();
+                    bot.getLogger().warn("Bot {} has been found, and it has been launched!", botName);
+                }, 7, TimeUnit.SECONDS); // Give the bot 7 seconds to startup... it
+                // should add its listeners until then
+            }
+            try {
+                bot.start();
+            } catch (LoginException e) {
+                bot.getLogger().error("Exception logging in: ", e);
+            }
+            botsAmount.incrementAndGet();
+            bot.getLogger().warn("Bot {} has been found, and it has been launched!", botName);
+        }).exceptionally(t -> {
+            bot.getLogger().error("Exception starting bot up: ", t);
+            botsAmount.incrementAndGet();
+            return null;
+        });
+    }
+
+    @SneakyThrows
+    private static void clearCommands(String botToken, String botName) {
+        LOG.warn("Clearing commands for bot {}...", botName);
+        final JDA jda = JDABuilder.createLight(botToken)
+            .setEnabledIntents(Set.of())
+            .build().awaitReady();
+        jda.updateCommands().complete();
+        jda.getGuilds().stream()
+            .map(Guild::updateCommands)
+            .forEach(CommandListUpdateAction::complete);
+        jda.shutdownNow();
+        LOG.warn("Cleared commands for bot {}", botName);
+    }
+
     @Nonnull
     public static List<Bot> getLoadedBots() {
         return loadedBots;
@@ -203,15 +246,7 @@ public class RunBots {
         return path;
     }
 
-    private static Path getPathOrElse(JsonObject json, String name, Path orElse) {
-        if (json.has(name) && json.get(name).isJsonPrimitive() && json.get(name).getAsJsonPrimitive().isString()) {
-            return Path.of(json.get(name).getAsString());
-        }
-        return orElse;
-    }
-
-    private static JsonObject getOrCreateConfig() {
-        final var path = Path.of("config.json");
+    private static JsonObject getOrCreateConfig(Path path) {
         if (!path.toFile().exists()) {
             try {
                 Files.createFile(path); // If it doesn't exist, generate it

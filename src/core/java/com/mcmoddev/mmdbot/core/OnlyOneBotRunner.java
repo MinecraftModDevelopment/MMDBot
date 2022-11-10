@@ -33,7 +33,7 @@ public class OnlyOneBotRunner {
         if (bots.size() != 1) {
             throw new RuntimeException("More than one bot has been found!");
         }
-        RunBots.startBots(bots, List.of(args), false);
+        RunBots.startBots(bots, args, false);
     }
 
 }

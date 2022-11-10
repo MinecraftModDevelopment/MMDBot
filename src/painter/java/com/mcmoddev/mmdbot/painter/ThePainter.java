@@ -113,7 +113,7 @@ public class ThePainter implements Bot {
 
         try {
             final var builder = JDABuilder
-                .createLight(dotenv.get("BOT_TOKEN"), Set.of())
+                .createLight(getToken(), Set.of())
                 .addEventListeners(commandClient, AutoIconSetCommand.INSTANCE);
             jda = builder.build().awaitReady();
         } catch (InterruptedException e) {
@@ -125,6 +125,11 @@ public class ThePainter implements Bot {
     @Override
     public BotType<?> getType() {
         return BOT_TYPE;
+    }
+
+    @Override
+    public String getToken() {
+        return dotenv.get("BOT_TOKEN");
     }
 
     public JDA getJDA() {

@@ -135,6 +135,7 @@ dependencies {
   global libs.urldetector
   global libs.cfapi
   global libs.webhooks
+  global libs.jopt
 
   global libs.jdbi.core
   global libs.jdbi.sqlobject

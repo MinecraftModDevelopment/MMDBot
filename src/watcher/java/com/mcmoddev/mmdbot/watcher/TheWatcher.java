@@ -286,7 +286,7 @@ public final class TheWatcher implements Bot {
 
         try {
             final var builder = JDABuilder
-                .create(dotenv.get("BOT_TOKEN"), INTENTS)
+                .create(getToken(), INTENTS)
                 .addEventListeners(COMMANDS_LISTENER, MISC_LISTENER, PUNISHABLE_ACTIONS_LISTENER)
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
@@ -313,6 +313,11 @@ public final class TheWatcher implements Bot {
     @Override
     public BotType<?> getType() {
         return BOT_TYPE;
+    }
+
+    @Override
+    public String getToken() {
+        return dotenv.get("BOT_TOKEN");
     }
 
     public Dotenv getDotenv() {

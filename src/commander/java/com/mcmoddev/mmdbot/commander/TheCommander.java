@@ -450,7 +450,7 @@ public final class TheCommander implements Bot {
 
         try {
             final var builder = JDABuilder
-                .create(dotenv.get("BOT_TOKEN"), INTENTS)
+                .create(getToken(), INTENTS)
                 .addEventListeners(listenerConsumer((ReadyEvent event) -> {
                     startupTime = Instant.now();
                     Events.MISC_BUS.addListener((final TaskScheduler.CollectTasksEvent ct) -> OldChannelsHelper.registerListeners(ct, event.getJDA()));
@@ -493,7 +493,7 @@ public final class TheCommander implements Bot {
     @Override
     public void shutdown() {
         commandClient.shutdown();
-        jda.shutdown();
+        jda.shutdownNow();
         generalConfig = null;
         config = null;
         curseForgeManager = null;
@@ -513,6 +513,11 @@ public final class TheCommander implements Bot {
     @Override
     public BotType<?> getType() {
         return BOT_TYPE;
+    }
+
+    @Override
+    public String getToken() {
+        return dotenv.get("BOT_TOKEN");
     }
 
     public Dotenv getDotenv() {

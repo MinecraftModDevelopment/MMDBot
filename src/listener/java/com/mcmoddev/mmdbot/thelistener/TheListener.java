@@ -60,7 +60,18 @@ public final class TheListener implements Bot {
     public static final BotType<TheListener> BOT_TYPE = new BotType<>() {
         @Override
         public TheListener createBot(final Path runPath) {
-            return new TheListener(runPath);
+            try {
+                return new TheListener(runPath, DotenvLoader.builder()
+                    .filePath(runPath.toAbsolutePath().resolve(".env"))
+                    .whenCreated(writer -> writer
+                        .writeComment("The token of the bot: ")
+                        .writeValue("BOT_TOKEN", "")
+                    )
+                    .load());
+            } catch (IOException e) {
+                LOGGER.error("Could not load the .env file due to an IOException: ", e);
+            }
+            return null;
         }
 
         @Override
@@ -89,10 +100,12 @@ public final class TheListener implements Bot {
 
     private JDA jda;
     private final Path runPath;
+    private final Dotenv dotenv;
     private final Long2ObjectMap<GuildConfig> guildConfigs = new Long2ObjectOpenHashMap<>();
 
-    public TheListener(final Path runPath) {
+    public TheListener(final Path runPath, final Dotenv dotenv) {
         this.runPath = runPath;
+        this.dotenv = dotenv;
     }
 
     public static final ExecutorService GENERAL_EVENT_THREAD_POOL = Executors.newFixedThreadPool(2,
@@ -100,21 +113,8 @@ public final class TheListener implements Bot {
     public static final com.mcmoddev.mmdbot.core.util.event.ThreadedEventListener GENERAL_EVENT_LISTENER = new com.mcmoddev.mmdbot.core.util.event.ThreadedEventListener(GENERAL_EVENT_THREAD_POOL);
 
     @Override
-    public void start() throws LoginException {
+    public void start() {
         instance = this;
-
-        final Dotenv dotenv;
-        try {
-            dotenv = DotenvLoader.builder()
-                .filePath(runPath.toAbsolutePath().resolve(".env"))
-                .whenCreated(writer -> writer.writeValue("BOT_TOKEN", "")
-                    .writeComment("The token of the bot"))
-                .load();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        final var token = dotenv.get("BOT_TOKEN", "");
 
         GENERAL_EVENT_LISTENER.addListeners(
             MessageEvents.INSTANCE,
@@ -124,7 +124,7 @@ public final class TheListener implements Bot {
         );
 
         jda = JDABuilder.create(
-                token,
+                getToken(),
                 INTENTS
             )
             .addEventListeners(JdaMessageCache.builder()
@@ -147,12 +147,17 @@ public final class TheListener implements Bot {
 
     @Override
     public void shutdown() {
-        jda.shutdown();
+        jda.shutdownNow();
     }
 
     @Override
     public BotType<?> getType() {
         return BOT_TYPE;
+    }
+
+    @Override
+    public String getToken() {
+        return dotenv.get("BOT_TOKEN", "");
     }
 
     public Path getRunPath() {
