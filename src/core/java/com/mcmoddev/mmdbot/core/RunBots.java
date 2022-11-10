@@ -153,7 +153,7 @@ public class RunBots {
 
         loadedBots = bots.toList();
 
-        final var botsTarget = BotRegistry.getBotTypes().size();
+        final var botsTarget = botTypes.size();
         while (botsAmount.get() < botsTarget) {
             // Block thread
         }
