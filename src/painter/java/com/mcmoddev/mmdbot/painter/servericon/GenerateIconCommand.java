@@ -23,7 +23,6 @@ package com.mcmoddev.mmdbot.painter.servericon;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.painter.ThePainter;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Icon;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -41,9 +40,6 @@ public class GenerateIconCommand extends SlashCommand {
     public GenerateIconCommand() {
         name = "generate";
         help = "Generate an icon";
-        userPermissions = new Permission[] {
-            Permission.MANAGE_ROLES
-        };
         options = List.of(
             new OptionData(OptionType.STRING, "color", "Primary default colour for the icon", true),
             new OptionData(OptionType.STRING, "pattern-color", "Background pattern colour"),

@@ -56,6 +56,7 @@ public record AutomaticIconConfiguration(List<Integer> colours, long logChannelI
 
     public void save(String guildId) throws IOException {
         final var path = ThePainter.getInstance().getRunPath().resolve("autoicons").resolve(guildId + ".json");
+        if (!Files.exists(path)) Files.createDirectories(path.getParent());
         try (final var writer = Files.newBufferedWriter(path)) {
             GSON.toJson(this, writer);
         }

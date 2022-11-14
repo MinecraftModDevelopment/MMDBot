@@ -68,9 +68,6 @@ public class ServerIconCommand extends SlashCommand {
         private Set() {
             name = "set-icon";
             help = "Set the server's icon";
-            userPermissions = new Permission[] {
-                Permission.MANAGE_ROLES
-            };
             guildOnly = true;
             options = List.of(
                 new OptionData(OptionType.ATTACHMENT, "icon", "Server icon as file", false),

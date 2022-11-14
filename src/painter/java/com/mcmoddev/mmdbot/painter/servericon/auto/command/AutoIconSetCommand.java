@@ -28,6 +28,7 @@ import com.mcmoddev.mmdbot.painter.servericon.ServerIconCommand;
 import com.mcmoddev.mmdbot.painter.servericon.ServerIconMaker;
 import com.mcmoddev.mmdbot.painter.servericon.auto.AutomaticIconConfiguration;
 import com.mcmoddev.mmdbot.painter.servericon.auto.DayCounter;
+import com.mcmoddev.mmdbot.painter.util.CooldownManager;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -46,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class AutoIconSetCommand extends SlashCommand implements EventListener {
     public static final AutoIconSetCommand INSTANCE = new AutoIconSetCommand();
@@ -75,10 +77,17 @@ public class AutoIconSetCommand extends SlashCommand implements EventListener {
             .queue();
     }
 
+    private static final CooldownManager BUTTON_COOLDOWN = new CooldownManager(10, TimeUnit.SECONDS);
     @Override
     public void onEvent(@NotNull final GenericEvent ge) {
         if (!(ge instanceof ButtonInteractionEvent event)) return;
         if (!(Objects.equals(event.getButton().getId(), BUTTON_ID))) return;
+
+        if (!BUTTON_COOLDOWN.check(event.getUser())) {
+            event.reply("You can use this button " + BUTTON_COOLDOWN.coolDownFriendly(event.getUser()) + ".")
+                .setEphemeral(true).queue();
+            return;
+        }
 
         event.deferReply().queue();
         try {

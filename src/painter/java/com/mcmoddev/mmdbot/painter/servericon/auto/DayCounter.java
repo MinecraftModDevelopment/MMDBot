@@ -51,7 +51,7 @@ public record DayCounter(Map<String, Data> days) {
     @SneakyThrows
     public void write() {
         Path path = ThePainter.getInstance().getRunPath().resolve("autoicons/days.json");
-        Files.createDirectories(path.getParent());
+        if (!Files.exists(path)) Files.createDirectories(path.getParent());
         try (final var writer = Files.newBufferedWriter(path)) {
             AutomaticIconConfiguration.GSON.toJson(days(), writer);
         }

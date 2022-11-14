@@ -50,8 +50,8 @@ public class NewAccount implements PunishableAction<GuildMemberJoinEvent> {
     }
 
     @Override
-    public boolean test(final GuildMemberJoinEvent guildMemberJoinEvent) {
-        return guildMemberJoinEvent.getMember()
+    public boolean test(final GuildMemberJoinEvent event) {
+        return !event.getUser().isBot() && event.getMember()
             .getTimeCreated()
             .toInstant()
             .isAfter(Instant.now() // TODO Make the threshold a config

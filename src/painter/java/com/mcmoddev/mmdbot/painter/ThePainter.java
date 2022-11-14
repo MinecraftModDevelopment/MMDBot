@@ -150,7 +150,7 @@ public class ThePainter implements Bot {
     private static Date measureNext12PMUTC() {
         final var day = OffsetDateTime.now(ZoneId.of("UTC")).plusDays(1);
         final var calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
-        calendar.set(day.getYear(), day.getMonthValue(), day.getDayOfMonth(), 0, 0, 0);
+        calendar.set(day.getYear(), day.getMonthValue() - 1, day.getDayOfMonth(), 0, 0, 0);
         return calendar.getTime();
     }
 }
