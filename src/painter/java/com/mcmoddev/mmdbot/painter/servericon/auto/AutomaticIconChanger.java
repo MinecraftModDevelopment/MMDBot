@@ -23,6 +23,8 @@ package com.mcmoddev.mmdbot.painter.servericon.auto;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.painter.ThePainter;
 import com.mcmoddev.mmdbot.painter.util.ImageUtils;
+import com.mcmoddev.mmdbot.painter.util.dao.AutoIconDAO;
+import com.mcmoddev.mmdbot.painter.util.dao.DayCounterDAO;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -36,14 +38,15 @@ public class AutomaticIconChanger implements Runnable {
     @Override
     public void run() {
         if (ThePainter.getInstance() != null) {
-            final var dayCounter = DayCounter.read();
-            for (final var guild : ThePainter.getInstance().getJDA().getGuilds()) {
+            for (final AutoIconDAO.WithGuildConfiguration withGuild : ThePainter.getInstance().autoIcon().allEnabled()) {
+                final Guild guild = ThePainter.getInstance().getJDA().getGuildById(withGuild.guildId());
+                if (guild == null) {
+                    ThePainter.getInstance().autoIcon().delete(withGuild.guildId());
+                    return;
+                }
+
                 try {
-                    final var conf = AutomaticIconConfiguration.get(guild.getId());
-                    if (conf != null && conf.enabled()) {
-                        doRun(guild, conf, dayCounter);
-                        dayCounter.write();
-                    }
+                    doRun(guild, withGuild.configuration(), ThePainter.getInstance().dayCounter());
                 } catch (Exception exception) {
                     ThePainter.LOGGER.error("Encountered exception cycling icon for guild {}: ", guild, exception);
                 }
@@ -51,28 +54,28 @@ public class AutomaticIconChanger implements Runnable {
         }
     }
 
-    private void doRun(Guild guild, AutomaticIconConfiguration configuration, DayCounter dayCounter) throws Exception {
-        final var current = dayCounter.getCurrentDay(guild);
+    private void doRun(Guild guild, AutomaticIconConfiguration configuration, DayCounterDAO dayCounter) throws Exception {
+        final var currentDay = dayCounter.getCurrentDay(guild);
         final int nextDay;
         final boolean backwards;
-        if (current.backwards()) {
-            if (current.day() <= 1) {
+        if (dayCounter.isBackwards(guild)) {
+            if (currentDay <= 1) {
                 // If the current day is 1, or lower, go to the start
                 nextDay = 2;
                 backwards = false;
             } else {
                 // Else, go to the previous day
-                nextDay = current.day() - 1;
+                nextDay = currentDay - 1;
                 backwards = true;
             }
         } else {
-            if (current.day() >= configuration.colours().size()) {
+            if (currentDay >= configuration.colours().size()) {
                 // If the current day is greater, or equal to the amount of colours, start going back
                 nextDay = configuration.colours().size() - 1;
                 backwards = true;
             } else {
                 // Else, go to the next day
-                nextDay = current.day() + 1;
+                nextDay = currentDay + 1;
                 backwards = false;
             }
         }
@@ -96,7 +99,7 @@ public class AutomaticIconChanger implements Runnable {
             ))
             .queue();
 
-        dayCounter.setDay(guild, nextDay, backwards);
+        dayCounter.update(guild, nextDay, backwards);
     }
 
     private RestAction<?> logChange(MessageChannel channel, Guild guild, int newColour, int currentDay, boolean backwards) {

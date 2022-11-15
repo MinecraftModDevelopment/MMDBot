@@ -20,21 +20,29 @@
  */
 package com.mcmoddev.mmdbot.painter.servericon.auto;
 
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mcmoddev.mmdbot.painter.ThePainter;
 import com.mcmoddev.mmdbot.painter.servericon.IconConfiguration;
 import com.mcmoddev.mmdbot.painter.servericon.ServerIconMaker;
+import org.jdbi.v3.core.statement.StatementContext;
 
-import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.lang.reflect.Type;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
-public record AutomaticIconConfiguration(List<Integer> colours, long logChannelId, boolean isRing, boolean enabled) {
-    static final Gson GSON = new GsonBuilder()
+public record AutomaticIconConfiguration(
+    List<Integer> colours, long logChannelId, boolean isRing, boolean enabled
+) {
+    public static final Gson GSON = new GsonBuilder()
         .disableHtmlEscaping().create();
+
+    public String serializeColors() {
+        return GSON.toJson(colours());
+    }
 
     public BufferedImage createImage(int day) throws IOException {
         return ServerIconMaker.createIcon(IconConfiguration.builder()
@@ -43,22 +51,20 @@ public record AutomaticIconConfiguration(List<Integer> colours, long logChannelI
             .build());
     }
 
-    @Nullable
-    public static AutomaticIconConfiguration get(String guildId) throws IOException {
-        final var path = ThePainter.getInstance().getRunPath().resolve("autoicons").resolve(guildId + ".json");
-        if (Files.exists(path)) {
-            try (final var reader = Files.newBufferedReader(path)) {
-                return GSON.fromJson(reader, AutomaticIconConfiguration.class);
-            }
-        }
-        return null;
-    }
+    public static final class RowMapper implements org.jdbi.v3.core.mapper.RowMapper<AutomaticIconConfiguration> {
+        private static final Type COLOUR_LIST_TYPE = new TypeToken<List<Integer>>() {}.getType();
 
-    public void save(String guildId) throws IOException {
-        final var path = ThePainter.getInstance().getRunPath().resolve("autoicons").resolve(guildId + ".json");
-        if (!Files.exists(path)) Files.createDirectories(path.getParent());
-        try (final var writer = Files.newBufferedWriter(path)) {
-            GSON.toJson(this, writer);
+        @Override
+        public AutomaticIconConfiguration map(final ResultSet rs, final StatementContext ctx) throws SQLException {
+            return from(rs);
+        }
+
+        public static AutomaticIconConfiguration from(final ResultSet rs) throws SQLException {
+            return new AutomaticIconConfiguration(
+                GSON.fromJson(rs.getString("colours"), COLOUR_LIST_TYPE),
+                rs.getLong("log_channel"),
+                rs.getBoolean("ring"), rs.getBoolean("enabled")
+            );
         }
     }
 }

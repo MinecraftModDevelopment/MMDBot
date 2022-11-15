@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.core.database.jdbi;
 
 import com.mcmoddev.mmdbot.core.util.Constants;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import org.jdbi.v3.core.argument.Argument;
 import org.jdbi.v3.core.argument.NullArgument;
 import org.jdbi.v3.core.config.ConfigRegistry;
@@ -43,16 +44,21 @@ import java.util.function.Function;
 public final class JdbiFactories {
     private static final Map<Type, ArgumentFactory<?>> BY_TYPE_FACTORIES = new HashMap<>();
 
-    public static final ArgumentFactory<UUID> UUID = create(Types.JAVA_OBJECT, java.util.UUID.class, ((position, statement, ctx, value) -> statement.setString(position, value.toString())));
+    public static final ArgumentFactory<UUID> UUID = createAndRegister(Types.JAVA_OBJECT, java.util.UUID.class, ((position, statement, ctx, value) -> statement.setString(position, value.toString())));
+    public static final ArgumentFactory<ISnowflake> SNOWFLAKE = create(Types.BIGINT, ISnowflake.class, ((position, statement, ctx, value) -> statement.setLong(position, value.getIdLong())));
     public static final ArgumentFactory<List> LIST = create(Types.JAVA_OBJECT, List.class, ((position, statement, ctx, value) -> statement.setString(position, Constants.Gsons.NO_PRETTY_PRINTING.toJson(value))));
 
     public static <T> ArgumentFactory<T> create(int sqlType, Type type, Factory<T> factory) {
-        final var fct = new ArgumentFactory<T>(sqlType, type) {
+        return new ArgumentFactory<T>(sqlType, type) {
             @Override
             protected Argument build(final T value, final ConfigRegistry config) {
                 return (position, statement, ctx) -> factory.accept(position, statement, ctx, value);
             }
         };
+    }
+
+    public static <T> ArgumentFactory<T> createAndRegister(int sqlType, Type type, Factory<T> factory) {
+        final var fct = create(sqlType, type, factory);
         BY_TYPE_FACTORIES.put(type, fct);
         return fct;
     }
@@ -74,10 +80,12 @@ public final class JdbiFactories {
 
         @Override
         public Optional<Argument> build(final Type type, final Object value, final ConfigRegistry config) {
-            if (List.class.isAssignableFrom(GenericTypes.getErasedType(type))) {
+            final Class<?> erased = GenericTypes.getErasedType(type);
+            if (List.class.isAssignableFrom(erased)) {
                 return LIST.build(type, value, config);
-            }
-            if (BY_TYPE_FACTORIES.containsKey(type)) {
+            } else if (ISnowflake.class.isAssignableFrom(erased)) {
+                return SNOWFLAKE.build(type, value, config);
+            } else if (BY_TYPE_FACTORIES.containsKey(erased)) {
                 return BY_TYPE_FACTORIES.get(type).build(type, value, config);
             }
             return Optional.empty();

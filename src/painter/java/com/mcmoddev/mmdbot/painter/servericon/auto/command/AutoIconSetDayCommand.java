@@ -22,9 +22,9 @@ package com.mcmoddev.mmdbot.painter.servericon.auto.command;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.painter.ThePainter;
 import com.mcmoddev.mmdbot.painter.servericon.ServerIconCommand;
 import com.mcmoddev.mmdbot.painter.servericon.auto.AutomaticIconConfiguration;
-import com.mcmoddev.mmdbot.painter.servericon.auto.DayCounter;
 import com.mcmoddev.mmdbot.painter.util.ImageUtils;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.entities.Icon;
@@ -49,7 +49,7 @@ public class AutoIconSetDayCommand extends SlashCommand {
     @Override
     @SneakyThrows
     protected void execute(final SlashCommandEvent event) {
-        final AutomaticIconConfiguration conf = AutomaticIconConfiguration.get(event.getGuild().getId());
+        final AutomaticIconConfiguration conf = ThePainter.getInstance().autoIcon().get(event.getGuild());
         if (conf == null) {
             event.reply("Guild has no auto icon configured.").setEphemeral(true).queue();
             return;
@@ -59,16 +59,16 @@ public class AutoIconSetDayCommand extends SlashCommand {
 
         final int day = event.getOption("day", 0, OptionMapping::getAsInt);
 
-        final DayCounter counter = DayCounter.read();
-        counter.setDay(event.getGuild(), day,
-            event.getOption("backwards", () -> counter.getCurrentDay(event.getGuild()).backwards(), OptionMapping::getAsBoolean));
-        counter.write();
+        ThePainter.getInstance().dayCounter().update(
+            event.getGuild(), day,
+            event.getOption("backwards", () -> ThePainter.getInstance().dayCounter().isBackwards(event.getGuild()), OptionMapping::getAsBoolean)
+        );
 
         final BufferedImage image = conf.createImage(day);
 
         event.getGuild().getManager()
             .setIcon(Icon.from(ImageUtils.toBytes(image, "png")))
-            .flatMap(it -> event.getHook().editOriginal("Successfully set day counter to " + day + "."))
+            .flatMap(it -> event.getHook().editOriginal("Successfully advanced to day " + day + "."))
             .queue();
     }
 }

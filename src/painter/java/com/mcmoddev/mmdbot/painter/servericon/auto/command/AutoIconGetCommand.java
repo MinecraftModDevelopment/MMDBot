@@ -26,7 +26,6 @@ import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.painter.ThePainter;
 import com.mcmoddev.mmdbot.painter.servericon.ServerIconCommand;
 import com.mcmoddev.mmdbot.painter.servericon.auto.AutomaticIconConfiguration;
-import com.mcmoddev.mmdbot.painter.servericon.auto.DayCounter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
@@ -40,12 +39,13 @@ public class AutoIconGetCommand extends SlashCommand {
     @Override
     protected void execute(final SlashCommandEvent event) {
         try {
-            final var data = AutomaticIconConfiguration.get(event.getGuild().getId());
+            final var data = ThePainter.getInstance().autoIcon().get(event.getGuild());
             if (data == null) {
                 event.deferReply(true).setContent("This server does not have an automatic icon configured!").queue();
                 return;
             }
-            final var day = DayCounter.read().getCurrentDay(event.getGuild());
+            final int day = ThePainter.getInstance().dayCounter().getCurrentDay(event.getGuild());
+            final boolean backwards = ThePainter.getInstance().dayCounter().isBackwards(event.getGuild());
             event.replyEmbeds(new EmbedBuilder()
                     .setTitle("Server automatic icon")
                     .setDescription("The server's automatic icon is *" + (data.enabled() ? "enabled" : "disabled") + "*.")
@@ -55,10 +55,10 @@ public class AutoIconGetCommand extends SlashCommand {
                         Utils.rgbToString(data.colours().get(data.colours().size() - 1))
                     ), false)
                     .addField("Days", "%s days total.\nCurrently at day %s.%s".formatted(
-                        data.colours().size(), day.day(),
-                        day.backwards() ? "\n*Going backwards.*" : ""
+                        data.colours().size(), day,
+                        backwards ? "\n*Going backwards.*" : ""
                     ), false)
-                    .setColor(data.colours().get(day.day() - 1))
+                    .setColor(day == 0 ? 0xffffff : data.colours().get(day - 1))
                     .build())
                 .setActionRow(Button.primary(AutoIconSetCommand.BUTTON_ID, "Generate preview"))
                 .queue();

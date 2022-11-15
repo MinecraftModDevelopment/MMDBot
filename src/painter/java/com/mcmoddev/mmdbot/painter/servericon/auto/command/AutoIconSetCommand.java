@@ -27,7 +27,6 @@ import com.mcmoddev.mmdbot.painter.servericon.GenerateIconCommand;
 import com.mcmoddev.mmdbot.painter.servericon.ServerIconCommand;
 import com.mcmoddev.mmdbot.painter.servericon.ServerIconMaker;
 import com.mcmoddev.mmdbot.painter.servericon.auto.AutomaticIconConfiguration;
-import com.mcmoddev.mmdbot.painter.servericon.auto.DayCounter;
 import com.mcmoddev.mmdbot.painter.util.CooldownManager;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -91,7 +90,7 @@ public class AutoIconSetCommand extends SlashCommand implements EventListener {
 
         event.deferReply().queue();
         try {
-            final var cfg = AutomaticIconConfiguration.get(event.getGuild().getId());
+            final var cfg = ThePainter.getInstance().autoIcon().get(event.getGuild());
             if (cfg == null) {
                 event.getHook().editOriginal("Server has no icon configuration!").queue();
                 return;
@@ -109,11 +108,9 @@ public class AutoIconSetCommand extends SlashCommand implements EventListener {
 
     @SneakyThrows
     private void createAndSave(SlashCommandEvent event) {
-        create(event).save(event.getGuild().getId());
+        ThePainter.getInstance().autoIcon().set(event.getGuild(), create(event));
 
-        final var days = DayCounter.read();
-        days.setDay(event.getGuild(), 0, false);
-        days.write();
+        ThePainter.getInstance().dayCounter().update(event.getGuild(), 0, false);
     }
 
     public static AutomaticIconConfiguration create(SlashCommandEvent event) {

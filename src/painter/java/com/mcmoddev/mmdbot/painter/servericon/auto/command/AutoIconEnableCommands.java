@@ -22,9 +22,8 @@ package com.mcmoddev.mmdbot.painter.servericon.auto.command;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.mcmoddev.mmdbot.painter.ThePainter;
 import com.mcmoddev.mmdbot.painter.servericon.ServerIconCommand;
-import com.mcmoddev.mmdbot.painter.servericon.auto.AutomaticIconConfiguration;
-import lombok.SneakyThrows;
 
 public class AutoIconEnableCommands {
     public static final class DisableCommand extends SlashCommand {
@@ -35,14 +34,8 @@ public class AutoIconEnableCommands {
         }
 
         @Override
-        @SneakyThrows
         protected void execute(final SlashCommandEvent event) {
-            final var cfg = AutomaticIconConfiguration.get(event.getGuild().getId());
-            if (cfg == null) {
-                event.getHook().editOriginal("Server has no icon configuration!").queue();
-                return;
-            }
-            new AutomaticIconConfiguration(cfg.colours(), cfg.logChannelId(), cfg.isRing(), false).save(event.getGuild().getId());
+            ThePainter.getInstance().autoIcon().setEnabled(event.getGuild(), false);
             event.reply("Successfully disabled auto icon.").queue();
         }
     }
@@ -55,14 +48,8 @@ public class AutoIconEnableCommands {
         }
 
         @Override
-        @SneakyThrows
         protected void execute(final SlashCommandEvent event) {
-            final var cfg = AutomaticIconConfiguration.get(event.getGuild().getId());
-            if (cfg == null) {
-                event.getHook().editOriginal("Server has no icon configuration!").queue();
-                return;
-            }
-            new AutomaticIconConfiguration(cfg.colours(), cfg.logChannelId(), cfg.isRing(), true).save(event.getGuild().getId());
+            ThePainter.getInstance().autoIcon().setEnabled(event.getGuild(), true);
             event.reply("Successfully enabled auto icon.").queue();
         }
     }
