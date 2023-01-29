@@ -36,6 +36,7 @@ import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
+import com.mcmoddev.mmdbot.core.util.event.OneTimeEventListener;
 import com.mcmoddev.mmdbot.core.util.event.ThreadedEventListener;
 import com.mcmoddev.mmdbot.watcher.commands.information.InviteCommand;
 import com.mcmoddev.mmdbot.watcher.commands.moderation.BanCommand;
@@ -144,6 +145,8 @@ public final class TheWatcher implements Bot {
     public static final ThreadedEventListener PUNISHABLE_ACTIONS_LISTENER = new ThreadedEventListener(
         Executors.newFixedThreadPool(2, r -> com.mcmoddev.mmdbot.core.util.Utils.setThreadDaemon(new Thread(TheWatcher.THREAD_GROUP, r, "PunishableActions"), true))
     );
+
+    public static final OneTimeEventListener<TaskScheduler.CollectTasksEvent> ARCHIVE_FORUM_THREADS = new OneTimeEventListener<>(ForumListener::onCollectTasks);
 
     private static final Set<GatewayIntent> INTENTS = Set.of(
         GatewayIntent.DIRECT_MESSAGES,
@@ -283,6 +286,8 @@ public final class TheWatcher implements Bot {
 
         MISC_LISTENER.addListener(UpdateRulesCommand::onEvent);
         MISC_LISTENER.addListeners(new EventReactionAdded(), new PersistedRolesEvents(), new ForumListener());
+
+        ARCHIVE_FORUM_THREADS.register(Events.MISC_BUS);
 
         try {
             final var builder = JDABuilder

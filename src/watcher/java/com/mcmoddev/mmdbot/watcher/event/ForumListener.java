@@ -20,7 +20,10 @@
  */
 package com.mcmoddev.mmdbot.watcher.event;
 
+import com.mcmoddev.mmdbot.core.util.TaskScheduler;
+import com.mcmoddev.mmdbot.watcher.TheWatcher;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.forums.ForumTag;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
@@ -30,8 +33,12 @@ import net.dv8tion.jda.api.events.channel.update.ChannelUpdateAppliedTagsEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class ForumListener extends ListenerAdapter {
     @Override
@@ -53,6 +60,31 @@ public class ForumListener extends ListenerAdapter {
         }
 
         thread.sendMessage(message).queue();
+    }
+
+    public static void onCollectTasks(TaskScheduler.CollectTasksEvent event) {
+        event.addTask(() -> {
+            if (TheWatcher.getInstance() == null) return;
+            final Instant _3DaysAgo = Instant.now().minus(3, ChronoUnit.DAYS);
+            TheWatcher.getInstance().getJda().getForumChannelCache()
+                .stream().flatMap(it -> it.getThreadChannels().stream()).forEach(channel -> {
+                final Consumer<Message> lastMessage = (Message last) -> {
+                    if (last.getTimeCreated().toInstant().isBefore(_3DaysAgo)) {
+                        channel.getManager().setArchived(true).reason("3 days without activity").queue();
+                    }
+                };
+                final var his = channel.getHistory().getRetrievedHistory();
+                if (his.isEmpty()) {
+                    channel.getHistory().retrievePast(1).queue(it -> {
+                        if (!it.isEmpty()) {
+                            lastMessage.accept(it.get(0));
+                        }
+                    });
+                } else {
+                    lastMessage.accept(his.get(his.size() - 1));
+                }
+            });
+        }, 1, 24, TimeUnit.HOURS);
     }
 
     private String formatTags(List<ForumTag> tags, JDA jda) {
