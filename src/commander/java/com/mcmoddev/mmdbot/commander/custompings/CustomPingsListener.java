@@ -111,7 +111,7 @@ public class CustomPingsListener extends ListenerAdapter {
                 .addField("Link", message.getJumpUrl(), false)
                 .setTimestamp(message.getTimeCreated())
                 .build()
-        );
+        ).setSuppressedNotifications(message.isSuppressedNotifications());
     }
 
     public static boolean canViewChannel(Member member, GuildChannel channel) {
