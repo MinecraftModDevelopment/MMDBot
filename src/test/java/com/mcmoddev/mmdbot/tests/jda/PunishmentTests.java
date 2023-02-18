@@ -35,6 +35,7 @@ import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.SlashCommandReference;
 import net.dv8tion.jda.internal.entities.MemberImpl;
 import net.dv8tion.jda.internal.entities.ReceivedMessage;
 import net.dv8tion.jda.internal.entities.UserImpl;
@@ -199,6 +200,18 @@ public class PunishmentTests {
             @Override
             public boolean isMentioned(@NotNull final IMentionable mentionable, @NotNull final Message.MentionType @NotNull ... types) {
                 return false;
+            }
+
+            @NotNull
+            @Override
+            public Bag<SlashCommandReference> getSlashCommandsBag() {
+                return bag;
+            }
+
+            @NotNull
+            @Override
+            public List<SlashCommandReference> getSlashCommands() {
+                return List.of();
             }
         };
 

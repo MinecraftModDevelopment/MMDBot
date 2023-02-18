@@ -54,6 +54,8 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectInteraction;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
@@ -232,7 +234,8 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
     }
 
     protected void onSelectMenu(final SelectMenuInteractionContext context) {
-        final var event = context.getEvent();
+        final var gev = context.getEvent();
+        if (!(gev.getInteraction() instanceof StringSelectInteraction event)) return;
         final var guild = Objects.requireNonNull(event.getGuild());
         final var selfMember = guild.getSelfMember();
         final var selectedRoles = event.getSelectedOptions()
@@ -287,7 +290,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
     }
 
     private static void handleDropdownCreation(final @NonNull ModalInteractionContext context, final MessageCreateBuilder message, final List<Role> selectedRoles) {
-        SelectMenu.Builder menu = COMPONENT_LISTENER.createMenu(Component.Lifespan.PERMANENT)
+        StringSelectMenu.Builder menu = COMPONENT_LISTENER.createMenu(Component.Lifespan.PERMANENT)
             .setPlaceholder("Select your roles")
             .setMaxValues(selectedRoles.size())
             .setMinValues(0);
@@ -307,7 +310,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
         final var toAdd = new ArrayList<Role>(selectedRoles.size());
         final var toRemove = new ArrayList<Role>(selectedRoles.size());
 
-        context.getEvent().getInteraction()
+        ((StringSelectInteraction)context.getEvent().getInteraction())
             .getComponent()
             .getOptions()
             .stream()

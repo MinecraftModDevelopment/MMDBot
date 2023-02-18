@@ -34,7 +34,7 @@ import com.mcmoddev.mmdbot.core.util.StringUtilities;
 import com.mcmoddev.mmdbot.core.util.gist.GistUtils;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.Modal;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -97,7 +97,7 @@ public final class EditTrickCommand extends SlashCommand {
         @Override
         protected void execute(final SlashCommandEvent event) {
             final var modal = Modal.create(ModalListener.MODAL_ID_PREFIX + trickTypeName, "Edit %s %s trick".formatted(StringUtilities.startWithVowel(trickTypeName) ? "an" : "a", trickTypeName))
-                .addActionRows(trickType.getModalArguments())
+                .addComponents(trickType.getModalArguments())
                 .build();
             event.replyModal(modal).queue();
         }

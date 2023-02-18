@@ -26,10 +26,12 @@ import com.mcmoddev.mmdbot.core.commands.component.context.ModalInteractionConte
 import com.mcmoddev.mmdbot.core.commands.component.context.SelectMenuInteractionContext;
 import lombok.NonNull;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.Modal;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectInteraction;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -59,10 +61,10 @@ public abstract class ComponentListener {
     }
 
     @NonNull
-    public SelectMenu.Builder createMenu(@NonNull Component.Lifespan lifespan, final String... args) {
+    public StringSelectMenu.Builder createMenu(@NonNull Component.Lifespan lifespan, final String... args) {
         final var comp = new Component(name, UUID.randomUUID(), Arrays.asList(args), lifespan);
         insertComponent(comp);
-        return SelectMenu.create(comp.uuid().toString());
+        return StringSelectMenu.create(comp.uuid().toString());
     }
 
     @NonNull
@@ -137,7 +139,7 @@ public abstract class ComponentListener {
         }
 
         /**
-         * Sets the action that should be executed on {@link net.dv8tion.jda.api.interactions.components.Modal} interaction.
+         * Sets the action that should be executed on {@link Modal} interaction.
          *
          * @param onModal the action that should be executed on modal interaction
          * @return the builder instance

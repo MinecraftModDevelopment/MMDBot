@@ -6,10 +6,10 @@ lombok = { id = "io.freefair.lombok", version = "6.5.0.3" }
 launch4j = { id = 'edu.sc.seis.launch4j', version = '2.5.3' }
 
 [versions]
-jda = "5.0.0-alpha.20"
-# https://github.com/Matyrobbrt/JDA-Chewtils/commit/84a2cb70b0b9280de98715f7b218e0eb1bfc0bb6
+jda = "5.0.0-beta.4"
+# https://github.com/Matyrobbrt/JDA-Chewtils/commit/c2bfe64e447817aa5ddac0dab0f12bcede0fe37d
 # chewtils = "2.0-SNAPSHOT"
-chewtils = "84a2cb7"
+chewtils = "c2bfe64"
 guava = "31.1-jre"
 gson = "2.10"
 logback = "1.2.11"
@@ -38,6 +38,7 @@ caffeine = "3.1.1"
 urldetector = "0.1.23"
 mockito = "4.6.1"
 jopt = "6.0-alpha-3"
+jsr305 = "3.0.2"
 
 [libraries]
 jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
@@ -74,3 +75,4 @@ caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "c
 urldetector = { module = "io.github.url-detector:url-detector", version.ref = "urldetector" }
 mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 jopt = { module = "net.sf.jopt-simple:jopt-simple", version.ref = "jopt" }
+jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "jsr305" }

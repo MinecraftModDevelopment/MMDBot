@@ -148,8 +148,9 @@ dependencies {
   // TODO remove
   watcher libs.nightconfig
 
-  globalCompile libs.annotations
   globalCompile libs.lombok
+  globalCompile libs.jsr305
+  globalCompile libs.annotations
 
   testImplementation libs.junit
   testImplementation libs.mockito

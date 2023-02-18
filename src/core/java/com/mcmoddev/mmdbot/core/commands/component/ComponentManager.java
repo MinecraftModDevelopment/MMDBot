@@ -28,7 +28,8 @@ import lombok.NonNull;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
@@ -93,7 +94,7 @@ public class ComponentManager implements EventListener {
     public void onEvent(@NotNull final GenericEvent event) {
         if (event instanceof ButtonInteractionEvent btn) {
             onButtonInteraction(btn);
-        } else if (event instanceof SelectMenuInteractionEvent sEvent) {
+        } else if (event instanceof GenericSelectMenuInteractionEvent sEvent) {
             onSelectMenuInteraction(sEvent);
         } else if (event instanceof ModalInteractionEvent mEvent) {
             onModalInteraction(mEvent);
@@ -149,7 +150,8 @@ public class ComponentManager implements EventListener {
         }
     }
 
-    public void onSelectMenuInteraction(@NotNull final SelectMenuInteractionEvent event) {
+    // TODO - fix the generics
+    public void onSelectMenuInteraction(@NotNull final GenericSelectMenuInteractionEvent event) {
         try {
             if (event.getSelectMenu().getId() != null) {
                 final var buttonArguments = event.getSelectMenu().getId().split(ID_SPLITTER);
@@ -163,7 +165,7 @@ public class ComponentManager implements EventListener {
                         listener.onSelectMenuInteraction(new SelectMenuInteractionContext() {
                             @NotNull
                             @Override
-                            public SelectMenuInteractionEvent getEvent() {
+                            public GenericSelectMenuInteractionEvent getEvent() {
                                 return event;
                             }
 

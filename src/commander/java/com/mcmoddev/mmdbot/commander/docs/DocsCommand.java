@@ -42,6 +42,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectInteraction;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
@@ -101,7 +102,7 @@ public class DocsCommand extends SlashCommand {
     }
 
     protected void onSelectMenuInteraction(final SelectMenuInteractionContext context) {
-        final var event = context.getEvent();
+        if (!(context.getEvent().getInteraction() instanceof StringSelectInteraction event)) return;
         final var data = MultipleResultsButtonData.fromArguments(context.getArguments());
         context.getEvent().deferEdit().queue();
         if (event.getUser().getIdLong() != data.userId()) return;

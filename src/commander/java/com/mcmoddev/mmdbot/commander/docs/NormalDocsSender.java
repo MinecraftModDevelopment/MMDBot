@@ -37,6 +37,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
@@ -208,7 +209,7 @@ public class NormalDocsSender implements DocsSender {
         return grouped.entrySet().stream()
             .limit(5)
             .map(it ->
-                SelectMenu.create(id.toString())
+                StringSelectMenu.create(id.toString())
                     .addOptions(it.getValue().stream().limit(25).collect(toList()))
                     .setPlaceholder(StringUtils.capitalize(it.getKey().name().toLowerCase(Locale.ROOT)))
                     .build()
