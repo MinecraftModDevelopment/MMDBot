@@ -66,12 +66,14 @@ public final class MinecraftUpdateNotifier extends UpdateNotifier<MinecraftVersi
         }
         final var embed = new EmbedBuilder();
         if (!oldVersion.release().equals(newVersion.release())) {
+            // https://www.minecraft.net/en-us/article/minecraft-java-edition-1-18-1
             embed.setTitle("New Minecraft release available!");
-            embed.setDescription(newVersion.release());
+            embed.setDescription(newVersion.release() + "\nChangelog: " + "https://www.minecraft.net/en-us/article/minecraft-java-edition-%s".formatted(newVersion.release().replace('.', '-')));
             embed.setColor(Color.GREEN);
         } else {
+            // https://www.minecraft.net/en-us/article/minecraft-snapshot-23w07a
             embed.setTitle("New Minecraft snapshot available!");
-            embed.setDescription(newVersion.snapshot());
+            embed.setDescription(newVersion.snapshot() + "\nChangelog: " + "https://www.minecraft.net/en-us/article/minecraft-snapshot-%s".formatted(newVersion.snapshot()));
             embed.setColor(Color.CYAN);
         }
         return embed;
