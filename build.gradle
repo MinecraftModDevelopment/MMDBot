@@ -183,7 +183,7 @@ tasks.named('shadowJar', ShadowJar).configure {
   configurations = [project.configurations.global]
   configurations.addAll(bySourceSetConfigurations.values())
   manifest.attributes(makeManifestAttributes(application.getMainClass().get()))
-  classifier 'all'
+  archiveClassifier.set 'all'
   group 'build'
   description 'Builds the whole project with its dependencies.'
   dependsOn tasks.named('updateLicenses')
@@ -193,7 +193,7 @@ tasks.named(JavaPlugin.JAR_TASK_NAME, Jar).configure {
   from sourceSets.main.output
   from sourceSets.core.output
   manifest.attributes(makeManifestAttributes(application.getMainClass().get()))
-  classifier 'core-no-deps'
+  archiveClassifier.set 'core-no-deps'
   description 'Builds the core sourceSet without its dependencies.'
   dependsOn tasks.named('updateLicenses')
 }
@@ -206,7 +206,7 @@ void configureBotJar(String botName, SourceSet sourceSet) {
     exclude 'META-INF/*.SF'
     exclude 'META-INF/*.DSA'
     exclude 'META-INF/*.RSA'
-    classifier(botName)
+    archiveClassifier.set(botName)
     manifest.attributes(makeManifestAttributes('com.mcmoddev.mmdbot.core.OnlyOneBotRunner'))
     configurations.add(project.configurations.global)
     configurations.add((Configuration) bySourceSetConfigurations.get(sourceSet))
@@ -218,7 +218,7 @@ void configureBotJar(String botName, SourceSet sourceSet) {
     from sourceSets.main.output
     from sourceSets.core.output
     from sourceSet.output
-    classifier "${botName}-no-deps"
+    archiveClassifier.set "${botName}-no-deps"
     manifest.attributes(makeManifestAttributes('com.mcmoddev.mmdbot.core.OnlyOneBotRunner'))
     group 'build'
     description "Builds the bot $botName without its dependencies."
