@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.thelistener.events;
 
 import club.minnced.discord.webhook.send.AllowedMentions;
+import com.google.errorprone.annotations.CheckReturnValue;
 import com.mcmoddev.mmdbot.core.event.moderation.WarningEvent;
 import com.mcmoddev.mmdbot.core.util.webhook.WebhookManager;
 import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
@@ -37,22 +38,26 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.events.guild.GuildAuditLogEntryCreateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.ErrorResponse;
+import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.Color;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 
 import static com.mcmoddev.mmdbot.thelistener.TheListener.getInstance;
-import static java.util.Objects.requireNonNull;
 import static java.util.Objects.requireNonNullElse;
 
 public final class ModerationEvents extends ListenerAdapter {
 
     public static final ModerationEvents INSTANCE = new ModerationEvents();
+    private static final Logger LOGGER = LoggerFactory.getLogger(ModerationEvents.class);
 
     private static final String WEBHOOK_NAME = "ModerationLogs";
     private static final WebhookManager WEBHOOKS = WebhookManager.of(e
@@ -70,22 +75,51 @@ public final class ModerationEvents extends ListenerAdapter {
         final ActionType type = entry.getType();
 
         switch (type) {
-            case BAN -> this.onBan(entry);
-            case UNBAN -> this.onUnban(entry);
+            case BAN -> retrieveUsers(entry, this::onBan).queue();
+            case UNBAN -> retrieveUsers(entry, this::onUnban).queue();
             case MEMBER_UPDATE -> {
                 final @Nullable AuditLogChange nicknameChange = entry.getChangeByKey(AuditLogKey.MEMBER_NICK);
-                if (nicknameChange != null) this.onNicknameUpdate(entry, nicknameChange);
+                if (nicknameChange != null) retrieveUsers(entry,
+                    (target, actor, auditEntry) -> this.onNicknameUpdate(target, actor, auditEntry, nicknameChange)).queue();
 
                 final @Nullable AuditLogChange timeoutChange = entry.getChangeByKey(AuditLogKey.MEMBER_TIME_OUT);
-                if (timeoutChange != null) this.onTimeoutUpdate(entry, timeoutChange);
+                if (timeoutChange != null) retrieveUsers(entry,
+                    (target, actor, auditEntry) -> this.onTimeoutUpdate(target, actor, auditEntry, timeoutChange)).queue();
             }
-            case KICK -> this.onKick(entry);
+            case KICK -> retrieveUsers(entry, this::onKick).queue();
         }
     }
 
-    public void onBan(final AuditLogEntry entry) {
-        final User bannedUser = requireNonNull(entry.getJDA().getUserById(entry.getTargetId()));
-        final User bannedBy = requireNonNull(entry.getJDA().getUserById(entry.getUserIdLong()));
+    @FunctionalInterface
+    private interface AuditLogEntryHandler {
+        void handle(final User target, final User actor, final AuditLogEntry entry);
+    }
+
+    @CheckReturnValue
+    private RestAction<Void> retrieveUsers(final AuditLogEntry entry, final AuditLogEntryHandler handler) {
+        final String targetId = entry.getTargetId();
+        final String actorId = entry.getUserId();
+
+        final RestAction<@Nullable User> targetRestAction = entry.getJDA().retrieveUserById(targetId)
+            .onErrorMap(ErrorResponse.UNKNOWN_USER::test, e -> {
+                LOGGER.error("Could not retrieve target user for ID {}", targetId);
+                return null;
+            });
+        final RestAction<@Nullable User> actorRestAction = entry.getJDA().retrieveUserById(actorId)
+            .onErrorMap(ErrorResponse.UNKNOWN_USER::test, e -> {
+                LOGGER.error("Could not retrieve actor user for ID {}", actorId);
+                return null;
+            });
+
+        return targetRestAction.and(actorRestAction, (targetUser, actorUser) -> {
+            if (targetUser != null && actorUser != null) {
+                handler.handle(targetUser, actorUser, entry);
+            }
+            return null;
+        });
+    }
+
+    public void onBan(final User bannedUser, final User bannedBy, final AuditLogEntry entry) {
         final var reason = requireNonNullElse(entry.getReason(),
             "_Reason for ban was not provided or could not be found; "
                 + "please contact a member of staff for more information about this ban._");
@@ -101,10 +135,7 @@ public final class ModerationEvents extends ListenerAdapter {
         log(entry.getGuild().getIdLong(), entry.getJDA(), embed.build(), bannedBy);
     }
 
-    public void onUnban(final AuditLogEntry entry) {
-        final User unBannedUser = requireNonNull(entry.getJDA().getUserById(entry.getTargetId()));
-        final User bannedBy = requireNonNull(entry.getJDA().getUserById(entry.getUserIdLong()));
-
+    public void onUnban(final User unBannedUser, final User bannedBy, final AuditLogEntry entry) {
         final var embed = new EmbedBuilder();
         embed.setColor(Color.GREEN);
         embed.setTitle("User Un-banned.");
@@ -115,10 +146,7 @@ public final class ModerationEvents extends ListenerAdapter {
         log(entry.getGuild().getIdLong(), entry.getJDA(), embed.build(), bannedBy);
     }
 
-    public void onNicknameUpdate(final AuditLogEntry entry, final AuditLogChange nicknameChange) {
-        final User target = requireNonNull(entry.getJDA().getUserById(entry.getTargetId()));
-        final User editor = requireNonNull(entry.getJDA().getUserById(entry.getUserIdLong()));
-
+    public void onNicknameUpdate(final User target, final User editor, final AuditLogEntry entry, final AuditLogChange nicknameChange) {
         final var embed = new EmbedBuilder();
         embed.setColor(Color.YELLOW);
         embed.setTitle("Nickname Changed");
@@ -135,10 +163,7 @@ public final class ModerationEvents extends ListenerAdapter {
         return MarkdownSanitizer.escape(nicknameValue);
     }
 
-    public void onKick(final AuditLogEntry entry) {
-        final User kickedUser = requireNonNull(entry.getJDA().getUserById(entry.getTargetId()));
-        final User kicker = requireNonNull(entry.getJDA().getUserById(entry.getUserIdLong()));
-
+    public void onKick(final User kickedUser, final User kicker, final AuditLogEntry entry) {
         final var embed = new EmbedBuilder();
         if (kicker.isBot()) {
             var botKickMessage = kickedUser.getAsTag() + " was kicked! Kick Reason: " + entry.getReason();
@@ -158,11 +183,9 @@ public final class ModerationEvents extends ListenerAdapter {
         }
     }
 
-    public void onTimeoutUpdate(final AuditLogEntry entry, final AuditLogChange timeoutChange) {
+    public void onTimeoutUpdate(final User user, final User moderator, final AuditLogEntry entry, final AuditLogChange timeoutChange) {
         final OffsetDateTime oldTimeoutEnd = parseDateTime(timeoutChange.getOldValue());
         final OffsetDateTime newTimeoutEnd = parseDateTime(timeoutChange.getNewValue());
-        final User user = requireNonNull(entry.getJDA().getUserById(entry.getTargetId()));
-        final User moderator = requireNonNull(entry.getJDA().getUserById(entry.getUserIdLong()));
 
         if (oldTimeoutEnd == null && newTimeoutEnd != null) {
             // Somebody was timed out!

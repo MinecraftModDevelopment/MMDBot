@@ -34,7 +34,9 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.guild.GuildAuditLogEntryCreateEvent;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -56,21 +58,21 @@ public final class RoleEvents extends ListenerAdapter {
         final AuditLogEntry entry = event.getEntry();
         if (entry.getType() != ActionType.MEMBER_ROLE_UPDATE) return;
 
-        final @Nullable Member targetMember = event.getGuild().getMemberById(entry.getTargetIdLong());
-        if (targetMember == null) {
-            LOGGER.warn("Could not find target member with ID {} for log entry {}", entry.getTargetId(), entry);
-            return;
-        }
+        event.getGuild().retrieveMemberById(entry.getTargetId())
+            .queue(targetMember -> {
+                    final List<Role> addedRoles = parseRoles(entry, AuditLogKey.MEMBER_ROLES_ADD);
+                    if (!addedRoles.isEmpty()) {
+                        processEvent(entry, targetMember, "Added", addedRoles, List::removeAll);
+                    }
 
-        final List<Role> addedRoles = parseRoles(entry, AuditLogKey.MEMBER_ROLES_ADD);
-        if (!addedRoles.isEmpty()) {
-            processEvent(entry, targetMember, "Added", addedRoles, List::removeAll);
-        }
-
-        final List<Role> removedRoles = parseRoles(entry, AuditLogKey.MEMBER_ROLES_REMOVE);
-        if (!removedRoles.isEmpty()) {
-            processEvent(entry, targetMember, "Removed", removedRoles, List::addAll);
-        }
+                    final List<Role> removedRoles = parseRoles(entry, AuditLogKey.MEMBER_ROLES_REMOVE);
+                    if (!removedRoles.isEmpty()) {
+                        processEvent(entry, targetMember, "Removed", removedRoles, List::addAll);
+                    }
+                }, new ErrorHandler()
+                    .handle(List.of(ErrorResponse.UNKNOWN_MEMBER, ErrorResponse.UNKNOWN_USER),
+                        e -> LOGGER.warn("Could not find target member with ID {} for log entry {}", entry.getTargetId(), entry))
+            );
     }
 
     private static List<Role> parseRoles(final AuditLogEntry entry, AuditLogKey logKey) {
@@ -128,20 +130,26 @@ public final class RoleEvents extends ListenerAdapter {
             .setFooter("User ID: " + target.getUser().getId(), target.getEffectiveAvatarUrl())
             .setTimestamp(entry.getTimeCreated());
 
-        final @Nullable var editor = jda.getUserById(entry.getUserIdLong());
-        if (editor == null) {
-            embed.addField("Editor:", editor.getAsTag(), true);
-        }
+        jda.retrieveUserById(entry.getUserIdLong())
+            .onErrorMap(ErrorResponse.UNKNOWN_USER::test, e -> {
+                LOGGER.warn("Could not retrieve editor user with ID {} for log entry {}", entry.getUserId(), entry);
+                return null;
+            })
+            .queue(editor -> {
+                if (editor == null) {
+                    embed.addField("Editor:", editor.getAsTag(), true);
+                }
 
-        embed.addField("Previous Role(s):", mentionsOrEmpty(previousRoles), true)
-            .addField(changeType + " Role(s):", mentionsOrEmpty(modifiedRoles), true);
+                embed.addField("Previous Role(s):", mentionsOrEmpty(previousRoles), true)
+                    .addField(changeType + " Role(s):", mentionsOrEmpty(modifiedRoles), true);
 
-        LoggingType.ROLE_EVENTS.getChannels(target.getGuild().getIdLong()).forEach(id -> {
-            final var ch = id.resolve(idL -> jda.getChannelById(MessageChannel.class, idL));
-            if (ch != null) {
-                ch.sendMessageEmbeds(embed.build()).queue();
-            }
-        });
+                LoggingType.ROLE_EVENTS.getChannels(target.getGuild().getIdLong()).forEach(id -> {
+                    final var ch = id.resolve(idL -> jda.getChannelById(MessageChannel.class, idL));
+                    if (ch != null) {
+                        ch.sendMessageEmbeds(embed.build()).queue();
+                    }
+                });
+            });
     }
 
     public static String mentionsOrEmpty(List<? extends IMentionable> list) {
