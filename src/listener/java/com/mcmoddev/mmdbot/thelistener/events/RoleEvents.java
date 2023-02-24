@@ -136,7 +136,7 @@ public final class RoleEvents extends ListenerAdapter {
                 return null;
             })
             .queue(editor -> {
-                if (editor == null) {
+                if (editor != null) {
                     embed.addField("Editor:", editor.getAsTag(), true);
                 }
 
