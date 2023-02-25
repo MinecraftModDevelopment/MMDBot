@@ -23,19 +23,24 @@ package com.mcmoddev.mmdbot.thelistener.events;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.thelistener.TheListener;
 import com.mcmoddev.mmdbot.thelistener.util.LoggingType;
-import com.mcmoddev.mmdbot.thelistener.util.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.audit.ActionType;
+import net.dv8tion.jda.api.audit.AuditLogChange;
 import net.dv8tion.jda.api.audit.AuditLogEntry;
+import net.dv8tion.jda.api.audit.AuditLogKey;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.events.guild.member.GenericGuildMemberEvent;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.events.guild.GuildAuditLogEntryCreateEvent;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -43,43 +48,80 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-import static com.mcmoddev.mmdbot.thelistener.util.Utils.mentionable;
+import static java.util.Objects.requireNonNull;
 
 public final class RoleEvents extends ListenerAdapter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RoleEvents.class);
 
     @Override
-    public void onGuildMemberRoleAdd(@NotNull final GuildMemberRoleAddEvent event) {
-        processEvent(event, "Added", event.getRoles(), List::removeAll); // Just in case if the member has already been updated with its new role list
+    public void onGuildAuditLogEntryCreate(@NotNull final GuildAuditLogEntryCreateEvent event) {
+        final AuditLogEntry entry = event.getEntry();
+        if (entry.getType() != ActionType.MEMBER_ROLE_UPDATE) return;
+
+        event.getGuild().retrieveMemberById(entry.getTargetId())
+            .queue(targetMember -> {
+                    final List<Role> addedRoles = parseRoles(entry, AuditLogKey.MEMBER_ROLES_ADD);
+                    if (!addedRoles.isEmpty()) {
+                        processEvent(entry, targetMember, "Added", addedRoles, List::removeAll);
+                    }
+
+                    final List<Role> removedRoles = parseRoles(entry, AuditLogKey.MEMBER_ROLES_REMOVE);
+                    if (!removedRoles.isEmpty()) {
+                        processEvent(entry, targetMember, "Removed", removedRoles, List::addAll);
+                    }
+                }, new ErrorHandler()
+                    .handle(List.of(ErrorResponse.UNKNOWN_MEMBER, ErrorResponse.UNKNOWN_USER),
+                        e -> LOGGER.warn("Could not find target member with ID {} for log entry {}", entry.getTargetId(), entry))
+            );
     }
 
-    @Override
-    public void onGuildMemberRoleRemove(@NotNull final GuildMemberRoleRemoveEvent event) {
-        processEvent(event, "Removed", event.getRoles(), List::addAll); // Just in case if the member has already been updated with its new role list
+    private static List<Role> parseRoles(final AuditLogEntry entry, AuditLogKey logKey) {
+        final @Nullable AuditLogChange change = entry.getChangeByKey(logKey);
+
+        if (change == null) return List.of();
+
+        // https://discord.com/developers/docs/resources/audit-log#audit-log-change-object-audit-log-change-exceptions
+        // The added/removed roles are marked in the new_value property of the audit log change
+
+        final List<String> roleIds = requireNonNull(change.getNewValue());
+        final List<Role> roles = new ArrayList<>(roleIds.size());
+        final JDA jda = entry.getJDA();
+
+        for (String roleId : roleIds) {
+            final @Nullable Role roleById = jda.getRoleById(roleId);
+            if (roleById == null) {
+                LOGGER.warn("Could not find role with ID {} while parsing change key {} for log entry {}", roleId, logKey, entry);
+                continue;
+            }
+            roles.add(roleById);
+        }
+
+        return roles;
     }
 
-    private static void processEvent(GenericGuildMemberEvent event, String changeType, List<Role> modifiedRoles,
+    private static void processEvent(AuditLogEntry entry, Member member, String changeType, List<Role> modifiedRoles,
                                      BiConsumer<List<Role>, List<Role>> roleListsConsumer) {
         // The role list consumer allows the caller to update the previous roles list with the modified roles list,
         // to guard against the case where the target's roles list has been updated before we receive the event
         // We could also check JDA's impl to see if the event always fires before the target's roles list is updated and
         // get rid of this, but :shrug:
+        final var guild = member.getGuild();
 
         final var roleIds = modifiedRoles.stream().map(Role::getIdLong).toList();
-        final var noLoggingRoles = TheListener.getInstance().getConfigForGuild(event.getGuild().getIdLong()).getNoLoggingRoles();
+        final var noLoggingRoles = TheListener.getInstance().getConfigForGuild(guild.getIdLong()).getNoLoggingRoles();
         if (noLoggingRoles.stream().map(SnowflakeValue::asLong).anyMatch(roleIds::contains)) {
             return;
         }
 
-        final List<Role> previousRoles = new ArrayList<>(event.getMember().getRoles());
+        final List<Role> previousRoles = new ArrayList<>(member.getRoles());
         roleListsConsumer.accept(previousRoles, modifiedRoles);
 
-        final var target = event.getMember();
-        Utils.getAuditLog(event.getGuild(), target.getIdLong(), log -> log.type(ActionType.MEMBER_ROLE_UPDATE).limit(5),
-            entry -> buildAndSendMessage(event, entry, target, changeType, previousRoles, modifiedRoles));
+        buildAndSendMessage(entry, member, changeType, previousRoles, modifiedRoles);
     }
 
-    private static void buildAndSendMessage(GenericGuildMemberEvent event, AuditLogEntry entry, Member target, String changeType,
+    private static void buildAndSendMessage(AuditLogEntry entry, Member target, String changeType,
                                             List<Role> previousRoles, List<Role> modifiedRoles) {
+        final var jda = target.getJDA();
         final var embed = new EmbedBuilder();
 
         embed.setTitle("User Role(s) " + changeType)
@@ -88,25 +130,26 @@ public final class RoleEvents extends ListenerAdapter {
             .setFooter("User ID: " + target.getUser().getId(), target.getEffectiveAvatarUrl())
             .setTimestamp(entry.getTimeCreated());
 
-        final var targetId = entry.getTargetIdLong();
+        jda.retrieveUserById(entry.getUserIdLong())
+            .onErrorMap(ErrorResponse.UNKNOWN_USER::test, e -> {
+                LOGGER.warn("Could not retrieve editor user with ID {} for log entry {}", entry.getUserId(), entry);
+                return null;
+            })
+            .queue(editor -> {
+                if (editor != null) {
+                    embed.addField("Editor:", editor.getAsTag(), true);
+                }
 
-        if (targetId != target.getIdLong()) {
-            TheListener.LOGGER.warn("Inconsistency between target of retrieved audit log entry and actual role event target: " +
-                "retrieved is {}, but target is {}", targetId, target);
-        } else if (entry.getUser() != null) {
-            final var editor = entry.getUser();
-            embed.addField("Editor:", editor.getAsTag(), true);
-        }
+                embed.addField("Previous Role(s):", mentionsOrEmpty(previousRoles), true)
+                    .addField(changeType + " Role(s):", mentionsOrEmpty(modifiedRoles), true);
 
-        embed.addField("Previous Role(s):", mentionsOrEmpty(previousRoles), true);
-        embed.addField(changeType + " Role(s):", mentionsOrEmpty(modifiedRoles), true);
-
-        LoggingType.ROLE_EVENTS.getChannels(event.getGuild().getIdLong()).forEach(id -> {
-            final var ch = id.resolve(idL -> event.getJDA().getChannelById(MessageChannel.class, idL));
-            if (ch != null) {
-                ch.sendMessageEmbeds(embed.build()).queue();
-            }
-        });
+                LoggingType.ROLE_EVENTS.getChannels(target.getGuild().getIdLong()).forEach(id -> {
+                    final var ch = id.resolve(idL -> jda.getChannelById(MessageChannel.class, idL));
+                    if (ch != null) {
+                        ch.sendMessageEmbeds(embed.build()).queue();
+                    }
+                });
+            });
     }
 
     public static String mentionsOrEmpty(List<? extends IMentionable> list) {
