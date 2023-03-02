@@ -459,6 +459,7 @@ public final class TheCommander implements Bot {
                 .disableCache(CacheFlag.ONLINE_STATUS)
                 .disableCache(CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY)
+                .disableCache(CacheFlag.SCHEDULED_EVENTS)
                 .setEnabledIntents(INTENTS);
             EventListeners.register(builder::addEventListeners);
             jda = builder.build().awaitReady();

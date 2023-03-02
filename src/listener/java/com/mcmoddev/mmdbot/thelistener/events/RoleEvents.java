@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -83,14 +84,14 @@ public final class RoleEvents extends ListenerAdapter {
         // https://discord.com/developers/docs/resources/audit-log#audit-log-change-object-audit-log-change-exceptions
         // The added/removed roles are marked in the new_value property of the audit log change
 
-        final List<String> roleIds = requireNonNull(change.getNewValue());
-        final List<Role> roles = new ArrayList<>(roleIds.size());
+        final List<Map<String, String>> roleDatas = requireNonNull(change.getNewValue());
+        final List<Role> roles = new ArrayList<>(roleDatas.size());
         final JDA jda = entry.getJDA();
 
-        for (String roleId : roleIds) {
-            final @Nullable Role roleById = jda.getRoleById(roleId);
+        for (final Map<String, String> roleData : roleDatas) {
+            final @Nullable Role roleById = jda.getRoleById(roleData.get("id"));
             if (roleById == null) {
-                LOGGER.warn("Could not find role with ID {} while parsing change key {} for log entry {}", roleId, logKey, entry);
+                LOGGER.warn("Could not find role with ID {} while parsing change key {} for log entry {}", roleData, logKey, entry);
                 continue;
             }
             roles.add(roleById);

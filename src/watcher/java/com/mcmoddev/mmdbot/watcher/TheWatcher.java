@@ -297,6 +297,7 @@ public final class TheWatcher implements Bot {
                 .disableCache(CacheFlag.ONLINE_STATUS)
                 .disableCache(CacheFlag.VOICE_STATE)
                 .disableCache(CacheFlag.ACTIVITY)
+                .disableCache(CacheFlag.SCHEDULED_EVENTS)
                 .enableCache(CacheFlag.FORUM_TAGS)
                 .setEnabledIntents(INTENTS);
             if (oldConfig.hasActivity()) builder.setActivity(Activity.of(oldConfig.getActivityType(), oldConfig.getActivityName()));
