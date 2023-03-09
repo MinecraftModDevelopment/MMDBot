@@ -71,10 +71,28 @@ public final class MinecraftUpdateNotifier extends UpdateNotifier<MinecraftVersi
             embed.setDescription(newVersion.release() + "\nChangelog: " + "https://www.minecraft.net/en-us/article/minecraft-java-edition-%s".formatted(newVersion.release().replace('.', '-')));
             embed.setColor(Color.GREEN);
         } else {
-            // https://www.minecraft.net/en-us/article/minecraft-snapshot-23w07a
-            embed.setTitle("New Minecraft snapshot available!");
-            embed.setDescription(newVersion.snapshot() + "\nChangelog: " + "https://www.minecraft.net/en-us/article/minecraft-snapshot-%s".formatted(newVersion.snapshot()));
-            embed.setColor(Color.CYAN);
+            if (newVersion.snapshot().contains("-rc")) {
+                // https://www.minecraft.net/en-us/article/minecraft-1-19-4-release-candidate-1
+                embed.setTitle("New Minecraft Release Candidate available!");
+                final String[] split = newVersion.snapshot().split("-");
+                embed.setDescription(newVersion.snapshot() + "\nChangelog: "
+                    + "https://www.minecraft.net/en-us/article/minecraft-%s-release-candidate-%s"
+                    .formatted(split[0].replace('.', '-'), split[1].substring(2)));
+                embed.setColor(Color.PINK);
+            } else if (newVersion.snapshot().contains("-pre")) {
+                // https://www.minecraft.net/en-us/article/minecraft-1-19-4-pre-release-2
+                embed.setTitle("New Minecraft Pre-Release available!");
+                final String[] split = newVersion.snapshot().split("-");
+                embed.setDescription(newVersion.snapshot() + "\nChangelog: "
+                    + "https://www.minecraft.net/en-us/article/minecraft-%s-pre-release-%s"
+                    .formatted(split[0].replace('.', '-'), split[1].substring(3)));
+                embed.setColor(Color.ORANGE);
+            } else {
+                // https://www.minecraft.net/en-us/article/minecraft-snapshot-23w07a
+                embed.setTitle("New Minecraft snapshot available!");
+                embed.setDescription(newVersion.snapshot() + "\nChangelog: " + "https://www.minecraft.net/en-us/article/minecraft-snapshot-%s".formatted(newVersion.snapshot()));
+                embed.setColor(Color.CYAN);
+            }
         }
         return embed;
     }
