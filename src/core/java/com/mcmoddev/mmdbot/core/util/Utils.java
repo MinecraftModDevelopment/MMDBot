@@ -22,12 +22,15 @@ package com.mcmoddev.mmdbot.core.util;
 
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -120,5 +123,15 @@ public final class Utils {
     public static String rgbToString(int rgb) {
         // toHexString returns an ARGB color
         return "#" + Integer.toHexString(rgb).substring(2);
+    }
+
+    public static <T> HttpResponse.BodyHandler<T> ofGson(Gson gson, TypeToken<T> token) {
+        return responseInfo -> HttpResponse.BodySubscribers.mapping(
+            HttpResponse.BodySubscribers.ofInputStream(),
+            io.github.matyrobbrt.curseforgeapi.util.Utils.rethrowFunction(stream -> {
+                final InputStreamReader reader = new InputStreamReader(stream);
+                return gson.fromJson(reader, token);
+            })
+        );
     }
 }

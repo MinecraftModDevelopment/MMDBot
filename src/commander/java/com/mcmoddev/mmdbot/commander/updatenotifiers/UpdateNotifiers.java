@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.commander.updatenotifiers;
 
+import com.mcmoddev.mmdbot.commander.updatenotifiers.blockbench.BlockbenchUpdateNotifier;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.fabric.FabricApiUpdateNotifier;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.forge.ForgeUpdateNotifier;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.minecraft.MinecraftUpdateNotifier;
@@ -55,15 +56,16 @@ public class UpdateNotifiers {
         }
         wasRegistered = true;
         Events.MISC_BUS.addListener((TaskScheduler.CollectTasksEvent event) -> {
-            final var checkingPeriod = 15;
+            final long checkingPeriod = 15;
             LOGGER.info("Checking for Minecraft, Forge, Quilt and Fabric updates every {} minutes.", checkingPeriod);
             event.addTask(new MinecraftUpdateNotifier(), 0, checkingPeriod, TimeUnit.MINUTES);
             event.addTask(new ForgeUpdateNotifier(), 0, checkingPeriod, TimeUnit.MINUTES);
             event.addTask(new QuiltUpdateNotifier(), 0, checkingPeriod, TimeUnit.MINUTES);
             event.addTask(new FabricApiUpdateNotifier(), 0, checkingPeriod, TimeUnit.MINUTES);
 
-            LOGGER.info("Checking for Parchment updates every hour.");
+            LOGGER.info("Checking for Parchment and Blockbench updates every hour.");
             event.addTask(new ParchmentUpdateNotifier(), 0, 1, TimeUnit.HOURS);
+            event.addTask(new BlockbenchUpdateNotifier(), 0, 1, TimeUnit.HOURS);
         });
     }
 }

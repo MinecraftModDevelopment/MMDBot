@@ -178,6 +178,15 @@ public final class Configuration {
             public List<SnowflakeValue> minecraft() {
                 return minecraft;
             }
+
+            @Required
+            @Setting("blockbench")
+            @Comment("A list of Snowflake IDs of channels in which to send Blockbench update notifiers.")
+            private List<SnowflakeValue> blockbench = new ArrayList<>();
+
+            public List<SnowflakeValue> blockbench() {
+                return blockbench;
+            }
         }
     }
 
