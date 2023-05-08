@@ -82,7 +82,7 @@ public class AutomaticIconChanger implements Runnable {
 
         final var targetColour = configuration.colours().get(nextDay - 1); // Indexes start at 0
 
-        log.warn("Generating and changing server {} icon to colour {}.", guild, Utils.rgbToString(targetColour));
+        //log.warn("Generating and changing server {} icon to colour {}.", guild, Utils.rgbToString(targetColour));
 
         final var logChannelId = guild.getJDA().getChannelById(MessageChannel.class, configuration.logChannelId());
 
