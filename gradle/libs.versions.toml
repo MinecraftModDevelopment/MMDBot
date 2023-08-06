@@ -1,5 +1,5 @@
 [plugins]
-shadow = { id = "com.github.johnrengelman.shadow", version = "7.1.2" }
+shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 licenser = { id = "org.cadixdev.licenser", version = "0.6.1" }
 lombok = { id = "io.freefair.lombok", version = "6.6.3" }
