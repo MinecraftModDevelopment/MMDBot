@@ -286,7 +286,7 @@ flyway {
 
 checkstyle {
   ignoreFailures = true
-  toolVersion = '9.1'
+  toolVersion = '9.3'
   showViolations = false
 }
 
