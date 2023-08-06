@@ -2,7 +2,7 @@
 shadow = { id = "com.github.johnrengelman.shadow", version = "7.1.2" }
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 licenser = { id = "org.cadixdev.licenser", version = "0.6.1" }
-lombok = { id = "io.freefair.lombok", version = "6.6.3" }
+lombok = { id = "io.freefair.lombok", version = "8.1.0" }
 launch4j = { id = 'edu.sc.seis.launch4j', version = '3.0.4' }
 
 [versions]
