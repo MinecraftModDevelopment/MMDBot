@@ -10,7 +10,7 @@ jda = "5.0.0-beta.4"
 # https://github.com/Matyrobbrt/JDA-Chewtils/commit/c2bfe64e447817aa5ddac0dab0f12bcede0fe37d
 # chewtils = "2.0-SNAPSHOT"
 chewtils = "c2bfe64"
-guava = "31.1-jre"
+guava = "32.1.2-jre"
 gson = "2.10.1"
 logback = "1.4.9"
 nightconfig = "3.6.6"
