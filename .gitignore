@@ -9,6 +9,12 @@
 /data/
 /backups/
 /run/
+/thecommander/
+/thewatcher/
+/thepainter/
+/thelistener/
+mmdAvatar.png
+/mmdbot/
 
 #Hidden Directories
 .gradle/

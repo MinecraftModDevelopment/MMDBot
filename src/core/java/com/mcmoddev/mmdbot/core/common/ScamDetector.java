@@ -85,15 +85,15 @@ public class ScamDetector {
     public static void onCollectTasks(final TaskScheduler.CollectTasksEvent event) {
         event.addTask(() -> {
             if (setupScamLinks()) {
-                log.info("Successfully refreshed scam links");
+                //log.info("Successfully refreshed scam links");
             } else {
-                log.warn("Scam links could not be automatically refreshed");
+                //log.warn("Scam links could not be automatically refreshed");
             }
         }, 0, 14, TimeUnit.DAYS);
     }
 
     public static boolean setupScamLinks() {
-        log.info("Setting up scam links! Receiving data from {}.", SCAM_LINKS_DATA_URL);
+        //log.info("Setting up scam links! Receiving data from {}.", SCAM_LINKS_DATA_URL);
         try (var is = new URL(SCAM_LINKS_DATA_URL).openStream()) {
             final String result = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             SCAM_LINKS.clear();
@@ -103,7 +103,7 @@ public class ScamDetector {
                 .toList());
             return true;
         } catch (final IOException e) {
-            log.error("Error while setting up scam links!", e);
+            //log.error("Error while setting up scam links!", e);
         }
         return false;
     }

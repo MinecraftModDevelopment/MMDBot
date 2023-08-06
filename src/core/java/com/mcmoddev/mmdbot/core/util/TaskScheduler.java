@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.core.util;
 
+import com.mcmoddev.mmdbot.core.RunBots;
 import com.mcmoddev.mmdbot.core.event.Events;
 import io.github.matyrobbrt.eventdispatcher.Event;
 import lombok.experimental.UtilityClass;
@@ -113,7 +114,7 @@ public final class TaskScheduler {
                 try {
                     command.run();
                 } catch (Exception exception) {
-                    log.error("Encountered exception trying to run task '{}' scheduled every {} {}: ", command, period, unit, exception);
+                    //log.error("Encountered exception trying to run task '{}' scheduled every {} {}: ", command, period, unit, exception);
                 }
             };
         }

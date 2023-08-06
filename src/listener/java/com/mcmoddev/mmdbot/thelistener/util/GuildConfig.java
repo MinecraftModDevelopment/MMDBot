@@ -107,7 +107,7 @@ public class GuildConfig {
 
     private void onWatch(WatchEvent<?> event) {
         try {
-            log.info("Reloading config {}", configPath);
+            //log.info("Reloading config {}", configPath);
             this.configNode.load();
         } catch (ConfigurateException e) {
             throw new RuntimeException("Failed to reload configuration for guild " + guildId + " after file change", e);
@@ -169,7 +169,7 @@ public class GuildConfig {
         try {
             return sup.get();
         } catch (ConfigurateException e) {
-            log.error("Exception while handling configs.", e);
+            //log.error("Exception while handling configs.", e);
             return onException.get();
         }
     }

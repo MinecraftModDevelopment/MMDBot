@@ -182,7 +182,13 @@ public class RunBots {
                 }
             }
         }, BOT_STARTER_EXECUTOR).whenComplete(($, $$) -> {
-            if (clearCommands) clearCommands(bot.getToken(), botName);
+            if (clearCommands) {
+                try {
+                    clearCommands(bot.getToken(), botName);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
 
             if (bot.blocksStartupThread()) {
                 TaskScheduler.scheduleTask(() -> {
@@ -206,7 +212,7 @@ public class RunBots {
     }
 
     @SneakyThrows
-    private static void clearCommands(String botToken, String botName) {
+    private static void clearCommands(String botToken, String botName) throws InterruptedException {
         LOG.warn("Clearing commands for bot {}...", botName);
         final JDA jda = JDABuilder.createLight(botToken)
             .setEnabledIntents(Set.of())
