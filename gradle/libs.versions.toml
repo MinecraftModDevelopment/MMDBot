@@ -36,7 +36,7 @@ javadocapi = "25c84a4"
 commons-io = "2.13.0"
 caffeine = "3.1.7"
 urldetector = "0.1.23"
-mockito = "4.11.0"
+mockito = "5.4.0"
 jopt = "6.0-alpha-3"
 jsr305 = "3.0.2"
 
