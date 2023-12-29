@@ -24,6 +24,9 @@
     <!--Disable the weird D4J stuffs -->
     <logger name="discord4j.gateway.payload.JacksonPayloadReader" level="ERROR" additivity="false"/>
     <!--Make all useless loggers shut up -->
+    <logger name="net.dv8tion.jda.internal.requests.Requester" level="WARN" additivity="false" />
+    <logger name="net.dv8tion.jda.internal.requests.RateLimiter" level="WARN" additivity="false" />
+    <logger name="io.github.matyrobbrt.asmutils.wrapper.ConsumerWrapper" level="WARN" additivity="false" />
     <logger name="io.netty.buffer.AbstractByteBufAllocator" level="WARN" additivity="false"/>
     <logger name="discord4j.rest.request.RequestStream" level="WARN" additivity="false"/>
     <logger name="reactor.netty.resources.DefaultPooledConnectionProvider" level="WARN" additivity="false"/>
