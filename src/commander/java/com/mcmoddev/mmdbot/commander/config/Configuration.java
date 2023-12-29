@@ -162,6 +162,15 @@ public final class Configuration {
             }
 
             @Required
+            @Setting("neoforge")
+            @Comment("A list of Snowflake IDs of channels in which to send NeoForge update notifiers.")
+            private List<SnowflakeValue> neoforge = new ArrayList<>();
+
+            public List<SnowflakeValue> neoforge() {
+                return neoforge;
+            }
+
+            @Required
             @Setting("parchment")
             @Comment("A list of Snowflake IDs of channels in which to send Parchment update notifiers.")
             private List<SnowflakeValue> parchment = new ArrayList<>();

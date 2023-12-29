@@ -24,6 +24,7 @@ import com.mcmoddev.mmdbot.commander.updatenotifiers.blockbench.BlockbenchUpdate
 import com.mcmoddev.mmdbot.commander.updatenotifiers.fabric.FabricApiUpdateNotifier;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.forge.ForgeUpdateNotifier;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.minecraft.MinecraftUpdateNotifier;
+import com.mcmoddev.mmdbot.commander.updatenotifiers.neoforge.NeoForgeUpdateNotifier;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.parchment.ParchmentUpdateNotifier;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.quilt.QuiltUpdateNotifier;
 import com.mcmoddev.mmdbot.core.event.Events;
@@ -57,9 +58,10 @@ public class UpdateNotifiers {
         wasRegistered = true;
         Events.MISC_BUS.addListener((TaskScheduler.CollectTasksEvent event) -> {
             final long checkingPeriod = 15;
-            LOGGER.info("Checking for Minecraft, Forge, Quilt and Fabric updates every {} minutes.", checkingPeriod);
+            LOGGER.info("Checking for Minecraft, Forge, NeoForge, Quilt and Fabric updates every {} minutes.", checkingPeriod);
             event.addTask(new MinecraftUpdateNotifier(), 0, checkingPeriod, TimeUnit.MINUTES);
             event.addTask(new ForgeUpdateNotifier(), 0, checkingPeriod, TimeUnit.MINUTES);
+            event.addTask(new NeoForgeUpdateNotifier(), 0, checkingPeriod, TimeUnit.MINUTES);
             event.addTask(new QuiltUpdateNotifier(), 0, checkingPeriod, TimeUnit.MINUTES);
             event.addTask(new FabricApiUpdateNotifier(), 0, checkingPeriod, TimeUnit.MINUTES);
 

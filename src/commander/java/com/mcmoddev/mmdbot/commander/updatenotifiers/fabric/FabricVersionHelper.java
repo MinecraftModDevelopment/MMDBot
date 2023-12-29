@@ -22,19 +22,10 @@ package com.mcmoddev.mmdbot.commander.updatenotifiers.fabric;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.SharedVersionHelpers;
 import lombok.experimental.UtilityClass;
-import org.xml.sax.SAXException;
 
 import javax.annotation.Nullable;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
@@ -120,21 +111,6 @@ public final class FabricVersionHelper extends SharedVersionHelpers {
      */
     @Nullable
     public static String getLatestApi() {
-        final InputStream stream = getStream(API_URL);
-        if (stream == null) {
-            return null;
-        }
-        try {
-            final var doc = DocumentBuilderFactory.newInstance()
-                .newDocumentBuilder()
-                .parse(stream);
-            final XPathExpression expr = XPathFactory.newInstance()
-                .newXPath()
-                .compile("/metadata/versioning/latest/text()");
-            return expr.evaluate(doc);
-        } catch (SAXException | XPathExpressionException | ParserConfigurationException | IOException ex) {
-            TheCommander.LOGGER.error("Failed to resolve latest Fabric API version", ex);
-        }
-        return null;
+        return SharedVersionHelpers.getLatestFromMavenMetadata(API_URL);
     }
 }

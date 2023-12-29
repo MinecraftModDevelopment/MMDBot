@@ -21,13 +21,20 @@
 package com.mcmoddev.mmdbot.commander.updatenotifiers;
 
 import com.mcmoddev.mmdbot.commander.TheCommander;
+import org.xml.sax.SAXException;
 
 import javax.annotation.Nullable;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Pattern;
 
 /**
  * Helper methods for the Fabric and Quilt mod loader.
@@ -55,6 +62,31 @@ public class SharedVersionHelpers {
             TheCommander.LOGGER.error("Failed to open input stream", ex);
             return null;
         }
+    }
+
+    public static String getLatestFromMavenMetadata(String url) {
+        final InputStream stream = getStream(url);
+        if (stream == null) {
+            return null;
+        }
+        try {
+            final var doc = DocumentBuilderFactory.newInstance()
+                .newDocumentBuilder()
+                .parse(stream);
+            final XPathExpression expr = XPathFactory.newInstance()
+                .newXPath()
+                .compile("/metadata/versioning/latest/text()");
+            return expr.evaluate(doc);
+        } catch (SAXException | XPathExpressionException | ParserConfigurationException | IOException ex) {
+            TheCommander.LOGGER.error("Failed to resolve latest version from url '{}'", url, ex);
+        }
+        return null;
+    }
+
+    public static String replaceGitHubReferences(String changelog, String repo) {
+        return changelog.replaceAll("\\(#(?<number>\\d+)\\)", "[(#$1)](https://github.com/" + repo + "/pull/$1)")
+            .replaceAll("(?m)^ - ", "- ")
+            .replaceAll("(?mi)(?<type>(?:close|fix|resolve)(?:s|d|es|ed)?) #(?<number>\\d+)", "$1 [#$2](https://github.com/" + repo + "/issues/$2)");
     }
 
     /**

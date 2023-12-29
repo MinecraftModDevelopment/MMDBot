@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.commander.updatenotifiers.forge;
 
 import com.mcmoddev.mmdbot.commander.config.Configuration;
+import com.mcmoddev.mmdbot.commander.updatenotifiers.SharedVersionHelpers;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifier;
 import com.mcmoddev.mmdbot.commander.util.StringSerializer;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -106,15 +107,17 @@ public final class ForgeUpdateNotifier extends UpdateNotifier<MinecraftForgeVers
 
     private static void addChangelog(EmbedBuilder embedBuilder, String mcStart, String forgeStart, String mcEnd, String forgeEnd) {
         try {
-            final var changelog = getChangelogBetweenVersions(
+            String changelog = getChangelogBetweenVersions(
                 mcStart, forgeStart, mcEnd, forgeEnd
             );
             if (changelog.isBlank()) return;
+
+            changelog = SharedVersionHelpers.replaceGitHubReferences(changelog, "MinecraftForge/MinecraftForge");
+
             embedBuilder.setDescription("""
                 [Changelog](%s):
-                ```
                 %s
-                ```""".formatted(
+                """.formatted(
                 CHANGELOG_URL_TEMPLATE.formatted(mcEnd, forgeEnd), changelog
             ));
         } catch (IOException ignored) {
