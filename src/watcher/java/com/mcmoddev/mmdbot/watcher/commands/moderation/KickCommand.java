@@ -76,7 +76,7 @@ public final class KickCommand extends Command {
                 final String kickReason;
                 if (!mentioned && !(args.length > 1)) {
                     kickReason = "Reason for kick could not be found or was not provided, please contact "
-                        + author.getUser().getAsTag() + " - (" + author.getId() + ")";
+                        + author.getUser().getName() + " - (" + author.getId() + ")";
                 } else {
                     kickReason = mentioned ? event.getArgs() : event.getArgs().substring(args[0].length() + 1);
                 }

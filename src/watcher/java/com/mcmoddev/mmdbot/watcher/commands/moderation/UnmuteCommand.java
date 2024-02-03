@@ -91,7 +91,7 @@ public final class UnmuteCommand extends SlashCommand {
             return;
         }
 
-        guild.removeTimeout(user).reason("Timeout removed at the request of " + event.getUser().getAsTag()).queue();
+        guild.removeTimeout(user).reason("Timeout removed at the request of " + event.getUser().getName()).queue();
 
         final var muteEmbed = new EmbedBuilder().setColor(Color.DARK_GRAY)
             .setTitle(user.getEffectiveName() + " has been un-muted!").setTimestamp(Instant.now())

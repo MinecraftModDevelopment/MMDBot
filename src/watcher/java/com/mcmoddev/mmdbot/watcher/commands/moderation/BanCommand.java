@@ -77,7 +77,7 @@ public final class BanCommand extends Command {
                 final String banReason;
                 if (!(args.length > 1)) {
                     banReason = "Reason for ban could not be found or was not provided, please contact "
-                        + event.getMember().getUser().getAsTag() + " - (" + event.getMember().getId() + ")";
+                        + event.getMember().getUser().getName() + " - (" + event.getMember().getId() + ")";
                 } else {
                     banReason = event.getArgs().substring(args[0].length() + 1);
                 }
@@ -98,7 +98,7 @@ public final class BanCommand extends Command {
                     unit = TimeUnit.MINUTES;
                 }
 
-                final String auditReason = "Ban issued by " + event.getAuthor().getAsTag() + ": " + banReason;
+                final String auditReason = "Ban issued by " + event.getAuthor().getName() + ": " + banReason;
                 if (!event.getArgs().contains("-d")) {
                     event.getGuild().ban(member, 0, TimeUnit.DAYS).reason(auditReason).queue();
                 } else {

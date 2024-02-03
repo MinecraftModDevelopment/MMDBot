@@ -78,7 +78,7 @@ public final class ReferencingListener extends ListenerAdapter {
         final var embed = new EmbedBuilder().setTimestamp(message.getTimeCreated())
             .setColor(Color.DARK_GRAY);
         if (hasAuthor) {
-            embed.setAuthor(message.getAuthor().getAsTag(), msgLink, message.getAuthor().getEffectiveAvatarUrl());
+            embed.setAuthor(message.getAuthor().getName(), msgLink, message.getAuthor().getEffectiveAvatarUrl());
         }
         if (!message.getContentRaw().isBlank()) {
             embed.appendDescription(MarkdownUtil.maskedLink("Reference ➤ ", msgLink))
@@ -87,7 +87,7 @@ public final class ReferencingListener extends ListenerAdapter {
             embed.appendDescription(MarkdownUtil.maskedLink("Jump to referenced message.", msgLink));
         }
         if (quoter.getIdLong() != message.getAuthor().getIdLong()) {
-            embed.setFooter(quoter.getUser().getAsTag() + " referenced", quoter.getEffectiveAvatarUrl());
+            embed.setFooter(quoter.getUser().getName() + " referenced", quoter.getEffectiveAvatarUrl());
         }
         if (!message.getAttachments().isEmpty()) {
             embed.setImage(message.getAttachments().get(0).getUrl());

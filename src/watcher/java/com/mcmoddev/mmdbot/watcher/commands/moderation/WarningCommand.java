@@ -285,7 +285,7 @@ public class WarningCommand extends SlashCommand {
                 .limit(5)
                 .map(id -> {
                     final var targetMember = event.getJDA().getUserById(WarningCommand.<Long>withExtension(db -> db.getUser(id)));
-                    return new Command.Choice(id + (targetMember == null ? "" : (" - " + targetMember.getAsTag())), id);
+                    return new Command.Choice(id + (targetMember == null ? "" : (" - " + targetMember.getName())), id);
                 }).toList()).queue();
         }
     }

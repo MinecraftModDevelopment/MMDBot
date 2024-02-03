@@ -64,7 +64,7 @@ public final class RawTrickCommand extends SlashCommand {
             event.replyEmbeds(new EmbedBuilder().setTitle("Raw contents of " + trickName)
                 .setDescription(MarkdownUtil.codeblock(trick instanceof ScriptTrick ? "js" : null, trick.getRaw())).setColor(Color.GREEN)
                 .addField("Trick Names", String.join(" ", trick.getNames()), false)
-                .setTimestamp(Instant.now()).setFooter("Requested by: " + event.getUser().getAsTag(),
+                .setTimestamp(Instant.now()).setFooter("Requested by: " + event.getUser().getName(),
                     event.getUser().getAvatarUrl()).build()).addActionRow(DismissListener.createDismissButton(event)).queue();
         }, () -> event.reply("This trick does not exist anymore!").setEphemeral(true).queue());
     }

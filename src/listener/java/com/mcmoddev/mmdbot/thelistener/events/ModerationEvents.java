@@ -127,7 +127,7 @@ public final class ModerationEvents extends ListenerAdapter {
         final var embed = new EmbedBuilder();
         embed.setColor(Color.RED);
         embed.setTitle("User Banned.");
-        embed.addField("**User:**", bannedUser.getAsTag(), true);
+        embed.addField("**User:**", bannedUser.getName(), true);
         embed.addField("**Ban reason:**", reason, false);
         embed.setFooter("User ID: " + bannedUser.getId(), bannedUser.getEffectiveAvatarUrl());
         embed.setTimestamp(Instant.now());
@@ -139,7 +139,7 @@ public final class ModerationEvents extends ListenerAdapter {
         final var embed = new EmbedBuilder();
         embed.setColor(Color.GREEN);
         embed.setTitle("User Un-banned.");
-        embed.addField("**User:**", unBannedUser.getAsTag(), true);
+        embed.addField("**User:**", unBannedUser.getName(), true);
         embed.setFooter("User ID: " + unBannedUser.getId(), unBannedUser.getEffectiveAvatarUrl());
         embed.setTimestamp(Instant.now());
 
@@ -150,7 +150,7 @@ public final class ModerationEvents extends ListenerAdapter {
         final var embed = new EmbedBuilder();
         embed.setColor(Color.YELLOW);
         embed.setTitle("Nickname Changed");
-        embed.addField("User:", target.getAsTag(), true);
+        embed.addField("User:", target.getName(), true);
         embed.addField("Old Nickname:", wrapNicknameValue(nicknameChange.getOldValue()), true);
         embed.addField("New Nickname:", wrapNicknameValue(nicknameChange.getNewValue()), true);
         embed.setFooter("User ID: " + target.getId(), target.getEffectiveAvatarUrl());
@@ -166,7 +166,7 @@ public final class ModerationEvents extends ListenerAdapter {
     public void onKick(final User kickedUser, final User kicker, final AuditLogEntry entry) {
         final var embed = new EmbedBuilder();
         if (kicker.isBot()) {
-            var botKickMessage = kickedUser.getAsTag() + " was kicked! Kick Reason: " + entry.getReason();
+            var botKickMessage = kickedUser.getName() + " was kicked! Kick Reason: " + entry.getReason();
             log(entry.getGuild().getIdLong(), entry.getJDA(), botKickMessage, kicker);
         } else {
             final var reason = requireNonNullElse(entry.getReason(), "Reason for kick was not provided or could not be found, please contact "
@@ -174,7 +174,7 @@ public final class ModerationEvents extends ListenerAdapter {
 
             embed.setColor(RUBY);
             embed.setTitle("User Kicked");
-            embed.addField("**Name:**", kickedUser.getAsTag(), true);
+            embed.addField("**Name:**", kickedUser.getName(), true);
             embed.addField("**Kick reason:**", reason, false);
             embed.setFooter("User ID: " + kickedUser.getId(), kickedUser.getAvatarUrl());
             embed.setTimestamp(Instant.now());
@@ -198,7 +198,7 @@ public final class ModerationEvents extends ListenerAdapter {
 
             embed.setColor(LIGHT_SEA_GREEN);
             embed.setTitle("User Timed Out");
-            embed.addField("**User:**", user.getAsTag(), true);
+            embed.addField("**User:**", user.getName(), true);
             embed.addField("**Timeout End:**", TimeFormat.RELATIVE.format(newTimeoutEnd),
                 true);
             embed.addField("**Reason:**", reason, false);
@@ -212,7 +212,7 @@ public final class ModerationEvents extends ListenerAdapter {
 
             embed.setColor(Color.CYAN);
             embed.setTitle("User Timeout Removed");
-            embed.addField("**User:**", user.getAsTag(), true);
+            embed.addField("**User:**", user.getName(), true);
             embed.addField("**Old Timeout End:**", TimeFormat.RELATIVE.format(oldTimeoutEnd),
                 true);
             embed.setFooter("User ID: " + user.getId(), user.getEffectiveAvatarUrl());
@@ -238,7 +238,7 @@ public final class ModerationEvents extends ListenerAdapter {
             final var embed = new EmbedBuilder()
                 .setColor(Color.RED)
                 .setTitle("Warning Added")
-                .setDescription(user.getAsTag() + " has been given a warning.")
+                .setDescription(user.getName() + " has been given a warning.")
                 .addField("Warning Reason:", doc.reason(), false)
                 .addField("Warning ID:", doc.warnId(), false)
                 .setFooter("User ID: " + user.getId(), user.getEffectiveAvatarUrl())
@@ -259,7 +259,7 @@ public final class ModerationEvents extends ListenerAdapter {
             final var embed = new EmbedBuilder()
                 .setColor(Color.GREEN)
                 .setTitle("Warning Removed")
-                .setDescription("One of the warnings of " + user.getAsTag() + " has been removed!")
+                .setDescription("One of the warnings of " + user.getName() + " has been removed!")
                 .setThumbnail(user.getAvatarUrl())
                 .addField("Old Warning:", warnDoc.reason(), false)
                 .setFooter("User ID: " + user.getId(), user.getEffectiveAvatarUrl())
@@ -279,7 +279,7 @@ public final class ModerationEvents extends ListenerAdapter {
                 final var embed = new EmbedBuilder()
                     .setColor(java.awt.Color.GREEN)
                     .setTitle("All Warnings Removed")
-                    .setDescription("All of ``" + user.getAsTag() + "``'s warnings have been removed!")
+                    .setDescription("All of ``" + user.getName() + "``'s warnings have been removed!")
                     .setTimestamp(Instant.now())
                     .setFooter("User ID: " + user.getId(), user.getEffectiveAvatarUrl())
                     .build();

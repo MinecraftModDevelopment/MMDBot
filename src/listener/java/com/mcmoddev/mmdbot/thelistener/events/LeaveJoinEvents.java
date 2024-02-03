@@ -44,7 +44,7 @@ public final class LeaveJoinEvents extends ListenerAdapter {
         final var embed = new EmbedBuilder()
             .setColor(Color.GREEN)
             .setTitle("User Joined")
-            .addField("User:", event.getMember().getUser().getAsTag(), true)
+            .addField("User:", event.getMember().getUser().getName(), true)
             .setFooter("User ID: " + event.getMember().getId(), event.getMember().getEffectiveAvatarUrl())
             .setTimestamp(Instant.now())
             .build();
@@ -71,7 +71,7 @@ public final class LeaveJoinEvents extends ListenerAdapter {
         final var embed = new EmbedBuilder()
             .setColor(Color.RED)
             .setTitle("User Left")
-            .addField("User:", event.getUser().getAsTag(), true)
+            .addField("User:", event.getUser().getName(), true)
             .addField("Roles", RoleEvents.mentionsOrEmpty(event.getMember().getRoles()), false)
             .setFooter("User ID: " + event.getMember().getId(), event.getMember().getEffectiveAvatarUrl())
             .setTimestamp(Instant.now())

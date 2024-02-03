@@ -157,7 +157,7 @@ public final class EventReactionAdded extends ListenerAdapter {
 
                         WEBHOOKS.getWebhook(logChannel)
                             .send(Utils.webhookMessage(builder.build())
-                                .setUsername(messageAuthor.getAsTag())
+                                .setUsername(messageAuthor.getName())
                                 .setAvatarUrl(messageAuthor.getEffectiveAvatarUrl())
                                 .build());
                     }
@@ -187,7 +187,7 @@ public final class EventReactionAdded extends ListenerAdapter {
                     .appendDescription(", and has been approved by moderators for deletion.");
 
                 final String approvingMods = signedOffStaff.stream()
-                    .map(s -> "%s (%s, id `%s`)".formatted(s.getAsMention(), s.getUser().getAsTag(), s.getId()))
+                    .map(s -> "%s (%s, id `%s`)".formatted(s.getAsMention(), s.getUser().getName(), s.getId()))
                     .collect(Collectors.joining("\n"));
                 builder.addField("Approving moderators", approvingMods, true);
 
@@ -199,7 +199,7 @@ public final class EventReactionAdded extends ListenerAdapter {
                     .send(Utils.webhookMessage(builder.build())
                         .setContent(message.getContentRaw())
                         .setAvatarUrl(messageAuthor.getEffectiveAvatarUrl())
-                        .setUsername(messageAuthor.getAsTag())
+                        .setUsername(messageAuthor.getName())
                         .build());
             }
 

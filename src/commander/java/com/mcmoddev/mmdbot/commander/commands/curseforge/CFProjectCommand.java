@@ -117,7 +117,7 @@ public class CFProjectCommand {
             setEmbedAuthor(embed);
             final var user = TheCommander.getJDA().getUserById(arguments.get(0));
             if (user != null) {
-                embed.setFooter("Requested by: " + user.getAsTag(), user.getAvatarUrl());
+                embed.setFooter("Requested by: " + user.getName(), user.getAvatarUrl());
             }
             if (arguments.size() > startingIndex + 1) {
                 arguments.subList(startingIndex + 1, Math.min(maximum, arguments.size()))
@@ -171,7 +171,7 @@ public class CFProjectCommand {
                     final var embed = new EmbedBuilder()
                         .setTimestamp(Instant.now())
                         .setColor(Color.GREEN)
-                        .setFooter("Requested by: " + context.getUser().getAsTag(), context.getUser().getAvatarUrl())
+                        .setFooter("Requested by: " + context.getUser().getName(), context.getUser().getAvatarUrl())
                         .setTitle(mod.name(), mod.links().websiteUrl())
                         .setThumbnail(mod.logo().thumbnailUrl())
                         .setDescription(mod.summary())

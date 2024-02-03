@@ -357,7 +357,7 @@ public final class ScriptingUtils {
         context.set("avatarUrl", user.getAvatarUrl());
         context.set("isBot", user.isBot());
         context.set("hasPrivateChannel", user.hasPrivateChannel());
-        context.setFunction("asTag", args -> user.getAsTag());
+        context.setFunction("asTag", args -> user.getName());
         context.setFunction("openPrivateChannel", args -> {
             validateArgs(args, 0);
             final var privateChannel = user.openPrivateChannel().complete();

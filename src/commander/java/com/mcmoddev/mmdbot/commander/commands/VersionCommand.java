@@ -186,7 +186,7 @@ public final class VersionCommand {
                     final var id = matcher.group("id");
                     event.deferReply()
                         .addEmbeds(getMavenInfo(repo, group, id)
-                            .setFooter("Requested by: " + event.getUser().getAsTag(), event.getUser().getAvatarUrl())
+                            .setFooter("Requested by: " + event.getUser().getName(), event.getUser().getAvatarUrl())
                             .setTimestamp(Instant.now())
                             .build()
                         )

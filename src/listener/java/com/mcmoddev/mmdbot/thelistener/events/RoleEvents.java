@@ -127,7 +127,7 @@ public final class RoleEvents extends ListenerAdapter {
 
         embed.setTitle("User Role(s) " + changeType)
             .setColor(Color.YELLOW)
-            .addField("User:", target.getUser().getAsTag(), true)
+            .addField("User:", target.getUser().getName(), true)
             .setFooter("User ID: " + target.getUser().getId(), target.getEffectiveAvatarUrl())
             .setTimestamp(entry.getTimeCreated());
 
@@ -138,7 +138,7 @@ public final class RoleEvents extends ListenerAdapter {
             })
             .queue(editor -> {
                 if (editor != null) {
-                    embed.addField("Editor:", editor.getAsTag(), true);
+                    embed.addField("Editor:", editor.getName(), true);
                 }
 
                 embed.addField("Previous Role(s):", mentionsOrEmpty(previousRoles), true)

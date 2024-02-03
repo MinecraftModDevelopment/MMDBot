@@ -149,7 +149,7 @@ public final class UserReference {
                 User user = TheCommander.getJDA().getUserById(getSnowflakeData());
                 // If we have it...
                 if (user != null) {
-                    return user.getAsTag();
+                    return user.getName();
                 } else {
                     return String.valueOf(getSnowflakeData());
                 }
