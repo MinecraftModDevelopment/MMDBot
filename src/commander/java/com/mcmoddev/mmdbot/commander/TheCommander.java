@@ -442,7 +442,8 @@ public final class TheCommander implements Bot {
             EventListeners.MISC_LISTENER.addListener(new ReferencingListener());
         }
 
-        EventListeners.MISC_LISTENER.addListeners(new ThreadListener(), new FilePreviewListener());
+        //This was broken when Discord updated file attachments to have new values at the end and needs either fixing or removing.
+        //EventListeners.MISC_LISTENER.addListeners(new ThreadListener(), new FilePreviewListener());
 
         COLLECT_TASKS_LISTENER.register(Events.MISC_BUS);
         CurseForgeCommand.RG_TASK_SCHEDULER_LISTENER.register(Events.MISC_BUS);
