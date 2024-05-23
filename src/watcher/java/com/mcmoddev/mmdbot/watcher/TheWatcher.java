@@ -51,7 +51,6 @@ import com.mcmoddev.mmdbot.watcher.event.ForumListener;
 import com.mcmoddev.mmdbot.watcher.event.PersistedRolesEvents;
 import com.mcmoddev.mmdbot.watcher.punishments.PunishableActions;
 import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
-import com.mcmoddev.mmdbot.watcher.rules.RuleAgreementChecker;
 import com.mcmoddev.mmdbot.watcher.rules.RuleCommand;
 import com.mcmoddev.mmdbot.watcher.rules.UpdateRulesCommand;
 import com.mcmoddev.mmdbot.watcher.util.BotConfig;
@@ -199,8 +198,8 @@ public final class TheWatcher implements Bot {
     public void start() {
         instance = this;
         oldConfig = new BotConfig(runPath.resolve("old_config.toml"));
-        Events.MISC_BUS.addListener((final TaskScheduler.CollectTasksEvent event) -> event.addTask(new RuleAgreementChecker(this::getJda),
-            0, 1, TimeUnit.DAYS));
+        //Events.MISC_BUS.addListener((final TaskScheduler.CollectTasksEvent event) -> event.addTask(new RuleAgreementChecker(this::getJda),
+            //0, 1, TimeUnit.DAYS));
 
         try {
             final var configPath = runPath.resolve("config.conf");
