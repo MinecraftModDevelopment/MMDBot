@@ -126,7 +126,7 @@ public abstract class UpdateNotifier<T> implements Runnable {
             pickedUpFromDB = true;
         }
 
-        LOGGER.debug(loggingMarker, "Checking for new versions...");
+        //LOGGER.debug(loggingMarker, "Checking for new versions...");
         final T old = latest;
         T newVersion = null;
         try {
@@ -136,7 +136,7 @@ public abstract class UpdateNotifier<T> implements Runnable {
         }
 
         if (newVersion != null && (old == null || configuration.versionComparator.compare(old, newVersion) < 0)) {
-            LOGGER.info(loggingMarker, "New release found, from {} to {}", old, newVersion);
+            //LOGGER.info(loggingMarker, "New release found, from {} to {}", old, newVersion);
             update(newVersion);
 
             final var embed = getEmbed(old, latest);
@@ -163,7 +163,7 @@ public abstract class UpdateNotifier<T> implements Runnable {
                     }
                 });
         } else {
-            LOGGER.debug(loggingMarker, "No new version found");
+            //LOGGER.debug(loggingMarker, "No new version found");
         }
     }
 
