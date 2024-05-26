@@ -1,6 +1,6 @@
 /*
  * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
- * Copyright (C) 2016-2023 <MMD - MinecraftModDevelopment>
+ * Copyright (C) 2016-2024 <MMD - MinecraftModDevelopment>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.commander.migrate;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonObject;
+import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.tricks.EmbedTrick;
 import com.mcmoddev.mmdbot.commander.tricks.ScriptTrick;
 import com.mcmoddev.mmdbot.commander.tricks.StringTrick;
@@ -61,7 +62,7 @@ public record TricksMigrator(Path runPath) {
         try {
             migrateOldFiles();
         } catch (IOException e) {
-            log.error("Exception while trying to migrate old tricks file: ", e);
+            TheCommander.LOGGER.error("Exception while trying to migrate old tricks file: ", e);
         }
     }
 
@@ -82,7 +83,7 @@ public record TricksMigrator(Path runPath) {
                 return;
             }
         }
-        log.warn("Found old tricks file... migration started.");
+        TheCommander.LOGGER.warn("Found old tricks file... migration started.");
         final var type = new TypeToken<java.util.List<JsonObject>>() {
         }.getType();
         final List<JsonObject> newData = new ArrayList<>();
@@ -105,7 +106,7 @@ public record TricksMigrator(Path runPath) {
                 NO_PRETTY_PRINTING.toJson(db.toJson(NO_PRETTY_PRINTING), writer);
             } finally {
                 renameMigratedFile(oldFilePath);
-                log.warn("Finished migrating old tricks file.");
+                TheCommander.LOGGER.warn("Finished migrating old tricks file.");
             }
         }
     }
@@ -121,7 +122,7 @@ public record TricksMigrator(Path runPath) {
             Files.move(file, file.resolveSibling(file.getFileName() + MIGRATED_FILE_EXTENSION),
                 StandardCopyOption.REPLACE_EXISTING);
         } catch (final IOException exception) {
-            log.warn("Failed to rename migrated data file {}", file, exception);
+            TheCommander.LOGGER.warn("Failed to rename migrated data file {}", file, exception);
         }
     }
 }

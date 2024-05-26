@@ -1,6 +1,6 @@
 /*
  * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
- * Copyright (C) 2016-2023 <MMD - MinecraftModDevelopment>
+ * Copyright (C) 2016-2024 <MMD - MinecraftModDevelopment>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -156,6 +156,69 @@ public class Configuration {
 
     @ConfigSerializable
     public static final class Channels {
+        @Required
+        @Setting("request_channel_id")
+        @Comment("The channel or forum ID for requests and job postings.")
+        public Long requestChannelId = 0L;
 
+        @Required
+        @Setting("request_deletion_channel_id")
+        @Comment("The channel ID for request deletion notifications.")
+        public Long requestDeletionChannelId = 0L;
+    }
+
+    @Required
+    @Setting("requests")
+    @Comment("Requests configuration")
+    private Requests requests = new Requests();
+
+    public Requests requests() {
+        return requests;
+    }
+
+    @ConfigSerializable
+    public static final class Requests {
+        @Required
+        @Setting("warning_threshold")
+        @Comment("Returns the threshold before a user is warned about their request being potentially removed.")
+        public Double warningThreshold = 0.0D;
+
+        @Required
+        @Setting("removal_threshold")
+        @Comment("Returns the threshold before a users request is removed.")
+        public Double removalThreshold = 0.0D;
+
+        @Required
+        @Setting("request_freshness_duration")
+        @Comment("Returns the amount of time in days where a request is actionable using the requests warning and removal system.")
+        public int requestFreshnessDuration = 0;
+
+        @Required
+        @Setting("good_request_reactions")
+        @Comment("A list of snowflake ID's of the reaction emotes for requests that are good.")
+        private List<Long> goodRequestReactions = new ArrayList<>();
+
+        public List<Long> goodRequestReactions() {
+            return goodRequestReactions;
+        }
+
+        @Required
+        @Setting("needs_improvement_reactions")
+        @Comment("A list of snowflake ID's of the reaction emotes for requests that need improvements. "
+        + "These carry half the weight of bad request reactions.")
+        private List<Long> needsImprovementReactions = new ArrayList<>();
+
+        public List<Long> needsImprovementReactions() {
+            return needsImprovementReactions;
+        }
+
+        @Required
+        @Setting("bad_request_reactions")
+        @Comment("A list of snowflake ID's of the reaction emotes for requests that are bad.")
+        private List<Long> badRequestReactions = new ArrayList<>();
+
+        public List<Long> badRequestReactions() {
+            return badRequestReactions;
+        }
     }
 }

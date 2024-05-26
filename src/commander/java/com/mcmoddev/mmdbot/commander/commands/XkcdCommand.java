@@ -1,6 +1,6 @@
 /*
  * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
- * Copyright (C) 2016-2023 <MMD - MinecraftModDevelopment>
+ * Copyright (C) 2016-2024 <MMD - MinecraftModDevelopment>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -80,7 +80,7 @@ public final class XkcdCommand extends PaginatedCommand {
                 .setImage(xkcd.img())
                 .addField("Date", xkcd.day() + "/" + xkcd.month() + "/" + xkcd.year(), true);
         } catch (IOException e) {
-            log.warn("Exception trying to resolve comic ", e);
+            TheCommander.LOGGER.warn("Exception trying to resolve comic ", e);
             return new EmbedBuilder()
                 .setDescription("There was an exception trying to retrieve that comic: " + e.getLocalizedMessage());
         }
@@ -101,7 +101,7 @@ public final class XkcdCommand extends PaginatedCommand {
                     hook.editOriginal("There was an exception executing that command: " + e.getLocalizedMessage())
                         .setActionRow(DismissListener.createDismissButton())
                         .queue();
-                    log.error("Exception executing command ", e);
+                    TheCommander.LOGGER.error("Exception executing command ", e);
                 }
             });
     }

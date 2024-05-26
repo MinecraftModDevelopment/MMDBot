@@ -1,6 +1,6 @@
 /*
  * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
- * Copyright (C) 2016-2023 <MMD - MinecraftModDevelopment>
+ * Copyright (C) 2016-2024 <MMD - MinecraftModDevelopment>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,7 @@ package com.mcmoddev.mmdbot.commander.migrate;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonObject;
+import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.quotes.NullQuote;
 import com.mcmoddev.mmdbot.commander.quotes.Quotes;
 import com.mcmoddev.mmdbot.commander.quotes.StringQuote;
@@ -64,7 +65,7 @@ public record QuotesMigrator(Path runPath) {
                     // Check the ../mmdbot/quotes.json file for after the split
                     final var oldPath = QUOTES_FILE_PATH.apply(parent.resolve("mmdbot"));
                     if (Files.exists(oldPath)) {
-                        log.warn("Found old tricks file in {}. Copying...", oldPath);
+                        TheCommander.LOGGER.warn("Found old tricks file in {}. Copying...", oldPath);
                         Files.copy(oldPath, filePath);
                         renameMigratedFile(oldPath);
                         migrateUnversioned(filePath);
@@ -73,7 +74,7 @@ public record QuotesMigrator(Path runPath) {
             }
             Quotes.MIGRATOR.migrate(Quotes.CURRENT_SCHEMA_VERSION, filePath);
         } catch (IOException e) {
-            log.error("Exception while trying to migrate old quotes file: ", e);
+            TheCommander.LOGGER.error("Exception while trying to migrate old quotes file: ", e);
         }
     }
 
@@ -83,7 +84,7 @@ public record QuotesMigrator(Path runPath) {
      * @param path the path of the file to migrate
      */
     private void migrateUnversioned(final Path path) throws IOException {
-        log.warn("Found old unversioned quotes file... migration started.");
+        TheCommander.LOGGER.warn("Found old unversioned quotes file... migration started.");
         final var type = new TypeToken<List<JsonObject>>() {
         }.getType();
         final List<JsonObject> newData = new ArrayList<>();
@@ -101,7 +102,7 @@ public record QuotesMigrator(Path runPath) {
                 final var db = VersionedDatabase.inMemory(Quotes.CURRENT_SCHEMA_VERSION, newData);
                 NO_PRETTY_PRINTING.toJson(db.toJson(NO_PRETTY_PRINTING), writer);
             } finally {
-                log.warn("Finished migrating old quotes file.");
+                TheCommander.LOGGER.warn("Finished migrating old quotes file.");
             }
         }
     }
@@ -117,7 +118,7 @@ public record QuotesMigrator(Path runPath) {
             Files.move(file, file.resolveSibling(file.getFileName() + MIGRATED_FILE_EXTENSION),
                 StandardCopyOption.REPLACE_EXISTING);
         } catch (final IOException exception) {
-            log.warn("Failed to rename migrated data file {}", file, exception);
+            TheCommander.LOGGER.warn("Failed to rename migrated data file {}", file, exception);
         }
     }
 }

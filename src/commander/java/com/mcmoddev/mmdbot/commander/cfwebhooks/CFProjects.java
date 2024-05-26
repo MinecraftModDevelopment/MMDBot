@@ -1,6 +1,6 @@
 /*
  * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
- * Copyright (C) 2016-2023 <MMD - MinecraftModDevelopment>
+ * Copyright (C) 2016-2024 <MMD - MinecraftModDevelopment>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,6 +24,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonWriter;
+import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import lombok.extern.slf4j.Slf4j;
 
@@ -97,7 +98,7 @@ public final class CFProjects implements Runnable {
                 projects = Constants.Gsons.NO_PRETTY_PRINTING.fromJson(reader, typeOfList);
             }
         } catch (IOException e) {
-            log.error("Exception while reading CurseForgeProjects file", e);
+            TheCommander.LOGGER.error("Exception while reading CurseForgeProjects file", e);
         }
     }
 
@@ -109,7 +110,7 @@ public final class CFProjects implements Runnable {
                 Constants.Gsons.NO_PRETTY_PRINTING.toJson(projects$, writer);
             }
         } catch (IOException e) {
-            log.error("Exception while saving CurseForgeProjects file", e);
+            TheCommander.LOGGER.error("Exception while saving CurseForgeProjects file", e);
         }
     }
 

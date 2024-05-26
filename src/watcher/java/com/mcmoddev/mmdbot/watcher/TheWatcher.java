@@ -1,6 +1,6 @@
 /*
  * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
- * Copyright (C) 2016-2023 <MMD - MinecraftModDevelopment>
+ * Copyright (C) 2016-2024 <MMD - MinecraftModDevelopment>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -53,13 +53,11 @@ import com.mcmoddev.mmdbot.watcher.punishments.PunishableActions;
 import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
 import com.mcmoddev.mmdbot.watcher.rules.RuleCommand;
 import com.mcmoddev.mmdbot.watcher.rules.UpdateRulesCommand;
-import com.mcmoddev.mmdbot.watcher.util.BotConfig;
 import com.mcmoddev.mmdbot.watcher.util.Configuration;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.util.Utils;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
@@ -184,7 +182,6 @@ public final class TheWatcher implements Bot {
     private Jdbi jdbi;
     private CommandClient commandClient;
     private Configuration config;
-    private BotConfig oldConfig;
     private ConfigurationReference<CommentedConfigurationNode> configRef;
     private final Dotenv dotenv;
     private final Path runPath;
@@ -197,7 +194,6 @@ public final class TheWatcher implements Bot {
     @Override
     public void start() {
         instance = this;
-        oldConfig = new BotConfig(runPath.resolve("old_config.toml"));
         //Events.MISC_BUS.addListener((final TaskScheduler.CollectTasksEvent event) -> event.addTask(new RuleAgreementChecker(this::getJda),
             //0, 1, TimeUnit.DAYS));
 
@@ -299,7 +295,6 @@ public final class TheWatcher implements Bot {
                 .disableCache(CacheFlag.SCHEDULED_EVENTS)
                 .enableCache(CacheFlag.FORUM_TAGS)
                 .setEnabledIntents(INTENTS);
-            if (oldConfig.hasActivity()) builder.setActivity(Activity.of(oldConfig.getActivityType(), oldConfig.getActivityName()));
             jda = builder.build().awaitReady();
         } catch (final InvalidTokenException exception) {
             LOGGER.error("Error logging in the bot! Please give the bot a valid token in the config file.", exception);
@@ -375,9 +370,5 @@ public final class TheWatcher implements Bot {
 
     public static Jdbi database() {
         return getInstance().getJdbi();
-    }
-
-    public static BotConfig getOldConfig() {
-        return getInstance().oldConfig;
     }
 }

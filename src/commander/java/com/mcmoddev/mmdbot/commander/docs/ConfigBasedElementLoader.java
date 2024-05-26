@@ -1,6 +1,6 @@
 /*
  * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
- * Copyright (C) 2016-2023 <MMD - MinecraftModDevelopment>
+ * Copyright (C) 2016-2024 <MMD - MinecraftModDevelopment>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,6 +20,7 @@
  */
 package com.mcmoddev.mmdbot.commander.docs;
 
+import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import de.ialistannen.javadocapi.indexing.OnlineJavadocIndexer;
@@ -116,7 +117,7 @@ public final class ConfigBasedElementLoader implements ElementLoader {
                         tryIndex(database.getIndexUrl(), storage);
                         indexedAmount++;
                     } catch (Exception e) {
-                        log.error("There was an exception trying to index JavaDocs: ", e);
+                        TheCommander.LOGGER.error("There was an exception trying to index JavaDocs: ", e);
                         indexedAmount++;
                     }
                 });
@@ -173,7 +174,7 @@ public final class ConfigBasedElementLoader implements ElementLoader {
         Files.createFile(storage.getFile());
         final var launcher = new JavadocLauncher();
         if (indexUrl.startsWith("https://") || indexUrl.startsWith("http://")) {
-            log.info("Downloading {} for indexing...", indexUrl);
+            TheCommander.LOGGER.info("Downloading {} for indexing...", indexUrl);
             try (final var readChannel = Channels.newChannel(new URL(indexUrl).openStream())) {
                 final var downloadFile = storage.getFile().getParent().resolve("index_" + storage.getFile().toFile().getName() + (indexUrl.endsWith(".jar") ? ".jar" : ".zip"));
                 Files.createFile(downloadFile);
@@ -195,7 +196,7 @@ public final class ConfigBasedElementLoader implements ElementLoader {
     }
 
     static void index(final Launcher launcher, final SqliteStorage storage) {
-        log.warn("Started indexing JavaDocs for {}...", storage.getFile());
+        TheCommander.LOGGER.warn("Started indexing JavaDocs for {}...", storage.getFile());
         launcher.getEnvironment().setShouldCompile(false);
         launcher.getEnvironment().disableConsistencyChecks();
         launcher.getEnvironment().setOutputType(OutputType.NO_OUTPUT);
@@ -216,7 +217,7 @@ public final class ConfigBasedElementLoader implements ElementLoader {
             );
         processor.shutdown();
         storage.addAll(extractor.getFoundElements());
-        log.warn("Finished indexing JavaDocs.");
+        TheCommander.LOGGER.warn("Finished indexing JavaDocs.");
     }
 
     private static Path resolve(final Path basePath, final String other) {
@@ -255,22 +256,22 @@ public final class ConfigBasedElementLoader implements ElementLoader {
 
         @Override
         public void start(Process process) {
-            log.warn("Stating phase {}", process);
+            TheCommander.LOGGER.warn("Stating phase {}", process);
             touchedClasses = 0;
         }
 
         @Override
         public void step(Process process, String task, int taskId, int nbTask) {
-            log.info("Working on {} as part of {}", task, process);
+            TheCommander.LOGGER.info("Working on {} as part of {}", task, process);
             touchedClasses++;
             if (touchedClasses % 1000 == 0) {
-                log.warn("Phase {} has discovered {} classes so far. Currently working on {}", process, touchedClasses, task);
+                TheCommander.LOGGER.warn("Phase {} has discovered {} classes so far. Currently working on {}", process, touchedClasses, task);
             }
         }
 
         @Override
         public void end(Process process) {
-            log.warn("Phase {} done! Discovered classes: {}", process, touchedClasses);
+            TheCommander.LOGGER.warn("Phase {} done! Discovered classes: {}", process, touchedClasses);
         }
     }
 }

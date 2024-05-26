@@ -1,6 +1,6 @@
 /*
  * MMDBot - https://github.com/MinecraftModDevelopment/MMDBot
- * Copyright (C) 2016-2023 <MMD - MinecraftModDevelopment>
+ * Copyright (C) 2016-2024 <MMD - MinecraftModDevelopment>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -87,21 +87,21 @@ public final class EventReactionAdded extends ListenerAdapter {
     public void onMessageReactionAdd(final MessageReactionAddEvent event) {
         if (!event.isFromGuild() || !event.isFromType(ChannelType.GUILD_PUBLIC_THREAD)) return;
         final var channel = event.getChannel().asThreadChannel();
-        if (TheWatcher.getOldConfig().getChannel("requests.main") != channel.getParentChannel().getIdLong()) return;
+        if (TheWatcher.getInstance().getConfig().channels().requestChannelId != channel.getParentChannel().getIdLong()) return;
 
         final var message = channel.retrieveMessageById(event.getMessageId())
             .complete();
         if (message == null) {
             return;
         }
-        final double removalThreshold = TheWatcher.getOldConfig().getRequestsRemovalThreshold();
-        final double warningThreshold = TheWatcher.getOldConfig().getRequestsWarningThreshold();
+        final double removalThreshold = TheWatcher.getInstance().getConfig().requests().removalThreshold;
+        final double warningThreshold = TheWatcher.getInstance().getConfig().requests().warningThreshold;
         if (removalThreshold == 0 || warningThreshold == 0) {
             return;
         }
 
         final var guild = event.getGuild();
-        final int freshnessDuration = TheWatcher.getOldConfig().getRequestFreshnessDuration();
+        final int freshnessDuration = TheWatcher.getInstance().getConfig().requests().requestFreshnessDuration;
         if (freshnessDuration > 0) {
             final OffsetDateTime creationTime = message.getTimeCreated();
             final var now = OffsetDateTime.now();
@@ -110,9 +110,9 @@ public final class EventReactionAdded extends ListenerAdapter {
             }
         }
 
-        final List<Long> badReactionsList = TheWatcher.getOldConfig().getBadRequestsReactions();
-        final List<Long> goodReactionsList = TheWatcher.getOldConfig().getGoodRequestsReactions();
-        final List<Long> needsImprovementReactionsList = TheWatcher.getOldConfig().getRequestsNeedsImprovementReactions();
+        final List<Long> badReactionsList = TheWatcher.getInstance().getConfig().requests().badRequestReactions();
+        final List<Long> goodReactionsList = TheWatcher.getInstance().getConfig().requests().goodRequestReactions();
+        final List<Long> needsImprovementReactionsList = TheWatcher.getInstance().getConfig().requests().needsImprovementReactions();
         final var badReactions = getMatchingReactions(message, badReactionsList::contains);
 
         final List<Member> signedOffStaff = badReactions.stream()
@@ -138,8 +138,8 @@ public final class EventReactionAdded extends ListenerAdapter {
 
                 // If it hasn't been logged about yet, log about it
                 if (messagesAwaitingSignoff.add(message.getIdLong())) {
-                    final var logChannel = guild.getTextChannelById(TheWatcher.getOldConfig()
-                        .getChannel("events.requests_deletion"));
+                    final var logChannel = guild.getTextChannelById(TheWatcher.getInstance().getConfig().channels()
+                        .requestDeletionChannelId);
                     if (logChannel != null) {
                         final EmbedBuilder builder = new EmbedBuilder();
                         builder.setTitle("Request awaiting moderator approval");
@@ -175,8 +175,8 @@ public final class EventReactionAdded extends ListenerAdapter {
 
             warnedMessages.remove(message);
 
-            final var logChannel = guild.getTextChannelById(TheWatcher.getOldConfig()
-                .getChannel("events.requests_deletion"));
+            final var logChannel = guild.getTextChannelById(TheWatcher.getInstance().getConfig().channels()
+                .requestDeletionChannelId);
             if (logChannel != null) {
                 final EmbedBuilder builder = new EmbedBuilder();
                 builder.setTitle("Deleted request by community review");
