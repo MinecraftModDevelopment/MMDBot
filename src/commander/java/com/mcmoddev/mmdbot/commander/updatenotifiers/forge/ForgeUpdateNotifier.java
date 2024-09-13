@@ -145,6 +145,10 @@ public final class ForgeUpdateNotifier extends UpdateNotifier<MinecraftForgeVers
             %s.%s
             ====""".formatted(endMcVersionSplit[0], endMcVersionSplit[1], endForgeVersionSplit[0], endForgeVersionSplit[1]), "");
 
+        if (changelog.startsWith("\n")) {
+            changelog = changelog.substring(1);
+        }
+
         return changelog;
     }
 
