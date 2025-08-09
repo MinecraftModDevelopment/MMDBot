@@ -203,6 +203,24 @@ public final class Configuration {
     public static final class Features {
 
         @Required
+        @Setting("old_channel_checks_enabled")
+        @Comment("If old channel checks should be enabled.")
+        private boolean oldChannelChecksEnabled = true;
+
+        public boolean areOldChannelChecksEnabled() {
+            return oldChannelChecksEnabled;
+        }
+
+        @Required
+        @Setting("old_channel_check_time")
+        @Comment("How long in days should a channel go unused until it's reported/retired.")
+        private long oldChannelReportTime = 60;
+
+        public long getOldChannelReportTime() {
+            return oldChannelReportTime;
+        }
+
+        @Required
         @Setting("referencing_enabled")
         @Comment("If message referencing should be enabled.")
         private boolean referencingEnabled = true;

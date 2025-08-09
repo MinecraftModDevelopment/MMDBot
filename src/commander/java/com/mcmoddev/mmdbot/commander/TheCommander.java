@@ -454,7 +454,9 @@ public final class TheCommander implements Bot {
                 .create(getToken(), INTENTS)
                 .addEventListeners(listenerConsumer((ReadyEvent event) -> {
                     startupTime = Instant.now();
-                    Events.MISC_BUS.addListener((final TaskScheduler.CollectTasksEvent ct) -> OldChannelsHelper.registerListeners(ct, event.getJDA()));
+                    if (generalConfig.features().areOldChannelChecksEnabled()) {
+                        Events.MISC_BUS.addListener((final TaskScheduler.CollectTasksEvent ct) -> OldChannelsHelper.registerListeners(ct, event.getJDA()));
+                    }
                 }), CustomPingsListener.LISTENER.get())
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
