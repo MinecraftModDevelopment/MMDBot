@@ -88,9 +88,19 @@ public final class MinecraftUpdateNotifier extends UpdateNotifier<MinecraftVersi
                     .formatted(split[0].replace('.', '-'), split[1].substring(3)));
                 embed.setColor(Color.ORANGE);
             } else {
-                // https://www.minecraft.net/en-us/article/minecraft-snapshot-23w07a
+                // old snapshot url format https://www.minecraft.net/en-us/article/minecraft-snapshot-23w07a
+                // new snapshot url format https://www.minecraft.net/en-us/article/minecraft-1-26-snapshot-5
                 embed.setTitle("New Minecraft snapshot available!");
-                embed.setDescription(newVersion.snapshot() + "\nChangelog: " + "https://www.minecraft.net/en-us/article/minecraft-snapshot-%s".formatted(newVersion.snapshot()));
+                final String snapshot = newVersion.snapshot();
+                final String changelogUrl;
+                if (snapshot.contains("snapshot")) {
+                    // new format already includes 'snapshot' and the version prefix
+                    changelogUrl = "https://www.minecraft.net/en-us/article/minecraft-%s".formatted(snapshot);
+                } else {
+                    // old format like '23w07a'
+                    changelogUrl = "https://www.minecraft.net/en-us/article/minecraft-snapshot-%s".formatted(snapshot);
+                }
+                embed.setDescription(snapshot + "\nChangelog: " + changelogUrl);
                 embed.setColor(Color.CYAN);
             }
         }
