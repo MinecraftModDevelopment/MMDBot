@@ -50,7 +50,7 @@ public class EventListeners {
             MISC_LISTENER = new ThreadedEventListener(poll);
         }
 
-        // Commands
+        // McAgeCommand
         {
             final var group = new ThreadGroup(mainGroup, "Command Listeners");
             final var poll = (ThreadPoolExecutor) Executors.newFixedThreadPool(2, r ->

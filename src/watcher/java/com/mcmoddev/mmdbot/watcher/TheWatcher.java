@@ -30,29 +30,12 @@ import com.mcmoddev.mmdbot.core.commands.CommandUpserter;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.commands.component.DeferredComponentListenerRegistry;
 import com.mcmoddev.mmdbot.core.commands.component.storage.ComponentStorage;
-import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
-import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
-import com.mcmoddev.mmdbot.core.util.event.OneTimeEventListener;
 import com.mcmoddev.mmdbot.core.util.event.ThreadedEventListener;
-import com.mcmoddev.mmdbot.watcher.commands.information.InviteCommand;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.BanCommand;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.KickCommand;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.MuteCommand;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.ReactCommand;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.UnbanCommand;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.UnmuteCommand;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.WarningCommand;
-import com.mcmoddev.mmdbot.watcher.event.EventReactionAdded;
-import com.mcmoddev.mmdbot.watcher.event.ForumListener;
-import com.mcmoddev.mmdbot.watcher.event.PersistedRolesEvents;
-import com.mcmoddev.mmdbot.watcher.punishments.PunishableActions;
-import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
-import com.mcmoddev.mmdbot.watcher.rules.RuleCommand;
-import com.mcmoddev.mmdbot.watcher.rules.UpdateRulesCommand;
+import com.mcmoddev.mmdbot.watcher.commands.InviteCommand;
 import com.mcmoddev.mmdbot.watcher.util.Configuration;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.util.Utils;
@@ -90,7 +73,6 @@ import java.util.function.Consumer;
 public final class TheWatcher implements Bot {
     static final TypeSerializerCollection ADDED_SERIALIZERS = TypeSerializerCollection.defaults()
         .childBuilder()
-        .register(Punishment.class, new Punishment.Serializer())
         .register(SnowflakeValue.class, new SnowflakeValue.Serializer())
         .build();
 
@@ -143,11 +125,9 @@ public final class TheWatcher implements Bot {
         Executors.newFixedThreadPool(2, r -> com.mcmoddev.mmdbot.core.util.Utils.setThreadDaemon(new Thread(TheWatcher.THREAD_GROUP, r, "PunishableActions"), true))
     );
 
-    public static final OneTimeEventListener<TaskScheduler.CollectTasksEvent> ARCHIVE_FORUM_THREADS = new OneTimeEventListener<>(ForumListener::onCollectTasks);
-
     private static final Set<GatewayIntent> INTENTS = Set.of(
         GatewayIntent.DIRECT_MESSAGES,
-        GatewayIntent.GUILD_BANS,
+        GatewayIntent.GUILD_MODERATION,
         GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
         GatewayIntent.GUILD_MESSAGE_REACTIONS,
         GatewayIntent.GUILD_MESSAGES,
@@ -194,9 +174,7 @@ public final class TheWatcher implements Bot {
     @Override
     public void start() {
         instance = this;
-        //Events.MISC_BUS.addListener((final TaskScheduler.CollectTasksEvent event) -> event.addTask(new RuleAgreementChecker(this::getJda),
-            //0, 1, TimeUnit.DAYS));
-
+        // Load config
         try {
             final var configPath = runPath.resolve("config.conf");
             final HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
@@ -205,16 +183,13 @@ public final class TheWatcher implements Bot {
                 .path(configPath)
                 .defaultOptions(ops -> ops.serializers(ADDED_SERIALIZERS))
                 .build();
-            Objects.requireNonNull(loader.defaultOptions().serializers().get(Punishment.class));
             final var cPair =
                 ConfigurateUtils.loadConfig(loader, configPath, c -> {
                     config = c;
-                    PUNISHABLE_ACTIONS_LISTENER.clear();
-                    PUNISHABLE_ACTIONS_LISTENER.addListeners(PunishableActions.getEnabledActions(c.punishments()));
                 }, Configuration.class, Configuration.EMPTY);
             configRef = cPair.config();
             config = Objects.requireNonNull(cPair.value().get());
-            PUNISHABLE_ACTIONS_LISTENER.addListeners(PunishableActions.getEnabledActions(config.punishments()));
+
         } catch (ConfigurateException e) {
             LOGGER.error("Exception while trying to load general config", e);
             throw new RuntimeException(e);
@@ -267,8 +242,7 @@ public final class TheWatcher implements Bot {
             .setManualUpsert(true)
             .useHelpBuilder(false)
             .setActivity(null)
-            .addSlashCommands(new MuteCommand(), new UnmuteCommand(), new InviteCommand(), new WarningCommand(), new UpdateRulesCommand(), RuleCommand.INSTANCE)
-            .addCommands(new BanCommand(), new UnbanCommand(), new ReactCommand(), new KickCommand(), RuleCommand.INSTANCE)
+            .addSlashCommands(new InviteCommand())
             .build();
         COMMANDS_LISTENER.addListener((EventListener) commandClient);
 
@@ -278,11 +252,6 @@ public final class TheWatcher implements Bot {
 
         // Buttons
         COMMANDS_LISTENER.addListener(new DismissListener());
-
-        MISC_LISTENER.addListener(UpdateRulesCommand::onEvent);
-        MISC_LISTENER.addListeners(new EventReactionAdded(), new PersistedRolesEvents(), new ForumListener());
-
-        ARCHIVE_FORUM_THREADS.register(Events.MISC_BUS);
 
         try {
             final var builder = JDABuilder

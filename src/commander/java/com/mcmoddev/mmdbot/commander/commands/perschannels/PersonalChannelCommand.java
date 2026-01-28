@@ -18,15 +18,14 @@
  * USA
  * https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
  */
-package com.mcmoddev.mmdbot.commander.commands.comchannels;
+package com.mcmoddev.mmdbot.commander.commands.perschannels;
 
 import com.google.common.collect.Sets;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
-import com.mcmoddev.mmdbot.commander.config.GuildConfiguration;
-import com.mcmoddev.mmdbot.commander.util.dao.ComChannelsDAO;
+import com.mcmoddev.mmdbot.commander.util.dao.PersChannelsDAO;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
@@ -41,20 +40,20 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import java.util.*;
 
 /**
- * Create a community channel owned by the specified user.
+ * Create a personal channel owned by the specified user.
  * Takes a user parameter and a string parameter.
  * <p>
  * Takes the form:
- * /community-channel KiriCattus Proxy's Trinkets
- * /community-channel SomebodyElse Another Channel With A Very Long Name That Discord Will Reject
- * /community-channel [user] [name]
+ * /personal-channel KiriCattus kiris-mods
+ * /personal-channel SomebodyElse Another Channel With A Very Long Name That Discord Will Reject
+ * /personal-channel [user] [name]
  *
- * @author Unknown
+ * @author KiriCattus
  * @author Curle
  * @author matyrobbrt
  */
 @SuppressWarnings("unused")
-public final class CommunityChannelCommand extends SlashCommand {
+public final class PersonalChannelCommand extends SlashCommand {
 
     /**
      * The constant REQUIRED_PERMISSIONS.
@@ -63,14 +62,14 @@ public final class CommunityChannelCommand extends SlashCommand {
         = EnumSet.of(Permission.MANAGE_PERMISSIONS, Permission.MANAGE_CHANNEL);
 
     @RegisterSlashCommand
-    public static final CommunityChannelCommand CMD = new CommunityChannelCommand();
+    public static final PersonalChannelCommand CMD = new PersonalChannelCommand();
 
     /**
-     * Instantiates a new Cmd community channel.
+     * Instantiates a new Cmd personal channel.
      */
-    public CommunityChannelCommand() {
+    public PersonalChannelCommand() {
         super();
-        name = "community-channel";
+        name = "personal-channel";
         children = new SlashCommand[]{
             new Create(), new Transfer(), new Owner()
         };
@@ -84,14 +83,14 @@ public final class CommunityChannelCommand extends SlashCommand {
     public static final class Owner extends SlashCommand {
         public Owner() {
             name = "owner";
-            help = "Checks the owner of a community channel.";
+            help = "Checks the owner of a personal channel.";
             guildOnly = true;
         }
 
         @Override
         protected void execute(final SlashCommandEvent event) {
             final var owner = TheCommander.getInstance().getJdbi()
-                .withExtension(ComChannelsDAO.class, db -> db.getOwner(event.getChannel().getIdLong()));
+                .withExtension(PersChannelsDAO.class, db -> db.getOwner(event.getChannel().getIdLong()));
             if (owner != null) {
                 event.deferReply(true).setContent("This channel is owned by <@" + owner + ">.")
                     .setAllowedMentions(List.of())
@@ -99,7 +98,7 @@ public final class CommunityChannelCommand extends SlashCommand {
                     .addActionRow(DismissListener.createDismissButton(event))
                     .queue();
             } else
-                event.deferReply(true).setContent("This channel is not a community channel or its owner is not known.").queue();
+                event.deferReply(true).setContent("This channel is not a personal channel or its owner is not known.").queue();
         }
     }
 
@@ -107,7 +106,7 @@ public final class CommunityChannelCommand extends SlashCommand {
 
         public Transfer() {
             name = "transfer";
-            help = "Transfers a community channel to another member.";
+            help = "Transfers a personal channel to another member.";
             options = List.of(
                 new OptionData(OptionType.USER, "member", "The member to transfer the channel to.", true)
             );
@@ -122,18 +121,18 @@ public final class CommunityChannelCommand extends SlashCommand {
                 return;
             }
             final var oldOwner = TheCommander.getInstance().getJdbi()
-                .withExtension(ComChannelsDAO.class, db -> db.getOwner(event.getChannel().getIdLong()));
+                .withExtension(PersChannelsDAO.class, db -> db.getOwner(event.getChannel().getIdLong()));
             if (oldOwner == null) {
-                event.deferReply(true).setContent("This channel is not a community channel.").queue();
+                event.deferReply(true).setContent("This channel is not a personal channel.").queue();
                 return;
             }
             if (oldOwner == event.getIdLong() || event.getMember().hasPermission(Permission.MANAGE_CHANNEL)) {
-                TheCommander.getInstance().getJdbi().useExtension(ComChannelsDAO.class,
+                TheCommander.getInstance().getJdbi().useExtension(PersChannelsDAO.class,
                     db -> db.changeOwnership(event.getChannel().getIdLong(), newOwner.getIdLong()));
                 event.getTextChannel().getManager()
                     .removePermissionOverride(oldOwner)
                     .putMemberPermissionOverride(newOwner.getIdLong(), TheCommander.getInstance().getConfigForGuild(event.getGuild())
-                        .channels().community().ownerPermissions(), List.of())
+                        .channels().personal().ownerPermissions(), List.of())
                     .queue();
                 event.deferReply().setContent("Ownership of this channel has been transferred to " + newOwner.getAsMention())
                     .setAllowedMentions(EnumSet.of(Message.MentionType.USER))
@@ -148,11 +147,11 @@ public final class CommunityChannelCommand extends SlashCommand {
 
         public Create() {
             name = "create";
-            help = "Creates a new community channel for the given user.";
+            help = "Creates a new personal channel for the given user.";
             category = new Category("Moderation");
             arguments = "<user ID/mention> <channel name>";
             userPermissions = REQUIRED_PERMISSIONS.toArray(Permission[]::new);
-            aliases = new String[]{"community-channel", "comm-ch"};
+            aliases = new String[]{"personal-channel", "pers-ch"};
             guildOnly = true;
             botPermissions = REQUIRED_PERMISSIONS.toArray(new Permission[0]);
 
@@ -178,17 +177,17 @@ public final class CommunityChannelCommand extends SlashCommand {
             final var channel = event.getOption("channel", "", OptionMapping::getAsString);
 
             final var guildCfg = TheCommander.getInstance().getConfigForGuild(event.getGuild())
-                .channels().community();
+                .channels().personal();
 
             final var category = guildCfg.category().resolve(guild::getCategoryById);
             if (category == null) {
-                event.reply("Community channel category is incorrectly configured. Please contact the bot maintainers.").queue();
+                event.reply("Personal channel category is incorrectly configured. Please contact the bot maintainers.").queue();
                 return;
             }
 
             final var ownerPermissions = guildCfg.ownerPermissions();
             if (ownerPermissions.isEmpty()) {
-                TheCommander.LOGGER.warn("Community channel owner permissions is incorrectly configured");
+                TheCommander.LOGGER.warn("Personal channel owner permissions is incorrectly configured");
                 event.reply("Channel owner permissions is incorrectly configured. Please contact the bot maintainers.").queue();
                 return;
             }
@@ -218,8 +217,8 @@ public final class CommunityChannelCommand extends SlashCommand {
                         .map($ -> ch)
                     )
                     .flatMap(ch -> {
-                        TheCommander.getInstance().getJdbi().useExtension(ComChannelsDAO.class, db -> db.insert(ch.getIdLong(), user.getIdLong()));
-                        return hook.editOriginal("Successfully created community channel at " + ch.getAsMention() + "!");
+                        TheCommander.getInstance().getJdbi().useExtension(PersChannelsDAO.class, db -> db.insert(ch.getIdLong(), user.getIdLong()));
+                        return hook.editOriginal("Successfully created personal channel at " + ch.getAsMention() + "!");
                     }))
                 .queue();
         }

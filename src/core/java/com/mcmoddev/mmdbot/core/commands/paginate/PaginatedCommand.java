@@ -33,7 +33,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import java.util.List;
 
 /**
- * A wrapper for Slash Commands which require a paginated embed.
+ * A wrapper for Slash McAgeCommand which require a paginated embed.
  * It handles the buttons and interactions for you.
  * <p>
  * To use this, the developer needs to:

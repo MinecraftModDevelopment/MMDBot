@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.commander.util;
 
-import com.google.gson.JsonParser;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
@@ -31,9 +30,9 @@ import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.awt.Color;
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -45,31 +44,19 @@ import java.util.Locale;
 @UtilityClass
 public class TheCommanderUtilities {
 
-    /**
-     * Gets a cat fact.
-     *
-     * @return a cat fact
-     */
-    public static String getCatFact() {
-        try {
-            final var url = new URL("https://catfact.ninja/fact");
-            final URLConnection connection = url.openConnection();
-            connection.setConnectTimeout(10 * 1000);
-            final var reader = new BufferedReader(
-                new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
-            final String inputLine = reader.readLine();
-            reader.close();
-            final var objectArray = JsonParser.parseString(inputLine).getAsJsonObject();
-            return ":cat:  " + objectArray.get("fact").toString();
+    public static String readInputStream(InputStream stream) throws IOException {
+        StringBuilder content = new StringBuilder();
 
-        } catch (final RuntimeException ex) {
-            throw ex;
-        } catch (final Exception ex) {
-            log.error("Error getting cat fact...", ex);
-            ex.printStackTrace();
+        try (stream; InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8); BufferedReader buffer = new BufferedReader(reader)) {
+            String line;
+            while ((line = buffer.readLine()) != null) {
+                content.append(line).append('\n');
+            }
         }
-        return "";
+
+        return content.toString();
     }
+
 
     /**
      * Checks if the given member any of the given roles

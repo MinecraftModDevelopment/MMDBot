@@ -23,7 +23,6 @@ package com.mcmoddev.mmdbot.core;
 import com.google.gson.JsonObject;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
-import com.mcmoddev.mmdbot.core.common.ScamDetector;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.Constants;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
@@ -166,7 +165,6 @@ public class RunBots {
             LOG.info("It seems like the bots are not ran by ReLauncher. It is recommended to use it for easier management.");
         }
 
-        Events.MISC_BUS.addListener(ScamDetector::onCollectTasks);
         TaskScheduler.init();
     }
 

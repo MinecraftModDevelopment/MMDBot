@@ -28,9 +28,6 @@ import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.jda.caching.JdaMessageCache;
-import com.mcmoddev.mmdbot.thelistener.events.LeaveJoinEvents;
-import com.mcmoddev.mmdbot.thelistener.events.MessageEvents;
-import com.mcmoddev.mmdbot.thelistener.events.ModerationEvents;
 import com.mcmoddev.mmdbot.thelistener.events.RoleEvents;
 import com.mcmoddev.mmdbot.thelistener.events.TrickEvents;
 import com.mcmoddev.mmdbot.thelistener.util.GuildConfig;
@@ -45,7 +42,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
@@ -81,9 +77,6 @@ public final class TheListener implements Bot {
     };
 
     static {
-        Events.MODERATION_BUS.register(ModerationEvents.INSTANCE);
-        Events.MODERATION_BUS.register(MessageEvents.INSTANCE);
-
         Events.CUSTOM_AUDIT_LOG_BUS.register(TrickEvents.class);
     }
 
@@ -116,23 +109,13 @@ public final class TheListener implements Bot {
     public void start() {
         instance = this;
 
-        GENERAL_EVENT_LISTENER.addListeners(
-            MessageEvents.INSTANCE,
-            ModerationEvents.INSTANCE,
-            new LeaveJoinEvents(),
-            new RoleEvents()
-        );
+        GENERAL_EVENT_LISTENER.addListeners(new RoleEvents());
 
         jda = JDABuilder.create(
                 getToken(),
                 INTENTS
             )
-            .addEventListeners(JdaMessageCache.builder()
-                    .onDelete(MessageEvents.INSTANCE::onMessageDelete)
-                    .onEdit(MessageEvents.INSTANCE::onMessageUpdate)
-                    .build(),
-                GENERAL_EVENT_LISTENER
-            )
+            .addEventListeners(JdaMessageCache.builder().build(), GENERAL_EVENT_LISTENER)
             .disableCache(CacheFlag.CLIENT_STATUS)
             .disableCache(CacheFlag.ONLINE_STATUS)
             .disableCache(CacheFlag.VOICE_STATE)

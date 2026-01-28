@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public interface ComChannelsDAO extends Transactional<ComChannelsDAO> {
+public interface PersChannelsDAO extends Transactional<PersChannelsDAO> {
     @SqlUpdate("insert into community_channels (id, owner) values (:id, :owner)")
     void insert(@Bind("id") long channelId, @Bind("owner") long ownerId);
 

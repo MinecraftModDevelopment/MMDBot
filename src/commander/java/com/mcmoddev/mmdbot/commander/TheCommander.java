@@ -30,35 +30,18 @@ import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
 import com.mcmoddev.mmdbot.commander.commands.EvaluateCommand;
-import com.mcmoddev.mmdbot.commander.commands.GistCommand;
-import com.mcmoddev.mmdbot.commander.commands.RoleSelectCommand;
 import com.mcmoddev.mmdbot.commander.commands.curseforge.CurseForgeCommand;
-import com.mcmoddev.mmdbot.commander.commands.menu.message.AddQuoteContextMenu;
-import com.mcmoddev.mmdbot.commander.commands.menu.message.GistContextMenu;
-import com.mcmoddev.mmdbot.commander.commands.menu.user.UserInfoContextMenu;
 import com.mcmoddev.mmdbot.commander.commands.tricks.AddTrickCommand;
 import com.mcmoddev.mmdbot.commander.commands.tricks.EditTrickCommand;
 import com.mcmoddev.mmdbot.commander.commands.tricks.RunTrickCommand;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.commander.config.GuildConfiguration;
 import com.mcmoddev.mmdbot.commander.config.PermissionList;
-import com.mcmoddev.mmdbot.commander.custompings.CustomPings;
-import com.mcmoddev.mmdbot.commander.custompings.CustomPingsListener;
-import com.mcmoddev.mmdbot.commander.docs.ConfigBasedElementLoader;
-import com.mcmoddev.mmdbot.commander.docs.DocsCommand;
-import com.mcmoddev.mmdbot.commander.docs.NormalDocsSender;
-import com.mcmoddev.mmdbot.commander.eventlistener.FilePreviewListener;
-import com.mcmoddev.mmdbot.commander.eventlistener.ReferencingListener;
-import com.mcmoddev.mmdbot.commander.eventlistener.ThreadListener;
-import com.mcmoddev.mmdbot.commander.migrate.QuotesMigrator;
 import com.mcmoddev.mmdbot.commander.migrate.TricksMigrator;
-import com.mcmoddev.mmdbot.commander.reminders.Reminders;
-import com.mcmoddev.mmdbot.commander.reminders.SnoozingListener;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers;
 import com.mcmoddev.mmdbot.commander.util.EventListeners;
 import com.mcmoddev.mmdbot.commander.util.mc.MCVersions;
-import com.mcmoddev.mmdbot.commander.util.oldchannels.OldChannelsHelper;
 import com.mcmoddev.mmdbot.core.bot.Bot;
 import com.mcmoddev.mmdbot.core.bot.BotRegistry;
 import com.mcmoddev.mmdbot.core.bot.BotType;
@@ -76,10 +59,7 @@ import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
-import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryUtils;
-import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.util.event.OneTimeEventListener;
-import de.ialistannen.javadocapi.querying.FuzzyElementQuery;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -158,12 +138,6 @@ public final class TheCommander implements Bot {
 
                         .writeComment("The API key to use for CurseForge requests: ")
                         .writeValue("CF_API_KEY", "")
-
-                        .writeComment("The OwlBot API Token used for dictionary lookup:")
-                        .writeValue("OWL_BOT_TOKEN", "")
-
-                        .writeComment("The token used for GitHub requests. (Mainly for creating gists)")
-                        .writeValue("GITHUB_TOKEN", "")
                     )
                     .load());
             } catch (IOException e) {
@@ -180,7 +154,7 @@ public final class TheCommander implements Bot {
 
     private static final Set<GatewayIntent> INTENTS = Set.of(
         GatewayIntent.DIRECT_MESSAGES,
-        GatewayIntent.GUILD_BANS,
+        GatewayIntent.GUILD_MODERATION,
         GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
         GatewayIntent.GUILD_MESSAGE_REACTIONS,
         GatewayIntent.GUILD_MESSAGES,
@@ -269,14 +243,9 @@ public final class TheCommander implements Bot {
     private final Path runPath;
     private final Long2ObjectMap<GuildConfiguration> guildConfigs = Long2ObjectMaps.synchronize(new Long2ObjectOpenHashMap<>());
 
-    private final String githubToken;
-
     public TheCommander(final Path runPath, final Dotenv dotenv) {
         this.dotenv = dotenv;
         this.runPath = runPath;
-
-        DictionaryUtils.setToken(dotenv.get("OWL_BOT_TOKEN", null));
-        githubToken = dotenv.get("GITHUB_TOKEN", "");
     }
 
     @Override
@@ -348,8 +317,6 @@ public final class TheCommander implements Bot {
             .setOwnerId(generalConfig.bot().getOwners().get(0).asString())
             .setCoOwnerIds(coOwners.toArray(String[]::new))
             .setPrefixes(generalConfig.bot().getPrefixes().toArray(String[]::new))
-            .addCommands(new GistCommand(), EvaluateCommand.COMMAND)
-            .addContextMenus(new GistContextMenu(), new UserInfoContextMenu())
             .setManualUpsert(true)
             .useHelpBuilder(false)
             .setActivity(null)
@@ -413,38 +380,6 @@ public final class TheCommander implements Bot {
             }
         }
 
-        // Quotes
-        if (generalConfig.features().areQuotesEnabled()) {
-            commandClient.addContextMenu(new AddQuoteContextMenu());
-        }
-
-        // Reminders
-        if (generalConfig.features().reminders().areEnabled()) {
-            Reminders.scheduleAllReminders();
-            EventListeners.COMMANDS_LISTENER.addListeners(SnoozingListener.INSTANCE);
-        }
-
-        // Docs
-        {
-            try {
-                final var loader = new ConfigBasedElementLoader(runPath.resolve("docs"));
-                final var command = new DocsCommand(new FuzzyElementQuery(), loader, new NormalDocsSender(), getComponentListener("docs-cmd"));
-                commandClient.addSlashCommand(command);
-            } catch (Exception e) {
-                LOGGER.error("Exception trying to load docs command! ", e);
-            }
-        }
-
-        // Button listeners
-        EventListeners.COMMANDS_LISTENER.addListeners(new DismissListener(), RoleSelectCommand.COMMAND);
-
-        if (generalConfig.features().isReferencingEnabled()) {
-            EventListeners.MISC_LISTENER.addListener(new ReferencingListener());
-        }
-
-        //This was broken when Discord updated file attachments to have new values at the end and needs either fixing or removing.
-        //EventListeners.MISC_LISTENER.addListeners(new ThreadListener(), new FilePreviewListener());
-
         COLLECT_TASKS_LISTENER.register(Events.MISC_BUS);
         CurseForgeCommand.RG_TASK_SCHEDULER_LISTENER.register(Events.MISC_BUS);
         MCVersions.REFRESHER_TASK.register(Events.MISC_BUS);
@@ -454,10 +389,7 @@ public final class TheCommander implements Bot {
                 .create(getToken(), INTENTS)
                 .addEventListeners(listenerConsumer((ReadyEvent event) -> {
                     startupTime = Instant.now();
-                    if (generalConfig.features().areOldChannelChecksEnabled()) {
-                        Events.MISC_BUS.addListener((final TaskScheduler.CollectTasksEvent ct) -> OldChannelsHelper.registerListeners(ct, event.getJDA()));
-                    }
-                }), CustomPingsListener.LISTENER.get())
+                }))
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
                 .disableCache(CacheFlag.VOICE_STATE)
@@ -509,9 +441,6 @@ public final class TheCommander implements Bot {
     @Override
     public void migrateData() throws IOException {
         new TricksMigrator(runPath).migrate();
-        new QuotesMigrator(runPath).migrate();
-        Reminders.MIGRATOR.migrate(Reminders.CURRENT_SCHEMA_VERSION, Reminders.PATH_RESOLVER.apply(runPath));
-        CustomPings.MIGRATOR.migrate(CustomPings.CURRENT_SCHEMA_VERSION, CustomPings.PATH_RESOLVER.apply(runPath));
     }
 
     @Override
@@ -566,10 +495,6 @@ public final class TheCommander implements Bot {
                 return channel == null ? null : channel.retrieveMessageById(info.messageId());
             })
             .orElse(null);
-    }
-
-    public String getGithubToken() {
-        return githubToken;
     }
 
     public GuildConfiguration getConfigForGuild(long guildId) {

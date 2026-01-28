@@ -50,19 +50,19 @@ public final class GuildConfiguration {
     @ConfigSerializable
     public static final class Channels {
         @Required
-        @Setting("community")
-        @Comment("Community channels related configuration")
-        private Community community = new Community();
+        @Setting("personal")
+        @Comment("Personal channels related configuration")
+        private Personal personal = new Personal();
 
-        public Community community() {
-            return community;
+        public Personal personal() {
+            return personal;
         }
 
         @ConfigSerializable
-        public static final class Community {
+        public static final class Personal {
             @Required
             @Setting("category")
-            @Comment("The snowflake ID of the channel category where new community channels are created under")
+            @Comment("The snowflake ID of the channel category where new personal channels are created under")
             private SnowflakeValue category = SnowflakeValue.EMPTY;
 
             public SnowflakeValue category() {
@@ -70,48 +70,12 @@ public final class GuildConfiguration {
             }
 
             @Required
-            @Setting("archival_duration")
-            @Comment("The number of days that need to pass without a message sent for a community channel to start the archival process.")
-            private int archivalDuration = 60;
-
-            public int archivalDuration() {
-                return archivalDuration;
-            }
-
-            @Required
-            @Setting("archived_category")
-            @Comment("The ID of the archived channels category.")
-            private SnowflakeValue archivedCategory = SnowflakeValue.EMPTY;
-
-            public SnowflakeValue archivedCategory() {
-                return archivedCategory;
-            }
-
-            @Required
-            @Setting("archival_notifier")
-            @Comment("The ID of the channel where archival notifications will be sent.")
-            private SnowflakeValue archivalNotifier = SnowflakeValue.EMPTY;
-
-            public SnowflakeValue archivalNotifier() {
-                return archivalNotifier;
-            }
-
-            @Required
-            @Setting("allow_second_ask")
-            @Comment("If moderators should be allowed to ask the channel owner if they want to keep the channel more than once.")
-            private boolean allowSecondAsk = false;
-
-            public boolean allowSecondAsk() {
-                return allowSecondAsk;
-            }
-
-            @Required
             @Setting("owner_permissions")
             @Comment("""
-                The default permissions of channel owners in their new community channels
+                The default permissions of channel owners in their new personal channels
                 This can be either bitfield, or a list of strings of the names of permissions (see the Permission enum)
                 Note: the bot can only assign permissions to channel owners if the bot has those permissions
-                Example: ["Manage Messages", "MANAGE_PERMISSIONS"]""")
+                Example: ["Pin Messages", "MANAGE_PERMISSIONS"]""")
             private PermissionList ownerPermissions = new PermissionList(Set.of(Permission.MESSAGE_MANAGE));
 
             public PermissionList ownerPermissions() {
@@ -125,58 +89,6 @@ public final class GuildConfiguration {
 
             public String getChannelCreatedMessage() {
                 return channelCreatedMessage;
-            }
-        }
-    }
-
-    @Required
-    @Setting("features")
-    @Comment("Configuration for features.")
-    private Features features = new Features();
-
-    public Features features() {
-        return features;
-    }
-
-    @ConfigSerializable
-    public static final class Features {
-
-        @Required
-        @Setting("custom_pings")
-        @Comment("Custom pings configuration.")
-        private CustomPings customPings = new CustomPings();
-
-        public CustomPings customPings() {
-            return customPings;
-        }
-
-        @ConfigSerializable
-        public static final class CustomPings {
-            @Required
-            @Setting("enabled")
-            @Comment("If custom pings should be enabled.")
-            private boolean enabled = true;
-
-            public boolean areEnabled() {
-                return enabled;
-            }
-
-            @Required
-            @Setting("limit_per_user")
-            @Comment("The limit of custom pings per user, per guild.")
-            private int limitPerUser = 10;
-
-            public int getLimitPerUser() {
-                return limitPerUser;
-            }
-
-            @Required
-            @Setting("removal_inform_channel")
-            @Comment("The ID of the channel users should be informed in when their pings are removed.")
-            private SnowflakeValue removalInformChannel = SnowflakeValue.EMPTY;
-
-            public SnowflakeValue removalInformChannel() {
-                return removalInformChannel;
             }
         }
     }

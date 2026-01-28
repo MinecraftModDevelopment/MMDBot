@@ -22,7 +22,6 @@ package com.mcmoddev.mmdbot.core.event;
 
 import com.mcmoddev.mmdbot.core.annotation.RegisterEventListener;
 import com.mcmoddev.mmdbot.core.event.customlog.CustomAuditLogEvent;
-import com.mcmoddev.mmdbot.core.event.moderation.ModerationEvent;
 import com.mcmoddev.mmdbot.core.util.ReflectionsUtils;
 import io.github.matyrobbrt.eventdispatcher.Event;
 import io.github.matyrobbrt.eventdispatcher.EventBus;
@@ -35,14 +34,6 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class Events {
-
-    /**
-     * The bus on which moderation events will be fired.
-     */
-    public static final EventBus MODERATION_BUS = EventBus.builder("Moderation")
-        .baseEventType(ModerationEvent.class)
-        .addAnnotationProvider(forBusProvider(RegisterEventListener.BusType.MODERATION))
-        .build();
 
     /**
      * Bus used for miscellaneous events.

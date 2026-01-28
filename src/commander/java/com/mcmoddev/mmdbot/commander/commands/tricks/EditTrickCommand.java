@@ -31,7 +31,6 @@ import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.event.customlog.TrickEvent;
 import com.mcmoddev.mmdbot.core.util.StringUtilities;
-import com.mcmoddev.mmdbot.core.util.gist.GistUtils;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.modals.Modal;
@@ -193,7 +192,7 @@ public final class EditTrickCommand extends SlashCommand {
                 for (var attach : event.getMessage().getAttachments()) {
                     if (Objects.equals(attach.getFileExtension(), "js")) {
                         try {
-                            args = event.getArgs().split(" \\| ", 2)[0] + " | " + GistUtils.readInputStream(attach.getProxy().download().get());
+                            args = event.getArgs().split(" \\| ", 2)[0] + " | " + TheCommanderUtilities.readInputStream(attach.getProxy().download().get());
                             break;
                         } catch (IOException | InterruptedException | ExecutionException e) {
                             e.printStackTrace();

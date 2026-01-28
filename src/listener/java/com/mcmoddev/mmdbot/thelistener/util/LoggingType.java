@@ -27,9 +27,6 @@ import java.util.List;
 
 public enum LoggingType {
 
-    MESSAGE_EVENTS("message_events", configGetter(0)),
-    LEAVE_JOIN_EVENTS("leave_join_events", configGetter(1)),
-    MODERATION_EVENTS("moderation_events", configGetter(2)),
     ROLE_EVENTS("role_events", configGetter(3)),
     TRICK_EVENTS("trick_events", configGetter(4));
 

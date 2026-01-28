@@ -135,15 +135,6 @@ public final class Configuration {
         public static final class UpdateNotifiers {
 
             @Required
-            @Setting("quilt")
-            @Comment("A list of Snowflake IDs of channels in which to send Quilt update notifiers.")
-            private List<SnowflakeValue> quilt = new ArrayList<>();
-
-            public List<SnowflakeValue> quilt() {
-                return quilt;
-            }
-
-            @Required
             @Setting("fabric")
             @Comment("A list of Snowflake IDs of channels in which to send Fabric update notifiers.")
             private List<SnowflakeValue> fabric = new ArrayList<>();
@@ -203,33 +194,6 @@ public final class Configuration {
     public static final class Features {
 
         @Required
-        @Setting("old_channel_checks_enabled")
-        @Comment("If old channel checks should be enabled.")
-        private boolean oldChannelChecksEnabled = true;
-
-        public boolean areOldChannelChecksEnabled() {
-            return oldChannelChecksEnabled;
-        }
-
-        @Required
-        @Setting("old_channel_check_time")
-        @Comment("How long in days should a channel go unused until it's reported/retired.")
-        private long oldChannelReportTime = 60;
-
-        public long getOldChannelReportTime() {
-            return oldChannelReportTime;
-        }
-
-        @Required
-        @Setting("referencing_enabled")
-        @Comment("If message referencing should be enabled.")
-        private boolean referencingEnabled = true;
-
-        public boolean isReferencingEnabled() {
-            return referencingEnabled;
-        }
-
-        @Required
         @Setting("tricks")
         @Comment("Tricks configuration.")
         private Tricks tricks = new Tricks();
@@ -269,70 +233,6 @@ public final class Configuration {
 
         public boolean isEvaluationEnabled() {
             return evaluationEnabled;
-        }
-
-        @Required
-        @Setting("quotes_enabled")
-        @Comment("If quotes are enabled.")
-        private boolean quotesEnabled = true;
-
-        public boolean areQuotesEnabled() {
-            return quotesEnabled;
-        }
-
-        @Required
-        @Setting("reminders")
-        @Comment("Reminders configuration.")
-        private Reminders reminders = new Reminders();
-
-        public Reminders reminders() {
-            return reminders;
-        }
-
-        @ConfigSerializable
-        public static final class Reminders {
-
-            @Required
-            @Setting("enabled")
-            @Comment("If reminders should be enabled.")
-            private boolean enabled = true;
-
-            public boolean areEnabled() {
-                return enabled;
-            }
-
-            @Required
-            @Setting("snoozing_times")
-            @Comment("""
-                A list of snoozing times available for snoozing reminders.
-                The format is: <time><unit>, where <time> is the snoozing time, and <unit> is the unit (`s` for seconds, `m` for minutes, `d` for days, etc.)
-                Multiple times can be chained in the same configuration with a `-`. Example:
-                12s-48m-2h (12 seconds, 48 minutes and 2 hours)""")
-            private List<String> snoozingTimes = List.of(
-                "5m", "1h", "1d"
-            );
-
-            public List<String> getSnoozingTimes() {
-                return snoozingTimes;
-            }
-
-            @Required
-            @Setting("limit_per_user")
-            @Comment("The maximum amount of reminders a user can have.")
-            private int limitPerUser = 100;
-
-            public int getLimitPerUser() {
-                return limitPerUser;
-            }
-
-            @Required
-            @Setting("time_limit")
-            @Comment("The maximum time (in seconds) that a reminder can be scheduled for.")
-            private long timeLimit = 60 * 60 * 24 * 365;
-
-            public long getTimeLimit() {
-                return timeLimit;
-            }
         }
     }
 }

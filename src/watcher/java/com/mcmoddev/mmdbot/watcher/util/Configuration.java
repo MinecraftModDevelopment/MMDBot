@@ -21,7 +21,6 @@
 package com.mcmoddev.mmdbot.watcher.util;
 
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
-import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.Required;
@@ -100,125 +99,6 @@ public class Configuration {
 
         public List<SnowflakeValue> getBotMaintainers() {
             return botMaintainers;
-        }
-
-        @Required
-        @Setting("not_persisted")
-        @Comment("A list of Snowflake IDs representing the roles which will not be persisted on member leave.")
-        private List<SnowflakeValue> notPersisted = new ArrayList<>();
-
-        public List<SnowflakeValue> getNotPersisted() {
-            return notPersisted;
-        }
-    }
-
-    @Required
-    @Setting("punishments")
-    @Comment("""
-        Punishments that will be applied to members when they do certain actions.
-        The punishment format is: action [duration].
-        Example:
-            "KICK" -> kicks the member
-            "BAN 5d" -> bans the member for 5 days
-            "MUTE 12m" -> times the member out for 12 minutes
-        A punishment can be "None" to prevent the member from being punished.""")
-    private Punishments punishments = new Punishments();
-
-    public Punishments punishments() {
-        return punishments;
-    }
-
-    @ConfigSerializable
-    public static final class Punishments {
-
-        @Required
-        @Setting("spam_pinging")
-        public Punishment spamPing = new Punishment(Punishment.ActionType.BAN, Duration.ofDays(2));
-
-        @Required
-        @Setting("phishing_link")
-        public Punishment phishingLink = new Punishment(Punishment.ActionType.MUTE, Duration.ofDays(1));
-
-        @Required
-        @Setting("new_account")
-        public Punishment newAccount = new Punishment(Punishment.ActionType.KICK, null);
-
-    }
-
-    @Required
-    @Setting("channels")
-    @Comment("Channels configuration")
-    private Channels channels = new Channels();
-
-    public Channels channels() {
-        return channels;
-    }
-
-    @ConfigSerializable
-    public static final class Channels {
-        @Required
-        @Setting("request_channel_id")
-        @Comment("The channel or forum ID for requests and job postings.")
-        public Long requestChannelId = 0L;
-
-        @Required
-        @Setting("request_deletion_channel_id")
-        @Comment("The channel ID for request deletion notifications.")
-        public Long requestDeletionChannelId = 0L;
-    }
-
-    @Required
-    @Setting("requests")
-    @Comment("Requests configuration")
-    private Requests requests = new Requests();
-
-    public Requests requests() {
-        return requests;
-    }
-
-    @ConfigSerializable
-    public static final class Requests {
-        @Required
-        @Setting("warning_threshold")
-        @Comment("Returns the threshold before a user is warned about their request being potentially removed.")
-        public Double warningThreshold = 0.0D;
-
-        @Required
-        @Setting("removal_threshold")
-        @Comment("Returns the threshold before a users request is removed.")
-        public Double removalThreshold = 0.0D;
-
-        @Required
-        @Setting("request_freshness_duration")
-        @Comment("Returns the amount of time in days where a request is actionable using the requests warning and removal system.")
-        public int requestFreshnessDuration = 0;
-
-        @Required
-        @Setting("good_request_reactions")
-        @Comment("A list of snowflake ID's of the reaction emotes for requests that are good.")
-        private List<Long> goodRequestReactions = new ArrayList<>();
-
-        public List<Long> goodRequestReactions() {
-            return goodRequestReactions;
-        }
-
-        @Required
-        @Setting("needs_improvement_reactions")
-        @Comment("A list of snowflake ID's of the reaction emotes for requests that need improvements. "
-        + "These carry half the weight of bad request reactions.")
-        private List<Long> needsImprovementReactions = new ArrayList<>();
-
-        public List<Long> needsImprovementReactions() {
-            return needsImprovementReactions;
-        }
-
-        @Required
-        @Setting("bad_request_reactions")
-        @Comment("A list of snowflake ID's of the reaction emotes for requests that are bad.")
-        private List<Long> badRequestReactions = new ArrayList<>();
-
-        public List<Long> badRequestReactions() {
-            return badRequestReactions;
         }
     }
 }

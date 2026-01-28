@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.tests.jda;
 
-import com.mcmoddev.mmdbot.core.common.ScamDetector;
 import com.mcmoddev.mmdbot.watcher.punishments.PunishableAction;
 import com.mcmoddev.mmdbot.watcher.punishments.PunishableActions;
 import net.dv8tion.jda.api.JDA;

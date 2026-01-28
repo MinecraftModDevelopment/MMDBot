@@ -21,14 +21,12 @@
 package com.mcmoddev.mmdbot.commander.util.script;
 
 import com.google.common.collect.Lists;
-import com.mcmoddev.mmdbot.commander.quotes.Quotes;
 import com.mcmoddev.mmdbot.commander.tricks.TrickContext;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.util.script.object.ScriptEmbed;
 import com.mcmoddev.mmdbot.commander.util.script.object.ScriptRegion;
 import com.mcmoddev.mmdbot.commander.util.script.object.ScriptRoleIcon;
 import com.mcmoddev.mmdbot.core.annotation.ExposeScripting;
-import com.mcmoddev.mmdbot.core.common.ScamDetector;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.channel.Channel;
@@ -105,9 +103,6 @@ public final class ScriptingUtils {
     }
 
     public static void evaluate(String script, ScriptingContext context) {
-        if (ScamDetector.containsScam(script)) {
-            throw new ScriptingException("This script contained a scam link!");
-        }
         try (var engine = Context.newBuilder("js")
             .engine(ENGINE)
             .allowNativeAccess(false)
@@ -293,10 +288,6 @@ public final class ScriptingUtils {
             validateArgs(args, 1);
             final var emoji = guild.retrieveEmojiById(args.get(0).asLong()).complete();
             return emoji == null ? null : createEmoji(emoji).toProxyObject();
-        });
-        context.setFunction("getQuotes", args -> {
-            validateArgs(args, 0);
-            return IntStream.range(0, Quotes.getQuotesForGuild(guild.getIdLong()).size()).mapToObj(i -> Quotes.getQuote(guild.getIdLong(), i)).toList();
         });
         context.setFunction("getMembers", a -> guild.getMembers().stream().map(m -> createMember(m).toProxyObject()).toList());
         context.setFunction("getRoles", a -> guild.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList());

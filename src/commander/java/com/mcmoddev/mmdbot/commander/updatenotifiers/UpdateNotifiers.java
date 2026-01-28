@@ -26,7 +26,6 @@ import com.mcmoddev.mmdbot.commander.updatenotifiers.forge.ForgeUpdateNotifier;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.minecraft.MinecraftUpdateNotifier;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.neoforge.NeoForgeUpdateNotifier;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.parchment.ParchmentUpdateNotifier;
-import com.mcmoddev.mmdbot.commander.updatenotifiers.quilt.QuiltUpdateNotifier;
 import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import org.slf4j.Logger;
@@ -57,17 +56,18 @@ public class UpdateNotifiers {
         }
         wasRegistered = true;
         Events.MISC_BUS.addListener((TaskScheduler.CollectTasksEvent event) -> {
-            final long checkingPeriod = 15;
+            final long checkingPeriod = 1;
             LOGGER.info("Checking for Minecraft, Forge, NeoForge, Quilt and Fabric updates every {} minutes.", checkingPeriod);
             event.addTask(new MinecraftUpdateNotifier(), 0, checkingPeriod, TimeUnit.MINUTES);
             event.addTask(new ForgeUpdateNotifier(), 0, checkingPeriod, TimeUnit.MINUTES);
             event.addTask(new NeoForgeUpdateNotifier(), 0, checkingPeriod, TimeUnit.MINUTES);
-            event.addTask(new QuiltUpdateNotifier(), 0, checkingPeriod, TimeUnit.MINUTES);
             event.addTask(new FabricApiUpdateNotifier(), 0, checkingPeriod, TimeUnit.MINUTES);
 
-            LOGGER.info("Checking for Parchment and Blockbench updates every hour.");
-            event.addTask(new ParchmentUpdateNotifier(), 0, 1, TimeUnit.HOURS);
-            event.addTask(new BlockbenchUpdateNotifier(), 0, 1, TimeUnit.HOURS);
+            LOGGER.info("Checking for Blockbench updates every 12 hours.");
+            event.addTask(new BlockbenchUpdateNotifier(), 0, 12, TimeUnit.HOURS);
+
+            LOGGER.info("Checking for Parchment updates every 7 days.");
+            event.addTask(new ParchmentUpdateNotifier(), 0, 7, TimeUnit.DAYS);
         });
     }
 }

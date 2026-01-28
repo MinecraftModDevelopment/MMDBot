@@ -27,11 +27,11 @@ import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.tricks.TrickContext;
 import com.mcmoddev.mmdbot.commander.tricks.Tricks;
+import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
 import com.mcmoddev.mmdbot.commander.util.script.ScriptingContext;
 import com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
-import com.mcmoddev.mmdbot.core.util.gist.GistUtils;
 import io.github.matyrobbrt.curseforgeapi.util.Utils;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -39,7 +39,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
@@ -250,7 +249,7 @@ public class EvaluateCommand extends SlashCommand {
             for (var attach : event.getMessage().getAttachments()) {
                 if (Objects.equals(attach.getFileExtension(), "js")) {
                     try {
-                        script = GistUtils.readInputStream(attach.getProxy().download().get());
+                        script = TheCommanderUtilities.readInputStream(attach.getProxy().download().get());
                         break;
                     } catch (IOException | InterruptedException | ExecutionException e) {
                         e.printStackTrace();
