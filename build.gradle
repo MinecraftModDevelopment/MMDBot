@@ -45,7 +45,9 @@ println "Bots: ${String.join(" ", BOTS)}"
 final var actualDateTime = OffsetDateTime.now(ZoneOffset.UTC).withNano(0)
 
 application {
-  mainClass = 'com.mcmoddev.mmdbot.core.RunBots'
+    applicationName = "MMDBot"
+    mainClass = "com.mcmoddev.mmdbot.core.RunBots"
+    executableDir = "run"
 }
 
 tasks.withType(JavaCompile).configureEach {
