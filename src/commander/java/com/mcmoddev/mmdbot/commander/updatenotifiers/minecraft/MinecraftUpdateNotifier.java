@@ -95,7 +95,7 @@ public final class MinecraftUpdateNotifier extends UpdateNotifier<MinecraftVersi
                 final String changelogUrl;
                 if (snapshot.contains("snapshot")) {
                     // new format already includes 'snapshot' and the version prefix
-                    changelogUrl = "https://www.minecraft.net/en-us/article/minecraft-%s".formatted(snapshot).replace(".", "-");
+                    changelogUrl = "https://www.minecraft.net/en-us/article/minecraft-%s".formatted(snapshot.replace(".", "-"));
                 } else {
                     // old format like '23w07a'
                     changelogUrl = "https://www.minecraft.net/en-us/article/minecraft-snapshot-%s".formatted(snapshot);
