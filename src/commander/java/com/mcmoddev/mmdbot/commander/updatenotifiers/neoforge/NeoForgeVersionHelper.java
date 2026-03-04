@@ -39,7 +39,7 @@ import java.util.Map;
 
 @UtilityClass
 public final class NeoForgeVersionHelper extends SharedVersionHelpers {
-    private static final String METADATA_URL = "https://maven.neoforged.net/net/neoforged/neoforge/maven-metadata.xml";
+    private static final String METADATA_URL = "https://maven.neoforged.net/releases/net/neoforged/neoforge/maven-metadata.xml";
 
     public static Map<String, String> getNeoForgeVersions() {
         final LinkedHashMap<String, String> versions = new LinkedHashMap<>();
