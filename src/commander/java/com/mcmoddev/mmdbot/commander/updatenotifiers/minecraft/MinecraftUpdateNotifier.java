@@ -80,16 +80,21 @@ public final class MinecraftUpdateNotifier extends UpdateNotifier<MinecraftVersi
                     .formatted(split[0].replace('.', '-'), split[1].substring(2)));
                 embed.setColor(Color.PINK);
             } else if (newVersion.snapshot().contains("-pre")) {
-                // https://www.minecraft.net/en-us/article/minecraft-1-19-4-pre-release-2
+                // new url format https://www.minecraft.net/en-us/article/minecraft-26-1-pre-release-2
+                // old url format https://www.minecraft.net/en-us/article/minecraft-1-19-4-pre-release-2
                 embed.setTitle("New Minecraft Pre-Release available!");
-                final String[] split = newVersion.snapshot().split("-");
-                embed.setDescription(newVersion.snapshot() + "\nChangelog: "
-                    + "https://www.minecraft.net/en-us/article/minecraft-%s-pre-release-%s"
-                    .formatted(split[0].replace('.', '-'), split[1].substring(3)));
+                final String preRelease = newVersion.snapshot();
+                final String changelogUrl;
+                if (preRelease.contains("pre-release")) {
+                    changelogUrl = "https://www.minecraft.net/en-us/article/minecraft-%s".formatted(preRelease.replace(".", "-"));
+                } else {
+                    changelogUrl = "https://www.minecraft.net/en-us/article/minecraft-pre-release-%s".formatted(preRelease);
+                }
+                embed.setDescription(preRelease + "\nChangelog: " + changelogUrl);
                 embed.setColor(Color.ORANGE);
             } else {
-                // old snapshot url format https://www.minecraft.net/en-us/article/minecraft-snapshot-23w07a
-                // new snapshot url format https://www.minecraft.net/en-us/article/minecraft-1-26-snapshot-5
+                // new url format https://www.minecraft.net/en-us/article/minecraft-1-26-snapshot-5
+                // old url format https://www.minecraft.net/en-us/article/minecraft-snapshot-23w07a
                 embed.setTitle("New Minecraft snapshot available!");
                 final String snapshot = newVersion.snapshot();
                 final String changelogUrl;
