@@ -6,8 +6,7 @@ lombok = { id = "io.freefair.lombok", version = "8.1.0" }
 launch4j = { id = 'edu.sc.seis.launch4j', version = '3.0.4' }
 
 [versions]
-jda = "5.0.0-beta.4"
-# https://github.com/Matyrobbrt/JDA-Chewtils/commit/c2bfe64e447817aa5ddac0dab0f12bcede0fe37d
+jda = "6.3.2"
 chewtils = "39a83bd8"
 guava = "32.1.2-jre"
 gson = "2.10.1"
@@ -17,7 +16,7 @@ sqlite = "3.42.0.0"
 flyway = "9.21.1"
 annotations = "24.0.1"
 lombok = "1.18.28"
-graal = "23.0.1"
+graal = "25.0.2"
 reflections = "0.10.2"
 jdbi = "3.40.0"
 junit = "5.10.0"

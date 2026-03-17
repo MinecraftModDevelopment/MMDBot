@@ -30,6 +30,9 @@ import com.mcmoddev.mmdbot.core.util.webhook.WebhookManager;
 import com.mcmoddev.mmdbot.watcher.TheWatcher;
 import com.mcmoddev.mmdbot.watcher.util.database.RulesDAO;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
@@ -38,8 +41,6 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
@@ -127,9 +128,9 @@ public class UpdateRulesCommand extends SlashCommand {
                         .setEphemeral(true).queue();
                 } else {
                     channel.sendMessage("Click the button bellow to be able to talk in the server.")
-                        .setActionRow(Button.of(
+                        .setComponents(ActionRow.of(Button.of(
                             ButtonStyle.PRIMARY, "rules-accept-start", "Click me!"
-                        ))
+                        )))
                         .flatMap($$$$ -> event.getHook().sendMessage("Successfully updated the rules!").setEphemeral(true))
                         .queue();
                 }
@@ -159,7 +160,7 @@ public class UpdateRulesCommand extends SlashCommand {
 
     public static void onEvent(final GenericEvent gEvent) {
         if (!(gEvent instanceof ButtonInteractionEvent event)) return;
-        if (event.getButton().getId() == null || event.getGuild() == null || event.getMember() == null) return;
+        if (event.getButton().getCustomId() == null || event.getGuild() == null || event.getMember() == null) return;
 
         final var role = event.getGuild().getRoleById(getAcceptedRulesRole(event.getGuild().getIdLong()));
         if (role == null) {
@@ -169,16 +170,16 @@ public class UpdateRulesCommand extends SlashCommand {
             return;
         }
 
-        if (event.getButton().getId().equals("rules-accept-start")) {
+        if (event.getButton().getCustomId().equals("rules-accept-start")) {
             event.reply("By clicking the button below, you accept that you have read the rules, you agree to them, and you will follow them in every interaction in the server.")
-                .addActionRow(Button.of(
+                .addComponents(ActionRow.of(Button.of(
                     ButtonStyle.SECONDARY, "rules-agreed", "\uD83D\uDCDA I agree to the rules"
                 ), Button.of(
                     ButtonStyle.SUCCESS, "rules-accept-denied", "\uD83D\uDEAE️ I refuse to accept the rules"
-                ))
+                )))
                 .setEphemeral(true)
                 .queue();
-        } else if (event.getButton().getId().equals("rules-agreed")) {
+        } else if (event.getButton().getCustomId().equals("rules-agreed")) {
             if (event.getMember().getRoles().stream().anyMatch(it -> it.getIdLong() == role.getIdLong())) {
                 event.reply("You have already agreed to the rules!").setEphemeral(true).queue();
                 return;
@@ -187,11 +188,11 @@ public class UpdateRulesCommand extends SlashCommand {
                 .flatMap(v -> event.reply("Role granted! Have fun in the server, and remember to abide to the rules!")
                     .setEphemeral(true))
                 .queue();
-        } else if (event.getButton().getId().equals("rules-accept-denied")) {
+        } else if (event.getButton().getCustomId().equals("rules-accept-denied")) {
             event.reply("Okay then, bye!")
                 .setEphemeral(true)
                 .delay(3, TimeUnit.SECONDS)
-                .flatMap(hook -> event.getMember().kick("Refusing to accept the rules."))
+                .flatMap(hook -> event.getMember().kick().reason("Refusing to accept the rules."))
                 .queue();
         }
     }

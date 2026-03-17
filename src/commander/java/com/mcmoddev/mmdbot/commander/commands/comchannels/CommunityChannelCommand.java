@@ -29,6 +29,7 @@ import com.mcmoddev.mmdbot.commander.config.GuildConfiguration;
 import com.mcmoddev.mmdbot.commander.util.dao.ComChannelsDAO;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -96,7 +97,7 @@ public final class CommunityChannelCommand extends SlashCommand {
                 event.deferReply(true).setContent("This channel is owned by <@" + owner + ">.")
                     .setAllowedMentions(List.of())
                     .mentionRepliedUser(false)
-                    .addActionRow(DismissListener.createDismissButton(event))
+                    .setComponents(ActionRow.of(DismissListener.createDismissButton(event)))
                     .queue();
             } else
                 event.deferReply(true).setContent("This channel is not a community channel or its owner is not known.").queue();

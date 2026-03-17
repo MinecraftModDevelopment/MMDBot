@@ -31,9 +31,16 @@ import com.mcmoddev.mmdbot.core.commands.component.context.ButtonInteractionCont
 import com.mcmoddev.mmdbot.core.commands.component.context.ModalInteractionContext;
 import com.mcmoddev.mmdbot.core.commands.component.context.SelectMenuInteractionContext;
 import com.mcmoddev.mmdbot.core.util.Utils;
-import lombok.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.ActionComponent;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.selections.SelectOption;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageReaction;
@@ -49,15 +56,7 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
-import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectInteraction;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.jetbrains.annotations.NotNull;
 
@@ -165,25 +164,25 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
         }
         args.add(0, String.valueOf(dropdown));
 
-        final var title = TextInput.create("title", "Title", TextInputStyle.SHORT)
+        final var title = TextInput.create("title", TextInputStyle.SHORT)
             .setRequired(false)
             .setMaxLength(MessageEmbed.TITLE_MAX_LENGTH)
             .setPlaceholder("The title of the role panel to create.")
             .build();
 
-        final var description = TextInput.create("description", "Description", TextInputStyle.PARAGRAPH)
+        final var description = TextInput.create("description", TextInputStyle.PARAGRAPH)
             .setRequired(false)
             .setMaxLength(Math.min(MessageEmbed.DESCRIPTION_MAX_LENGTH, TextInput.MAX_VALUE_LENGTH))
             .setPlaceholder("The description role panel to create.")
             .build();
 
-        final var colour = TextInput.create("colour", "Colour", TextInputStyle.SHORT)
+        final var colour = TextInput.create("colour", TextInputStyle.SHORT)
             .setRequired(false)
             .setPlaceholder("The colour the embed will have. Example: #ffffff")
             .build();
 
         final var modal = COMPONENT_LISTENER.createModal("Role selection panel creation", Component.Lifespan.TEMPORARY, args)
-            .addActionRows(
+            .addComponents(
                 ActionRow.of(title),
                 ActionRow.of(description),
                 ActionRow.of(colour)
@@ -249,7 +248,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
         handleRoleSelection(context, selectedRoles, guild);
     }
 
-    private static void handleButtonOption(final @NonNull ModalInteractionContext context, final MessageCreateBuilder builder, final List<Role> selectedRoles) {
+    private static void handleButtonOption(final @NotNull ModalInteractionContext context, final MessageCreateBuilder builder, final List<Role> selectedRoles) {
         final UUID id = UUID.randomUUID();
         final var idString = id.toString();
         final List<ActionRow> rows = new ArrayList<>();
@@ -289,7 +288,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
         return Button.primary(bId, role.getName());
     }
 
-    private static void handleDropdownCreation(final @NonNull ModalInteractionContext context, final MessageCreateBuilder message, final List<Role> selectedRoles) {
+    private static void handleDropdownCreation(final @NotNull ModalInteractionContext context, final MessageCreateBuilder message, final List<Role> selectedRoles) {
         StringSelectMenu.Builder menu = COMPONENT_LISTENER.createMenu(Component.Lifespan.PERMANENT)
             .setPlaceholder("Select your roles")
             .setMaxValues(selectedRoles.size())
@@ -305,7 +304,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
             .queue();
     }
 
-    private static void handleRoleSelection(final @NonNull SelectMenuInteractionContext context, final @NonNull Collection<Role> selectedRoles, final Guild guild) {
+    private static void handleRoleSelection(final @NotNull SelectMenuInteractionContext context, final @NotNull Collection<Role> selectedRoles, final Guild guild) {
         final var member = Objects.requireNonNull(context.getMember());
         final var toAdd = new ArrayList<Role>(selectedRoles.size());
         final var toRemove = new ArrayList<Role>(selectedRoles.size());
@@ -340,7 +339,7 @@ public class RoleSelectCommand extends SlashCommand implements EventListener {
             .queue();
     }
 
-    protected void onButtonInteraction(@NonNull final ButtonInteractionContext context) {
+    protected void onButtonInteraction(@NotNull final ButtonInteractionContext context) {
         final var event = context.getEvent();
         final var roleId = context.getItemComponentArguments().get(0);
         final var guild = Objects.requireNonNull(event.getGuild());

@@ -163,7 +163,7 @@ public abstract class UpdateNotifier<T> implements Runnable {
                     }
                 });
         } else {
-            //LOGGER.debug(loggingMarker, "No new version found");
+            LOGGER.debug(loggingMarker, "No new version found");
         }
     }
 
@@ -176,7 +176,6 @@ public abstract class UpdateNotifier<T> implements Runnable {
 
     @Data
     @Builder
-    @SuppressWarnings("ClassCanBeRecord")
     public static final class NotifierConfiguration<T> {
         private final String name;
         private final Function<Configuration.Channels.UpdateNotifiers, List<SnowflakeValue>> channelGetter;

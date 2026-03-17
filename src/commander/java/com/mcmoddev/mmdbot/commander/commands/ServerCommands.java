@@ -28,6 +28,7 @@ import com.mcmoddev.mmdbot.core.util.builder.SlashCommandBuilder;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import lombok.experimental.UtilityClass;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -89,7 +90,7 @@ public class ServerCommands {
             final var embed = TheCommanderUtilities.createMemberInfoEmbed(event.getOption("user",
                 event::getMember, OptionMapping::getAsMember));
             event.replyEmbeds(embed.build())
-                .addActionRow(DismissListener.createDismissButton(event))
+                .addComponents(ActionRow.of(DismissListener.createDismissButton(event)))
                 .mentionRepliedUser(false).queue();
         })
         .build();

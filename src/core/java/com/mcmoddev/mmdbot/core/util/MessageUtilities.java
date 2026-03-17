@@ -23,9 +23,9 @@ package com.mcmoddev.mmdbot.core.util;
 import com.jagrosh.jdautilities.commons.utils.SafeIdUtil;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,12 +44,12 @@ public class MessageUtilities {
      * @throws IllegalArgumentException when the given message does not contain any action row
      */
     public static void disableButtons(@NonNull Message message) {
-        if (message.getActionRows().isEmpty()) {
+        if (message.getComponents().isEmpty()) {
             throw new IllegalArgumentException("Message must contain at least one action row!");
         }
-        final List<ActionRow> newRows = new ArrayList<>(message.getActionRows().size());
-        for (final var row : message.getActionRows()) {
-            newRows.add(ActionRow.of(row.getComponents().stream().map(item -> item instanceof Button button ? button.asDisabled() : item).toList()));
+        final List<ActionRow> newRows = new ArrayList<>(message.getComponents().size());
+        for (final var row : message.getComponents()) {
+            newRows.add(ActionRow.of(row.asActionRow().getComponents().stream().map(item -> item instanceof Button button ? button.asDisabled() : item).toList()));
         }
 
         message

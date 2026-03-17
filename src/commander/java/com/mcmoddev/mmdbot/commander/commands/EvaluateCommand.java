@@ -25,8 +25,6 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
-import com.mcmoddev.mmdbot.commander.tricks.TrickContext;
-import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.util.script.ScriptingContext;
 import com.mcmoddev.mmdbot.commander.util.script.ScriptingUtils;
 import com.mcmoddev.mmdbot.core.util.TaskScheduler;
@@ -34,12 +32,14 @@ import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.util.gist.GistUtils;
 import io.github.matyrobbrt.curseforgeapi.util.Utils;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
@@ -48,9 +48,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
@@ -126,19 +124,19 @@ public class EvaluateCommand extends SlashCommand {
                             }
                             hook.editOriginal("There was an exception evaluating "
                                     + exception.getLocalizedMessage())
-                                .setActionRow(createDismissButton())
+                                .setComponents(ActionRow.of(createDismissButton()))
                                 .queue();
                         }
                     });
                     TaskScheduler.scheduleTask(() -> {
                         if (!future.isDone()) {
                             future.cancel(true);
-                            hook.editOriginal("Evaluation was timed out!").setActionRow(createDismissButton()).queue();
+                            hook.editOriginal("Evaluation was timed out!").setComponents(ActionRow.of(createDismissButton())).queue();
                         }
                     }, 4, TimeUnit.SECONDS);
                 });
         } else {
-            final var scriptInput = TextInput.create("script", "Script", TextInputStyle.PARAGRAPH)
+            final var scriptInput = TextInput.create("script", TextInputStyle.PARAGRAPH)
                 .setRequired(true)
                 .setPlaceholder("The script to evaluate.")
                 .setRequiredRange(1, TextInput.MAX_VALUE_LENGTH)
@@ -168,7 +166,7 @@ public class EvaluateCommand extends SlashCommand {
                             }
                             hook.editOriginal("There was an exception evaluating "
                                     + exception.getLocalizedMessage())
-                                .setActionRow(createDismissButton(event))
+                                .setComponents(ActionRow.of(createDismissButton(event)))
                                 .queue();
                         }
                     });
@@ -176,7 +174,7 @@ public class EvaluateCommand extends SlashCommand {
                         if (!future.isDone()) {
                             future.cancel(true);
                             hook.editOriginal("Evaluation was timed out!")
-                                .setActionRow(createDismissButton(event)).queue();
+                                .setComponents(ActionRow.of(createDismissButton(event))).queue();
                         }
                     }, 4, TimeUnit.SECONDS);
                 });
@@ -214,21 +212,21 @@ public class EvaluateCommand extends SlashCommand {
             @Override
             public void reply(final String content) {
                 hook.editOriginal(new MessageEditBuilder().setContent(content).setAllowedMentions(ALLOWED_MENTIONS).build())
-                    .setActionRow(DismissListener.createDismissButton(hook.getInteraction().getUser()))
+                    .setComponents(ActionRow.of(DismissListener.createDismissButton(hook.getInteraction().getUser())))
                     .queue();
             }
 
             @Override
             public void replyEmbeds(final MessageEmbed... embeds) {
                 hook.editOriginal(new MessageEditBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
-                    .setActionRow(DismissListener.createDismissButton(hook.getInteraction().getUser()))
+                    .setComponents(ActionRow.of(DismissListener.createDismissButton(hook.getInteraction().getUser())))
                     .queue();
             }
 
             @Override
             public void replyWithMessage(final MessageCreateData msg) {
                 hook.editOriginal(MessageEditData.fromCreateData(msg))
-                    .setActionRow(DismissListener.createDismissButton(hook.getInteraction().getUser()))
+                    .setComponents(ActionRow.of(DismissListener.createDismissButton(hook.getInteraction().getUser())))
                     .queue();
             }
         });
@@ -287,19 +285,19 @@ public class EvaluateCommand extends SlashCommand {
             @Override
             public void reply(final String content) {
                 event.getMessage().reply(new MessageCreateBuilder().setContent(content).setAllowedMentions(ALLOWED_MENTIONS).build())
-                    .setActionRow(DismissListener.createDismissButton(getUser())).mentionRepliedUser(false).queue();
+                    .setComponents(ActionRow.of(DismissListener.createDismissButton(getUser()))).mentionRepliedUser(false).queue();
             }
 
             @Override
             public void replyEmbeds(final MessageEmbed... embeds) {
                 event.getMessage().reply(new MessageCreateBuilder().setEmbeds(embeds).setAllowedMentions(ALLOWED_MENTIONS).build())
-                    .setActionRow(DismissListener.createDismissButton(getUser())).mentionRepliedUser(false).queue();
+                    .setComponents(ActionRow.of(DismissListener.createDismissButton(getUser()))).mentionRepliedUser(false).queue();
             }
 
             @Override
             public void replyWithMessage(final MessageCreateData msg) {
                 event.getMessage().reply(msg).setAllowedMentions(ALLOWED_MENTIONS)
-                    .setActionRow(DismissListener.createDismissButton(getUser())).mentionRepliedUser(false).queue();
+                    .setComponents(ActionRow.of(DismissListener.createDismissButton(getUser()))).mentionRepliedUser(false).queue();
             }
         });
         final var canEditMessage = event.getGuild() != null && event.getMember().hasPermission(Permission.MESSAGE_MANAGE);
@@ -342,14 +340,14 @@ public class EvaluateCommand extends SlashCommand {
                 }
                 event.getMessage().reply("There was an exception evaluating: "
                         + exception.getLocalizedMessage()).setAllowedMentions(ALLOWED_MENTIONS)
-                    .setActionRow(DismissListener.createDismissButton(event.getAuthor())).queue();
+                    .setComponents(ActionRow.of(DismissListener.createDismissButton(event.getAuthor()))).queue();
             }
         });
         TaskScheduler.scheduleTask(() -> {
             if (!future.isDone()) {
                 future.cancel(true);
                 event.getMessage().reply("Evaluation was timed out!")
-                    .setActionRow(DismissListener.createDismissButton(event.getAuthor())).queue();
+                    .setComponents(ActionRow.of(DismissListener.createDismissButton(event.getAuthor()))).queue();
             }
         }, 4, TimeUnit.SECONDS);
     }
@@ -408,62 +406,6 @@ public class EvaluateCommand extends SlashCommand {
                 }
             });
         }
-        context.setFunctionVoid("runTrick", args -> {
-            validateArgs(args, 1, 2);
-            final String[] trickArgs = args.size() > 1 ? args.get(1).as(String[].class) : new String[]{};
-            Tricks.getTrick(args.get(0).asString()).ifPresent(trick -> trick.execute(new TrickContext() {
-                @Nullable
-                @Override
-                public Member getMember() {
-                    return evalContext.getMember();
-                }
-
-                @NotNull
-                @Override
-                public User getUser() {
-                    return evalContext.getUser();
-                }
-
-                @NotNull
-                @Override
-                public MessageChannel getChannel() {
-                    return evalContext.getMessageChannel();
-                }
-
-                @Nullable
-                @Override
-                public TextChannel getTextChannel() {
-                    return evalContext.getTextChannel();
-                }
-
-                @Nullable
-                @Override
-                public Guild getGuild() {
-                    return evalContext.getGuild();
-                }
-
-                @Nonnull
-                @Override
-                public String[] getArgs() {
-                    return trickArgs;
-                }
-
-                @Override
-                public void reply(final String content) {
-                    evalContext.reply(content);
-                }
-
-                @Override
-                public void replyEmbeds(final MessageEmbed... embeds) {
-                    evalContext.replyEmbeds(embeds);
-                }
-
-                @Override
-                public void replyWithMessage(final MessageCreateData message) {
-                    evalContext.replyWithMessage(message);
-                }
-            }));
-        });
         return context;
     }
 

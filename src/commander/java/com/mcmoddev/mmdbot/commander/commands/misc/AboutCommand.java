@@ -27,7 +27,7 @@ import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
@@ -65,7 +65,7 @@ public final class AboutCommand extends SlashCommand {
     }
 
     public static final String[] MAINTAINERS = {
-        "jriwanek", "KiriCattus", "matyrobbrt", "sciwhiz12", "Curle"
+        "KiriCattus", "matyrobbrt", "sciwhiz12", "Curle"
     };
 
     /**

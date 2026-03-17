@@ -35,13 +35,13 @@ import de.ialistannen.javadocapi.rendering.LinkResolveStrategy;
 import de.ialistannen.javadocapi.storage.ElementLoader;
 import de.ialistannen.javadocapi.util.BaseUrlElementLoader;
 import de.ialistannen.javadocapi.util.NameShortener;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectInteraction;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
@@ -124,7 +124,7 @@ public class DocsCommand extends SlashCommand {
             true,
             () -> context.getEvent().getHook()
                 .editOriginal("Query has no result.")
-                .setActionRow(DismissListener.createDismissButton())
+                .setComponents(ActionRow.of(DismissListener.createDismissButton()))
                 .queue());
     }
 
@@ -169,7 +169,7 @@ public class DocsCommand extends SlashCommand {
                 }),
             shortDescription, omitTags,
             () -> hook.editOriginal("Could not find any result for query: '" + query + "'")
-                .setActionRow(DismissListener.createDismissButton())
+                .setComponents(ActionRow.of(DismissListener.createDismissButton()))
                 .queue()
         ));
     }

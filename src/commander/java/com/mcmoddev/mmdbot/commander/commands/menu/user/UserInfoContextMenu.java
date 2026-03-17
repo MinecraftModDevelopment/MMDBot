@@ -24,6 +24,7 @@ import com.jagrosh.jdautilities.command.UserContextMenu;
 import com.jagrosh.jdautilities.command.UserContextMenuEvent;
 import com.mcmoddev.mmdbot.commander.util.TheCommanderUtilities;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 
 public class UserInfoContextMenu extends UserContextMenu {
 
@@ -38,7 +39,7 @@ public class UserInfoContextMenu extends UserContextMenu {
             return;
         }
         final var embed = TheCommanderUtilities.createMemberInfoEmbed(event.getTargetMember());
-        event.replyEmbeds(embed.build()).addActionRow(DismissListener.createDismissButton(event))
+        event.replyEmbeds(embed.build()).setComponents(ActionRow.of(DismissListener.createDismissButton(event)))
             .mentionRepliedUser(false).queue();
     }
 }

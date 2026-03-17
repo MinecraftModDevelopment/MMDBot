@@ -230,109 +230,12 @@ public final class Configuration {
         }
 
         @Required
-        @Setting("tricks")
-        @Comment("Tricks configuration.")
-        private Tricks tricks = new Tricks();
-
-        public Tricks tricks() {
-            return tricks;
-        }
-
-        @ConfigSerializable
-        public static final class Tricks {
-
-            @Required
-            @Setting("enabled")
-            @Comment("If tricks should be enabled.")
-            private boolean tricksEnabled = true;
-
-            public boolean tricksEnabled() {
-                return tricksEnabled;
-            }
-
-            @Required
-            @Setting("prefix_enabled")
-            @Comment("""
-                Only if tricks are enabled!
-                If tricks should be able to work with a prefixes.""")
-            private boolean prefixEnabled = true;
-
-            public boolean prefixEnabled() {
-                return prefixEnabled;
-            }
-        }
-
-        @Required
         @Setting("evaluation")
         @Comment("If evaluation is enabled.")
         private boolean evaluationEnabled = true;
 
         public boolean isEvaluationEnabled() {
             return evaluationEnabled;
-        }
-
-        @Required
-        @Setting("quotes_enabled")
-        @Comment("If quotes are enabled.")
-        private boolean quotesEnabled = true;
-
-        public boolean areQuotesEnabled() {
-            return quotesEnabled;
-        }
-
-        @Required
-        @Setting("reminders")
-        @Comment("Reminders configuration.")
-        private Reminders reminders = new Reminders();
-
-        public Reminders reminders() {
-            return reminders;
-        }
-
-        @ConfigSerializable
-        public static final class Reminders {
-
-            @Required
-            @Setting("enabled")
-            @Comment("If reminders should be enabled.")
-            private boolean enabled = true;
-
-            public boolean areEnabled() {
-                return enabled;
-            }
-
-            @Required
-            @Setting("snoozing_times")
-            @Comment("""
-                A list of snoozing times available for snoozing reminders.
-                The format is: <time><unit>, where <time> is the snoozing time, and <unit> is the unit (`s` for seconds, `m` for minutes, `d` for days, etc.)
-                Multiple times can be chained in the same configuration with a `-`. Example:
-                12s-48m-2h (12 seconds, 48 minutes and 2 hours)""")
-            private List<String> snoozingTimes = List.of(
-                "5m", "1h", "1d"
-            );
-
-            public List<String> getSnoozingTimes() {
-                return snoozingTimes;
-            }
-
-            @Required
-            @Setting("limit_per_user")
-            @Comment("The maximum amount of reminders a user can have.")
-            private int limitPerUser = 100;
-
-            public int getLimitPerUser() {
-                return limitPerUser;
-            }
-
-            @Required
-            @Setting("time_limit")
-            @Comment("The maximum time (in seconds) that a reminder can be scheduled for.")
-            private long timeLimit = 60 * 60 * 24 * 365;
-
-            public long getTimeLimit() {
-                return timeLimit;
-            }
         }
     }
 }

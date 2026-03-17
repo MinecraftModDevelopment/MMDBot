@@ -32,6 +32,7 @@ import com.mcmoddev.mmdbot.core.util.builder.SlashCommandBuilder;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import io.github.matyrobbrt.curseforgeapi.util.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -190,7 +191,7 @@ public final class VersionCommand {
                             .setTimestamp(Instant.now())
                             .build()
                         )
-                        .addActionRow(DismissListener.createDismissButton())
+                        .addComponents(ActionRow.of(DismissListener.createDismissButton()))
                         .queue();
                 })
         )

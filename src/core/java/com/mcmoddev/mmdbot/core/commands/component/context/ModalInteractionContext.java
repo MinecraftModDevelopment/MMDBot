@@ -22,9 +22,6 @@ package com.mcmoddev.mmdbot.core.commands.component.context;
 
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 
-/**
- * A class representing the context in a {@link net.dv8tion.jda.api.interactions.components.Modal} interaction.
- */
 public interface ModalInteractionContext extends BaseItemComponentInteractionContext<ModalInteractionEvent> {
 
 }

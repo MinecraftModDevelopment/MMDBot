@@ -24,8 +24,8 @@ import com.google.common.collect.Lists;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.commands.component.context.ButtonInteractionContext;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
@@ -89,9 +89,9 @@ public final class PaginatorImpl implements Paginator {
         final List<String> newArgs = context.getArguments().size() == 2 ? List.of() : context.getArguments().subList(2, context.getArguments().size());
 
         // If it has action rows already, don't delete them
-        final var oldActionRowsSize = event.getMessage().getActionRows().size();
+        final var oldActionRowsSize = event.getMessage().getComponents().size();
         final var oldActionRows = oldActionRowsSize < 2 ? new ArrayList<ActionRow>() :
-            new ArrayList<>(event.getMessage().getActionRows().subList(1, oldActionRowsSize));
+            new ArrayList<>(event.getMessage().getComponents().subList(1, oldActionRowsSize));
 
         final var buttonId = context.getComponentId().toString();
 

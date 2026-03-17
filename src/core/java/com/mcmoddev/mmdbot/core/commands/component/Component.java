@@ -23,10 +23,6 @@ package com.mcmoddev.mmdbot.core.commands.component;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * A component has an ID, and represents an {@link net.dv8tion.jda.api.interactions.components.ItemComponent}.<br>
- * It is used for saving the arguments that an {@link net.dv8tion.jda.api.interactions.components.ItemComponent} needs for later use.
- */
 public record Component(String featureId, UUID uuid, List<String> arguments, Lifespan lifespan) {
 
     /**

@@ -34,6 +34,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -192,13 +193,13 @@ public abstract class CurseForgeCommand extends SlashCommand {
 
         default void reply(String content) {
             getHook().editOriginal(content)
-                .setActionRow(DismissListener.createDismissButton(getUser()))
+                .setComponents(ActionRow.of(DismissListener.createDismissButton(getUser())))
                 .queue();
         }
 
         default void replyEmbeds(MessageEmbed... embeds) {
             getHook().editOriginalEmbeds(embeds)
-                .setActionRow(DismissListener.createDismissButton(getUser()))
+                .setComponents(ActionRow.of(DismissListener.createDismissButton(getUser())))
                 .queue();
         }
 

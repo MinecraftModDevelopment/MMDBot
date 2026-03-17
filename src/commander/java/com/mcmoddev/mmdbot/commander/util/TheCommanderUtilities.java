@@ -21,6 +21,7 @@
 package com.mcmoddev.mmdbot.commander.util;
 
 import com.google.gson.JsonParser;
+import com.mcmoddev.mmdbot.commander.TheCommander;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
@@ -65,7 +66,7 @@ public class TheCommanderUtilities {
         } catch (final RuntimeException ex) {
             throw ex;
         } catch (final Exception ex) {
-            log.error("Error getting cat fact...", ex);
+            TheCommander.LOGGER.error("Error getting cat fact...", ex);
             ex.printStackTrace();
         }
         return "";

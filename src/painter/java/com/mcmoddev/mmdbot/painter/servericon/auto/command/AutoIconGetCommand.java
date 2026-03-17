@@ -25,9 +25,9 @@ import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.painter.ThePainter;
 import com.mcmoddev.mmdbot.painter.servericon.ServerIconCommand;
-import com.mcmoddev.mmdbot.painter.servericon.auto.AutomaticIconConfiguration;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 
 public class AutoIconGetCommand extends SlashCommand {
     public AutoIconGetCommand() {
@@ -60,7 +60,7 @@ public class AutoIconGetCommand extends SlashCommand {
                     ), false)
                     .setColor(day == 0 ? 0xffffff : data.colours().get(day - 1))
                     .build())
-                .setActionRow(Button.primary(AutoIconSetCommand.BUTTON_ID, "Generate preview"))
+                .setComponents(ActionRow.of(Button.primary(AutoIconSetCommand.BUTTON_ID, "Generate preview")))
                 .queue();
         } catch (Exception exception) {
             event.reply("Encountered exception: *" + exception.getMessage() + "*")

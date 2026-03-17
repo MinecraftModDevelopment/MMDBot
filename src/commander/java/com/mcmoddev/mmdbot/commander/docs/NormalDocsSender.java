@@ -30,14 +30,14 @@ import de.ialistannen.javadocapi.rendering.MarkdownCommentRenderer;
 import de.ialistannen.javadocapi.storage.ElementLoader;
 import de.ialistannen.javadocapi.util.BaseUrlElementLoader;
 import de.ialistannen.javadocapi.util.NameShortener;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.selections.SelectOption;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.components.Component.Type;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
-import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
@@ -137,7 +137,7 @@ public class NormalDocsSender implements DocsSender {
             .toList();
 
         List<ActionRow> rows;
-        if (labelResultList.size() <= 5 * net.dv8tion.jda.api.interactions.components.Component.Type.BUTTON.getMaxPerRow()) {
+        if (labelResultList.size() <= 5 * Type.BUTTON.getMaxPerRow()) {
             rows = buildRowsButton(labelResultList, buttonId, userId);
         } else {
             rows = buildRowsMenu(labelResultList, buttonId, userId);
@@ -154,8 +154,8 @@ public class NormalDocsSender implements DocsSender {
         final var buttonId = id.toString();
 
         return results.stream()
-            .limit(net.dv8tion.jda.api.interactions.components.Component.Type.BUTTON.getMaxPerRow() * 5L)
-            .collect(partition(net.dv8tion.jda.api.interactions.components.Component.Type.BUTTON.getMaxPerRow()))
+            .limit(Type.BUTTON.getMaxPerRow() * 5L)
+            .collect(partition(Type.BUTTON.getMaxPerRow()))
             .values()
             .stream()
             .map(items -> {

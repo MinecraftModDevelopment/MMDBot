@@ -23,6 +23,7 @@ package com.mcmoddev.mmdbot.commander.docs;
 import com.mcmoddev.mmdbot.core.commands.component.Component;
 import com.mcmoddev.mmdbot.core.commands.component.context.ButtonInteractionContext;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -46,7 +47,7 @@ public enum DocsButtonType {
                 false,
                 data.omitTags(),
                 () -> hook.editOriginal("Query has no result.")
-                    .setActionRow(DismissListener.createDismissButton())
+                    .setComponents(ActionRow.of(DismissListener.createDismissButton()))
                     .queue())
             );
     }),
@@ -67,7 +68,7 @@ public enum DocsButtonType {
                 true,
                 data.omitTags(),
                 () -> hook.editOriginal("Query has no result.")
-                    .setActionRow(DismissListener.createDismissButton())
+                    .setComponents(ActionRow.of(DismissListener.createDismissButton()))
                     .queue())
             );
     }),
@@ -88,7 +89,7 @@ public enum DocsButtonType {
                 data.shortDescription(),
                 false,
                 () -> hook.editOriginal("Query has no result.")
-                    .setActionRow(DismissListener.createDismissButton())
+                    .setComponents(ActionRow.of(DismissListener.createDismissButton()))
                     .queue())
             );
     }),
@@ -109,7 +110,7 @@ public enum DocsButtonType {
                 data.shortDescription(),
                 true,
                 () -> hook.editOriginal("Query has no result.")
-                    .setActionRow(DismissListener.createDismissButton())
+                    .setComponents(ActionRow.of(DismissListener.createDismissButton()))
                     .queue())
             );
     }),
@@ -136,7 +137,7 @@ public enum DocsButtonType {
             false,
             () -> context.getEvent().getHook()
                 .editOriginal("Query has no result.")
-                .setActionRow(DismissListener.createDismissButton())
+                .setComponents(ActionRow.of(DismissListener.createDismissButton()))
                 .queue());
     });
 

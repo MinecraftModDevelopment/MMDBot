@@ -32,7 +32,6 @@ import com.mcmoddev.mmdbot.thelistener.events.LeaveJoinEvents;
 import com.mcmoddev.mmdbot.thelistener.events.MessageEvents;
 import com.mcmoddev.mmdbot.thelistener.events.ModerationEvents;
 import com.mcmoddev.mmdbot.thelistener.events.RoleEvents;
-import com.mcmoddev.mmdbot.thelistener.events.TrickEvents;
 import com.mcmoddev.mmdbot.thelistener.util.GuildConfig;
 import io.github.cdimascio.dotenv.Dotenv;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -45,7 +44,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
@@ -83,14 +81,12 @@ public final class TheListener implements Bot {
     static {
         Events.MODERATION_BUS.register(ModerationEvents.INSTANCE);
         Events.MODERATION_BUS.register(MessageEvents.INSTANCE);
-
-        Events.CUSTOM_AUDIT_LOG_BUS.register(TrickEvents.class);
     }
 
     private static final Set<GatewayIntent> INTENTS = Set.of(
         GatewayIntent.DIRECT_MESSAGES,
         GatewayIntent.GUILD_MODERATION,
-        GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
+        GatewayIntent.GUILD_EXPRESSIONS,
         GatewayIntent.GUILD_MESSAGES,
         GatewayIntent.GUILD_MEMBERS,
         GatewayIntent.MESSAGE_CONTENT

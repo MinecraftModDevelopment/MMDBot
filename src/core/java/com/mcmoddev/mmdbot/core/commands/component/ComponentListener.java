@@ -26,12 +26,11 @@ import com.mcmoddev.mmdbot.core.commands.component.context.ModalInteractionConte
 import com.mcmoddev.mmdbot.core.commands.component.context.SelectMenuInteractionContext;
 import lombok.NonNull;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectInteraction;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.selections.SelectMenu;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.modals.Modal;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -128,7 +127,7 @@ public abstract class ComponentListener {
         }
 
         /**
-         * Sets the action that should be executed on {@link net.dv8tion.jda.api.interactions.components.selections.SelectMenu} interaction.
+         * Sets the action that should be executed on {@link SelectMenu} interaction.
          *
          * @param onSelectMenu the action that should be executed on select menu interaction
          * @return the builder instance

@@ -31,11 +31,12 @@ import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import io.github.matyrobbrt.curseforgeapi.util.Utils;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 import java.io.IOException;
@@ -99,7 +100,7 @@ public final class XkcdCommand extends PaginatedCommand {
                     hook.editOriginal(MessageEditData.fromCreateData(paginator.createPaginatedMessage(id - 1, latest, event.getUser().getIdLong()))).queue();
                 } catch (IOException e) {
                     hook.editOriginal("There was an exception executing that command: " + e.getLocalizedMessage())
-                        .setActionRow(DismissListener.createDismissButton())
+                        .setComponents(ActionRow.of(DismissListener.createDismissButton()))
                         .queue();
                     TheCommander.LOGGER.error("Exception executing command ", e);
                 }

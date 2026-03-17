@@ -33,28 +33,15 @@ import com.mcmoddev.mmdbot.commander.commands.EvaluateCommand;
 import com.mcmoddev.mmdbot.commander.commands.GistCommand;
 import com.mcmoddev.mmdbot.commander.commands.RoleSelectCommand;
 import com.mcmoddev.mmdbot.commander.commands.curseforge.CurseForgeCommand;
-import com.mcmoddev.mmdbot.commander.commands.menu.message.AddQuoteContextMenu;
 import com.mcmoddev.mmdbot.commander.commands.menu.message.GistContextMenu;
 import com.mcmoddev.mmdbot.commander.commands.menu.user.UserInfoContextMenu;
-import com.mcmoddev.mmdbot.commander.commands.tricks.AddTrickCommand;
-import com.mcmoddev.mmdbot.commander.commands.tricks.EditTrickCommand;
-import com.mcmoddev.mmdbot.commander.commands.tricks.RunTrickCommand;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.commander.config.GuildConfiguration;
 import com.mcmoddev.mmdbot.commander.config.PermissionList;
-import com.mcmoddev.mmdbot.commander.custompings.CustomPings;
-import com.mcmoddev.mmdbot.commander.custompings.CustomPingsListener;
 import com.mcmoddev.mmdbot.commander.docs.ConfigBasedElementLoader;
 import com.mcmoddev.mmdbot.commander.docs.DocsCommand;
 import com.mcmoddev.mmdbot.commander.docs.NormalDocsSender;
-import com.mcmoddev.mmdbot.commander.eventlistener.FilePreviewListener;
 import com.mcmoddev.mmdbot.commander.eventlistener.ReferencingListener;
-import com.mcmoddev.mmdbot.commander.eventlistener.ThreadListener;
-import com.mcmoddev.mmdbot.commander.migrate.QuotesMigrator;
-import com.mcmoddev.mmdbot.commander.migrate.TricksMigrator;
-import com.mcmoddev.mmdbot.commander.reminders.Reminders;
-import com.mcmoddev.mmdbot.commander.reminders.SnoozingListener;
-import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers;
 import com.mcmoddev.mmdbot.commander.util.EventListeners;
 import com.mcmoddev.mmdbot.commander.util.mc.MCVersions;
@@ -180,8 +167,8 @@ public final class TheCommander implements Bot {
 
     private static final Set<GatewayIntent> INTENTS = Set.of(
         GatewayIntent.DIRECT_MESSAGES,
-        GatewayIntent.GUILD_BANS,
-        GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
+        GatewayIntent.GUILD_MODERATION,
+        GatewayIntent.GUILD_EXPRESSIONS,
         GatewayIntent.GUILD_MESSAGE_REACTIONS,
         GatewayIntent.GUILD_MESSAGES,
         GatewayIntent.GUILD_MEMBERS,
@@ -403,27 +390,6 @@ public final class TheCommander implements Bot {
             EventListeners.COMMANDS_LISTENER.addListener(new EvaluateCommand.ModalListener());
         }
 
-        // Tricks
-        if (generalConfig.features().tricks().tricksEnabled()) {
-            commandClient.addCommand(new AddTrickCommand.Prefix());
-            commandClient.addCommand(new EditTrickCommand.Prefix());
-            EventListeners.COMMANDS_LISTENER.addListeners(new AddTrickCommand.ModalListener());
-            if (generalConfig.features().tricks().prefixEnabled()) {
-                Tricks.getTricks().stream().map(RunTrickCommand.Prefix::new).forEach(commandClient::addCommand);
-            }
-        }
-
-        // Quotes
-        if (generalConfig.features().areQuotesEnabled()) {
-            commandClient.addContextMenu(new AddQuoteContextMenu());
-        }
-
-        // Reminders
-        if (generalConfig.features().reminders().areEnabled()) {
-            Reminders.scheduleAllReminders();
-            EventListeners.COMMANDS_LISTENER.addListeners(SnoozingListener.INSTANCE);
-        }
-
         // Docs
         {
             try {
@@ -457,7 +423,7 @@ public final class TheCommander implements Bot {
                     if (generalConfig.features().areOldChannelChecksEnabled()) {
                         Events.MISC_BUS.addListener((final TaskScheduler.CollectTasksEvent ct) -> OldChannelsHelper.registerListeners(ct, event.getJDA()));
                     }
-                }), CustomPingsListener.LISTENER.get())
+                }))
                 .disableCache(CacheFlag.CLIENT_STATUS)
                 .disableCache(CacheFlag.ONLINE_STATUS)
                 .disableCache(CacheFlag.VOICE_STATE)
@@ -504,14 +470,6 @@ public final class TheCommander implements Bot {
         instance = null; // Clear the instance, as it doesn't exist anymore.
         // The "this" object should still exist for restarting it, at which point the instance will
         // be assigned again
-    }
-
-    @Override
-    public void migrateData() throws IOException {
-        new TricksMigrator(runPath).migrate();
-        new QuotesMigrator(runPath).migrate();
-        Reminders.MIGRATOR.migrate(Reminders.CURRENT_SCHEMA_VERSION, Reminders.PATH_RESOLVER.apply(runPath));
-        CustomPings.MIGRATOR.migrate(CustomPings.CURRENT_SCHEMA_VERSION, CustomPings.PATH_RESOLVER.apply(runPath));
     }
 
     @Override

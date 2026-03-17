@@ -21,9 +21,6 @@
 package com.mcmoddev.mmdbot.commander.util.script;
 
 import com.google.common.collect.Lists;
-import com.mcmoddev.mmdbot.commander.quotes.Quotes;
-import com.mcmoddev.mmdbot.commander.tricks.TrickContext;
-import com.mcmoddev.mmdbot.commander.tricks.Tricks;
 import com.mcmoddev.mmdbot.commander.util.script.object.ScriptEmbed;
 import com.mcmoddev.mmdbot.commander.util.script.object.ScriptRegion;
 import com.mcmoddev.mmdbot.commander.util.script.object.ScriptRoleIcon;
@@ -219,49 +216,6 @@ public final class ScriptingUtils {
                 createTextChannel(c).toProxyObject()).toList());
     }
 
-    public static ScriptingContext createTrickContext(TrickContext trickContext) {
-        final var context = ScriptingContext.of("TrickContext");
-        context.setFunction("createEmbed", a -> {
-            if (a.size() == 2) {
-                return new ScriptEmbed(new EmbedBuilder().setTitle(a.get(0).asString()).setDescription(a.get(1).asString()));
-            } else {
-                return new ScriptEmbed();
-            }
-        });
-        context.set("guild", trickContext.getGuild() == null ? null : createGuild(trickContext.getGuild()));
-        context.set("member", trickContext.getMember() == null ? null : createMember(trickContext.getMember(), true));
-        context.set("user", createUser(trickContext.getUser(), true));
-        context.set("args", trickContext.getArgs());
-        context.set("channel", createMessageChannel(trickContext.getChannel(), true));
-        context.set("textChannel", trickContext.getTextChannel() == null ? null : createTextChannel(trickContext.getTextChannel(), true));
-        context.setFunctionVoid("reply", args -> {
-            validateArgs(args, 1);
-            trickContext.reply(args.get(0).asString());
-        });
-        context.setFunctionVoid("replyEmbeds", args -> {
-            trickContext.replyEmbeds(args.stream().map(ScriptingUtils::getEmbedFromValue)
-                .filter(Objects::nonNull).limit(3).toArray(MessageEmbed[]::new));
-        });
-        context.setFunctionVoid("replyEmbed", args -> {
-            validateArgs(args, 1);
-            final var v = args.get(0);
-            final var embed = getEmbedFromValue(v);
-            if (embed != null) {
-                trickContext.replyEmbeds(embed);
-            }
-        });
-        context.setFunctionVoid("runTrick", args -> {
-            validateArgs(args, 1, 2);
-            if (args.size() == 1) {
-                Tricks.getTrick(args.get(0).asString()).ifPresent(trick -> trick.execute(trickContext));
-            } else if (args.size() > 1) {
-                Tricks.getTrick(args.get(0).asString())
-                    .ifPresent(trick -> trick.execute(new TrickContext.DelegateWithArguments(trickContext, args.get(1).as(String[].class))));
-            }
-        });
-        return context;
-    }
-
     public static ScriptingContext createGuild(Guild guild) {
         final var context = ScriptingContext.of("Guild", guild);
         context.set("name", guild.getName());
@@ -293,10 +247,6 @@ public final class ScriptingUtils {
             validateArgs(args, 1);
             final var emoji = guild.retrieveEmojiById(args.get(0).asLong()).complete();
             return emoji == null ? null : createEmoji(emoji).toProxyObject();
-        });
-        context.setFunction("getQuotes", args -> {
-            validateArgs(args, 0);
-            return IntStream.range(0, Quotes.getQuotesForGuild(guild.getIdLong()).size()).mapToObj(i -> Quotes.getQuote(guild.getIdLong(), i)).toList();
         });
         context.setFunction("getMembers", a -> guild.getMembers().stream().map(m -> createMember(m).toProxyObject()).toList());
         context.setFunction("getRoles", a -> guild.getRoles().stream().map(r -> createRole(r).toProxyObject()).toList());

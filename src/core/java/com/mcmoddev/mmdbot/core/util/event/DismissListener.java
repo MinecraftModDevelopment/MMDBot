@@ -21,6 +21,8 @@
 package com.mcmoddev.mmdbot.core.util.event;
 
 import io.github.matyrobbrt.eventdispatcher.LazySupplier;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -28,9 +30,8 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.Interaction;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
@@ -45,13 +46,13 @@ public final class DismissListener extends ListenerAdapter {
     public static final String LABEL = "\uD83D\uDEAE️ Dismiss";
 
     @Override
-    public void onButtonInteraction(@javax.annotation.Nonnull final ButtonInteractionEvent event) {
+    public void onButtonInteraction(@NotNull final ButtonInteractionEvent event) {
         var button = event.getButton();
-        if (button.getId() == null || button.getId().isBlank()) {
+        if (button.getCustomId() == null || button.getCustomId().isBlank()) {
             return;
         }
 
-        String[] idParts = button.getId().split("-");
+        String[] idParts = button.getCustomId().split("-");
 
         if (!idParts[0].equals("dismiss")) {
             return;

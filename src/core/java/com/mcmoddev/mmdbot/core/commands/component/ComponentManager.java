@@ -103,8 +103,8 @@ public class ComponentManager implements EventListener {
 
     public void onButtonInteraction(@NotNull final ButtonInteractionEvent event) {
         try {
-            if (event.getButton().getId() != null) {
-                final var buttonArguments = event.getButton().getId().split(ID_SPLITTER);
+            if (event.getButton().getCustomId() != null) {
+                final var buttonArguments = event.getButton().getCustomId().split(ID_SPLITTER);
                 final var id = UUID.fromString(buttonArguments[0]);
                 getStorage().getComponent(id).ifPresentOrElse(component -> {
                     final var listener = listeners.get(component.featureId());
@@ -153,8 +153,8 @@ public class ComponentManager implements EventListener {
     // TODO - fix the generics
     public void onSelectMenuInteraction(@NotNull final GenericSelectMenuInteractionEvent event) {
         try {
-            if (event.getSelectMenu().getId() != null) {
-                final var buttonArguments = event.getSelectMenu().getId().split(ID_SPLITTER);
+            if (event.getSelectMenu().getCustomId() != null) {
+                final var buttonArguments = event.getSelectMenu().getCustomId().split(ID_SPLITTER);
                 final var id = UUID.fromString(buttonArguments[0]);
                 getStorage().getComponent(id).ifPresentOrElse(component -> {
                     final var listener = listeners.get(component.featureId());

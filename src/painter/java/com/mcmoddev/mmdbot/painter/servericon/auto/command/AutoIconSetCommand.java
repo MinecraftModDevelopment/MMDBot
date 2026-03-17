@@ -29,13 +29,14 @@ import com.mcmoddev.mmdbot.painter.servericon.ServerIconMaker;
 import com.mcmoddev.mmdbot.painter.servericon.auto.AutomaticIconConfiguration;
 import com.mcmoddev.mmdbot.painter.util.CooldownManager;
 import lombok.SneakyThrows;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import org.jetbrains.annotations.NotNull;
@@ -71,7 +72,7 @@ public class AutoIconSetCommand extends SlashCommand implements EventListener {
             .onSuccess(it -> createAndSave(event))
             .flatMap(it -> it.editOriginal(new MessageEditBuilder()
                 .setContent("Successfully set server auto icon!")
-                .setActionRow(Button.primary(BUTTON_ID, "Generate preview"))
+                .setComponents(ActionRow.of(Button.primary(BUTTON_ID, "Generate preview")))
                 .build()))
             .queue();
     }
@@ -80,7 +81,7 @@ public class AutoIconSetCommand extends SlashCommand implements EventListener {
     @Override
     public void onEvent(@NotNull final GenericEvent ge) {
         if (!(ge instanceof ButtonInteractionEvent event)) return;
-        if (!(Objects.equals(event.getButton().getId(), BUTTON_ID))) return;
+        if (!(Objects.equals(event.getButton().getCustomId(), BUTTON_ID))) return;
 
         if (!BUTTON_COOLDOWN.check(event.getUser())) {
             event.reply("You can use this button " + BUTTON_COOLDOWN.coolDownFriendly(event.getUser()) + ".")
