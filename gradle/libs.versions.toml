@@ -8,8 +8,7 @@ launch4j = { id = 'edu.sc.seis.launch4j', version = '3.0.4' }
 [versions]
 jda = "5.0.0-beta.4"
 # https://github.com/Matyrobbrt/JDA-Chewtils/commit/c2bfe64e447817aa5ddac0dab0f12bcede0fe37d
-# chewtils = "2.0-SNAPSHOT"
-chewtils = "c2bfe64"
+chewtils = "39a83bd8"
 guava = "32.1.2-jre"
 gson = "2.10.1"
 logback = "1.4.9"
@@ -42,9 +41,7 @@ jsr305 = "3.0.2"
 
 [libraries]
 jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
-# TODO switch back when JDA-Chewtils/PR 65 is merged
-# chewtils = { module = "pw.chew:jda-chewtils", version.ref = "chewtils" }
-chewtils = { module = "com.matyrobbrt:JDA-Chewtils", version.ref = "chewtils" }
+chewtils = { module = "com.github.Chew:JDA-Chewtils", version.ref = "chewtils" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
