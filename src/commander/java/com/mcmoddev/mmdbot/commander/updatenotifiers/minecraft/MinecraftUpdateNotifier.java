@@ -72,12 +72,17 @@ public final class MinecraftUpdateNotifier extends UpdateNotifier<MinecraftVersi
             embed.setColor(Color.GREEN);
         } else {
             if (newVersion.snapshot().contains("-rc")) {
-                // https://www.minecraft.net/en-us/article/minecraft-1-19-4-release-candidate-1
+                // new url format https://www.minecraft.net/en-us/article/minecraft-26-1-release-candidate-1
+                // old url format https://www.minecraft.net/en-us/article/minecraft-1-19-4-release-candidate-1
                 embed.setTitle("New Minecraft Release Candidate available!");
-                final String[] split = newVersion.snapshot().split("-");
-                embed.setDescription(newVersion.snapshot() + "\nChangelog: "
-                    + "https://www.minecraft.net/en-us/article/minecraft-%s-release-candidate-%s"
-                    .formatted(split[0].replace('.', '-'), split[1].substring(2)));
+                final String releaseCandidate = newVersion.snapshot();
+                final String changelogUrl;
+                if (releaseCandidate.contains("-rc-")) {
+                    changelogUrl = "https://www.minecraft.net/en-us/article/minecraft-%s".formatted(releaseCandidate.replace(".", "-"));
+                } else {
+                    changelogUrl = "https://www.minecraft.net/en-us/article/minecraft-release-candidate-%s".formatted(releaseCandidate);
+                }
+                embed.setDescription(releaseCandidate + "\nChangelog: " + changelogUrl);
                 embed.setColor(Color.PINK);
             } else if (newVersion.snapshot().contains("-pre")) {
                 // new url format https://www.minecraft.net/en-us/article/minecraft-26-1-pre-release-2
