@@ -27,6 +27,7 @@ import io.github.matyrobbrt.eventdispatcher.Event;
  * These events are fired on the {@link com.mcmoddev.mmdbot.core.event.Events#CUSTOM_AUDIT_LOG_BUS}.
  */
 public abstract class CustomAuditLogEvent implements Event {
+
     protected final long guildId;
     protected final long responsibleUserId;
 

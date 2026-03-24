@@ -219,23 +219,5 @@ public final class Configuration {
         public long getOldChannelReportTime() {
             return oldChannelReportTime;
         }
-
-        @Required
-        @Setting("referencing_enabled")
-        @Comment("If message referencing should be enabled.")
-        private boolean referencingEnabled = true;
-
-        public boolean isReferencingEnabled() {
-            return referencingEnabled;
-        }
-
-        @Required
-        @Setting("evaluation")
-        @Comment("If evaluation is enabled.")
-        private boolean evaluationEnabled = true;
-
-        public boolean isEvaluationEnabled() {
-            return evaluationEnabled;
-        }
     }
 }

@@ -39,20 +39,12 @@ import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.util.event.OneTimeEventListener;
 import com.mcmoddev.mmdbot.core.util.event.ThreadedEventListener;
 import com.mcmoddev.mmdbot.watcher.commands.information.InviteCommand;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.BanCommand;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.KickCommand;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.MuteCommand;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.ReactCommand;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.UnbanCommand;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.UnmuteCommand;
-import com.mcmoddev.mmdbot.watcher.commands.moderation.WarningCommand;
+import com.mcmoddev.mmdbot.watcher.commands.management.RefreshScamLinksCommand;
 import com.mcmoddev.mmdbot.watcher.event.EventReactionAdded;
 import com.mcmoddev.mmdbot.watcher.event.ForumListener;
 import com.mcmoddev.mmdbot.watcher.event.PersistedRolesEvents;
 import com.mcmoddev.mmdbot.watcher.punishments.PunishableActions;
 import com.mcmoddev.mmdbot.watcher.punishments.Punishment;
-import com.mcmoddev.mmdbot.watcher.rules.RuleCommand;
-import com.mcmoddev.mmdbot.watcher.rules.UpdateRulesCommand;
 import com.mcmoddev.mmdbot.watcher.util.Configuration;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.util.Utils;
@@ -86,7 +78,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-@SuppressWarnings("unused")
 public final class TheWatcher implements Bot {
     static final TypeSerializerCollection ADDED_SERIALIZERS = TypeSerializerCollection.defaults()
         .childBuilder()
@@ -194,9 +185,6 @@ public final class TheWatcher implements Bot {
     @Override
     public void start() {
         instance = this;
-        //Events.MISC_BUS.addListener((final TaskScheduler.CollectTasksEvent event) -> event.addTask(new RuleAgreementChecker(this::getJda),
-            //0, 1, TimeUnit.DAYS));
-
         try {
             final var configPath = runPath.resolve("config.conf");
             final HoconConfigurationLoader loader = HoconConfigurationLoader.builder()
@@ -267,8 +255,7 @@ public final class TheWatcher implements Bot {
             .setManualUpsert(true)
             .useHelpBuilder(false)
             .setActivity(null)
-            .addSlashCommands(new MuteCommand(), new UnmuteCommand(), new InviteCommand(), new WarningCommand(), new UpdateRulesCommand(), RuleCommand.INSTANCE)
-            .addCommands(new BanCommand(), new UnbanCommand(), new ReactCommand(), new KickCommand(), RuleCommand.INSTANCE)
+            .addSlashCommands(new InviteCommand())
             .build();
         COMMANDS_LISTENER.addListener((EventListener) commandClient);
 
@@ -279,7 +266,6 @@ public final class TheWatcher implements Bot {
         // Buttons
         COMMANDS_LISTENER.addListener(new DismissListener());
 
-        MISC_LISTENER.addListener(UpdateRulesCommand::onEvent);
         MISC_LISTENER.addListeners(new EventReactionAdded(), new PersistedRolesEvents(), new ForumListener());
 
         ARCHIVE_FORUM_THREADS.register(Events.MISC_BUS);

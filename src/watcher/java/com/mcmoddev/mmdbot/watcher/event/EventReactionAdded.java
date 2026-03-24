@@ -122,7 +122,7 @@ public final class EventReactionAdded extends ListenerAdapter {
             .filter(Objects::nonNull)
             .filter(member -> member.hasPermission(Permission.MODERATE_MEMBERS))
             .toList();
-        final var hasStaffSignoff = signedOffStaff.size() > 0;
+        final var hasStaffSignoff = !signedOffStaff.isEmpty();
 
         final int badReactionsCount = badReactions.stream().mapToInt(MessageReaction::getCount).sum();
         final int goodReactionsCount = getNumberOfMatchingReactions(message, goodReactionsList::contains);

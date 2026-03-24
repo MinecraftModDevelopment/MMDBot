@@ -31,12 +31,12 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.Color;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
 public enum PunishableActions implements EventListener {
+
     SPAM_PING(new SpamPing()),
     SCAM_LINK(new PhishingLink()),
     NEW_ACCOUNT(new NewAccount());
@@ -60,7 +60,7 @@ public enum PunishableActions implements EventListener {
                             .flatMap(dm -> dm.sendMessageEmbeds(new EmbedBuilder()
                                 .setTitle("Punishment")
                                 .setDescription("You have been punished" + (guild == null ? "" : " in **" + guild.getName()) + "**!")
-                                .setColor(Color.RED)
+                                .setColor(0xFF0000)
                                 .addField("Punishment", punishment.toString(), false)
                                 .addField("Reason", reason, false)
                                 .setTimestamp(Instant.now())

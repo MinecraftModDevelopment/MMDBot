@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import static com.mcmoddev.mmdbot.core.common.ScamDetector.postScamEvent;
 
 class PhishingLink implements PunishableAction<GenericMessageEvent> {
+
     @Override
     public Punishment getPunishment(final Configuration.Punishments config) {
         return config.phishingLink;

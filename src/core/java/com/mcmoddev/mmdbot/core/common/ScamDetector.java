@@ -85,9 +85,9 @@ public class ScamDetector {
     public static void onCollectTasks(final TaskScheduler.CollectTasksEvent event) {
         event.addTask(() -> {
             if (setupScamLinks()) {
-                //log.info("Successfully refreshed scam links");
+                log.info("Successfully refreshed scam links");
             } else {
-                //log.warn("Scam links could not be automatically refreshed");
+                log.warn("Scam links could not be automatically refreshed");
             }
         }, 0, 14, TimeUnit.DAYS);
     }

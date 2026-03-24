@@ -29,19 +29,10 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CFProjects;
 import com.mcmoddev.mmdbot.commander.cfwebhooks.CurseForgeManager;
-import com.mcmoddev.mmdbot.commander.commands.EvaluateCommand;
-import com.mcmoddev.mmdbot.commander.commands.GistCommand;
-import com.mcmoddev.mmdbot.commander.commands.RoleSelectCommand;
 import com.mcmoddev.mmdbot.commander.commands.curseforge.CurseForgeCommand;
-import com.mcmoddev.mmdbot.commander.commands.menu.message.GistContextMenu;
-import com.mcmoddev.mmdbot.commander.commands.menu.user.UserInfoContextMenu;
 import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.commander.config.GuildConfiguration;
 import com.mcmoddev.mmdbot.commander.config.PermissionList;
-import com.mcmoddev.mmdbot.commander.docs.ConfigBasedElementLoader;
-import com.mcmoddev.mmdbot.commander.docs.DocsCommand;
-import com.mcmoddev.mmdbot.commander.docs.NormalDocsSender;
-import com.mcmoddev.mmdbot.commander.eventlistener.ReferencingListener;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifiers;
 import com.mcmoddev.mmdbot.commander.util.EventListeners;
 import com.mcmoddev.mmdbot.commander.util.mc.MCVersions;
@@ -63,10 +54,8 @@ import com.mcmoddev.mmdbot.core.util.TaskScheduler;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.config.ConfigurateUtils;
 import com.mcmoddev.mmdbot.core.util.config.SnowflakeValue;
-import com.mcmoddev.mmdbot.core.util.dictionary.DictionaryUtils;
 import com.mcmoddev.mmdbot.core.util.event.DismissListener;
 import com.mcmoddev.mmdbot.core.util.event.OneTimeEventListener;
-import de.ialistannen.javadocapi.querying.FuzzyElementQuery;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.matyrobbrt.curseforgeapi.CurseForgeAPI;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -77,7 +66,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
@@ -145,12 +134,6 @@ public final class TheCommander implements Bot {
 
                         .writeComment("The API key to use for CurseForge requests: ")
                         .writeValue("CF_API_KEY", "")
-
-                        .writeComment("The OwlBot API Token used for dictionary lookup:")
-                        .writeValue("OWL_BOT_TOKEN", "")
-
-                        .writeComment("The token used for GitHub requests. (Mainly for creating gists)")
-                        .writeValue("GITHUB_TOKEN", "")
                     )
                     .load());
             } catch (IOException e) {
@@ -173,11 +156,6 @@ public final class TheCommander implements Bot {
         GatewayIntent.GUILD_MESSAGES,
         GatewayIntent.GUILD_MEMBERS,
         GatewayIntent.MESSAGE_CONTENT
-    );
-
-    private static final Set<Message.MentionType> DEFAULT_MENTIONS = EnumSet.of(
-        Message.MentionType.EMOJI,
-        Message.MentionType.CHANNEL
     );
 
     private static final Set<Permission> PERMISSIONS = EnumSet.of(
@@ -256,14 +234,9 @@ public final class TheCommander implements Bot {
     private final Path runPath;
     private final Long2ObjectMap<GuildConfiguration> guildConfigs = Long2ObjectMaps.synchronize(new Long2ObjectOpenHashMap<>());
 
-    private final String githubToken;
-
     public TheCommander(final Path runPath, final Dotenv dotenv) {
         this.dotenv = dotenv;
         this.runPath = runPath;
-
-        DictionaryUtils.setToken(dotenv.get("OWL_BOT_TOKEN", null));
-        githubToken = dotenv.get("GITHUB_TOKEN", "");
     }
 
     @Override
@@ -335,8 +308,6 @@ public final class TheCommander implements Bot {
             .setOwnerId(generalConfig.bot().getOwners().get(0).asString())
             .setCoOwnerIds(coOwners.toArray(String[]::new))
             .setPrefixes(generalConfig.bot().getPrefixes().toArray(String[]::new))
-            .addCommands(new GistCommand(), EvaluateCommand.COMMAND)
-            .addContextMenus(new GistContextMenu(), new UserInfoContextMenu())
             .setManualUpsert(true)
             .useHelpBuilder(false)
             .setActivity(null)
@@ -385,31 +356,8 @@ public final class TheCommander implements Bot {
             generalConfig.bot().guild(), PERMISSIONS);
         EventListeners.COMMANDS_LISTENER.addListeners(upserter);
 
-        // Evaluation
-        if (generalConfig.features().isEvaluationEnabled()) {
-            EventListeners.COMMANDS_LISTENER.addListener(new EvaluateCommand.ModalListener());
-        }
-
-        // Docs
-        {
-            try {
-                final var loader = new ConfigBasedElementLoader(runPath.resolve("docs"));
-                final var command = new DocsCommand(new FuzzyElementQuery(), loader, new NormalDocsSender(), getComponentListener("docs-cmd"));
-                commandClient.addSlashCommand(command);
-            } catch (Exception e) {
-                LOGGER.error("Exception trying to load docs command! ", e);
-            }
-        }
-
         // Button listeners
-        EventListeners.COMMANDS_LISTENER.addListeners(new DismissListener(), RoleSelectCommand.COMMAND);
-
-        if (generalConfig.features().isReferencingEnabled()) {
-            EventListeners.MISC_LISTENER.addListener(new ReferencingListener());
-        }
-
-        //This was broken when Discord updated file attachments to have new values at the end and needs either fixing or removing.
-        //EventListeners.MISC_LISTENER.addListeners(new ThreadListener(), new FilePreviewListener());
+        EventListeners.COMMANDS_LISTENER.addListeners(new DismissListener());
 
         COLLECT_TASKS_LISTENER.register(Events.MISC_BUS);
         CurseForgeCommand.RG_TASK_SCHEDULER_LISTENER.register(Events.MISC_BUS);
@@ -520,14 +468,10 @@ public final class TheCommander implements Bot {
             .map(info -> {
                 final var guild = getJda().getGuildById(info.guildId());
                 if (guild == null) return null;
-                final var channel = guild.getChannelById(MessageChannel.class, info.channelId());
+                final var channel = guild.getChannelById(GuildMessageChannel.class, info.channelId());
                 return channel == null ? null : channel.retrieveMessageById(info.messageId());
             })
             .orElse(null);
-    }
-
-    public String getGithubToken() {
-        return githubToken;
     }
 
     public GuildConfiguration getConfigForGuild(long guildId) {

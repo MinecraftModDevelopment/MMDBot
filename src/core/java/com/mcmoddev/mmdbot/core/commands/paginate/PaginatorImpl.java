@@ -26,6 +26,7 @@ import com.mcmoddev.mmdbot.core.commands.component.ComponentListener;
 import com.mcmoddev.mmdbot.core.commands.component.context.ButtonInteractionContext;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
@@ -34,8 +35,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public final class PaginatorImpl implements Paginator {
     private final ComponentListener listener;
@@ -72,14 +75,9 @@ public final class PaginatorImpl implements Paginator {
     public void onButtonInteraction(final ButtonInteractionContext context) {
         final var owner = context.getItemComponentArguments().size() > 1 ? Long.parseLong(context.getItemComponentArguments().get(1)) : null;
         final var event = context.getEvent();
-        final var interaction = event.getMessage().getInteraction();
+        final var interaction = event.getInteraction();
         if (areButtonsOwnerOnly()) {
-            if (owner != null) {
-                if (owner != event.getUser().getIdLong()) {
-                    event.deferEdit().queue();
-                    return;
-                }
-            } else if (interaction != null && interaction.getUser().getIdLong() != event.getUser().getIdLong()) {
+            if (Objects.requireNonNullElseGet(owner, () -> interaction.getUser().getIdLong()) != event.getUser().getIdLong()) {
                 event.deferEdit().queue();
                 return;
             }
@@ -90,8 +88,10 @@ public final class PaginatorImpl implements Paginator {
 
         // If it has action rows already, don't delete them
         final var oldActionRowsSize = event.getMessage().getComponents().size();
-        final var oldActionRows = oldActionRowsSize < 2 ? new ArrayList<ActionRow>() :
-            new ArrayList<>(event.getMessage().getComponents().subList(1, oldActionRowsSize));
+        final List<ActionRow> oldActionRows = oldActionRowsSize < 2 ? new ArrayList<>() :
+                event.getMessage().getComponents().subList(1, oldActionRowsSize).stream()
+                        .map(ActionRow.class::cast)
+                        .collect(Collectors.toList());
 
         final var buttonId = context.getComponentId().toString();
 
@@ -245,7 +245,7 @@ public final class PaginatorImpl implements Paginator {
         final var message = getMessage(startingIndex, maximum, argsList);
         final var startStr = String.valueOf(startingIndex);
         final var maxStr = String.valueOf(maximum);
-        if (argsList.size() == 0) {
+        if (argsList.isEmpty()) {
             argsList.add(startStr);
             argsList.add(maxStr);
         } else {

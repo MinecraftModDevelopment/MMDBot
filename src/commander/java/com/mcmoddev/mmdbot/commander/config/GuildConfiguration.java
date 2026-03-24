@@ -129,58 +129,6 @@ public final class GuildConfiguration {
         }
     }
 
-    @Required
-    @Setting("features")
-    @Comment("Configuration for features.")
-    private Features features = new Features();
-
-    public Features features() {
-        return features;
-    }
-
-    @ConfigSerializable
-    public static final class Features {
-
-        @Required
-        @Setting("custom_pings")
-        @Comment("Custom pings configuration.")
-        private CustomPings customPings = new CustomPings();
-
-        public CustomPings customPings() {
-            return customPings;
-        }
-
-        @ConfigSerializable
-        public static final class CustomPings {
-            @Required
-            @Setting("enabled")
-            @Comment("If custom pings should be enabled.")
-            private boolean enabled = true;
-
-            public boolean areEnabled() {
-                return enabled;
-            }
-
-            @Required
-            @Setting("limit_per_user")
-            @Comment("The limit of custom pings per user, per guild.")
-            private int limitPerUser = 10;
-
-            public int getLimitPerUser() {
-                return limitPerUser;
-            }
-
-            @Required
-            @Setting("removal_inform_channel")
-            @Comment("The ID of the channel users should be informed in when their pings are removed.")
-            private SnowflakeValue removalInformChannel = SnowflakeValue.EMPTY;
-
-            public SnowflakeValue removalInformChannel() {
-                return removalInformChannel;
-            }
-        }
-    }
-
     public record SettingManager(
         Long2ObjectFunction<GuildConfiguration> getter) implements GuildSettingsManager<GuildConfiguration> {
 

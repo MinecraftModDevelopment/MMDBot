@@ -20,7 +20,6 @@
  */
 package com.mcmoddev.mmdbot.core.util;
 
-import com.mcmoddev.mmdbot.core.RunBots;
 import com.mcmoddev.mmdbot.core.event.Events;
 import io.github.matyrobbrt.eventdispatcher.Event;
 import lombok.experimental.UtilityClass;

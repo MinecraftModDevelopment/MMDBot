@@ -41,13 +41,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class ForumListener extends ListenerAdapter {
+
     @Override
     public void onChannelUpdateAppliedTags(@NotNull final ChannelUpdateAppliedTagsEvent event) {
         final ThreadChannel thread = event.getChannel().asThreadChannel();
         if (thread.isArchived() || thread.isLocked()) return;
 
         final StringBuilder message = new StringBuilder()
-            .append("This post has had tags modified.");
+            .append("This posts tags have changed:");
 
         if (!event.getAddedTags().isEmpty()) {
             message.append("\nAdded tags: ")

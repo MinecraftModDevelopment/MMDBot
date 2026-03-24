@@ -142,7 +142,6 @@ public class Configuration {
         @Required
         @Setting("new_account")
         public Punishment newAccount = new Punishment(Punishment.ActionType.KICK, null);
-
     }
 
     @Required

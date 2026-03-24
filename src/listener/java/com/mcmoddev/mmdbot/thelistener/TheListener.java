@@ -28,9 +28,7 @@ import com.mcmoddev.mmdbot.core.event.Events;
 import com.mcmoddev.mmdbot.core.util.DotenvLoader;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.jda.caching.JdaMessageCache;
-import com.mcmoddev.mmdbot.thelistener.events.LeaveJoinEvents;
 import com.mcmoddev.mmdbot.thelistener.events.MessageEvents;
-import com.mcmoddev.mmdbot.thelistener.events.ModerationEvents;
 import com.mcmoddev.mmdbot.thelistener.events.RoleEvents;
 import com.mcmoddev.mmdbot.thelistener.util.GuildConfig;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -79,7 +77,6 @@ public final class TheListener implements Bot {
     };
 
     static {
-        Events.MODERATION_BUS.register(ModerationEvents.INSTANCE);
         Events.MODERATION_BUS.register(MessageEvents.INSTANCE);
     }
 
@@ -114,8 +111,6 @@ public final class TheListener implements Bot {
 
         GENERAL_EVENT_LISTENER.addListeners(
             MessageEvents.INSTANCE,
-            ModerationEvents.INSTANCE,
-            new LeaveJoinEvents(),
             new RoleEvents()
         );
 
@@ -123,12 +118,7 @@ public final class TheListener implements Bot {
                 getToken(),
                 INTENTS
             )
-            .addEventListeners(JdaMessageCache.builder()
-                    .onDelete(MessageEvents.INSTANCE::onMessageDelete)
-                    .onEdit(MessageEvents.INSTANCE::onMessageUpdate)
-                    .build(),
-                GENERAL_EVENT_LISTENER
-            )
+            .addEventListeners(JdaMessageCache.builder().build(), GENERAL_EVENT_LISTENER)
             .disableCache(CacheFlag.CLIENT_STATUS)
             .disableCache(CacheFlag.ONLINE_STATUS)
             .disableCache(CacheFlag.VOICE_STATE)
