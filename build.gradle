@@ -37,7 +37,7 @@ ext {
 group 'com.mcmoddev'
 version project.bot_version
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 println "Bot Version: $version"
 println "Bots: ${String.join(" ", BOTS)}"

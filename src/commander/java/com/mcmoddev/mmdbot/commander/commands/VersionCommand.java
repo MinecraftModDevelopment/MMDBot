@@ -23,8 +23,6 @@ package com.mcmoddev.mmdbot.commander.commands;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.mcmoddev.mmdbot.commander.annotation.RegisterSlashCommand;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.fabric.FabricVersionHelper;
-import com.mcmoddev.mmdbot.commander.updatenotifiers.forge.ForgeVersionHelper;
-import com.mcmoddev.mmdbot.commander.updatenotifiers.forge.MinecraftForgeVersion;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.minecraft.MinecraftVersionHelper;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.quilt.QuiltVersionHelper;
 import com.mcmoddev.mmdbot.core.util.Constants;
@@ -59,18 +57,21 @@ public final class VersionCommand {
         .name("version")
         .help("Version-related commands.")
         .children(
+            // TODO Fix this at a later date.
+            // Disable the Forge version check command as the whole forge update check system has changed.
+            /*
             SlashCommandBuilder.builder()
                 .name("forge")
                 .help("Get forge versions for latest Minecraft version.")
                 .options(new OptionData(OptionType.STRING, "version", "The version of Minecraft to check for."))
                 .executes(event -> {
-                    MinecraftForgeVersion latest;
+                    MinecraftForgeVersions latest;
                     OptionMapping version = event.getOption("version");
                     try {
                         if (version != null) {
-                            latest = new MinecraftForgeVersion(version.getAsString(), ForgeVersionHelper.getForgeVersionsForMcVersion(version.getAsString()));
+                            latest = new MinecraftForgeVersions(version.getAsString(), ForgeVersionHelper.getForgeVersionsForMcVersion(version.getAsString()));
                         } else {
-                            latest = ForgeVersionHelper.getLatestMcVersionForgeVersions();
+                            latest = ForgeVersionHelper.getForgeVersions().getLatestMcVersionForgeVersions();
                         }
                     } catch (Exception ex) {
                         event.reply("Unable to get forge versions.").setEphemeral(true).queue();
@@ -100,6 +101,7 @@ public final class VersionCommand {
                         event.reply("The given Minecraft version " + version.getAsString() + " is invalid.").setEphemeral(true).queue();
                     }
                 }),
+             */
 
             SlashCommandBuilder.builder()
                 .name("quilt")
