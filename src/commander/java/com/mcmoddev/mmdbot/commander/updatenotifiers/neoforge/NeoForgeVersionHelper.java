@@ -60,9 +60,32 @@ public final class NeoForgeVersionHelper extends SharedVersionHelpers {
             for (int i = 0; i < versionsNode.getLength(); i++) {
                 final String version = versionsNode.item(i).getTextContent();
 
-                final String[] split = version.split("\\.", 3);
-                final String mcVersion = split[0] + "." + split[1];
-                versions.put("1." + mcVersion, version);
+                final String[] parts = version.split("-")[0].split("\\.");
+                if (parts.length < 2) {
+                    continue; // Skip malformed versions
+                }
+
+                final String majorStr = parts[0];
+                final String minorStr = parts[1];
+                final int major;
+                try {
+                    major = Integer.parseInt(majorStr);
+                } catch (NumberFormatException e) {
+                    continue; // Skip malformed versions
+                }
+
+                // Mojang's new versioning scheme (e.g., '26.1') replaces the legacy '1.x.y' scheme.
+                // We can assume the legacy scheme will not reach '1.25', so we use a threshold
+                // to determine whether to prepend the '1.'.
+                final String mcVersion;
+                if (major <= 26) {
+                    // Legacy format: NeoForge '20.4.x' maps to Minecraft '1.20.4'
+                    mcVersion = "1." + majorStr + "." + minorStr;
+                } else {
+                    // New format: NeoForge '26.1.x' maps to Minecraft '26.1'
+                    mcVersion = majorStr + "." + minorStr;
+                }
+                versions.put(mcVersion, version);
             }
         } catch (SAXException | XPathExpressionException | ParserConfigurationException | IOException ex) {
             TheCommander.LOGGER.error("Failed to resolve latest version from NeoForge metadata URL", ex);

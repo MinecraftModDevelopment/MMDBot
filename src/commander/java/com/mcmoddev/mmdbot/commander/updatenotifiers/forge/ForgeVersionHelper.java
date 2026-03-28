@@ -20,139 +20,54 @@
  */
 package com.mcmoddev.mmdbot.commander.updatenotifiers.forge;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
-import com.mcmoddev.mmdbot.core.util.SemVer;
+import com.mcmoddev.mmdbot.commander.TheCommander;
+import com.mcmoddev.mmdbot.commander.updatenotifiers.SharedVersionHelpers;
 import lombok.experimental.UtilityClass;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.io.InputStream;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
-/**
- * The type Forge version helper.
- *
- * @author Antoine Gagnon
- * @author matyrobbrt
- */
 @UtilityClass
-public final class ForgeVersionHelper {
+public final class ForgeVersionHelper extends SharedVersionHelpers {
 
-    private static final String VERSION_URL
-        = "https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json";
-    private static final Pattern VERSION_REGEX = Pattern.compile("(.+?)-(.+)");
-    private static final Gson GSON = new Gson();
+    private static final String METADATA_URL = "https://maven.minecraftforge.net/releases/net/minecraftforge/forge/maven-metadata.xml";
 
-    /**
-     * Gets latest version from a list of versions, using sem ver.
-     *
-     * @return the newest version
-     */
-    public static String getLatestVersion(final List<String> versions) {
-        var latest = SemVer.from(versions.get(0));
+    public static Map<String, String> getForgeVersions() {
+        final LinkedHashMap<String, String> versions = new LinkedHashMap<>();
 
-        for (final String version : versions) {
-            final var ver = SemVer.from(version);
-            if (latest.compareTo(ver) < 0) {
-                latest = ver;
-            }
+        final InputStream stream = getStream(METADATA_URL);
+        if (stream == null) {
+            return versions;
         }
+        try {
+            final var doc = DocumentBuilderFactory.newInstance()
+                .newDocumentBuilder()
+                .parse(stream);
+            final XPathExpression expr = XPathFactory.newInstance()
+                .newXPath()
+                .compile("/metadata/versioning/versions/version");
+            final NodeList versionsNode = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
 
-        return latest.toString();
-    }
+            for (int i = 0; i < versionsNode.getLength(); i++) {
+                final String version = versionsNode.item(i).getTextContent();
 
-    /**
-     * Gets the latest forge version for an MC version.
-     */
-    public static ForgeVersion getForgeVersionsForMcVersion(final String mcVersion) throws IOException,
-        NullPointerException {
-        return getForgeVersions().get(mcVersion);
-    }
-
-    public static MinecraftForgeVersion getLatestMcVersionForgeVersions() throws IOException,
-        JsonSyntaxException, JsonIOException {
-        final Map<String, ForgeVersion> versions = getForgeVersions();
-
-        final String latest = getLatestVersion(new ArrayList<>(versions.keySet()));
-
-        return new MinecraftForgeVersion(latest, versions.get(latest));
-    }
-
-    private static InputStreamReader openUrl() throws IOException {
-        final var urlObj = new URL(VERSION_URL);
-        return new InputStreamReader(urlObj.openStream(), StandardCharsets.UTF_8);
-    }
-
-    /**
-     * Gets all forge versions, grouped as mcVersion -> latest forge version.
-     */
-    public static Map<String, ForgeVersion> getForgeVersions() throws IOException,
-        JsonSyntaxException, JsonIOException {
-        final InputStreamReader reader = openUrl();
-
-        final ForgePromoData data = GSON.fromJson(reader, ForgePromoData.class);
-
-        // Remove this specific entry (differs from others with having the `_pre4` version)
-        data.promos.remove("1.7.10_pre4-latest");
-
-        // Collect version data
-        final Map<String, ForgeVersion> versions = new HashMap<>();
-
-        for (final Map.Entry<String, String> entry : data.promos.entrySet()) {
-            final String mc = entry.getKey();
-            final String forge = entry.getValue();
-
-            final VersionMeta meta = getMCVersion(mc);
-
-            if (meta != null) {
-                if (versions.containsKey(meta.version())) {
-                    final ForgeVersion version = versions.get(meta.version());
-                    if (meta.state().equals("recommended")) {
-                        version.setRecommended(forge);
-                    } else {
-                        version.setLatest(forge);
-                    }
-                } else {
-                    final var version = new ForgeVersion();
-                    if (meta.state().equals("recommended")) {
-                        version.setRecommended(forge);
-                    } else {
-                        version.setLatest(forge);
-                    }
-                    versions.put(meta.version(), version);
-                }
+                final String mcVersion = version.split("-")[0];
+                versions.put(mcVersion, version);
             }
+        } catch (SAXException | XPathExpressionException | ParserConfigurationException | IOException ex) {
+            TheCommander.LOGGER.error("Failed to resolve latest version from Forge metadata URL", ex);
         }
-        reader.close();
 
         return versions;
-    }
-
-    public static VersionMeta getMCVersion(final String version) {
-        final var matcher = VERSION_REGEX.matcher(version);
-
-        if (matcher.find()) {
-            return new VersionMeta(matcher.group(1), matcher.group(2));
-        } else {
-            return null;
-        }
-    }
-
-    public static class ForgePromoData {
-        public Map<String, String> promos;
-    }
-
-    /**
-     * @author Antoine Gagnon
-     * @author matyrobbrt
-     */
-    record VersionMeta(String version, String state) {
     }
 }

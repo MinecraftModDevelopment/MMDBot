@@ -24,132 +24,139 @@ import com.mcmoddev.mmdbot.commander.config.Configuration;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.SharedVersionHelpers;
 import com.mcmoddev.mmdbot.commander.updatenotifiers.UpdateNotifier;
 import com.mcmoddev.mmdbot.commander.util.StringSerializer;
+import com.mcmoddev.mmdbot.core.util.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.utils.MarkdownUtil;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.awt.Color;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Objects;
 
-/**
- * The Forge update notifier.
- *
- * @author Antoine Gagnon
- * @author matyrobbrt
- */
-public final class ForgeUpdateNotifier extends UpdateNotifier<MinecraftForgeVersion> {
+public final class ForgeUpdateNotifier extends UpdateNotifier<MinecraftForgeVersions> {
 
     /**
      * The changelog URL template
      */
-    private static final String CHANGELOG_URL_TEMPLATE
-        = "https://maven.minecraftforge.net/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt";
+    private static final String CHANGELOG_URL = "https://maven.minecraftforge.net/net/minecraftforge/forge/%1$s-%2$s/forge-%1$s-%2$s-changelog.txt";
 
     public ForgeUpdateNotifier() {
-        super(NotifierConfiguration.<MinecraftForgeVersion>builder()
+        super(NotifierConfiguration.<MinecraftForgeVersions>builder()
             .name("forge")
             .channelGetter(Configuration.Channels.UpdateNotifiers::forge)
+            .serializer(StringSerializer.json(StringSerializer.RECORD_GSON, MinecraftForgeVersions.class))
             .versionComparator(NotifierConfiguration.notEqual())
-            .serializer(StringSerializer.json(StringSerializer.RECORD_GSON, MinecraftForgeVersion.class))
             .webhookInfo(new WebhookInfo("Forge Updates", "https://media.discordapp.net/attachments/957353544493719632/1006125547430096966/unknown.png"))
             .build());
     }
 
     @Override
-    protected @NotNull MinecraftForgeVersion queryLatest() throws IOException {
-        return ForgeVersionHelper.getLatestMcVersionForgeVersions();
+    protected @NotNull MinecraftForgeVersions queryLatest() {
+        return new MinecraftForgeVersions(ForgeVersionHelper.getForgeVersions());
     }
 
     @NotNull
     @Override
-    protected EmbedBuilder getEmbed(@Nullable final MinecraftForgeVersion oldVersion, final @NotNull MinecraftForgeVersion newVersion) {
+    protected EmbedBuilder getEmbed(@Nullable final MinecraftForgeVersions oldVersion, final MinecraftForgeVersions newVersion) {
+        final String version;
+        if (oldVersion == null) {
+            version = newVersion.byMcVersion().entrySet().stream()
+                .max(Map.Entry.comparingByKey())
+                .orElseThrow()
+                .getValue();
+        } else {
+            version = newVersion.byMcVersion().entrySet().stream()
+                .filter(entry -> !Objects.equals(oldVersion.byMcVersion().get(entry.getKey()), entry.getValue()))
+                .max(Map.Entry.comparingByKey())
+                .orElseThrow()
+                .getValue();
+        }
+
+        final String mcVersion = version.split("-")[0];
+
         final var embed = new EmbedBuilder();
-        embed.addField("Minecraft Version", newVersion.mcVersion(), true);
+        embed.addField("Minecraft Version", mcVersion, true);
         embed.setTitle("Forge version update");
-        embed.setColor(Color.ORANGE);
+        embed.setColor(0x0000FF);
 
-        final var mcVersion = newVersion.mcVersion();
-        final var latest = newVersion.forgeVersion();
+        final String oldForgeVersionFull = oldVersion == null ? null : oldVersion.byMcVersion().get(mcVersion);
+        if (oldForgeVersionFull == null) {
+            embed.addField("Version", version, true);
+        } else {
+            boolean isNoLongerBeta = isNoLongerBeta(oldForgeVersionFull, version);
 
-        if (oldVersion == null || !oldVersion.mcVersion().equals(newVersion.mcVersion())) {
-            embed.addField("Version", latest.getLatest(), true);
-            addChangelog(embed, mcVersion, latest.getLatest(), mcVersion, latest.getLatest());
-            return embed;
+            embed.addField(isNoLongerBeta ? "New stable release" : "Latest", "**%s** -> **%s**".formatted(oldForgeVersionFull, version), true);
         }
 
-        final var lastForgeVersions = oldVersion.forgeVersion();
-        if (latest.getLatest() != null && !lastForgeVersions.getLatest().equals(latest.getLatest())) {
-            final var start = lastForgeVersions.getLatest();
-            final var end = latest.getLatest();
-            embed.addField("Latest", String.format("**%s** -> **%s**%n", start, end), true);
-            addChangelog(embed, mcVersion, start, mcVersion, end);
-        }
+        addChangelog(embed, oldForgeVersionFull, version);
 
-        if (latest.getRecommended() != null) {
-            if (lastForgeVersions.getRecommended() == null) {
-                final var version = latest.getRecommended();
-                embed.addField("Recommended", String.format("*none* -> **%s**%n", version),
-                    true);
-                embed.setDescription(MarkdownUtil.maskedLink("Changelog", String.format(CHANGELOG_URL_TEMPLATE,
-                    mcVersion, latest.getRecommended())));
-            } else if (!latest.getRecommended().equals(lastForgeVersions.getRecommended())) {
-                final var start = lastForgeVersions.getRecommended();
-                final var end = latest.getRecommended();
-                embed.addField("Recommended", String.format("**%s** -> **%s**%n", start, end), true);
-                addChangelog(embed, mcVersion, start, mcVersion, end);
-            }
-        }
         return embed;
     }
 
-    private static void addChangelog(EmbedBuilder embedBuilder, String mcStart, String forgeStart, String mcEnd, String forgeEnd) {
+    private static boolean isNoLongerBeta(String oldForgeVersionFull, String newForgeVersionFull) {
+        try {
+            final String oldForgeVersion = oldForgeVersionFull.substring(oldForgeVersionFull.indexOf('-') + 1);
+            final String newForgeVersion = newForgeVersionFull.substring(newForgeVersionFull.indexOf('-') + 1);
+
+            final String[] oldVersionParts = oldForgeVersion.split("\\.");
+            final String[] newVersionParts = newForgeVersion.split("\\.");
+
+            if (oldVersionParts.length > 1 && newVersionParts.length > 1) {
+                // The second part of the version number indicates beta status. '0' is beta.
+                boolean wasBeta = oldVersionParts[1].equals("0");
+                boolean isNowStable = !newVersionParts[1].equals("0");
+                return wasBeta && isNowStable;
+            }
+        } catch (Exception e) {
+            // If any parsing error occurs (e.g., unexpected version format),
+            // safely assume it's not a beta-to-stable transition.
+            return false;
+        }
+        return false;
+    }
+
+    private static void addChangelog(EmbedBuilder embedBuilder, @Nullable String forgeStart, String forgeEnd) {
         try {
             String changelog = getChangelogBetweenVersions(
-                mcStart, forgeStart, mcEnd, forgeEnd
+                forgeStart, forgeEnd
             );
             if (changelog.isBlank()) return;
 
-            changelog = SharedVersionHelpers.replaceGitHubReferences(changelog, "MinecraftForge/MinecraftForge");
+            changelog = SharedVersionHelpers.replaceGitHubReferences(changelog, "MinecraftForge/Forge");
 
-            embedBuilder.setDescription("""
+            embedBuilder.setDescription(Utils.truncate("""
                 [Changelog](%s):
                 %s
                 """.formatted(
-                CHANGELOG_URL_TEMPLATE.formatted(mcEnd, forgeEnd), changelog
-            ));
+                CHANGELOG_URL.formatted(forgeEnd), changelog
+            ), MessageEmbed.DESCRIPTION_MAX_LENGTH));
         } catch (IOException ignored) {
         }
     }
 
-    public static String getChangelogBetweenVersions(final String startMc, final String startForge, final String endMc, final String endForge) throws IOException {
-        final var startUrl = new URL(CHANGELOG_URL_TEMPLATE.formatted(startMc, startForge));
-        final var endUrl = new URL(CHANGELOG_URL_TEMPLATE.formatted(endMc, endForge));
-
-        final var startMcVersionSplit = startMc.split("\\.");
-        final var startForgeVersionSplit = startForge.split("\\.");
-        final var startChangelog = getUrlAsString(startUrl).replace("""
-            %s.%s.x Changelog
-            %s.%s
-            ====""".formatted(startMcVersionSplit[0], startMcVersionSplit[1], startForgeVersionSplit[0], startForgeVersionSplit[1]), "");
-
-        final var endChangelog = getUrlAsString(endUrl);
-        var changelog = endChangelog.replace(startChangelog, "");
-
-        final var endMcVersionSplit = endMc.split("\\.");
-        final var endForgeVersionSplit = endForge.split("\\.");
-        changelog = changelog.replace("""
-            %s.%s.x Changelog
-            %s.%s
-            ====""".formatted(endMcVersionSplit[0], endMcVersionSplit[1], endForgeVersionSplit[0], endForgeVersionSplit[1]), "");
-
-        if (changelog.startsWith("\n")) {
-            changelog = changelog.substring(1);
+    public static String getChangelogBetweenVersions(@Nullable final String forgeStart, final String forgeEnd) throws IOException {
+        if (forgeStart == null || forgeStart.equals(forgeEnd)) {
+            final String[] split = getUrlAsString(new URL(CHANGELOG_URL.formatted(forgeEnd))).split("\n");
+            final StringBuilder changelog = new StringBuilder(split[0])
+                .append('\n');
+            for (int i = 1; i < split.length; i++) {
+                // new version detected
+                if (split[i].startsWith(" - ")) break;
+                changelog.append(split[i]).append('\n');
+            }
+            return changelog.toString();
         }
 
-        return changelog;
+        final var startUrl = new URL(CHANGELOG_URL.formatted(forgeStart));
+        final var endUrl = new URL(CHANGELOG_URL.formatted(forgeEnd));
+        final var startChangelog = getUrlAsString(startUrl);
+
+        final var endChangelog = getUrlAsString(endUrl);
+
+        return endChangelog.replace(startChangelog, "");
     }
 
     public static String getUrlAsString(URL u) throws IOException {

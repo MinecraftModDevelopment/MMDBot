@@ -30,13 +30,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.awt.Color;
 
-/**
- * The Minecraft update notifier.
- *
- * @author unknown
- * @author matyrobbrt
- */
 public final class MinecraftUpdateNotifier extends UpdateNotifier<MinecraftVersionHelper.VersionsInfo> {
+
+    private static final String CHANGELOG_BASE_URL = "https://www.minecraft.net/en-us/article/minecraft-";
 
     public MinecraftUpdateNotifier() {
         super(NotifierConfiguration.<MinecraftVersionHelper.VersionsInfo>builder()
@@ -51,7 +47,9 @@ public final class MinecraftUpdateNotifier extends UpdateNotifier<MinecraftVersi
     @Override
     protected VersionsInfo queryLatest() {
         final var meta = MinecraftVersionHelper.getMeta();
-        if (meta == null) return null;
+        if (meta == null) {
+            return null;
+        }
         return meta.latest;
     }
 
@@ -60,60 +58,59 @@ public final class MinecraftUpdateNotifier extends UpdateNotifier<MinecraftVersi
     protected EmbedBuilder getEmbed(@Nullable final VersionsInfo oldVersion, final @NotNull VersionsInfo newVersion) {
         if (oldVersion == null) {
             return new EmbedBuilder()
-                .setDescription("New Minecraft version available!")
+                .setDescription("New Minecraft Version Available!")
                 .setColor(Color.CYAN)
                 .setDescription(newVersion.snapshot());
         }
-        final var embed = new EmbedBuilder();
+
+        VersionType versionType = getVersionType(oldVersion, newVersion);
+        String version = versionType == VersionType.RELEASE ? newVersion.release() : newVersion.snapshot();
+        String changelogUrl = versionType.getChangelogUrl(version);
+
+        return new EmbedBuilder()
+            .setTitle(versionType.getDisplay() + " Available!")
+            .setDescription(version + "\nChangelog: " + changelogUrl)
+            .setColor(versionType.getColor());
+    }
+
+    private VersionType getVersionType(VersionsInfo oldVersion, VersionsInfo newVersion) {
         if (!oldVersion.release().equals(newVersion.release())) {
-            // https://www.minecraft.net/en-us/article/minecraft-java-edition-1-18-1
-            embed.setTitle("New Minecraft release available!");
-            embed.setDescription(newVersion.release() + "\nChangelog: " + "https://www.minecraft.net/en-us/article/minecraft-java-edition-%s".formatted(newVersion.release().replace('.', '-')));
-            embed.setColor(Color.GREEN);
+            return VersionType.RELEASE;
+        } else if (newVersion.snapshot().contains("-rc-")) {
+            return VersionType.RELEASE_CANDIDATE;
+        } else if (newVersion.snapshot().contains("-pre")) {
+            return VersionType.PRE_RELEASE;
         } else {
-            if (newVersion.snapshot().contains("-rc")) {
-                // new url format https://www.minecraft.net/en-us/article/minecraft-26-1-release-candidate-1
-                // old url format https://www.minecraft.net/en-us/article/minecraft-1-19-4-release-candidate-1
-                embed.setTitle("New Minecraft Release Candidate available!");
-                final String releaseCandidate = newVersion.snapshot();
-                final String changelogUrl;
-                if (releaseCandidate.contains("-rc-")) {
-                    changelogUrl = "https://www.minecraft.net/en-us/article/minecraft-%s".formatted(releaseCandidate.replace(".", "-"));
-                } else {
-                    changelogUrl = "https://www.minecraft.net/en-us/article/minecraft-release-candidate-%s".formatted(releaseCandidate);
-                }
-                embed.setDescription(releaseCandidate + "\nChangelog: " + changelogUrl);
-                embed.setColor(Color.PINK);
-            } else if (newVersion.snapshot().contains("-pre")) {
-                // new url format https://www.minecraft.net/en-us/article/minecraft-26-1-pre-release-2
-                // old url format https://www.minecraft.net/en-us/article/minecraft-1-19-4-pre-release-2
-                embed.setTitle("New Minecraft Pre-Release available!");
-                final String preRelease = newVersion.snapshot();
-                final String changelogUrl;
-                if (preRelease.contains("pre-release")) {
-                    changelogUrl = "https://www.minecraft.net/en-us/article/minecraft-%s".formatted(preRelease.replace(".", "-"));
-                } else {
-                    changelogUrl = "https://www.minecraft.net/en-us/article/minecraft-pre-release-%s".formatted(preRelease);
-                }
-                embed.setDescription(preRelease + "\nChangelog: " + changelogUrl);
-                embed.setColor(Color.ORANGE);
-            } else {
-                // new url format https://www.minecraft.net/en-us/article/minecraft-1-26-snapshot-5
-                // old url format https://www.minecraft.net/en-us/article/minecraft-snapshot-23w07a
-                embed.setTitle("New Minecraft snapshot available!");
-                final String snapshot = newVersion.snapshot();
-                final String changelogUrl;
-                if (snapshot.contains("snapshot")) {
-                    // new format already includes 'snapshot' and the version prefix
-                    changelogUrl = "https://www.minecraft.net/en-us/article/minecraft-%s".formatted(snapshot.replace(".", "-"));
-                } else {
-                    // old format like '23w07a'
-                    changelogUrl = "https://www.minecraft.net/en-us/article/minecraft-snapshot-%s".formatted(snapshot);
-                }
-                embed.setDescription(snapshot + "\nChangelog: " + changelogUrl);
-                embed.setColor(Color.CYAN);
-            }
+            return VersionType.SNAPSHOT;
         }
-        return embed;
+    }
+
+    private enum VersionType {
+        RELEASE("New Minecraft Release", Color.GREEN, "java-edition-%s"),
+        RELEASE_CANDIDATE("New Minecraft Release Candidate", Color.PINK, "%s"),
+        PRE_RELEASE("New Minecraft Pre-Release", Color.ORANGE, "%s"),
+        SNAPSHOT("New Minecraft Snapshot", Color.CYAN, "%s");
+
+        private final String display;
+        private final Color color;
+        private final String urlPath;
+
+        VersionType(String display, Color color, String urlPath) {
+            this.display = display;
+            this.color = color;
+            this.urlPath = urlPath;
+        }
+
+        public String getDisplay() {
+            return display;
+        }
+
+        public Color getColor() {
+            return color;
+        }
+
+        public String getChangelogUrl(String version) {
+            return CHANGELOG_BASE_URL + String.format(urlPath, version.replace('.', '-'));
+        }
     }
 }

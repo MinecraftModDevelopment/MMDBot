@@ -33,16 +33,10 @@ import javax.annotation.Nullable;
 import java.awt.Color;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.mcmoddev.mmdbot.commander.updatenotifiers.forge.ForgeUpdateNotifier.getUrlAsString;
-
-/**
- * The NeoForge update notifier.
- *
- * @author matyrobbrt
- */
 public final class NeoForgeUpdateNotifier extends UpdateNotifier<NeoForgeVersions> {
 
     public static final String CHANGELOG_URL = "https://maven.neoforged.net/releases/net/neoforged/neoforge/%1$s/neoforge-%1$s-changelog.txt";
@@ -140,5 +134,11 @@ public final class NeoForgeUpdateNotifier extends UpdateNotifier<NeoForgeVersion
         final var endChangelog = getUrlAsString(endUrl);
 
         return endChangelog.replace(startChangelog, "");
+    }
+
+    public static String getUrlAsString(URL u) throws IOException {
+        try (final var in = u.openStream()) {
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        }
     }
 }

@@ -20,11 +20,7 @@
  */
 package com.mcmoddev.mmdbot.commander.updatenotifiers.forge;
 
-/**
- * Represents a Forge version, along with its minecraft version.
- *
- * @author Antoine Gagnon
- * @author matyrobbrt
- */
-public record MinecraftForgeVersion(String mcVersion, ForgeVersion forgeVersion) {
+import java.util.Map;
+
+record MinecraftForgeVersions(Map<String, String> byMcVersion) {
 }
