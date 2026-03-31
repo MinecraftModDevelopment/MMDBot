@@ -32,9 +32,11 @@ import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.regex.Pattern;
 
 /**
  * Helper methods for the Fabric and Quilt mod loader.
@@ -56,9 +58,14 @@ public class SharedVersionHelpers {
     @Nullable
     public static InputStream getStream(final String urlString) {
         try {
-            final var url = new URL(urlString);
-            return url.openStream();
-        } catch (IOException ex) {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(urlString))
+                    .build();
+
+            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            return response.body();
+        } catch (IOException | InterruptedException ex) {
             TheCommander.LOGGER.error("Failed to open input stream", ex);
             return null;
         }
