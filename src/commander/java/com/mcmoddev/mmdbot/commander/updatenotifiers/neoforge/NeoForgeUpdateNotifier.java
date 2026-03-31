@@ -73,14 +73,12 @@ public final class NeoForgeUpdateNotifier extends UpdateNotifier<NeoForgeVersion
                 .getValue();
         }
 
-        final String[] split = version.split("\\.");
-
-        final String mcVersion = "1." + split[0] + "." + split[1];
+        final String mcVersion = version.split("-")[0];
 
         final var embed = new EmbedBuilder();
         embed.addField("Minecraft Version", mcVersion, true);
         embed.setTitle("NeoForge version update");
-        embed.setColor(Color.YELLOW);
+        embed.setColor(0xFFFF00);
 
         final String oldNeoVersion = oldVersion == null ? null : oldVersion.byMcVersion().get(mcVersion);
         if (oldNeoVersion == null) {

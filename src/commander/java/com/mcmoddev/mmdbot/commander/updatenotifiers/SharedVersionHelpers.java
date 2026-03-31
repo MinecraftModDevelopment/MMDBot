@@ -37,12 +37,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 
-/**
- * Helper methods for the Fabric and Quilt mod loader.
- *
- * @author KiriCattus
- */
 public class SharedVersionHelpers {
 
 
@@ -58,7 +54,10 @@ public class SharedVersionHelpers {
     @Nullable
     public static InputStream getStream(final String urlString) {
         try {
-            HttpClient client = HttpClient.newHttpClient();
+            HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(5L))
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .build();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(urlString))
                     .build();

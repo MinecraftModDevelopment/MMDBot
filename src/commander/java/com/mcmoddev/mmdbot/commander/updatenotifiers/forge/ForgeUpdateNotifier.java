@@ -82,16 +82,15 @@ public final class ForgeUpdateNotifier extends UpdateNotifier<MinecraftForgeVers
         embed.setTitle("Forge version update");
         embed.setColor(0x0000FF);
 
-        final String oldForgeVersionFull = oldVersion == null ? null : oldVersion.byMcVersion().get(mcVersion);
-        if (oldForgeVersionFull == null) {
+        final String oldForgeVersion = oldVersion == null ? null : oldVersion.byMcVersion().get(mcVersion);
+        if (oldForgeVersion == null) {
             embed.addField("Version", version, true);
         } else {
-            boolean isNoLongerBeta = isNoLongerBeta(oldForgeVersionFull, version);
-
-            embed.addField(isNoLongerBeta ? "New stable release" : "Latest", "**%s** -> **%s**".formatted(oldForgeVersionFull, version), true);
+            boolean isNoLongerBeta = isNoLongerBeta(oldForgeVersion, version);
+            embed.addField(isNoLongerBeta ? "New stable release" : "Latest", "**%s** -> **%s**".formatted(oldForgeVersion, version), true);
         }
 
-        addChangelog(embed, oldForgeVersionFull, version);
+        addChangelog(embed, oldForgeVersion, version);
 
         return embed;
     }
