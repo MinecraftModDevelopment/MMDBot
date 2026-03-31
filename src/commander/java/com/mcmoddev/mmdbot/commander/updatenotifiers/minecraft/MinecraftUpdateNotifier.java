@@ -76,7 +76,7 @@ public final class MinecraftUpdateNotifier extends UpdateNotifier<MinecraftVersi
     private VersionType getVersionType(VersionsInfo oldVersion, VersionsInfo newVersion) {
         if (!oldVersion.release().equals(newVersion.release())) {
             return VersionType.RELEASE;
-        } else if (newVersion.snapshot().contains("-rc-")) {
+        } else if (newVersion.snapshot().contains("-release-candidate-")) {
             return VersionType.RELEASE_CANDIDATE;
         } else if (newVersion.snapshot().contains("-pre")) {
             return VersionType.PRE_RELEASE;
