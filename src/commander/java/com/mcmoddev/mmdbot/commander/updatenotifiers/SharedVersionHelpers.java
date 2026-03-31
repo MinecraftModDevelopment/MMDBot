@@ -40,7 +40,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 public class SharedVersionHelpers {
-
+    private static final HttpClient client = HttpClient.newBuilder()
+        .connectTimeout(Duration.ofSeconds(10L))
+        .followRedirects(HttpClient.Redirect.NORMAL)
+        .build();
 
     public static InputStreamReader getReader(final String urlString) {
         final InputStream stream = getStream(urlString);
@@ -54,12 +57,10 @@ public class SharedVersionHelpers {
     @Nullable
     public static InputStream getStream(final String urlString) {
         try {
-            HttpClient client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(5L))
-                .followRedirects(HttpClient.Redirect.NORMAL)
-                .build();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(urlString))
+                    .header("User-Agent", "MMDBot")
+                    .timeout(Duration.ofSeconds(30L))
                     .build();
 
             HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
