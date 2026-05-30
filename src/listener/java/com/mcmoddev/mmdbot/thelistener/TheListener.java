@@ -29,7 +29,6 @@ import com.mcmoddev.mmdbot.core.util.DotenvLoader;
 import com.mcmoddev.mmdbot.core.util.Utils;
 import com.mcmoddev.mmdbot.core.util.jda.caching.JdaMessageCache;
 import com.mcmoddev.mmdbot.thelistener.events.MessageEvents;
-import com.mcmoddev.mmdbot.thelistener.events.RoleEvents;
 import com.mcmoddev.mmdbot.thelistener.util.GuildConfig;
 import io.github.cdimascio.dotenv.Dotenv;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -109,10 +108,7 @@ public final class TheListener implements Bot {
     public void start() {
         instance = this;
 
-        GENERAL_EVENT_LISTENER.addListeners(
-            MessageEvents.INSTANCE,
-            new RoleEvents()
-        );
+        GENERAL_EVENT_LISTENER.addListeners(MessageEvents.INSTANCE);
 
         jda = JDABuilder.create(
                 getToken(),

@@ -23,7 +23,6 @@ plugins {
   id 'checkstyle'
   alias(libs.plugins.shadow)
   alias(libs.plugins.flyway)
-  alias(libs.plugins.licenser)
   alias(libs.plugins.lombok)
 }
 
@@ -165,9 +164,6 @@ tasks.configureEach {
 }
 tasks.named('build').configure { it.group = 'build' }
 
-tasks.named('updateLicenses').configure { it.group = 'licensing' }
-tasks.named('licenseFormat').configure { group = 'licensing' }
-
 tasks.named('run', JavaExec).configure {
   workingDir = new File('run')
 }
@@ -186,7 +182,6 @@ tasks.named('shadowJar', ShadowJar).configure {
   archiveClassifier.set 'all'
   group 'build'
   description 'Builds the whole project with its dependencies.'
-  dependsOn tasks.named('updateLicenses')
 }
 
 tasks.named(JavaPlugin.JAR_TASK_NAME, Jar).configure {
@@ -195,7 +190,6 @@ tasks.named(JavaPlugin.JAR_TASK_NAME, Jar).configure {
   manifest.attributes(makeManifestAttributes(application.getMainClass().get()))
   archiveClassifier.set 'core-no-deps'
   description 'Builds the core sourceSet without its dependencies.'
-  dependsOn tasks.named('updateLicenses')
 }
 
 void configureBotJar(String botName, SourceSet sourceSet) {
@@ -212,7 +206,6 @@ void configureBotJar(String botName, SourceSet sourceSet) {
     configurations.add((Configuration) bySourceSetConfigurations.get(sourceSet))
     group 'build'
     description "Builds the bot $botName and its dependencies."
-    dependsOn tasks.named('updateLicenses')
   }
   tasks.register("${botName}JarNoDeps", Jar) {
     from sourceSets.main.output
@@ -222,7 +215,6 @@ void configureBotJar(String botName, SourceSet sourceSet) {
     manifest.attributes(makeManifestAttributes('com.mcmoddev.mmdbot.core.OnlyOneBotRunner'))
     group 'build'
     description "Builds the bot $botName without its dependencies."
-    dependsOn tasks.named('updateLicenses')
   }
 }
 
@@ -243,19 +235,6 @@ Map makeManifestAttributes(String mainClass) {
           'Built-On'                : "${project.libs.versions.jda.get()}-${project.libs.versions.chewtils.get()}",
           'Main-Class'              : mainClass
   ]
-}
-
-license {
-  ignoreFailures = true // Temporarily downgrade license header violations to warnings, because in-flux development
-  header = project.file('LicenseHeader.md')
-  include '**/*.java'
-  include '**/*.kt'
-  exclude '**/package-info.java'
-  exclude '**/module-info.java'
-  newLine = false
-  properties {
-    year = actualDateTime.getYear()
-  }
 }
 
 eclipse.project {
